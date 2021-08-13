@@ -1,12 +1,14 @@
 # What is Spice AI?
 
-Spice AI helps developers build intelligent applications with powerful, easy-to-use time-series AI. Whether on-premises or in the cloud Spice AI helps you tackle the challenges that come with training and deploying AI models at scale.
+Powerful and easy-to-use AI for developers.
+ 
+Spice AI is the best developer experience for continuous, time series AI. Bringing the frontend development lifecycle to training and using deep reinforcement learning, Spice AI enables teams to quickly and intelligently solve business problems using their existing skillset… writing code in the language of their choice.
 
 ## Getting started with Spice AI <!-- {docsify-ignore} -->
 
 Follow this guide to get started quickly with Spice AI.
 
-It might also be helpful to review the [Core Concepts](concepts/README.md) of Spice AI to familizarize yourself with Spice AI terminology as you proceed.
+It might also be helpful to review the [Core Concepts](concepts/README.md) of Spice AI to familiarize yourself with Spice AI terminology as you proceed.
 
 ## Installation
 
@@ -67,7 +69,7 @@ curl http://localhost:8000/api/v0.1/pods/cartpole-v1/inference
 
 Congratulations! In just a few minutes you downloaded and installed the Spice AI CLI and runtime, created your first Spice AI Pod, trained it, and got a recommendation from it.
 
-This is just the start of your journey with AI. Next try one of the quickstart tutorials for creating intelligent applications with Spice AI.
+This is just the start of the journey with AI. Next try one of the quickstart tutorials for creating intelligent applications with Spice AI.
 
 **Quickstarts:**
 
