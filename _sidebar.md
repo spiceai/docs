@@ -13,6 +13,8 @@
 
 ### API <!-- {docsify-ignore} -->
 
-- [General](api/README.md)
-- [Pods](api/pods.md)
-- [Observations](api/observations.md)
+- [Health](api/README.md?id=health)
+- [Pods](api/README.md?id=pods)
+- [Observations](api/README.md?id=observations)
+- [Flights](api/README.md?id=flights)
+- [Inference](api/README.md?id=inference)
