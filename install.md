@@ -1,10 +1,12 @@
 # Install Spice AI
 
-## Prerequisites (Developer Preview only)
+### Prerequisites (Developer Preview only)
 
-The developer preview of Spice AI has a few extra requirements that won't be needed for the public release.
+- Currently, only macOS and Linux are natively supported. [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is required for Windows.
+- arm64 is not yet supported (i.e. Apple's M1 Macs). We use M1s ourselves, so we hope to support this very soon :-)
 
-Currently, macOS and Linux are natively supported. [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is required for Windows.
+- Currently, only macOS and Linux are natively supported. [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is required for Windows.
+- arm64 is not yet supported (i.e. Apple's M1 Macs). We use M1s ourselves, so we hope to support this very soon :-)
 
 1. Install Docker
 2. Generate and export a GitHub PAT
@@ -29,15 +31,15 @@ export SPICE_GH_TOKEN=<your token>
 
 You may want to add to your terminal configuration, E.g. `.bashrc` or `.zshrc`.
 
-## Installation
+### Installation
 
 Install the Spice CLI by running the following `curl` command in your terminal.
 
 ```bash
-curl https://raw.githubusercontent.com/spiceai/spiceai/trunk/install/install.sh\?token\=AAATSLRPI6LSGEFWYTBMR6DBDI75S | /bin/bash
+curl https://raw.githubusercontent.com/spiceai/spiceai/trunk/install/install.sh\?token\=AAATSLRBS4STDET7UCNWQFDBFQ7E2 | /bin/bash
 ```
 
-The installation path is not currently added to your PATH, so we recommend to add it manually with the following command which you may want to add to your terminal configuration, E.g. `.bashrc` or `.zshrc`.
+The installation path is not currently added to your PATH, so we recommend to add it manually with the following command which you may want to add to your terminal configuration, E.g. `.bashrc` or `.zshrc`. This step won't be required after public release.
 
 ```bash
 export PATH="$HOME/.spice/bin:$PATH"

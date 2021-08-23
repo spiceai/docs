@@ -5,6 +5,7 @@
 - [Install](install.md)
 - [Getting Started](README.md)
 - [Quickstarts](https://github.com/spiceai/quickstarts)
+- [Samples](https://github.com/spiceai/samples)
 
 ### Reference <!-- {docsify-ignore} -->
 
