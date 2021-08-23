@@ -2,7 +2,7 @@
 
 A comprehensive API reference will be released. In the meantime here is a basic API guide.
 
-## Health
+### Health
 
 `GET http://localhost:8000/health`
 
@@ -10,7 +10,7 @@ Gets the health of the runtime.
 
 Returns status `ok` if healthy and the error if not.
 
-## Pods
+### Pods
 
 `GET http://localhost:8000/api/v0.1/pods`
 
@@ -30,7 +30,7 @@ Returns a list of pods. E.g.
 
 Gets the pod for the application.
 
-Returns a pods. E.g.
+Returns a pod. E.g.
 
 ```json
 {
@@ -74,4 +74,22 @@ Returns a list of flights. E.g.
     "end": 123456789
   }
 ]
+```
+
+### Inference
+
+`GET http://localhost:8000/api/v0.1/pods/<pod>/inference`
+
+Gets an inference for a given pod at the current state.
+
+Returns an inference. E.g.
+
+```json
+{
+  "action":"right",
+  "confidence":0.0,
+  "end":"2021-08-18T20:59:10",
+  "start":"2021-08-18T20:59:00",
+  "tag":"latest"
+}
 ```
