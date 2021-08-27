@@ -21,7 +21,7 @@ Returns a list of pods. E.g.
 ```json
 [
   {
-    "name": "cartpole-v1"
+    "name": "logpruner"
   }
 ]
 ```
@@ -34,7 +34,7 @@ Returns a pod. E.g.
 
 ```json
 {
-    "name": "cartpole-v1"
+  "name": "logpruner"
 }
 ```
 
@@ -51,8 +51,8 @@ Returns a list of observations. E.g.
   {
     "time": 123456789,
     "data": {
-        "usd_balance": 123,
-        "btc_balance": 123
+      "usd_balance": 123,
+      "btc_balance": 123
     }
   }
 ]
@@ -86,10 +86,10 @@ Returns an inference. E.g.
 
 ```json
 {
-  "action":"right",
-  "confidence":0.0,
-  "end":"2021-08-18T20:59:10",
-  "start":"2021-08-18T20:59:00",
-  "tag":"latest"
+  "action": "right",
+  "confidence": 0.0,
+  "end": "2021-08-18T20:59:10",
+  "start": "2021-08-18T20:59:00",
+  "tag": "latest"
 }
 ```

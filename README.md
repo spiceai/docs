@@ -1,7 +1,7 @@
 # What is Spice AI?
 
 Powerful and easy-to-use AI for developers.
- 
+
 Spice AI is the best developer experience for continuous, time series AI. Bringing the frontend development lifecycle to training and using deep reinforcement learning, Spice AI enables teams to quickly and intelligently solve business problems using their existing skillset… writing code in the language of their choice.
 
 ## Getting started with Spice AI <!-- {docsify-ignore} -->
@@ -22,52 +22,49 @@ Follow the [installation instructions](install.md) to install Spice AI.
 
 ### Create your first Spice AI Pod and train it
 
-A [Spice AI Pod](/concepts/README.md#pod--pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
+A [Spice AI Pod](https://crispy-dollop-c329115a.pages.github.io/#/concepts/README?id=pod-pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
 
-The first Spice AI Pod you will create and train is based off an [Open AI gym](https://gym.openai.com/) example called [CartPole-v1](https://gym.openai.com/envs/CartPole-v1/). Open AI describes CartPole as:
+The first Spice AI Pod you will create and train is based off of a problem that many system administrators are familiar with: **server maintenance**. Application and system logging is critical part of running a production service, but letting those logs build up can cause other issues, especially if those logs end up filling the entire disk! It is simple enough to run a utility at a certain time every day to ensure this doesn't happen, but what if we choose to run the cleanup in the middle of peak traffic to the server?
 
->A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The system is controlled by applying a force of +1 or -1 to the cart. The pendulum starts upright, and the goal is to prevent it from falling over. A reward of +1 is provided for every timestep that the pole remains upright. The episode ends when the pole is more than 15 degrees from vertical, or the cart moves more than 2.4 units from the center.
-Source: https://gym.openai.com/envs/CartPole-v1/
+We will use Spice AI to train a pod that can intelligently learn when the best times are to run a cleanup job on a server. Let's call this example the `LogPruner`.
 
-We will use Spice AI to train a pod that can play the game.
-
-Create a directory for the CartPole where you would normally put your code. E.g.
+Clone the Spice AI quickstarts repo in a directory where you would normally put your code. E.g.
 
 ```bash
 cd $HOME
-mkdir cartpole
-cd cartpole
+git clone https://github.com/spiceai/quickstarts
+cd quickstarts/logpruner
 ```
 
 In a new terminal window or tab, navigate to the directory and start the Spice runtime in development mode with `spice run`.
 
 ```bash
-cd $HOME/cartpole
+cd $HOME/quickstarts/logpruner
 spice run
 ```
 
-In the original terminal instance, add the CartPole-v1 sample pod:
+In the original terminal instance, add the LogPruner sample pod:
 
 ```bash
-spice pod add samples/CartPole-v1
+spice add samples/LogPruner
 ```
 
-The Spice CLI will download the CartPole-v1 sample pod manifest and add it to your project at `.spice/pods/cartpole-v1.yaml`.
+The Spice CLI will download the LogPruner sample pod manifest and add it to your project at `.spice/pods/logpruner.yaml`.
 
-The Spice Runtime will then automatically detect the manifest and start your first training run!
+The Spice runtime will then automatically detect the manifest and start your first training run!
 
-> Note, automatic training relies on your system's filewatcher. In some cases, this might be disabled or not work as expected, especially when using containers. If training does not start, follow the command to [retrain your pod](https://github.com/spiceai/docs#retrain-your-pod) below.
+> Note, automatic training relies on your system's filewatcher. In some cases, this might be disabled or not work as expected, especially when using containers. If training does not start, follow the command to [retrain your pod](https://github.com/spiceai/spiceai#retrain-your-pod) below.
 
 ### Observe your pod training
 
-Navigate to [http://localhost:8000](http://localhost:8000) in your favorite browser. You will see an overview of your pods. From here, you can click on the `cartpole-v1` pod to see a chart of the pod's training progress.
+Navigate to [http://localhost:8000](http://localhost:8000) in your favorite browser. You will see an overview of your pods. From here, you can click on the `logpruner` pod to see a chart of the pod's training progress.
 
 ### Retrain your pod
 
 The runtime will automatically detect changes to your pod manifest and start training. In addition, you can trigger training by using the Spice CLI from within your app directory.
 
 ```bash
-spice pod train cartpole-v1
+spice train logpruner
 ```
 
 ### Get a recommendation from your pod
@@ -75,18 +72,18 @@ spice pod train cartpole-v1
 After training your pod, you can now get a recommendation for an action from it!
 
 ```bash
-curl http://localhost:8000/api/v0.1/pods/cartpole-v1/inference
+curl http://localhost:8000/api/v0.1/pods/logpruner/inference
 ```
 
 ### Conclusion and next steps
 
 Congratulations! In just a few minutes you downloaded and installed the Spice AI CLI and runtime, created your first Spice AI Pod, trained it, and got a recommendation from it.
 
-This is just the start of your journey with AI. Next try one of the quickstart tutorials for creating intelligent applications with Spice AI.
+This is just the start of your journey with AI. Next, try one of the quickstart tutorials or in-depth samples for creating intelligent applications with Spice AI.
 
-**Quickstarts:**
+**Try:**
 
-- [Log Pruner](https://github.com/spiceai/quickstarts/tree/trunk/log-pruner) - a CPU load based log pruner
+- [Log Pruner sample](https://github.com/spiceai/samples/tree/trunk/logpruner) - a more in-depth version of the quickstart you just completed, using CPU metrics from your own machine
 - [Trader](https://github.com/spiceai/quickstarts/tree/trunk/trader) - a basic Bitcoin trading bot
 
 **Kubernetes:**
