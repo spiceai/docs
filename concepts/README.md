@@ -4,11 +4,11 @@
 
 ### Spice CLI
 
-The `spice` command line tool for interacting with Spice AI.
+The `spice` command line tool for interacting with Spice.ai.
 
 ### Spice Runtime
 
-The Spice AI core runtime which runs as the daemon `spiced` and includes the AI and Data engines.
+The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines.
 
 ### Spice Registry
 
@@ -30,4 +30,4 @@ A data connector is a reuseable component that contains logic to fetch or ingest
 
 ### Data Processor
 
-A data processor is a reusable component, composable with a data connector that contains logic to processor raw connector data into observations and state Spice AI can use.
+A data processor is a reusable component, composable with a data connector that contains logic to processor raw connector data into observations and state Spice.ai can use.

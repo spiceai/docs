@@ -1,14 +1,14 @@
-# What is Spice AI?
+# What is Spice.ai?
 
 Powerful and easy-to-use AI for developers.
 
-Spice AI is the best developer experience for continuous, time series AI. Bringing the frontend development lifecycle to training and using deep reinforcement learning, Spice AI enables teams to quickly and intelligently solve business problems using their existing skillset… writing code in the language of their choice.
+Spice.ai is the best developer experience for continuous, time series AI. Bringing the frontend development lifecycle to training and using deep reinforcement learning, Spice.ai enables teams to quickly and intelligently solve business problems using their existing skillset… writing code in the language of their choice.
 
-## Getting started with Spice AI <!-- {docsify-ignore} -->
+## Getting started with Spice.ai <!-- {docsify-ignore} -->
 
-Follow this guide to get started quickly with Spice AI.
+Follow this guide to get started quickly with Spice.ai.
 
-It might also be helpful to review the [Core Concepts](concepts/README.md) of Spice AI to familiarize yourself with Spice AI terminology as you proceed.
+It might also be helpful to review the [Core Concepts](concepts/README.md) of Spice.ai to familiarize yourself with Spice.ai terminology as you proceed.
 
 ### Current Limitations
 
@@ -18,17 +18,17 @@ It might also be helpful to review the [Core Concepts](concepts/README.md) of Sp
 
 ## Installation
 
-Follow the [installation instructions](install.md) to install Spice AI.
+Follow the [installation instructions](install.md) to install Spice.ai.
 
-### Create your first Spice AI Pod and train it
+### Create your first Spice.ai Pod and train it
 
-A [Spice AI Pod](https://crispy-dollop-c329115a.pages.github.io/#/concepts/README?id=pod-pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
+A [Spice.ai Pod](https://crispy-dollop-c329115a.pages.github.io/#/concepts/README?id=pod-pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
 
-The first Spice AI Pod you will create and train is based off of a problem that many system administrators are familiar with: **server maintenance**. Application and system logging is critical part of running a production service, but letting those logs build up can cause other issues, especially if those logs end up filling the entire disk! It is simple enough to run a utility at a certain time every day to ensure this doesn't happen, but what if we choose to run the cleanup in the middle of peak traffic to the server?
+The first Spice.ai Pod you will create and train is based off of a problem that many system administrators are familiar with: **server maintenance**. Application and system logging is critical part of running a production service, but letting those logs build up can cause other issues, especially if those logs end up filling the entire disk! It is simple enough to run a utility at a certain time every day to ensure this doesn't happen, but what if we choose to run the cleanup in the middle of peak traffic to the server?
 
-We will use Spice AI to train a pod that can intelligently learn when the best times are to run a cleanup job on a server. Let's call this example the `LogPruner`.
+We will use Spice.ai to train a pod that can intelligently learn when the best times are to run a cleanup job on a server. Let's call this example the `LogPruner`.
 
-Clone the Spice AI quickstarts repo in a directory where you would normally put your code. E.g.
+Clone the Spice.ai quickstarts repo in a directory where you would normally put your code. E.g.
 
 ```bash
 cd $HOME
@@ -77,9 +77,9 @@ curl http://localhost:8000/api/v0.1/pods/logpruner/inference
 
 ### Conclusion and next steps
 
-Congratulations! In just a few minutes you downloaded and installed the Spice AI CLI and runtime, created your first Spice AI Pod, trained it, and got a recommendation from it.
+Congratulations! In just a few minutes you downloaded and installed the Spice.ai CLI and runtime, created your first Spice.ai Pod, trained it, and got a recommendation from it.
 
-This is just the start of your journey with AI. Next, try one of the quickstart tutorials or in-depth samples for creating intelligent applications with Spice AI.
+This is just the start of your journey with AI. Next, try one of the quickstart tutorials or in-depth samples for creating intelligent applications with Spice.ai.
 
 **Try:**
 
@@ -88,12 +88,13 @@ This is just the start of your journey with AI. Next, try one of the quickstart 
 
 **Kubernetes:**
 
-Spice AI can be deployed to Kubernetes! Try out the [Kubernetes sample](https://github.com/spiceai/samples/tree/trunk/kubernetes).
+Spice.ai can be deployed to Kubernetes! Try out the [Kubernetes sample](https://github.com/spiceai/samples/tree/trunk/kubernetes).
 
 ## Community
 
-Spice AI started with the vision to make AI easy for developers. We are building Spice AI in the open and with the community. Reach out on Discord or by email to get involved. We will be starting a community call series soon!
+Spice.ai started with the vision to make AI easy for developers. We are building Spice.ai in the open and with the community. Reach out on Discord or by email to get involved. We will be starting a community call series soon!
 
 - Discord: [![Discord Banner](https://discord.com/api/guilds/803820740868571196/widget.png?style=shield)](https://discord.com/channels/803820740868571196/803820740868571199)
+- Reddit: ![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/spiceai?style=social)
 - Twitter: [@SpiceAIHQ](https://twitter.com/spiceaihq)
 - Email: [team@spiceai.io](mailto:team@spiceai.io)
