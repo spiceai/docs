@@ -1,4 +1,4 @@
-# Install Spice AI
+# Install Spice.ai
 
 ### Current Limitations
 
@@ -8,7 +8,7 @@
 
 ### Prerequisites (Developer Preview only)
 
-We highly recommend using [GitHub Codespaces](https://github.com/features/codespaces) to get started. Codespaces enables you to run Spice AI in a virtual environment in the cloud. If you use Codespaces, the following prerequisites are not required and you may skip to the [Getting Started with Codespaces](https://github.com/spiceai/spiceai#getting-started-with-codespaces) section.
+We highly recommend using [GitHub Codespaces](https://github.com/features/codespaces) to get started. Codespaces enables you to run Spice.ai in a virtual environment in the cloud. If you use Codespaces, the following prerequisites are not required and you may skip to the [Getting Started with Codespaces](https://github.com/spiceai/spiceai#getting-started-with-codespaces) section.
 
 To continue with installation on your local machine, follow these steps:
 
@@ -19,7 +19,7 @@ To continue with installation on your local machine, follow these steps:
 
 **Step 2. Generate and export a GitHub PAT**: To access private repositories and resources, you will need to generate a [GitHub Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) with `repo` and `read:packages` scopes.
 
-Once you have created a token, use it to log in to the Spice AI Docker Repository:
+Once you have created a token, use it to log in to the Spice.ai Docker Repository:
 
 ```bash
 docker login ghcr.io/spiceai
