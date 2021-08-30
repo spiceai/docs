@@ -12,7 +12,7 @@ The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI 
 
 ### Spice Rack Registry
 
-The AI package registry [spicerack.org](https://spicerack.org) of pods and datasources that can be fetched with the Spice.ai CLI.
+The AI package registry [spicerack.org](https://spicerack.org) of pods and dataspaces that can be fetched with the Spice.ai CLI.
 
 ## AI Development Concepts
 
