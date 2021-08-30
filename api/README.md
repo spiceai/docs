@@ -44,18 +44,15 @@ Returns a pod. E.g.
 
 Gets the cached observations for the pod.
 
-Returns a list of observations. E.g.
+Returns a list of observations in CSV format. E.g.
 
-```json
-[
-  {
-    "time": 123456789,
-    "data": {
-      "usd_balance": 123,
-      "btc_balance": 123
-    }
-  }
-]
+```
+time,hostmetrics.cpu.usage_idle
+1629159360,99.56272495215877
+1629159600,99.56016726103087
+1629159840,99.5835393622478
+1629160080,99.58402078629656
+1629160320,99.5845216501822
 ```
 
 ### Flights
