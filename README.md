@@ -95,6 +95,6 @@ Spice.ai can be deployed to Kubernetes! Try out the [Kubernetes sample](https://
 Spice.ai started with the vision to make AI easy for developers. We are building Spice.ai in the open and with the community. Reach out on Discord or by email to get involved. We will be starting a community call series soon!
 
 - Discord: [![Discord Banner](https://discord.com/api/guilds/803820740868571196/widget.png?style=shield)](https://discord.com/channels/803820740868571196/803820740868571199)
-- Reddit: ![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/spiceai?style=social)
+- Reddit: [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/spiceai?style=social)](https://www.reddit.com/r/spiceai/)
 - Twitter: [@SpiceAIHQ](https://twitter.com/spiceaihq)
 - Email: [team@spiceai.io](mailto:team@spiceai.io)

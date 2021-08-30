@@ -46,17 +46,7 @@ These steps won't be required after public release.
 Install the Spice CLI by running the following `curl` command in your terminal.
 
 ```bash
-curl https://raw.githubusercontent.com/spiceai/spiceai/trunk/install/install.sh\?token\=AAATSLSSFWUX6ZVJ6LZI4XDBFRYHC | /bin/bash
+curl https://install.spiceai.org | /bin/bash
 ```
 
-The installation path is not currently added to your PATH, so we recommend to add it manually with the following command which you may want to add to your terminal configuration, E.g. `.bashrc` or `.zshrc`. This step won't be required after public release.
-
-```bash
-export PATH="$HOME/.spice/bin:$PATH"
-```
-
-You can also add to your `.bashrc`
-
-```bash
-cat "export PATH="$HOME/.spice/bin:$PATH" >> ~/.bashrc
-```
+You may need to restart your terminal for the `spice` command to be added to your PATH.

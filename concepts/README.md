@@ -2,27 +2,27 @@
 
 ## Main Components
 
-### Spice CLI
+### Spice.ai CLI
 
-The `spice` command line tool for interacting with Spice.ai.
+The `spice` command line tool for interacting with the Spice.ai runtime.
 
-### Spice Runtime
+### Spice.ai Runtime
 
 The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines.
 
-### Spice Registry
+### Spice Rack Registry
 
-The registry of pods and datasources that can be fetched with the Spice CLI.
+The AI package registry [spicerack.org](https://spicerack.org) of pods and datasources that can be fetched with the Spice.ai CLI.
 
 ## AI Development Concepts
 
 ### Pod / Pod manifest
 
-A collection of configuration and data used to train and deploy AI with an application.
+A package of configuration and data used to train and deploy Spice.ai with an application.
 
-### Datasource
+### Dataspace
 
-A specification on how to load and process data.
+A specification on how the Spice.ai runtime and AI engine loads, processes and interacts with data.
 
 ### Data Connector
 
