@@ -86,10 +86,13 @@ Returns a recommendation for an action. E.g.
 
 ```json
 {
-  "action": "right",
-  "confidence": 0.0,
-  "end": "2021-08-18T20:59:10",
-  "start": "2021-08-18T20:59:00",
+  "response": {
+    "result": "ok"
+  },
+  "start": 1607886000,
+  "end": 1607907600,
+  "action": "sell",
+  "confidence": 0.901,
   "tag": "latest"
 }
 ```
