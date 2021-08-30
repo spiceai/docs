@@ -17,4 +17,4 @@
 - [Pods](api/README.md?id=pods)
 - [Observations](api/README.md?id=observations)
 - [Flights](api/README.md?id=flights)
-- [Inference](api/README.md?id=inference)
+- [Recommendation](api/README.md?id=recommendation)

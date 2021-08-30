@@ -76,13 +76,13 @@ Returns a list of flights. E.g.
 ]
 ```
 
-### Inference
+### Recommendations
 
-`GET http://localhost:8000/api/v0.1/pods/<pod>/inference`
+`GET http://localhost:8000/api/v0.1/pods/<pod>/recommendation`
 
-Gets an inference for a given pod at the current state.
+Gets a recommendation for a given pod at the current state.
 
-Returns an inference. E.g.
+Returns a recommendation for an action. E.g.
 
 ```json
 {
