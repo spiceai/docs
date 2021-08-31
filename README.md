@@ -12,7 +12,7 @@ It might also be helpful to review the [Core Concepts](concepts/README.md) of Sp
 
 ### Current Limitations
 
-- Running in Docker is required. We will support a baremetal experience at launch.
+- Running in Docker is required. We will support a pure metal experience at launch.
 - Only macOS and Linux are natively supported. [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is required for Windows.
 - arm64 is not yet supported (i.e. Apple's M1 Macs). We use M1s ourselves, so we hope to support this very soon :-)
 
