@@ -1,4 +1,11 @@
-# Core Concepts
+---
+type: docs
+title: "Spice.ai concepts"
+linkTitle: "Concepts"
+weight: 10
+description: "Learn about Spice.ai"
+no_list: true
+---
 
 ## Main Components
 
