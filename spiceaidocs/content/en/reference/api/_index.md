@@ -1,4 +1,10 @@
-# API Reference
+---
+type: docs
+title: "Spice.ai API Reference"
+linkTitle: "API Reference"
+weight: 60
+description: "Detailed documentation on the Spice.ai API"
+---
 
 A comprehensive API reference will be released. In the meantime here is a basic API guide.
 

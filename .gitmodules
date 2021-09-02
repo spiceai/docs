@@ -1,0 +1,3 @@
+[submodule "spiceaidocs/themes/docsy"]
+	path = spiceaidocs/themes/docsy
+	url = https://github.com/google/docsy.git
