@@ -5,6 +5,6 @@
 ## Private Preview
 
 [GitHub](https://github.com/spiceai/spiceai/)
-[Get Started](#what-is-spice-ai)
+[Get Started](#spice.ai)
 
 ![color](#022132)
