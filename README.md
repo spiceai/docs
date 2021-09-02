@@ -8,7 +8,7 @@ This repo contains the markdown files which generate the above website. See belo
 
 ## Overview
 
-The Dapr docs are built using [Hugo](https://gohugo.io/) with the [Docsy](https://docsy.dev) theme, hosted on [GitHub Pages](https://pages.github.com/).
+The Spice.ai docs are built using [Hugo](https://gohugo.io/) with the [Docsy](https://docsy.dev) theme, hosted on [GitHub Pages](https://pages.github.com/).
 
 The [spiceaidocs](./spiceaidocs) directory contains the hugo project, markdown files, and theme configurations.
 
