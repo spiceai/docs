@@ -64,6 +64,14 @@ anchor = "smart"
     name = "GitHub"
     weight = 50
     url = "https://github.com/spiceai"
+[[menu.main]]
+    name = "Blog"
+    weight = 60
+    url = "https://blog.spiceai.org/posts"
+[[menu.main]]
+    name = "Discord"
+    weight = 70
+    url = "https://discord.com/channels/803820740868571196/803820740868571199"
 
 # Comment out if you don't want the "print entire section" link enabled.
 [outputs]
