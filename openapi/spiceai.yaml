@@ -1,0 +1,637 @@
+openapi: "3.0.3"
+info:
+  description: ""
+  version: "0.1.0-alpha"
+  title: "Spice.ai"
+host: "localhost:8000"
+basePath: "/api/v0.1"
+tags:
+  - name: "pods"
+  - name: "train"
+  - name: "observations"
+  - name: "recommendation"
+  - name: "import/export"
+    description: "Import and Export a pod that has been trained"
+  - name: "flights"
+    description: Flights refer to individual training runs. i.e. training 3 times will produce 3 flights
+schemes:
+  - "http"
+paths:
+  /pods:
+    get:
+      tags:
+        - "pods"
+      summary: "Retrieves all of the registered pods"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Pod"
+              examples:
+                trader-example:
+                  summary: Example for a pod named "trader"
+                  value:
+                    [
+                      {
+                        "name": "trader",
+                        "manifest_path": "/userapp/.spice/pods/trader.yaml",
+                      },
+                    ]
+  /pods/{pod}:
+    get:
+      tags:
+        - "pods"
+      summary: "Retrieves the specified pod"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod to return"
+          required: true
+          type: "string"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Pod"
+              examples:
+                trader-example:
+                  summary: Example for a pod named "trader"
+                  value:
+                    {
+                      "name": "trader",
+                      "manifest_path": "/userapp/.spice/pods/trader.yaml",
+                    }
+
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/train:
+    post:
+      tags:
+        - "train"
+      summary: "Starts a training run for the specified pod"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod to train"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Pod started training"
+        "404":
+          description: "Pod not found"
+        "500":
+          description: "An internal error occurred in the AI Engine"
+  /pods/{pod}/observations:
+    get:
+      tags:
+        - "observations"
+      summary: "Retrieve the cached observations in csv format"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+      produces:
+        - "test/csv"
+      responses:
+        "200":
+          content:
+            text/csv:
+              schema:
+                type: string
+              examples:
+                trader-example:
+                  summary: Get observations for a pod named "trader"
+                  value: |
+                    time,coinbase.btcusd.close,local.portfolio.btc_balance,local.portfolio.usd_balance
+                    1605312000,16254.51,,
+                    1605313800,16305,,
+                    1605315600,16222.16,,
+                    1605317400,16214.15,,
+                    1605319200,16223.08,,
+                    1605321000,16185.68,,
+                    1605322800,16202.24,,
+                    1605324600,16194.21,,
+                    1605326400,16159.4,,
+                    1605328200,16152.36,,
+                    1605330000,16100.84,,
+                    1605331800,16180.01,,
+                    1605333600,16191.84,,
+        "404":
+          description: "Pod not found"
+    post:
+      tags:
+        - "observations"
+      summary: "Adds new observations in csv format"
+      consumes:
+        - "text/csv"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "CSV data to add as observations"
+          required: true
+          schema:
+            type: string
+          examples:
+            trader-example:
+              summary: Add observations for a pod named "trader"
+              value: |
+                time,coinbase.btcusd.close
+                1607909400,100.00
+                1607911200,200.00
+                1607913000,300.00
+                1607914800,400.00
+                1607916600,500.00
+                1607918400,600.00
+                1607920200,700.00
+                1607922000,800.00
+      responses:
+        "201":
+          description: "Observations added successfully"
+        "400":
+          description: "Encountered an error processing the csv data"
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/recommendation:
+    get:
+      tags:
+        - "recommendation"
+      summary: "Gets a recommended action to take from the latest observation data"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Recommendation"
+              example:
+                {
+                  "response": { "result": "ok" },
+                  "start": 1607886000,
+                  "end": 1607907600,
+                  "action": "sell",
+                  "confidence": 0.741,
+                  "tag": "latest",
+                }
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/export:
+    post:
+      tags:
+        - "import/export"
+      summary: "Export a pod that has done at least one training run - filename must end in .spicepod"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Export request parameters"
+          required: true
+          schema:
+            $ref: "#/definitions/ExportRequest"
+          examples:
+            trader-example:
+              summary: Export to "/Users/spiceuser/Desktop/trader.spicepod"
+              value: |
+                {
+                  "directory": "/Users/spiceuser/Desktop",
+                  "filename": "trader.spicepod"
+                }
+      responses:
+        "200":
+          description: "Exported successfully"
+        "400":
+          description: "The parameters were invalid"
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/import:
+    post:
+      tags:
+        - "import/export"
+      summary: "Import a pod that has been previously exported to a .spicepod archive"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Import request parameters"
+          required: true
+          schema:
+            $ref: "#/definitions/ImportRequest"
+          examples:
+            trader-example:
+              summary: Import from "/Users/spiceuser/Desktop/trader.spicepod"
+              value: |
+                {
+                  "archive_path": "/Users/spiceuser/Desktop/trader.spicepod"
+                }
+      responses:
+        "200":
+          description: "Imported successfully"
+        "400":
+          description: "The parameters were invalid"
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/flights:
+    get:
+      tags:
+        - "flights"
+      summary: "Retrieves all of the training runs this pod has run"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Flight"
+              examples:
+                trader-example:
+                  value: |
+                    [
+                      {
+                        "start": 1630665782,
+                        "end": 1630665787,
+                        "episodes": [
+                          {
+                            "start": 1630665783,
+                            "end": 1630665783,
+                            "score": -473.8,
+                            "actions_taken": {
+                              "buy": 53,
+                              "hold": 38,
+                              "sell": 41
+                            }
+                          },
+                          {
+                            "episode": 1,
+                            "start": 1630665783,
+                            "end": 1630665784,
+                            "score": -449.3,
+                            "actions_taken": {
+                              "buy": 42,
+                              "hold": 43,
+                              "sell": 47
+                            }
+                          },
+                          {
+                            "episode": 2,
+                            "start": 1630665784,
+                            "end": 1630665784,
+                            "score": -375.8,
+                            "actions_taken": {
+                              "buy": 36,
+                              "hold": 58,
+                              "sell": 38
+                            }
+                          },
+                          {
+                            "episode": 3,
+                            "start": 1630665784,
+                            "end": 1630665785,
+                            "score": -361.1,
+                            "actions_taken": {
+                              "buy": 33,
+                              "hold": 61,
+                              "sell": 38
+                            }
+                          },
+                          {
+                            "episode": 4,
+                            "start": 1630665785,
+                            "end": 1630665785,
+                            "score": -370.9,
+                            "actions_taken": {
+                              "buy": 39,
+                              "hold": 59,
+                              "sell": 34
+                            }
+                          },
+                          {
+                            "episode": 5,
+                            "start": 1630665785,
+                            "end": 1630665786,
+                            "score": -277.8,
+                            "actions_taken": {
+                              "buy": 35,
+                              "hold": 78,
+                              "sell": 19
+                            }
+                          },
+                          {
+                            "episode": 6,
+                            "start": 1630665786,
+                            "end": 1630665786,
+                            "score": -282.7,
+                            "actions_taken": {
+                              "buy": 30,
+                              "hold": 77,
+                              "sell": 25
+                            }
+                          },
+                          {
+                            "episode": 7,
+                            "start": 1630665786,
+                            "end": 1630665786,
+                            "score": -189.6,
+                            "actions_taken": {
+                              "buy": 15,
+                              "hold": 96,
+                              "sell": 21
+                            }
+                          },
+                          {
+                            "episode": 8,
+                            "start": 1630665786,
+                            "end": 1630665787,
+                            "score": -155.3,
+                            "actions_taken": {
+                              "buy": 15,
+                              "hold": 103,
+                              "sell": 14
+                            }
+                          },
+                          {
+                            "episode": 9,
+                            "start": 1630665787,
+                            "end": 1630665787,
+                            "score": -101.4,
+                            "actions_taken": {
+                              "buy": 8,
+                              "hold": 114,
+                              "sell": 10
+                            }
+                          }
+                        ]
+                      }
+                    ]
+        "404":
+          description: "Pod not found"
+  /pods/{pod}/flights/{flight}:
+    get:
+      tags:
+        - "flights"
+      summary: "Retrieves the specified training run for this pod"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Flight"
+              examples:
+                trader-example:
+                  value: |
+                    {
+                      "start": 1630665782,
+                      "end": 1630665787,
+                      "episodes": [
+                        {
+                          "start": 1630665783,
+                          "end": 1630665783,
+                          "score": -473.8,
+                          "actions_taken": {
+                            "buy": 53,
+                            "hold": 38,
+                            "sell": 41
+                          }
+                        },
+                        {
+                          "episode": 1,
+                          "start": 1630665783,
+                          "end": 1630665784,
+                          "score": -449.3,
+                          "actions_taken": {
+                            "buy": 42,
+                            "hold": 43,
+                            "sell": 47
+                          }
+                        },
+                        {
+                          "episode": 2,
+                          "start": 1630665784,
+                          "end": 1630665784,
+                          "score": -375.8,
+                          "actions_taken": {
+                            "buy": 36,
+                            "hold": 58,
+                            "sell": 38
+                          }
+                        },
+                        {
+                          "episode": 3,
+                          "start": 1630665784,
+                          "end": 1630665785,
+                          "score": -361.1,
+                          "actions_taken": {
+                            "buy": 33,
+                            "hold": 61,
+                            "sell": 38
+                          }
+                        },
+                        {
+                          "episode": 4,
+                          "start": 1630665785,
+                          "end": 1630665785,
+                          "score": -370.9,
+                          "actions_taken": {
+                            "buy": 39,
+                            "hold": 59,
+                            "sell": 34
+                          }
+                        },
+                        {
+                          "episode": 5,
+                          "start": 1630665785,
+                          "end": 1630665786,
+                          "score": -277.8,
+                          "actions_taken": {
+                            "buy": 35,
+                            "hold": 78,
+                            "sell": 19
+                          }
+                        },
+                        {
+                          "episode": 6,
+                          "start": 1630665786,
+                          "end": 1630665786,
+                          "score": -282.7,
+                          "actions_taken": {
+                            "buy": 30,
+                            "hold": 77,
+                            "sell": 25
+                          }
+                        },
+                        {
+                          "episode": 7,
+                          "start": 1630665786,
+                          "end": 1630665786,
+                          "score": -189.6,
+                          "actions_taken": {
+                            "buy": 15,
+                            "hold": 96,
+                            "sell": 21
+                          }
+                        },
+                        {
+                          "episode": 8,
+                          "start": 1630665786,
+                          "end": 1630665787,
+                          "score": -155.3,
+                          "actions_taken": {
+                            "buy": 15,
+                            "hold": 103,
+                            "sell": 14
+                          }
+                        },
+                        {
+                          "episode": 9,
+                          "start": 1630665787,
+                          "end": 1630665787,
+                          "score": -101.4,
+                          "actions_taken": {
+                            "buy": 8,
+                            "hold": 114,
+                            "sell": 10
+                          }
+                        }
+                      ]
+                    }
+        "404":
+          description: "Pod not found"
+definitions:
+  Pod:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      manifest_path:
+        type: "string"
+  Recommendation:
+    type: "object"
+    properties:
+      response:
+        $ref: "#/definitions/Response"
+      start:
+        type: "integer"
+        format: "int64"
+      end:
+        type: "integer"
+        format: "int64"
+      action:
+        type: "string"
+      confidence:
+        type: "number"
+        format: "float"
+      tag:
+        type: "string"
+  Response:
+    type: "object"
+    properties:
+      result:
+        type: "string"
+      message:
+        type: "string"
+      error:
+        type: "boolean"
+  ExportRequest:
+    type: "object"
+    properties:
+      directory:
+        type: "string"
+        description: "The directory to place the exported Pod"
+      filename:
+        type: "string"
+        description: "The name of the file that will contain the exported Pod: must end in .spicepod"
+  ImportRequest:
+    type: "object"
+    properties:
+      archive_path:
+        type: "string"
+        description: "Path to the .spicepod archive to import"
+  Flight:
+    type: "object"
+    properties:
+      start:
+        type: "integer"
+        format: "int64"
+      end:
+        type: "integer"
+        format: "int64"
+      episodes:
+        type: "array"
+        items:
+          $ref: "#/definitions/Episode"
+  mapInt64:
+    type: "object"
+    additionalProperties:
+      type: "integer"
+      format: "int64"
+  Episode:
+    type: "object"
+    properties:
+      episode:
+        type: "integer"
+        format: "int64"
+      start:
+        type: "integer"
+        format: "int64"
+      end:
+        type: "integer"
+        format: "int64"
+      score:
+        type: "number"
+        format: "double"
+      actions_taken:
+        $ref: "#/definitions/mapInt64"
+      error:
+        type: "string"
+      error_message:
+        type: "string"
