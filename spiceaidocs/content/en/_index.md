@@ -33,7 +33,7 @@ Thank you for sharing this journey with us! 🙏
   <div class="card">
     <div class="card-body">
       <h5 class="card-title"><b>Concepts</b></h5>
-      <p class="card-text">Learn about Spice.ai, including its main features and capabilities.</p>
+      <p class="card-text">Learn about Spice.ai concepts and terminology.</p>
       <a href="{{< ref concepts >}}" class="stretched-link"></a>
     </div>
   </div>
@@ -49,8 +49,22 @@ Thank you for sharing this journey with us! 🙏
 <div class="card-deck">
   <div class="card">
     <div class="card-body">
+      <h5 class="card-title"><b>API</b></h5>
+      <p class="card-text">Documentation on the Spice.ai API.</p>
+      <a href="{{< ref api >}}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><b>CLI</b></h5>
+      <p class="card-text">Documentation on the Spice.ai CLI.</p>
+      <a href="{{< ref cli >}}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
       <h5 class="card-title"><b>Reference</b></h5>
-      <p class="card-text">Detailed documentation on the Spice.ai API, CLI, Pod Syntax and more.</p>
+      <p class="card-text">Reference documentation on the Pod specification.</p>
       <a href="{{< ref reference >}}" class="stretched-link"></a>
     </div>
   </div>
