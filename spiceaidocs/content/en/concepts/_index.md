@@ -10,11 +10,11 @@ no_list: true
 
 ### Spice.ai CLI
 
-The `spice` command line tool for interacting with the Spice.ai runtime during development. View the [CLI reference]({{<ref "reference/cli">}}) to learn more.
+The `spice` command line tool for interacting with the Spice.ai runtime during development. View the [CLI reference]({{<ref "cli">}}) to learn more.
 
 ### Spice.ai Runtime
 
-The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines. The runtime provides the [Spice.ai API]({{<ref "reference/api">}}).
+The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines. The runtime provides the [Spice.ai API]({{<ref "api">}}).
 
 ### [spicerack.org](https://spicerack.org)
 
@@ -32,7 +32,7 @@ A Pod is constructed from the following components:
 
 A [dataspace]({{<ref "reference/pod#dataspace">}}) is a specification on how the Spice.ai runtime and AI engine loads, processes and interacts with data. A dataspace can contain multiple data connectors and data processors. The fields specified in a dataspace are used as inputs to the neural networks that Spice.ai trains.
 
-A dataspace that doesn't contain a data connector/processor means that the observation data for this dataspace will be provided by calling the [observations API]({{<ref "reference/api#observations">}}).
+A dataspace that doesn't contain a data connector/processor means that the observation data for this dataspace will be provided by calling the [observations API]({{<ref "api#observations">}}).
 
 ### Data Connector
 
@@ -40,7 +40,7 @@ A [data connector]({{<ref "reference/pod#data-connector">}}) is a reuseable comp
 
 ### Data Processor
 
-A [data processor]({{<ref "reference/pod#data-processor">}}) is a reusable component, composable with a data connector that contains logic to process raw connector data into [observations]({{<ref "reference/api#observations">}}) and state Spice.ai can use.
+A [data processor]({{<ref "reference/pod#data-processor">}}) is a reusable component, composable with a data connector that contains logic to process raw connector data into [observations]({{<ref "api#observations">}}) and state Spice.ai can use.
 
 Spice.ai provides a general interface that anyone can implement to create a data processor, see the [data-components-contrib](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors) repo for more information.
 

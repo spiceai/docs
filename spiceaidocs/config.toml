@@ -1,5 +1,4 @@
 languageCode = 'en-us'
-title = 'Spice.ai docs'
 baseURL = "/"
 
 enableRobotsTXT = true
@@ -12,7 +11,7 @@ enableGitInfo = true
 
 [languages]
   [languages.en]
-    title = "Spice.ai docs"
+    title = "Spice.ai Docs"
     weight = 1
     contentDir = "content/en"
     languageName = "English"
@@ -60,6 +59,18 @@ anchor = "smart"
 
 # Everything below this are Site Params
 
+[[menu.left]]
+    name = "API"
+    weight = 10
+    url = "api"
+[[menu.left]]
+    name = "CLI"
+    weight = 10
+    url = "cli"
+[[menu.left]]
+    name = "Reference"
+    weight = 10
+    url = "reference"
 [[menu.main]]
     name = "GitHub"
     weight = 50
