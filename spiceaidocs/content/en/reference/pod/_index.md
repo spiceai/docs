@@ -1,9 +1,9 @@
 ---
 type: docs
-title: "Spice.ai Pod Syntax Reference"
-linkTitle: "Pod Syntax Reference"
+title: "Manifest syntax for Spice.ai Pods"
+linkTitle: "Pod Manifest Syntax"
 weight: 60
-description: "Detailed documentation on the Spice.ai Pod Syntax Reference"
+description: "Detailed documentation on the Spice.ai Pod manifest syntax"
 ---
 
 Coming soon!
