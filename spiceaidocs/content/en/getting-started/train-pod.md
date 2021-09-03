@@ -5,7 +5,7 @@ linkTitle: "Train Spice.ai pod"
 weight: 10
 ---
 
-A [Spice.ai Pod](https://crispy-dollop-c329115a.pages.github.io/#/concepts/README?id=pod-pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
+A [Spice.ai Pod](https://docs.spiceai.org/concepts/#pod--pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
 
 The first Spice.ai Pod you will create and train is based off of a problem that many system administrators are familiar with: **server maintenance**. Application and system logging is critical part of running a production service, but letting those logs build up can cause other issues, especially if those logs end up filling the entire disk! It is simple enough to run a utility at a certain time every day to ensure this doesn't happen, but what if we choose to run the cleanup in the middle of peak traffic to the server?
 
