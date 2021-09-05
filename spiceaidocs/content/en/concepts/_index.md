@@ -66,7 +66,7 @@ An epoch defines the beginning, or start, of the data stream. If Spice.ai receiv
 
 ### Period
 
-A period is the total span of time that is considered when training. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
+A period is the total span of time that is considered for a pod. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
 
 ### Interval
 

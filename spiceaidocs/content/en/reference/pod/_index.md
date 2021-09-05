@@ -6,4 +6,110 @@ weight: 60
 description: "Detailed documentation on the Spice.ai Pod manifest syntax"
 ---
 
-Coming soon!
+## About YAML syntax for pod manifests
+
+Pod manifests use YAML syntax, and must end in a `.yaml` file extension. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+
+You must store pod manifest files in the `spicepods` directory of your application code. It is not required for the `spicepods` directory to be located at the root of your code repository.
+
+## `name`
+
+The name of your pod. Spice.ai uses the name of your pod when rendering the dashboard and as the key for the API requests. If you omit `name`, Spice.ai sets it to the name of the YAML file excluding the `.yaml` extension.
+
+## `params`
+
+An optional `map` of parameters that you can specify to tune how Spice.ai interacts with your pod. The following parameters are available:
+
+| Parameter                                   | Default          |
+| ------------------------------------------- | ---------------- |
+| [epoch_time]({{<ref "#paramsepoch_time">}}) | Now - `period`   |
+| [period]({{<ref "#paramsperiod">}})         | 3 days (3d)      |
+| [interval]({{<ref "#interval">}})           | 1 minute (1m)    |
+| [granularity]({{<ref "#granularity">}})     | 10 seconds (10s) |
+| [episodes]({{<ref "#episodes">}})           | 10               |
+
+**Example**
+
+```yaml
+params:
+  epoch_time: 1605312000
+  period: 3d
+  interval: 1m
+  granularity: 10s
+  episodes: 10
+```
+
+## `params.epoch_time`
+
+An epoch defines the beginning, or start, of the data stream. If Spice.ai receives data from before the epoch time, it is not used during training.
+
+If `epoch` is omitted, it defaults to `now` - [`period`]({{<ref "#paramsperiod">}}).
+
+`epoch_time` is an integer [timestamp]({{<ref "reference/timestamp">}}).
+
+**Example**
+
+```yaml
+params:
+  epoch_time: 1605312000
+```
+
+## `params.period`
+
+A period is the total span of time that is considered for a pod. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
+
+If `period` is omitted, it defaults to 3 days (`3d`).
+
+`period` is a [duration literal]({{<ref "reference/duration">}}).
+
+**Example**
+
+```yaml
+params:
+  period: 3d
+```
+
+## `params.interval`
+
+The interval is the time span that Spice.ai uses as a single input to the neural networks that power Spice.ai. Attempting to get a recommendation without Spice.ai having at least one intervals worth of data will result in an error.
+
+If `interval` is omitted, it defaults to 1 minute (`1m`).
+
+`interval` is a [duration literal]({{<ref "reference/duration">}}).
+
+**Example**
+
+```yaml
+params:
+  interval: 1m
+```
+
+## `params.granularity`
+
+The granularity is the smallest unit of time that specifies how many timesteps there are in an interval. The `granularity` cannot be larger than the `interval`. When streaming data in a continuous manner, the Spice.ai runtime can give a new recommendation for action after each new granularity's worth of data is collected.
+
+If `granularity` is omitted, it defaults to 10 seconds (`10s`).
+
+`granularity` is a [duration literal]({{<ref "reference/duration">}}).
+
+**Example**
+
+```yaml
+params:
+  granularity: 10s
+```
+
+## `params.episodes`
+
+An episode is a sequence of simulated actions the Spice.ai pod will take over the dataset during training. After an episode has completed in a training run, the neural networks powering Spice.ai will update giving it a chance to learn from its experience. The more episodes specified, the more chances the Spice.ai pod will be able to learn how to maximize its rewards, at the expense of a longer training run. More episodes is not always better, as there is a risk the Spice.ai pod will "[overfit](https://en.wikipedia.org/wiki/Overfitting)" to the data available in the training run.
+
+If `episodes` is omitted, it defaults to 10.
+
+`episodes` is a positive integer.
+
+**Example**
+
+```yaml
+params:
+  episodes: 10
+```

@@ -13,3 +13,19 @@
 .navbar-dark .navbar-nav-left .nav-link {
   color: white;
 }
+
+h1 code,
+h2 code,
+h3 code {
+  color: inherit;
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  word-break: normal;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+
+  br {
+    display: none;
+  }
+}
