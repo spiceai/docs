@@ -12,8 +12,8 @@ tags:
   - name: "recommendation"
   - name: "import/export"
     description: "Import and Export a pod that has been trained"
-  - name: "flights"
-    description: Flights refer to individual training runs. i.e. training 3 times will produce 3 flights
+  - name: "training_runs"
+    description: Individual training runs. i.e. training three times will produce three training runs
 schemes:
   - "http"
 paths:
@@ -264,10 +264,10 @@ paths:
           description: "The parameters were invalid"
         "404":
           description: "Pod not found"
-  /pods/{pod}/flights:
+  /pods/{pod}/training_runs:
     get:
       tags:
-        - "flights"
+        - "training_runs"
       summary: "Retrieves all of the training runs this pod has run"
       parameters:
         - name: "pod"
@@ -284,7 +284,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/definitions/Flight"
+                  $ref: "#/definitions/TrainingRun"
               examples:
                 trader-example:
                   value: |
@@ -407,10 +407,10 @@ paths:
                     ]
         "404":
           description: "Pod not found"
-  /pods/{pod}/flights/{flight}:
+  /pods/{pod}/training_runs/{training_run}:
     get:
       tags:
-        - "flights"
+        - "training_runs"
       summary: "Retrieves the specified training run for this pod"
       parameters:
         - name: "pod"
@@ -425,7 +425,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/definitions/Flight"
+                $ref: "#/definitions/TrainingRun"
               examples:
                 trader-example:
                   value: |
@@ -596,7 +596,7 @@ definitions:
       archive_path:
         type: "string"
         description: "Path to the .spicepod archive to import"
-  Flight:
+  TrainingRun:
     type: "object"
     properties:
       start:
