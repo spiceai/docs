@@ -90,7 +90,7 @@ The granularity is the smallest unit of time that specifies how many timesteps t
 
 If `granularity` is omitted, it defaults to 10 seconds (`10s`).
 
-`granularity` is a [duration literal]({{<ref "reference/duration">}}).
+`granularity` is a [duration literal]({{<ref "reference/duration">}}). The smallest granularity Spice.ai supports is 1 second (`1s`).
 
 **Example**
 
@@ -113,3 +113,144 @@ If `episodes` is omitted, it defaults to 10.
 params:
   episodes: 10
 ```
+
+## `dataspaces`
+
+A pod must contain at least one [dataspace]({{<ref "concepts#dataspace">}}).
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    fields:
+      - name: close
+    data:
+      connector:
+        name: file
+        params:
+          path: data/btcusd.csv
+      processor:
+        name: csv
+  - from: local
+    name: portfolio
+    fields:
+      - name: usd_balance
+        initializer: 0
+      - name: btc_balance
+        initializer: 0
+    actions:
+      small_buy: |
+        usd_balance -= args.price
+        btc_balance += 1
+      large_buy: |
+        usd_balance -= args.price
+        btc_balance += 10
+      sell: |
+        usd_balance += args.price 
+        btc_balance -= 1
+    laws:
+      - usd_balance >= 0
+      - btc_balance >= 0
+```
+
+## `dataspaces[*].from`
+
+**Required**. A label used to indicate where the data is from.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+```
+
+## `dataspaces[*].name`
+
+**Required**. The name to use for this datasource.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+```
+
+## `dataspaces[*].fields`
+
+**Required**. The fields to create in the dataspace. If these fields are not populated by either a data connector or through the API, they will use the default value of `0.0`. Each field must be a `float`.
+
+## `dataspaces[*].fields[*].name`
+
+**Required**. The name of the field to create.
+
+**Example**
+
+```yaml
+fields:
+  - name: balance
+```
+
+## `dataspaces[*].fields[*].initializer`
+
+May be used to specify an initial value for the field.
+
+`initializer` is a `float`.
+
+**Example**
+
+```yaml
+fields:
+  - name: balance
+    initializer: 10.0
+```
+
+## `dataspaces[*].data`
+
+Used to specify the external data source (configured with `connector` and `processor`) to use to populate the dataspace.
+
+If this section is omitted, the data should be provided through the [observations API]({{<ref api>}}).
+
+```yaml
+data:
+  connector:
+    name: file
+    params:
+      path: data.csv
+```
+
+## `dataspaces[*].data.connector`
+
+The connector used to fetch data from an external data source. The connector code should exist in the [data-components-contrib](https://github.com/spiceai/data-components-contrib/tree/trunk/dataconnectors) repository.
+
+## `dataspaces[*].data.connector.name`
+
+The name of the connector to use.
+
+The following connectors are currently supported:
+
+| Connector Name                                                                                                |
+| ------------------------------------------------------------------------------------------------------------- |
+| [file](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/file/file.go)             |
+| [influxdb](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/influxdb/influxdb.go) |
+
+## `dataspaces[*].data.connector.params`
+
+A `map` of key-value pairs that are used to control the behavior of the connector.
+
+**Example**
+The `file` connector uses the `path` param to control which file to load.
+
+```yaml
+data:
+  connector:
+    name: file
+    params:
+      path: data.csv
+```
+
+## `dataspaces[*].data.processor`
+
+Once the data has been fetched with the connector, it needs to be processed into a format that Spice.ai can understand. Processing logic has been de-coupled from the connector to allow for flexibility [TODO]
