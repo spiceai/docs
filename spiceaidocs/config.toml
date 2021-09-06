@@ -89,7 +89,7 @@ anchor = "smart"
 section = ["HTML"]
 
 [params]
-copyright = "Spice AI"
+copyright = "Spice AI, Inc."
 # An optional link to a related project repo. For example, the sibling repository where your product code lives.
 github_project_repo = "https://github.com/spiceai/spiceai"
 
