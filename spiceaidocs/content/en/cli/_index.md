@@ -2,7 +2,7 @@
 type: docs
 title: "Spice.ai CLI documentation"
 linkTitle: "CLI"
-weight: 20
+weight: 60
 description: "Detailed documentation on the Spice.ai CLI"
 ---
 
@@ -43,13 +43,13 @@ spice train trader
 
 Common commands are:
 
-| Command           | Description                                     |
-|-------------------|-------------------------------------------------|
-| spice add         | Add a pod to `spicepods`                        |
-| spice run         | Starts the Spice.ai runtime                     |
-| spice train       | Starts a pod training run                       |
-| spice version     | Shows the Spice.ai CLI and runtime versions     |
-| spice help        | Help about any command                          |
+| Command       | Description                                 |
+| ------------- | ------------------------------------------- |
+| spice add     | Add a pod to `spicepods`                    |
+| spice run     | Starts the Spice.ai runtime                 |
+| spice train   | Starts a pod training run                   |
+| spice version | Shows the Spice.ai CLI and runtime versions |
+| spice help    | Help about any command                      |
 
 See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
