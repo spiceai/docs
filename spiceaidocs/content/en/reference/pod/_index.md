@@ -39,7 +39,7 @@ params:
   episodes: 10
 ```
 
-## `params.epoch_time`
+### `params.epoch_time`
 
 An epoch defines the beginning, or start, of the data stream. If Spice.ai receives data from before the epoch time, it is not used during training.
 
@@ -54,7 +54,7 @@ params:
   epoch_time: 1605312000
 ```
 
-## `params.period`
+### `params.period`
 
 A period is the total span of time that is considered for a pod. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
 
@@ -69,7 +69,7 @@ params:
   period: 3d
 ```
 
-## `params.interval`
+### `params.interval`
 
 The interval is the time span that Spice.ai uses as a single input to the neural networks that power Spice.ai. Attempting to get a recommendation without Spice.ai having at least one intervals worth of data will result in an error.
 
@@ -84,7 +84,7 @@ params:
   interval: 1m
 ```
 
-## `params.granularity`
+### `params.granularity`
 
 The granularity is the smallest unit of time that specifies how many timesteps there are in an interval. The `granularity` cannot be larger than the `interval`. When streaming data in a continuous manner, the Spice.ai runtime can give a new recommendation for action after each new granularity's worth of data is collected.
 
@@ -99,7 +99,7 @@ params:
   granularity: 10s
 ```
 
-## `params.episodes`
+### `params.episodes`
 
 An episode is a sequence of simulated actions the Spice.ai pod will take over the dataset during training. After an episode has completed in a training run, the neural networks powering Spice.ai will update giving it a chance to learn from its experience. The more episodes specified, the more chances the Spice.ai pod will be able to learn how to maximize its rewards, at the expense of a longer training run. More episodes is not always better, as there is a risk the Spice.ai pod will "[overfit](https://en.wikipedia.org/wiki/Overfitting)" to the data available in the training run.
 
@@ -155,7 +155,7 @@ dataspaces:
       - btc_balance >= 0
 ```
 
-## `dataspaces[*].from`
+### `dataspaces[*].from`
 
 **Required**. A label used to indicate where the data is from.
 
@@ -166,7 +166,7 @@ dataspaces:
   - from: coinbase
 ```
 
-## `dataspaces[*].name`
+### `dataspaces[*].name`
 
 **Required**. The name to use for this datasource.
 
@@ -178,11 +178,11 @@ dataspaces:
     name: btcusd
 ```
 
-## `dataspaces[*].fields`
+### `dataspaces[*].fields`
 
 **Required**. The fields to create in the dataspace. If these fields are not populated by either a data connector or through the API, they will use the default value of `0.0`. Each field must be a `float`.
 
-## `dataspaces[*].fields[*].name`
+### `dataspaces[*].fields[*].name`
 
 **Required**. The name of the field to create.
 
@@ -193,7 +193,7 @@ fields:
   - name: balance
 ```
 
-## `dataspaces[*].fields[*].initializer`
+### `dataspaces[*].fields[*].initializer`
 
 May be used to specify an initial value for the field.
 
@@ -207,7 +207,7 @@ fields:
     initializer: 10.0
 ```
 
-## `dataspaces[*].data`
+### `dataspaces[*].data`
 
 Used to specify the external data source (configured with `connector` and `processor`) to use to populate the dataspace.
 
@@ -221,11 +221,11 @@ data:
       path: data.csv
 ```
 
-## `dataspaces[*].data.connector`
+### `dataspaces[*].data.connector`
 
 The connector used to fetch data from an external data source. The connector code should exist in the [data-components-contrib](https://github.com/spiceai/data-components-contrib/tree/trunk/dataconnectors) repository.
 
-## `dataspaces[*].data.connector.name`
+### `dataspaces[*].data.connector.name`
 
 The name of the connector to use.
 
@@ -236,7 +236,7 @@ The following connectors are currently supported:
 | [file](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/file/file.go)             |
 | [influxdb](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/influxdb/influxdb.go) |
 
-## `dataspaces[*].data.connector.params`
+### `dataspaces[*].data.connector.params`
 
 A `map` of key-value pairs that are used to control the behavior of the connector.
 
@@ -251,6 +251,186 @@ data:
       path: data.csv
 ```
 
-## `dataspaces[*].data.processor`
+### `dataspaces[*].data.processor`
 
-Once the data has been fetched with the connector, it needs to be processed into a format that Spice.ai can understand. Processing logic has been de-coupled from the connector to allow for flexibility [TODO]
+Once the data has been fetched with the connector, it needs to be processed into a format that Spice.ai can understand. The processor specified here will take the raw data from the connector and transform it into the observations that the Spice.ai runtime expects.
+
+**Example**
+The `csv` processor will process the data coming from the `file` connector.
+
+```yaml
+data:
+  connector:
+    name: file
+    params:
+      path: data.csv
+  processor:
+    name: csv
+```
+
+### `dataspaces[*].data.processor.name`
+
+The name of the processor to use.
+
+The following processors are currently supported:
+
+| Processor Name                                                                                           |
+| -------------------------------------------------------------------------------------------------------- |
+| [csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/csv/csv.go)           |
+| [flux-csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/flux/fluxcsv.go) |
+
+### `dataspaces[*].data.processor.params`
+
+A `map` of key-value pairs that are used to control the behavior of the processor.
+
+### `dataspaces[*].actions`
+
+A `map` of dataspace actions. The `key` is the name of the action to perform, the `value` is a python code block that will be executed whenever this action is taken during a training run.
+
+This can be used to simulate effects of actions taken during a training run on the observation space. Arguments can be passed into this dataspace action and can be referenced within the python code by prefixing the argument with `args.`
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: local
+    name: portfolio
+    fields:
+      - name: usd_balance
+      - name: btc_balance
+    actions:
+      buy: |
+        usd_balance -= args.price
+        btc_balance += 1
+```
+
+### `dataspaces[*].laws`
+
+A list of dataspace laws. Each item is a python codeblock that is evaluated during a training run to ensure that certain conditions aren't violated. If the Spice.ai runtime attempts to take an action that would violate a law, any dataspace actions that would have affected the observation space are not applied and a negative reward is applied to the timestep.
+
+**Example**
+
+In this example, if the `usd_balance` would go below 0, the dataspace action that would affect the `usd_balance` is not applied to the observation space.
+
+```yaml
+dataspaces:
+  - from: local
+  name: portfolio
+  fields:
+    - name: usd_balance
+    - name: btc_balance
+  actions:
+    buy: |
+      usd_balance -= args.price
+      btc_balance += 1
+  laws:
+    - usd_balance >= 0
+    - btc_balance >= 0
+```
+
+## `actions`
+
+**Required**. The set of actions that the Spice.ai runtime can choose from when giving recommendations.
+
+**Example**
+
+```yaml
+actions:
+  - name: jump
+  - name: move_right
+  - name: move_left
+```
+
+### `actions[*].name`
+
+The name of the action that can be taken. The action name should not include any spaces.
+
+### `actions[*].do`
+
+An optional section that specifies which datasource action should be invoked whenever this action is selected during a training run.
+
+**Example**
+
+```yaml
+actions:
+  - name: buy
+    do:
+      name: local.portfolio.buy
+      args:
+        price: coinbase.btcusd.close
+```
+
+### `actions[*].do.name`
+
+The fully-qualified name of the dataspace action to invoke. A fully qualified name takes the form of:
+
+`dataspace.from`.`dataspace.name`.`dataspace.actions[*].name`
+
+**Example**
+
+A dataspace defined as:
+
+```yaml
+dataspaces:
+  - from: local
+    name: portfolio
+    fields:
+      - name: btc_balance
+    actions:
+      buy: |
+    btc_balance += 1
+```
+
+would have a fully-qualified action name of `local.portfolio.buy` and would be referenced as:
+
+```yaml
+actions:
+  - name: buy
+    do:
+      name: local.portfolio.buy
+```
+
+### `actions[*].do.args`
+
+A `map` of arguments to pass to the dataspace action. The `key` can be referenced by name in the defining dataspace action definition prefixed by `args.`. The `value` can be a constant or a fully qualified dataspace field.
+
+A fully qualified dataspace field takes the form of:
+
+`dataspace.from`.`dataspace.name`.`dataspace.field[*].name`
+
+**Example**
+
+A dataspace with the following definition:
+
+```yaml
+dataspaces:
+  - from: game
+    name: world
+    fields:
+      - name: player_position
+```
+
+could be referenced in the `args` as `game.world.player_position`:
+
+```yaml
+actions:
+  - name: pick_up_coin
+    do:
+      name: game.character.pick_up_coin
+      args:
+        position: game.world.player_position
+```
+
+and could be referenced in the dataspace action with `args.position`:
+
+```yaml
+dataspaces:
+  - from: game
+    name: character
+    fields:
+      - name: coins
+    actions:
+      pick_up_coin: |
+        if args.position > 10:
+          game.character.coins += 1
+```
