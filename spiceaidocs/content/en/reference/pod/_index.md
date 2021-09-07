@@ -437,12 +437,116 @@ dataspaces:
 
 ## `training`
 
+**Required**. Controls the training process for Spice.ai.
+
+**Example**
+
+```yaml
+training:
+  rewards:
+    - reward: buy
+      with: reward = 1
+    - reward: sell
+      with: reward = 1
+    - reward: hold
+      with: reward = 1
+```
+
 ### `training.goal`
+
+End the training early if Spice.ai reaches a training goal three times in a row.
+
+After a single episode is completed from a training run, a `score` is kept of the cumulative rewards that the Spice.ai runtime received. Use the `goal` here to write a python expression to check if the training goal has been met.
+
+**Example**
+
+```yaml
+training:
+  goal: score >= 100
+```
 
 ### `training.reward_init`
 
+A python code block that will be run before an action specific reward code block runs. Use this to define common variables that will be useful to reference in the specific reward code blocks.
+
+Access observation state variables by specifying their fully qualified names and prefixing with `prev_state.` for the value at the previous state before the action was taken, and `new_state.` for the value of the state right after the action was taken.
+
+**Example**
+
+```yaml
+training:
+  reward_init: |
+    # Compute price change between previous state and this one 
+    # so it can be used in all three reward functions
+    prev_price = prev_state.coinbase.btcusd.close
+    new_price = new_state.coinbase.btcusd.close
+    change_in_price = new_price - prev_price
+  rewards:
+    - reward: buy
+      with: |
+        reward = -change_in_price
+    - reward: sell
+      with: |
+        reward = change_in_price
+
+    - reward: hold
+      with: |
+        if change_in_price > 0:
+          reward = -0.1
+        else:
+          reward = 0.1
+```
+
 ### `training.rewards`
+
+**Required**. Defines how to reward the Spice.ai runtime during training so that it learns to take more intelligent actions.
+
+This can be a list of reward definitions or the string "uniform" to indicate that all rewards should receive the same reward.
+
+**Example**
+
+```yaml
+training:
+  rewards: uniform
+```
+
+```yaml
+training:
+  rewards:
+    - reward: buy
+      with: reward = 1
+    - reward: sell
+      with: reward = 1
+```
 
 ### `training.rewards[*].reward`
 
+The name of the action to associate this reward function with. Should be the same name as an action defined in [actions](#actions)
+
+```yaml
+actions:
+  - name: jump
+
+training:
+  rewards:
+    - reward: jump
+      with: reward = 1
+```
+
 ### `training.rewards[*].with`
+
+A python code block that needs to assign a variable to `reward` to specify which reward to give the Spice.ai agent for taking this action.
+
+Access observation state variables by specifying their fully qualified names and prefixing with `prev_state.` for the value at the previous state before the action was taken, and `new_state.` for the value of the state right after the action was taken.
+
+```yaml
+training:
+  rewards:
+    - reward: jump
+      with: |
+        # If we weren't able to jump, penalize trying to jump
+        if new_state.game.character.height > prev_state.game.character.height:
+          reward = 1
+        else:
+          reward = -1
+```
