@@ -3,19 +3,17 @@ type: docs
 title: "Getting started with Spice.ai"
 linkTitle: "Getting started"
 weight: 20
-description: "How to get up and running with Spice.ai in minutes"
+description: "Get started with Spice.ai in 5 minutes"
 no_list: true
 ---
 
 {{% alert title="Spice.ai Concepts" color="primary" %}}
-If you are looking for an introductory overview of Spice.ai and learn more about basic Spice.ai terminology, it is recommended to visit the [concepts section]({{<ref concepts>}}).
+Before following this guide it is first recommended to review the Spice.ai [core concepts]({{<ref concepts>}}).
 {{% /alert %}}
 
 ## Getting started with Spice.ai
 
-Follow this guide to get started quickly with Spice.ai.
-
-The following steps in this guide are:
+Follow these steps to get started with Spice.ai.
 
 1. Install Spice.ai
 1. Create your first Spice.ai pod and train it

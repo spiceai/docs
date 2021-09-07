@@ -7,22 +7,18 @@ weight: 5
 
 {{% alert title="Current Limitations" color="primary" %}}
 
-- Running in Docker is required.
+- Docker is required.
 - Only macOS and Linux are natively supported. [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is required for Windows.
 - arm64 is not yet supported (i.e. Apple's M1 Macs). We use M1s ourselves, so we hope to support this very soon :-)
   {{% /alert %}}
 
-### Prerequisites
+⭐️ We recommend using [GitHub Codespaces](https://github.com/features/codespaces) to get started. Codespaces enables you to run Spice.ai in a virtual environment in the cloud. If you use Codespaces, the install is not required and you may skip to the [Getting Started with Codespaces](#getting-started-with-codespaces) section.
 
-⭐️ We recommend using [GitHub Codespaces](https://github.com/features/codespaces) to get started. Codespaces enables you to run Spice.ai in a virtual environment in the cloud. If you use Codespaces, the following prerequisites are not required and you may skip to the [Getting Started with Codespaces](#getting-started-with-codespaces) section.
+### Docker installation
 
-To continue with installation on your local machine, follow these steps:
+To continue with Docker installation on your local machine, please follow [these instructions](https://docs.docker.com/get-docker/).
 
-1. Install Docker
-
-**Step 1. Install Docker**: While self-hosting on baremetal hardware will be supported, the Developer Preview currently requires Docker. To install Docker, please follow [these instructions](https://docs.docker.com/get-docker/).
-
-### Installation (local machine)
+### Spice.ai CLI Installation (local machine)
 
 Install the Spice CLI by running the following `curl` command in your terminal.
 
@@ -33,8 +29,6 @@ curl https://install.spiceai.org | /bin/bash
 You may need to restart your terminal for the `spice` command to be added to your PATH.
 
 ### Getting Started with Codespaces
-
-The recommended way to get started with Spice.ai is to use GitHub Codespaces.
 
 Create a new GitHub Codespace in the `spiceai/quickstarts` repo at [github.com/spiceai/quickstarts/codespaces](https://github.com/spiceai/quickstarts/codespaces).
 
