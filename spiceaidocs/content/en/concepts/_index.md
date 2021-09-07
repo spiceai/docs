@@ -20,7 +20,7 @@ The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI 
 
 The AI package registry [spicerack.org](https://spicerack.org) of pods that can be fetched with the Spice.ai CLI.
 
-## Pod / Pod manifest
+## Pod
 
 A `Pod` is a package of configuration and data used to train and deploy Spice.ai with an application.
 

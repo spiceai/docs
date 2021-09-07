@@ -5,7 +5,7 @@ no_list: true
 
 # Spice.ai
 
-Powerful and easy-to-use AI for developers.
+The vision of Spice.ai is to make building intelligent applications with AI as easy as building a modern website.
 
 Spice.ai is an open source, portable runtime for training and using deep learning on time series data. It's written in Golang and Python and runs as a container or microservice with applications calling a simple HTTP API. It's deployable to any public cloud, on-premises, and edge.
 
@@ -15,9 +15,9 @@ Modern developers also build with the community by leveraging registries such as
 
 {{% alert color="primary" %}}
 ⚠️ Spice.ai is under active alpha stage development and is not intended to be used in production until its 1.0-stable release.
+{{% /alert %}}
 
 Spice.ai and spicerack.org are both pre-release, early, alpha software. Spice.ai v0.1-alpha has many gaps, including limited deep learning algorithms and training scale, streaming data, simulated environments, and offline learning modes. Packages aren't searchable or even listed on spicerack.org yet.
-{{% /alert %}}
 
 The vision to bring intelligent application development to the maturity of modern web development is a vast undertaking. We haven't figured it all out or solved all the problems yet. We're looking for feedback on the direction. It's not finished, in fact, we only just started in June, and we invite you on the journey.
 
