@@ -51,7 +51,7 @@ Common commands are:
 | spice version     | Shows the Spice.ai CLI and runtime versions     |
 | spice help        | Help about any command                          |
 
-See [Spice.ai CLI command reference]({{< ref cli-reference >}}) for the full list of available commands.
+See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
 ## Updating
 
