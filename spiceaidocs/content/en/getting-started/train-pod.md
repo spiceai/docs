@@ -60,4 +60,13 @@ After training the pod, you can now get a recommendation for an action from it!
 curl http://localhost:8000/api/v0.1/pods/serverops/recommendation
 ```
 
+### Run the server ops application
+
+To see how Spice.ai integrates with an app you write, start the associated sample app in this repo and look at the source code to see how it works.
+
+```
+npm install
+node serverops.js
+```
+
 {{< button text="Next steps >>" page="next-steps" >}}
