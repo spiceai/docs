@@ -1,61 +1,63 @@
 ---
 type: docs
 title: "Create your first Spice.ai pod and train it"
-linkTitle: "Train Spice.ai pod"
+linkTitle: "Train a Spice.ai pod"
 weight: 10
 ---
 
-A [Spice.ai Pod]({{<ref concepts>}}#pod--pod-manifest) is simply a collection of configuration and data that you use to train and deploy your own AI.
+A [Spice.ai Pod]({{<ref concepts>}}#pod) is simply a collection of configuration and data that is used to train and deploy your own AI.
 
-The first Spice.ai Pod you will create and train is based off of a problem that many system administrators are familiar with: **server maintenance**. Application and system logging is critical part of running a production service, but letting those logs build up can cause other issues, especially if those logs end up filling the entire disk! It is simple enough to run a utility at a certain time every day to ensure this doesn't happen, but what if we choose to run the cleanup in the middle of peak traffic to the server?
+We will add intelligence to a sample application, **ServerOps**, by creating and training a Spice.ai pod that offers recommendations to the application for different server operations, such as performing server maintenance.
 
-We will use Spice.ai to train a pod that can intelligently learn when the best times are to run a cleanup job on a server. Let's call this example the `LogPruner`.
+If you are using GitHub Codespaces, skip Step 1. and continue with Step 2., as the repository will already be cloned.
 
-Clone the Spice.ai quickstarts repo in a directory where you would normally put your code. E.g.
+Step 1. Clone the Spice.ai quickstarts repository:
 
 ```bash
 cd $HOME
 git clone https://github.com/spiceai/quickstarts
-cd quickstarts/logpruner
+cd quickstarts/serverops
 ```
 
-In a new terminal window or tab, navigate to the directory and start the Spice runtime in development mode with `spice run`.
+Step 2. Start the Spice runtime with `spice run`:
 
 ```bash
-cd $HOME/quickstarts/logpruner
+cd $HOME/quickstarts/serverops
 spice run
 ```
 
-In the original terminal instance, add the LogPruner sample pod:
+Step. 3. In a new terminal, add the ServerOps sample pod:
+
+So that we can leave Spice.ai runing, add the sample pod in a new terminal tab or window. If you are running in GitHub Codespaces, you an open a new terminal by clicking the split-terminal button in VS Code.
 
 ```bash
-spice add samples/LogPruner
+spice add samples/serverops
 ```
 
-The Spice CLI will download the LogPruner sample pod manifest and add it to your project at `spicepods/logpruner.yaml`.
+The Spice.ai CLI will download the ServerOps sample pod and add the pod manifest to your project at `spicepods/serverops.yaml`.
 
-The Spice runtime will then automatically detect the manifest and start your first training run!
+The Spice runtime will then automatically detect the pod and start your first training run!
 
-> Note, automatic training relies on your system's filewatcher. In some cases, this might be disabled or not work as expected, especially when using containers. If training does not start, follow the command to [retrain your pod](#retrain-your-pod) below.
+> Note, automatic training relies on your system's filewatcher. In some cases, this might be disabled or not work as expected. If training does not start, follow the command to [retrain the pod](#retrain-the-pod) below.
 
-### Observe your pod training
+### Observe the pod training
 
-Navigate to [http://localhost:8000](http://localhost:8000) in your favorite browser. You will see an overview of your pods. From here, you can click on the `logpruner` pod to see a chart of the pod's training progress.
+Navigate to [http://localhost:8000](http://localhost:8000) in your favorite browser. You will see an overview of your pods. From here, you can click on the `serverops` pod to see a chart of the pod's training progress.
 
-### Retrain your pod
+### Retrain the pod
 
-The runtime will automatically detect changes to your pod manifest and start training. In addition, you can trigger training by using the Spice CLI from within your app directory.
+In addition to automatic training upon manifest changes, training can be started by using the Spice CLI from within your app directory.
 
 ```bash
-spice train logpruner
+spice train serverops
 ```
 
-### Get a recommendation from your pod
+### Get a recommendation
 
-After training your pod, you can now get a recommendation for an action from it!
+After training the pod, you can now get a recommendation for an action from it!
 
 ```bash
-curl http://localhost:8000/api/v0.1/pods/logpruner/recommendation
+curl http://localhost:8000/api/v0.1/pods/serverops/recommendation
 ```
 
 {{< button text="Next steps >>" page="next-steps" >}}
