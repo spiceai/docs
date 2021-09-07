@@ -3,8 +3,8 @@ info:
   description: ""
   version: "0.1.0-alpha"
   title: "Spice.ai"
-host: "localhost:8000"
-basePath: "/api/v0.1"
+servers:
+  - url: http://localhost:8000/api/v0.1
 tags:
   - name: "pods"
   - name: "train"
