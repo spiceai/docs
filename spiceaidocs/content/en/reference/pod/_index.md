@@ -306,7 +306,7 @@ dataspaces:
 
 ### `dataspaces[*].laws`
 
-A list of dataspace laws. Each item is a python codeblock that is evaluated during a training run to ensure that certain conditions aren't violated. If the Spice.ai runtime attempts to take an action that would violate a law, any dataspace actions that would have affected the observation space are not applied and a negative reward is applied to the timestep.
+A list of dataspace laws. Each item is a python expression that is evaluated during a training run to ensure that certain conditions aren't violated. If the Spice.ai runtime attempts to take an action that would violate a law, any dataspace actions that would have affected the observation space are not applied and a negative reward is applied to the timestep.
 
 **Example**
 
