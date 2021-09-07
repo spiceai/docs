@@ -483,11 +483,9 @@ training:
     change_in_price = new_price - prev_price
   rewards:
     - reward: buy
-      with: |
-        reward = -change_in_price
+      with: reward = -change_in_price
     - reward: sell
-      with: |
-        reward = change_in_price
+      with: reward = change_in_price
 
     - reward: hold
       with: |
