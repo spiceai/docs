@@ -6,19 +6,17 @@ weight: 10
 no_list: true
 ---
 
-## Components
-
-### Spice.ai CLI
+## Spice.ai CLI
 
 The `spice` command line tool for interacting with the Spice.ai runtime during development. View the [CLI reference]({{<ref "cli">}}) to learn more.
 
-### Spice.ai Runtime
+## Spice.ai Runtime
 
-The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines. The runtime provides the [Spice.ai API]({{<ref "api">}}).
+The Spice.ai core runtime which runs as the daemon `spiced` and includes the AI and Data engines. The runtime also serves the [Spice.ai API]({{<ref "api">}}).
 
-### [spicerack.org](https://spicerack.org)
+## [spicerack.org](https://spicerack.org)
 
-The AI package registry [spicerack.org](https://spicerack.org) of pods that can be fetched with the Spice.ai CLI.
+The registry [spicerack.org](https://spicerack.org) of Spice.ai pods that can be fetched with the Spice.ai CLI.
 
 ## Pod
 
