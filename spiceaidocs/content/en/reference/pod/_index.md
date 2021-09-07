@@ -434,3 +434,15 @@ dataspaces:
         if args.position > 10:
           game.character.coins += 1
 ```
+
+## `training`
+
+### `training.goal`
+
+### `training.reward_init`
+
+### `training.rewards`
+
+### `training.rewards[*].reward`
+
+### `training.rewards[*].with`
