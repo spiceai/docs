@@ -23,7 +23,7 @@ The vision to bring intelligent application development to the maturity of moder
 
 📢 Read the Spice.ai announcement blog post at [blog.spiceai.org](https://blog.spiceai.org)
 
-We greatly appreciate and value your feedback. Please feel free to [file an issue](https://github.com/spiceai/spiceai/issues/new) and get in touch with the team through [Discord](https://discord.com/channels/803820740868571196) or by sending us mail at [team@spiceai.io](mailto:team@spiceai.io).
+We greatly appreciate and value your feedback. Please feel free to [file an issue](https://github.com/spiceai/spiceai/issues/new) and get in touch with the team through [Discord](https://discord.gg/kZnTfneP5u) or by sending us mail at [team@spiceai.io](mailto:team@spiceai.io).
 
 Thank you for sharing this journey with us! 🙏
 
