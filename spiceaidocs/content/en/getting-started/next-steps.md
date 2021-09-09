@@ -16,4 +16,4 @@ This is just the start of the journey with Spice.ai. Next, try one of the quicks
 
 **Have questions?**
 
-If you need help, feel free to get in touch with the team through [Discord](https://discord.com/channels/803820740868571196).
+If you need help, feel free to get in touch with the team through [Discord](https://discord.gg/kZnTfneP5u).

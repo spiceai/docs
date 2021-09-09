@@ -82,7 +82,7 @@ anchor = "smart"
 [[menu.main]]
     name = "Discord"
     weight = 70
-    url = "https://discord.com/channels/803820740868571196/803820740868571199"
+    url = "https://discord.gg/kZnTfneP5u"
 
 # Comment out if you don't want the "print entire section" link enabled.
 [outputs]
@@ -140,6 +140,6 @@ footer_about_disable = false
         desc = "Development takes place here!"
 [[params.links.developer]]
 	name = "Discord"
-	url = "https://discord.com/channels/803820740868571196/803820740868571199"
+	url = "https://discord.gg/kZnTfneP5u"
 	icon = "fab fa-discord"
         desc = "Chat with other project developers"
