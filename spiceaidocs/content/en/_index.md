@@ -5,11 +5,31 @@ no_list: true
 
 # Spice.ai
 
-The vision of Spice.ai is to make building intelligent applications with AI as easy as building a modern website.
+**Spice.ai** is an open source, portable runtime and set of tools that helps developers add AI to their applications by leveraging machine-learning on time-series data.
 
-Spice.ai is an open source, portable runtime for training and using deep learning on time series data. It's written in Golang and Python and runs as a container or microservice with applications calling a simple HTTP API. It's deployable to any public cloud, on-premises, and edge.
+**The vision for Spice.ai is to make creating intelligent applications as easy as building a modern website.**
 
-The Spice.ai runtime also includes a library of community-driven components for streaming and processing time series data, with the vision of enabling developers to quickly and easily combine data with learning to create intelligent models.
+Spice.ai focuses on a fast, iterative, inner development loop through simple configuration, REST-like APIs, and the goal of coding in any language or framework.
+
+Spice.ai includes:
+
+- A lightweight, portable ML runtime accessible by simple HTTP APIs
+- A developer-friendly CLI
+- Simple, git-committable, configuration and code
+- Community-driven re-usable components for streaming and processing time-series data
+- Re-useable building blocks, sharable through spicerack.org to build upon community work and get started quickly
+
+Spice.ai is written in Golang and Python and runs as a container or microservice. It's deployable to any public cloud, on-premises, and edge.
+
+📢 Read the Spice.ai announcement blog post at [blog.spiceai.org](https://blog.spiceai.org).
+
+📺 View a 60 second demo of Spice.ai in action [here](https://www.youtube.com/watch?v=FPPGyPq41kQ).
+
+### Community-driven data components
+
+The Spice.ai runtime also includes a library of [community-driven data components](https://github.com/spiceai/data-components-contrib) for streaming and processing time series data, enabling developers to quickly and easily combine data with learning to create intelligent models.
+
+### Spice.ai pod registry
 
 Modern developers also build with the community by leveraging registries such as npm, NuGet, and pip. The registry for sharing and using Spice.ai packages is [spicerack.org](https://spicerack.org). As the community shares more and more AI building blocks, developers can quickly build intelligence into their applications, initially with definitions of AI projects and eventually by sharing and reusing fully-trained models.
 
@@ -20,8 +40,6 @@ Modern developers also build with the community by leveraging registries such as
 Spice.ai and spicerack.org are both pre-release, early, alpha software. Spice.ai v0.1-alpha has many gaps, including limited deep learning algorithms and training scale, streaming data, simulated environments, and offline learning modes. Packages aren't searchable or even listed on spicerack.org yet.
 
 The vision to bring intelligent application development to the maturity of modern web development is a vast undertaking. We haven't figured it all out or solved all the problems yet. We're looking for feedback on the direction. It's not finished, in fact, we only just started in June, and we invite you on the journey.
-
-📢 Read the Spice.ai announcement blog post at [blog.spiceai.org](https://blog.spiceai.org)
 
 We greatly appreciate and value your feedback. Please feel free to [file an issue](https://github.com/spiceai/spiceai/issues/new) and get in touch with the team through [Discord](https://discord.gg/kZnTfneP5u) or by sending us mail at [team@spiceai.io](mailto:team@spiceai.io).
 
