@@ -66,6 +66,6 @@ v0.2.0-alpha will support a self-update command, see the [Spice.ai roadmap](http
 
 ## Uninstall
 
-The Spice.ai CLI is installed by default installed to `$HOME/.spice/bin/spice` and a line added to the shell config, such as `.zshrc`
+The Spice.ai CLI is installed by default to `$HOME/.spice/bin/spice` and a line added to the shell config, such as `.zshrc`
 
 It can be uninstalled by deleting the `spice` binary and removing the PATH addition from the rc file.
