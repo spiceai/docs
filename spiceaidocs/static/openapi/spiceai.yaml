@@ -678,7 +678,13 @@ definitions:
       actions:
         type: "array"
         items:
-          $ref: "#/definitions/Episode"
+          description: "A list of actions"
+          type: string
+      tags:
+        type: "array"
+        items:
+          description: "A list of tags"
+          type: string
   ImportRequest:
     type: "object"
     properties:
