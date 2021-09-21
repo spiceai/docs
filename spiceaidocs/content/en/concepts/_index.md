@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Spice.ai concepts"
-linkTitle: "Concepts"
+title: "Spice.ai Core Concepts"
+linkTitle: "Core Concepts"
 weight: 10
 no_list: true
 ---
