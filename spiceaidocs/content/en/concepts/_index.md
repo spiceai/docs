@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Spice.ai concepts"
-linkTitle: "Concepts"
+title: "Spice.ai Core Concepts"
+linkTitle: "Core Concepts"
 weight: 10
 no_list: true
 ---
@@ -28,7 +28,7 @@ A Pod is constructed from the following components:
 
 ### Dataspace
 
-A [dataspace]({{<ref "reference/pod#dataspaces">}}) is a specification on how the Spice.ai runtime and AI engine loads, processes and interacts with data from a single source. A dataspace may contain a single data connector and data processor. There may be multiple dataspace definitions within a pod. The fields specified in the union of dataspaces are used as inputs to the neural networks that Spice.ai trains.
+A [dataspace]({{<ref "concepts/dataspaces">}}) is a specification on how the Spice.ai runtime and AI engine loads, processes and interacts with data from a single source. A dataspace may contain a single data connector and data processor. There may be multiple dataspace definitions within a pod. The fields specified in the union of dataspaces are used as inputs to the neural networks that Spice.ai trains.
 
 A dataspace that doesn't contain a data connector/processor means that the observation data for this dataspace will be provided by calling [POST /pods/{pod}/observations]({{<ref api>}}).
 
