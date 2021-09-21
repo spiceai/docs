@@ -167,6 +167,70 @@ paths:
           description: "Encountered an error processing the csv data"
         "404":
           description: "Pod not found"
+  /pods/{pod}/dataspaces/{dataspace_from}/{dataspace_name}:
+    post:
+      tags:
+        - "observations"
+      summary: "Adds new observations to a dataspace in JSON format"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          type: "string"
+        - name: "dataspace_from"
+          in: "path"
+          description: "the 'from' qualifier in the dataspace name"
+          required: true
+          type: "string"
+        - name: "dataspace_name"
+          in: "path"
+          description: "the name of the dataspace to add new observations to"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "JSON data to add as observations"
+          required: true
+          schema:
+            $ref: "#/definitions/Observations"
+          examples:
+            example:
+              summary: Add observations for a pod
+              value: |
+                [
+                  {
+                    "data": {
+                      "eventId": "806.42",
+                      "rating": 86,
+                      "speed": "15",
+                      "height": "29",
+                      "target": 42
+                    },
+                    "tags": ["tagA", "tagB"],
+                    "time": 1605312000
+                  },
+                  {
+                    "data": {
+                      "eventId": 806.42,
+                      "rating": 86,
+                      "speed": 15,
+                      "height": 29,
+                      "target": 42
+                    },
+                    "tags": ["tagC", "tagD"],
+                    "time": "2020-09-14T22:04:00.413Z"
+                  }
+                ]
+      responses:
+        "201":
+          description: "Observations added successfully"
+        "400":
+          description: "Encountered an error processing the JSON data"
+        "404":
+          description: "Pod not found"
   /pods/{pod}/recommendation:
     get:
       tags:
@@ -554,6 +618,24 @@ definitions:
         type: "string"
       manifest_path:
         type: "string"
+  Observations:
+    type: "array"
+    items:
+      type: "object"
+      additionalProperties: false
+      required: ["time", "data"]
+      properties:
+        data:
+          type: "object"
+        tags:
+          items:
+            type: "string"
+          type: "array"
+        time:
+          anyOf:
+            - type: "integer"
+            - type: "string"
+              format: "date-time"
   Recommendation:
     type: "object"
     properties:
