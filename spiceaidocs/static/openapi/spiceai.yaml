@@ -14,24 +14,21 @@ tags:
     description: "Import and Export a pod that has been trained"
   - name: "training_runs"
     description: Individual training runs. i.e. training three times will produce three training runs
-schemes:
-  - "http"
 paths:
   /pods:
     get:
       tags:
         - "pods"
       summary: "Retrieves all of the registered pods"
-      produces:
-        - "application/json"
       responses:
         "200":
+          description: "Retrieved pods successfully"
           content:
             application/json:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/definitions/Pod"
+                  $ref: "#/components/schemas/Pod"
               examples:
                 trader-example:
                   summary: Example for a pod named "trader"
@@ -52,15 +49,15 @@ paths:
           in: "path"
           description: "name of the pod to return"
           required: true
-          type: "string"
-      produces:
-        - "application/json"
+          schema:
+            type: "string"
       responses:
         "200":
+          description: "Retrieved the specified pod successfully"
           content:
             application/json:
               schema:
-                $ref: "#/definitions/Pod"
+                $ref: "#/components/schemas/Pod"
               examples:
                 trader-example:
                   summary: Example for a pod named "trader"
@@ -82,7 +79,8 @@ paths:
           in: "path"
           description: "name of the pod to train"
           required: true
-          type: "string"
+          schema:
+            type: "string"
       responses:
         "200":
           description: "Pod started training"
@@ -100,11 +98,11 @@ paths:
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-      produces:
-        - "test/csv"
+          schema:
+            type: "string"
       responses:
         "200":
+          description: "Retrieved the cached observations successfully"
           content:
             text/csv:
               schema:
@@ -133,33 +131,33 @@ paths:
       tags:
         - "observations"
       summary: "Adds new observations in csv format"
-      consumes:
-        - "text/csv"
       parameters:
         - name: "pod"
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-        - in: "body"
-          name: "body"
-          description: "CSV data to add as observations"
-          required: true
           schema:
-            type: string
-          examples:
-            trader-example:
-              summary: Add observations for a pod named "trader"
-              value: |
-                time,coinbase.btcusd.close
-                1607909400,100.00
-                1607911200,200.00
-                1607913000,300.00
-                1607914800,400.00
-                1607916600,500.00
-                1607918400,600.00
-                1607920200,700.00
-                1607922000,800.00
+            type: "string"
+      requestBody:
+        description: "CSV data to add as observations"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              trader-example:
+                summary: Add observations for a pod named "trader"
+                value: |
+                  time,coinbase.btcusd.close
+                  1607909400,100.00
+                  1607911200,200.00
+                  1607913000,300.00
+                  1607914800,400.00
+                  1607916600,500.00
+                  1607918400,600.00
+                  1607920200,700.00
+                  1607922000,800.00
       responses:
         "201":
           description: "Observations added successfully"
@@ -172,58 +170,62 @@ paths:
       tags:
         - "observations"
       summary: "Adds new observations to a dataspace in JSON format"
-      consumes:
-        - "application/json"
       parameters:
         - name: "pod"
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
+          schema:
+            type: "string"
         - name: "dataspace_from"
           in: "path"
           description: "the 'from' qualifier in the dataspace name"
           required: true
-          type: "string"
+          schema:
+            type: "string"
         - name: "dataspace_name"
           in: "path"
           description: "the name of the dataspace to add new observations to"
           required: true
-          type: "string"
-        - in: "body"
-          name: "body"
-          description: "JSON data to add as observations"
-          required: true
           schema:
-            $ref: "#/definitions/Observations"
-          examples:
-            example:
-              summary: Add observations for a pod
-              value: |
-                [
-                  {
-                    "data": {
-                      "eventId": "806.42",
-                      "rating": 86,
-                      "speed": "15",
-                      "height": "29",
-                      "target": 42
+            type: "string"
+      requestBody:
+        description: "JSON data to add as observations"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/Observation"
+            examples:
+              example:
+                summary: Add observations for a pod
+                value: |
+                  [
+                    {
+                      "data": {
+                        "eventId": "806.42",
+                        "rating": 86,
+                        "speed": "15",
+                        "height": "29",
+                        "target": 42
+                      },
+                      "tags": ["tagA", "tagB"],
+                      "time": 1605312000
                     },
-                    "tags": ["tagA", "tagB"],
-                    "time": 1605312000
-                  },
-                  {
-                    "data": {
-                      "eventId": 806.42,
-                      "rating": 86,
-                      "speed": 15,
-                      "height": 29,
-                      "target": 42
-                    },
-                    "tags": ["tagC", "tagD"],
-                    "time": "2020-09-14T22:04:00.413Z"
-                  }
-                ]
+                    {
+                      "data": {
+                        "eventId": 806.42,
+                        "rating": 86,
+                        "speed": 15,
+                        "height": 29,
+                        "target": 42
+                      },
+                      "tags": ["tagC", "tagD"],
+                      "time": "2020-09-14T22:04:00.413Z"
+                    }
+                  ]
       responses:
         "201":
           description: "Observations added successfully"
@@ -241,15 +243,15 @@ paths:
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-      produces:
-        - "application/json"
+          schema:
+            type: "string"
       responses:
         "200":
+          description: "Successfully retrieved the recommendation"
           content:
             application/json:
               schema:
-                $ref: "#/definitions/Recommendation"
+                $ref: "#/components/schemas/Recommendation"
               example:
                 {
                   "response": { "result": "ok" },
@@ -266,28 +268,28 @@ paths:
       tags:
         - "import/export"
       summary: "Export a pod that has done at least one training run - filename must end in .spicepod"
-      consumes:
-        - "application/json"
       parameters:
         - name: "pod"
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-        - in: "body"
-          name: "body"
-          description: "Export request parameters"
-          required: true
           schema:
-            $ref: "#/definitions/ExportRequest"
-          examples:
-            trader-example:
-              summary: Export to "/Users/spiceuser/Desktop/trader.spicepod"
-              value: |
-                {
-                  "directory": "/Users/spiceuser/Desktop",
-                  "filename": "trader.spicepod"
-                }
+            type: "string"
+      requestBody:
+        description: "Export request parameters"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportRequest"
+            examples:
+              trader-example:
+                summary: Export to "/Users/spiceuser/Desktop/trader.spicepod"
+                value: |
+                  {
+                    "directory": "/Users/spiceuser/Desktop",
+                    "filename": "trader.spicepod"
+                  }
       responses:
         "200":
           description: "Exported successfully"
@@ -300,27 +302,27 @@ paths:
       tags:
         - "import/export"
       summary: "Import a pod that has been previously exported to a .spicepod archive"
-      consumes:
-        - "application/json"
       parameters:
         - name: "pod"
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-        - in: "body"
-          name: "body"
-          description: "Import request parameters"
-          required: true
           schema:
-            $ref: "#/definitions/ImportRequest"
-          examples:
-            trader-example:
-              summary: Import from "/Users/spiceuser/Desktop/trader.spicepod"
-              value: |
-                {
-                  "archive_path": "/Users/spiceuser/Desktop/trader.spicepod"
-                }
+            type: "string"
+      requestBody:
+        description: "Import request parameters"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportRequest"
+            examples:
+              trader-example:
+                summary: Import from "/Users/spiceuser/Desktop/trader.spicepod"
+                value: |
+                  {
+                    "archive_path": "/Users/spiceuser/Desktop/trader.spicepod"
+                  }
       responses:
         "200":
           description: "Imported successfully"
@@ -338,17 +340,17 @@ paths:
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-      produces:
-        - "application/json"
+          schema:
+            type: "string"
       responses:
         "200":
+          description: "Successfully retrieves all of the training runs"
           content:
             application/json:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/definitions/TrainingRun"
+                  $ref: "#/components/schemas/TrainingRun"
               examples:
                 trader-example:
                   value: |
@@ -481,15 +483,21 @@ paths:
           in: "path"
           description: "name of the pod"
           required: true
-          type: "string"
-      produces:
-        - "application/json"
+          schema:
+            type: "string"
+        - name: "training_run"
+          in: "path"
+          description: "The ID of the training run"
+          required: true
+          schema:
+            type: "string"
       responses:
         "200":
+          description: "Retrieved the training run successfully"
           content:
             application/json:
               schema:
-                $ref: "#/definitions/TrainingRun"
+                $ref: "#/components/schemas/TrainingRun"
               examples:
                 trader-example:
                   value: |
@@ -610,17 +618,16 @@ paths:
                     }
         "404":
           description: "Pod not found"
-definitions:
-  Pod:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      manifest_path:
-        type: "string"
-  Observations:
-    type: "array"
-    items:
+components:
+  schemas:
+    Pod:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        manifest_path:
+          type: "string"
+    Observation:
       type: "object"
       additionalProperties: false
       required: ["time", "data"]
@@ -636,84 +643,84 @@ definitions:
             - type: "integer"
             - type: "string"
               format: "date-time"
-  Recommendation:
-    type: "object"
-    properties:
-      response:
-        $ref: "#/definitions/Response"
-      start:
+    Recommendation:
+      type: "object"
+      properties:
+        response:
+          $ref: "#/components/schemas/Response"
+        start:
+          type: "integer"
+          format: "int64"
+        end:
+          type: "integer"
+          format: "int64"
+        action:
+          type: "string"
+        confidence:
+          type: "number"
+          format: "float"
+        tag:
+          type: "string"
+    Response:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+        message:
+          type: "string"
+        error:
+          type: "boolean"
+    ExportRequest:
+      type: "object"
+      properties:
+        directory:
+          type: "string"
+          description: "The directory to place the exported Pod"
+        filename:
+          type: "string"
+          description: "The name of the file that will contain the exported Pod: must end in .spicepod"
+    ImportRequest:
+      type: "object"
+      properties:
+        archive_path:
+          type: "string"
+          description: "Path to the .spicepod archive to import"
+    TrainingRun:
+      type: "object"
+      properties:
+        start:
+          type: "integer"
+          format: "int64"
+        end:
+          type: "integer"
+          format: "int64"
+        episodes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Episode"
+    mapInt64:
+      type: "object"
+      additionalProperties:
         type: "integer"
         format: "int64"
-      end:
-        type: "integer"
-        format: "int64"
-      action:
-        type: "string"
-      confidence:
-        type: "number"
-        format: "float"
-      tag:
-        type: "string"
-  Response:
-    type: "object"
-    properties:
-      result:
-        type: "string"
-      message:
-        type: "string"
-      error:
-        type: "boolean"
-  ExportRequest:
-    type: "object"
-    properties:
-      directory:
-        type: "string"
-        description: "The directory to place the exported Pod"
-      filename:
-        type: "string"
-        description: "The name of the file that will contain the exported Pod: must end in .spicepod"
-  ImportRequest:
-    type: "object"
-    properties:
-      archive_path:
-        type: "string"
-        description: "Path to the .spicepod archive to import"
-  TrainingRun:
-    type: "object"
-    properties:
-      start:
-        type: "integer"
-        format: "int64"
-      end:
-        type: "integer"
-        format: "int64"
-      episodes:
-        type: "array"
-        items:
-          $ref: "#/definitions/Episode"
-  mapInt64:
-    type: "object"
-    additionalProperties:
-      type: "integer"
-      format: "int64"
-  Episode:
-    type: "object"
-    properties:
-      episode:
-        type: "integer"
-        format: "int64"
-      start:
-        type: "integer"
-        format: "int64"
-      end:
-        type: "integer"
-        format: "int64"
-      score:
-        type: "number"
-        format: "double"
-      actions_taken:
-        $ref: "#/definitions/mapInt64"
-      error:
-        type: "string"
-      error_message:
-        type: "string"
+    Episode:
+      type: "object"
+      properties:
+        episode:
+          type: "integer"
+          format: "int64"
+        start:
+          type: "integer"
+          format: "int64"
+        end:
+          type: "integer"
+          format: "int64"
+        score:
+          type: "number"
+          format: "double"
+        actions_taken:
+          $ref: "#/components/schemas/mapInt64"
+        error:
+          type: "string"
+        error_message:
+          type: "string"
