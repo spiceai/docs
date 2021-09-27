@@ -9,15 +9,11 @@ A _duration literal_ is a representation of a length of time. It has an integer 
 
 ```js
 duration_lit = { int_lit duration_unit } .
-duration_unit = "y" | "mo" | "w" | "d" | "h" | "m" | "s" | "ms" | "us" | "µs" | "ns" .
+duration_unit = "h" | "m" | "s" | "ms" | "us" | "µs" | "ns" .
 ```
 
 | Units    | Meaning                                 |
 | -------- | --------------------------------------- |
-| y        | year (12 months)                        |
-| mo       | month                                   |
-| w        | week (7 days)                           |
-| d        | day                                     |
 | h        | hour (60 minutes)                       |
 | m        | minute (60 seconds)                     |
 | s        | second                                  |
@@ -28,16 +24,12 @@ duration_unit = "y" | "mo" | "w" | "d" | "h" | "m" | "s" | "ms" | "us" | "µs" |
 Durations represent a length of time.
 Lengths of time are dependent on specific instants in time they occur and as such,
 durations do not represent a fixed amount of time.
-There are no amount of days equal to a month, as months vary in their number of days.
+Hours (h) is the largest duration unit as it is the larged unit not affected by daylight savings adjustments. Larger units such as days, months, or years in the future.
 
 ##### Examples of duration literals
 
 ```js
 1s
-10d
 1h15m  // 1 hour and 15 minutes
-5w
-1mo5d  // 1 month and 5 days
--1mo5d // negative 1 month and 5 days
-5w * 2 // 10 weeks
+72h // 72h hrs = 3 days
 ```
