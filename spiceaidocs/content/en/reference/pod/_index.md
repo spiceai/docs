@@ -23,7 +23,7 @@ An optional `map` of parameters that you can specify to tune how Spice.ai intera
 | Parameter                                   | Default          |
 | ------------------------------------------- | ---------------- |
 | [epoch_time]({{<ref "#paramsepoch_time">}}) | Now - `period`   |
-| [period]({{<ref "#paramsperiod">}})         | 3 days (3d)      |
+| [period]({{<ref "#paramsperiod">}})         | 72 hours (72h)   |
 | [interval]({{<ref "#interval">}})           | 1 minute (1m)    |
 | [granularity]({{<ref "#granularity">}})     | 10 seconds (10s) |
 | [episodes]({{<ref "#episodes">}})           | 10               |
@@ -33,7 +33,7 @@ An optional `map` of parameters that you can specify to tune how Spice.ai intera
 ```yaml
 params:
   epoch_time: 1605312000
-  period: 3d
+  period: 72h
   interval: 1m
   granularity: 10s
   episodes: 10
@@ -58,7 +58,7 @@ params:
 
 A period is the total span of time that is considered for a pod. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
 
-If `period` is omitted, it defaults to 3 days (`3d`).
+If `period` is omitted, it defaults to 72 hours (`72h`).
 
 `period` is a [duration literal]({{<ref "reference/duration">}}).
 
@@ -66,7 +66,7 @@ If `period` is omitted, it defaults to 3 days (`3d`).
 
 ```yaml
 params:
-  period: 3d
+  period: 72h
 ```
 
 ### `params.interval`

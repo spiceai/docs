@@ -13,7 +13,7 @@ params:
   epoch_time: 1612557000
   granularity: 10m
   interval: 1h
-  period: 100d
+  period: 720h
 dataspaces:
   - from: sensors
     name: garden

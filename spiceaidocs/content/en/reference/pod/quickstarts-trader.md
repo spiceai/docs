@@ -13,7 +13,7 @@ params:
   epoch_time: 1605312000
   granularity: 30m
   interval: 6h
-  period: 30d
+  period: 72h
   episodes: 10
 dataspaces:
   - from: coinbase
