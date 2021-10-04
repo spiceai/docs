@@ -62,7 +62,7 @@ rm ~/.spice/bin/spice
 curl https://install.spiceai.org | /bin/bash
 ```
 
-v0.2.0-alpha will support a self-update command, see the [Spice.ai roadmap](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md) for more details.
+A future release will support a self-update command, see the [Spice.ai roadmap](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md) for more details.
 
 ## Uninstall
 
