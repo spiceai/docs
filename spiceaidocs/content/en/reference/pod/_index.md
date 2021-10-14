@@ -235,6 +235,7 @@ The following connectors are currently supported:
 | ------------------------------------------------------------------------------------------------------------- |
 | [file](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/file/file.go)             |
 | [influxdb](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/influxdb/influxdb.go) |
+| [twitter](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/twitter/twitter.go)    |
 
 ### `dataspaces[*].data.connector.params`
 
@@ -278,6 +279,7 @@ The following processors are currently supported:
 | -------------------------------------------------------------------------------------------------------- |
 | [csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/csv/csv.go)           |
 | [flux-csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/flux/fluxcsv.go) |
+| [json](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/json/README.md)      |
 
 ### `dataspaces[*].data.processor.params`
 
