@@ -209,7 +209,7 @@ measurements:
 
 ### `dataspaces[*].measurements[*].selector`
 
-Used to select which field in the data source to map to this measurement name. Defaults to `name` if not provided.
+Used to select which field in the data source to map to this measurement name. Defaults to the measurement name if not provided.
 
 **Example**
 
@@ -269,11 +269,11 @@ time,bal
 
 ### `dataspaces[*].categories`
 
-Process categorical data in your data source. Categorical data is any data that can come from a finite number of values.
+Process categorical data. Categorical data is a group or collection of discrete strings.
 
-Some examples of categorical data include: colors, ratings, brands, programming languages, age group, hair color, grades, etc.
+Some examples of categorical data include: colors, star ratings, brands, programming languages, age group, hair color, grades, etc.
 
-To specify categorical data in your data source, use the `categories` node and specify the `values` that can appear in the category `name`.
+Define categorical collections in the Spicepod manifest by the categories` node. Specify each category with a `name` and a list of discrete `values.`
 
 **Example**
 
@@ -295,11 +295,11 @@ dataspaces:
 
 ### `dataspaces[*].categories[*].name`
 
-The `name` of the category. This will be the field that appears in the data source.
+Both the category name and the dataspace observation field name.
 
 ### `dataspaces[*].categories[*].selector`
 
-Used to select which field in the data source to map to this measurement name. Defaults to `name` if not provided.
+Selects the source data field mapped to the data space field. Defaults to `name` if not provided.
 
 **Example**
 
@@ -311,7 +311,7 @@ time,color_rainbow
 200,blue
 ```
 
-This would "select" the `color_rainbow` column and place it into `color` to be used by Spice.ai
+The data field `color_rainbow` is selected as the mapped source data for the data space observation field `color.`
 
 ```yaml
 categories:
@@ -321,13 +321,13 @@ categories:
 
 ### `dataspaces[*].categories[*].values`
 
-The set of possible categorical values that will be accepted by Spice.ai for the category `name`.
+Specifies the list of discrete category `name` values.
 
-Any values appearing in the data source that do not appear in this list will be ignored.
+Unspecified values in source data are ignored and are not included in the dataspace observations.
 
 ### `dataspaces[*].tags`
 
-A list of tags. Each item is a string value. If this value appears in the data source, it will be sent to the AI Engine in the observation.
+Specifies the list of tags. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
 
 **Example**
 
@@ -342,7 +342,7 @@ dataspaces:
 
 ### `dataspaces[*].data`
 
-Used to specify the external data source (configured with `connector` and `processor`) to use to populate the dataspace.
+Defines the data `connector` and data `processor` for the dataspace.
 
 If this section is omitted, the data should be provided through the [observations API]({{<ref api>}}).
 
