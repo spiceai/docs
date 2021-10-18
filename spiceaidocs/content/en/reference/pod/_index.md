@@ -180,7 +180,7 @@ dataspaces:
 
 ### `dataspaces[*].measurements`
 
-The measurements to create in the dataspace. If these measurements are not populated by either a data connector or through the API, they will use the default value of `0.0`. Each field must be a `float`.
+The measurements to create in the dataspace. Each field must be a `float`.
 
 ### `dataspaces[*].measurements[*].name`
 
@@ -216,17 +216,17 @@ Used to select which field in the data source to map to this measurement name. D
 In the source data:
 
 ```csv
-time,bal
+time,my_balance
 100,10
 200,20
 ```
 
-This would "select" the `bal` column and place it into `balance` to be used by Spice.ai
+This would "select" the `my_balance` column and place it into `balance` to be used by Spice.ai
 
 ```yaml
 measurements:
   - name: balance
-    selector: bal
+    selector: my_balance
 ```
 
 ### `dataspaces[*].measurements[*].fill`
@@ -240,7 +240,7 @@ Used to specify how to treat missing data. Possible values are `previous` or `no
 In the source data:
 
 ```csv
-time,bal
+time,balance
 100,10
 125,
 150,15
@@ -252,14 +252,14 @@ The following manifest:
 
 ```yaml
 measurements:
-  - name: bal
+  - name: balance
     fill: previous
 ```
 
 would produce this data to the AI Engine:
 
 ```csv
-time,bal
+time,balance
 100,10
 125,10
 150,15
@@ -273,7 +273,7 @@ Process categorical data. Categorical data is a group or collection of discrete 
 
 Some examples of categorical data include: colors, star ratings, brands, programming languages, age group, hair color, grades, etc.
 
-Define categorical collections in the Spicepod manifest by the categories` node. Specify each category with a `name` and a list of discrete `values.`
+Define categorical collections in the Spicepod manifest by the `categories` node. Specify each category with a `name` and a list of discrete `values.`
 
 **Example**
 
