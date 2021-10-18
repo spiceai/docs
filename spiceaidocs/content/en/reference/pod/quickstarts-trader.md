@@ -18,18 +18,18 @@ params:
 dataspaces:
   - from: coinbase
     name: btcusd
-    fields:
+    measurements:
       - name: close
     data:
       connector:
         name: file
         params:
-          path: data/btcusd.csv
+          path: spicepods/data/btcusd.csv
       processor:
         name: csv
   - from: local
     name: portfolio
-    fields:
+    measurements:
       - name: usd_balance
         initializer: 0 # update with the starting balance to train with
       - name: btc_balance
@@ -70,36 +70,36 @@ actions:
   - name: hold
 
 training:
+  # Compute price change between previous state and this one
+  # so it can be used in all three reward functions
   reward_init: |
-    # Compute price change between previous state and this one 
-    # so it can be used in all three reward functions
     prev_price = prev_state.coinbase.btcusd.close
     new_price = new_state.coinbase_btcusd_close
     change_in_price = new_price - prev_price
 
   rewards:
     - reward: small_buy
+      # Reward buying when the price decreases
+      # Penalize buying when the price increases
       with: |
-        # Reward buying when the price decreases 
-        # Penalize buying when the price increases 
         reward = -change_in_price
 
     - reward: large_buy
+      # Reward buying when the price decreases
+      # Penalize buying when the price increases
       with: |
-        # Reward buying when the price decreases 
-        # Penalize buying when the price increases 
         reward = -10 * change_in_price
 
     - reward: sell
+      # Reward selling when the price increases
+      # Penalize selling when the price decreases
       with: |
-        # Reward selling when the price increases
-        # Penalize selling when the price decreases
         reward = change_in_price
 
     - reward: hold
+      # Penalize holding slightly to incentivize more frequent trading
+      # Holding during large price movements will be penalized more harshly
       with: |
-        # Penalize holding slightly to incentivize more frequent trading
-        # Holding during large price movements will be penalized more harshly
         if change_in_price > 0:
           reward = -0.1
         else:
