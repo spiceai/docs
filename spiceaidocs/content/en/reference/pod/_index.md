@@ -124,7 +124,7 @@ A pod must contain at least one [dataspace]({{<ref "concepts#dataspace">}}).
 dataspaces:
   - from: coinbase
     name: btcusd
-    fields:
+    measurements:
       - name: close
     data:
       connector:
@@ -135,7 +135,7 @@ dataspaces:
         name: csv
   - from: local
     name: portfolio
-    fields:
+    measurements:
       - name: usd_balance
         initializer: 0
       - name: btc_balance
@@ -178,22 +178,22 @@ dataspaces:
     name: btcusd
 ```
 
-### `dataspaces[*].fields`
+### `dataspaces[*].measurements`
 
-**Required**. The fields to create in the dataspace. If these fields are not populated by either a data connector or through the API, they will use the default value of `0.0`. Each field must be a `float`.
+The measurements to create in the dataspace. Each field must be a `float`.
 
-### `dataspaces[*].fields[*].name`
+### `dataspaces[*].measurements[*].name`
 
 **Required**. The name of the field to create.
 
 **Example**
 
 ```yaml
-fields:
+measurements:
   - name: balance
 ```
 
-### `dataspaces[*].fields[*].initializer`
+### `dataspaces[*].measurements[*].initializer`
 
 May be used to specify an initial value for the field.
 
@@ -202,14 +202,147 @@ May be used to specify an initial value for the field.
 **Example**
 
 ```yaml
-fields:
+measurements:
   - name: balance
     initializer: 10.0
 ```
 
+### `dataspaces[*].measurements[*].selector`
+
+Used to select which field in the data source to map to this measurement name. Defaults to the measurement name if not provided.
+
+**Example**
+
+In the source data:
+
+```csv
+time,my_balance
+100,10
+200,20
+```
+
+This would "select" the `my_balance` column and place it into `balance` to be used by Spice.ai
+
+```yaml
+measurements:
+  - name: balance
+    selector: my_balance
+```
+
+### `dataspaces[*].measurements[*].fill`
+
+Used to specify how to treat missing data. Possible values are `previous` or `none`. The default value is `previous`.
+
+`previous` will take the last data point and "fill" it in. `none` will fill in the data with 0.
+
+**Example**
+
+In the source data:
+
+```csv
+time,balance
+100,10
+125,
+150,15
+175,
+200,20
+```
+
+The following manifest:
+
+```yaml
+measurements:
+  - name: balance
+    fill: previous
+```
+
+would produce this data to the AI Engine:
+
+```csv
+time,balance
+100,10
+125,10
+150,15
+175,15
+200,20
+```
+
+### `dataspaces[*].categories`
+
+Process categorical data. Categorical data is a group or collection of discrete strings.
+
+Some examples of categorical data include: colors, star ratings, brands, programming languages, age group, hair color, grades, etc.
+
+Define categorical collections in the Spicepod manifest by the `categories` node. Specify each category with a `name` and a list of discrete `values.`
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: rainbow
+    name: attributes
+    categories:
+      - name: color
+        values:
+          - red
+          - orange
+          - yellow
+          - green
+          - blue
+          - indigo
+          - violet
+```
+
+### `dataspaces[*].categories[*].name`
+
+Both the category name and the dataspace observation field name.
+
+### `dataspaces[*].categories[*].selector`
+
+Selects the source data field mapped to the data space field. Defaults to `name` if not provided.
+
+**Example**
+
+In the source data:
+
+```csv
+time,color_rainbow
+100,red
+200,blue
+```
+
+The data field `color_rainbow` is selected as the mapped source data for the data space observation field `color.`
+
+```yaml
+categories:
+  - name: color
+    selector: color_rainbow
+```
+
+### `dataspaces[*].categories[*].values`
+
+Specifies the list of discrete category `name` values.
+
+Unspecified values in source data are ignored and are not included in the dataspace observations.
+
+### `dataspaces[*].tags`
+
+Specifies the list of tags. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      - buy
+      - sell
+```
+
 ### `dataspaces[*].data`
 
-Used to specify the external data source (configured with `connector` and `processor`) to use to populate the dataspace.
+Defines the data `connector` and data `processor` for the dataspace.
 
 If this section is omitted, the data should be provided through the [observations API]({{<ref api>}}).
 
@@ -297,7 +430,7 @@ This can be used to simulate effects of actions taken during a training run on t
 dataspaces:
   - from: local
     name: portfolio
-    fields:
+    measurements:
       - name: usd_balance
       - name: btc_balance
     actions:
@@ -318,7 +451,7 @@ In this example, if the `usd_balance` would go below 0, the dataspace action tha
 dataspaces:
   - from: local
   name: portfolio
-  fields:
+  measurements:
     - name: usd_balance
     - name: btc_balance
   actions:
@@ -376,7 +509,7 @@ A dataspace defined as:
 dataspaces:
   - from: local
     name: portfolio
-    fields:
+    measurements:
       - name: btc_balance
     actions:
       buy: |
@@ -408,7 +541,7 @@ A dataspace with the following definition:
 dataspaces:
   - from: game
     name: world
-    fields:
+    measurements:
       - name: player_position
 ```
 
@@ -429,7 +562,7 @@ and could be referenced in the dataspace action with `args.position`:
 dataspaces:
   - from: game
     name: character
-    fields:
+    measurements:
       - name: coins
     actions:
       pick_up_coin: |

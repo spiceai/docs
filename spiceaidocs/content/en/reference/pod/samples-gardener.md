@@ -17,7 +17,7 @@ params:
 dataspaces:
   - from: sensors
     name: garden
-    fields:
+    measurements:
       - name: temperature
       - name: moisture
     data:
@@ -36,8 +36,8 @@ actions:
 training:
   rewards:
     - reward: close_valve
+      # Reward keeping moisture content above 25%
       with: |
-        # Reward keeping moisture content above 25%
         if new_state.sensors_garden_moisture > 0.25:
           reward = 200
 
@@ -50,8 +50,8 @@ training:
             reward = reward * 2
 
     - reward: open_valve_half
+      # Reward watering when needed, more heavily if the garden is more dried out
       with: |
-        # Reward watering when needed, more heavily if the garden is more dried out
         if new_state.sensors_garden_moisture < 0.25:
           reward = 100 * (0.25 - new_state.sensors_garden_moisture)
 
@@ -61,8 +61,8 @@ training:
           reward = -50 * (new_state.sensors_garden_moisture - 0.25)
 
     - reward: open_valve_full
+      # Reward watering when needed, more heavily if the garden is more dried out
       with: |
-        # Reward watering when needed, more heavily if the garden is more dried out
         if new_state.sensors_garden_moisture < 0.25:
           reward = 200 * (0.25 - new_state.sensors_garden_moisture)
 

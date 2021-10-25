@@ -28,7 +28,7 @@ dataspaces:
           field: usage_idle
       processor:
         name: flux-csv
-    fields:
+    measurements:
       # "usage_idle" measures the percentage of time the CPU is idle
       # Higher values indicate less CPU usage
       - name: usage_idle
@@ -52,8 +52,8 @@ training:
 
   rewards:
     - reward: perform_maintenance
+      # Reward when cpu usage is low and stable
       with: |
-        # Reward when cpu usage is low and stable
         if cpu_usage_new < high_cpu_usage_threshold:
           # The lower the cpu usage, the higher the reward
           reward = high_cpu_usage_threshold - cpu_usage_new
@@ -68,11 +68,11 @@ training:
           reward = high_cpu_usage_threshold - cpu_usage_new
 
     - reward: preload_cache
+      # Reward when cpu usage is low and rising
+      # Is the cpu usage high now, and was the cpu usage low previously?
+      # If so, previous state was a better time to preload,
+      # so give a negative reward based on the change
       with: |
-        # Reward when cpu usage is low and rising
-        # Is the cpu usage high now, and was the cpu usage low previously?
-        # If so, previous state was a better time to preload,
-        # so give a negative reward based on the change
         if cpu_usage_new > high_cpu_usage_threshold and cpu_usage_delta > 25:
           reward = -cpu_usage_delta
 
@@ -81,9 +81,9 @@ training:
           reward = high_cpu_usage_threshold - cpu_usage_new
 
     - reward: do_nothing
+      # Reward doing nothing under high cpu usage
+      # The higher the cpu usage, the higher the reward
       with: |
-        # Reward doing nothing under high cpu usage
-        # The higher the cpu usage, the higher the reward
         if cpu_usage_new > high_cpu_usage_threshold:
           reward = high_cpu_usage_threshold - cpu_usage_new
 
