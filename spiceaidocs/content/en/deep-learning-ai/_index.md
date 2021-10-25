@@ -13,15 +13,15 @@ The agent and environment continuously interact with each other. At each time st
 
 Spice.ai provides a standard interface that a deep learning algorithm can be implemented with. At launch Spice.ai supports two deep learning algorithms and more will be added over time.
 
-By default, Spice.ai will use [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}}). To use a different algorithm, set the environment variable `SPICE_DEEPRL_ALGORITHM` to one of the following values:
+By default, Spice.ai will use [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}}). To use a different algorithm, call `spice train` with the parameter `--learning-algorithm` set to one of the following values:
 
-| SPICE_DEEPRL_ALGORITHM | Algorithm                                                   |
-| ---------------------- | ----------------------------------------------------------- |
-| vpg                    | [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}}) |
-| dql                    | [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}})         |
+| --learning-algorithm | Algorithm                                                   |
+| -------------------- | ----------------------------------------------------------- |
+| dql                  | [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}})         |
+| vpg                  | [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}}) |
 
 **Example**
 
 ```bash
-SPICE_DEEPRL_ALGORITHM=dql spice run
+spice train --learning-algorithm vpg
 ```
