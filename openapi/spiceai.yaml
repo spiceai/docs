@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   description: ""
-  version: "0.1.1-alpha"
+  version: "0.3.0-alpha"
   title: "Spice.ai"
 servers:
   - url: http://localhost:8000/api/v0.1
