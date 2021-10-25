@@ -10,8 +10,6 @@ description: "Reference documentation for Spice.ai Intepretations"
 
 Interpretations provide a way to define meaning for a time range within a pod period. For example, for a stock trading pod with a period of Monday to Friday, an interpretation of that time range could be, from Tuesday to Wednesday is a good time to buy.
 
-> Note: v0.1.1-alpha provides the ability to add and get lists of interpretations, and import/export them in Spicepods, however they will not be available in reward functions until v0.2-alpha.
-
 An example interpretation defined in JSON is as follows:
 
 ```json

@@ -36,9 +36,9 @@ In another terminal:
 
 ```bash
 # Add a pod
-spice add samples/trader
+spice add samples/gardener
 # Re-train
-spice train trader
+spice train gardener
 ```
 
 Common commands are:
@@ -55,10 +55,9 @@ See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full lis
 
 ## Updating
 
-In v0.1.0-alpha the Spice.ai CLI must be manually updated. This can be done by removing the `spice` binary and re-running the install script above or manually replacing the binary with a downloaded release. E.g.
+To update the CLI, re-run the install script.
 
 ```bash
-rm ~/.spice/bin/spice
 curl https://install.spiceai.org | /bin/bash
 ```
 
@@ -69,3 +68,9 @@ A future release will support a self-update command, see the [Spice.ai roadmap](
 The Spice.ai CLI is installed by default to `$HOME/.spice/bin/spice` and a line added to the shell config, such as `.zshrc`
 
 It can be uninstalled by deleting the `spice` binary and removing the PATH addition from the rc file.
+
+Find all of the Docker images that were installed by running:
+
+```bash
+docker image ls -f reference="ghcr.io/spiceai/*"
+```
