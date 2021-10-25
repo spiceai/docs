@@ -29,6 +29,7 @@ spice [command] [--help]
 | spice version           | Shows the Spice.ai CLI and runtime versions     |
 | spice help              | Help about any command                          |
 | spice completion        | Generates the autocompletion script for a shell |
+| spice pods list         | Retrieve pods currently loaded in the runtime   |
 
 
 ## Command Flags
@@ -71,3 +72,9 @@ spice train [--context <context>] [--learning-algorithm <algorithm>]
 
 * **--context <context>** : Runs Spice.ai in the given context, either 'docker' or 'metal' (default: "docker")
 * **--learning-algorithm <algorithm>** : Train the pod with specified algorithm (default: "dql" or inherited from pod)
+
+### Pods
+
+```bash
+spice pods list
+```
