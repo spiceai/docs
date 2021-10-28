@@ -327,7 +327,7 @@ Unspecified values in source data are ignored and are not included in the datasp
 
 ### `dataspaces[*].tags`
 
-Specifies the list of tags. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+Specifies lists of tag selectors and values. The list of selectors is optional.
 
 **Example**
 
@@ -336,9 +336,32 @@ dataspaces:
   - from: coinbase
     name: btcusd
     tags:
-      - buy
-      - sell
+      values:
+        - buy
+        - sell
 ```
+
+### `dataspaces[*].tags.selectors`
+
+Specifies the list of source data fields to include in the tags collection. The `_tags` field is always included by default.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      selectors:
+        - is_last
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.values`
+
+The list of possible tag values. Tag values are aggregated to a unique tag value list at the pod scope.
 
 ### `dataspaces[*].data`
 
