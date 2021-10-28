@@ -50,7 +50,7 @@ Common commands are:
 | spice train   | Starts a pod training run                   |
 | spice version | Shows the Spice.ai CLI and runtime versions |
 | spice help    | Help about any command                      |
-| spice upgrade | Upgrade the CLI to latest  version          |
+| spice upgrade | Upgrade the CLI to latest version          |
 
 See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
