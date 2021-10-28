@@ -86,6 +86,20 @@ Thank you for sharing this journey with us. 🙏
       <a href="{{< ref getting-started >}}" class="stretched-link"></a>
     </div>
   </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><b>Quickstarts</b></h5>
+      <p class="card-text">Quickstart tutorials to get started with Spice.ai quickly. 🚀</p>
+      <a href="{{< ref quickstarts >}}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><b>Samples</b></h5>
+      <p class="card-text">Learn about Spice.ai with in-depth samples.</p>
+      <a href="{{< ref samples >}}" class="stretched-link"></a>
+    </div>
+  </div>
 </div>
 <br />
 <div class="card-deck">
