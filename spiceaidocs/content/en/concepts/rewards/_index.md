@@ -38,7 +38,7 @@ For the following manifest:
 
 ```yaml
 training:
-  reward_source: my_reward.py
+  reward_funcs: my_reward.py
   rewards:
     - reward: buy
       with: buy_reward
