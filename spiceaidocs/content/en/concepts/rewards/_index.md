@@ -15,7 +15,7 @@ The interface that all Spice.ai compatible external reward functions should comf
 The name of the function will be specified in the manifest, and there will be one function per action.
 
 ```python
-def reward_for_action(current_state: Dict, next_state: Dict) -> float:
+def reward_for_action(current_state: dict, current_state_interpretations: list, next_state: dict, next_state_interpretations: list) -> float:
     """
     Returns an reward given the action and observation space
 
