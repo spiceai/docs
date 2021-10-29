@@ -9,7 +9,7 @@ no_list: true
 
 ## Learn about Spice.ai with in-depth samples
 
-These tutorials are more in-depth than the [Qamples]({{<ref "quickstarts">}}) and use live streaming data for learning.
+These tutorials are more in-depth than the [Quickstarts]({{<ref "quickstarts">}}) and use live streaming data for learning.
 
 ### Apps that learn and adapt
 
