@@ -30,6 +30,7 @@ spice [command] [--help]
 | spice help              | Help about any command                          |
 | spice completion        | Generates the autocompletion script for a shell |
 | spice pods list         | Retrieve pods currently loaded in the runtime   |
+| spice upgrade           | Upgrade CLI to the latest version               |
 
 
 ## Command Flags
