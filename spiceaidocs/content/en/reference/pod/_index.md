@@ -336,8 +336,45 @@ dataspaces:
   - from: coinbase
     name: btcusd
     tags:
-      - buy
-      - sell
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.selectors`
+
+Specifies the list of fields that should populate tags.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      selectors:
+        - field1
+        - field2
+        - tags
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.values`
+
+Specifies the list of tag values that should be processed by the AI engine.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      values:
+        - buy
+        - sell
 ```
 
 ### `dataspaces[*].data`
@@ -417,6 +454,34 @@ The following processors are currently supported:
 ### `dataspaces[*].data.processor.params`
 
 A `map` of key-value pairs that are used to control the behavior of the processor.
+
+Where `time` is not native to the data-stream, specific data processors, including the JSON and CSV data processors, support selecting a custom field to populate time with the `time_selector` parameter.
+
+**Time selector example**
+
+```yaml
+data:
+  processor:
+    name: json
+    param:
+      time_selector: created_at
+```
+
+### `dataspaces[*].seed_data`
+
+Defines the seed data `connector` and `processor` for the dataspace.
+
+Seed data is loaded before standard `data` and uses the same syntax as the `dataspaces[*].data` section.
+
+This section is optional.
+
+```yaml
+seed_data:
+  connector:
+    name: file
+    params:
+      path: data.csv
+```
 
 ### `dataspaces[*].actions`
 
