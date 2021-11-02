@@ -9,7 +9,9 @@ External reward functions should be defined in a single Python file. The package
 
 ## Action Reward
 
-The name of the function will be specified in the manifest, and there will be one function per action.
+For each action defined in the Spicepod, a corresponding function (i.e. action reward) should be defined in the Python file. The mapping of action -> function name is specified in the manifest.
+
+The function signature that your action reward should implement looks like:
 
 ```python
 def reward_for_action(current_state: dict, current_state_interpretations: list, next_state: dict, next_state_interpretations: list) -> float:
