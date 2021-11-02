@@ -327,7 +327,9 @@ Unspecified values in source data are ignored and are not included in the datasp
 
 ### `dataspaces[*].tags`
 
-Specifies lists of tag selectors and values. The list of selectors is optional.
+Specifies the list of tag selectors and values.
+
+The list of selectors is optional.
 
 **Example**
 
@@ -361,7 +363,9 @@ dataspaces:
 
 ### `dataspaces[*].tags.values`
 
-The list of possible tag values. Tag values are aggregated to a unique tag value list at the pod scope.
+The list of possible tag values. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+
+Tag values are aggregated to a unique tag value list at the pod scope.
 
 **Example**
 
