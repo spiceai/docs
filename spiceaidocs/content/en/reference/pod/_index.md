@@ -327,7 +327,45 @@ Unspecified values in source data are ignored and are not included in the datasp
 
 ### `dataspaces[*].tags`
 
-Specifies lists of tag selectors and values. The list of selectors is optional.
+Specifies the list of tag selectors and values.
+
+The list of selectors is optional.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.selectors`
+
+Specifies the list of fields that should populate tags. The `_tags` field is always included by default.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      selectors:
+        - is_last
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.values`
+
+The list of possible tag values. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+
+Tag values are aggregated to a unique tag value list at the pod scope.
 
 **Example**
 
@@ -440,6 +478,34 @@ The following processors are currently supported:
 ### `dataspaces[*].data.processor.params`
 
 A `map` of key-value pairs that are used to control the behavior of the processor.
+
+Where `time` is not native to the data-stream, specific data processors, including the JSON and CSV data processors, support selecting a custom field to populate time with the `time_selector` parameter.
+
+**Time selector example**
+
+```yaml
+data:
+  processor:
+    name: json
+    param:
+      time_selector: created_at
+```
+
+### `dataspaces[*].seed_data`
+
+Defines the seed data `connector` and `processor` for the dataspace.
+
+Seed data is loaded before standard `data` and uses the same syntax as the `dataspaces[*].data` section.
+
+This section is optional.
+
+```yaml
+seed_data:
+  connector:
+    name: file
+    params:
+      path: data.csv
+```
 
 ### `dataspaces[*].actions`
 
