@@ -6,14 +6,22 @@ weight: 20
 description: "Reference documentation for Spice.ai Dataspaces"
 ---
 
+A **dataspace** is a logical grouping of data with definitions of how that data should be loaded and processed, usually from a single source.
+
+A combination of its [data source](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors) and its [name](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors) identifies it, for example, `nasdaq/msft` or `twitter/tweets`.
+
+The [dataspaces node](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors) of the [Spicepod manifest](https://docs.spiceai.org/reference/pod/) may hold one or more dataspace definitions. The runtime will merge data from all pod dataspaces into observations.
+
+Each dataspace encapsulates definitions for its core data primitives, such as [measurements](https://docs.spiceai.org/reference/pod/#dataspacesmeasurements) (numerical data), [categories](https://docs.spiceai.org/reference/pod/#dataspacescategories) (string-based categorical data), and [tags](https://docs.spiceai.org/reference/pod/#dataspacestags) (string-based tags). It also includes configuration for data connector and data processor components to load and process data into those primitives.
+
+While measurements and categories are scoped to the dataspace namespace, tags are aggregated with tags from other dataspaces to the pod scope.
+
+Dataspaces may load data through a [data connector](https://docs.spiceai.org/concepts/#data-connector) and [processor](https://docs.spiceai.org/concepts/#data-processor) or through the POST [/pods/{pod}/observations]({{<ref api>}}) API. The API accepts JSON or CSV data and uses the appropriate [JSON](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/json/README.md) or [CSV](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors/csv) data processor. 
+
+Data connectors and processors are community-maintained components for streaming and processing time-series data. More information can be found in the [data-components-contrib](https://github.com/spiceai/data-components-contrib) repository.
+
+### Reference
+
+- List of [supported data connectors](https://github.com/spiceai/data-components-contrib/tree/trunk/dataconnectors/README.md)
+- List of [supported data processors](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/README.md)
 - [API Reference]({{<ref "api">}})
-
-A dataspace is a specification on how the Spice.ai runtime and AI engine loads, processes and interacts with data from a single source. A dataspace may contain a single data connector and data processor. There may be multiple dataspace definitions within a pod. The fields specified in the union of dataspaces are used as inputs to the neural networks that Spice.ai trains.
-
-A dataspace that is defined without either a data connector or a data processor must use the POST [/pods/{pod}/observations]({{<ref api>}}) API for data input.
-
-A dataspace defined with both a data connector and data processor will load data automatically using those components. Spice.ai provides an extensible way for anyone to create a new data connector and data processor in the [data-components-contrib](https://github.com/spiceai/data-components-contrib) repo.
-
-A dataspace that is defined without a data connector, but with a data processor can load data by using the POST [/pods/{pod}/dataspaces/{dataspace_from}/{dataspace_name}]({{<ref api>}}}) API. The data will be parsed by the data processor - using the JSON processor means calling the API with JSON data, and using the CSV processor means calling the API with CSV data.
-
-For more information on the data processors available see the [data-components-contrib dataprocessors](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors).

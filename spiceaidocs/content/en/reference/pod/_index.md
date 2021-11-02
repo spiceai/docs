@@ -327,7 +327,9 @@ Unspecified values in source data are ignored and are not included in the datasp
 
 ### `dataspaces[*].tags`
 
-Specifies the list of tags. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+Specifies the list of tag selectors and values.
+
+The list of selectors is optional.
 
 **Example**
 
@@ -343,7 +345,7 @@ dataspaces:
 
 ### `dataspaces[*].tags.selectors`
 
-Specifies the list of fields that should populate tags.
+Specifies the list of fields that should populate tags. The `_tags` field is always included by default.
 
 **Example**
 
@@ -353,9 +355,7 @@ dataspaces:
     name: btcusd
     tags:
       selectors:
-        - field1
-        - field2
-        - tags
+        - is_last
       values:
         - buy
         - sell
@@ -363,7 +363,9 @@ dataspaces:
 
 ### `dataspaces[*].tags.values`
 
-Specifies the list of tag values that should be processed by the AI engine.
+The list of possible tag values. Each item is a string value. Unspecified tags in source data are ignored and are not included in the dataspace observations.
+
+Tag values are aggregated to a unique tag value list at the pod scope.
 
 **Example**
 
