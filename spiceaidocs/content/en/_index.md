@@ -11,7 +11,7 @@ Spice.ai takes a developer-first approach, and is focused on a fast, iterative, 
 
 📢 Read the Spice.ai announcement blog post at [blog.spiceai.org](https://blog.spiceai.org).
 
-📺 View a 60 second demo of Spice.ai in action [here](https://www.youtube.com/watch?v=FPPGyPq41kQ).
+📺 View a getting started walkthrough of Spice.ai in action [here](https://www.youtube.com/watch?v=DKBLjuAz_lI).
 
 ## Features
 
@@ -84,6 +84,20 @@ Thank you for sharing this journey with us. 🙏
       <h5 class="card-title"><b>Getting started</b></h5>
       <p class="card-text">How to get up and running with Spice.ai in your environment in minutes.</p>
       <a href="{{< ref getting-started >}}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><b>Quickstarts</b></h5>
+      <p class="card-text">Quickstart tutorials to get started with Spice.ai quickly. 🚀</p>
+      <a href="{{< ref quickstarts >}}" class="stretched-link"></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><b>Samples</b></h5>
+      <p class="card-text">Learn about Spice.ai with in-depth samples.</p>
+      <a href="{{< ref samples >}}" class="stretched-link"></a>
     </div>
   </div>
 </div>
