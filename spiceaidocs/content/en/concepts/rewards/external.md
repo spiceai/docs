@@ -51,7 +51,7 @@ training:
       with: hold_reward
 ```
 
-A python file with these contents would be used for the reward function:
+Define a python file with the following contents to implement the reward functions:
 
 `my_reward.py`
 
