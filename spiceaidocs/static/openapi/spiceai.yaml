@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   description: ""
-  version: "0.3.0-alpha"
+  version: "0.3.1-alpha"
   title: "Spice.ai"
 servers:
   - url: http://localhost:8000/api/v0.1
@@ -165,7 +165,7 @@ paths:
           description: "Encountered an error processing the csv data"
         "404":
           description: "Pod not found"
-  /pods/{pod}/dataspaces/{dataspace_from}/{dataspace_name}:
+  /pods/{pod}/dataspaces/{dataspace_from}/{dataspace_name}/data:
     post:
       tags:
         - "observations"
