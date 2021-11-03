@@ -1,17 +1,21 @@
 ---
 type: docs
-title: "External Reward Functions"
-linkTitle: "External"
+title: "Reward Function Files"
+linkTitle: "Reward Function Files"
 weight: 15
 ---
 
-External reward functions should be defined in a single Python file. The packages that can be imported are limited to what is [imported by the AI Engine](https://github.com/spiceai/spiceai/blob/trunk/ai/src/requirements/common.txt).
+Reward functions may be defined in a single Python (.py) file.
+
+This file may be authored in standard Python3.8+ code and the file may define global functions and import packages.
+
+The packages that can be imported are limited to what is [imported by the AI Engine](https://github.com/spiceai/spiceai/blob/trunk/ai/src/requirements/common.txt).
 
 ## Action Reward
 
-For each action defined in the Spicepod, a corresponding function (i.e. action reward) should be defined in the Python file. The mapping of action -> function name is specified in the manifest.
+For each action defined in the Spicepod manifest, a corresponding function (i.e. action reward) should be defined in the Python file. The mapping of action to function name is specified in the manifest using the `with` node.
 
-The function signature that your action reward should implement looks like:
+Each reward function should match the following function signature, with the function name matching that defined in the Spicepod manifest.
 
 ```python
 def reward_for_action(current_state: dict, current_state_interpretations: list, next_state: dict, next_state_interpretations: list) -> float:
@@ -51,7 +55,7 @@ training:
       with: hold_reward
 ```
 
-Define a python file with the following contents to implement the reward functions:
+Author a Python file with the following content to define the reward functions:
 
 `my_reward.py`
 
