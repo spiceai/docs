@@ -114,6 +114,30 @@ params:
   episodes: 10
 ```
 
+## `time`
+
+Pod time, time-series and time-data related configuration is defined in the `time` section.
+
+### `time.categories`
+
+A list of time categories, such as `month` or `weekday` enabling the automatic creation of fields from the observation `time`. For example, by specifiying `month` the Spice.ai engine automatically creates a field in the data called `time_month_<month>` with a value calculated from the month of which that timestamp relates. This enables learning from cyclical patterns, such as monthly or daily cycles.
+
+***Example***
+
+```yaml
+time:
+  categories:
+    - month
+    - dayofweek
+```
+
+Supported category values are:
+
+`month`
+`dayofmonth`
+`dayofweek`
+`hour`
+
 ## `dataspaces`
 
 A pod must contain at least one [dataspace]({{<ref "concepts#dataspace">}}).
@@ -378,6 +402,28 @@ dataspaces:
         - buy
         - sell
 ```
+
+### `dataspaces[*].tags.selectors`
+
+Specifies the list of source data fields to include in the tags collection. The `_tags` field is always included by default.
+
+**Example**
+
+```yaml
+dataspaces:
+  - from: coinbase
+    name: btcusd
+    tags:
+      selectors:
+        - is_last
+      values:
+        - buy
+        - sell
+```
+
+### `dataspaces[*].tags.values`
+
+The list of possible tag values. Tag values are aggregated to a unique tag value list at the pod scope.
 
 ### `dataspaces[*].data`
 
