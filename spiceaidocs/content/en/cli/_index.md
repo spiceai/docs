@@ -56,13 +56,20 @@ See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full lis
 
 ## Updating
 
-To update the CLI, re-run the install script.
+To update to latest CLI, run the upgrade command.
 
 ```bash
-curl https://install.spiceai.org | /bin/bash
+spice upgrade
 ```
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title"><b>Note</b></h5>
+        <p class="card-text">Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the <a href='{{<ref "cli/#install">}}' 
+        class="stretched-link"> install</a> script.</p>
+    </div>
+</div>
 
-A future release will support a self-update command, see the [Spice.ai roadmap](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md) for more details.
+
 
 ## Uninstall
 
