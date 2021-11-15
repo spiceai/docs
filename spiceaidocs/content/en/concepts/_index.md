@@ -48,7 +48,9 @@ Spice.ai provides a general interface that anyone can implement to create a data
 
 ### Recommendations
 
-After a pod has been trained, it will return intelligent [recommendations]({{<ref "concepts/recommendations">}}) which identifies an action to take at a particular time. By default, a recommendation will use the last ingested observation to recommend an action.
+To intelligently adapt its behavior, an application should query the Spice.ai runtime for which [action]({{<ref "reference/pod#actions">}}) it recommends to take given a specified time. The result of this query is a [recommendation]({{<ref "concepts/recommendations">}}).
+
+If a time is not specified, the resulting recommendation query time will default to the time of the most recently ingested observation.
 
 ### Training Rewards
 

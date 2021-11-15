@@ -8,21 +8,25 @@ description: "Reference documentation for Spice.ai Recommendations"
 
 - [API Reference]({{<ref "api#recommendations">}})
 
-Recommendations are the core of how Spice.ai can make apps intelligent. After a pod has been trained by specifying [Dataspaces]({{<ref "concepts/dataspaces">}}) which contain the data the AI should train on, the [Actions]({{<ref "reference/pod#actions">}}) that can be taken, the [Rewards]({{<ref "concepts/rewards">}}) for taking those actions, an app makes requests for intelligent recommendations on how it should behave based on new data.
+Recommendations are core to making intelligent apps that learn and adapt.
 
-By default, Spice.ai will recommend actions based on the last ingested observation, but this can be tweaked by asking for a recommendation at a specific time.
+Adaptive applications use Spice.ai Recommendations to inform their behavior and decisions on what actions to take during their operation. Each recommendation includes a confidence score, from zero to one. Applications should decide on the appropriate level of confidence for its given scenario as to act upon the recommendation or not.
+
+Valid recommendations (confidence scores greater than zero) are returned after the first training run for a pod is complete.
+
+If a time is not specified, the resulting recommendation query time will default to the time of the most recently ingested observation within the pod period.
 
 ## API Format
 
-Get a recommendation for action with the last ingested observation:
+Get a recommendation using the latest ingested observation time:
 
 `GET http://localhost:8000/api/v0.1/pods/{pod}/recommendation`
 
-Get a recommendation for an action at a specific time:
+Get a recommendation for a specified time:
 
 `GET http://localhost:8000/api/v0.1/pods/{pod}/recommendation?time={unix_timestamp}`
 
-where `{unix_timestamp}` is the number of seconds since the Unix epoch.
+where `{unix_timestamp}` is specified in [Unix time](https://en.wikipedia.org/wiki/Unix_time) in seconds. See [Time]({{/concepts/#time}}) for more information on how Spice.ai handles time.
 
 ## Example
 
