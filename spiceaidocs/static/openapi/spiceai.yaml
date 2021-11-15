@@ -220,23 +220,31 @@ paths:
                 value: |
                   [
                     {
-                      "data": {
-                        "eventId": "806.42",
+                      "identifiers": {
+                        "eventId": "806.42"
+                      },
+                      "measurements": {
                         "rating": 86,
-                        "speed": "15",
-                        "height": "29",
-                        "target": 42
+                        "speed": 15,
+                        "height": 29
+                      },
+                      "categories": {
+                        "target": "42"
                       },
                       "tags": ["tagA", "tagB"],
                       "time": 1605312000
                     },
                     {
-                      "data": {
-                        "eventId": 806.42,
+                      "identifiers": {
+                        "eventId": "806.42"
+                      },
+                      "measurements": {
                         "rating": 86,
                         "speed": 15,
-                        "height": 29,
-                        "target": 42
+                        "height": 29
+                      },
+                      "categories": {
+                        "target": "42"
                       },
                       "tags": ["tagC", "tagD"],
                       "time": "2020-09-14T22:04:00.413Z"
@@ -742,7 +750,11 @@ components:
       additionalProperties: false
       required: ["time", "data"]
       properties:
-        data:
+        identifiers:
+          type: "object"
+        measurements:
+          type: "object"
+        categories:
           type: "object"
         tags:
           items:
