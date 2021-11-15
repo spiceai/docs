@@ -26,7 +26,7 @@ Get a recommendation for a specified time:
 
 `GET http://localhost:8000/api/v0.1/pods/{pod}/recommendation?time={unix_timestamp}`
 
-where `{unix_timestamp}` is specified in [Unix time](https://en.wikipedia.org/wiki/Unix_time) in seconds. See [Time]({{/concepts/#time}}) for more information on how Spice.ai handles time.
+where `{unix_timestamp}` is specified in [Unix time](https://en.wikipedia.org/wiki/Unix_time) in seconds. See [Time]({{<ref "concepts/#time">}}) for more information on how Spice.ai handles time.
 
 ## Example
 
