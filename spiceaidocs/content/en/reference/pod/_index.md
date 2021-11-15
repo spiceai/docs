@@ -202,9 +202,50 @@ dataspaces:
     name: btcusd
 ```
 
+### `dataspaces[*].identifiers`
+
+Defines the dataspace identifiers.
+
+An identifier is a string that correlates a unique set of data. Examples are transaction ids, order ids, or correlation ids.
+
+Identifiers may be ingested, visualized, and fetched through observation APIs, however are not yet made available to the AI engine for learning. If you have feedback on how you'd like to incorporate them, please let us know.
+
+### `dataspaces[*].identifiers[*].name`
+
+**Required**. The name of the identifier.
+
+**Example**
+
+```yaml
+identifiers:
+  - name: transaction_id
+```
+
+### `dataspaces[*].identifiers[*].selector`
+
+Defines the field selector that maps a data field to the identifier name. Defaults to the identifier name if not provided.
+
+**Example**
+
+In the source data:
+
+```csv
+time,my_balance,my_transaction_id
+100,10,1A3
+200,20,1A4
+```
+
+Selects the `my_transaction_id` data field mapped to the `transaction_id` identifier.
+
+```yaml
+identifiers:
+  - name: transaction_id
+    selector: my_transaction_id
+```
+
 ### `dataspaces[*].measurements`
 
-The measurements to create in the dataspace. Each field must be a `float`.
+Defines the dataspace measurements.
 
 ### `dataspaces[*].measurements[*].name`
 
@@ -233,7 +274,7 @@ measurements:
 
 ### `dataspaces[*].measurements[*].selector`
 
-Used to select which field in the data source to map to this measurement name. Defaults to the measurement name if not provided.
+Defines the field selector that maps a data field to the measurement name. Defaults to the measurement name if not provided.
 
 **Example**
 
