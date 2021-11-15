@@ -46,11 +46,15 @@ Spice.ai provides a general interface that anyone can implement to create a data
 
 [Actions]({{<ref "reference/pod#actions">}}) are the set of actions the Spice.ai runtime can recommend for a pod.
 
+### Recommendations
+
+After a pod has been trained, it will return intelligent [recommendations]({{<ref "concepts/recommendations">}}) which identify an action to take at a particular time. By default a recommendation will use the latest data available to recommend an action.
+
 ### Training Rewards
 
 [Training Rewards]({{<ref "reference/pod#rewards">}}) are code definitions in Python that tell the Spice.ai AI Engine how to train the neural networks to achieve the desired goal. A reward is defined for each action specified in the pod.
 
-In the future we will expand the languages we support for writing the reward functions in. [Let us know](mailto:team@spiceai.io) which language you want to be able to write your reward functions in!
+In the future we will expand the languages we support for writing the reward functions in. [Let us know](mailto:hey@spiceai.io) which language you want to be able to write your reward functions in!
 
 ## Time
 

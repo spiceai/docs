@@ -261,6 +261,9 @@ paths:
           required: true
           schema:
             type: "string"
+        - name: "time"
+          in: "query"
+          description: "The point in time at which to request the recommendation"
       responses:
         "200":
           description: "Successfully retrieved the recommendation"
@@ -276,6 +279,24 @@ paths:
                   "action": "sell",
                   "confidence": 0.741,
                   "tag": "latest",
+                }
+        "400":
+          description: "An invalid {time} was specified for the recommendation"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  response:
+                    $ref: "#/components/schemas/Response"
+              example:
+                {
+                  "response":
+                    {
+                      "result": "invalid_recommendation_time",
+                      "message": "The time specified (1610060201) is outside of the allowed range: (1610057600, 1610060200)",
+                      "error": true,
+                    },
                 }
         "404":
           description: "Pod not found"
