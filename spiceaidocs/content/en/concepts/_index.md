@@ -48,7 +48,7 @@ Spice.ai provides a general interface that anyone can implement to create a data
 
 ### Recommendations
 
-After a pod has been trained, it will return intelligent [recommendations]({{<ref "concepts/recommendations">}}) which identify an action to take at a particular time. By default a recommendation will use the latest data available to recommend an action.
+After a pod has been trained, it will return intelligent [recommendations]({{<ref "concepts/recommendations">}}) which identifies an action to take at a particular time. By default, a recommendation will use the last ingested observation to recommend an action.
 
 ### Training Rewards
 
