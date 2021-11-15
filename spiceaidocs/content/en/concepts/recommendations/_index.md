@@ -15,9 +15,11 @@ By default Spice.ai will recommend actions based on the latest data available, b
 ## API Format
 
 Get a recommendation for an action with the latest data:
+
 `GET http://localhost:8000/api/v0.1/pods/{pod}/recommendation`
 
 Get a recommendation for an action at a specific time:
+
 `GET http://localhost:8000/api/v0.1/pods/{pod}/recommendation?time={unix_timestamp}`
 
 where `{unix_timestamp}` is the number of seconds since the Unix epoch.
