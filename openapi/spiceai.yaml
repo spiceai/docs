@@ -220,23 +220,31 @@ paths:
                 value: |
                   [
                     {
-                      "data": {
-                        "eventId": "806.42",
+                      "identifiers": {
+                        "eventId": "806.42"
+                      },
+                      "measurements": {
                         "rating": 86,
-                        "speed": "15",
-                        "height": "29",
-                        "target": 42
+                        "speed": 15,
+                        "height": 29
+                      },
+                      "categories": {
+                        "target": "42"
                       },
                       "tags": ["tagA", "tagB"],
                       "time": 1605312000
                     },
                     {
-                      "data": {
-                        "eventId": 806.42,
+                      "identifiers": {
+                        "eventId": "806.42"
+                      },
+                      "measurements": {
                         "rating": 86,
                         "speed": 15,
-                        "height": 29,
-                        "target": 42
+                        "height": 29
+                      },
+                      "categories": {
+                        "target": "42"
                       },
                       "tags": ["tagC", "tagD"],
                       "time": "2020-09-14T22:04:00.413Z"
@@ -261,6 +269,9 @@ paths:
           required: true
           schema:
             type: "string"
+        - name: "time"
+          in: "query"
+          description: "The point in time at which to request the recommendation"
       responses:
         "200":
           description: "Successfully retrieved the recommendation"
@@ -276,6 +287,24 @@ paths:
                   "action": "sell",
                   "confidence": 0.741,
                   "tag": "latest",
+                }
+        "400":
+          description: "An invalid {time} was specified for the recommendation"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  response:
+                    $ref: "#/components/schemas/Response"
+              example:
+                {
+                  "response":
+                    {
+                      "result": "invalid_recommendation_time",
+                      "message": "The time specified (1610060201) is outside of the allowed range: (1610057600, 1610060200)",
+                      "error": true,
+                    },
                 }
         "404":
           description: "Pod not found"
@@ -721,7 +750,11 @@ components:
       additionalProperties: false
       required: ["time", "data"]
       properties:
-        data:
+        identifiers:
+          type: "object"
+        measurements:
+          type: "object"
+        categories:
           type: "object"
         tags:
           items:
