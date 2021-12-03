@@ -10,21 +10,22 @@ Spice.ai is a time series AI platform, so time is one of Spice.ai's most fundame
 
 ## What is time series data?
 
-Time series data is a series of timestamped data points or events indexed in time order. In Spice.ai, these data points are called Observations. For example, temperature sensor readings on an interval or a daily stock price are examples of time series data. Time series data applies to many domains, including analytics, finance, health and biometrics, IoT and industrial, security, and application monitoring. To learn more, Wikipedia has a comprehensive article on time series, and InfluxData has published a very informative article, What is time series data?
+Time series data is a series of timestamped data points or events indexed in time order. In Spice.ai, these data points are called Observations. For example, temperature sensor readings on an interval or a daily stock price are examples of time series data. Time series data applies to many domains, including analytics, finance, health and biometrics, IoT and industrial, security, and application monitoring. To learn more, Wikipedia has a comprehensive article on [time series](https://en.wikipedia.org/wiki/Time_series), and InfluxData has published a very informative article, [What is time series data?](https://www.influxdata.com/what-is-time-series-data/)
 
 ## Why time series AI?
 
-One definition of artificial intelligence proposed by Hado van Hasselt from DeepMind is "to be able to learn to make decisions to achieve goals." Using this definition can conclude that these decisions are made over time to achieve an application's goals. Thus, time and time-series data can be seen as fundamental concepts when developing an application's intelligence.
+One definition of artificial intelligence proposed by [Hado van Hasselt from DeepMind](https://www.youtube.com/watch?v=TCCjZe0y4Qc&list=PLqYmG7hTraZDVH599EItlEWsUOsJbAodm) is "to be able to learn to make decisions to achieve goals." Using this definition can conclude that these decisions are made over time to achieve an application's goals. Thus, time and time-series data can be seen as fundamental concepts when developing an application's intelligence.
 
 ## Time series in Spice.ai
 
 Spice.ai natively ingests, processes, and learns from time series data. There are three core time series concepts in Spice.ai:
-A time series Period and its period Epoch
-Consecutive intervals or windows of time series observations
-The smallest granularity of time in the series
+
+- A time series **Period** and its period **Epoch**
+- Consecutive **intervals** or windows of time series observations
+- The smallest **granularity** of time in the series
 A visualization of these concepts over a timeline is below:
 
-<image>
+<img width="782" alt="spiceai-time" src="https://user-images.githubusercontent.com/80174/144559519-fc875d71-b43f-402a-ba2e-6754ebba9df0.png">
 
 Each of these concepts translates to developer configurable parameters in the Spicepod. For example, the Trader Sample uses these pod parameters in its manifest:
 
@@ -36,7 +37,9 @@ params:
   granularity: 5s
 ```
 
-If not provided in the manifest, Spicepods will default to a period of 3 days, intervals of 1 min, and granularity of 10 seconds. The period epoch will default to a dynamic epoch of the current time minus the period. In this mode, the period becomes a sliding window over time.
+If not provided in the manifest, Spicepods will default to a period of **3 days**, intervals of **1 min**, and granularity of **10 seconds**. The period epoch will default to a dynamic epoch of the current time minus the period. In this mode, the period becomes a sliding window over time.
+
+See reference documentation for [Spicepod params]({{<ref "reference/pod#params">}}).
 
 ### Period
 
