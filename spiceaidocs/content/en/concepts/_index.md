@@ -57,25 +57,3 @@ If a time is not specified, the resulting recommendation query time will default
 [Training Rewards]({{<ref "reference/pod#rewards">}}) are code definitions in Python that tell the Spice.ai AI Engine how to train the neural networks to achieve the desired goal. A reward is defined for each action specified in the pod.
 
 In the future we will expand the languages we support for writing the reward functions in. [Let us know](mailto:hey@spiceai.io) which language you want to be able to write your reward functions in!
-
-## Time
-
-Time is a fundamental building block for the Spice.ai project. Spice.ai can natively understand how to process time series data, whether that data is streamed in a continuous manner or is batched into larger timeframes.
-
-Taking a pod manifest and creating multiple pods with different time parameters will result in pods that can learn how to give recommendations for actions at different time frames. (i.e. should an action be taken once every second or once every day)
-
-### Epoch
-
-An epoch defines the beginning, or start, of the data stream. If Spice.ai receives data from before the epoch time, it is not used during training. If the epoch is omitted, the epoch is inferred to be `now` - `period`.
-
-### Period
-
-A period is the total span of time that is considered for a pod. The end of the data stream that Spice.ai will look at is the `epoch` + `period`.
-
-### Interval
-
-The interval is the time span that Spice.ai uses as a single input to the neural networks that power Spice.ai. Attempting to get a recommendation without Spice.ai having at least one intervals worth of data will result in an error.
-
-### Granularity
-
-The granularity is the smallest unit of time that specifies how many timesteps there are in an interval. The granularity cannot be larger than the interval. When streaming data in a continuous manner, the Spice.ai runtime can give a new recommendation for action after each new granularity's worth of data is collected.
