@@ -757,7 +757,7 @@ paths:
         - "train"
       responses:
         "200":
-          description: The known algorithms of this Spice.ai runtime version
+          description: Returns a list of the available ML learning algorithms.
           content:
             application/json:
               schema:
@@ -875,7 +875,7 @@ components:
       properties:
         learning_algorithm:
           type: "string"
-          description: "The learning algorithm id to use when training"
+          description: "The learning algorithm id to use in the requested training run"
         number_episodes:
           type: "integer"
           format: "int64"
@@ -884,10 +884,10 @@ components:
       properties:
         algorithm_id:
           type: "string"
-          description: "The identifier of the learning algorithm within Spice.ai"
+          description: "The AI learning algorithm identifier"
         name:
           type: "string"
-          description: "The friendly name of the learning algorithm. i.e. Deep Q-Learning"
+          description: "The AI learning algorithm name. i.e. Deep Q-Learning"
         docs_link:
           type: "string"
           description: "Link to Spice.ai docs where you can learn more about the algorithm"
