@@ -758,8 +758,6 @@ training:
 
 A python code block that will be run before an action specific reward code block runs. Use this to define common variables that will be useful to reference in the specific reward code blocks.
 
-Access observation state variables by specifying their fully qualified names and prefixing with `current_state.` for the value at the previous state before the action was taken, and `next_state.` for the value of the state right after the action was taken.
-
 **Example**
 
 ```yaml
@@ -767,8 +765,8 @@ training:
   reward_init: |
     # Compute price change between previous state and this one 
     # so it can be used in all three reward functions
-    prev_price = current_state.coinbase.btcusd.close
-    new_price = next_state.coinbase.btcusd.close
+    prev_price = current_state["coinbase_btcusd_close"]
+    new_price = next_state["coinbase_btcusd_close"]
     change_in_price = new_price - prev_price
   rewards:
     - reward: buy
@@ -783,6 +781,10 @@ training:
         else:
           reward = 0.1
 ```
+
+### `training.reward_funcs`
+
+The path to a Python file that defines the reward functions to use, instead of python code blocks.
 
 ### `training.rewards`
 
@@ -822,18 +824,8 @@ training:
 
 ### `training.rewards[*].with`
 
-A python code block that needs to assign a variable to `reward` to specify which reward to give the Spice.ai agent for taking this action.
+If `training.reward_funcs` is defined, then this should be the name of the function defined in the python file to use for specifying which reward to give the Spice.ai agent for taking this action.
 
-Access observation state variables by specifying their fully qualified names and prefixing with `current_state.` for the value at the previous state before the action was taken, and `next_state.` for the value of the state right after the action was taken.
+If `training.reward_funcs` is not defined, then this is a python code block that needs to assign a variable to `reward` to specify which reward to give the Spice.ai agent for taking this action.
 
-```yaml
-training:
-  rewards:
-    - reward: jump
-      with: |
-        # If we weren't able to jump, penalize trying to jump
-        if next_state.game.character.height > current_state.game.character.height:
-          reward = 1
-        else:
-          reward = -1
-```
+See [Rewards]({{<ref "concepts/rewards">}}) for more information on how to define reward functions.
