@@ -22,10 +22,10 @@ The reward function must assign a value to `reward` for it to be valid.
 
 The following variables are available to be used in the reward function:
 
-| variable   | Type                                                                                  | Description                                                    |
-| ---------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| prev_state | [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) | The observation state when the action was taken                |
-| new_state  | [SimpleNamespace](https://docs.python.org/3/library/types.html#types.SimpleNamespace) | The observation state from directly after the action was taken |
+| variable      | Type                                                                   | Description                                                           |
+| ------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| current_state | [dict](https://docs.python.org/3.8/library/stdtypes.html#typesmapping) | The observation state when the action was taken                       |
+| next_state    | [dict](https://docs.python.org/3.8/library/stdtypes.html#typesmapping) | The observation state one granularity step after the action was taken |
 
 ### Example
 
@@ -37,36 +37,36 @@ training:
     - reward: close_valve
       # Reward keeping moisture content above 25%
       with: |
-        if new_state.sensors_garden_moisture > 0.25:
+        if next_state.sensors_garden_moisture > 0.25:
           reward = 200
 
         # Penalize low moisture content depending on how far the garden has dried out
         else:
-          reward = -100 * (0.25 - new_state.sensors_garden_moisture)
+          reward = -100 * (0.25 - next_state.sensors_garden_moisture)
 
-          # Penalize especially heavily if the drying trend is continuing (new_state is drier than prev_state)
-          if new_state.sensors_garden_moisture < prev_state.sensors_garden_moisture:
+          # Penalize especially heavily if the drying trend is continuing (next_state is drier than current_state)
+          if next_state.sensors_garden_moisture < current_state.sensors_garden_moisture:
             reward = reward * 2
 
     - reward: open_valve_half
       # Reward watering when needed, more heavily if the garden is more dried out
       with: |
-        if new_state.sensors_garden_moisture < 0.25:
-          reward = 100 * (0.25 - new_state.sensors_garden_moisture)
+        if next_state.sensors_garden_moisture < 0.25:
+          reward = 100 * (0.25 - next_state.sensors_garden_moisture)
 
         # Penalize wasting water
         # Penalize overwatering depending on how overwatered the garden is
         else:
-          reward = -50 * (new_state.sensors_garden_moisture - 0.25)
+          reward = -50 * (next_state.sensors_garden_moisture - 0.25)
 
     - reward: open_valve_full
       # Reward watering when needed, more heavily if the garden is more dried out
       with: |
-        if new_state.sensors_garden_moisture < 0.25:
-          reward = 200 * (0.25 - new_state.sensors_garden_moisture)
+        if next_state.sensors_garden_moisture < 0.25:
+          reward = 200 * (0.25 - next_state.sensors_garden_moisture)
 
         # Penalize wasting water more heavily with valve fully open
         # Penalize overwatering depending on how overwatered the garden is
         else:
-          reward = -100 * (new_state.sensors_garden_moisture - 0.25)
+          reward = -100 * (next_state.sensors_garden_moisture - 0.25)
 ```

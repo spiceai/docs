@@ -122,7 +122,7 @@ Pod time, time-series and time-data related configuration is defined in the `tim
 
 A list of time categories, such as `month` or `weekday` enabling the automatic creation of fields from the observation `time`. For example, by specifiying `month` the Spice.ai engine automatically creates a field in the data called `time_month_<month>` with a value calculated from the month of which that timestamp relates. This enables learning from cyclical patterns, such as monthly or daily cycles.
 
-***Example***
+**_Example_**
 
 ```yaml
 time:
@@ -758,7 +758,7 @@ training:
 
 A python code block that will be run before an action specific reward code block runs. Use this to define common variables that will be useful to reference in the specific reward code blocks.
 
-Access observation state variables by specifying their fully qualified names and prefixing with `prev_state.` for the value at the previous state before the action was taken, and `new_state.` for the value of the state right after the action was taken.
+Access observation state variables by specifying their fully qualified names and prefixing with `current_state.` for the value at the previous state before the action was taken, and `next_state.` for the value of the state right after the action was taken.
 
 **Example**
 
@@ -767,8 +767,8 @@ training:
   reward_init: |
     # Compute price change between previous state and this one 
     # so it can be used in all three reward functions
-    prev_price = prev_state.coinbase.btcusd.close
-    new_price = new_state.coinbase.btcusd.close
+    prev_price = current_state.coinbase.btcusd.close
+    new_price = next_state.coinbase.btcusd.close
     change_in_price = new_price - prev_price
   rewards:
     - reward: buy
@@ -824,7 +824,7 @@ training:
 
 A python code block that needs to assign a variable to `reward` to specify which reward to give the Spice.ai agent for taking this action.
 
-Access observation state variables by specifying their fully qualified names and prefixing with `prev_state.` for the value at the previous state before the action was taken, and `new_state.` for the value of the state right after the action was taken.
+Access observation state variables by specifying their fully qualified names and prefixing with `current_state.` for the value at the previous state before the action was taken, and `next_state.` for the value of the state right after the action was taken.
 
 ```yaml
 training:
@@ -832,7 +832,7 @@ training:
     - reward: jump
       with: |
         # If we weren't able to jump, penalize trying to jump
-        if new_state.game.character.height > prev_state.game.character.height:
+        if next_state.game.character.height > current_state.game.character.height:
           reward = 1
         else:
           reward = -1

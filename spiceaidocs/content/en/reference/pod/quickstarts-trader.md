@@ -73,8 +73,8 @@ training:
   # Compute price change between previous state and this one
   # so it can be used in all three reward functions
   reward_init: |
-    prev_price = prev_state.coinbase.btcusd.close
-    new_price = new_state.coinbase_btcusd_close
+    prev_price = current_state.coinbase.btcusd.close
+    new_price = next_state.coinbase_btcusd_close
     change_in_price = new_price - prev_price
 
   rewards:
