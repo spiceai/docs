@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   description: ""
-  version: "0.3.1-alpha"
+  version: "0.4.1-alpha"
   title: "Spice.ai"
 servers:
   - url: http://localhost:8000/api/v0.1
@@ -81,6 +81,21 @@ paths:
           required: true
           schema:
             type: "string"
+      requestBody:
+        description: "The configurable parameters for a training run"
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainRequest"
+            examples:
+              dql-example:
+                summary: Start a training run with 5 episodes and the DQL learning agent
+                value: |
+                  {
+                    "learning_algorithm": "dql",
+                    "number_episodes": 5
+                  }
       responses:
         "200":
           description: "Pod started training"
@@ -736,6 +751,33 @@ paths:
                     }
         "404":
           description: "Pod not found"
+  /algorithms:
+    get:
+      tags:
+        - "train"
+      responses:
+        "200":
+          description: Returns a list of the available ML learning algorithms.
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/LearningAlgorithm"
+              example:
+                [
+                  {
+                    "algorithm_id": "dql",
+                    "name": "Deep Q-Learning",
+                    "docs_link": "https://docs.spiceai.org/deep-learning-ai/dql/",
+                  },
+                  {
+                    "algorithm_id": "vpg",
+                    "name": "Vanilla Policy Gradient",
+                    "docs_link": "https://docs.spiceai.org/deep-learning-ai/vpg/",
+                  },
+                ]
+
 components:
   schemas:
     Pod:
@@ -828,6 +870,27 @@ components:
         archive_path:
           type: "string"
           description: "Path to the .spicepod archive to import"
+    TrainRequest:
+      type: "object"
+      properties:
+        learning_algorithm:
+          type: "string"
+          description: "The learning algorithm id to use in the requested training run"
+        number_episodes:
+          type: "integer"
+          format: "int64"
+    LearningAlgorithm:
+      type: "object"
+      properties:
+        algorithm_id:
+          type: "string"
+          description: "The AI learning algorithm identifier"
+        name:
+          type: "string"
+          description: "The AI learning algorithm name. i.e. Deep Q-Learning"
+        docs_link:
+          type: "string"
+          description: "Link to Spice.ai docs where you can learn more about the algorithm"
     TrainingRun:
       type: "object"
       properties:
