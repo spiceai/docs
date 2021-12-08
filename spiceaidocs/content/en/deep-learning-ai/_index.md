@@ -15,10 +15,11 @@ Spice.ai provides a standard interface that a deep learning algorithm can be imp
 
 By default, Spice.ai will use [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}}). To use a different algorithm, call `spice train` with the parameter `--learning-algorithm` set to one of the following values:
 
-| --learning-algorithm | Algorithm                                                   |
-| -------------------- | ----------------------------------------------------------- |
-| dql                  | [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}})         |
-| vpg                  | [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}}) |
+| --learning-algorithm | Algorithm                                                        |
+| -------------------- | ---------------------------------------------------------------- |
+| dql                  | [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}})              |
+| vpg                  | [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}})      |
+| sacd                 | [Soft Actor-Critic (Discrete)]({{<ref "deep-learning-ai/sac">}}) |
 
 **Example**
 
