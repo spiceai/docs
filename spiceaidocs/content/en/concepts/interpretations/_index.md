@@ -30,6 +30,6 @@ The interpretation is defined as a time range from `start` to `end`, with a `nam
 
 Interpretations can be used to provide hints to the reward function on how to reward a time step. In the above example, when the training reaches Tuesday, the reward function author might choose to reward buys even higher based on that expert input.
 
-When the action specific reward function is called, if there is an interpretation in that time range, it will be provided to the reward function in `[state].interpretations`. E.g. if an interpretation overlapped with new state then `new_state.interpretations` would contain a list of the overlapping interpretations.
+When the action specific reward function is called, if there is an interpretation in that time range, it will be provided to the reward function in `[state]_interpretations`. E.g. if an interpretation overlapped with new state then `next_state_interpretations` would contain a list of the overlapping interpretations.
 
 Comparing Spice.ai recommendations to interpretations is also one way of testing Spice.ai recommendations against expected actions for input data.

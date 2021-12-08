@@ -42,8 +42,8 @@ training:
   reward_init: |
     high_cpu_usage_threshold = 10
 
-    cpu_usage_new = 100 - new_state.hostmetrics_cpu_usage_idle
-    cpu_usage_prev = 100 - prev_state.hostmetrics_cpu_usage_idle
+    cpu_usage_new = 100 - next_state["hostmetrics_cpu_usage_idle"]
+    cpu_usage_prev = 100 - current_state["hostmetrics_cpu_usage_idle"]
     cpu_usage_delta = cpu_usage_new - cpu_usage_prev
 
     cpu_usage_delta_abs = cpu_usage_delta
