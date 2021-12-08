@@ -18,6 +18,7 @@ By default, Spice.ai will use [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}}
 | --learning-algorithm | Algorithm                                                   |
 | -------------------- | ----------------------------------------------------------- |
 | dql                  | [Deep Q-Learning]({{<ref "deep-learning-ai/dql">}})         |
+| sac                  | [Soft Actor Critic]({{<ref "deep-learning-ai/sac">}}) |
 | vpg                  | [Vanilla Policy Gradient]({{<ref "deep-learning-ai/vpg">}}) |
 
 **Example**
