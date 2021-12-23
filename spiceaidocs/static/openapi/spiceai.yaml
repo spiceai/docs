@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   description: ""
-  version: "0.4.1-alpha"
+  version: "0.5.1-alpha"
   title: "Spice.ai"
 servers:
   - url: http://localhost:8000/api/v0.1
@@ -285,6 +285,8 @@ paths:
           schema:
             type: "string"
         - name: "time"
+          schema:
+            type: "string"
           in: "query"
           description: "The point in time at which to request the recommendation"
       responses:
@@ -751,6 +753,42 @@ paths:
                     }
         "404":
           description: "Pod not found"
+  /pods/{pod}/training_runs/{training_run}/loggers/{logger_id}:
+    get:
+      tags:
+        - "training_runs"
+        - "training_loggers"
+      summary: "Retrieves the address of the specified training logger."
+      parameters:
+        - name: "pod"
+          in: "path"
+          description: "name of the pod"
+          required: true
+          schema:
+            type: "string"
+        - name: "training_run"
+          in: "path"
+          description: "The ID of the training run"
+          required: true
+          schema:
+            type: "string"
+        - name: "logger_id"
+          in: "path"
+          description: "The ID of the training logger"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Retrieved the training logger address successfully"
+          content:
+            text/plain:
+              examples:
+                tensorboard-example:
+                  value: |
+                    http://localhost:6069/
+        "404":
+          description: "Pod, training run, or logger instance not found"
   /algorithms:
     get:
       tags:

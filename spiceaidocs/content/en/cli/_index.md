@@ -50,7 +50,7 @@ Common commands are:
 | spice train   | Starts a pod training run                   |
 | spice version | Shows the Spice.ai CLI and runtime versions |
 | spice help    | Help about any command                      |
-| spice upgrade | Upgrade the CLI to latest version          |
+| spice upgrade | Upgrade the CLI to latest version           |
 
 See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
@@ -61,6 +61,7 @@ To update to latest CLI, run the upgrade command.
 ```bash
 spice upgrade
 ```
+
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"><b>Note</b></h5>
@@ -68,8 +69,6 @@ spice upgrade
         class="stretched-link"> install</a> script.</p>
     </div>
 </div>
-
-
 
 ## Uninstall
 
