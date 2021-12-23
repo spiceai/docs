@@ -114,6 +114,23 @@ params:
   episodes: 10
 ```
 
+### `params.training_loggers`
+
+A comma-seperated list of training loggers to enable for each pod training run.
+
+Supported loggers and their values are:
+
+| Logger                                                 | Value         |
+| ------------------------------------------------------ | ------------- |
+| [TensorBoard](https://www.tensorflow.org/tensorboard/) | `tensorboard` |
+
+**_Example_**
+
+```yaml
+params:
+  training_loggers: tensorboard
+```
+
 ## `time`
 
 Pod time, time-series and time-data related configuration is defined in the `time` section.
