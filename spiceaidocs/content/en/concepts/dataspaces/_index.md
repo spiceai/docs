@@ -16,7 +16,7 @@ Each dataspace encapsulates definitions for its core data primitives, such as [m
 
 While measurements and categories are scoped to the dataspace namespace, tags are aggregated with tags from other dataspaces to the pod scope.
 
-Dataspaces may load data through a [data connector](https://docs.spiceai.org/concepts/#data-connector) and [processor](https://docs.spiceai.org/concepts/#data-processor) or through the POST [/pods/{pod}/observations]({{<ref api>}}) API. The API accepts JSON or CSV data and uses the appropriate [JSON](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/json/README.md) or [CSV](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors/csv) data processor. 
+Dataspaces may load data through a [data connector](https://docs.spiceai.org/concepts/#data-connector) and [processor](https://docs.spiceai.org/concepts/#data-processor) or through the POST [/pods/{pod}/observations]({{<ref api>}}) API. The API accepts JSON or CSV data and uses the appropriate [JSON](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/json/README.md) or [CSV](https://github.com/spiceai/data-components-contrib/tree/trunk/dataprocessors/csv) data processor.
 
 Data connectors and processors are community-maintained components for streaming and processing time-series data. More information can be found in the [data-components-contrib](https://github.com/spiceai/data-components-contrib) repository.
 

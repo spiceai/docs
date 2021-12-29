@@ -114,23 +114,6 @@ params:
   episodes: 10
 ```
 
-### `params.training_loggers`
-
-A comma-seperated list of training loggers to enable for each pod training run.
-
-Supported loggers and their values are:
-
-| Logger                                                 | Value         |
-| ------------------------------------------------------ | ------------- |
-| [TensorBoard](https://www.tensorflow.org/tensorboard/) | `tensorboard` |
-
-**_Example_**
-
-```yaml
-params:
-  training_loggers: tensorboard
-```
-
 ## `time`
 
 Pod time, time-series and time-data related configuration is defined in the `time` section.
@@ -769,6 +752,24 @@ After a single episode is completed from a training run, a `score` is kept of th
 ```yaml
 training:
   goal: score >= 100
+```
+
+### `training.loggers`
+
+A list of training loggers to enable for each pod training run.
+
+Supported loggers and their values are:
+
+| Logger                                                 | Value         |
+| ------------------------------------------------------ | ------------- |
+| [TensorBoard](https://www.tensorflow.org/tensorboard/) | `tensorboard` |
+
+**_Example_**
+
+```yaml
+training:
+  loggers:
+    - tensorboard
 ```
 
 ### `training.reward_init`
