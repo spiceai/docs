@@ -55,7 +55,7 @@ Training run progress can also be visualized in the dashboard [http://localhost:
 
 Spice.ai supports logging to monitoring tools like [TensorBoard](https://www.tensorflow.org/tensorboard/).
 
-This logging can either be enabled at the pod level using the `training_loggers` Spicepod parameter or as a parameter to the `spice train` command. Once enabled, the runtime will log training metrics for that tool.
+This logging can either be enabled at the pod level using the `training.loggers` Spicepod section or as a parameter to the `spice train` command. Once enabled, the runtime will log training metrics for that tool.
 
 A button to open the tool will appear on the training run in the dashboard. Clicking the button will open the relevant monitoring tool.
 
@@ -65,5 +65,5 @@ A button to open the tool will appear on the training run in the dashboard. Clic
 
 See documentation for:
 
-- The Spicepod [training_loggers param]({{<ref "reference/pod#paramstraining_loggers">}}).
+- The Spicepod [training.loggers section]({{<ref "reference/pod#trainingloggers">}}).
 - The [spice train]({{<ref "cli/reference/#train">}}) CLI command.
