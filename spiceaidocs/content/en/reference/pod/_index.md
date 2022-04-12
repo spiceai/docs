@@ -552,7 +552,7 @@ Where `time` is not native to the data-stream, specific data processors, includi
 data:
   processor:
     name: json
-    param:
+    params:
       time_selector: created_at
 ```
 
