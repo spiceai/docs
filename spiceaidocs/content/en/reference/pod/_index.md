@@ -493,7 +493,10 @@ The following connectors are currently supported:
 | Connector Name                                                                                                |
 | ------------------------------------------------------------------------------------------------------------- |
 | [file](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/file/file.go)             |
+| [flight](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/flight/README.md)       |
+| [http](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/http/README.md)           |
 | [influxdb](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/influxdb/influxdb.go) |
+| [coinbase](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/coinbase/README.md)   |
 | [twitter](https://github.com/spiceai/data-components-contrib/blob/trunk/dataconnectors/twitter/twitter.go)    |
 
 ### `dataspaces[*].data.connector.params`
@@ -536,6 +539,7 @@ The following processors are currently supported:
 
 | Processor Name                                                                                           |
 | -------------------------------------------------------------------------------------------------------- |
+| [arrow](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/arrow/README.md)    |
 | [csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/csv/csv.go)           |
 | [flux-csv](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/flux/fluxcsv.go) |
 | [json](https://github.com/spiceai/data-components-contrib/blob/trunk/dataprocessors/json/README.md)      |
