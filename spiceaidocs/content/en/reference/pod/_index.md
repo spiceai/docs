@@ -851,3 +851,99 @@ If `training.reward_funcs` is defined, then this should be the name of the funct
 If `training.reward_funcs` is not defined, then this is a python code block that needs to assign a variable to `reward` to specify which reward to give the Spice.ai agent for taking this action.
 
 See [Rewards]({{<ref "concepts/rewards">}}) for more information on how to define reward functions.
+
+## `monitors`
+
+_Note_: Not currently used by Spice.ai OSS.
+
+Defines the `triggers` for monitoring data from the referenced dataspaces and `alerts` to fire when those triggers are met.
+
+**Example**
+
+```yaml
+monitors:
+  triggers:
+    - dataspace: eth/ens
+      measurement: GRACE_PERIOD
+      thresholds:
+        - operator: greater
+          value: 77000000
+  alerts:
+    - name: ens_grace_period_gt_77000000
+      type: webhook
+      uri: <URI to post the alert to>
+```
+
+### `monitors.triggers`
+
+A list of triggers to monitor from the references dataspaces.
+
+### `monitors.triggers[*].dataspace`
+
+The fully qualified name of the dataspace to monitor in the format of `from/name`.
+
+**Example**
+
+```yaml
+triggers:
+  - dataspace: eth/ens
+```
+
+### `monitors.triggers[*].measurement`
+
+The name of the measurement from the references dataspace to monitor. If the measurement has multiple sub-fields, then this should have the fully qualified name of the measurement in the format of `measurement.subfield`.
+
+**Example**
+
+```yaml
+triggers:
+  - dataspace: eth/uniswap_v2_pool
+    measurement: getReserves.reserve0
+```
+
+### `monitors.triggers[*].thresholds`
+
+A list of thresholds to monitor for the referenced measurement.
+
+**Example**
+
+```yaml
+thresholds:
+  - operator: greater
+    value: 77000000
+  - operator: less
+    value: 72000000
+```
+
+### `monitors.triggers[*].thresholds[*].operator`
+
+The operator to use to compare the value of the measurement to the threshold value.
+
+Supported operators are:
+
+- `greater`
+- `less`
+
+### `monitors.triggers[*].thresholds[*].value`
+
+The value to compare the measurement to.
+
+### `monitors.alerts`
+
+A list of alerts to fire when the referenced triggers are met.
+
+### `monitors.alerts[*].name`
+
+The name of the alert.
+
+### `monitors.alerts[*].type`
+
+The type of alert to fire.
+
+Supported alert types are:
+
+- `webhook`
+
+### `monitors.alerts[*].uri`
+
+The URI to post the alert to.
