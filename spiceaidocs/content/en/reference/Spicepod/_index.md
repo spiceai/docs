@@ -120,7 +120,7 @@ params:
 
 ## `time`
 
-Pod time, time-series and time-data related configuration is defined in the `time` section.
+Spicepod time, time-series and time-data related configuration is defined in the `time` section.
 
 ### `time.categories`
 
@@ -685,49 +685,4 @@ actions:
   - name: buy
     do:
       name: local.portfolio.buy
-```
-
-### `actions[*].do.args`
-
-A `map` of arguments to pass to the dataspace action. The `key` can be referenced by name in the defining dataspace action definition prefixed by `args.`. The `value` can be a constant or a fully qualified dataspace field.
-
-A fully qualified dataspace field takes the form of:
-
-`dataspace.from`.`dataspace.name`.`dataspace.field[*].name`
-
-**Example**
-
-A dataspace with the following definition:
-
-```yaml
-dataspaces:
-  - from: game
-    name: world
-    measurements:
-      - name: player_position
-```
-
-could be referenced in the `args` as `game.world.player_position`:
-
-```yaml
-actions:
-  - name: pick_up_coin
-    do:
-      name: game.character.pick_up_coin
-      args:
-        position: game.world.player_position
-```
-
-and could be referenced in the dataspace action with `args.position`:
-
-```yaml
-dataspaces:
-  - from: game
-    name: character
-    measurements:
-      - name: coins
-    actions:
-      pick_up_coin: |
-        if args.position > 10:
-          game.character.coins += 1
 ```
