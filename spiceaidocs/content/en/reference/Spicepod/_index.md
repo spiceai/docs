@@ -93,3 +93,13 @@ A model referenced by path.
 functions:
   - from: models/gas_fees
 ```
+
+## `dependencies`
+
+A list of dependent Spicepods.
+
+```yaml
+dependencies:
+  - lukekim/demo:0.1
+  - spicehq/nfts
+```
