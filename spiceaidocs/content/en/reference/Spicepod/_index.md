@@ -3,20 +3,18 @@ type: docs
 title: 'Manifest syntax for Spicepods'
 linkTitle: 'Spicepod specification'
 weight: 60
-description: 'Detailed documentation on the Spicepod manifest syntax'
+description: 'Detailed documentation on the Spicepod manifest syntax (spicepod.yaml)'
 ---
 
-## About YAML syntax for Spicepod manifests
+## About YAML syntax for Spicepod manifests (spicepod.yaml)
 
-Spicepod manifests use YAML syntax and must end in a `.yaml` or `.yml` file extension. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+Spicepod manifests use YAML syntax and must be named `spicepod.yaml` or `spicepod.yml`. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
 
 Spicepod manifest files are stored in the root directory of your application code.
 
 ## `name`
 
 The name of the Spicepod.
-
-If `name` is omitted, it is set to the name of the YAML file excluding the extension.
 
 ## `params`
 
