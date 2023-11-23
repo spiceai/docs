@@ -1,24 +1,28 @@
 ---
 type: docs
-title: "Manifest syntax for Spice.ai Pods"
-linkTitle: "Pod specification"
+title: 'Manifest syntax for Spicepods'
+linkTitle: 'Spicepod specification'
 weight: 60
-description: "Detailed documentation on the Spice.ai Pod manifest syntax"
+description: 'Detailed documentation on the Spicepod manifest syntax'
 ---
 
-## About YAML syntax for pod manifests
+## About YAML syntax for Spicepod manifests
 
-Pod manifests use YAML syntax, and must end in a `.yaml` file extension. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+Spicepod manifests use YAML syntax and must end in a `.yaml` or `.yml` file extension. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
 
-You must store pod manifest files in the `spicepods` directory of your application code. It is not required for the `spicepods` directory to be located at the root of your code repository.
+Spicepod manifest files are stored in the root directory of your application code.
 
 ## `name`
 
-The name of your pod. Spice.ai uses the name of your pod when rendering the dashboard and as the key for the API requests. If you omit `name`, Spice.ai sets it to the name of the YAML file excluding the `.yaml` extension.
+The name of the Spicepod.
+
+If `name` is omitted, it is set to the name of the YAML file excluding the extension.
 
 ## `params`
 
-An optional `map` of parameters that you can specify to tune how Spice.ai interacts with your pod. The following parameters are available:
+An optional `map` of parameters.
+
+The following parameters are currently supported:
 
 | Parameter                                   | Default          |
 | ------------------------------------------- | ---------------- |
