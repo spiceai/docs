@@ -1,13 +1,15 @@
 ---
 type: docs
-title: "Trader"
-linkTitle: "Example - Trader"
+title: 'Trader'
+linkTitle: 'Example - Trader'
 weight: 70
 ---
 
 From: https://github.com/spiceai/quickstarts/tree/trunk/trader
 
 ```yaml
+version: v1beta1
+kind: Spicepod
 name: trader
 params:
   epoch_time: 1605312000

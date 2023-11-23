@@ -1,13 +1,15 @@
 ---
 type: docs
-title: "Server Ops"
-linkTitle: "Example - Server Ops"
+title: 'Server Ops'
+linkTitle: 'Example - Server Ops'
 weight: 80
 ---
 
 From: https://github.com/spiceai/samples/tree/trunk/serverops
 
 ```yaml
+version: v1beta1
+kind: Spicepod
 name: serverops
 params:
   period: 24h

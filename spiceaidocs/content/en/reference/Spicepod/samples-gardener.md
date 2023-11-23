@@ -1,13 +1,15 @@
 ---
 type: docs
-title: "Gardener"
-linkTitle: "Example - Gardener"
+title: 'Gardener'
+linkTitle: 'Example - Gardener'
 weight: 60
 ---
 
 From: https://github.com/spiceai/samples/blob/trunk/gardener/README.md
 
 ```yaml
+version: v1beta1
+kind: Spicepod
 name: gardener
 params:
   epoch_time: 1612557000
