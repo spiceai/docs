@@ -12,6 +12,14 @@ Spicepod manifests use YAML syntax and must be named `spicepod.yaml` or `spicepo
 
 Spicepod manifest files are stored in the root directory of your application code.
 
+## `version`
+
+The version of the Spicepod manifest. The current version is `v1beta1`.
+
+## `kind`
+
+The kind of Spicepod manifest. The kind is `Spicepod`.
+
 ## `name`
 
 The name of the Spicepod.
