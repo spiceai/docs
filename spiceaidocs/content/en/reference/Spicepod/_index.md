@@ -41,44 +41,30 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](https://docs.spice.ai/reference/specifications/dataset-and-view-yaml-specification), defined inline or referenced by relative path.
+A Spicepod can contain one or more [datasets](https://docs.spice.ai/reference/specifications/dataset-and-view-yaml-specification) referenced by relative path.
 
 **Example**
 
-A datasets defined inline.
-
-```yaml
-datasets:
-  - name: uniswap_v2_eth_usdc
-    type: append
-    firecache:
-      enabled: true
-```
-
-A datasets referenced by path.
+A datasets referenced by relative path.
 
 ```yaml
 datasets:
   - from: datasets/uniswap_v2_eth_usdc
 ```
 
-## `functions`
-
-A Spicepod can contain one or more [functions](https://docs.spice.ai/reference/specifications/spice-functions-yaml-specification), defined inline or referenced by relative path.
-
-**Example**
-
-A function defined inline.
+A datasets with a dependency on another dataset.
 
 ```yaml
-functions:
-  - name: nft_mint_counter
-    output_dataset: nft_mint_counter
-    triggers:
-      - path: eth
-    runtime: python3.11
-    handler: spice_function.process
+datasets:
+  - from: datasets/uniswap_v2_eth_usdc
+    dependsOn: datasets/uniswap_eth_usdc
 ```
+
+## `functions`
+
+A Spicepod can contain one or more [functions](https://docs.spice.ai/reference/specifications/spice-functions-yaml-specification) referenced by relative path.
+
+**Example**
 
 A function referenced by path.
 
@@ -87,22 +73,19 @@ functions:
   - from: functions/nft_mint_counter
 ```
 
-## `models`
-
-A Spicepod can contain one or more [models](https://docs.spice.ai/reference/specifications/models-yaml-specification), defined inline or referenced by relative path.
-
-**Example**
-
-A model defined inline.
+A function with a dependency on a dataset.
 
 ```yaml
-models:
-  - name: v0.1
-    family: gas_fees
-    description: A Ethereum gas fee forecasting model.
-    type: gasfees_v1
-    handler: gas_fees.py
+functions:
+  - from: functions/nft_mint_counter
+    dependsOn: datasets/uniswap_v2_eth_usdc
 ```
+
+## `models`
+
+A Spicepod can contain one or more [models](https://docs.spice.ai/reference/specifications/models-yaml-specification) referenced by relative path.
+
+**Example**
 
 A model referenced by path.
 
