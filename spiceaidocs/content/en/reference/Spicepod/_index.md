@@ -41,7 +41,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](https://docs.spice.ai/reference/specifications/dataset-and-view-yaml-specification) referenced by relative path.
+A Spicepod can contain one or more [datasets]({{<ref "reference/Spicepod/datasets">}}) referenced by relative path.
 
 **Example**
 
@@ -58,6 +58,18 @@ A datasets with a dependency on another dataset.
 datasets:
   - from: datasets/uniswap_v2_eth_usdc
     dependsOn: datasets/uniswap_eth_usdc
+```
+
+A dataset defined inline.
+
+```yaml
+datasets:
+  - name: spiceai.uniswap_v2_eth_usdc
+    type: overwrite
+    source: spice.ai
+    acceleration:
+      enabled: true
+      refresh: 1h
 ```
 
 ## `functions`
