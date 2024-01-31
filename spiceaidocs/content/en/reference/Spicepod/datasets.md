@@ -15,13 +15,47 @@ Inline example:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - name: spiceai.uniswap_v2_eth_usdc
-    type: overwrite
-    source: spice.ai
-    auth: spice.ai
+  - from: spice.ai/eth/beacon/eigenlayer
+    name: strategy_manager_deposits
+    params:
+      app: goerli-app
     acceleration:
       enabled: true
-      refresh: 1h
+      mode: inmemory # / file
+      engine: arrow # / duckdb
+      refresh_interval: 1h
+      refresh_mode: full / append # update / incremental
+      retention: 30m
+```
+
+`spicepod.yaml`
+```yaml
+datasets:
+  - from: databricks.com/spiceai/datasets
+    name: uniswap_eth_usd
+    params:
+      environment: prod
+    acceleration:
+      enabled: true
+      mode: inmemory # / file
+      engine: arrow # / duckdb
+      refresh_interval: 1h
+      refresh_mode: full / append # update / incremental
+      retention: 30m
+```
+
+`spicepod.yaml`
+```yaml
+datasets:
+  - from: local/Users/phillip/data/test.parquet
+    name: test
+    acceleration:
+      enabled: true
+      mode: inmemory # / file
+      engine: arrow # / duckdb
+      refresh_interval: 1h
+      refresh_mode: full / append # update / incremental
+      retention: 30m
 ```
 
 Relative path example:
