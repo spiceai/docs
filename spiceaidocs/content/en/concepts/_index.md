@@ -20,11 +20,11 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 
 ### Before Spice
 
-<img width="750" alt="old" src="https://github.com/spiceai/spiceai/assets/80174/1a0a883e-8bd7-4ac3-a524-33a9ddad6e47">
+<img width="750" alt="old" src="/images/conecpts-before-spice.png">
 
 ### With Spice
 
-<img width="1024" alt="new" src="https://github.com/spiceai/spiceai/assets/80174/9bc84831-a75a-4fca-9643-ef7a86345ef0">
+<img width="1024" alt="new" src="/images/conecpts-with-spice.png">
 
 ## Spice CLI
 
