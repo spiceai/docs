@@ -3,15 +3,11 @@ type: docs
 title: Open Source Acknowledgements
 linkTitle: Acknowledgements
 weight: 70
-description: "Spice.ai would like to thank the following open source projects for making this possible"
+description: "Spice.ai acknowledges the following open source projects for making this project possible:"
 no_list: true
 ---
 
-# Open Source Acknowledgements
-
-Spice.ai acknowledges the following open source projects for making this project possible:
-
-## Go Modules
+### Go Modules
 
 github.com/fsnotify/fsnotify, https://github.com/fsnotify/fsnotify/blob/v1.5.4/LICENSE, BSD-3-Clause
 
@@ -78,7 +74,7 @@ gopkg.in/yaml.v2, https://github.com/go-yaml/yaml/blob/v2.4.0/LICENSE, Apache-2.
 gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 
-## Rust Crates
+### Rust Crates
 
 | name | version | authors | repository | license | license_file | description |
 |------|---------|---------|------------|---------|--------------|-------------|
