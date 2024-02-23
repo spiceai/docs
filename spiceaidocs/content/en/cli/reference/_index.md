@@ -16,21 +16,19 @@ spice [command] [--help]
 
 ## Full Command Reference
 
-| Command                 | Description                                     |
-| ----------------------- | ----------------------------------------------- |
-| spice action            | Manage actions                                  |
-| spice add               | Add a pod to `spicepods`                        |
-| [spice export](#Export) | Export a pod                                    |
-| [spice import](#Import) | Import a pod                                    |
-| spice init              | Initialize a new pod                            |
-| spice reward            | Manages rewards                                 |
-| [spice run](#Run)       | Starts the Spice.ai runtime                     |
-| [spice train](#Train)   | Starts a pod training run                       |
-| spice version           | Shows the Spice.ai CLI and runtime versions     |
-| spice help              | Help about any command                          |
-| spice completion        | Generates the autocompletion script for a shell |
-| spice pods list         | Retrieve pods currently loaded in the runtime   |
-| spice upgrade           | Upgrade CLI to the latest version               |
+| Command     | Description                                                         |
+| ----------- | --------------------------------------------------------------------|
+| add         | Add Pod - adds a pod to the project                                 |
+| completion  | Generate the autocompletion script for the specified shell          |
+| dataset     | Dataset operations                                                  |
+| help        | Help about any command                                              |
+| init        | Initialize Pod - initializes a new pod in the project               |
+| login       | Login to Spice.ai                                                   |
+| pods        | Retrieve pods                                                       |
+| run         | Run Spice.ai - starts the Spice.ai runtime, installing if necessary |
+| sql         | Start an interactive SQL query session against the Spice.ai runtime |
+| upgrade     | Upgrades the Spice CLI to the latest release                        |
+| version     | Spice CLI version                                                   |
 
 ## Command Flags
 
