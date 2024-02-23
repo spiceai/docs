@@ -39,8 +39,6 @@ params:
 
 If not provided in the manifest, Spicepods will default to a period of **3 days**, intervals of **1 min**, and granularity of **10 seconds**. The period epoch will default to a dynamic epoch of the current time minus the period. In this mode, the period becomes a sliding window over time.
 
-See reference documentation for [Spicepod params]({{<ref "reference/pod#params">}}).
-
 ### Period
 
 The `period` defines the entire timespan the Spicepod will use for learning and decision-making.
