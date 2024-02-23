@@ -112,7 +112,7 @@ Optional. Enable or disable acceleration.
 
 ## `acceleration.refresh`
 
-Optional. The interval to refresh the data for the dataset if the dataset type is overwrite. Specified as a [duration literal]({{<ref "reference/duration">}}).
+Optional. The interval to refresh the data for the dataset if the dataset type is overwrite.
 
 For `append` datasets, the refresh interval not used.
 
@@ -120,6 +120,6 @@ i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
 
 ## `acceleration.retention`
 
-Optional. Only supported for `append` datasets. Specifies how long to retain data updates from the data source before they are deleted. Specified as a [duration literal]({{<ref "reference/duration">}}).
+Optional. Only supported for `append` datasets. Specifies how long to retain data updates from the data source before they are deleted.
 
 If not specified, the default retention is to keep all data.

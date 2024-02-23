@@ -32,13 +32,15 @@ A typical command-line workflow might be as follows:
 spice run
 ```
 
-In another terminal:
+Run new shell in the same folder:
 
 ```bash
-# Add a pod
-spice add samples/gardener
-# Re-train
-spice train gardener
+# Init new app
+spice init spice_app
+
+# Add the Quickstart Spicepod
+spice add spiceai/quickstart
+
 ```
 
 Common commands are:
@@ -75,9 +77,3 @@ spice upgrade
 The Spice.ai CLI is installed by default to `$HOME/.spice/bin/spice` and a line added to the shell config, such as `.zshrc`
 
 It can be uninstalled by deleting the `spice` binary and removing the PATH addition from the rc file.
-
-Find all of the Docker images that were installed by running:
-
-```bash
-docker image ls -f reference="ghcr.io/spiceai/*"
-```

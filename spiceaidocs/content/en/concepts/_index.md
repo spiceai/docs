@@ -32,7 +32,7 @@ The `spice` command line tool for interacting with the Spice.ai runtime during d
 
 ## Spice Runtime
 
-The Spice core runtime which runs as the daemon `spiced` and includes the AI and Data engines.
+The Spice core runtime which runs as the daemon `spiced` and includes the ML and Data engines.
 
 ## [spicerack.org](https://spicerack.org)
 
