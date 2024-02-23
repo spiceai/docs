@@ -59,10 +59,6 @@ anchor = "smart"
 
 # Everything below this are Site Params
 
-# [[menu.left]]
-#     name = "API"
-#     weight = 10
-#     url = "api"
 [[menu.left]]
     name = "CLI"
     weight = 10
