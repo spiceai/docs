@@ -3,21 +3,21 @@ type: docs
 no_list: true
 ---
 
-# Spice.ai
+# Spice
 
-**Spice.ai** makes it easy for developers to build apps that learn and adapt by streamlining the use of machine learning (ML) in software. Combined with time-series data, developers can create applications that continuously improve using ML recommendations.
+**Spice** makes it easy for developers to build apps that learn and adapt by streamlining the use of machine learning (ML) in software. Combined with time-series data, developers can create applications that continuously improve using ML recommendations.
 
-Spice.ai takes a developer-first approach, and is focused on a fast, iterative, inner development loop, enabling developers to get started with ML in minutes instead of months.
+Spice takes a developer-first approach, and is focused on a fast, iterative, inner development loop, enabling developers to get started with ML in minutes instead of months.
 
-📢 Read the Spice.ai announcement blog post at [blog.spiceai.org](https://blog.spiceai.org/posts/2021/09/07/introducing-spice.ai-open-source-time-series-ai-for-developers/).
+📢 Read the Spice announcement blog post at [blog.spiceai.org](https://blog.spiceai.org/posts/2021/09/07/introducing-spice.ai-open-source-time-series-ai-for-developers/).
 
-📺 View a getting started walkthrough of Spice.ai in action [here](https://www.youtube.com/watch?v=DKBLjuAz_lI).
+📺 View a getting started walkthrough of Spice in action [here](https://www.youtube.com/watch?v=DKBLjuAz_lI).
 
 ## Features
 
-The Spice.ai runtime is written in Golang and Python and runs as a container or microservice. It's deployable to any public cloud, on-premises, and edge. It is configured with a simple manifest and accessed by HTTP APIs.
+The Spice runtime is written in Golang and Python and runs as a container or microservice. It's deployable to any public cloud, on-premises, and edge. It is configured with a simple manifest and accessed by HTTP APIs.
 
-Spice.ai includes:
+Spice includes:
 
 - A lightweight, portable ML runtime accessible by simple HTTP APIs, allowing developers to use their preferred languages and frameworks
 - A dashboard to visualize data and learning
@@ -26,11 +26,11 @@ Spice.ai includes:
 
 ### Community-Driven Data Components
 
-Spice.ai also includes a library of community-driven [data components](https://github.com/spiceai/data-components-contrib) for streaming and processing time series data, enabling developers to quickly and easily combine data with learning to create intelligent models.
+Spice also includes a library of community-driven [data components](https://github.com/spiceai/data-components-contrib) for streaming and processing time series data, enabling developers to quickly and easily combine data with learning to create intelligent models.
 
 ### Spicepod registry
 
-Modern developers build with the community by leveraging registries such as npm, NuGet, and pip. The Spice.ai platform includes [spicerack.org](https://spicerack.org), the registry for ML building blocks.
+Modern developers build with the community by leveraging registries such as npm, NuGet, and pip. The Spice platform includes [spicerack.org](https://spicerack.org), the registry for ML building blocks.
 
 As the community shares their ML building blocks (aka Spicepods, or pods for short), developers can quickly add them to their Spice.ai applications enabling them to stream data and build learning into their applications quickly and easily. Initially, Spicepods contain simple definitions of how the app should learn, and eventually will enable the sharing and use of fully-trained models.
 
