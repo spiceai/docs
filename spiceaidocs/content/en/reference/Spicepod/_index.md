@@ -72,27 +72,6 @@ datasets:
       refresh: 1h
 ```
 
-## `functions`
-
-A Spicepod can contain one or more [functions](https://docs.spice.ai/reference/specifications/spice-functions-yaml-specification) referenced by relative path.
-
-**Example**
-
-A function referenced by path.
-
-```yaml
-functions:
-  - from: functions/nft_mint_counter
-```
-
-A function with a dependency on a dataset.
-
-```yaml
-functions:
-  - from: functions/nft_mint_counter
-    dependsOn: datasets/uniswap_v2_eth_usdc
-```
-
 ## `models`
 
 A Spicepod can contain one or more [models](https://docs.spice.ai/reference/specifications/models-yaml-specification) referenced by relative path.
@@ -102,7 +81,7 @@ A Spicepod can contain one or more [models](https://docs.spice.ai/reference/spec
 A model referenced by path.
 
 ```yaml
-functions:
+models:
   - from: models/gas_fees
 ```
 
@@ -112,6 +91,6 @@ A list of dependent Spicepods.
 
 ```yaml
 dependencies:
-  - lukekim/demo:0.1
+  - lukekim/demo
   - spicehq/nfts
 ```

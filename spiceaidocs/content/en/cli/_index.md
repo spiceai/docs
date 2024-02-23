@@ -32,27 +32,29 @@ A typical command-line workflow might be as follows:
 spice run
 ```
 
-In another terminal:
+Run new shell in the same folder:
 
 ```bash
-# Add a pod
-spice add samples/gardener
-# Re-train
-spice train gardener
+# Init new app
+spice init spice_app
+
+# Add the Quickstart Spicepod
+spice add spiceai/quickstart
+
 ```
 
 Common commands are:
 
-| Command       | Description                                 |
-| ------------- | ------------------------------------------- |
-| spice add     | Add a pod to `spicepods`                    |
-| spice run     | Starts the Spice.ai runtime                 |
-| spice train   | Starts a pod training run                   |
-| spice version | Shows the Spice.ai CLI and runtime versions |
-| spice help    | Help about any command                      |
-| spice upgrade | Upgrade the CLI to latest version           |
+| Command           | Description                                                       |
+| ----------------- | ------------------------------------------------------------------- |
+| spice add         | Add Pod - adds a pod to the project                                 |
+| spice run         | Run Spice - starts the Spice runtime, installing if necessary |
+| spice version     | Spice CLI version                                                   |
+| spice help        | Help about any command                                              |
+| spice upgrade     | Upgrades the Spice CLI to the latest release                        |
 
-See [Spice.ai CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
+
+See [Spice CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
 ## Updating
 
@@ -75,9 +77,3 @@ spice upgrade
 The Spice.ai CLI is installed by default to `$HOME/.spice/bin/spice` and a line added to the shell config, such as `.zshrc`
 
 It can be uninstalled by deleting the `spice` binary and removing the PATH addition from the rc file.
-
-Find all of the Docker images that were installed by running:
-
-```bash
-docker image ls -f reference="ghcr.io/spiceai/*"
-```

@@ -60,10 +60,6 @@ anchor = "smart"
 # Everything below this are Site Params
 
 [[menu.left]]
-    name = "API"
-    weight = 10
-    url = "api"
-[[menu.left]]
     name = "CLI"
     weight = 10
     url = "cli"
@@ -74,7 +70,7 @@ anchor = "smart"
 [[menu.main]]
     name = "GitHub"
     weight = 50
-    url = "https://github.com/spiceai"
+    url = "https://github.com/spiceai/spiceai"
 [[menu.main]]
     name = "Blog"
     weight = 60
