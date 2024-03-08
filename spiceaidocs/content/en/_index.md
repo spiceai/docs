@@ -56,7 +56,7 @@ Thank you for sharing this journey with us. 🙏
     <div class="card-body">
       <h5 class="card-title"><b>Concepts</b></h5>
       <p class="card-text">Learn about Spice.ai concepts and terminology.</p>
-      <a href="{{< ref concepts >}}" class="stretched-link"></a>
+      <a href="/" class="stretched-link"></a>
     </div>
   </div>
   <div class="card">
