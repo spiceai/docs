@@ -4,55 +4,35 @@ no_list: true
 ---
 
 # Spice
+## What is Spice?
 
-**Spice** makes it easy for developers to build apps that learn and adapt by streamlining the use of machine learning (ML) in software. Combined with time-series data, developers can create applications that continuously improve using ML recommendations.
+**Spice** is a portable runtime that provides developers with a unified SQL query interface to locally accelerate and query data tables sourced from any database, data warehouse, or data lake.
 
-Spice takes a developer-first approach, and is focused on a fast, iterative, inner development loop, enabling developers to get started with ML in minutes instead of months.
+Spice makes it easy to build data-driven and data-intensive applications by streamlining the use of data and machine learning (ML) in software.
 
-📢 Read the Spice announcement blog post at [blog.spiceai.org](https://blog.spiceai.org/posts/2021/09/07/introducing-spice.ai-open-source-time-series-ai-for-developers/).
+The Spice runtime is written in Rust and leverages industry leading technologies like Apache DataFusion, Apache Arrow, Apache Arrow Flight, and DuckDB.
 
-📺 View a getting started walkthrough of Spice in action [here](https://www.youtube.com/watch?v=DKBLjuAz_lI).
+## Why Spice?
 
-## Features
+Spice makes querying data by SQL across one or more data sources simple and fast. Easily co-locate a managed working set of your data with your application or ML, locally accelerated in-memory, with DuckDB, or with an attached database like PostgreSQL for high-performance, low-latency queries.
 
-The Spice runtime is written in Golang and Python and runs as a container or microservice. It's deployable to any public cloud, on-premises, and edge. It is configured with a simple manifest and accessed by HTTP APIs.
+### Before Spice
 
-Spice includes:
+<img width="750" alt="old" src="https://github.com/spiceai/spiceai/assets/80174/1a0a883e-8bd7-4ac3-a524-33a9ddad6e47">
 
-- A lightweight, portable ML runtime accessible by simple HTTP APIs, allowing developers to use their preferred languages and frameworks
-- A dashboard to visualize data and learning
-- A developer-friendly CLI
-- Simple, git-committable, configuration and code
+### With Spice
 
-### Community-Driven Data Components
+<img width="1024" alt="new" src="https://github.com/spiceai/spiceai/assets/80174/9bc84831-a75a-4fca-9643-ef7a86345ef0">
 
-Spice also includes a library of community-driven [data components](https://github.com/spiceai/data-components-contrib) for streaming and processing time series data, enabling developers to quickly and easily combine data with learning to create intelligent models.
+### Example Use-Cases
 
-### Spicepod registry
+**1. Faster frontends.** Accelerate and co-locate data views with your frontend application, to serve more concurrent users with faster page loads and data updates.
 
-Modern developers build with the community by leveraging registries such as npm, NuGet, and pip. The Spice platform includes [spicerack.org](https://spicerack.org), the registry for ML building blocks.
+**2. Faster analytics and BI.**
 
-As the community shares their ML building blocks (aka Spicepods, or pods for short), developers can quickly add them to their Spice.ai applications enabling them to stream data and build learning into their applications quickly and easily. Initially, Spicepods contain simple definitions of how the app should learn, and eventually will enable the sharing and use of fully-trained models.
+**3. Faster machine learning training and inferencing.**
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/80174/132382372-c32cc8b7-25f2-4f82-8f9f-e4778fb69254.png" width="600" />
-</p>
-
-## Why Spice.ai?
-
-Spice.ai is for developers who want to build intelligent applications but don't have the time or resources to learn, build and integrate the required ML to do so.
-
-Imagine you have timestamped measurements of the room temperature and access to air-conditioning controls. If you had a time-series ML engine, your application could optimize when the A/C activates. You could reduce energy usage by not overcooling the room as the temperature drops.
-
-Now imagine learning Python or R, neural networks, deep-learning algorithms and building a system that streams and processes time-series data to do that. With Spice.ai — which includes a time-series ML engine accessible over HTTP APIs, a library of community-driven components for data streaming and processing, and an ecosystem of pre-created ML configurations — you can build upon the experience of the community instead of doing it all yourself. You can focus on business logic and building your application instead of the ML.
-
-### Pre-release software
-
-⚠️ The vision to make it easy to build intelligent applications that learn is a vast undertaking. We haven't figured it all out or solved all the problems yet, so we’re inviting you on this journey and are looking for feedback the direction.
-
-Spice.ai and spicerack.org are both pre-release, early, alpha software. Until v1.0, Spice.ai may have gaps, including limited deep learning algorithms, training-at-scale, and simulated environments. Also, Spicepods aren't searchable or listed on spicerack.org yet.
-
-Our intention with this preview is to work with developers early to define and create the developer experience together. 🚀 See the [Roadmap to v1.0-stable](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md#spice-ai-v10-stable-roadmap) for upcoming features.
+⚠️ **DEVELOPER PREVIEW** Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release.
 
 ### Join us!
 
@@ -76,7 +56,7 @@ Thank you for sharing this journey with us. 🙏
     <div class="card-body">
       <h5 class="card-title"><b>Concepts</b></h5>
       <p class="card-text">Learn about Spice.ai concepts and terminology.</p>
-      <a href="{{< ref concepts >}}" class="stretched-link"></a>
+      <a href="/" class="stretched-link"></a>
     </div>
   </div>
   <div class="card">

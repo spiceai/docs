@@ -8,7 +8,7 @@ no_list: true
 ---
 
 {{% alert title="Spice.ai Concepts" color="primary" %}}
-Before following this guide it is first recommended to review the Spice.ai [core concepts]({{<ref concepts>}}).
+Before following this guide it is first recommended to review the Spice.ai [core concepts](/).
 {{% /alert %}}
 
 ### Follow these steps to get started with Spice.ai.
