@@ -1,5 +1,5 @@
 languageCode = 'en-us'
-baseURL = "/concepts"
+baseURL = "/"
 
 enableRobotsTXT = true
 
