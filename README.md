@@ -42,6 +42,7 @@ git submodule update --init --recursive
 
 ```sh
 npm install
+cd themes/docsy && npm install
 ```
 
 ## Run local server
