@@ -59,11 +59,11 @@ anchor = "smart"
 
 # Everything below this are Site Params
 
-[[menu.left]]
+[[menu.main]]
     name = "CLI"
     weight = 10
     url = "cli"
-[[menu.left]]
+[[menu.main]]
     name = "Reference"
     weight = 10
     url = "reference"
