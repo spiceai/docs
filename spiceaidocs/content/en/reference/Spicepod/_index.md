@@ -24,11 +24,32 @@ The kind of Spicepod manifest. The kind is `Spicepod`.
 
 The name of the Spicepod.
 
+## `secrets`
+
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more]({{<ref "reference/secrets">}}).
+
+### `secrets.store`
+
+The type of secret store for reading secrets.
+
+- `file` (default)
+- `env`
+- `kubernetes`
+- `keyring`
+
+Example
+```yaml
+secrets:
+  store: env
+```
+
 ## `metadata`
 
 An optional `map` of metadata.
 
 **Example**
+
+Pulling secrets from environment variables.
 
 ```yaml
 metadata:
