@@ -6,25 +6,6 @@ description: ''
 weight: 70
 ---
 
-```mermaid
-
-block-beta
-    columns 5
-
-    store["secret store"] space secret_1["spiceai secret"] space v1["'key'"]
-    space space space space space
-    space space secret_2["dremio secret"] space v3["'user'"]
-    space space space space v4["'password'"]
-
-    store -- "spiceai" --> secret_1
-    store -- "dremio" --> secret_2
-
-    secret_1 -- "key" --> v1
-    secret_2 -- "user" --> v3
-    secret_2 -- "password" --> v4
-
-```
-
 ## Secret
 
 A Secret is an object used to store sensitive data, like a passwords, a tokens, or keys.
