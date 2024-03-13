@@ -37,8 +37,8 @@ Spice.ai supports four types of secret stores: `file`, `env`, `kubernetes` and `
 
 ### File Secret Store
 
-
-The Spice.ai CLI provides two commands, `spice login` and `spice login dremio`, which are designed to simplify the process of storing credentials. When executed, these commands will automatically persist the corresponding credentials in the file secret store.
+Default secret store uses a file located at `~/.spice/auth`.
+The Spice.ai CLI offers the `spice login` command to streamline credential storage. When logging into Spice.ai, it automatically saves credentials in the secret store file under `spiceai` secret.
 
 ### Environment Secret Store
 
