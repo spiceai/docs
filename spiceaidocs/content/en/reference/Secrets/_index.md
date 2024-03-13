@@ -42,9 +42,9 @@ The Spice.ai CLI offers the `spice login` command to streamline credential stora
 
 ### Environment Secret Store
 
-The `env` store type allows Spice.ai to read secrets from environment variables. The environment variables should be formatted like `SPICED_SECRET_<secret-name>_<secret-value-key>`. 
+The `env` store type allows Spice.ai to read secrets from environment variables. The environment variables should be formatted like `SPICE_SECRET_<secret-name>_<secret-value-key>`. 
 
-All variables with the same prefix `SPICED_SECRET_<secret-name>` are combined into a single secret. This allows you to group related secret values under a single secret name.
+All variables with the same prefix `SPICE_SECRET_<secret-name>` are combined into a single secret. This allows you to group related secret values under a single secret name.
 
 **Example**
 
@@ -56,7 +56,7 @@ secrets:
 Setting `spiceai` secret with spice.ai API key in `key` secret value:
 
 ```bash
-SPICED_SECRET_SPICEAI_KEY="343533|**************" \
+SPICE_SECRET_SPICEAI_KEY="343533|**************" \
   spice run
 ```
 
