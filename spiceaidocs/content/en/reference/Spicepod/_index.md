@@ -49,8 +49,6 @@ An optional `map` of metadata.
 
 **Example**
 
-Pulling secrets from environment variables.
-
 ```yaml
 metadata:
   epoch_time: 1605312000

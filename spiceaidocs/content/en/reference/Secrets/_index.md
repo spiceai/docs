@@ -67,8 +67,6 @@ rules:
 
 ### Keyring Secret Store
 
-> ⚠️ Keyring store can be enabled by building [spiced](https://github.com/spiceai/spiceai/tree/trunk/bin/spiced) with `keyring-secret-store` cargo feature.
-
 The `keyring` store allows Spice.ai to access secrets from the secure store of the host operating system:
 
 - On Linux, it uses the secret-service and kernel keyutils.
