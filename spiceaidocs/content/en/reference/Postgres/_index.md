@@ -20,7 +20,7 @@ datasets:
 
 ## Data Store
 
-To use PostgreSQL as a data store, specify `postgres` as the `engine` for the dataset.
+To use PostgreSQL as a data store for dataset acceleration, specify `postgres` as the `engine` for the dataset.
 
 ```yaml
 datasets:
