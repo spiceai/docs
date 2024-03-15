@@ -125,7 +125,7 @@ Optional. The mode of acceleration. The following values are supported:
   - `memory` - Cache data in memory.
   - `file` - Cache data in a file.
 
-`mode` is only supported for the `duckdb` engine.
+`mode` is currently only supported for the `duckdb` engine.
 
 ## `acceleration.refresh_mode`
 
