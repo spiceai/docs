@@ -6,7 +6,7 @@ description: 'PostgreSQL reference'
 weight: 80
 ---
 
-PostgreSQL can be connected to Spice AI as either a dataset source, a data store, or a data mesh.
+PostgreSQL can be connected to Spice AI as either a dataset source, a data store, or for federated SQL query.
 
 ## Dataset Source
 
@@ -20,9 +20,9 @@ datasets:
         enabled: true
 ```
 
-## Data Mesh
+## Federated SQL Query
 
-To use PostgreSQL as a data mesh, specify `postgres` as the `source` portion of `from` value for your dataset, without acceleration.
+To use PostgreSQL for federated SQL query, specify `postgres` as the `source` portion of `from` value for your dataset, without acceleration.
 
 ```yaml
 datasets:
@@ -53,9 +53,9 @@ You can configure the connection to your PostgreSQL by providing the following `
 - `pg_pass_key`: The name of the secret containing the password to connect with.
 - `pg_pass`: The raw password to connect with, ignored if `pg_pass_key` is provided.
 
-Configuration `params` are provided either in the top level `dataset` for a dataset source and data mesh, or in the `acceleration` section for a data store.
+Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query, or in the `acceleration` section for a data store.
 
-### Dataset Source/Mesh
+### Dataset Source/Federated SQL Query
 
 ```yaml
 datasets:
