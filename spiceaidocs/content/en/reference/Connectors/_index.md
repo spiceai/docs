@@ -1,10 +1,9 @@
 ---
 type: docs
-title: "Connectors"
-linkTitle: "Connectors"
+title: "Data Connectors"
+linkTitle: "Data Connectors"
 description: ''
 weight: 70
 ---
 
-## Connectors
 
