@@ -32,7 +32,7 @@ datasets:
 
 ## Configuration
 
-You can configure the connection to the PostgreSQL by providing the following `params`:
+The connection to PostgreSQL can be configured by providing the following `params`:
 
 - `pg_host`: The hostname of the PostgreSQL server.
 - `pg_port`: The port of the PostgreSQL server.
