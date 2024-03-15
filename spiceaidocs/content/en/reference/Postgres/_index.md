@@ -39,7 +39,6 @@ datasets:
   - from: spiceai:path.to.my_dataset
     name: my_dataset
     acceleration:
-        enabled: true
         engine: postgres
 ```
 
@@ -77,7 +76,6 @@ datasets:
   - from: spiceai:path.to.my_dataset
     name: my_dataset
     acceleration:
-        enabled: true
         engine: postgres
         params:
           pg_host: localhost
@@ -100,7 +98,6 @@ datasets:
         pg_user: my_user
         pg_pass_key: my_secret
     acceleration:
-        enabled: true
         engine: postgres
         engine_secret: pg_backend
         params:
