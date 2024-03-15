@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Postgres"
-linkTitle: "Postgres"
+title: "PostreSQL"
+linkTitle: "PostreSQL"
 description: 'PostgreSQL reference'
 weight: 80
 ---
