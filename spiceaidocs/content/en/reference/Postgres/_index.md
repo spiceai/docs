@@ -10,7 +10,7 @@ PostgreSQL can be connected to Spice AI as either a dataset source, a data store
 
 ## Dataset Source/Federated SQL Query
 
-To use PostgreSQL as a dataset source, specify `postgres` as the `source` portion of `from` value for the dataset.
+To use PostgreSQL as a dataset source or for federated SQL query, specify `postgres` as the `source` portion of `from` value for the dataset.
 
 ```yaml
 datasets:
