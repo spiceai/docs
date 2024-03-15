@@ -114,9 +114,9 @@ Enable or disable acceleration, defaults to `true`.
 
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
-  - `arrow` - Cache data as in-memory Apache Arrow Records.
-  - `duckdb` - Cache data in a DuckDB.
-  - `postgres` - Cache data in a PostgreSQL database.
+  - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
+  - `duckdb` - Accelerated by an embedded DuckDB database.
+  - `postgres` - Accelerated by an embedded DuckDB database.
 
 ## `acceleration.mode`
 
