@@ -1,9 +1,9 @@
 ---
 type: docs
-title: "Spice Secrets"
-linkTitle: "Spice Secrets"
+title: "Secrets"
+linkTitle: "Secrets"
 description: ''
-weight: 70
+weight: 40
 ---
 
 ## Secret

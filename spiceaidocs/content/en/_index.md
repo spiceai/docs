@@ -6,7 +6,7 @@ no_list: true
 # Spice
 ## What is Spice?
 
-**Spice** is a portable runtime that provides developers with a unified SQL query interface to locally accelerate and query data tables sourced from any database, data warehouse, or data lake.
+**Spice** is a small, portable runtime that provides developers with a unified SQL query interface to locally accelerate and query data tables sourced from any database, data warehouse, or data lake.
 
 Spice makes it easy to build data-driven and data-intensive applications by streamlining the use of data and machine learning (ML) in software.
 
@@ -26,24 +26,23 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 
 ### Example Use-Cases
 
-**1. Faster frontends.** Accelerate and co-locate data views with your frontend application, to serve more concurrent users with faster page loads and data updates.
+**1. Faster applications and frontends.** Accelerate and co-locate datasets with applications and frontends, to serve more concurrent queries and users with faster page loads and data updates.
 
-**2. Faster analytics and BI.**
+**2. Faster analytics and BI.** Faster, more responsive dashboards without massive compute costs.
 
-**3. Faster machine learning training and inferencing.**
+**3. Faster data pipelines, machine learning training and inferencing.** Co-locate datasets in pipelines where the data is needed to minimize data-movement and improve query performance.
 
 ⚠️ **DEVELOPER PREVIEW** Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release.
 
-### Join us!
+### Connect with us
 
-We greatly appreciate and value your support! You can help Spice.ai in a number of ways:
+We greatly appreciate and value your support! You can help Spice in a number of ways:
 
 - ⭐️ Star this repo.
-- Build an app with Spice.ai and send us feedback and suggestions at [hey@spiceai.io](mailto:hey@spiceai.io) or on [Discord](https://discord.gg/kZnTfneP5u).
+- Build an app with Spice.ai and send us feedback and suggestions at [hey@spice.ai](mailto:hey@spice.ai) or on [Discord](https://discord.gg/kZnTfneP5u), [X](https://twitter.com/spice_ai), or [LinkedIn](https://www.linkedin.com/company/74148478).
 - [File an issue](https://github.com/spiceai/spiceai/issues/new) if you see something not quite working correctly.
-- Follow us on [Reddit](https://www.reddit.com/r/spiceai), [Twitter](https://twitter.com/SpiceAIHQ), and [LinkedIn](https://www.linkedin.com/company/74148478).
-- Join our team ([We’re hiring!](https://spiceai.io/careers))
-- Contribute code or documentation to the project (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+- Join our team ([We’re hiring!](https://spice.ai/careers))
+- Contribute code or documentation to the project (see [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md)).
 
 We’re also starting a community call series soon!
 
