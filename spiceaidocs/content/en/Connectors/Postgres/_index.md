@@ -3,7 +3,6 @@ type: docs
 title: "PostgreSQL"
 linkTitle: "PostgreSQL"
 description: 'PostgreSQL reference'
-weight: 80
 ---
 
 PostgreSQL can be used by the Spice runtime as a dataset source, a data store, or for federated SQL query.
