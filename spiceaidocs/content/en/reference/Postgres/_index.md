@@ -6,7 +6,7 @@ description: 'PostgreSQL reference'
 weight: 80
 ---
 
-PostgreSQL can be connected to Spice AI as either a dataset source, a data store, or for federated SQL query.
+PostgreSQL can be used by the Spice runtime as a dataset source, a data store, or for federated SQL query.
 
 ## Dataset Source/Federated SQL Query
 
