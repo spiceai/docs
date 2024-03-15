@@ -3,7 +3,7 @@ type: docs
 title: "Data Connectors"
 linkTitle: "Data Connectors"
 description: ''
-weight: 70
+weight: 35
 ---
 
 
