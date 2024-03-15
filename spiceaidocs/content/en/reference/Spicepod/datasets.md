@@ -122,7 +122,7 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 Optional. The mode of acceleration. The following values are supported:
 
-  - `memory` - Cache data in memory.
+  - `memory` - Store acceleration data in-memory.
   - `file` - Store acceleration data in a file.
 
 `mode` is currently only supported for the `duckdb` engine.
