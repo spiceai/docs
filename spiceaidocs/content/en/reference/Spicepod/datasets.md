@@ -152,4 +152,4 @@ Optional. Parameters to pass to the acceleration engine. The parameters are spec
 
 ## `acceleration.engine_secret`
 
-Optional. The secret to use to connect to the acceleration engine. Use `spice login` to create a new secret.
+Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
