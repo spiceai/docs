@@ -112,7 +112,7 @@ Enable or disable acceleration, defaults to `true`.
 
 ## `acceleration.engine`
 
-The acceleration engine to use. The following engines are supported:
+The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
   - `arrow` - Cache data as in-memory Apache Arrow Records.
   - `duckdb` - Cache data in a DuckDB.
