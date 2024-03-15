@@ -122,10 +122,10 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 Optional. The mode of acceleration. The following values are supported:
 
-  - `memory` - Cache data in memory.
-  - `file` - Cache data in a file.
+  - `memory` - Store acceleration data in-memory.
+  - `file` - Store acceleration data in a file.
 
-`mode` is only supported for the `duckdb` engine.
+`mode` is currently only supported for the `duckdb` engine.
 
 ## `acceleration.refresh_mode`
 
@@ -152,4 +152,4 @@ Optional. Parameters to pass to the acceleration engine. The parameters are spec
 
 ## `acceleration.engine_secret`
 
-Optional. The secret to use to connect to the acceleration engine. Use `spice login` to create a new secret.
+Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
