@@ -22,7 +22,7 @@ datasets:
 
 ## Federated SQL Query
 
-To use PostgreSQL for federated SQL query, specify `postgres` as the `source` portion of `from` value for your dataset, without acceleration.
+To use PostgreSQL for federated SQL query, specify `postgres` as the selector in the `from` value for your dataset, without acceleration.
 
 ```yaml
 datasets:
