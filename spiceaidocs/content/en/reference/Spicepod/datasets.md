@@ -108,13 +108,35 @@ Optional. Accelerate queries to the dataset by caching data locally.
 
 ## `acceleration.enabled`
 
-Optional. Enable or disable acceleration.
+Enable or disable acceleration, defaults to `true`.
 
-## `acceleration.refresh`
+## `acceleration.engine`
 
-Optional. The interval to refresh the data for the dataset if the dataset type is overwrite.
+The acceleration engine to use. The following engines are supported:
 
-For `append` datasets, the refresh interval not used.
+  - `arrow` - Cache data as in-memory Apache Arrow Records.
+  - `duckdb` - Cache data in a DuckDB.
+  - `postgres` - Cache data in a PostgreSQL database.
+
+## `acceleration.mode`
+
+Optional. The mode of acceleration. The following values are supported:
+
+  - `memory` - Cache data in memory.
+  - `file` - Cache data in a file.
+
+`mode` is only supported for the `duckdb` engine.
+
+## `acceleration.refresh_mode`
+
+Optional. How to refresh the dataset. The following values are supported:
+
+  - `full` - Refresh the entire dataset.
+  - `append` - Append new data to the dataset.
+
+## `acceleration.refresh_interval`
+
+Optional. How often data should be refreshed. Only supported for `full` datasets. For `append` datasets, the refresh interval not used.
 
 i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
 
@@ -123,3 +145,11 @@ i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
 Optional. Only supported for `append` datasets. Specifies how long to retain data updates from the data source before they are deleted.
 
 If not specified, the default retention is to keep all data.
+
+## `acceleration.params`
+
+Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
+
+## `acceleration.engine_secret`
+
+Optional. The secret to use to connect to the acceleration engine. Use `spice login` to create a new secret.
