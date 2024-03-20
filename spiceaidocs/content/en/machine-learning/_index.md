@@ -1,7 +1,7 @@
 ---
 type: docs
-title: 'Machine Learning Inference'
-linkTitle: 'Machine Learning Inference'
+title: 'Machine Learning'
+linkTitle: 'Machine Learning'
 description: ''
 weight: 60
 ---
