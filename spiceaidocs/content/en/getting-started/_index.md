@@ -7,10 +7,6 @@ description: 'Get started with Spice.ai in 5 minutes'
 no_list: true
 ---
 
-{{% alert title="Spice.ai Concepts" color="primary" %}}
-Before following this guide it is first recommended to review the Spice.ai [core concepts](/).
-{{% /alert %}}
-
 ### Follow these steps to get started with Spice.ai.
 
 **Step 1.** Install the Spice CLI:
