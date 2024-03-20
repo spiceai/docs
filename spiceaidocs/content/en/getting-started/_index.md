@@ -1,9 +1,9 @@
 ---
 type: docs
-title: "Getting started with Spice.ai"
-linkTitle: "Getting started"
-weight: 20
-description: "Get started with Spice.ai in 5 minutes"
+title: 'Getting started with Spice.ai'
+linkTitle: 'Getting started'
+weight: 10
+description: 'Get started with Spice.ai in 5 minutes'
 no_list: true
 ---
 

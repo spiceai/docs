@@ -1,9 +1,9 @@
 ---
 type: docs
-title: "Spice.ai CLI documentation"
-linkTitle: "CLI"
-weight: 60
-description: "Detailed documentation on the Spice.ai CLI"
+title: 'Spice.ai CLI documentation'
+linkTitle: 'CLI'
+weight: 90
+description: 'Detailed documentation on the Spice.ai CLI'
 ---
 
 The Spice.ai CLI is a set of commands to create and manage Spice.ai pods and interact with the Spice.ai runtime.
@@ -45,14 +45,13 @@ spice add spiceai/quickstart
 
 Common commands are:
 
-| Command           | Description                                                       |
-| ----------------- | ------------------------------------------------------------------- |
-| spice add         | Add Pod - adds a pod to the project                                 |
-| spice run         | Run Spice - starts the Spice runtime, installing if necessary |
-| spice version     | Spice CLI version                                                   |
-| spice help        | Help about any command                                              |
-| spice upgrade     | Upgrades the Spice CLI to the latest release                        |
-
+| Command       | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| spice add     | Add Pod - adds a pod to the project                           |
+| spice run     | Run Spice - starts the Spice runtime, installing if necessary |
+| spice version | Spice CLI version                                             |
+| spice help    | Help about any command                                        |
+| spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
 See [Spice CLI command reference]({{<ref "cli/reference">}}) for the full list of available commands.
 
