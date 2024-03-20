@@ -26,7 +26,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more]({{<ref "secrets">}}).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more]({{<ref "secret-stores">}}).
 
 ### `secrets.store`
 
