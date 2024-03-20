@@ -3,7 +3,7 @@ type: docs
 title: 'Secret Stores'
 linkTitle: 'Secret Stores'
 description: ''
-weight: 40
+weight: 90
 ---
 
 A secret store is a location where `secret` objects are stored, which are used to store sensitive data, like a passwords, a tokens, or keys.

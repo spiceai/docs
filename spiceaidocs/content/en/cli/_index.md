@@ -2,7 +2,7 @@
 type: docs
 title: 'Spice.ai CLI documentation'
 linkTitle: 'CLI'
-weight: 90
+weight: 100
 description: 'Detailed documentation on the Spice.ai CLI'
 ---
 
