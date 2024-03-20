@@ -1,18 +1,12 @@
 ---
 type: docs
-title: "Secrets"
-linkTitle: "Secrets"
+title: 'Secret Stores'
+linkTitle: 'Secret Stores'
 description: ''
-weight: 40
+weight: 90
 ---
 
-## Secret
-
-A Secret is an object used to store sensitive data, like a passwords, a tokens, or keys.
-
-## Secret Stores
-
-The secret store is a location where the `secret` objects are stored.
+A secret store is a location where `secret` objects are stored, which are used to store sensitive data, like a passwords, a tokens, or keys.
 
 Spice.ai supports four types of secret stores: `file`, `env`, `kubernetes` and `keyring`. The type of secret store is specified in the `store` field of the `secrets` section in the Spicepod manifest.
 
@@ -23,7 +17,7 @@ The Spice.ai CLI offers the `spice login` command to streamline credential stora
 
 ### Environment Secret Store
 
-The `env` store type allows Spice.ai to read secrets from environment variables. The environment variables should be formatted like `SPICE_SECRET_<secret-name>_<secret-value-key>`. 
+The `env` store type allows Spice.ai to read secrets from environment variables. The environment variables should be formatted like `SPICE_SECRET_<secret-name>_<secret-value-key>`.
 
 All variables with the same prefix `SPICE_SECRET_<secret-name>` are combined into a single secret. This allows you to group related secret values under a single secret name.
 
@@ -60,9 +54,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: spiced-account-role
 rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get"]
+  - apiGroups: ['']
+    resources: ['secrets']
+    verbs: ['get']
 ```
 
 ### Keyring Secret Store
@@ -93,6 +87,3 @@ Then set `store` field of the `secrets` section in the Spicepod manifest:
 secrets:
   store: keyring
 ```
-
-
-
