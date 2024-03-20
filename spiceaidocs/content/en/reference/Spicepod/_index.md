@@ -38,6 +38,7 @@ The type of secret store for reading secrets.
 - `keyring`
 
 Example
+
 ```yaml
 secrets:
   store: env
@@ -60,7 +61,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets]({{<ref "reference/Spicepod/datasets">}}) referenced by relative path.
+A Spicepod can contain one or more [datasets]({{<ref "reference/spicepod/datasets">}}) referenced by relative path.
 
 **Example**
 

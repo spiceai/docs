@@ -17,7 +17,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](/reference/spicepods/datasets).
+For the complete reference specification see [datasets]({{<ref "reference/spicepod/datasets">}}).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -25,9 +25,9 @@ Data Accelerators using DuckDB, SQLite, or PostgreSQL engines can be used to mat
 
 Currently supported Data Accelerators include:
 
-| Engine Name | Description             | Status | Engine Modes     |
-| ----------- | ----------------------- | ------ | ---------------- |
-| `arrow`     | In-Memory Arrow Records | Alpha  | `memory`         |
-| `duckdb`    | Embedded DuckDB         | Alpha  | `memory`, `file` |
-| `sqlite`    | Embedded SQLite         | Alpha  | `memory`, `file` |
-| `postgres`  | Attached PostgreSQL     | Alpha  |                  |
+| Engine Name                                          | Description             | Status | Engine Modes     |
+| ---------------------------------------------------- | ----------------------- | ------ | ---------------- |
+| `arrow`                                              | In-Memory Arrow Records | Alpha  | `memory`         |
+| `duckdb`                                             | Embedded DuckDB         | Alpha  | `memory`, `file` |
+| `sqlite`                                             | Embedded SQLite         | Alpha  | `memory`, `file` |
+| [`postgres`]({{<ref "data-accelerators/postgres">}}) | Attached PostgreSQL     | Alpha  |                  |
