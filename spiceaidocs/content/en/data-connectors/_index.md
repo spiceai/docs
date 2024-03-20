@@ -8,7 +8,7 @@ weight: 70
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.
 
-Currentlyt supported Data Connectors include:
+Currently supported Data Connectors include:
 
 | Name         | Description | Status       | Protocol/Format  | Refresh Modes    | Supports Inserts |
 | ------------ | ----------- | ------------ | ---------------- | ---------------- | ---------------- |
