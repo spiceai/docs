@@ -13,7 +13,7 @@ spice models [flags]
 ```
 
 #### Flags:
-  -h, --help   help for models
+  - `-h`, `--help`   help for models
 
 ### Examples:
 ```shell

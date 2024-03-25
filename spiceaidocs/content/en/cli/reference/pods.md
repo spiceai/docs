@@ -12,7 +12,7 @@ spice pods [flags]
 ```
 
 #### Flags:
-  -h, --help   help for pods
+  - `-h`, `--help`   help for pods
 
 ### Examples:
 ```shell 

@@ -13,7 +13,7 @@ spice datasets [flags]
 ```
 
 #### Flags:
-  -h, --help   help for datasets
+  - `-h`, `--help`   help for datasets
 
 ### Examples:
 ```shell

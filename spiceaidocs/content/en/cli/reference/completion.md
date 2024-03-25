@@ -19,5 +19,5 @@ Available `command`s
   - zsh
 
 #### Flags:
-  -h, --help   Print this help message
+  - `-h`, `--help`   Print this help message
   

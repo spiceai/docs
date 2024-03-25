@@ -12,7 +12,7 @@ spice version [flags]
 ```
 
 #### Flags:
-  -h, --help   help for version
+  - `-h`, `--help`   help for version
 
 ### Examples:
 ```shell

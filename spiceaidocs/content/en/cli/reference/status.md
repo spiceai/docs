@@ -12,7 +12,7 @@ spice status [flags]
 ```
 
 #### Flags:
-  -h, --help   help for status
+  - `-h`, `--help`   help for status
 
 ### Examples:
 ```shell 

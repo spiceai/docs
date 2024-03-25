@@ -16,4 +16,4 @@ Available `command`s:
   - `configure`:    Configure a dataset
 
 #### Flags:
-  -h, --help   Print this help message
+  - `-h`, `--help`   Print this help message

@@ -12,7 +12,7 @@ spice init [flags]
 ```
 
 #### Flags:
-  -h, --help   Print this help message
+  - `-h`, `--help`   Print this help message
 
 ### Examples:
 ```shell 

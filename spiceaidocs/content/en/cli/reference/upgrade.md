@@ -12,7 +12,7 @@ spice upgrade [flags]
 ```
 
 #### Flags:
-  -h, --help   help for upgrade
+  - `-h`, `--help`   help for upgrade
 
 ### Examples:
 ```shell
