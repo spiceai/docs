@@ -94,7 +94,7 @@ datasets:
 
 ## `models`
 
-A Spicepod can contain one or more [models](https://docs.spice.ai/reference/specifications/models-yaml-specification) referenced by relative path.
+A Spicepod can contain one or more [models]({{<ref "reference/spicepod/models">}}) referenced by relative path.
 
 **Example**
 
@@ -102,7 +102,17 @@ A model referenced by path.
 
 ```yaml
 models:
-  - from: models/gas_fees
+  - from: models/drive_stats
+```
+
+A model defined inline.
+
+```yaml
+models:
+  - from: spiceai:spice.ai/lukekim/smart/models/drive_stats:latest
+    name: drive_stats
+    datasets:
+      - drive_stats_inferencing
 ```
 
 ## `dependencies`
