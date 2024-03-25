@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Add"
-linkTitle: "add"
+title: "version"
+linkTitle: "version"
 weight: 90
 ---
 Spice CLI version

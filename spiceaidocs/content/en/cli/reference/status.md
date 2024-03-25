@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Add"
-linkTitle: "add"
+title: "status"
+linkTitle: "status"
 weight: 90
 ---
 Spice runtime status

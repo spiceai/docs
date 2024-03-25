@@ -1,7 +1,7 @@
 ---
 type: docs
 title: "datasets"
-linkTitle: "add"
+linkTitle: "datasets"
 weight: 90
 ---
 

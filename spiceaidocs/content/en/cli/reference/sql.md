@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Add"
-linkTitle: "add"
+title: "sql"
+linkTitle: "sql"
 weight: 90
 ---
 

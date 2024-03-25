@@ -1,7 +1,7 @@
 ---
 type: docs
-title: "Add"
-linkTitle: "add"
+title: "upgrade"
+linkTitle: "upgrade"
 weight: 90
 ---
 Upgrades the Spice CLI to the latest release
