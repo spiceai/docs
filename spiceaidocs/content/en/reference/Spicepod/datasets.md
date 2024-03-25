@@ -15,7 +15,7 @@ Inline example:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - from: spice.ai/eth/beacon/eigenlayer
+  - from: spiceai:spice.ai/eth/beacon/eigenlayer
     name: strategy_manager_deposits
     params:
       app: goerli-app
@@ -31,24 +31,10 @@ datasets:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - from: databricks.com/spiceai/datasets
+  - from: databricks:databricks.com/spiceai/datasets
     name: uniswap_eth_usd
     params:
       environment: prod
-    acceleration:
-      enabled: true
-      mode: inmemory # / file
-      engine: arrow # / duckdb
-      refresh_interval: 1h
-      refresh_mode: full / append # update / incremental
-      retention: 30m
-```
-
-`spicepod.yaml`
-```yaml
-datasets:
-  - from: local/Users/phillip/data/test.parquet
-    name: test
     acceleration:
       enabled: true
       mode: inmemory # / file
@@ -63,19 +49,39 @@ Relative path example:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - from: datasets/uniswap_v2_eth_usdc
+  - from: datasets/eth_recent_transactions
 ```
 
-`datasets/uniswap_v2_eth_usdc/dataset.yaml`
+`datasets/eth_recent_transactions/dataset.yaml`
 ```yaml
-name: spiceai.uniswap_v2_eth_usdc
+from: spiceai:spice.ai/eth.recent_transactions
+name: eth_recent_transactions
 type: overwrite
-source: spice.ai
-auth: spice.ai
 acceleration:
   enabled: true
   refresh: 1h
 ```
+
+## `from`
+
+The `from` field is a string that represents the Uniform Resource Identifier (URI) for the dataset. This URI is composed of two parts: a prefix indicating the source of the dataset, and the actual link to the dataset.
+
+The syntax for the `from` field is as follows:
+
+```yaml
+from: <source>:<link>
+```
+
+Where:
+
+- `<source>`: The source of the dataset
+
+  Currently supported sources:
+  - `spiceai`
+  - `dremio`
+  - `databricks`
+
+- `<link>`: The actual link to the dataset.
 
 ## `name`
 
@@ -87,20 +93,6 @@ The type of dataset. The following types are supported:
 
 - `overwrite` - Overwrites the dataset with the contents of the dataset source.
 - `append` - Appends new data from dataset source to the dataset.
-
-## `source`
-
-The source of the dataset. The following sources are supported:
-
-- `spice.ai`
-- `dremio` (coming soon)
-- `databricks` (coming soon)
-
-## `auth`
-
-Optional. The authentication profile to use to connect to the dataset source. Use `spice login` to create a new authentication profile.
-
-If not specified, the default profile for the data source is used.
 
 ## `acceleration`
 
