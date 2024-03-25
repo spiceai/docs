@@ -6,7 +6,7 @@ description: 'Models YAML reference'
 weight: 90
 ---
 
-{{< alert color="warning" title="Warning" >}}The model specifications are in early preview and are subject to change.{{< /alert >}}
+{{< alert color="warning" title="Early Preview" >}}The model specifications are in early preview and are subject to change.{{< /alert >}}
 
 A Spicepod can contain one or more models referenced by relative path, or defined inline.
 

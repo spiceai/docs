@@ -6,4 +6,4 @@ description: ''
 weight: 60
 ---
 
-{{< alert color="warning" title="Warning" >}}The Spice ML runtime is in early preview and is subject to change.{{< /alert >}}
+{{< alert color="warning" title="Early Preview" >}}The Spice ML runtime is in its early preview phase and is subject to modifications.{{< /alert >}}
