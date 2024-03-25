@@ -22,7 +22,7 @@ spice [command] [--help]
 | [completion]({{<ref "cli/reference/completion">}}) | Generate the autocompletion script for the specified shell          |
 | [dataset]({{<ref "cli/reference/dataset">}})       | Dataset operations                                                  |
 | [datasets]({{<ref "cli/reference/datasets">}})     | Lists datasets loaded by the Spice runtime                          |
-| [help]({{<ref "cli/reference/help">}})             | Help about any command                                              |
+| help                                               | Help about any command                                              |
 | [init]({{<ref "cli/reference/init">}})             | Initialize Pod - initializes a new pod in the project               |
 | [login]({{<ref "cli/reference/login">}})           | Login to Spice.ai                                                   |
 | [models]({{<ref "cli/reference/models">}})         | Lists models loaded by the Spice runtime                            |
