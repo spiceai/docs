@@ -83,6 +83,8 @@ Where:
   - `s3`
   - `postgres`
 
+  If the source is not specified, it defaults to `spiceai`.
+
 - `<link>`: The actual link to the dataset.
 
 ## `name`
