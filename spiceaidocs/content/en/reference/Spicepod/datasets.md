@@ -15,7 +15,7 @@ Inline example:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - from: spiceai:spice.ai/eth/beacon/eigenlayer
+  - from: spice.ai/eth/beacon/eigenlayer
     name: strategy_manager_deposits
     params:
       app: goerli-app
