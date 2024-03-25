@@ -15,13 +15,23 @@ no_list: true
 curl https://install.spiceai.org | /bin/bash
 ```
 
+Or using `brew`:
+
+```bash
+brew install spiceai/spiceai/spice
+```
+
 **Step 2.** Initialize a new Spice app with the `spice init` command:
 
 ```bash
-spice init spice_app
+spice init spice_qs
 ```
 
-A `Spicepod.yaml` file is created in the working directory.
+A `spicepod.yaml` file is created in the `spice_qs` directory. Change to that directory:
+
+```bash
+cd spice_qs
+```
 
 **Step 3.** Connect to the sample Dremio instance to access the sample data:
 
@@ -53,7 +63,7 @@ The runtime is now started and ready for queries.
 spice add spiceai/quickstart
 ```
 
-The `Spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency.
+The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency.
 
 ```yaml
 version: v1beta1
@@ -132,13 +142,13 @@ Query took: 0.002458976 seconds
 
 ## Next Steps
 
-You can use any number of predefined datasets available from Spice.ai in the Spice Runtime.
+You can use any number of predefined datasets available from Spice.ai in the Spice runtime.
 
-A list of publically available datasets from Spice.ai can be found here: https://docs.spice.ai/building-blocks/datasets.
+A list of publically available datasets from Spice.ai can be found here: https://[docs.spice.ai/building-blocks/datasets](https://docs.spice.ai/building-blocks/datasets).
 
 In order to access public datasets from Spice, you will first need to create an account with Spice.ai by selecting the free tier membership.
 
-Navigate to https://spice.ai/ and create a new account by clicking on Try for Free.
+Navigate to [spice.ai](https://spice.ai/) and create a new account by clicking on Try for Free.
 
 <img width="500" alt="spiceai_try_for_free-1" src="https://github.com/spiceai/spiceai/assets/112157037/27fb47ed-4825-4fa8-94bd-48197406cfaa">
 
@@ -148,19 +158,22 @@ After creating an account, you will need to create an app in order to create to 
 
 You will now be able to access datasets from Spice.ai. For this demonstration, we will be using the Spice.ai/eth.recent_blocks dataset.
 
-**Step 1.** In a new directory, log in and authenticate from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
+**Step 1.** Log in and authenticate from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
 
 ```bash
 spice login
 ```
 
-**Step 2.** Initialize a new project if you haven't already done so. Then, start the runtime:
+**Step 2.** Initialize a new project and start the runtime:
 
 ```bash
-spice init my_spiceai_project
-```
+# Initialize a new Spice app
+spice init spice_app
 
-```bash
+# Change to app directory
+cd spice_app
+
+# Start the runtime
 spice run
 ```
 
@@ -175,7 +188,7 @@ spice dataset configure
 You will be prompted to enter a name. Enter a name that represents the contents of the dataset
 
 ```bash
-dataset name: (default) eth_recent_blocks
+dataset name: (spice_app) eth_recent_blocks
 ```
 
 Enter the description of the dataset:
@@ -262,7 +275,7 @@ spice dataset configure
 Enter the name of the dataset:
 
 ```bash
-dataset name: (default)  my_dataset
+dataset name: (dremio-demo-project)  my_dataset
 ```
 
 Enter the description of the dataset:
