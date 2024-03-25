@@ -29,5 +29,5 @@ Currently supported Data Accelerators include:
 | ---------------------------------------------------- | ----------------------- | ------ | ---------------- |
 | `arrow`                                              | In-Memory Arrow Records | Alpha  | `memory`         |
 | `duckdb`                                             | Embedded DuckDB         | Alpha  | `memory`, `file` |
-| `sqlite`                                             | Embedded SQLite         | Alpha  | `memory`, `file` |
+| [`sqlite`]({{<ref "data-accelerators/sqlite">}})     | Embedded SQLite         | Alpha  | `memory`, `file` |
 | [`postgres`]({{<ref "data-accelerators/postgres">}}) | Attached PostgreSQL     | Alpha  |                  |
