@@ -31,7 +31,7 @@ datasets:
 `spicepod.yaml`
 ```yaml
 datasets:
-  - from: databricks:databricks.com/spiceai/datasets
+  - from: databricks:spiceai.datasets.specific_table
     name: uniswap_eth_usd
     params:
       environment: prod
