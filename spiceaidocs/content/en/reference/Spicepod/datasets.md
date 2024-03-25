@@ -80,6 +80,8 @@ Where:
   - `spiceai`
   - `dremio`
   - `databricks`
+  - `s3`
+  - `postgres`
 
 - `<link>`: The actual link to the dataset.
 
