@@ -21,7 +21,7 @@ Databricks as a connector for federated SQL query against Databrick's [Delta Lak
 
 ```yaml
 datasets:
-  - from: databricks.com:spiceai/datasets  // A reference to a table in the Databricks unity catalog
+  - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
     name: my_delta_lake_table
   params:
     endpoint: "https://dbc-a1b2345c-d6e7.cloud.databricks.com"
