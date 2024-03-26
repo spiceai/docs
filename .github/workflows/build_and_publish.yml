@@ -8,35 +8,34 @@ on:
       - v*
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive # Fetch Hugo themes (true OR recursive)
-          fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
+          fetch-depth: 0
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+      - uses: actions/setup-node@v4
         with:
-          hugo-version: "0.123.8"
-          extended: true
+          node-version: 20
+          cache: npm
 
-      - name: Install requirements
+      - name: Install dependencies
         working-directory: spiceaidocs
-        run: |
-          npm install
-          cd themes/docsy && npm install
+        run: npm install
 
-      - name: Build
+      - name: Build website
         working-directory: spiceaidocs
-        run: hugo --minify
+        run: npm run build
 
       - name: Deploy
         if: ${{ github.event_name != 'pull_request' && startswith(github.ref, 'refs/tags/v') }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./spiceaidocs/public
+          publish_dir: ./spiceaidocs/build
           cname: docs.spiceai.org
