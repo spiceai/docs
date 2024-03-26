@@ -1,9 +1,7 @@
 ---
-type: docs
 title: "Getting Started with Supabase as a Data Accelerator"
-linkTitle: "Supabase Data Accelerator"
+sidebar_label: "Supabase Data Accelerator"
 description: 'Configure a Supabase PostgreSQL instance as a Data Accelerator'
-weight: 60
 ---
 
 ### Follow these steps to get started with Supabase as a Data Accelerator.
@@ -34,8 +32,8 @@ weight: 60
       pg_pass: [Password]
 ```
 
-Follow the [quickstart guide]({{<ref "getting-started">}}) to get started with the Spice.ai runtime.
+Follow the [quickstart guide](../index.md) to get started with the Spice.ai runtime.
 
-See the [datasets reference]({{<ref "/reference/spicepod/datasets/">}}) for more dataset configuration options and [PostgreSQL Data Accelerator]({{<ref "/data-accelerators/postgres/">}}) for more options on configuring PostgreSQL as a Data Accelerator.
+See the [datasets reference](../../../reference/spicepod/datasets.md) for more dataset configuration options and [PostgreSQL Data Accelerator](../../../data-accelerators/postgres/index.md) for more options on configuring PostgreSQL as a Data Accelerator.
 
 **Step 6.** Navigate to the `Table Editor` in the Supabase project to verify the creation of the `eth_recent_blocks` table. The Supabase `SQL Editor` can then be used to run queries against the table, with data updated in realtime.
