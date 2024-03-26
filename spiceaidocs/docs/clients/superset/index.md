@@ -100,6 +100,6 @@ Click `Test Connection` to verify the connection.
 
 <img width="800" src="/img/superset/superset-docs-test-conn.png" />
 
-Click `Save` to save the connection.
+Click `Connect` to save the connection.
 
 Start exploring the datasets loaded in Spice.ai by creating a new dataset in Apache Superset to match one of the existing tables.
