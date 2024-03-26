@@ -14,7 +14,7 @@ description: 'Dremio Data Connector Documentation'
 
 Username and password credentials are required to log into the Dremio Server. `spice login dremio` can be used to configure secrets for the Spice runtime. 
 
-Check [Secrets Stores](/secret-stores) for details on how to configure.
+Check [Secrets Stores](/secret-stores) for details on configuring secrets.
 
 ## Example
 
