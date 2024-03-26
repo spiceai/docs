@@ -34,7 +34,9 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 
 **3. Faster data pipelines, machine learning training and inferencing.** Co-locate datasets in pipelines where the data is needed to minimize data-movement and improve query performance.
 
-⚠️ **DEVELOPER PREVIEW** Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release.
+:::warning[DEVELOPER PREVIEW]
+Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release.
+:::
 
 ### Connect with us
 
