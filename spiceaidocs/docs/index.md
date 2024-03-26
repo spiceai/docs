@@ -1,7 +1,6 @@
 ---
 sidebar_position: 0
 slug: /
-unlisted: true
 title: Home
 ---
 
