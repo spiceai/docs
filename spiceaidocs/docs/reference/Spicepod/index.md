@@ -59,7 +59,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](/reference/spicepod/datasets) referenced by relative path.
+A Spicepod can contain one or more [datasets](./datasets.md) referenced by relative path.
 
 **Example**
 
@@ -92,7 +92,7 @@ datasets:
 
 ## `models`
 
-A Spicepod can contain one or more [models](/reference/spicepod/models) referenced by relative path.
+A Spicepod can contain one or more [models](./models.md) referenced by relative path.
 
 **Example**
 

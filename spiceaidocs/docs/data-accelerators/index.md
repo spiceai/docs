@@ -16,7 +16,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](/reference/spicepod/datasets).
+For the complete reference specification see [datasets](../reference/spicepod/datasets.md).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -28,5 +28,5 @@ Currently supported Data Accelerators include:
 | ---------------------------------------------------- | ----------------------- | ------ | ---------------- |
 | `arrow`                                              | In-Memory Arrow Records | Alpha  | `memory`         |
 | `duckdb`                                             | Embedded DuckDB         | Alpha  | `memory`, `file` |
-| [`sqlite`](/data-accelerators/sqlite)     | Embedded SQLite         | Alpha  | `memory`, `file` |
-| [`postgres`](/data-accelerators/postgres) | Attached PostgreSQL     | Alpha  |                  |
+| [`sqlite`](./sqlite.md)     | Embedded SQLite         | Alpha  | `memory`, `file` |
+| [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Alpha  |                  |

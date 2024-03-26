@@ -18,7 +18,7 @@ datasets:
 The connection to SQLite can be configured by providing the following `params`: 
 - `sqlite_file`: The filename for the file to back the SQLite database. Only applies if `mode` is `file`.
 
-Configuration `params` are provided either in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for sqllite, see see [datasets](/reference/spicepod/datasets).
+Configuration `params` are provided either in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for sqllite, see see [datasets](../reference/spicepod/datasets.md).
 
 ```yaml
 datasets:
