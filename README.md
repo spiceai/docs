@@ -8,14 +8,14 @@ This repo contains the markdown files which generate the above website. See belo
 
 ## Overview
 
-The Spice.ai docs are built using [Hugo](https://gohugo.io/) with the [Docsy](https://docsy.dev) theme, hosted on [GitHub Pages](https://pages.github.com/).
+The Spice.ai docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
 
-The [spiceaidocs](./spiceaidocs) directory contains the hugo project, markdown files, and theme configurations.
+The [spiceaidocs](./spiceaidocs) directory contains the Docusaurus project, markdown files, and theme configurations.
 
 ## Pre-requisites
 
-- [Hugo extended version](https://gohugo.io/getting-started/installing)
 - [Node.js](https://nodejs.org/en/)
+- [Docusaurus](https://docusaurus.io/docs/installation)
 
 ## Environment setup
 
@@ -32,17 +32,10 @@ git clone https://github.com/spiceai/docs.git
 cd ./docs/spiceaidocs
 ```
 
-4. Update submodules:
-
-```sh
-git submodule update --init --recursive
-```
-
-5. Install npm packages:
+4. Install npm packages:
 
 ```sh
 npm install
-cd themes/docsy && npm install
 ```
 
 ## Run local server
@@ -51,10 +44,10 @@ cd themes/docsy && npm install
 2. Run
 
 ```sh
-hugo server
+npm start
 ```
 
-3. Navigate to `http://localhost:1313/`
+3. Navigate to `http://localhost:3000/`
 
 ## Update docs
 
