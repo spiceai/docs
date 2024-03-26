@@ -64,6 +64,7 @@ const config: Config = {
         alt: 'Spice.ai logo',
         src: 'img/logo.svg',
       },
+      hideOnScroll: true,
       items: [
         {
           type: 'doc',
