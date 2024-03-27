@@ -81,6 +81,7 @@ This allows for simple integrating into any language or framework
   </TabItem>
   </Tabs>
 
+Full SDK support coming soon!
 <!-- Goal-State/What
 HackerNews quality HTTP SQL interface docs for POST /v1/sql, including quick starts at https://docs.spiceai.org/clients/.
 
