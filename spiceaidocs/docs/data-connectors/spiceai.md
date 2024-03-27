@@ -24,7 +24,7 @@ Secrets will be automatically conifgured by using the `spice login` command and 
   name: eth_recent_blocks
 ```
 
-## Full Example
+## Full Configuration Example
 ```yaml
 - from: spice.ai/eth.recent_blocks
   name: eth_recent_blocks
