@@ -5,7 +5,7 @@ description: ''
 sidebar_position: 3
 ---
 
-Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/data-connectors) and storing it locally in a [Data Accelerator](/data-accelerators) for faster access.
+Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/data-connectors) and storing it locally in a [Data Accelerator](/data-accelerators) for faster access. Additionally, the data is kept up to date in realtime, so you always have the latest data locally for querying.
 
 ## Benefits
 
