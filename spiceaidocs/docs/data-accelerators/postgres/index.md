@@ -26,7 +26,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_pass_key`: The secret key containing the password to connect with.
 - `pg_pass`: The plain-text password to connect with, ignored if `pg_pass_key` is provided.
 
-Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query, or in the `acceleration` section for a data store.
+Configuration `params` are provided either in the `acceleration` section of a dataset.
 
 ```yaml
 datasets:
