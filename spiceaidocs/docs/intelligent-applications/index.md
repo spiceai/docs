@@ -9,7 +9,7 @@ As described in the blog post [Making Apps That Learn and Adapt](https://blog.sp
 
 With Spice.ai OSS, federated data and ML models are colocated with applications, creating lightweight, high-performance, AI-copilot sidecars.
 
-<img src="https://user-images.githubusercontent.com/80174/140449760-97974f3c-8a78-4ea2-9ec5-843dc3cff5b6.png" alt="A Spice.ai Intelligent Application">
+<img src="https://user-images.githubusercontent.com/80174/140449760-97974f3c-8a78-4ea2-9ec5-843dc3cff5b6.png" alt="A Spice.ai Intelligent Application" />
 
 ## The Intelligent Application Workflow
 
