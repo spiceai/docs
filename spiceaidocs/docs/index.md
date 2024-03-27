@@ -4,7 +4,7 @@ slug: /
 title: Home
 ---
 
-# Spice
+# Spice.ai OSS
 
 ## What is Spice?
 
@@ -35,7 +35,7 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 **3. Faster data pipelines, machine learning training and inferencing.** Co-locate datasets in pipelines where the data is needed to minimize data-movement and improve query performance.
 
 :::warning[DEVELOPER PREVIEW]
-Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release.
+Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release. If you are interested in running Spice in production, please get in touch below so we can support you.
 :::
 
 ### Connect with us

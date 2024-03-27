@@ -1,6 +1,6 @@
-# Spice.ai documentation
+# Spice.ai OSS documentation
 
-If you are looking to explore the Spice.ai documentation, please go to the documentation website:
+If you are looking to explore the Spice.ai OSS documentation, please go to the documentation website:
 
 [**https://docs.spiceai.org**](https://docs.spiceai.org)
 
@@ -8,7 +8,7 @@ This repo contains the markdown files which generate the above website. See belo
 
 ## Overview
 
-The Spice.ai docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
+The Spice docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
 
 The [spiceaidocs](./spiceaidocs) directory contains the Docusaurus project, markdown files, and theme configurations.
 
