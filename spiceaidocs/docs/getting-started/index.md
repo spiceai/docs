@@ -154,7 +154,7 @@ After creating an account, you will need to create an app in order to create to 
 
 ![create_app-1](https://github.com/spiceai/spiceai/assets/112157037/d2446406-1f06-40fb-8373-1b6d692cb5f7)
 
-You will now be able to access datasets from Spice.ai. For this demonstration, we will be using the Spice.ai/eth.recent_blocks dataset.
+You will now be able to access datasets from the Spice.ai Platform. For this quickstart, we will be using the `eth.recent_blocks` dataset.
 
 **Step 1.** Log in and authenticate from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
 
@@ -183,7 +183,7 @@ In a new terminal window, configure a new dataset using the `spice dataset confi
 spice dataset configure
 ```
 
-You will be prompted to enter a name. Enter a name that represents the contents of the dataset
+Enter a dataset name that will be used to reference the dataset in queries. This name does not need to match the name in the dataset source.
 
 ```bash
 dataset name: (spice_app) eth_recent_blocks
@@ -192,7 +192,7 @@ dataset name: (spice_app) eth_recent_blocks
 Enter the description of the dataset:
 
 ```
-description: eth recent logs
+description: Recent Ethereum blocks
 ```
 
 Enter the location of the dataset:
