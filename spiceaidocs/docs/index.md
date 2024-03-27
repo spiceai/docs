@@ -38,7 +38,7 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 
 ### Intelligent Applications
 
-Spice enables developers to build both data _and_ AI-driven applications by co-locating data _and_ ML models with applications. Read more about the vision to enable the development of [intelligent AI-driven applications](/intelligent-applications/index.md).
+Spice enables developers to build both data _and_ AI-driven applications by co-locating data _and_ ML models with applications. Read more about the vision to enable the development of [intelligent AI-driven applications](./intelligent-applications/index.md).
 
 :::warning[DEVELOPER PREVIEW]
 Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release. If you are interested in running Spice in production, please get in touch below so we can support you.
