@@ -11,7 +11,7 @@ The Spice ML runtime is in its early preview phase and is subject to modificatio
 
 :::
 
-Machine learning models can be added to the Spice runtime similarily to datasets. The Spice runtime will load it, just like a dataset. 
+Machine learning models can be added to the Spice runtime similarly to datasets. The Spice runtime will load it, just like a dataset. 
 ```yaml
 name: my_spicepod
 version: v1beta1
