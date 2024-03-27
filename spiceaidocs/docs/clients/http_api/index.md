@@ -4,6 +4,9 @@ sidebar_label: "HTTP"
 description: 'Directly call the Spice runtime via HTTP requests'
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 The Spice runtime supports SQL queries directly from HTTP requests. 
 
 An example CuRL
