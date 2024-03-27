@@ -1,11 +1,11 @@
 ---
-title: 'Getting started with Spice.ai'
+title: 'Getting started with Spice.ai OSS'
 sidebar_label: 'Getting started'
 sidebar_position: 1
-description: 'Get started with Spice.ai in 5 minutes'
+description: 'Get started with Spice in 5 minutes'
 ---
 
-### Follow these steps to get started with Spice.ai.
+### Follow these steps to get started with Spice.
 
 **Step 1.** Install the Spice CLI:
 

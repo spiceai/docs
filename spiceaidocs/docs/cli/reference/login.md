@@ -3,7 +3,7 @@ title: "login"
 sidebar_label: "login"
 ---
 
-Login to Spice.ai
+Login to the Spice.ai Platform, or other services with sub-commands.
 
 ### Usage:
 ```shell

@@ -2,7 +2,7 @@
 title: "run"
 sidebar_label: "run"
 ---
-Run Spice.ai - starts the Spice.ai runtime, installing if necessary
+Run Spice - starts the Spice runtime, installing if necessary
 
 ### Usage:
 ```shell 

@@ -1,11 +1,11 @@
 ---
 title: "DBeaver"
 sidebar_label: "DBeaver"
-description: 'Configure DBeaver to query Spice.ai via JDBC'
+description: 'Configure DBeaver to query Spice via JDBC'
 sidebar_position: 2
 ---
 
-1. Start the Spice.ai runtime with a dataset loaded. Follow the [quickstart guide](/getting-started) to get started.
+1. Start the Spice runtime with a dataset loaded. Follow the [quickstart guide](/getting-started) to get started.
 
 2. Download [DBeaver Community Edition](https://dbeaver.io).
 
@@ -45,13 +45,13 @@ sidebar_position: 2
    1. Choose the ```Apache Arrow Flight SQL``` driver - the window should look like this:   
    ![Connect to a database window](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/61cee5fe-dc75-4ac1-e558-eea3aff4c100/public "Connect to a database window")   
    1. Click the blue "Next >" button on the bottom of the window
-   1. On the next screen, the JDBC URL should be filled out already - just supply the Host (`localhost`) and Port (`50051`) values for the Spice.ai runtime. The window should look like this:   
+   1. On the next screen, the JDBC URL should be filled out already - just supply the Host (`localhost`) and Port (`50051`) values for the Spice runtime. The window should look like this:   
    ![Connect to a database window 2](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/2a2b2fdc-00db-49d3-5359-059b12342b00/public "Connect to a database window 2")
    1. Click the "Test Connection" button - the window should look like this:   
    ![Test Connection results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/a3fc5f5f-a39f-47ce-7955-4b384ec1ae00/public "Test Connection results")   
    1. Click the blue "OK" button to close the Connection test window
    1. Click the "Connection details (name, type, ...)" button on the right
-   1. In the "General" section, enter: `Spice.ai Runtime` for the "Connection name". It should look like this:
+   1. In the "General" section, enter: `Spice Runtime` for the "Connection name". It should look like this:
    ![Name the Database Connection](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/f6d04fe1-92a1-4082-d4ea-e9daacaca200/public)
    1. Click the blue "Finish" button to save the connection   
 
@@ -63,4 +63,4 @@ sidebar_position: 2
     ![Execute SQL](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/2134e47b-a066-47e9-1d48-06352675f400/public "Execute SQL")   
     1. See the query results as shown in this screenshot:
     ![Query Results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/0e9f3c0f-2e03-47f9-8d5e-65e078d7e900/public "Query Results")   
-    1. DBeaver is now configured to query the Spice.ai runtime using SQL! 🎉
+    1. DBeaver is now configured to query the Spice runtime using SQL! 🎉

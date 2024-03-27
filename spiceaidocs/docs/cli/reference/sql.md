@@ -3,7 +3,7 @@ title: "sql"
 sidebar_label: "sql"
 ---
 
-Start an interactive SQL query session against the Spice.ai runtime
+Start an interactive SQL query session against the Spice runtime
 
 ### Usage:
 ```shell 

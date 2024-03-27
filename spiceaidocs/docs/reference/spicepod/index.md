@@ -67,27 +67,18 @@ A datasets referenced by relative path.
 
 ```yaml
 datasets:
-  - from: datasets/uniswap_v2_eth_usdc
-```
-
-A datasets with a dependency on another dataset.
-
-```yaml
-datasets:
-  - from: datasets/uniswap_v2_eth_usdc
-    dependsOn: datasets/uniswap_eth_usdc
+  - ref: datasets/uniswap_v2_eth_usdc
 ```
 
 A dataset defined inline.
 
 ```yaml
 datasets:
-  - name: spiceai.uniswap_v2_eth_usdc
-    type: overwrite
-    source: spice.ai
+  - name: spice.ai/eth.recent_blocks
     acceleration:
       enabled: true
-      refresh: 1h
+      refresh_mode: full
+      refresh_interval: 1h
 ```
 
 ## `models`

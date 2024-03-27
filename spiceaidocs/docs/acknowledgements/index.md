@@ -2,10 +2,10 @@
 title: Open Source Acknowledgements
 sidebar_label: Acknowledgements
 sidebar_position: 100
-description: 'Spice.ai acknowledges the following open source projects for making this project possible:'
+description: 'Spice AI acknowledges the following open source projects for making this project possible:'
 ---
 
-Spice.ai acknowledges the following open source projects for making this project possible:
+Spice AI acknowledges the following open source projects for making this project possible:
 
 ### Go Modules
 
