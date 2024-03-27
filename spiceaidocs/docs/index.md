@@ -14,17 +14,19 @@ Spice makes it easy to build data-driven and data-intensive applications by stre
 
 The Spice runtime is written in Rust and leverages industry leading technologies like Apache DataFusion, Apache Arrow, Apache Arrow Flight, and DuckDB.
 
+<img width="900" alt="OGP" src="https://github.com/spiceai/docs/assets/80174/74d201f9-a954-450b-a7c7-b73ae11aeede" />
+
 ## Why Spice?
 
 Spice makes querying data by SQL across one or more data sources simple and fast. Easily co-locate a managed working set of your data with your application or ML, locally accelerated in-memory with Arrow, with SQLite/DuckDB, or with an attached database like PostgreSQL for high-performance, low-latency queries.
 
 ### Before Spice
 
-<img width="750" alt="old" src="/img/concepts-before-spice.png" />
+<img width="750" alt="Before Spice" src="https://github.com/spiceai/docs/assets/80174/05732e82-6609-4d6b-981f-ff514e93e56f" />
 
 ### With Spice
 
-<img width="1024" alt="new" src="/img/concepts-with-spice.png" />
+<img width="900" alt="With Spice" src="https://github.com/spiceai/docs/assets/80174/21107db5-ee25-4416-b292-7c08af99cfe6" />
 
 ### Example Use-Cases
 
