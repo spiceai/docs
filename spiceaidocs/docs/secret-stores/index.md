@@ -2,7 +2,7 @@
 title: 'Secret Stores'
 sidebar_label: 'Secret Stores'
 description: ''
-sidebar_position: 8
+sidebar_position: 7
 ---
 
 A Secret Store is a location where `secret` objects are stored, used to store sensitive data, like passwords, tokens, secret keys.
