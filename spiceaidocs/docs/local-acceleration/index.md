@@ -13,7 +13,7 @@ When a dataset is locally accelerated by the Spice runtime, the data is stored a
 
 ## Example Use Case
 
-Consider a high volume e-trading frontend application backed by an AWS RDS database containing a table of tades. In order to retrieve all trades over the last 24 hours, the application would need to query the remote database for all trades in the last 24 hours and then transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds), we can bring the data to the application, saving the round trip time to the database and the time to transfer the data over the network.
+Consider a high volume e-trading frontend application backed by an AWS RDS database containing a table of trades. In order to retrieve all trades over the last 24 hours, the application would need to query the remote database for all trades in the last 24 hours and then transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds), we can bring the data to the application, saving the round trip time to the database and the time to transfer the data over the network.
 
 ## Considerations
 
