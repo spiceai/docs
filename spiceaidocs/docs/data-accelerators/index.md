@@ -2,7 +2,7 @@
 title: 'Data Accelerators'
 sidebar_label: 'Data Accelerators'
 description: ''
-sidebar_position: 7
+sidebar_position: 5
 ---
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
@@ -24,9 +24,9 @@ Data Accelerators using DuckDB, SQLite, or PostgreSQL engines can be used to mat
 
 Currently supported Data Accelerators include:
 
-| Engine Name                                          | Description             | Status | Engine Modes     |
-| ---------------------------------------------------- | ----------------------- | ------ | ---------------- |
-| `arrow`                                              | In-Memory Arrow Records | Alpha  | `memory`         |
-| `duckdb`                                             | Embedded DuckDB         | Alpha  | `memory`, `file` |
-| [`sqlite`](./sqlite.md)     | Embedded SQLite         | Alpha  | `memory`, `file` |
+| Engine Name                       | Description             | Status | Engine Modes     |
+| --------------------------------- | ----------------------- | ------ | ---------------- |
+| `arrow`                           | In-Memory Arrow Records | Alpha  | `memory`         |
+| `duckdb`                          | Embedded DuckDB         | Alpha  | `memory`, `file` |
+| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Alpha  |                  |

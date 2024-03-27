@@ -2,7 +2,7 @@
 title: 'Machine Learning'
 sidebar_label: 'Machine Learning'
 description: ''
-sidebar_position: 6
+sidebar_position: 8
 ---
 
 :::warning[Early Preview]
