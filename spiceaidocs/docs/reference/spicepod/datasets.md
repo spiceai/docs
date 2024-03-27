@@ -1,6 +1,6 @@
 ---
-title: "Datasets"
-sidebar_label: "Datasets"
+title: 'Datasets'
+sidebar_label: 'Datasets'
 description: 'Datasets YAML reference'
 ---
 
@@ -11,6 +11,7 @@ A Spicepod can contain one or more datasets referenced by relative path, or defi
 Inline example:
 
 `spicepod.yaml`
+
 ```yaml
 datasets:
   - from: spice.ai/eth/beacon/eigenlayer
@@ -27,6 +28,7 @@ datasets:
 ```
 
 `spicepod.yaml`
+
 ```yaml
 datasets:
   - from: databricks:spiceai.datasets.specific_table
@@ -45,12 +47,14 @@ datasets:
 Relative path example:
 
 `spicepod.yaml`
+
 ```yaml
 datasets:
   - from: datasets/eth_recent_transactions
 ```
 
 `datasets/eth_recent_transactions/dataset.yaml`
+
 ```yaml
 from: spiceai:spice.ai/eth.recent_transactions
 name: eth_recent_transactions
@@ -75,6 +79,7 @@ Where:
 - `<source>`: The source of the dataset
 
   Currently supported sources:
+
   - `spiceai`
   - `dremio`
   - `databricks`
@@ -108,16 +113,16 @@ Enable or disable acceleration, defaults to `true`.
 
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
-  - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-  - `duckdb` - Accelerated by an embedded DuckDB database.
-  - `postgres` - Accelerated by an embedded DuckDB database.
+- `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
+- `duckdb` - Accelerated by an embedded DuckDB database.
+- `postgres` - Accelerated by an embedded DuckDB database.
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
-  - `memory` - Store acceleration data in-memory.
-  - `file` - Store acceleration data in a file.
+- `memory` - Store acceleration data in-memory.
+- `file` - Store acceleration data in a file.
 
 `mode` is currently only supported for the `duckdb` engine.
 
@@ -125,8 +130,8 @@ Optional. The mode of acceleration. The following values are supported:
 
 Optional. How to refresh the dataset. The following values are supported:
 
-  - `full` - Refresh the entire dataset.
-  - `append` - Append new data to the dataset.
+- `full` - Refresh the entire dataset.
+- `append` - Append new data to the dataset.
 
 ## `acceleration.refresh_interval`
 
