@@ -1,10 +1,10 @@
-# Contributing to Spice.ai Docs
+# Contributing to Spice.ai OSS Docs
 
-Thanks for contributing to making Spice.ai better!
+Thanks for contributing to making Spice better!
 
 ## Writing style guide
 
-We will add a Spice.ai specific style-guide in the future. Until then, we recommend you refer to the following guides:
+We will add a Spice specific style-guide in the future. Until then, we recommend you refer to the following guides:
 
 - Kubernetes [Documentation Style Guide](https://kubernetes.io/docs/contribute/style/style-guide/)
 - Google [developer documentation style guide](https://developers.google.com/style/)

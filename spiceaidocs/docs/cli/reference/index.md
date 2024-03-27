@@ -1,7 +1,7 @@
 ---
-title: "Spice.ai CLI command reference"
-sidebar_label: "Spice.ai CLI command reference"
-description: "Spice.ai CLI command reference"
+title: "Spice.ai OSS CLI command reference"
+sidebar_label: "Spice CLI command reference"
+description: "Spice CLI command reference"
 ---
 
 # spice
@@ -22,11 +22,11 @@ spice [command] [--help]
 | [datasets](/cli/reference/datasets)     | Lists datasets loaded by the Spice runtime                          |
 | help                                               | Help about any command                                              |
 | [init](/cli/reference/init)             | Initialize Pod - initializes a new pod in the project               |
-| [login](/cli/reference/login)           | Login to Spice.ai                                                   |
+| [login](/cli/reference/login)           | Login to the Spice.ai Platform                                                  |
 | [models](/cli/reference/models)         | Lists models loaded by the Spice runtime                            |
 | [pods](/cli/reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
-| [run](/cli/reference/run)               | Run Spice.ai - starts the Spice.ai runtime, installing if necessary |
-| [sql](/cli/reference/sql)               | Start an interactive SQL query session against the Spice.ai runtime |
+| [run](/cli/reference/run)               | Run Spice - starts the Spice runtime, installing if necessary |
+| [sql](/cli/reference/sql)               | Start an interactive SQL query session against the Spice runtime |
 | [status](/cli/reference/status)         | Spice runtime status                                                |
 | [upgrade](/cli/reference/upgrade)       | Upgrades the Spice CLI to the latest release                        |
 | [version](/cli/reference/version)       | Spice CLI version                                                   |

@@ -3,7 +3,7 @@ import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Spice.ai Docs',
+  title: 'Spice.ai OSS Docs',
   tagline:
     'A unified SQL query interface and portable runtime to locally materialize, accelerate, and query data tables sourced from any database, data warehouse, or data lake.',
   favicon: 'img/favicon.ico',
@@ -53,15 +53,15 @@ const config: Config = {
     // image: 'img/docusaurus-social-card.jpg',
     announcementBar: {
       content:
-        'We\'ve just released <a href="https://github.com/spiceai/spiceai/releases">Spice.ai v0.9.1-alpha</a>! 🚀',
+        'We\'ve just released <a href="https://github.com/spiceai/spiceai/releases">Spice v0.9.1-alpha</a>! 🚀',
       backgroundColor: '#fafbfc',
       textColor: '#091E42',
       isCloseable: true,
     },
     navbar: {
-      title: 'Spice.ai Docs',
+      title: 'Spice.ai OSS Docs',
       logo: {
-        alt: 'Spice.ai logo',
+        alt: 'Spice.ai OSS logo',
         src: 'img/logo.svg',
       },
       hideOnScroll: true,
