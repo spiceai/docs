@@ -5,7 +5,7 @@ sidebar_position: 2
 ---
 
 ### Example
-To run a model trained on the Spice.AI platform, specifiy it in the from key () from HuggingFace, specify it in the `from` key.
+To run a model trained on the Spice.AI platform, specifiy it in the `from` key.
 ```yaml
 models:
   - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats

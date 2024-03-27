@@ -19,7 +19,7 @@ models:
 
 ### `from` Format
 The `from` key follows the following regex format:
-```
+```regex
 \A(huggingface:)(huggingface\.co\/)?(?<org>[\w\-]+)\/(?<model>[\w\-]+)(:(?<revision>[\w\d\-\.]+))?\z
 ```
 #### Examples
@@ -35,4 +35,4 @@ The `from` key follows the following regex format:
 
 
 ### Limitations
-- Supports only ONNX format files.
+- ONNX format support only
