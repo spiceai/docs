@@ -5,7 +5,7 @@ sidebar_position: 2
 ---
 
 ### Example
-To run a model trained on the Spice.AI platform, specifiy it in the `from` key.
+To run a model trained on the Spice.AI platform, specify it in the `from` key.
 ```yaml
 models:
   - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats
@@ -36,7 +36,7 @@ The from key must conform to the following regex format:
 
 #### Examples
 - `spice.ai/lukekim/smart/models/drive_stats:latest`: Refers to the latest version of the drive_stats model in the smart application by the user or organization lukekim.
-- `spice.ai/lukekim/smart/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`: Specifies a model with a unique training run ID, bypassing the /models path for conciseness.
+- `spice.ai/lukekim/smart/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`: Specifies a model with a unique training run ID.
 
 #### Specification
 1. **Prefix (Optional):** The value must start with `spice.ai/`.
