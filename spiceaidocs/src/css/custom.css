@@ -13,11 +13,53 @@
   --ifm-color-primary-light: #33925d;
   --ifm-color-primary-lighter: #359962;
   --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-
+  
   --announcement-bar-bg: #fafbfc;
   --announcement-bar-text: #091E42;
+
+  /* override code size */
+  --ifm-code-font-size: 13px;
+  
+  /* disable shadows */
+  --ifm-global-shadow-lw: none;
+  --ifm-global-shadow-md: none; 
+  --ifm-global-shadow-tl: none;
+  --ifm-code-background: rgb(246, 247, 248);
+
+  /* reduce border radius */
+  --ifm-global-radius: 4px;
+
+  /* adjust inline code paddings */
+  --ifm-code-padding-horizontal: 0.3rem;
+}
+
+
+.theme-code-block {
+  border: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.navbar {
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+code {
+  border: 1px solid var(--ifm-color-emphasis-300);
+}
+
+pre {
+  font-family: 'iAWriterMonoS', monospace;
+}
+
+/* override card styles */
+.card {
+  box-shadow: none !important;
+  border-radius: var(--ifm-global-radius);
+  border-color: var(--ifm-color-emphasis-300) !important;
+}
+
+.card:hover {
+  border-color: var(--ifm-color-primary) !important;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
