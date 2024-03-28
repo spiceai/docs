@@ -10,7 +10,7 @@ The Spice runtime has a Prometheus endpoint configured by default on port `9091`
     - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
 
 
-1. Create a `docker-compose.yaml`:
+1. Create a `compose.yaml`:
     ```yaml
     version: "3"
     services:
