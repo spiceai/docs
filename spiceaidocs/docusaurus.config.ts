@@ -58,8 +58,6 @@ const config: Config = {
     announcementBar: {
       content:
         'Spice.ai OSS v0.10 is now available! Rebuilt from the ground up in Rust! 🚀',
-      backgroundColor: '#fafbfc',
-      textColor: '#091E42',
       isCloseable: true,
     },
     navbar: {
