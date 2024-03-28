@@ -28,6 +28,7 @@ The connection to PostgreSQL can be configured by providing the following `param
   - `prefer`: (default) This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
   - `required`: This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
   - `disable`: This mode will not attempt to use an SSL connection, even if the server supports it.
+- `pg_insecure`: Optional parameter, Allows TLS connectivity to servers with invalid/expired certificates.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query, or in the `acceleration` section for a data store.
 
@@ -41,6 +42,8 @@ datasets:
       pg_db: my_database
       pg_user: my_user
       pg_pass_key: my_secret
+      pg_sslmode: required
+      pg_insecure: 'true'
 ```
 
 Additionally, an `engine_secret` may be provided when configuring a PostgreSQL data store to allow for using a different secret store to specify the password for a dataset using PostgreSQL as both the data source and data store.
