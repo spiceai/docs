@@ -12,16 +12,25 @@ Spice provides a powerful federated query feature that allows you to join and co
 Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data warehouses (Databricks, Snowflake, BigQuery, etc.), and data lakes (S3, MinIO, etc.). See [Data Connectors](/data-connectors/index.md) for the full list of supported sources.
 
 ### Getting Started
-
-#### Pre-requisites
-
-- Install Spice by following the [installation instructions](/getting-started/index.md).
-- Run thought the [federation quickstart guide](https://github.com/spiceai/quickstarts/blob/trunk/federation/README.md) for required docker and local postgres setup.
-
-#### Steps
 To get started with federated queries using Spice, follow these steps:
 
-**Step 1.** Create a new Spice app called `demo`.
+**Step 1.** Install Spice by following the [installation instructions](/getting-started/index.md).
+
+**Step 2.** Clone the [Spice Quickstarts repo](https://github.com/spiceai/quickstarts) and navigate to the `federation` directory.
+
+```bash
+git clone https://github.com/spiceai/quickstarts.git
+cd quickstarts/federation
+```
+
+**Step 3.** Start PostgreSQL with Docker Compose & login to the demo Dremio.
+
+```bash
+make
+spice login dremio -u demo -p demo1234
+```
+
+**Step 4.** Create a new Spice app called `demo`.
 
 ```bash
 # Create Spice app "demo"
@@ -31,21 +40,24 @@ spice init demo
 cd demo
 ```
 
-**Step 2.** Start the Spice runtime.
+**Step 5.** Start the Spice runtime.
 
 ```bash
 spice run
 ```
 
-**Step 3.** Open a new terminal and add the `spiceai/fed-demo` Spicepod.
+**Step 6.** Open a new terminal, navigate back to the `demo` directory and add the `spiceai/fed-demo` Spicepod.
 
 ```bash
+# Change to demo directory.
+cd demo
+
 spice add spiceai/fed-demo
 ```
 
 Note in the Spice runtime output several datasets are loaded.
 
-**Step 4.** Show available tables and query them, regardless of source.
+**Step 7.** Show available tables and query them, regardless of source.
 
 ```bash
 # Start the Spice SQL REPL.
@@ -82,11 +94,11 @@ SELECT *
 FROM dremio_source_accelerated LIMIT 10
 ```
 
-**Step 5.** Join tables across remote sources and query
+**Step 8.** Join tables across remote sources and query
 
 ```sql
 -- Query across S3, PostgreSQL, and Dremio
-sql> WITH order_numbers AS (
+WITH order_numbers AS (
   SELECT DISTINCT order_number
   FROM s3_source
   WHERE order_number IN (
@@ -103,6 +115,7 @@ WHERE passenger_count IN (
   FROM order_numbers
 )
 GROUP BY passenger_count;
+
 +---------------------------------+-----------------+
 | AVG(dremio_source.total_amount) | passenger_count |
 +---------------------------------+-----------------+
@@ -118,11 +131,11 @@ GROUP BY passenger_count;
 Query took: 3.345525166 seconds. 7/7 rows displayed.
 ```
 
-**Step 6.** Join tables across locally accelerated sources and query
+**Step 9.** Join tables across locally accelerated sources and query
 
 ```sql
 -- Query across S3 accelerated, PostgreSQL, and Dremio accelerated
-sql> WITH order_numbers AS (
+WITH order_numbers AS (
   SELECT DISTINCT order_number
   FROM s3_source_accelerated
   WHERE order_number IN (
@@ -139,6 +152,7 @@ WHERE passenger_count IN (
   FROM order_numbers
 )
 GROUP BY passenger_count;
+
 +---------------------------------------------+-----------------+
 | AVG(dremio_source_accelerated.total_amount) | passenger_count |
 +---------------------------------------------+-----------------+
@@ -154,11 +168,17 @@ GROUP BY passenger_count;
 Query took: 0.045805958 seconds. 7/7 rows displayed.
 ```
 
+**Step 10.** Clean up the Postgres container.
+
+```bash
+make clean
+```
+
 ### Acceleration
 
-While the query in step 5 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
 
-To improve query performance, step 6 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
+To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
 
 ### Limitations
 
