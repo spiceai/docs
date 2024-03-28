@@ -152,4 +152,6 @@ In this example, data was queried from several remote sources. To improve query 
 
 ### Limitations
 
-- Spice does not push query filter/aggregation to the remote sources. The entire dataset is fetched and filtered locally.
+- **Query Optimization:** Filter/Join/Aggregation pushdown is not supported, potentially leading to suboptimal query plan.
+- **Query Performance:** With acceleration, federated queries will be slower than local queries due to network latency and data transfer.
+- **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
