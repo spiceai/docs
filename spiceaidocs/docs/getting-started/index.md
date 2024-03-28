@@ -36,13 +36,7 @@ A `spicepod.yaml` file is created in the `spice_qs` directory. Change to that di
 cd spice_qs
 ```
 
-**Step 3.** Connect to the sample Dremio instance to access the sample data:
-
-```bash
-spice login dremio -u demo -p demo1234
-```
-
-**Step 4.** Start the Spice runtime:
+**Step 3.** Start the Spice runtime:
 
 ```bash
 spice run
@@ -60,7 +54,7 @@ Using latest 'local' runtime version.
 
 The runtime is now started and ready for queries.
 
-**Step 5.** In a new terminal window, add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
+**Step 4.** In a new terminal window, add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
 
 ```bash
 spice add spiceai/quickstart
@@ -83,7 +77,7 @@ The `spiceai/quickstart` Spicepod will add a `taxi_trips` data table to the runt
 2024-02-22T05:53:48.223101Z  INFO runtime::dataconnector: Refreshing data for taxi_trips
 ```
 
-**Step 6.** Start the Spice SQL REPL:
+**Step 5.** Start the Spice SQL REPL:
 
 ```bash
 spice sql
@@ -101,19 +95,14 @@ sql>
 Enter `show tables;` to display the available tables for query:
 
 ```
-sql> show tables;
+sql> show tables
++------------+
+| table_name |
++------------+
+| taxi_trips |
++------------+
 
-+---------------+--------------------+-------------+------------+
-| table_catalog | table_schema       | table_name  | table_type |
-+---------------+--------------------+-------------+------------+
-| datafusion    | public             | taxi_trips  | BASE TABLE |
-| datafusion    | information_schema | tables      | VIEW       |
-| datafusion    | information_schema | views       | VIEW       |
-| datafusion    | information_schema | columns     | VIEW       |
-| datafusion    | information_schema | df_settings | VIEW       |
-+---------------+--------------------+-------------+------------+
-
-Query took: 0.004728897 seconds
+Query took: 0.007505084 seconds. 1/1 rows displayed.
 ```
 
 Enter a query to display the longest taxi trips:
