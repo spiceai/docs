@@ -4,6 +4,8 @@ slug: /
 title: Home
 ---
 
+import ThemeBasedImage from '@site/src/components/ThemeBasedImage';
+
 # Spice.ai OSS
 
 ## What is Spice?
@@ -14,7 +16,7 @@ Spice makes it easy to build data-driven and data-intensive applications by stre
 
 The Spice runtime is written in Rust and leverages industry leading technologies like Apache DataFusion, Apache Arrow, Apache Arrow Flight, and DuckDB.
 
-<img width="900" alt="OGP" src="https://github.com/spiceai/docs/assets/80174/74d201f9-a954-450b-a7c7-b73ae11aeede" />
+<ThemeBasedImage width="900" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/f71f227d-d7cd-418c-85b9-5c663a728491" darkSrc="https://github.com/spiceai/spiceai/assets/80174/96b5fcef-a550-4ce8-a74a-83931275e83e" />
 
 ## Why Spice?
 
@@ -22,11 +24,11 @@ Spice makes querying data by SQL across one or more data sources simple and fast
 
 ### Before Spice
 
-<img width="750" alt="Before Spice" src="https://github.com/spiceai/docs/assets/80174/05732e82-6609-4d6b-981f-ff514e93e56f" />
+<ThemeBasedImage width="750" alt="Before Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/0550d682-cf3b-4b1b-a3bd-d8b3ad7d8caf" darkSrc="https://github.com/spiceai/spiceai/assets/80174/64a3216e-0bbb-48b0-bf98-72e656d690af" />
 
 ### With Spice
 
-<img width="900" alt="With Spice" src="https://github.com/spiceai/docs/assets/80174/21107db5-ee25-4416-b292-7c08af99cfe6" />
+<ThemeBasedImage width="900" alt="With Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/b57514fe-d53d-42de-b8f0-97ae313c5708" darkSrc="https://github.com/spiceai/spiceai/assets/80174/02dbedb4-b209-4d08-bf83-4785a1bf886f" />
 
 ### Example Use-Cases
 
