@@ -117,3 +117,18 @@ pre {
     var(--ifm-color-emphasis-100) 100%
   );
 }
+
+.video-container {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 28 / 21;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.video-container iframe {
+  width: 100%;
+  height: 100%;
+}

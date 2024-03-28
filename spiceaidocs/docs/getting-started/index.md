@@ -6,6 +6,10 @@ description: 'Get started with Spice in 5 minutes'
 pagination_next: null
 ---
 
+<div className="video-container">
+  <iframe width="560" height="420" src="https://www.youtube.com/embed/AZyrecVWnEs?si=2s_2jLTJlUdgItyC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
 ### Follow these steps to get started with Spice.
 
 **Step 1.** Install the Spice CLI:
