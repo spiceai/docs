@@ -80,7 +80,7 @@ SELECT *
 FROM dremio_source_accelerated LIMIT 10
 ```
 
-**Step 5.** Join tables across sources and query.
+**Step 5.** Join tables across remote sources and query
 
 ```sql
 -- Query across S3, PostgreSQL, and Dremio
@@ -114,7 +114,11 @@ GROUP BY passenger_count;
 +---------------------------------+-----------------+
 
 Query took: 3.345525166 seconds. 7/7 rows displayed.
+```
 
+**Step 6.** Join tables across locally accelerated sources and query
+
+```sql
 -- Query across S3 accelerated, PostgreSQL, and Dremio accelerated
 sql> WITH order_numbers AS (
   SELECT DISTINCT order_number
@@ -144,11 +148,14 @@ GROUP BY passenger_count;
 | 17.714222499449434                          | 2               |
 | 15.394881909237196                          | 1               |
 +---------------------------------------------+-----------------+
+
+Query took: 0.045805958 seconds. 7/7 rows displayed.
 ```
 
 ### Acceleration
 
-In this example, data was queried from several remote sources. To improve query performance, locally materialize and accelerate the datasets using [Data Accelerators](/data-accelerators/index.md).
+While the query in step 5 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+To improve query performance, step 6 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
 
 ### Limitations
 
