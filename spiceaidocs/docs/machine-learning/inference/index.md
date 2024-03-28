@@ -3,6 +3,8 @@ title: 'Machine Learning Inference'
 sidebar_label: 'Machine Learning Inference'
 description: ''
 sidebar_position: 2
+pagination_prev: 'machine-learning/model-deployment/index'
+pagination_next: null
 ---
 
 import Tabs from '@theme/Tabs';

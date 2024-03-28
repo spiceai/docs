@@ -2,6 +2,7 @@
 title: "Models"
 sidebar_label: "Models"
 description: 'Models YAML reference'
+pagination_next: null
 ---
 
 :::warning[Early Preview]

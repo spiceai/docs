@@ -1,6 +1,8 @@
 ---
 title: "login"
 sidebar_label: "login"
+pagination_prev: null
+pagination_next: null
 ---
 
 Login to the Spice.ai Platform, or other services with sub-commands.

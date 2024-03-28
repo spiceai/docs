@@ -3,6 +3,8 @@ title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
 description: ''
 sidebar_position: 4
+pagination_prev: null
+pagination_next: null
 ---
 
 

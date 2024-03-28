@@ -1,6 +1,8 @@
 ---
 title: "sql"
 sidebar_label: "sql"
+pagination_prev: null
+pagination_next: null
 ---
 
 Start an interactive SQL query session against the Spice runtime

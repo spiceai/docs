@@ -3,6 +3,8 @@ title: 'Apache Superset'
 sidebar_label: 'Apache Superset'
 sidebar_position: 10
 description: 'Use Apache Superset to query and visualize datasets loaded in Spice.'
+pagination_prev: 'clients/index'
+pagination_next: null
 ---
 
 import Tabs from '@theme/Tabs';

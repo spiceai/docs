@@ -2,6 +2,7 @@
 title: 'SQLite Data Accelerator'
 sidebar_label: 'SQLite Data Accelerator'
 description: 'SQLite Data Accelerator Documentation'
+pagination_next: null
 ---
 
 To use SQLite as Data Accelerator, specify `sqlite` as the `engine` for acceleration.

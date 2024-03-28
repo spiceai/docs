@@ -2,6 +2,7 @@
 title: "Spice.ai OSS CLI command reference"
 sidebar_label: "Spice CLI command reference"
 description: "Spice CLI command reference"
+pagination_next: null
 ---
 
 # spice

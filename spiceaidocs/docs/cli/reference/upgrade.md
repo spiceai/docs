@@ -1,6 +1,8 @@
 ---
 title: "upgrade"
 sidebar_label: "upgrade"
+pagination_prev: null
+pagination_next: null
 ---
 Upgrades the Spice CLI to the latest release
 

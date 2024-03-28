@@ -3,6 +3,7 @@ title: 'Keyring Secret Store'
 sidebar_label: 'Keyring Secret Store'
 sidebar_position: 4
 description: 'Keyring Secret Store Documentation'
+pagination_next: null
 ---
 
 The `keyring` store enables Spice to access secrets from the secure/credential store of the host operating system:

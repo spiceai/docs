@@ -1,6 +1,8 @@
 ---
 title: "datasets"
 sidebar_label: "datasets"
+pagination_prev: null
+pagination_next: null
 ---
 
 Lists datasets loaded by the Spice runtime

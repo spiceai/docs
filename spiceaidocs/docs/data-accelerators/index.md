@@ -3,6 +3,8 @@ title: 'Data Accelerators'
 sidebar_label: 'Data Accelerators'
 description: ''
 sidebar_position: 5
+pagination_prev: null
+pagination_next: null
 ---
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
@@ -30,3 +32,9 @@ Currently supported Data Accelerators include:
 | [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Alpha  | `memory`, `file` |
 | [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Alpha  |                  |
+
+## Data Accelerator Docs
+
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />

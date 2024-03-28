@@ -1,6 +1,8 @@
 ---
 title: "version"
 sidebar_label: "version"
+pagination_prev: null
+pagination_next: null
 ---
 Spice CLI version
 

@@ -3,6 +3,7 @@ title: 'Environment Secret Store'
 sidebar_label: 'Environment Secret Store'
 sidebar_position: 1
 description: 'Environment Variables Secret Store Documentation'
+pagination_prev: null
 ---
 
 The `env` store type enables Spice to read secrets from environment variables. Environment variables should be formatted `SPICE_SECRET_<secret-name>_<secret-value-key>`.
