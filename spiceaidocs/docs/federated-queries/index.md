@@ -155,6 +155,7 @@ Query took: 0.045805958 seconds. 7/7 rows displayed.
 ### Acceleration
 
 While the query in step 5 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+
 To improve query performance, step 6 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
 
 ### Limitations
