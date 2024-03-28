@@ -14,30 +14,7 @@ Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data 
 #### Pre-requisites
 
 - Install Spice by following the [installation instructions](/getting-started/index.md).
-- Install docker in your local environment.
-- Run a local postgresql container with the following command:
-```bash
-docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 15432:5432 postgres
-```
-- Using Spice to seed a remote parquet file into the postgres instance
-  - Create a new empty folder
-  - `spice init`
-  - edit `spicepod.yaml` and add the following content
-  ```yaml
-  datasets:
-    - from: s3://spiceai-demo-datasets/cleaned_sales_data.parquet
-      name: cleaned_sales_data
-      acceleration:
-        engine: postgres
-        params:
-          pg_host: localhost
-          pg_port: '15432'
-          pg_db: postgres
-          pg_user: postgres
-          pg_pass: postgres
-  ```
-  - `spice run`, this will load the data into postgres
-  - `PGPASSWORD=postgres psql -h localhost -U postgres -p 15432  postgres -c "select count(1) from cleaned_sales_data"`
+- Run thought the [federation quickstart guide](https://github.com/spiceai/quickstarts/blob/trunk/federation/README.md) for required docker and local postgres setup.
 
 #### Steps
 To get started with federated queries using Spice, follow these steps:
@@ -172,3 +149,7 @@ GROUP BY passenger_count;
 ### Acceleration
 
 In this example, data was queried from several remote sources. To improve query performance, locally materialize and accelerate the datasets using [Data Accelerators](/data-accelerators/index.md).
+
+### Limitations
+
+- Spice does not push query filter/aggregation to the remote sources. The entire dataset is fetched and filtered locally.
