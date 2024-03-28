@@ -12,16 +12,24 @@ Spice provides a powerful federated query feature that allows you to join and co
 Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data warehouses (Databricks, Snowflake, BigQuery, etc.), and data lakes (S3, MinIO, etc.). See [Data Connectors](/data-connectors/index.md) for the full list of supported sources.
 
 ### Getting Started
-
-#### Pre-requisites
-
-- Install Spice by following the [installation instructions](/getting-started/index.md).
-- Run thought the [federation quickstart guide](https://github.com/spiceai/quickstarts/blob/trunk/federation/README.md) for required docker and local postgres setup.
-
-#### Steps
 To get started with federated queries using Spice, follow these steps:
 
-**Step 1.** Create a new Spice app called `demo`.
+**Step 1.** Install Spice by following the [installation instructions](/getting-started/index.md).
+
+**Step 2.** Clone the [Spice Quickstarts repo](https://github.com/spiceai/quickstarts) and navigate to the `federation` directory.
+
+```bash
+git clone https://github.com/spiceai/quickstarts.git
+cd quickstarts/federation
+```
+
+**Step 3.** Start PostgreSQL with Docker Compose.
+
+```bash
+make
+```
+
+**Step 4.** Create a new Spice app called `demo`.
 
 ```bash
 # Create Spice app "demo"
@@ -37,9 +45,12 @@ cd demo
 spice run
 ```
 
-**Step 3.** Open a new terminal and add the `spiceai/fed-demo` Spicepod.
+**Step 3.** Open a new terminal, navigate to the `demo` directory and add the `spiceai/fed-demo` Spicepod.
 
 ```bash
+# Change to demo directory.
+cd demo
+
 spice add spiceai/fed-demo
 ```
 
