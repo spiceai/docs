@@ -107,7 +107,23 @@ FROM dremio_source_accelerated LIMIT 10
 
 ```sql
 -- Query across S3, PostgreSQL, and Dremio
-sql> with order_numbers as (select distinct order_number from s3_source where order_number in (select order_number from pg_source)) select avg(total_amount), passenger_count from dremio_source where passenger_count in (select distinct order_number % 10 as num_of_passenger from order_numbers) group by passenger_count;
+sql> WITH order_numbers AS (
+  SELECT DISTINCT order_number
+  FROM s3_source
+  WHERE order_number IN (
+    SELECT order_number
+    FROM pg_source
+  )
+)
+SELECT
+  AVG(total_amount),
+  passenger_count
+FROM dremio_source
+WHERE passenger_count IN (
+  SELECT DISTINCT order_number % 10 AS num_of_passenger
+  FROM order_numbers
+)
+GROUP BY passenger_count;
 +---------------------------------+-----------------+
 | AVG(dremio_source.total_amount) | passenger_count |
 +---------------------------------+-----------------+
@@ -123,7 +139,23 @@ sql> with order_numbers as (select distinct order_number from s3_source where or
 Query took: 3.345525166 seconds. 7/7 rows displayed.
 
 -- Query across S3 accelerated, PostgreSQL, and Dremio accelerated
-sql> with order_numbers as (select distinct order_number from s3_source_accelerated where order_number in (select order_number from pg_source)) select avg(total_amount), passenger_count from dremio_source_accelerated where passenger_count in (select distinct order_number % 10 as num_of_passenger from order_numbers) group by passenger_count;
+sql> WITH order_numbers AS (
+  SELECT DISTINCT order_number
+  FROM s3_source_accelerated
+  WHERE order_number IN (
+    SELECT order_number
+    FROM pg_source
+  )
+)
+SELECT
+  AVG(total_amount),
+  passenger_count
+FROM dremio_source_accelerated
+WHERE passenger_count IN (
+  SELECT DISTINCT order_number % 10 AS num_of_passenger
+  FROM order_numbers
+)
+GROUP BY passenger_count;
 +---------------------------------------------+-----------------+
 | AVG(dremio_source_accelerated.total_amount) | passenger_count |
 +---------------------------------------------+-----------------+
