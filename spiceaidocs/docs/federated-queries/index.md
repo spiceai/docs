@@ -31,10 +31,10 @@ cd demo
 spice run
 ```
 
-**Step 4.** Open a new terminal and add the `lukekim/demo` Spicepod.
+**Step 4.** Open a new terminal and add the `spiceai/fed-demo` Spicepod.
 
 ```bash
-spice add lukekim/demo
+spice add spiceai/fed-demo
 ```
 
 Note in the Spice runtime output several datasets are loaded.
