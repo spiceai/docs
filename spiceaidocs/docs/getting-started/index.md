@@ -3,6 +3,7 @@ title: 'Getting started with Spice.ai OSS'
 sidebar_label: 'Getting started'
 sidebar_position: 1
 description: 'Get started with Spice in 5 minutes'
+pagination_next: null
 ---
 
 ### Follow these steps to get started with Spice.

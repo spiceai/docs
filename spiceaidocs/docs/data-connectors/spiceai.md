@@ -2,6 +2,7 @@
 title: 'Spice.ai Data Connector'
 sidebar_label: 'Spice.ai Data Connector'
 description: 'Spice.ai Data Connector Documentation'
+pagination_next: null
 ---
 
 The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query across datasets in the [Spice.ai Cloud Platform](https://docs.spice.ai/building-blocks/datasets).  Access to these datasets require a free [Spice.ai account](https://spice.ai/login).

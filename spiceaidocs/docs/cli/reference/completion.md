@@ -1,6 +1,8 @@
 ---
 title: "Completion"
 sidebar_label: "completion"
+pagination_prev: null
+pagination_next: null
 ---
 
 Generate the autocompletion script for spice for the specified shell.

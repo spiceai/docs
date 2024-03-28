@@ -2,6 +2,7 @@
 title: 'Databricks Data Connector'
 sidebar_label: 'Databricks Data Connector'
 description: 'Databricks Data Connector Documentation'
+pagination_prev: null
 ---
 
 import Tabs from '@theme/Tabs';

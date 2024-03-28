@@ -1,6 +1,8 @@
 ---
 title: "Add"
 sidebar_label: "add"
+pagination_prev: null
+pagination_next: null
 ---
 
 Add Spicepod - adds a Spicepod to the project

@@ -3,6 +3,7 @@ title: 'Spice.ai OSS CLI documentation'
 sidebar_label: 'CLI'
 description: 'Detailed documentation on the Spice.ai OSS CLI'
 sidebar_position: 9
+pagination_prev: null
 ---
 
 The Spice CLI is a set of commands to create and manage Spicepods and interact with the Spice runtime.

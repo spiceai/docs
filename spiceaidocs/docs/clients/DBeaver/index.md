@@ -3,6 +3,8 @@ title: "DBeaver"
 sidebar_label: "DBeaver"
 description: 'Configure DBeaver to query Spice via JDBC'
 sidebar_position: 2
+pagination_prev: 'clients/index'
+pagination_next: null
 ---
 
 1. Start the Spice runtime with a dataset loaded. Follow the [quickstart guide](/getting-started) to get started.

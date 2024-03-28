@@ -3,6 +3,8 @@ title: Open Source Acknowledgements
 sidebar_label: Acknowledgements
 sidebar_position: 100
 description: 'Spice AI acknowledges the following open source projects for making this project possible:'
+pagination_prev: null
+pagination_next: null
 ---
 
 Spice AI acknowledges the following open source projects for making this project possible:

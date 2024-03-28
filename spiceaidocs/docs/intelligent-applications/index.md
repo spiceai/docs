@@ -3,6 +3,8 @@ title: 'Intelligent Applications'
 sidebar_label: 'Intelligent Applications'
 sidebar_position: 10
 description: 'Building intelligent data and AI-driven applications with Spice.ai'
+pagination_prev: null
+pagination_next: null
 ---
 
 As described in the blog post [Making Apps That Learn and Adapt](https://blog.spiceai.org/posts/2021/11/05/making-apps-that-learn-and-adapt/) the long-term vision for Spice.ai is to enable developers to easily build, deploy, and operate intelligent data and AI-driven applications.

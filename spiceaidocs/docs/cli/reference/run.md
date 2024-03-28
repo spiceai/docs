@@ -1,6 +1,8 @@
 ---
 title: "run"
 sidebar_label: "run"
+pagination_prev: null
+pagination_next: null
 ---
 Run Spice - starts the Spice runtime, installing if necessary
 

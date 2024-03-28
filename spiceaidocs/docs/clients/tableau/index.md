@@ -3,6 +3,8 @@ title: 'Tableau'
 sidebar_label: 'Tableau'
 sidebar_position: 10
 description: 'Use Tableau to to access, visualise and analyse datasets loaded in Spice.'
+pagination_prev: 'clients/index'
+pagination_next: null
 ---
 
 Use [Tableau](https://www.tableau.com/) to access, visualise and analyse datasets loaded in Spice.

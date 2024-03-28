@@ -3,6 +3,8 @@ title: 'Secret Stores'
 sidebar_label: 'Secret Stores'
 description: ''
 sidebar_position: 7
+pagination_prev: null
+pagination_next: null
 ---
 
 A Secret Store is a location where `secret` objects are stored, used to store sensitive data, like passwords, tokens, secret keys.
@@ -18,7 +20,6 @@ secrets:
 
 ## Secret Stores
 
-- [Environment Secret Store](env/index.md)
-- [File Secret Store](file/index.md)
-- [Kubernetes Secret Store](kubernetes/index.md)
-- [Keyring Secret Store](keyring/index.md)
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />

@@ -1,6 +1,8 @@
 ---
 title: "init"
 sidebar_label: "init"
+pagination_prev: null
+pagination_next: null
 ---
 Initialize Spice app - initializes a new Spice app
 

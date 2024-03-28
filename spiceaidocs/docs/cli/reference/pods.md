@@ -1,6 +1,8 @@
 ---
 title: "pods"
 sidebar_label: "pods"
+pagination_prev: null
+pagination_next: null
 ---
 Lists Spicepods loaded by the Spice runtime
 

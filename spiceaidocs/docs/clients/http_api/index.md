@@ -2,6 +2,8 @@
 title: "HTTP API"
 sidebar_label: "HTTP"
 description: 'Directly call the Spice runtime via HTTP requests'
+pagination_prev: 'clients/index'
+pagination_next: null
 ---
 
 import Tabs from '@theme/Tabs';
