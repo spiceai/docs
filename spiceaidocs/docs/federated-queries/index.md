@@ -160,5 +160,5 @@ To improve query performance, step 6 demonstrates the same query executed agains
 ### Limitations
 
 - **Query Optimization:** Filter/Join/Aggregation pushdown is not supported, potentially leading to suboptimal query plan.
-- **Query Performance:** With acceleration, federated queries will be slower than local queries due to network latency and data transfer.
+- **Query Performance:** Without acceleration, federated queries will be slower than local queries due to network latency and data transfer.
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
