@@ -108,7 +108,7 @@ Query took: 0.007505084 seconds. 1/1 rows displayed.
 Enter a query to display the longest taxi trips:
 
 ```
-sql> SELECT trip_distance_mi, total_amount FROM taxi_trips ORDER BY trip_distance_mi DESC LIMIT 10;
+sql> SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;
 ```
 
 Output:
