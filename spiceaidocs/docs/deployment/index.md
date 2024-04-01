@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 ---
 
+Learn how to deploy Spice.ai in your environment.
+
 import DocCardList from '@theme/DocCardList';
 
 <DocCardList />

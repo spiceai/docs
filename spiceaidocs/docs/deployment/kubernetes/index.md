@@ -14,6 +14,8 @@ helm repo add spiceai https://helm.spiceai.org
 helm upgrade --install spiceai spiceai/spiceai
 ```
 
+Deploy Spice using Helm in Kubernetes.
+
 ## Values
 
 The following table lists the configurable parameters of the Spice.ai chart and their default values. Override the default values by creating a `values.yaml` file.
