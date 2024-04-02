@@ -2,7 +2,7 @@
 title: 'Data Connectors'
 sidebar_label: 'Data Connectors'
 description: ''
-sidebar_position: 6
+sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---

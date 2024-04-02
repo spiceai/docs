@@ -2,7 +2,7 @@
 title: 'Data Accelerators'
 sidebar_label: 'Data Accelerators'
 description: ''
-sidebar_position: 5
+sidebar_position: 4
 pagination_prev: null
 pagination_next: null
 ---

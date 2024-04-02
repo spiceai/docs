@@ -2,15 +2,28 @@
 title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
 description: ''
-sidebar_position: 4
+sidebar_position: 6
 pagination_prev: null
 pagination_next: null
 ---
 
 
-Data can be ingested by the Spice runtime for replication to a Data Connector, like PostgreSQL or the Spice.ai Cloud platform.
+Data can be ingested by the Spice runtime for replication to a Data Connector that [supports inserts](../data-connectors/index.md), like PostgreSQL or the Spice.ai Cloud platform.
 
-By default, the runtime exposes an [OpenTelemety](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50052 for data ingestion.
+Enable data ingestion by adding `mode: read_write` to the dataset and setting `replication.enabled: true`.
+
+```yaml
+datasets:
+  - from: spice.ai/coolorg/smart/datasets/drive_stats
+    name: smart_attribute_raw_value
+    mode: read_write
+    replication:
+      enabled: true
+    acceleration:
+      enabled: true
+```
+
+By default, the runtime exposes an [OpenTelemety](https://opentelemetry.io) (OTEL) endpoint at `grpc://127.0.0.1:50052` for data ingestion.
 
 OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
 
