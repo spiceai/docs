@@ -12,7 +12,11 @@ The Spice runtime has a Prometheus endpoint configured by default on port `9000`
 
 Navigate to the Dashboards section in Grafana and click "New" > "Import".
 
+<img width="500" src="/img/grafana/import-dashboard-button.png" />
+
 Copy the dashboard JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json) into the Grafana import box.
+
+<img width="500" src="/img/grafana/import-dashboard.png" />
 
 Click "Load".
 
