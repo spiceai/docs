@@ -48,6 +48,7 @@ spicepod:
 | ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------- |
 | `image.repository`    | The repository of the Docker image .                                                                           | `spiceai`        |
 | `image.tag`  | Replace with a specific version of Spice.ai to run.                                                                              | `latest` |
+| `monitoring.podMonitoring.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false` |
 | `replicaCount`      | Number of Spice.ai replicas to run | `1`                   |
 | `image.pullSecrets` | Specify docker-registry secret names as an array                                                     | `[]`                   |
 | `tolerations`      | List of node taints to tolerate                                        | `[]`                   |
@@ -68,6 +69,33 @@ additionalEnv:
         key: spiceai-key
 ```
 
+### Monitoring
+
+The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../clients/grafana/index.md). To enable this feature, set the `monitoring.podMonitoring.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
+
+<details>
+  <summary>Install the Prometheus Operator</summary>
+  <div>
+    The easiest way to install the Prometheus Operator along with Grafana is to use the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart.
+
+    ```bash
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+    helm install prometheus-stack prometheus-community/kube-prometheus-stack \
+          --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
+          --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+    ```
+  </div>
+</details>
+
+Deploy the Spice.ai Helm chart with monitoring enabled:
+
+```bash
+helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitoring.enabled=true
+```
+
+Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clients/grafana/index.md) to visualize the Spice.ai metrics.
+
 ### Example values.yaml
 
 ```yaml
@@ -81,6 +109,9 @@ additionalEnv:
       secretKeyRef:
         name: spice-secrets
         key: spiceai-key
+monitoring:
+  podMonitor:
+    enabled: true
 spicepod:
   name: app
   version: v1beta1
