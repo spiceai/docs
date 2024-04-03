@@ -6,7 +6,22 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime has a Prometheus endpoint configured by default on port `9091`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances. This tutorial creates and configures Grafana and Prometheus to scrape and display metrics from several Spice instances. It assumes:
+The Spice runtime has a Prometheus endpoint configured by default on port `9091`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances.
+
+## Import Grafana Dashboard
+
+Navigate to the Dashboards section in Grafana and click "New" > "Import".
+
+Copy the dashboard JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json) into the Grafana import box.
+
+Click "Load".
+
+## Kubernetes
+
+View the [Kubernetes](/deployment/kubernetes) deployment guide for configuring Prometheus to scrape metrics from the Spice instances in Kubernetes.
+
+## Local Quickstart
+This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes:
     - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
 
 
