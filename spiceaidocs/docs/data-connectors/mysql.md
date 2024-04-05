@@ -25,7 +25,7 @@ The connection to MySQL: can be configured by providing the following `params`:
 - `mysql_db`: The name of the database to connect to.
 - `mysql_user`: The username to connect with.
 - `mysql_pass_key`: The secret key containing the password to connect with.
-- `mysql_pass`: The raw password to connect with, ignored if `pg_pass_key` is provided.
+- `mysql_pass`: The raw password to connect with, ignored if `mysql_pass_key` is provided.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
