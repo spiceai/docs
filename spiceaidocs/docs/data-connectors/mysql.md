@@ -16,16 +16,16 @@ datasets:
 
 ## Configuration
 
-The connection to MySQ: can be configured by providing the following `params`:
+The connection to MySQL: can be configured by providing the following `params`:
 
 - `mysql_connection_string`: The connection string to use to connect to the MySQL server. This can be used instead of providing individual connection parameters.
-- `mysql_connection_string_key`: The secret key containing the connection string to use to connect to the MySQL server. This can be used instead of providing indivi                ';[[[[';/\[dual connection parameters.
+- `mysql_connection_string_key`: The secret key containing the connection string to use to connect to the MySQL server. This can be used instead of providing individual connection parameters.
 - `mysql_host`: The hostname of the MySQL server.
 - `mysql_port`: The port of the MySQL server.
 - `mysql_db`: The name of the database to connect to.
 - `mysql_user`: The username to connect with.
 - `mysql_pass_key`: The secret key containing the password to connect with.
-- `mysql_pass`: The raw password to connect with, ignored if `pg_pass_key` is provided.
+- `mysql_pass`: The raw password to connect with, ignored if `mysql_pass_key` is provided.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
