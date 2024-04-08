@@ -85,6 +85,7 @@ Where:
   - `databricks`
   - `s3`
   - `postgres`
+  - `mysql`
 
   If the source is not specified, it defaults to `spiceai`.
 
