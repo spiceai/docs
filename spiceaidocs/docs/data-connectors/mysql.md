@@ -28,8 +28,8 @@ The connection to MySQL: can be configured by providing the following `params`:
 - `mysql_pass`: The raw password to connect with, ignored if `mysql_pass_key` is provided.
 - `mysql_sslmode`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
   - `required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
-  - `prefer`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
-  - `disable`: This mode will not attempt to use an SSL connection, even if the server supports it.
+  - `preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
+  - `disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
