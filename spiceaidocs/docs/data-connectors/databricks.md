@@ -16,6 +16,7 @@ Databricks as a connector for federated SQL query against Databrick's [Delta Lak
 
 ### Parameters
 - `endpoint`: The HTTPS endpoint of the Databricks host storing the desired tables.
+- `timeout`: The timeout duration for calls to underlying object store in string format. Default to `300s`.
 
 ### Auth
 
