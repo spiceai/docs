@@ -1,0 +1,19 @@
+name: Trigger Search Reindex
+
+on:
+  push:
+    branches:
+      - trunk
+
+  pull_request:
+    branches:
+      - trunk
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Search Reindex
+        run: |
+          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}" \
+            --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
