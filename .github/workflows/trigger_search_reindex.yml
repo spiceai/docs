@@ -1,19 +1,20 @@
-name: Trigger Search Reindex
+name: Trigger Algolia Search Reindex
 
 on:
-  push:
-    branches:
-      - trunk
+  workflow_dispatch:
 
-  pull_request:
-    branches:
-      - trunk
+  # trigger automatically when gh-pages is built
+  page_build:
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Search Reindex
+      - name: Wait for gh-page cache update
+        if: github.event_name == 'page_build' && github.event.build.status == 'built'
+        run: sleep 60
+
+      - name: Trigger search reindex
         run: |
           curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
             --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
