@@ -8,6 +8,9 @@ description: 'AWS Secrets Manager Secret Store Documentation'
 The `aws_secrets_manager` store enables Spice to read secrets from [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
 
 ```yaml
+version: v1beta1
+kind: Spicepod
+name: taxi_trips
 secrets:
   store: aws_secrets_manager
 ```
@@ -16,6 +19,23 @@ The store reads secrets named as `spice_secret_<secret-name>`, for example `drem
 <img src="/img/secrets-aws-secrets-manager-dremio-1.png" alt="" width="800" />
 
 <img src="/img/secrets-aws-secrets-manager-dremio-2.png" alt="" width="800" />
+
+Complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager created above.
+
+```yaml
+version: v1beta1
+kind: Spicepod
+name: taxi_trips
+secrets:
+  store: aws_secrets_manager
+
+datasets:
+- from: dremio:datasets.taxi_trips
+  name: taxi_trips
+  description: dremio taxi trips
+  params:
+    endpoint: grpc://20.163.171.81:32010
+```
 
 ## AWS Secrets Manager Access
 
