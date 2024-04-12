@@ -33,6 +33,31 @@ Currently supported Data Accelerators include:
 | [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Alpha  |                  |
 
+## Refresh SQL
+
+For datasets configured with a `full` refresh mode, this is an optional setting that filters the locally accelerated data to a smaller working set. This can be useful if your application/dashboard only ever uses a subset of the data stored in the federated table.
+
+Filters will be pushed down to the remote source, and only the requested data will be transferred over the network.
+
+```yaml
+datasets:
+  - name: accelerated_dataset
+    acceleration:
+      enabled: true
+      refresh_mode: full
+      refresh_interval: 10m
+      refresh_sql: |
+        SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
+```
+
+For the complete reference, view the `refresh_sql` section of [datasets](../reference/spicepod/datasets.md#accelerationrefresh_sql).
+
+:::warning[Limitations]
+- The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
+- Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
+- Queries for data that have been filtered out will not fall back to querying against the federated table.
+:::
+
 ## Data Accelerator Docs
 
 import DocCardList from '@theme/DocCardList';
