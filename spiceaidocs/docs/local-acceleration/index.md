@@ -23,6 +23,29 @@ Data Storage: Ensure that the local storage has enough capacity to store the acc
 
 Data Security: Assess data sensitivity and secure network connections between edge and data connector when replicating data for further usage. Assess the security of any Data Accelerator that is external to the Spice runtime and connected to the Spice runtime. Implement encryption, access controls, and secure protocols.
 
+## Data Refresh
+
+Dataset acceleration can be configured in `full` (the entire dataset is refreshed) or `append` (new data from a dataset source is appended) acceleration modes.
+
+The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) or triggered via Api (`POST`, `/v1/datasets/:name/refresh`).
+
+An example CuRL
+
+```bash
+curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
+```
+
+And response
+
+```bash
+HTTP/1.1 201 Created
+content-type: application/json
+content-length: 55
+date: Thu, 11 Apr 2024 20:11:18 GMT
+
+{"message":"Dataset refresh triggered for eth_recent_blocks."}
+```
+
 ## Example
 
 ### Locally Accelerating eth.recent_blocks
