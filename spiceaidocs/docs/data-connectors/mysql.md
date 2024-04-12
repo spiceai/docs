@@ -39,7 +39,7 @@ datasets:
     name: my_dataset
     params:
       mysql_host: localhost
-      mysql_port: '3306'
+      mysql_port: 3306
       mysql_db: my_database
       mysql_user: my_user
       mysql_pass_key: my_secret
