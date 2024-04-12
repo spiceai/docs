@@ -20,7 +20,7 @@ The store reads secrets named as `spice_secret_<secret-name>`, for example `drem
 
 <img src="/img/secrets-aws-secrets-manager-dremio-2.png" alt="" width="800" />
 
-Complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager created above.
+A complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager created above.
 
 ```yaml
 version: v1beta1
