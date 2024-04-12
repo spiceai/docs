@@ -41,7 +41,7 @@ datasets:
 
 To use AWS Secrets Manager, an AWS account and a user in IAM Identity Center with the `secretsmanager:GetSecretValue` permission are required. Read [Authentication and access control for AWS Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access.html) for details.
 
-Use [AWS CLI](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-authentication.html) to configure AWS access:
+Use the [AWS CLI](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-authentication.html) to configure AWS access:
 
 ```bash
 aws configure
