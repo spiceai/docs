@@ -41,7 +41,7 @@ datasets:
       engine: postgres
       params:
         pg_host: localhost
-        pg_port: '5432'
+        pg_port: 5432
         pg_db: my_database
         pg_user: my_user
         pg_pass_key: my_secret
@@ -57,7 +57,7 @@ datasets:
     name: my_dataset
     params:
       pg_host: localhost
-      pg_port: '5432'
+      pg_port: 5432
       pg_db: data_store
       pg_user: my_user
       pg_pass_key: my_secret
@@ -66,7 +66,7 @@ datasets:
       engine_secret: pg_backend
       params:
         pg_host: localhost
-        pg_port: '5433'
+        pg_port: 5433
         pg_db: data_store
         pg_user: my_user
         pg_pass_key: my_secret
