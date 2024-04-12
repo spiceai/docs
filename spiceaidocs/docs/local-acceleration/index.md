@@ -15,7 +15,7 @@ When a dataset is locally accelerated by the Spice runtime, the data is stored a
 
 ## Example Use Case
 
-Consider a high volume e-trading frontend application backed by an AWS RDS database containing a table of trades. In order to retrieve all trades over the last 24 hours, the application would need to query the remote database for all trades in the last 24 hours and then transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds), we can bring the data to the application, saving the round trip time to the database and the time to transfer the data over the network.
+Consider a high volume e-trading frontend application backed by an AWS RDS database containing a table of trades. In order to retrieve all trades over the last 24 hours, the application would need to query the remote database for all trades in the last 24 hours and then transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds-aurora-mysql), we can bring the data to the application, saving the round trip time to the database and the time to transfer the data over the network.
 
 ## Considerations
 
@@ -23,11 +23,13 @@ Data Storage: Ensure that the local storage has enough capacity to store the acc
 
 Data Security: Assess data sensitivity and secure network connections between edge and data connector when replicating data for further usage. Assess the security of any Data Accelerator that is external to the Spice runtime and connected to the Spice runtime. Implement encryption, access controls, and secure protocols.
 
-## Data Refresh
+## Refresh Modes
 
-Dataset acceleration can be configured in `full` (the entire dataset is refreshed) or `append` (new data from a dataset source is appended) acceleration modes.
+Dataset acceleration can be configured in `full` (the entire dataset is refreshed) or `append` (new data from a dataset source is appended) modes.
 
-The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) or triggered via Api (`POST`, `/v1/datasets/:name/refresh`).
+## Refresh Interval
+
+The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below) or triggered via API (`POST`, `/v1/datasets/:name/refresh`).
 
 An example CuRL
 
