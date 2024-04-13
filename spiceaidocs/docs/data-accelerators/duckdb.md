@@ -29,3 +29,13 @@ datasets:
       params:
         duckdb_file: /my/chosen/location/duckdb.db
 ```
+
+## Limitations
+- Does not support schemas with [field types](https://duckdb.org/docs/sql/data_types): nested arrays/lists, structs or map fields. For example:
+  - Supported: 
+    - `SELECT [1, 2, 3];`
+    - `SELECT ['duck', 'goose', NULL, 'heron'];`
+  - Unsupported:
+    - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]`
+    - `SELECT {'x': 1, 'y': 2, 'z': 3}`
+    - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
