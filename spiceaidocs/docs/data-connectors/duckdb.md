@@ -39,5 +39,5 @@ datasets:
   - from: duckdb:sample_data.nyc.rideshare
     name: nyc_rideshare
     params:
-      open: ~/Desktop/my_database.db
+      open: ~/test/my_database.db
 ```
