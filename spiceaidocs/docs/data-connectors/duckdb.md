@@ -32,12 +32,12 @@ datasets:
       open: path/to/duckdb_file.duckdb
 ```
 
-Another example of DuckDB data connector configuration based on real-world use case.
+This example uses a DuckDB database file that is at location /my/path/
 
 ```yaml
 datasets:
   - from: duckdb:sample_data.nyc.rideshare
     name: nyc_rideshare
     params:
-      open: ~/test/my_database.db
+      open: /my/path/my_database.db
 ```
