@@ -8,30 +8,33 @@ pagination_prev: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Databricks as a connector for federated SQL query against Databrick's [Delta Lake](https://docs.databricks.com/en/delta/index.html). 
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from Delta Tables in S3.
 
 ## Configuration
 
-`spice login databricks` can be used to configure secrets for the Spice runtime (including AWS object store keys). 
+`spice login databricks` can be used to configure the Databricks access token for the Spice runtime. 
 
 ### Parameters
-- `endpoint`: The HTTPS endpoint of the Databricks host storing the desired tables.
-- `timeout`: The timeout duration for calls to underlying object store in string format. Default to `300s`.
+- `endpoint`: The endpoint of the Databricks instance.
+- `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
+  - `spark_connect`: Use Spark Connect to query against Databricks.
+  - `s3`: Query directly from Delta Tables in S3.
+- `format`: The format of the data to query. The default is `deltalake`. Only valid when `mode` is `s3`. Possible values:
+  - `deltalake`: Query Delta Tables.
+- `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 
 ### Auth
 
-An active personal access token for the Databricks instance is required (equivalent to `DATABRICKS_TOKEN`). 
-Other keys provided in the secret are directly passed to the underlying secret store (e.g. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` if backed by AWS S3).
+An active personal access token for the Databricks instance is required (equivalent to `DATABRICKS_TOKEN`).
 
-By default Databricks connector will look for a secret named `databricks` with keys `token` and `AWS_DEFAULT_REGION`, 
-`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+By default the Databricks connector will look for a secret named `databricks` with keys `token`.
 
 Check [Secrets Stores](/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="local" label="Local" default>
     ```bash
-    spice login databricks --token <access-token> --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
+    spice login databricks --token <access-token>
     ```
 
     Learn more about [File Secret Store](/secret-stores/file).
@@ -39,9 +42,6 @@ Check [Secrets Stores](/secret-stores) for more details.
   <TabItem value="env" label="Env">
     ```bash
     SPICE_SECRET_DATABRICKS_TOKEN=<access-token> \
-    SPICE_SECRET_DATABRICKS_AWS_DEFAULT_REGION=<aws-region> \
-    SPICE_SECRET_DATABRICKS_AWS_ACCESS_KEY_ID=<aws-access-key-id> \
-    SPICE_SECRET_DATABRICKS_AWS_SECRET_ACCESS_KEY=<aws-secret-access-key> \
     spice run
     ```
 
@@ -62,10 +62,7 @@ Check [Secrets Stores](/secret-stores) for more details.
   <TabItem value="k8s" label="Kubernetes">
     ```bash
     kubectl create secret generic databricks \
-      --from-literal=token='<access-token>' \
-      --from-literal=AWS_DEFAULT_REGION='<aws-region>' \
-      --from-literal=AWS_ACCESS_KEY_ID='<aws-access-key-id>' \
-      --from-literal=AWS_SECRET_ACCESS_KEY='<aws-secret-access-key>'
+      --from-literal=token='<access-token>'
     ```
 
     `spicepod.yaml`
@@ -88,7 +85,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     ```bash
     security add-generic-password -l "Databricks Secret" \
     -a spiced -s spice_secret_databricks \
-    -w $(echo -n '{"token": "<access-token>", "AWS_DEFAULT_REGION": "<aws-region>", "AWS_ACCESS_KEY_ID": "<aws-access-key-id>", "AWS_SECRET_ACCESS_KEY": "<aws-secret-access-key>"}')
+    -w $(echo -n '{"token": "<access-token>"}')
     ```
 
     `spicepod.yaml`
@@ -114,5 +111,6 @@ datasets:
   - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
     name: my_delta_lake_table
   params:
-    endpoint: "https://dbc-a1b2345c-d6e7.cloud.databricks.com"
+    endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks-cluster-id: 1234-567890-abcde123
 ```
