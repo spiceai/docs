@@ -29,7 +29,7 @@ Dataset acceleration can be configured in `full` (the entire dataset is refreshe
 
 ## Refresh Interval
 
-The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below) or triggered via API (`POST`, `/v1/datasets/:name/refresh`).
+The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below), triggered via [refresh](cli/reference/refresh) command or API (`POST`, `/v1/datasets/:name/refresh`).
 
 An example CuRL
 

@@ -26,6 +26,7 @@ spice [command] [--help]
 | [login](/cli/reference/login)           | Login to the Spice.ai Platform                                                  |
 | [models](/cli/reference/models)         | Lists models loaded by the Spice runtime                            |
 | [pods](/cli/reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
+| [refresh](/cli/reference/refresh)       | Refreshes an accelerated dataset loaded by the Spice runtime          |
 | [run](/cli/reference/run)               | Run Spice - starts the Spice runtime, installing if necessary |
 | [sql](/cli/reference/sql)               | Start an interactive SQL query session against the Spice runtime |
 | [status](/cli/reference/status)         | Spice runtime status                                                |
