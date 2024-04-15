@@ -6,11 +6,11 @@ description: "DuckDB Data Connector Documentation"
 
 ## Dataset Source
 
-To connect to any DuckDB database as a data source, specify `duckdb` as the selector in the `from` value for the dataset.
+To connect to a DuckDB [persistent database](https://duckdb.org/docs/connect/overview#persistent-database) as a data source, specify `duckdb` as the selector in the `from` value for the dataset.
 
 ```yaml
 datasets:
-  - from: duckdb:path.to.my_dataset
+  - from: duckdb:database.schema.table
     name: my_dataset
 ```
 
@@ -22,18 +22,22 @@ The DuckDB data connector can be configured by providing the following `params`:
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
-```yaml
-datasets:
-  - from: duckdb:path.to.my_dataset
-    name: my_dataset
-    params:
-      open: path/to/my_database.duckdb
-```
+A generic example of DuckDB data connector configuration.
 
 ```yaml
 datasets:
-  - from: duckdb:path.to.my_dataset
+  - from: duckdb:database.schema.table
     name: my_dataset
     params:
-      open: path/to/my_database.db
+      open: path/to/duckdb_file.duckdb
+```
+
+Another example of DuckDB data connector configuration based on real-world use case.
+
+```yaml
+datasets:
+  - from: duckdb:sample_data.nyc.rideshare
+    name: nyc_rideshare
+    params:
+      open: ~/Desktop/my_database.db
 ```
