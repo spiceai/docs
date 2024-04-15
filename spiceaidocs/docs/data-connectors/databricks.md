@@ -8,7 +8,7 @@ pagination_prev: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html). 
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from Delta Tables in S3.
 
 ## Configuration
 
@@ -16,7 +16,12 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 
 ### Parameters
 - `endpoint`: The endpoint of the Databricks instance.
-- `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query.
+- `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
+  - `spark_connect`: Use Spark Connect to query against Databricks.
+  - `s3`: Query directly from Delta Tables in S3.
+- `format`: The format of the data to query. The default is `deltalake`. Only valid when `mode` is `s3`. Possible values:
+  - `deltalake`: Query Delta Tables.
+- `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 
 ### Auth
 
