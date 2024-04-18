@@ -74,7 +74,8 @@ A dataset defined inline.
 
 ```yaml
 datasets:
-  - name: spice.ai/eth.recent_blocks
+  - from: spice.ai/eth.recent_blocks
+    name: eth_blocks
     acceleration:
       enabled: true
       refresh_mode: full
