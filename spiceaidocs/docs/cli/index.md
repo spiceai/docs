@@ -6,14 +6,29 @@ sidebar_position: 11
 pagination_prev: null
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 The Spice CLI is a set of commands to create and manage Spicepods and interact with the Spice runtime.
 
 ## Install
 
 The Spice CLI can be installed by:
 
-- Running `curl https://install.spiceai.org | /bin/bash`
-- Downloading the binary from [GitHub Releases](https://github.com/spiceai/spiceai/releases)
+<Tabs>
+  <TabItem value="default" label="macOS, Linux, and WSL" default>
+    - Running `curl https://install.spiceai.org | /bin/bash`
+    - Using `brew`: `brew install spiceai/spiceai/spice`
+    - Downloading the binary from [GitHub Releases](https://github.com/spiceai/spiceai/releases)
+  </TabItem>
+  <TabItem value="windows" label="Windows" default>
+    - Shell command
+        ```bash
+        curl -L "https://install.spiceai.org/Install.ps1" -o Install.ps1 && PowerShell -ExecutionPolicy Bypass -File ./Install.ps1
+        ```
+    - Downloading the binary from [GitHub Releases](https://github.com/spiceai/spiceai/releases)
+  </TabItem>
+</Tabs>
 
 The `spice` program will be added to the PATH automatically for **bash**, **fish**, and **zsh** shells.
 

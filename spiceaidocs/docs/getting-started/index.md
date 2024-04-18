@@ -6,6 +6,9 @@ description: 'Get started with Spice in 5 minutes'
 pagination_next: null
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 <div className="video-container">
   <iframe width="560" height="420" src="https://www.youtube.com/embed/AZyrecVWnEs?si=2s_2jLTJlUdgItyC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 </div>
@@ -14,15 +17,24 @@ pagination_next: null
 
 **Step 1.** Install the Spice CLI:
 
-```bash
-curl https://install.spiceai.org | /bin/bash
-```
+<Tabs>
+  <TabItem value="default" label="macOS, Linux, and WSL" default>
+    ```bash
+    curl https://install.spiceai.org | /bin/bash
+    ```
 
-Or using `brew`:
+    Or using `brew`:
 
-```bash
-brew install spiceai/spiceai/spice
-```
+    ```bash
+    brew install spiceai/spiceai/spice
+    ```
+  </TabItem>
+  <TabItem value="windows" label="Windows" default>
+    ```bash
+    curl -L "https://install.spiceai.org/Install.ps1" -o Install.ps1 && PowerShell -ExecutionPolicy Bypass -File ./Install.ps1
+    ```
+  </TabItem>
+</Tabs>
 
 **Step 2.** Initialize a new Spice app with the `spice init` command:
 
