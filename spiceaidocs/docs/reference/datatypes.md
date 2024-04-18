@@ -22,7 +22,7 @@ Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/da
 | half_float | 2-byte floating point value | half_float | | | |
 | float | 4-byte floating point value | float | | | |
 | double | 8-byte floating point value | double | | | |
-| string | UTF8 variable-length string as List<Char> | string | | | |
+| string | UTF8 variable-length string as List\<Char\> | string | | | |
 | binary | Variable-length bytes (no guarantee of UTF8-ness) | binary | | | |
 | fixed_size_binary | Fixed-size binary. Each value occupies the same number of bytes. | fixed_size_binary | | | |
 | date32 | int32_t days since the UNIX epoch | date32 | | | |
