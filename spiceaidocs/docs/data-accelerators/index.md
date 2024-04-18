@@ -33,6 +33,9 @@ Currently supported Data Accelerators include:
 | [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Alpha  |                  |
 
+## Data types
+Data accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../reference/datatypes.md).
+
 ## Refresh SQL
 
 For datasets configured with a `full` refresh mode, this is an optional setting that filters the locally accelerated data to a smaller working set. This can be useful if your application/dashboard only ever uses a subset of the data stored in the federated table.
