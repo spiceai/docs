@@ -1,5 +1,5 @@
 ---
-title: "Add"
+title: "add"
 sidebar_label: "add"
 pagination_prev: null
 pagination_next: null

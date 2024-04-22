@@ -31,10 +31,10 @@ datasets:
 ```
 
 ## Limitations
-- Does not support schemas with [field types](https://duckdb.org/docs/sql/data_types): nested arrays/lists, UTF8/string arrays/lists, structs or map fields. For example:
+- The DuckDB accelerator does not support schemas with [field types](https://duckdb.org/docs/sql/data_types/overview): nested arrays/lists, UTF8/string arrays/lists, structs or map fields. For example:
   - Supported: 
     - `SELECT [1, 2, 3];`
-    - `SELECT ['1992-09-20 11:30:00.123456789', 'epoch'::TIMESTAMP]
+    - `SELECT ['1992-09-20 11:30:00.123456789', 'epoch'::TIMESTAMP]`
   - Unsupported:
     - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]`
     - `SELECT {'x': 1, 'y': 2, 'z': 3}`
