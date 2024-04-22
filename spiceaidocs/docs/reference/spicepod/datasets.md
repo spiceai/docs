@@ -99,7 +99,7 @@ Optional. The name of the column that represents the temporal(time) ordering of 
 
 Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Default. Unix timestamp in seconds.
-- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. __Limitation: all string-based column is assumed with ISO8601 format__.
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. __Current Limitation: any string-based column is assumed to be ISO8601 format__.
 - `unix_millis` - Unix timestamp in milliseconds.
 
 ## `acceleration`
@@ -167,7 +167,7 @@ Optional. Enable or disable retention policy, defaults to `false`.
 
 ## `acceleration.retention_period`
 
-Optional. The retention period for the dataset. Combining with `time_column` and `time_format` to determine if the data should be retained or not.
+Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
 i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
 
