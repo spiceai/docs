@@ -54,7 +54,7 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 
 For accelerated datasets, the retention policy checks and removes data with temporal column beyond the defined retention period. It is designed to automatically remove expired data and optimize resource utilization.
 
-The policy is set using the [`acceleration.retention_enabled`](/reference/spicepod/datasets#accelerationretention_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
+The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
 
 
 ## Example

@@ -167,7 +167,7 @@ Optional. Parameters to pass to the acceleration engine. The parameters are spec
 
 Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
 
-## `acceleration.retention_enabled`
+## `acceleration.retention_check_enabled`
 
 Optional. Enable or disable retention policy, defaults to `false`.
 
@@ -175,7 +175,7 @@ Optional. Enable or disable retention policy, defaults to `false`.
 
 Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
-Required when `acceleration.retention_enabled` is `true`.
+Required when `acceleration.retention_check_enabled` is `true`.
 
 See [Duration](../duration/index.md)
 
@@ -183,6 +183,6 @@ See [Duration](../duration/index.md)
 
 Optional. How often the retention policy should be checked.
 
-Required when `acceleration.retention_enabled` is `true`.
+Required when `acceleration.retention_check_enabled` is `true`.
 
 See [Duration](../duration/index.md)
