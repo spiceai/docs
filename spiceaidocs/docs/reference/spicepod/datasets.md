@@ -91,7 +91,7 @@ Where:
 
 The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
 
-## `time_column`
+## `time_column`
 
 Optional. The name of the column that represents the temporal(time) ordering of the dataset.
 
@@ -99,8 +99,8 @@ Optional. The name of the column that represents the temporal(time) ordering of 
 
 Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Default. Unix timestamp in seconds.
-- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. __Current Limitation: any string-based column is assumed to be ISO8601 format__.
 - `unix_millis` - Unix timestamp in milliseconds.
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. __Current Limitation: any string-based column is assumed to be ISO8601 format__.
 
 ## `acceleration`
 
