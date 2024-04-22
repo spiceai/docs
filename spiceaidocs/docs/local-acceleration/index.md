@@ -29,9 +29,11 @@ Dataset acceleration can be configured in `full` (the entire dataset is refreshe
 
 ## Refresh Interval
 
-The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below), triggered via [refresh](cli/reference/refresh) command or API (`POST`, `/v1/datasets/:name/refresh`).
+For accelerated datasets in `full` mode, the [`refresh_interval`](/reference/spicepod/datasets#accelerationrefresh_interval) parameter controls how often the accelerated dataset is refreshed.
 
-An example CuRL
+Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/refresh` API endpoint.
+
+An example using cURL:
 
 ```bash
 curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
@@ -47,6 +49,13 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 
 {"message":"Dataset refresh triggered for eth_recent_blocks."}
 ```
+
+## Retention Policy
+
+A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
+
+The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
+
 
 ## Example
 

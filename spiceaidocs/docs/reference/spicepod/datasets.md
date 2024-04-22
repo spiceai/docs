@@ -91,6 +91,23 @@ Where:
 
 The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
 
+## `time_column`
+
+Optional. The name of the column that represents the temporal (time) ordering of the dataset.
+
+Required to enable a retention policy on the dataset.
+
+## `time_format`
+
+Optional. The format of the `time_column`. The following values are supported:
+- `unix_seconds` - Default. Unix timestamp in seconds.
+- `unix_millis` - Unix timestamp in milliseconds.
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
+
+:::warning[Current Limitations]
+- any string-based column is assumed to be ISO8601 format.
+:::
+
 ## `acceleration`
 
 Optional. Accelerate queries to the dataset by caching data locally.
@@ -128,7 +145,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh interval not used.
 
-i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
+See [Duration](../duration/index.md)
 
 ## `acceleration.refresh_sql`
 
@@ -136,7 +153,7 @@ Optional. Filters the data fetched from the source to be stored in the accelerat
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
-:::warning[Limitations]
+:::warning[Current Limitations]
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
@@ -149,3 +166,23 @@ Optional. Parameters to pass to the acceleration engine. The parameters are spec
 ## `acceleration.engine_secret`
 
 Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
+
+## `acceleration.retention_check_enabled`
+
+Optional. Enable or disable retention policy check, defaults to `false`.
+
+## `acceleration.retention_period`
+
+Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
+
+Required when `acceleration.retention_check_enabled` is `true`.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.retention_check_interval`
+
+Optional. How often the retention policy should be checked.
+
+Required when `acceleration.retention_check_enabled` is `true`.
+
+See [Duration](../duration/index.md)
