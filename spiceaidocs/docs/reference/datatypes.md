@@ -27,7 +27,7 @@ Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/da
 | fixed_size_binary        | Each value has equal bytes of binary.                                        |                               |                   |                    |
 | date32                   | int32_t days since the UNIX epoch                                            | `DATE`                        | `DATE`            |                    |
 | date64                   | int64_t milliseconds since the UNIX epoch                                    | `DATE`                        | `TIMESTAMP`       |                    |
-| timestamp                | Exact timestamp encoded with int64 since UNIX epoch, seconds or milliseconds | `TIMESTAMP_S`, `TIMESTAMP_MS` | `TIMESTAMP`       |                    |
+| timestamp                | Exact timestamp encoded with int64 since UNIX epoch, seconds or milliseconds | `TIMESTAMP_S`, `TIMESTAMP_MS` | `TIMESTAMP`       | `TIMESTAMP`        |
 | time32                   | Time as signed 32-bit integer, seconds or milliseconds since midnight.       | `TIME`                        | `TIME`            |                    |
 | time64                   | Time as signed 64-bit integer, microseconds or nanoseconds since midnight.   | `TIME`                        | `TIME`            |                    |
 | interval_months          | YEAR_MONTH interval in SQL style.                                            |                               |                   |                    |
