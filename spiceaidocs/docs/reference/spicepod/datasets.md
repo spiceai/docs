@@ -145,7 +145,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh interval not used.
 
-See [Duration](../duration.md)
+See [Duration](../duration/index.md)
 
 ## `acceleration.refresh_sql`
 
@@ -175,10 +175,10 @@ Optional. Enable or disable retention policy, defaults to `false`.
 
 Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
-See [Duration](../duration.md)
+See [Duration](../duration/index.md)
 
 ## `acceleration.retention_check_interval`
 
 Optional. How often the retention policy should be checked.
 
-See [Duration](../duration.md)
+See [Duration](../duration/index.md)
