@@ -1,5 +1,6 @@
 ---
 title: 'Manifest syntax for Spicepods'
+sidebar_position: 1
 sidebar_label: 'Spicepod specification'
 description: 'Detailed documentation on the Spicepod manifest syntax (spicepod.yaml)'
 ---

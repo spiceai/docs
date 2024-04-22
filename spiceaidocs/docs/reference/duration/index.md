@@ -1,7 +1,7 @@
 ---
 title: "Duration"
 sidebar_label: "Duration"
-sidebar_position: 100
+sidebar_position: 3
 pagination_prev: 'reference/index'
 pagination_next: null
 ---
