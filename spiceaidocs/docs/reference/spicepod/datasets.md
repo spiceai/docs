@@ -95,7 +95,7 @@ The name of the dataset. This is used to reference the dataset in the pod manife
 
 Optional. The name of the column that represents the temporal(time) ordering of the dataset.
 
-It is required to enable retention policy on the acceleration.
+Required when enabling retention policy on the accelerated datasets.
 
 ## `time_format`
 
@@ -175,10 +175,14 @@ Optional. Enable or disable retention policy, defaults to `false`.
 
 Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
+Required when `acceleration.retention_enabled` is `true`.
+
 See [Duration](../duration/index.md)
 
 ## `acceleration.retention_check_interval`
 
 Optional. How often the retention policy should be checked.
+
+Required when `acceleration.retention_enabled` is `true`.
 
 See [Duration](../duration/index.md)
