@@ -21,7 +21,7 @@ Currently supported Data Connectors include:
 | `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL | `full`           | ❌               |
 | `snowflake`  | Snowflake   | Coming soon! | Arrow Flight SQL | `full`           | ❌               |
 | `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL | `full`           | ❌               |
-| `mysql`      | MySQL       | Coming soon! |                  | `full`           | ❌               |
+| `mysql`      | MySQL       | Alpha        |                  | `full`           | ❌               |
 
 ## Data Connector Docs
 

@@ -1,26 +1,26 @@
 ---
-title: 'FlightSQL Data Connector'
-sidebar_label: 'FlightSql Data Connector'
-description: 'FlightSQL Data Connector Documentation'
+title: 'Flight SQL Data Connector'
+sidebar_label: 'Flight SQL Data Connector'
+description: 'Flight SQL Data Connector Documentation'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Connect to any FlightSQL compatible server (e.g. Influx 3.0, CnosDB, other Spice runtimes!) as a connector for federated SQL queries.
+Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spice runtimes!) as a connector for federated SQL queries.
 
 ## `params`
 
-- `endpoint`: The Apache Flight endpoint used to connect to the FlightSQL server. 
+- `endpoint`: The Apache Flight endpoint used to connect to the Flight SQL server. 
 
 ## Auth
 
-Username and password credentials can be specified to connect to the FlightSQL server:
+Username and password credentials can be specified to connect to the Flight SQL server:
 
 - `username` (optional): The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)). 
 - `password` (optional): The password to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)). 
 
-By default FlightSQL connector will look for a secret named `flightsql` with keys `username` and `password`.
+By default Flight SQL connector will look for a secret named `flightsql` with keys `username` and `password`.
 
 Check [Secrets Stores](/secret-stores) for more details.
 
@@ -71,7 +71,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     Add new keychain entry (macOS), with user and password in JSON string
 
     ```bash
-    security add-generic-password -l "FlightSQL Secret" \
+    security add-generic-password -l "Flight SQL Secret" \
     -a spiced -s spice_secret_flightsql \
     -w $(echo -n '{"username": "<flight_username>", "password": "<flight_password>"}')
     ```

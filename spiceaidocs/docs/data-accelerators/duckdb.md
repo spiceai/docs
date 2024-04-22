@@ -30,7 +30,7 @@ datasets:
         duckdb_file: /my/chosen/location/duckdb.db
 ```
 
-:::warning[Current Limitations]
+## Limitations
 - The DuckDB accelerator does not support schemas with [field types](https://duckdb.org/docs/sql/data_types/overview): nested arrays/lists, UTF8/string arrays/lists, structs or map fields. For example:
   - Supported: 
     - `SELECT [1, 2, 3];`
@@ -40,4 +40,3 @@ datasets:
     - `SELECT {'x': 1, 'y': 2, 'z': 3}`
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
     - `SELECT ['duck', 'goose', 'heron'];`
-:::
