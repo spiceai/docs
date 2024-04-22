@@ -10,13 +10,13 @@ In Spice durations are represented as an integer with a time unit suffix.
 
 Available time units are:
 
-TimeUnit | Default identifier | Calculation |
----:     | ---:               | ---:        |
-`Second` | s                  | `1s`        |
-`Minute` | m                  | `60s`       |
-`Hour`   | h                  | `60m`       |
-`Day`    | d                  | `24h`       |
-`Week`   | w                  | `7d`        |
+Time Unit | Identifier | Calculation |
+---:      | ---:       | ---:        |
+`Second`  | s          | `1s`        |
+`Minute`  | m          | `60s`       |
+`Hour`    | h          | `60m`       |
+`Day`     | d          | `24h`       |
+`Week`    | w          | `7d`        |
 
 ## Example
 
