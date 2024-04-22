@@ -91,6 +91,17 @@ Where:
 
 The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
 
+## `time_column`
+
+Optional. The name of the column that represents the temporal(time) ordering of the dataset.
+
+## `time_format`
+
+Optional. The format of the `time_column`. The following values are supported:
+- `unix_seconds` - Default. Unix timestamp in seconds.
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. __Limitation: all string-based column is assumed with ISO8601 format__.
+- `unix_millis` - Unix timestamp in milliseconds.
+
 ## `acceleration`
 
 Optional. Accelerate queries to the dataset by caching data locally.
@@ -149,3 +160,19 @@ Optional. Parameters to pass to the acceleration engine. The parameters are spec
 ## `acceleration.engine_secret`
 
 Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
+
+## `acceleration.retention_enabled`
+
+Optional. Enable or disable retention policy, defaults to `false`.
+
+## `acceleration.retention_period`
+
+Optional. The retention period for the dataset. Combining with `time_column` and `time_format` to determine if the data should be retained or not.
+
+i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.
+
+## `acceleration.retention_check_interval`
+
+Optional. How often the retention policy should be checked.
+
+i.e. `1h` for 1 hour, `1m` for 1 minute, `1s` for 1 second, etc.

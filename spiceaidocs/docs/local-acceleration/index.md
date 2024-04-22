@@ -29,7 +29,11 @@ Dataset acceleration can be configured in `full` (the entire dataset is refreshe
 
 ## Refresh Interval
 
-The data refresh interval for an accelerated dataset in `full` mode can be specified via [refresh_interval](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below), triggered via [refresh](cli/reference/refresh) command or API (`POST`, `/v1/datasets/:name/refresh`).
+The data refresh interval for an accelerated dataset in `full` mode can be specified via [`refresh_interval`](/reference/spicepod/datasets#accelerationrefresh_interval) parameter (see Example section below), triggered via [refresh](cli/reference/refresh) command or API (`POST`, `/v1/datasets/:name/refresh`).
+
+## Retention Policy
+
+The retention policy for accelerated datasets can be configured to keep data for a specific period of time based on temporal(time) column. The retention policy can be configured via [`acceleration.retention_enabled`](/reference/spicepod/datasets#accelerationretention_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters combined with dataset parameters [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format).
 
 An example CuRL
 
