@@ -16,6 +16,7 @@ TimeUnit | Default identifier | Calculation |
 `Minute` | m                  | `60s`       |
 `Hour`   | h                  | `60m`       |
 `Day`    | d                  | `24h`       |
+`Week`   | w                  | `7d`        |
 
 ## Example
 
