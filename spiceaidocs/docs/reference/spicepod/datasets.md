@@ -95,6 +95,8 @@ The name of the dataset. This is used to reference the dataset in the pod manife
 
 Optional. The name of the column that represents the temporal(time) ordering of the dataset.
 
+It is required to enable retention policy on the acceleration.
+
 ## `time_format`
 
 Optional. The format of the `time_column`. The following values are supported:
@@ -103,7 +105,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
 
 :::warning[Current Limitations]
-- any string-based column is assumed to be ISO8601 format__.
+- any string-based column is assumed to be ISO8601 format.
 :::
 
 ## `acceleration`
