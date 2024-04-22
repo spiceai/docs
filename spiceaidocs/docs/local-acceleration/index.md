@@ -29,11 +29,11 @@ Dataset acceleration can be configured in `full` (the entire dataset is refreshe
 
 ## Refresh Interval
 
-For accelerated datasets in `full` mode, the [`refresh_interval`](/reference/spicepod/datasets#accelerationrefresh_interval) parameter controls how often the acceleration data is refreshed.
+For accelerated datasets in `full` mode, the [`refresh_interval`](/reference/spicepod/datasets#accelerationrefresh_interval) parameter controls how often the accelerated dataset is refreshed.
 
-Acceleration can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/refresh` API endpoint.
+Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/refresh` API endpoint.
 
-An example using cURL command:
+An example using cURL:
 
 ```bash
 curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
