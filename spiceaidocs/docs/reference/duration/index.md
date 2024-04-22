@@ -6,9 +6,9 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-In Spice durations are represented as an integer with a time unit suffix.
+Durations are represented as integers with a time unit suffix.
 
-Available time units are:
+Supported time units are:
 
 Time Unit | Identifier | Calculation |
 ---:      | ---:       | ---:        |

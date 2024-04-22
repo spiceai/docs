@@ -93,9 +93,9 @@ The name of the dataset. This is used to reference the dataset in the pod manife
 
 ## `time_column`
 
-Optional. The name of the column that represents the temporal(time) ordering of the dataset.
+Optional. The name of the column that represents the temporal (time) ordering of the dataset.
 
-Required when enabling retention policy on the accelerated datasets.
+Required to enable a retention policy on the dataset.
 
 ## `time_format`
 
@@ -169,7 +169,7 @@ Optional. The secret store key to use the acceleration engine connection credent
 
 ## `acceleration.retention_check_enabled`
 
-Optional. Enable or disable retention policy, defaults to `false`.
+Optional. Enable or disable retention policy check, defaults to `false`.
 
 ## `acceleration.retention_period`
 
