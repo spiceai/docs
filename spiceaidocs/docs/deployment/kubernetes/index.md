@@ -124,6 +124,6 @@ spicepod:
       acceleration:
         enabled: true
         # Uncomment to refresh the acceleration on a schedule
-        # refresh_interval: 1h
+        # refresh_check_interval: 1h
         # refresh_mode: full
 ```
