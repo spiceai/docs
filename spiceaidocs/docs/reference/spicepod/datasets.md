@@ -102,7 +102,7 @@ Required to enable a retention policy on the dataset.
 Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Default. Unix timestamp in seconds.
 - `unix_millis` - Unix timestamp in milliseconds.
-- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
 :::warning[Current Limitations]
 - any string-based column is assumed to be ISO8601 format.
@@ -158,6 +158,12 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 :::
+
+## `acceleration.refresh_period`
+
+Optional. Applies the provided recent period filter when fetching data from the source. Combine with `time_column` and `time_format` to determine the recent period to be applied. Only supported for `full` refresh_mode datasets.
+
+See [Duration](../duration/index.md)
 
 ## `acceleration.params`
 
