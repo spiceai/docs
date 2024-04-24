@@ -48,7 +48,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: full
-      refresh_interval: 10m
+      refresh_check_interval: 10m
       refresh_sql: |
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```

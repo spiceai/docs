@@ -80,7 +80,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: full
-      refresh_interval: 1h
+      refresh_check_interval: 1h
 ```
 
 ## `models`

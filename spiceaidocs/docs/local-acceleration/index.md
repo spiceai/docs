@@ -29,7 +29,7 @@ Dataset acceleration can be configured in `full` (the entire dataset is refreshe
 
 ## Refresh Interval
 
-For accelerated datasets in `full` mode, the [`refresh_interval`](/reference/spicepod/datasets#accelerationrefresh_interval) parameter controls how often the accelerated dataset is refreshed.
+For accelerated datasets in `full` mode, the [`refresh_check_interval`](/reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
 
 Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/refresh` API endpoint.
 
@@ -69,7 +69,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: full
-      refresh_interval: 10s
+      refresh_check_interval: 10s
 ```
 
 - The dataset `eth.recent_blocks` will be accelerated locally by the Spice runtime. The data will be refreshed every 10 seconds.

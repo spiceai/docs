@@ -20,7 +20,7 @@ datasets:
       enabled: true
       mode: memory # / file
       engine: arrow # / duckdb / sqlite / postgres
-      refresh_interval: 1h
+      refresh_check_interval: 1h
       refresh_mode: full / append # update / incremental
 ```
 
@@ -36,7 +36,7 @@ datasets:
       enabled: true
       mode: memory # / file
       engine: arrow # / duckdb
-      refresh_interval: 1h
+      refresh_check_interval: 1h
       refresh_mode: full / append # update / incremental
 ```
 
@@ -141,9 +141,9 @@ Optional. How to refresh the dataset. The following values are supported:
 - `full` - Refresh the entire dataset.
 - `append` - Append new data to the dataset.
 
-## `acceleration.refresh_interval`
+## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh interval not used.
+Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh check interval not used.
 
 See [Duration](../duration/index.md)
 
