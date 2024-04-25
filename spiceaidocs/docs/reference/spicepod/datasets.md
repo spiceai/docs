@@ -82,6 +82,7 @@ Where:
   - [`s3`](../../data-connectors/s3.md)
   - [`postgres`](../../data-connectors/postgres/index.md)
   - [`mysql`](../../data-connectors/mysql.md)
+  - [`clickhouse`](../../data-connectors/clickhouse.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -102,7 +103,7 @@ Required to enable a retention policy on the dataset.
 Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Default. Unix timestamp in seconds.
 - `unix_millis` - Unix timestamp in milliseconds.
-- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
+- `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
 :::warning[Current Limitations]
 - any string-based column is assumed to be ISO8601 format.

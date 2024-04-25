@@ -22,6 +22,7 @@ Currently supported Data Connectors include:
 | `snowflake`  | Snowflake   | Coming soon! | Arrow Flight SQL | `full`           | ❌               |
 | `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL | `full`           | ❌               |
 | `mysql`      | MySQL       | Alpha        |                  | `full`           | ❌               |
+| `clickhouse` | Clickhouse  | Alpha        |                  | `full`           | ❌               |
 
 ## Data Connector Docs
 
