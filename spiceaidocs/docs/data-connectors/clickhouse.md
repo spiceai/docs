@@ -43,6 +43,24 @@ datasets:
       clickhouse_db: my_database
       clickhouse_user: my_user
       clickhouse_pass_key: my_secret
+      clickhouse_connection_timeout: 10000
+      clickhouse_secure: true
 ```
 
+```yaml
+datasets:
+  - from: clickhouse:path.to.my_dataset
+    name: my_dataset
+    params:
+      clickhouse_connection_string: tcp://my_user:mypassword@localhost:9000/my_database
+      clickhouse_connection_timeout: 10000
+      clickhouse_secure: true
+```
 
+```yaml
+datasets:
+  - from: clickhouse:path.to.my_dataset
+    name: my_dataset
+    params:
+      clickhouse_connection_string: tcp://my_user:mypassword@localhost:9000/my_database?connection_timeout=10000&secure=true
+```
