@@ -106,7 +106,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
 :::warning[Current Limitations]
-- any string-based column is assumed to be ISO8601 format.
+- String-based columns are assumed to be ISO8601 format.
 :::
 
 ## `acceleration`
