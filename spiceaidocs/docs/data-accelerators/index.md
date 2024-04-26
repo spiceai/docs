@@ -99,7 +99,7 @@ This configuration will only accelerate data from the federated source that matc
 
 ## Behavior on Zero Results
 
-By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results.
+By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql`, `refresh_data_period` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results.
 
 Control this behavior by setting `on_zero_results` in the acceleration configuration.
 
