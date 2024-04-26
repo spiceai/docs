@@ -121,6 +121,10 @@ datasets:
 
 In this example a query against `accelerated_dataset` within Spice like `SELECT * FROM accelerated_dataset WHERE city = 'Portland'` would initially query against the accelerated data, see that it returns zero results and then fallback to querying against the federated table in Databricks.
 
+:::warning
+It is possible that even though the accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
+:::
+
 ## Data Accelerator Docs
 
 import DocCardList from '@theme/DocCardList';
