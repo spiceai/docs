@@ -161,7 +161,9 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 
 ## `acceleration.refresh_period`
 
-Optional. Filter the data fetched from the source to include only records with a timestamp within the last specified `refresh_period`.  Requires `time_column` and `time_format` parameters to identify the timestamp column and format. Only supported for `full` refresh_mode datasets.
+Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Only supported for `full` refresh mode datasets.
+
+For example, `refresh_period: 24h` will include only records with a timestamp within the last 24 hours.
 
 See [Duration](../duration/index.md)
 
