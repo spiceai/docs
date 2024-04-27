@@ -5,7 +5,7 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/datatypes/index.html). Data accelerators do no support all Arrow data types. The table below outlines the data type compatibility for each accelerator, and datatype used within the accelerator. 
+Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/datatypes/index.html). Data accelerators do not support all Arrow data types. The table below outlines the data type compatibility for each accelerator, and datatype used within the accelerator. 
 
 | Arrow Type               | Description                                                                  | [DuckDB](https://duckdb.org/docs/sql/data_types/overview) | [SQLite](https://sqlite.org/datatype3.html) | [Postgres](https://www.postgresql.org/docs/current/datatype.html#DATATYPE-TABLE) |
 |--------------------------|------------------------------------------------------------------------------|-------------------------------|-------------------|--------------------|
