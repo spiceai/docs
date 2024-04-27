@@ -45,7 +45,7 @@ Often only a subset of the data in a federated table is used in applications or 
 
 ### Refresh SQL
 
-Specify filters for the data accelerated from the federated source via arbitrary SQL. Only supported for datasets configured with a `full` refreh mode (the default).
+Specify filters for the data accelerated from the federated source via arbitrary SQL. Only supported for datasets configured with a `full` refresh mode (the default).
 
 Filters will be pushed down to the remote source, and only the requested data will be transferred over the network.
 
