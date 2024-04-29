@@ -91,4 +91,4 @@ select * from eth_recent_blocks
 
 ## Limitations
 
-- Currently, only official [Data Accelerators](./data-accelerators) are supported for local acceleration.
+- Currently, only official [Data Accelerators](../data-accelerators) are supported for local acceleration.
