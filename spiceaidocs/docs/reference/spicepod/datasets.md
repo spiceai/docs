@@ -160,11 +160,11 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 :::
 
-## `acceleration.refresh_data_period`
+## `acceleration.refresh_data_window`
 
 Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Only supported for `full` refresh mode datasets.
 
-For example, `refresh_data_period: 24h` will include only records with a timestamp within the last 24 hours.
+For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
 See [Duration](../duration/index.md)
 

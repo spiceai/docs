@@ -41,7 +41,7 @@ Data accelerators may not support all possible Apache Arrow data types. For comp
 Often only a subset of the data in a federated table is used in applications or dashboards. Use the following options to filter the data Spice will accelerate to a working subset and reduce the amount of data that needs to be transferred and stored locally.
 
 - [Refresh SQL](#refresh-sql) - Specify the filter as arbitrary SQL to be pushed down to the remote source.
-- [Refresh Data Period](#refresh-data-period) - Filters out data from the federated source older than the specified period.
+- [Refresh Data Window](#refresh-data-window) - Filters out data from the federated source outside the specified window.
 
 ### Refresh SQL
 
@@ -71,9 +71,9 @@ For the complete reference, view the `refresh_sql` section of [datasets](../refe
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 :::
 
-### Refresh Data Period
+### Refresh Data Window
 
-Filters data from the federated source older than the specified period. Only supported for datasets configured with a `full` refresh mode (the default).
+Filters data from the federated source outside than the specified window. The only supported window is a lookback starting from `now() - refresh_data_window` to `now()`. This flag is only supported for datasets configured with a `full` refresh mode (the default).
 
 Used in combination with the [`time_column`](../reference/spicepod/datasets.md#time_column) to identify the column that contains the timestamps to filter on. The [`time_format`](../reference/spicepod/datasets.md#time_format) column (optional) can be used to instruct the Spice runtime how to interpret the timestamps in the `time_column`.
 
@@ -92,14 +92,14 @@ datasets:
       refresh_check_interval: 10m
       refresh_sql: |
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
-      refresh_data_period: 1d
+      refresh_data_window: 1d
 ```
 
 This configuration will only accelerate data from the federated source that matches the filter `city = 'Seattle'` and is less than 1 day old.
 
 ## Behavior on Zero Results
 
-By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql`, `refresh_data_period` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results.
+By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql`, `refresh_data_window` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results.
 
 Control this behavior by setting `on_zero_results` in the acceleration configuration.
 
