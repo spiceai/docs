@@ -150,6 +150,28 @@ const config: Config = {
       contextualSearch: false,
     },
   } satisfies Preset.ThemeConfig,
+
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/federacted-queries',
+            to: '/features/federated-queries',
+          },
+          {
+            from: '/data-ingestion',
+            to: '/features/data-ingestion',
+          },
+          {
+            from: '/local-acceleration',
+            to: '/features/local-acceleration',
+          },
+        ],
+      },
+    ],
+  ],
 };
 
 export default config;

@@ -1,7 +1,7 @@
 ---
 title: 'Local Acceleration'
 sidebar_label: 'Local Acceleration'
-description: ''
+description: 'Learn how to use local acceleration in Spice.'
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
@@ -91,4 +91,4 @@ select * from eth_recent_blocks
 
 ## Limitations
 
-- Currently, only official [Data Accelerators](./data-accelerators) are supported for local acceleration.
+- Currently, only official [Data Accelerators](../data-accelerators) are supported for local acceleration.
