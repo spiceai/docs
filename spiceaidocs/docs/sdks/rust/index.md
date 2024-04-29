@@ -44,7 +44,7 @@ use spiceai::ClientBuilder;
 #[tokio::main]
 async fn main() {
   let mut client = ClientBuilder::new()
-    .flight_url("http://localhost:50052")
+    .flight_url("http://my_remote_spice_instance:50051")
     .build()
     .await
     .unwrap();

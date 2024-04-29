@@ -34,7 +34,7 @@ Or pass custom flight address:
 
 ```go
 if err := spice.Init(
-    spice.WithFlightAddress("grpc://localhost:50052")
+    spice.WithFlightAddress("grpc://my_remote_spice_instance:50051")
 ); err != nil {
     panic(fmt.Errorf("error initializing SpiceClient: %w", err))
 }
