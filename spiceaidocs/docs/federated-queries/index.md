@@ -128,7 +128,7 @@ GROUP BY passenger_count;
 | 15.394881909237105              | 1               |
 +---------------------------------+-----------------+
 
-Query took: 3.345525166 seconds. 7/7 rows displayed.
+Time: 3.345525166 seconds. 7 rows.
 ```
 
 **Step 9.** Join tables across locally accelerated sources and query
@@ -165,7 +165,7 @@ GROUP BY passenger_count;
 | 15.394881909237196                          | 1               |
 +---------------------------------------------+-----------------+
 
-Query took: 0.045805958 seconds. 7/7 rows displayed.
+Time: 0.045805958 seconds. 7 rows.
 ```
 
 **Step 10.** Clean up the Postgres container.
