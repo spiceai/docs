@@ -41,7 +41,7 @@ Data accelerators may not support all possible Apache Arrow data types. For comp
 Often only a subset of the data in a federated table is used in applications or dashboards. Use the following options to filter the data Spice will accelerate to a working subset and reduce the amount of data that needs to be transferred and stored locally.
 
 - [Refresh SQL](#refresh-sql) - Specify the filter as arbitrary SQL to be pushed down to the remote source.
-- [Refresh Data Window](#refresh-data-window) - Filters out data from the federated source older than the specified window.
+- [Refresh Data Window](#refresh-data-window) - Filters out data from the federated source outside the specified window.
 
 ### Refresh SQL
 
