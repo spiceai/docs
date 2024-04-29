@@ -56,6 +56,6 @@ Or pass custom flight address:
 
 ```js
 const spiceClient = new SpiceClient({
-  flight_url: 'localhost:50052'
+  flight_url: 'my_remote_spice_instance:50051'
 });
 ```
