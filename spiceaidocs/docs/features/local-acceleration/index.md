@@ -1,7 +1,7 @@
 ---
 title: 'Local Acceleration'
 sidebar_label: 'Local Acceleration'
-description: ''
+description: 'Learn how to use local acceleration in Spice.'
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
