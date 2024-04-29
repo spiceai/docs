@@ -98,7 +98,7 @@ spice sql
 The SQL REPL inferface will be shown:
 
 ```
-Welcome to the interactive Spice.ai SQL Query Utility! Type 'help' for help.
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
 
 show tables; -- list available tables
 sql>
@@ -114,7 +114,7 @@ sql> show tables
 | taxi_trips |
 +------------+
 
-Query took: 0.007505084 seconds. 1/1 rows displayed.
+Time: 0.007505084 seconds. 1 rows.
 ```
 
 Enter a query to display the longest taxi trips:
@@ -141,7 +141,7 @@ Output:
 | 44018.64      | 52.43        |
 +---------------+--------------+
 
-Query took: 0.035694958 seconds. 10/10 rows displayed.
+Time: 0.035694958 seconds. 10 rows.
 ```
 
 ## Next Steps

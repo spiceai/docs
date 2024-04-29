@@ -19,7 +19,7 @@ spice sql [flags]
 ### Examples
 ```shell 
 $ spice sql
-Welcome to the interactive Spice.ai SQL Query Utility! Type 'help' for help.
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
 
 show tables;  -- list available tables
 sql> show tables
