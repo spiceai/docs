@@ -1,8 +1,8 @@
 ---
 type: docs
-title: "PostgreSQL Data Accelerator"
-sidebar_label: "PostgreSQL Data Accelerator"
-description: "PostgreSQL Data Accelerator Documentation"
+title: 'PostgreSQL Data Accelerator'
+sidebar_label: 'PostgreSQL Data Accelerator'
+description: 'PostgreSQL Data Accelerator Documentation'
 ---
 
 To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
@@ -46,7 +46,7 @@ datasets:
         pg_user: my_user
         pg_pass_key: my_secret
         pg_sslmode: required
-        pg_insecure: "true"
+        pg_insecure: 'true'
 ```
 
 Additionally, an `engine_secret` may be provided when configuring a PostgreSQL data store to allow for using a different secret store to specify the password for a dataset using PostgreSQL as both the data source and data store.
