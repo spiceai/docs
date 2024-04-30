@@ -27,7 +27,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_pass`: The plain-text password to connect with, ignored if `pg_pass_key` is provided.
 - `pg_sslmode`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
   - `prefer`: (default) This mode will try to establish a secure SSL connection if possible, but will still connect if the server does not support SSL.
-  - `required`: This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
+  - `require`: This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
   - `disable`: This mode will not attempt to use an SSL connection, even if the server supports it.
 - `pg_insecure`: Optional parameter, Allows TLS connectivity to servers with invalid/expired certificates.
 
