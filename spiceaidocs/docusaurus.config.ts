@@ -157,7 +157,7 @@ const config: Config = {
       {
         redirects: [
           {
-            from: '/federacted-queries',
+            from: '/federated-queries',
             to: '/features/federated-queries',
           },
           {
