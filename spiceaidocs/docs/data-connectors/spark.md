@@ -1,7 +1,7 @@
 ---
 title: 'Apache Spark Connector'
 sidebar_label: 'Apache Spark Connector'
-description: 'Apache Spark  Connector Documentation'
+description: 'Apache Spark Connector Documentation'
 pagination_prev: null
 ---
 
@@ -12,15 +12,15 @@ Apache Spark as a connector for federated SQL query against a Spark Cluster usin
 
 ## Configuration
 
-The Apache Spark Connector can be used in two ways: specifying a plaintext connection string using the `spark_remote` parameter or specifying a `spark_remote` secret. The connector will fail if both configurations are set
+The Apache Spark Connector can be used in two ways: specifying a plaintext connection string using the `spark_remote` parameter or specifying a `spark_remote` secret. The connector will fail if both configurations are set.
 
 
 ### Parameters
-- `spark_remote`: A spark remote connection URI
+- `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI
 
 ### Auth
 
-If your Spark cluster is configured to only accept authenticated requests, setting `spark_remote` as a dataset param is not acceptable. In this use cases, you should use a secret named `spark` with keys `spark_remote`.
+Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use a secret named `spark` with key `spark_remote`.
 
 Check [Secrets Stores](/secret-stores) for more details.
 
@@ -103,7 +103,7 @@ Check [Secrets Stores](/secret-stores) for more details.
 datasets:
   - from: spark:spiceai.datasets.my_awesome_table
     name: my_table
-  params:
-    spark_remote: sc://localhost
+    params:
+      spark_remote: sc://localhost
     
 ```
