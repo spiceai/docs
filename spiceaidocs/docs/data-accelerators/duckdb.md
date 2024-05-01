@@ -26,6 +26,7 @@ datasets:
     name: my_dataset
     acceleration:
       engine: duckdb
+      mode: file
       params:
         duckdb_file: /my/chosen/location/duckdb.db
 ```
