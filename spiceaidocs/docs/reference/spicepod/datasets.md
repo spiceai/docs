@@ -78,6 +78,7 @@ Where:
 
   - [`spiceai`](../../data-connectors/spiceai.md)
   - [`dremio`](../../data-connectors/dremio.md)
+  - [`spark`](../../data-connectors/spark.md)
   - [`databricks`](../../data-connectors/databricks.md)
   - [`s3`](../../data-connectors/s3.md)
   - [`postgres`](../../data-connectors/postgres/index.md)
