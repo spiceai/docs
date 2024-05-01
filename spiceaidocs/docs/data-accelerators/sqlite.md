@@ -27,6 +27,7 @@ datasets:
     name: my_dataset
     acceleration:
       engine: sqlite
+      mode: file
       params:
         sqlite_file: /my/chosen/location/sqlite.db
 ```
