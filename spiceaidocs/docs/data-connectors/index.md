@@ -11,18 +11,19 @@ Data Connectors provide connections to databases, data warehouses, and data lake
 
 Currently supported Data Connectors include:
 
-| Name         | Description | Status       | Protocol/Format  | Refresh Modes    | Supports Inserts |
-| ------------ | ----------- | ------------ | ---------------- | ---------------- | ---------------- |
-| `databricks` | Databricks  | Alpha        | Delta Lake       | `full`           | ❌               |
-| `postgres`   | PostgreSQL  | Alpha        |                  | `full`           | ❌               |
-| `spiceai`    | Spice.ai    | Alpha        | Arrow Flight     | `append`, `full` | ✅               |
-| `s3`         | S3          | Alpha        | Parquet          | `full`           | ❌               |
-| `dremio`     | Dremio      | Alpha        | Arrow Flight SQL | `full`           | ❌               |
-| `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL | `full`           | ❌               |
-| `snowflake`  | Snowflake   | Alpha        | Arrow data via REST   | `full`           | ❌               |
-| `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL | `full`           | ❌               |
-| `mysql`      | MySQL       | Alpha        |                  | `full`           | ❌               |
-| `clickhouse` | Clickhouse  | Alpha        |                  | `full`           | ❌               |
+| Name         | Description | Status       | Protocol/Format                     | Refresh Modes    | Supports Inserts |
+| ------------ | ----------- | ------------ | ----------------------------------- | ---------------- | ---------------- |
+| `databricks` | Databricks  | Alpha        | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               |
+| `postgres`   | PostgreSQL  | Alpha        |                                     | `full`           | ❌               |
+| `spiceai`    | Spice.ai    | Alpha        | Arrow Flight                        | `append`, `full` | ✅               |
+| `s3`         | S3          | Alpha        | Parquet                             | `full`           | ❌               |
+| `dremio`     | Dremio      | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
+| `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
+| `snowflake`  | Snowflake   | Alpha        | Arrow data via REST                 | `full`           | ❌               |
+| `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL                    | `full`           | ❌               |
+| `mysql`      | MySQL       | Alpha        |                                     | `full`           | ❌               |
+| `clickhouse` | Clickhouse  | Alpha        |                                     | `full`           | ❌               |
+| `spark`      | Spark       | Alpha        | Spark Connect                       | `full`           | ❌               |
 
 ## Data Connector Docs
 
