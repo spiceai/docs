@@ -19,7 +19,7 @@ Currently supported Data Connectors include:
 | `s3`         | S3          | Alpha        | Parquet                             | `full`           | ❌               |
 | `dremio`     | Dremio      | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
 | `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
-| `snowflake`  | Snowflake   | Alpha        | Arrow data via REST                 | `full`           | ❌               |
+| `snowflake`  | Snowflake   | Alpha        | Arrow                               | `full`           | ❌               |
 | `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL                    | `full`           | ❌               |
 | `mysql`      | MySQL       | Alpha        |                                     | `full`           | ❌               |
 | `clickhouse` | Clickhouse  | Alpha        |                                     | `full`           | ❌               |
