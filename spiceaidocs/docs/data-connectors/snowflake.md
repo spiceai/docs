@@ -36,7 +36,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     ```bash
     spice login snowflake -a <account-identifier> -u <username> -p <password>
     ```
-    Key-pair (the `<private-key-passphrase>` is optional parameter and is used for encypted private key only)
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
     ```bash
     spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
     ```
