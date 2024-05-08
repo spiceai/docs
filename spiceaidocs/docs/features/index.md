@@ -1,7 +1,7 @@
 ---
 title: 'Features'
 sidebar_label: 'Features'
-sidebar_position: 9
+sidebar_position: 3
 description: 'Features'
 pagination_prev: null
 pagination_next: null
