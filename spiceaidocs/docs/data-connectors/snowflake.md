@@ -82,7 +82,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
       --from-literal=username='<username>' \
       --from-literal=password='<password>'
     ```
-    Key-pair (the `<private-key-passphrase>` is optional parameter and is used for encypted private key only)
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
     ```bash
     kubectl create secret generic snowflake \
       --from-literal=account='<account-identifier>' \
