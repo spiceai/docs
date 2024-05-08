@@ -26,23 +26,37 @@ datasets:
 
 ### Auth
 
-The connector supports Snowflake basic authentication (username and password) that must be configured using `spice login snowflake` or using [Secrets Stores](/secret-stores). Login requires the account identifier ('orgname-account_name' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
+The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores](/secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
 
 <img width="800" src="/img/snowflake/ui-snowsight-account-identifier.png" />
 
 <Tabs>
   <TabItem value="local" label="Local" default>
+    Password-based
     ```bash
     spice login snowflake -a <account-identifier> -u <username> -p <password>
+    ```
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    ```bash
+    spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
     ```
 
     Learn more about [File Secret Store](/secret-stores/file).
   </TabItem>
   <TabItem value="env" label="Env">
+    Password-based
     ```bash
     SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
     SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
     SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
+    spice run
+    ```
+     Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+     ```bash
+    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
+    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     ```
 
@@ -61,11 +75,20 @@ The connector supports Snowflake basic authentication (username and password) th
     Learn more about [Env Secret Store](/secret-stores/env).
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
+    Password-based
     ```bash
     kubectl create secret generic snowflake \
       --from-literal=account='<account-identifier>' \
       --from-literal=username='<username>' \
       --from-literal=password='<password>'
+    ```
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    ```bash
+    kubectl create secret generic snowflake \
+      --from-literal=account='<account-identifier>' \
+      --from-literal=username='<username>' \
+      --from-literal=snowflake_private_key_path='<path-to-private-key>' \
+      --from-literal=snowflake_private_key_passphrase='<private-key-passphrase>'
     ```
 
     `spicepod.yaml`
@@ -85,10 +108,17 @@ The connector supports Snowflake basic authentication (username and password) th
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
 
+    Password-based
     ```bash
     security add-generic-password -l "Snowflake Secret" \
     -a spiced -s spice_secret_snowflake\
     -w $(echo -n '{"account":"<account-identifier>", "username": "<username>", "password": "<password>"}')
+    ```
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    ```bash
+    security add-generic-password -l "Snowflake Secret" \
+    -a spiced -s spice_secret_snowflake\
+    -w $(echo -n '{"account":"<account-identifier>", "username": "<username>", "snowflake_private_key_path": "<path-to-private-key>", "snowflake_private_key_passphrase": "<private-key-passphrase>"}')
     ```
 
     `spicepod.yaml`
@@ -120,4 +150,4 @@ datasets:
 
 ## Limitations
 1. Account identifier does not support the [Legacy account locator in a region format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-2-legacy-account-locator-in-a-region). Use [Snowflake preferred name in organization format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-1-preferred-account-name-in-your-organization).
-1. Authentication: Only Snowflake basic authentication is supported at this time.
+1. The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication.
