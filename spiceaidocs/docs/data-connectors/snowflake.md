@@ -51,7 +51,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
     spice run
     ```
-     Key-pair (the `<private-key-passphrase>` is optional parameter and is used for encypted private key only)
+     Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
      ```bash
     SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
     SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
