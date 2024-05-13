@@ -90,7 +90,7 @@ For the complete reference, view the `refresh_sql` section of [datasets](../refe
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 - Refresh SQL modifications made via API are temporary and will revert after a runtime restart.
-- :::
+:::
 
 ### Refresh Data Window
 
