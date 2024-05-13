@@ -63,12 +63,26 @@ datasets:
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```
 
+The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert at the next runtime restart.
+
+Example:
+
+```bash
+curl -i -X PATCH \
+     -H "Content-Type: application/json" \
+     -d '{
+           "refresh_sql": "SELECT * FROM accelerated_dataset WHERE city = 'Bellevue'"
+         }' \
+     127.0.0.1:3000/v1/datasets/accelerated_dataset/acceleration
+```
+
 For the complete reference, view the `refresh_sql` section of [datasets](../reference/spicepod/datasets.md#accelerationrefresh_sql).
 
 :::warning[Limitations]
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
+- Refresh SQL modification via API is temporary and will revert at the next runtime restart.
 :::
 
 ### Refresh Data Window
