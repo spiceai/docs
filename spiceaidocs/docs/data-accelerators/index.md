@@ -63,7 +63,7 @@ datasets:
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```
 
-The `refresh_sql` parameter can be update at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert at the next runtime restart.
+The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert at the next runtime restart.
 
 Example:
 
