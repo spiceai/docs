@@ -63,7 +63,7 @@ datasets:
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```
 
-`refresh_sql` can be updated on-demand via `PATCH /v1/datasets/:name/acceleration` API endpoint. This modification is non-persistent and will revert to the original value at the next runtime restart. An example query using cURL:
+The `refresh_sql` parameter can be update at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert at the next runtime restart.
 
 ```bash
 curl -i -X PATCH \
