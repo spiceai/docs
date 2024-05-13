@@ -63,6 +63,17 @@ datasets:
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```
 
+`refresh_sql` can be updated on-demand via `PATCH /v1/datasets/:name/acceleration` API endpoint. This modification is non-persistent and will revert to the original value at the next runtime restart. An example query using cURL:
+
+```bash
+curl -i -X PATCH \
+     -H "Content-Type: application/json" \
+     -d '{
+           "refresh_sql": "SELECT * FROM accelerated_dataset WHERE city = 'Bellevue'"
+         }' \
+     127.0.0.1:3000/v1/datasets/accelerated_dataset/acceleration
+```
+
 For the complete reference, view the `refresh_sql` section of [datasets](../reference/spicepod/datasets.md#accelerationrefresh_sql).
 
 :::warning[Limitations]
