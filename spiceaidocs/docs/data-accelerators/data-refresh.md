@@ -11,11 +11,11 @@ pagination_next: null
 
 Spice supports three modes to refresh/update local data from a connected data source. `full` is the default mode.
 
-| Mode                    | Description                                          | Example                                                             |
-| ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
-| `full`                  | Replace/overwrite the entire dataset on each refresh | A table of mutable users                                            |
-| `append`                | Append/add data to the dataset on each refresh       | Append-only immutable datasets, like time-series or blockchain data |
-| `changes` \*Coming soon | Apply incremental changes                            | Any mutable or immutable dataset                                    |
+| Mode      | Description                                          | Example                                                             |
+| --------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| `full`    | Replace/overwrite the entire dataset on each refresh | A table of mutable users                                            |
+| `append`  | Append/add data to the dataset on each refresh       | Append-only immutable datasets, like time-series or blockchain data |
+| `changes` | \*Coming soon. Apply incremental changes             | Any mutable or immutable dataset                                    |
 
 E.g.
 
