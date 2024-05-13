@@ -3,6 +3,7 @@ type: docs
 title: 'PostgreSQL Data Accelerator'
 sidebar_label: 'PostgreSQL Data Accelerator'
 description: 'PostgreSQL Data Accelerator Documentation'
+sidebar_position: 4
 ---
 
 To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
