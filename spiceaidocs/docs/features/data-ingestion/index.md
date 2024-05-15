@@ -57,6 +57,6 @@ datasets:
 
 SMART data will be available in the `smart_attribute_raw_value` dataset in Spice.ai OSS and replicated to the `coolorg.smart.drive_stats` dataset in Spice.ai Cloud.
 
-## Limitations
-
+:::warning[Limitations]
 - Only Spice.ai replication is supported for now.
+:::

@@ -180,8 +180,8 @@ While the query in step 8 successfully returned results from federated remote da
 
 To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
 
-### Limitations
-
+:::warning[Limitations]
 - **Query Optimization:** Filter/Join/Aggregation pushdown is not supported, potentially leading to suboptimal query plan.
 - **Query Performance:** Without acceleration, federated queries will be slower than local queries due to network latency and data transfer.
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
+:::

@@ -99,8 +99,9 @@ Where:
 }
 ```
 
-## Limitations
+:::warning[Limitations]
 - Univariate predictions only
 - Multiple covariates 
 - Covariate and output variate must have a fixed time frequency.
 - No support for discrete or exogenous variables.
+:::
