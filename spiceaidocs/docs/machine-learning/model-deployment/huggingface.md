@@ -34,5 +34,6 @@ The `from` key follows the following regex format:
 5. **Revision (Optional):** A colon (`:`) followed by the git-like revision identifier (`revision`).
 
 
-### Limitations
+:::warning[Limitations]
 - ONNX format support only
+:::

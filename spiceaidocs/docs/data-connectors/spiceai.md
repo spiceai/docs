@@ -34,10 +34,11 @@ Secrets will be automatically conifgured by using the `spice login` command and 
     refresh_mode: append
 ```
 
-## Limitations
+:::warning[Limitations]
 `refresh_mode: append` is supported for the following datasets: 
 * eth.recent_blocks
 * eth.recent_transactions
 * eth.recent_traces
 
 All other datasets need to be configured with `refresh_mode: full`.
+:::

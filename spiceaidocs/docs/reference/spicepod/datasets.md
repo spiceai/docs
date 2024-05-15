@@ -106,7 +106,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `unix_millis` - Unix timestamp in milliseconds.
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
-:::warning[Current Limitations]
+:::warning[Limitations]
 - String-based columns are assumed to be ISO8601 format.
 :::
 
@@ -155,7 +155,7 @@ Optional. Filters the data fetched from the source to be stored in the accelerat
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
-:::warning[Current Limitations]
+:::warning[Limitations]
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
