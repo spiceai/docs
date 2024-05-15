@@ -23,40 +23,6 @@ Data Storage: Ensure that the local storage has enough capacity to store the acc
 
 Data Security: Assess data sensitivity and secure network connections between edge and data connector when replicating data for further usage. Assess the security of any Data Accelerator that is external to the Spice runtime and connected to the Spice runtime. Implement encryption, access controls, and secure protocols.
 
-## Refresh Modes
-
-Dataset acceleration can be configured in `full` (the entire dataset is refreshed) or `append` (new data from a dataset source is appended) modes.
-
-## Refresh Interval
-
-For accelerated datasets in `full` mode, the [`refresh_check_interval`](/reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
-
-Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
-
-An example using cURL:
-
-```bash
-curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
-```
-
-And response
-
-```bash
-HTTP/1.1 201 Created
-content-type: application/json
-content-length: 55
-date: Thu, 11 Apr 2024 20:11:18 GMT
-
-{"message":"Dataset refresh triggered for eth_recent_blocks."}
-```
-
-## Retention Policy
-
-A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
-
-The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
-
-
 ## Example
 
 ### Locally Accelerating eth.recent_blocks
@@ -89,6 +55,4 @@ spice sql
 select * from eth_recent_blocks
 ```
 
-## Limitations
-
-- Currently, only official [Data Accelerators](../data-accelerators) are supported for local acceleration.
+[Learn more about Data Accelerators](/data-accelerators) for faster access.

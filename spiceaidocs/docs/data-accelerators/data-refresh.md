@@ -146,3 +146,45 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 :::warning
 It is possible that even though the accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
 :::
+
+## Refresh Interval
+
+For accelerated datasets in `full` mode, the [`refresh_check_interval`](/reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
+
+Example:
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth_recent_blocks
+    acceleration:
+      enabled: true
+      refresh_mode: full
+      refresh_check_interval: 10s
+```
+
+This configuration will refresh `eth.recent_blocks` data every 10 seconds.
+
+Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
+
+An example using cURL:
+
+```bash
+curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
+```
+
+And response
+
+```bash
+HTTP/1.1 201 Created
+content-type: application/json
+content-length: 55
+date: Thu, 11 Apr 2024 20:11:18 GMT
+
+{"message":"Dataset refresh triggered for eth_recent_blocks."}
+```
+## Retention Policy
+
+A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
+
+The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
