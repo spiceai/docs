@@ -24,6 +24,7 @@ Currently supported Data Connectors include:
 | `mysql`      | MySQL       | Alpha        |                                     | `full`           | ❌               |
 | `clickhouse` | Clickhouse  | Alpha        |                                     | `full`           | ❌               |
 | `spark`      | Spark       | Alpha        | Spark Connect                       | `full`           | ❌               |
+| `ftp`, `sftp`| FTP/SFTP    | Alpha        | Parquet, CSV                        | `full`           | ❌               |
 
 ## Data Connector Docs
 
