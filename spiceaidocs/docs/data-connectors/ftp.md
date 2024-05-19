@@ -18,6 +18,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     ### Parameters
 
     The connection to FTP can be configured by providing the following params:
+
     - `file_format`: Optional parameter, specifies the requested file format.
       - `parquet`: (default) Parquet file format.
       - `csv`: CSV file format.
@@ -40,6 +41,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     ### Parameters
 
     The connection to SFTP can be configured by providing the following params:
+
     - `file_format`: Optional parameter, specifies the requested file format.
       - `parquet`: (default) Parquet file format.
       - `csv`: CSV file format.
