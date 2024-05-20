@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports in-memory LRU caching of query results, which can be enabled as follows. This can be used to prevent many redundant queries within a small time period and improve overall performance.
+Spice supports in-memory LRU caching of query results.  This can improve performance for redundant queries over a small period of time.
 
 ```yaml
 version: v1beta1
