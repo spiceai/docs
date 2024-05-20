@@ -20,7 +20,6 @@ Currently supported Data Connectors include:
 | `dremio`     | Dremio      | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
 | `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
 | `snowflake`  | Snowflake   | Alpha        | Arrow                               | `full`           | ❌               |
-| `bigquery`   | BigQuery    | Coming soon! | Arrow Flight SQL                    | `full`           | ❌               |
 | `mysql`      | MySQL       | Alpha        |                                     | `full`           | ❌               |
 | `clickhouse` | Clickhouse  | Alpha        |                                     | `full`           | ❌               |
 | `spark`      | Spark       | Alpha        | Spark Connect                       | `full`           | ❌               |
