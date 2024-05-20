@@ -76,7 +76,8 @@ Locally accelerate (y/n)? y
 You should see the following output from your runtime terminal:
 
 ```bash
-2024-02-21T22:49:10.038461Z  INFO runtime: Loaded dataset: eth_recent_blocks
+2024-05-20T22:50:17.997446Z  INFO runtime: Registered dataset eth_recent_blocks
+2024-05-20T22:50:17.998125Z  INFO runtime::accelerated_table::refresh: Loading data for dataset eth_recent_blocks
 ```
 
 **Step 4.** In a new terminal window, use the Spice SQL REPL to query the dataset
