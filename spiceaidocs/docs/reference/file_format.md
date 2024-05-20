@@ -7,7 +7,7 @@ pagination_next: null
 
 Various file formats are supported in Spice.
 
-## `CSV`
+## CSV
 
 ### Parameters
 
