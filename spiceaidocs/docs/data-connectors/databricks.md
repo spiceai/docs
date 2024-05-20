@@ -23,7 +23,7 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 - `format`: The format of the data to query. The default is `deltalake`. Only valid when `mode` is `s3`. Possible values:
   - `deltalake`: Query Delta Tables.
 - `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
-- `databricks_use_ssl`: The ssl configuration for the transport channel against Databricks. The default is `true`. Possible values:
+- `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
   - `true`: Connect to Databricks endpoint with TLS
   - `false`: Connect to Databricks endpoint without TLS
 
