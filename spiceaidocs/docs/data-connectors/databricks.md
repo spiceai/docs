@@ -24,7 +24,6 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
   - `deltalake`: Query Delta Tables.
 - `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
-  - `false`: Connect to Databricks endpoint without TLS
 
 ### Auth
 
