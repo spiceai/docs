@@ -28,6 +28,7 @@ import TabItem from '@theme/TabItem';
     ```bash
     brew install spiceai/spiceai/spice
     ```
+
   </TabItem>
   <TabItem value="windows" label="Windows" default>
     ```bash
@@ -59,9 +60,10 @@ Example output will be shown as follows:
 ```bash
 Spice.ai runtime starting...
 Using latest 'local' runtime version.
-2024-02-21T06:11:56.381793Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:3000
-2024-02-21T06:11:56.381853Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
-2024-02-21T06:11:56.382038Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
+2024-05-20T22:37:26.787577Z  INFO spiced: Metrics listening on 127.0.0.1:9000
+2024-05-20T22:37:26.788298Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:3000
+2024-05-20T22:37:26.788329Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
+2024-05-20T22:37:26.788402Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
 ```
 
 The runtime is now started and ready for queries.
@@ -85,8 +87,8 @@ dependencies:
 The `spiceai/quickstart` Spicepod will add a `taxi_trips` data table to the runtime which is now available to query by SQL.
 
 ```bash
-2024-02-22T05:53:48.222952Z  INFO runtime: Loaded dataset: taxi_trips
-2024-02-22T05:53:48.223101Z  INFO runtime::dataconnector: Refreshing data for taxi_trips
+2024-02-22T05:53:48.222952Z  INFO runtime: Registered dataset taxi_trips
+2024-02-22T05:53:48.223101Z  INFO runtime::dataconnector::refresh: Loading data for dataset taxi_trips
 ```
 
 **Step 5.** Start the Spice SQL REPL:
@@ -149,5 +151,4 @@ Time: 0.035694958 seconds. 10 rows.
 import DocCardList from '@theme/DocCardList';
 
 <DocCardList items={[{type: 'link', label: 'Quickstarts', href: 'https://github.com/spiceai/quickstarts', description: 'Spice.ai Quickstart Tutorials.'},
-    {type: 'link', label: 'Samples', href: 'https://github.com/spiceai/samples', description: 'Dive deeper with in-depth samples.'},]} />
-    
+{type: 'link', label: 'Samples', href: 'https://github.com/spiceai/samples', description: 'Dive deeper with in-depth samples.'},]} />
