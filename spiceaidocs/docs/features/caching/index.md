@@ -26,5 +26,5 @@ runtime:
 - `item_expire` - optional, cache entry expiration time, 1 second by default.
 
 :::warning[Limitations]
-- Caching of Arrow Flight queries is not currently supported (coming soon).
+- Results caching for Arrow Flight queries is not currently supported (coming soon).
 :::
