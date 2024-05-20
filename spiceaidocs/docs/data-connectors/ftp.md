@@ -27,6 +27,8 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     - `ftp_pass`: The password for the FTP server. E.g. `ftp_pass: my-ftp-password`
     - `ftp_pass_key`: The secret key container the password to connect with. E.g. `ftp_pass_key: my-ftp-password-key`
 
+    More CSV related parameters can be configured, see [CSV Parameters](../reference/file_format.md#CSV)
+
     ### Examples
     ```yaml
       - from: ftp://remote-ftp-server.com/path/to/folder/
@@ -49,6 +51,8 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     - `sftp_user`: The username for the SFTP server. E.g. `sftp_user: my-sftp-user`
     - `sftp_pass`: The password for the SFTP server. E.g. `sftp_pass: my-sftp-password`
     - `sftp_pass_key`: The secret key container the password to connect with. E.g. `sftp_pass_key: my-sftp-password-key`
+
+    More CSV related parameters can be configured, see [CSV Parameters](../reference/file_format.md#CSV)
 
     ### Examples
     ```yaml
