@@ -14,9 +14,9 @@ Apache Spark as a connector for federated SQL query against a Spark Cluster usin
 
 The Apache Spark Connector can be used in two ways: specifying a plaintext connection string using the `spark_remote` parameter or specifying a `spark_remote` secret. The connector will fail if both configurations are set.
 
-
 ### Parameters
-- `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI
+
+- `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI. Refer to [spark connect client connection string](https://github.com/apache/spark/blob/master/connector/connect/docs/client-connection-string.md) for parameters in URI.
 
 ### Auth
 
@@ -31,6 +31,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     ```
 
     Learn more about [File Secret Store](/secret-stores/file).
+
   </TabItem>
   <TabItem value="env" label="Env">
     ```bash
@@ -46,11 +47,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: env
-    
+
     # <...>
     ```
 
     Learn more about [Env Secret Store](/secret-stores/env).
+
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
     ```bash
@@ -66,11 +68,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: kubernetes
-    
+
     # <...>
     ```
 
     Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+
   </TabItem>
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
@@ -89,11 +92,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: keyring
-    
+
     # <...>
     ```
 
     Learn more about [Keyring Secret Store](/secret-stores/keyring).
+
   </TabItem>
 </Tabs>
 
@@ -105,5 +109,4 @@ datasets:
     name: my_table
     params:
       spark_remote: sc://localhost
-    
 ```

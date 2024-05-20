@@ -12,9 +12,10 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 
 ## Configuration
 
-`spice login databricks` can be used to configure the Databricks access token for the Spice runtime. 
+`spice login databricks` can be used to configure the Databricks access token for the Spice runtime.
 
 ### Parameters
+
 - `endpoint`: The endpoint of the Databricks instance.
 - `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
   - `spark_connect`: Use Spark Connect to query against Databricks.
@@ -22,6 +23,7 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 - `format`: The format of the data to query. The default is `deltalake`. Only valid when `mode` is `s3`. Possible values:
   - `deltalake`: Query Delta Tables.
 - `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
+- `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
 ### Auth
 
@@ -38,6 +40,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     ```
 
     Learn more about [File Secret Store](/secret-stores/file).
+
   </TabItem>
   <TabItem value="env" label="Env">
     ```bash
@@ -53,11 +56,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: env
-    
+
     # <...>
     ```
 
     Learn more about [Env Secret Store](/secret-stores/env).
+
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
     ```bash
@@ -73,11 +77,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: kubernetes
-    
+
     # <...>
     ```
 
     Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+
   </TabItem>
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
@@ -96,11 +101,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: keyring
-    
+
     # <...>
     ```
 
     Learn more about [Keyring Secret Store](/secret-stores/keyring).
+
   </TabItem>
 </Tabs>
 
