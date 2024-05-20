@@ -7,7 +7,11 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports in-memory LRU caching of query results.  This can improve performance for redundant queries over a small period of time.
+Spice supports in-memory caching of query results.
+
+Results caching can help improve performance for bursts of requests and for non-accelerated results such as refresh data returned [on zero results](/data-accelerators/data-refresh.md#behavior-on-zero-results).
+
+Results caching employs a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) cache replacement policy with the ability to specific an item expiry duration which defaults to 1-second.
 
 ```yaml
 version: v1beta1
