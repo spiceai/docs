@@ -43,6 +43,24 @@ secrets:
   store: env
 ```
 
+## `runtime` 
+
+### `results_cache`
+
+The results cache section specifies runtime cache configuration. [Learn more](/features/caching).
+
+```yaml
+runtime:
+  results_cache:
+    enabled: true
+    cache_max_size: 128mb
+    item_expire: 1s
+```
+
+- `enabled` - optional, `true` by default (if there is a non-empty `results_cache` section defined)
+- `cache_max_size` - optional, maximum cache size. Default is `128MB`
+- `item_expire` - optional, cache entry expiration time, 1 second by default.
+
 ## `metadata`
 
 An optional `map` of metadata.
