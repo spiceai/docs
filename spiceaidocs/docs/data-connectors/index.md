@@ -16,7 +16,7 @@ Currently supported Data Connectors include:
 | `databricks` | Databricks  | Alpha        | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               |
 | `postgres`   | PostgreSQL  | Alpha        |                                     | `full`           | ❌               |
 | `spiceai`    | Spice.ai    | Alpha        | Arrow Flight                        | `append`, `full` | ✅               |
-| `s3`         | S3          | Alpha        | Parquet                             | `full`           | ❌               |
+| `s3`         | S3          | Alpha        | Parquet, CSV                        | `full`           | ❌               |
 | `dremio`     | Dremio      | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
 | `flightsql`  | FlightSQL   | Alpha        | Arrow Flight SQL                    | `full`           | ❌               |
 | `snowflake`  | Snowflake   | Alpha        | Arrow                               | `full`           | ❌               |
