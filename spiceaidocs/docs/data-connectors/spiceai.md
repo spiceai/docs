@@ -5,18 +5,17 @@ description: 'Spice.ai Data Connector Documentation'
 pagination_next: null
 ---
 
-The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query across datasets in the [Spice.ai Cloud Platform](https://docs.spice.ai/building-blocks/datasets).  Access to these datasets require a free [Spice.ai account](https://spice.ai/login).
+The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query across datasets in the [Spice.ai Cloud Platform](https://docs.spice.ai/building-blocks/datasets).  Access to these datasets requires a free [Spice.ai account](https://spice.ai/login).
 
 ## Configuration
 ### Secrets
-Secrets will be automatically conifgured by using the `spice login` command and loggin in with an active Spice AI account.
+Secrets will be automatically configured by using the `spice login` command and logging in with an active Spice AI account.
 
 - `key`: A Spice.ai API key.
 - `token`: An active personal access token that is configured when logging in to spice via `spice login` 
 
-
 ### Parameters
-- `from`: The Spice.ai dataset ID.  For instance `spice.ai/eth.recent_blocks` or `spice.ai/eth.recent_traces`
+- `from`: The Spice.ai dataset ID. For instance `spice.ai/eth.recent_blocks` or `spice.ai/eth.recent_traces`
 
 ## Example
 
