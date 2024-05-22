@@ -108,5 +108,5 @@ datasets:
   - from: spark:spiceai.datasets.my_awesome_table
     name: my_table
     params:
-      spark_remote: sc://localhost
+      spark_remote: sc://localhost:15002
 ```
