@@ -19,7 +19,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
 
     The connection to FTP can be configured by providing the following params:
 
-    - `file_format`: Specifies the requested file format. Required if `from` is a folder path or doesn't have a file extension.
+    - `file_format`: Specifies the data file format. Required if the format cannot be inferred by from the `from` path.
       - `parquet`: Parquet file format.
       - `csv`: CSV file format.
     - `ftp_port`: Optional, specifies the port of the FTP server. Default is 21. E.g. `ftp_port: 21`
