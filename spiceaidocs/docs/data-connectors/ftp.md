@@ -19,8 +19,8 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
 
     The connection to FTP can be configured by providing the following params:
 
-    - `file_format`: Optional, specifies the requested file format.
-      - `parquet`: (default) Parquet file format.
+    - `file_format`: Specifies the requested file format. Required if `from` is a folder path or doesn't have a file extension.
+      - `parquet`: Parquet file format.
       - `csv`: CSV file format.
     - `ftp_port`: Optional, specifies the port of the FTP server. Default is 21. E.g. `ftp_port: 21`
     - `ftp_user`: The username for the FTP server. E.g. `ftp_user: my-ftp-user`
@@ -59,6 +59,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
       - from: sftp://remote-sftp-server.com/path/to/folder/
         name: my_dataset
         params:
+          file_format: csv
           sftp_port: 20
           sftp_user: my-sftp-user
           sftp_pass_key: my-sftp-password
