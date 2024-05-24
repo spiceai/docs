@@ -38,6 +38,8 @@ spicepod:
     - from: s3://spiceai-demo-datasets/taxi_trips/2024/
       name: taxi_trips
       description: Demo taxi trips in s3
+      params:
+        file_format: parquet
       acceleration:
         enabled: true
 ```
@@ -121,6 +123,8 @@ spicepod:
     - from: s3://spiceai-demo-datasets/taxi_trips/2024/
       name: taxi_trips
       description: Demo taxi trips in s3
+      params:
+        file_format: parquet
       acceleration:
         enabled: true
         # Uncomment to refresh the acceleration on a schedule
