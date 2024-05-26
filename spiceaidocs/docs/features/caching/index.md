@@ -28,9 +28,5 @@ runtime:
 
 - `enabled` - optional, `true` by default
 - `cache_max_size` - optional, maximum cache size. Default is `128MiB`
-- `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
+- `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default and only currently supported value is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
 - `item_ttl` - optional, cache entry expiration duration, 1 second by default.
-
-:::warning[Limitations]
-- Cache currently supports only the [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) replacement policy.
-:::
