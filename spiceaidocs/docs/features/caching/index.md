@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports in-memory caching of query results.
+Spice supports in-memory caching of query results, which is enabled by default for both the HTTP (`/v1/sql`) and Arrow Flight APIs.
 
 Results caching can help improve performance for bursts of requests and for non-accelerated results such as refresh data returned [on zero results](/data-accelerators/data-refresh.md#behavior-on-zero-results).
 
