@@ -7,11 +7,11 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports in-memory caching of query results.
+Spice supports in-memory caching of query results, which is enabled by default for both the HTTP (`/v1/sql`) and Arrow Flight APIs.
 
 Results caching can help improve performance for bursts of requests and for non-accelerated results such as refresh data returned [on zero results](/data-accelerators/data-refresh.md#behavior-on-zero-results).
 
-Results caching employs a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) cache replacement policy with the ability to specific an item expiry duration which defaults to 1-second.
+Results caching employs a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) cache replacement policy with the ability to specify an item expiry duration, which defaults to 1-second.
 
 ```yaml
 version: v1beta1
@@ -21,14 +21,12 @@ name: app
 runtime:
   results_cache:
     enabled: true
-    cache_max_size: 128mb
-    item_expire: 1s
+    cache_max_size: 128MiB
+    eviction_policy: lru 
+    item_ttl: 1s
 ```
 
-- `enabled` - optional, `true` by default (if there is a non-empty `results_cache` section defined)
-- `cache_max_size` - optional, maximum cache size. Default is `128MB`
-- `item_expire` - optional, cache entry expiration time, 1 second by default.
-
-:::warning[Limitations]
-- Results caching for Arrow Flight queries is not currently supported (coming soon).
-:::
+- `enabled` - optional, `true` by default
+- `cache_max_size` - optional, maximum cache size. Default is `128MiB`
+- `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default and only currently supported value is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
+- `item_ttl` - optional, cache entry expiration duration, 1 second by default.
