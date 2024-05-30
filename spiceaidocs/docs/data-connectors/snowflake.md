@@ -12,15 +12,19 @@ The Snowflake Data Connector enables federated SQL queries across datasets in th
 
 ```yaml
 datasets:
-  - from: snowflake:database.schema.table
+  - from: snowflake:DATABASE.SCHEMA.TABLE
     name: table
     params: 
       snowflake_warehouse: COMPUTE_WH
       snowflake_role: accountadmin
 ```
 
+:::info[Hint]
+Unquoted table identifiers should be UPPERCASED in the `from` field. See [Identifier resolution](https://docs.snowflake.com/en/sql-reference/identifiers-syntax#label-identifier-casing).
+:::
+
 ### Parameters
-- `from`: a Snowflake fully qualified table name (database.schema.table). For instance `snowflake:snowflake_sample_data.tpch_sf1.lineitem` or `snowflake:TAXI_DATA."2024".TAXI_TRIPS`
+- `from`: a Snowflake fully qualified table name (database.schema.table). For instance `snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM` or `snowflake:TAXI_DATA."2024".TAXI_TRIPS`
 - `snowflake_warehouse`: optional, specifies the [Snowflake Warehouse](https://docs.snowflake.com/en/user-guide/warehouses-tasks) to use
 - `snowflake_role`: optional, specifies the role to use for accessing Snowflake data
 
@@ -141,7 +145,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
 ```yaml
 datasets:
-  - from: snowflake:snowflake_sample_data.tpch_sf1.lineitem
+  - from: snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM
     name: lineitem
     params: 
       snowflake_warehouse: COMPUTE_WH
