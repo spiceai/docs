@@ -84,6 +84,7 @@ Where:
   - [`postgres`](../../data-connectors/postgres/index.md)
   - [`mysql`](../../data-connectors/mysql.md)
   - [`clickhouse`](../../data-connectors/clickhouse.md)
+  - [`graphql`](../../data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
