@@ -30,7 +30,7 @@ datasets:
 The GraphQL data connector can be configured by providing the following `params`:
 
 - `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: github_pat_...`
-- `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auto_token`.
+- `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auth_token`.
 E.g. `auth_token_key: github_token`
 - `auth_user`: The username to use for basic auth. E.g. `auth_user: my_user`
 - `auth_user_key`: The secret key containing the user to use for basic auth. Can be used instead of `auth_user`. E.g. `auth_user_key: my_secret_user`
