@@ -31,7 +31,7 @@ datasets:
 - The GraphQL data connector does not support variables in the query.
 - Acceleration only works with `arrow` engine. Support for other engines is in progress.
 - Object or array handling in the response is required by using the `json_path` parameter.
-
+:::
 ## Configuration
 
 The GraphQL data connector can be configured by providing the following `params`:
