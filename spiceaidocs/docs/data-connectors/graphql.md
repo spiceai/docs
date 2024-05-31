@@ -4,7 +4,6 @@ sidebar_label: 'GraphQL Data Connector'
 description: 'GraphQL Data Connector Documentation'
 ---
 
-## Federated SQL query
 
 To connect to any [GraphQL](https://graphql.org/) endpoint as connector for federated SQL query, specify `graphql` as the selector in the `from` value for the dataset.
 
