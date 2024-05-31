@@ -25,7 +25,7 @@ datasets:
         }
 ```
 
-## Limitations
+:::warning[Limitations]
 
 - The GraphQL data connector does not support pagination.
 - The GraphQL data connector does not support variables in the query.
