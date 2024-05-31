@@ -25,6 +25,13 @@ datasets:
         }
 ```
 
+## Limitations
+
+- The GraphQL data connector does not support pagination.
+- The GraphQL data connector does not support variables in the query.
+- Acceleration only works with `arrow` engine. Support for other engines is in progress.
+- You need to specify path to an object or array (preferably array) in the JSON response using `json_path` parameter. More fine grained access will be supported in future.
+
 ## Configuration
 
 The GraphQL data connector can be configured by providing the following `params`:
@@ -52,26 +59,47 @@ query: |
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
-Example using github graphql API:
+Example using github graphql API using Bearer Auth:
 ```yaml
 from: graphql:https://api.github.com/graphql
-name: repos
+name: stars
 params:
-  auth_token: <your_github_token>
-  json_path: data.viewer.repositories.nodes
+  auth_token: [your_github_token>]
+  json_path: data.viewer.starredRepositories.nodes
   query: |
     {
       viewer {
-        repositories(first: 100) {
+        starredRepositories {
           nodes {
-            id
             name
-            watchers (first: 10) {
+            stargazerCount
+            languages (first: 10) {
               nodes {
                 name
               }
             }
           }
+        }
+      }
+    }
+
+```
+You can query nested structures as well. Here is an example of querying a nested structure:
+<img width="500" src="/img/graphql/stars-query.png" />
+
+Example using Basic Auth:
+```yaml
+from: graphql:https://your-site.com/graphql
+name: your_dataset
+params:
+  auth_user: [your_user]
+  auth_pass: [your_password]
+  query: |
+    {
+      some {
+        nodes {
+          field1
+          field2
         }
       }
     }
