@@ -24,7 +24,7 @@ Currently supported Data Connectors include:
 | `clickhouse` | Clickhouse  | Alpha        |                                     | `full`           | ❌               |
 | `spark`      | Spark       | Alpha        | Spark Connect                       | `full`           | ❌               |
 | `ftp`, `sftp`| FTP/SFTP    | Alpha        | Parquet, CSV                        | `full`           | ❌               |
-| `graphql` | GraphQL | Alpha | GraphQL | `full` | ❌ |
+| `graphql`    | GraphQL     | Alpha         | GraphQL                               | `full`           | ❌               |
 
 ## Data Connector Docs
 
