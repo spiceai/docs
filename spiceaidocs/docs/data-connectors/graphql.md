@@ -59,7 +59,7 @@ query: |
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
-Example using github graphql API using Bearer Auth:
+Example using GitHub GraphQL API using Bearer Auth:
 ```yaml
 from: graphql:https://api.github.com/graphql
 name: stars
