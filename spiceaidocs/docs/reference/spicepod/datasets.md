@@ -83,6 +83,9 @@ Where:
   - [`s3`](../../data-connectors/s3.md)
   - [`postgres`](../../data-connectors/postgres/index.md)
   - [`mysql`](../../data-connectors/mysql.md)
+  - [`flightsql`](../../data-connectors/flightsql.md)
+  - [`snowflake`](../../data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](../../data-connectors/ftp.md)
   - [`clickhouse`](../../data-connectors/clickhouse.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
