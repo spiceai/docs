@@ -83,7 +83,7 @@ params:
     }
 
 ```
-You can query nested structures as well. Here is an example of querying a nested structure:
+Nested structures can be queried as well. The following is an example of querying a nested structure:
 <img width="500" src="/img/graphql/stars-query.png" />
 
 Example using Basic Auth:
