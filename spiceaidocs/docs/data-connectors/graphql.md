@@ -6,7 +6,7 @@ description: 'GraphQL Data Connector Documentation'
 
 ## Federated SQL query
 
-To connect to any GraphQL endpoint as connector for federated SQL query, specify `graphql` as the selector in the `from` value for the dataset.
+To connect to any [GraphQL](https://graphql.org/) endpoint as connector for federated SQL query, specify `graphql` as the selector in the `from` value for the dataset.
 
 ```yaml
 datasets:
