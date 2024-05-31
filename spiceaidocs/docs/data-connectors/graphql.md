@@ -50,7 +50,7 @@ query: |
 ```
 - `json_path`: The path to the JSON data in the response. E.g. `json_path: data.some.nodes`
 
-Configuration `params` are provided either in the top level `dataset` for a dataset sourc and federated SQL query.
+Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
 Example using github graphql API:
 ```yaml
