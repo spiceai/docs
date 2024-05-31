@@ -30,7 +30,7 @@ datasets:
 - The GraphQL data connector does not support pagination.
 - The GraphQL data connector does not support variables in the query.
 - Acceleration only works with `arrow` engine. Support for other engines is in progress.
-- You need to specify path to an object or array (preferably array) in the JSON response using `json_path` parameter. More fine grained access will be supported in future.
+- Object or array handling in the response is required by using the `json_path` parameter.
 
 ## Configuration
 
