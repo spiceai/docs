@@ -87,7 +87,6 @@ Where:
   - [`snowflake`](../../data-connectors/snowflake.md)
   - [`ftp`, `sftp`](../../data-connectors/ftp.md)
   - [`clickhouse`](../../data-connectors/clickhouse.md)
-  - [`graphql`](../../data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
