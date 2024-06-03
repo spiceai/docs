@@ -9,7 +9,7 @@ pagination_next: 'machine-learning/inference/index'
 Models can be loaded from:
 
 - **Filesystem**: [ONNX](https://onnx.ai) models.
-- **HuggingFace**: ONNX and GGUF models hosted on [HuggingFace](https://huggingface.co).
+- **HuggingFace**: ONNX and [GGUF](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md) models hosted on [HuggingFace](https://huggingface.co).
 - **Spice Cloud Platform**: Models hosted on the [Spice Cloud Platform](https://docs.spice.ai)
 
 Defined in the `spicepod.yml`, a `model` component has the following format.
