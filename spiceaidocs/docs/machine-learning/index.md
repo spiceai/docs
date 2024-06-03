@@ -8,11 +8,14 @@ pagination_prev: null
 
 :::warning[Early Preview]
 
-The Spice ML runtime is in its early preview phase and is subject to modifications.
+Machine Learning (ML) is in preview and is subject to modifications.
 
 :::
 
-Machine learning models can be added to the Spice runtime similarly to datasets. The Spice runtime will load it, just like a dataset. 
+ML models can be defined similarly to [Datasets](../reference/spicepod/datasets.md). The runtime will load the model for inference.
+
+Example:
+
 ```yaml
 name: my_spicepod
 version: v1beta1
@@ -33,6 +36,6 @@ datasets:
   - from: spice.ai/eth.recent_blocks
     name: eth_recent_blocks
     acceleration:
-        enabled: true
-        refresh_mode: append
+      enabled: true
+      refresh_mode: append
 ```

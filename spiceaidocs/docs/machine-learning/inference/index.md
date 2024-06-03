@@ -1,6 +1,6 @@
 ---
-title: 'Machine Learning Inference'
-sidebar_label: 'Machine Learning Inference'
+title: 'Machine Learning Predictions'
+sidebar_label: 'Machine Learning Predictions'
 description: ''
 sidebar_position: 2
 pagination_prev: 'machine-learning/model-deployment/index'
@@ -10,17 +10,24 @@ pagination_next: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Spice ML runtime currently supports prediction via an API in the Spice runtime. 
+Spice includes dedicated predictions APIs.
 
-### GET `/v1/models/:name/predict`
+## GET `/v1/models/:name/predict`
+
+Make a prediction using a specific [deployed model](../model-deployment/index.md).
+
+Example:
+
 ```shell
 curl "http://localhost:3000/v1/models/my_model_name/predict"
 ```
-Where: 
- - `name`: References the name provided in the `spicepod.yaml`.
 
+Parameters:
 
-#### Response
+- `name`: References the model name defined in the `spicepod.yaml`.
+
+### Response
+
 <Tabs>
   <TabItem value="Success" label="Success" default>
     ```json
@@ -58,8 +65,12 @@ Where:
   </TabItem>
 </Tabs>
 
-### POST `/v1/predict`
-It's also possible to run multiple prediction models in parallel, useful for ensembling or A/B testing. 
+## POST `/v1/predict`
+
+Make predictions using all loaded forecasting models in parallel, useful for ensembling or A/B testing.
+
+Example:
+
 ```shell
 curl --request POST \
   --url http://localhost:3000/v1/predict \
@@ -74,34 +85,39 @@ curl --request POST \
     ]
 }'
 ```
-Where:
-  - Each `model_name` provided references a model `name` in the Spicepod.
 
-#### 
+Parameters:
+
+- `model_name`: References a model name defined in the `spicepod.yaml`.
+
 ```json
 {
-    "duration_ms": 81,
-    "predictions": [{
-        "status": "Success",
-        "model_name": "drive_stats_a",
-        "model_version": "1.0",
-        "lookback": 30,
-        "prediction": [0.45, 0.5, 0.55],
-        "duration_ms": 42
-    }, {
-        "status": "Success",
-        "model_name": "drive_stats_b",
-        "model_version": "1.0",
-        "lookback": 30,
-        "prediction": [0.43, 0.51, 0.53],
-        "duration_ms": 42
-    }]
+  "duration_ms": 81,
+  "predictions": [
+    {
+      "status": "Success",
+      "model_name": "drive_stats_a",
+      "model_version": "1.0",
+      "lookback": 30,
+      "prediction": [0.45, 0.5, 0.55],
+      "duration_ms": 42
+    },
+    {
+      "status": "Success",
+      "model_name": "drive_stats_b",
+      "model_version": "1.0",
+      "lookback": 30,
+      "prediction": [0.43, 0.51, 0.53],
+      "duration_ms": 42
+    }
+  ]
 }
 ```
 
 :::warning[Limitations]
-- Univariate predictions only
-- Multiple covariates 
+
+- Univariate predictions only.
+- Multiple covariates.
 - Covariate and output variate must have a fixed time frequency.
 - No support for discrete or exogenous variables.
-:::
+- :::
