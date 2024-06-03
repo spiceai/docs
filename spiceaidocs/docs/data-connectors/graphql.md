@@ -63,7 +63,7 @@ Example using GitHub GraphQL API using Bearer Auth:
 from: graphql:https://api.github.com/graphql
 name: stars
 params:
-  auth_token: [your_github_token>]
+  auth_token: [github_token]
   json_path: data.viewer.starredRepositories.nodes
   query: |
     {
@@ -88,11 +88,12 @@ Nested structures can be queried as well. The following is an example of queryin
 
 Example using Basic Auth:
 ```yaml
-from: graphql:https://your-site.com/graphql
-name: your_dataset
+from: graphql:https://my-site.com/graphql
+name: my_dataset
 params:
-  auth_user: [your_user]
-  auth_pass: [your_password]
+  auth_user: [my_user]
+  auth_pass: [my_password]
+  json_path: data.some.nodes
   query: |
     {
       some {
