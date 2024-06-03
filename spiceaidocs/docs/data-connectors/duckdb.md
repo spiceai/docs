@@ -14,7 +14,7 @@ datasets:
     name: my_dataset
 ```
 
-To connect to a [MotherDuck](https://motherduck.com/) use [MotherDuck Data Connector](motherduck).
+To use [MotherDuck](https://motherduck.com/) as a data source use the [MotherDuck Data Connector](./motherduck.md).
 
 ## Configuration
 
