@@ -13,3 +13,6 @@ Example:
   name: my_table
   params: 
     motherduck_token: <token>
+```
+
+See [Authenticating to MotherDuck](https://motherduck.com/docs/authenticating-to-motherduck/) to get `motherduck_token`.
