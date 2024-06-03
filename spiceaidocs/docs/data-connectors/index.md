@@ -26,6 +26,7 @@ Currently supported Data Connectors include:
 | `ftp`, `sftp`| FTP/SFTP    | Alpha        | Parquet, CSV                        | `full`           | ❌               |
 | `graphql`    | GraphQL     | Alpha        | GraphQL                             | `full`           | ❌               |
 | `odbc`       | ODBC        | Alpha        | ODBC                                | `full`           | ❌               |
+| `motherduck` | MotherDuck  | Alpha        |                                     | `full`           | ❌               |
 
 ## Data Connector Docs
 

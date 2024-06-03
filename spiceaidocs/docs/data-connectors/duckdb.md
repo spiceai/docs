@@ -14,6 +14,8 @@ datasets:
     name: my_dataset
 ```
 
+To connect to a [MotherDuck](https://motherduck.com/) use [MotherDuck Data Connector](motherduck).
+
 ## Configuration
 
 The DuckDB data connector can be configured by providing the following `params`:
