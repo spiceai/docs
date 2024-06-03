@@ -55,8 +55,7 @@ RUN apt update \
 Build the container:
 
 ```bash
-docker build -t spice-libsqliteodbc .
-docker run --entrypoint /bin/bash -it spice-libsqliteodbc
+$ docker build -t spice-libsqliteodbc .
 ```
 
 Validate that the ODBC configuration was updated to reference the newly installed driver:
@@ -94,9 +93,9 @@ Setup=libsqlite3odbc.so
 UsageCount=1
 ```
 
-To fully test the image, make an example SQLite database (`test.db`) and spicepod on your host:
-
 ###### `test.db`
+
+To fully test the image, make an example SQLite database (`test.db`) and spicepod on your host:
 
 ```bash
 $ sqlite3 test.db
