@@ -12,7 +12,7 @@ Machine Learning (ML) is in preview and is subject to modifications.
 
 :::
 
-ML models can be defined similarly to datasets. The runtime will load the model for inference.
+ML models can be defined similarly to [Datasets](../reference/spicepod/datasets/index.md). The runtime will load the model for inference.
 
 Example:
 
