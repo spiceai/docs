@@ -34,10 +34,6 @@ datasets:
     name: my_dataset
     params:
       odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
-        max_bytes_per_batch: 5000000000
-        max_binary_size: 256000000
-        max_text_size: 256000000
-        max_rows_per_batch: 5
 ```
 
 ## Baking an image with ODBC Support
