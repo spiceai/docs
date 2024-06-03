@@ -35,9 +35,9 @@ datasets:
 
 The GraphQL data connector can be configured by providing the following `params`:
 
-- `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: github_pat_...`
+- `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: my_secret_token`
 - `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auth_token`.
-E.g. `auth_token_key: github_token`
+E.g. `auth_token_key: my_secret_token_key`
 - `auth_user`: The username to use for basic auth. E.g. `auth_user: my_user`
 - `auth_user_key`: The secret key containing the user to use for basic auth. Can be used instead of `auth_user`. E.g. `auth_user_key: my_secret_user`
 - `auth_pass`: The password to use for basic auth. E.g. `auth_pass: my_password`
@@ -55,8 +55,6 @@ query: |
   }
 ```
 - `json_path`: The path to the JSON data in the response. E.g. `json_path: data.some.nodes`
-
-Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
 
 Example using GitHub GraphQL API using Bearer Auth:
 ```yaml
