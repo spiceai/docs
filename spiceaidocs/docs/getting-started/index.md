@@ -60,10 +60,11 @@ Example output will be shown as follows:
 ```bash
 Spice.ai runtime starting...
 Using latest 'local' runtime version.
-2024-05-20T22:37:26.787577Z  INFO spiced: Metrics listening on 127.0.0.1:9000
-2024-05-20T22:37:26.788298Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:3000
-2024-05-20T22:37:26.788329Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
-2024-05-20T22:37:26.788402Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
+2024-06-03T23:21:26.819978Z  INFO spiced: Metrics listening on 127.0.0.1:9000
+2024-06-03T23:21:26.821863Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:3000
+2024-06-03T23:21:26.821898Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
+2024-06-03T23:21:26.821958Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
+2024-06-03T23:21:26.822128Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
 ```
 
 The runtime is now started and ready for queries.
@@ -87,8 +88,9 @@ dependencies:
 The `spiceai/quickstart` Spicepod will add a `taxi_trips` data table to the runtime which is now available to query by SQL.
 
 ```bash
-2024-02-22T05:53:48.222952Z  INFO runtime: Registered dataset taxi_trips
-2024-02-22T05:53:48.223101Z  INFO runtime::dataconnector::refresh: Loading data for dataset taxi_trips
+2024-06-03T23:21:29.721705Z  INFO runtime: Registered dataset taxi_trips
+2024-06-03T23:21:29.722839Z  INFO runtime::accelerated_table::refresh: Loading data for dataset taxi_trips
+2024-06-03T23:21:50.813510Z  INFO runtime::accelerated_table::refresh: Loaded 2,964,624 rows (421.71 MiB) for dataset taxi_trips in 21s 90ms.
 ```
 
 **Step 5.** Start the Spice SQL REPL:
@@ -145,7 +147,7 @@ Output:
 | 44018.64      | 52.43        |
 +---------------+--------------+
 
-Time: 0.035694958 seconds. 10 rows.
+Time: 0.015596458 seconds. 10 rows.
 ```
 
 ## Next Steps
