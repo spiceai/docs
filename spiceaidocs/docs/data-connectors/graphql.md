@@ -5,7 +5,7 @@ description: 'GraphQL Data Connector Documentation'
 ---
 
 
-The [GraphQL](https://graphql.org/) Data Connector enables federated SQL queries on any GraphQL endpoint by specifying`graphql` as the selector in the `from` value for the dataset.
+The [GraphQL](https://graphql.org/) Data Connector enables federated SQL queries on any GraphQL endpoint by specifying `graphql` as the selector in the `from` value for the dataset.
 
 ```yaml
 datasets:
@@ -28,8 +28,7 @@ datasets:
 
 - The GraphQL data connector does not support pagination.
 - The GraphQL data connector does not support variables in the query.
-- Acceleration only works with `arrow` engine. Support for other engines is in progress.
-- Object or array handling in the response is required by using the `json_path` parameter.
+- Acceleration of response nested data only works with `arrow` engine. Support for other engines is in progress.
 :::
 ## Configuration
 
