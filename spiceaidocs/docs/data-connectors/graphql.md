@@ -26,6 +26,7 @@ datasets:
 
 :::warning[Limitations]
 - The GraphQL data connector does not support variables in the query.
+- Filter pushdown is not currently supported; however, when using the limit, the connector will request only the necessary data.
 - Acceleration of response nested data only works with `arrow` engine. Support for other engines is in progress.
 :::
 ## Configuration
