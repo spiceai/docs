@@ -82,5 +82,3 @@ This allows for simple integrating into any language or framework
     ```
   </TabItem>
   </Tabs>
-
-Full SDK support coming soon!
