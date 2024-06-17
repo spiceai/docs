@@ -43,7 +43,11 @@ secrets:
   store: env
 ```
 
-## `runtime` 
+## `runtime`
+
+### `num_of_parallel_loading_at_start_up`
+
+This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup. This parallel loading capability accelerates Spice's startup process when multiple datasets are configured.
 
 ### `results_cache`
 
