@@ -145,11 +145,11 @@ Optional. The mode of acceleration. The following values are supported:
 Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
-- `append` - Append new data to the dataset.
+- `append` - Append new data to the dataset. When `time_column` and `time_format` are specified, new records will be fetched starting from the most recent timestamp found in the accelerated data. Fetching occurs at the specified `acceleration.refresh_check_interval`.
 
 ## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh check interval not used.
+Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used.
 
 See [Duration](../duration/index.md)
 
@@ -170,6 +170,16 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Only supported for `full` refresh mode datasets.
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.refresh_append_overlap`
+
+Optional. A duration to specify how far back to include records based on the most recent timestamp found in the accelerated data. Requires `time_column` and `time_format` to also be configured. Only supported for `append` refresh mode datasets.
+
+This setting helps mitigate the missing data issues caused by late arrival data.
+
+For example, `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z` given the most recent timestamp in the accelerated data is `2020-01-01T02:00:00Z`.
 
 See [Duration](../duration/index.md)
 
