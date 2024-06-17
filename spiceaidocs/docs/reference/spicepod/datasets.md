@@ -200,3 +200,75 @@ Optional. How often the retention policy should be checked.
 Required when `acceleration.retention_check_enabled` is `true`.
 
 See [Duration](../duration/index.md)
+
+## `acceleration.indexes`
+
+Optional. Specify which indexes should be applied to the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+
+The `indexes` field is a map where the key is the column reference and the value is the index type.
+
+A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+See [Indexes](../../features/local-acceleration/indexes.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      indexes:
+        number: enabled # Index the `number` column
+        "(hash, timestamp)": unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
+```
+
+## `acceleration.primary_key`
+
+Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+See [Constraints](../../features/local-acceleration/constraints.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash # Define a primary key on the `hash` column
+```
+
+## `acceleration.on_conflict`
+
+Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
+
+The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
+
+A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
+
+The possible conflict resolution strategies are:
+- `upsert` - Upsert the incoming data when the primary key constraint is violated.
+- `drop` - Drop the data when the primary key constraint is violated.
+
+See [Constraints](../../features/local-acceleration/constraints.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash
+      indexes:
+        "(number, timestamp)": unique
+      on_conflict:
+        # Upsert the incoming data when the primary key constraint on "hash" is violated, 
+        # alternatively "drop" can be used instead of "upsert" to drop the data update.
+        hash: upsert
+```

@@ -4,14 +4,15 @@ sidebar_label: 'Local Acceleration'
 description: 'Learn how to use local acceleration in Spice.'
 sidebar_position: 3
 pagination_prev: null
-pagination_next: null
 ---
 
 Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/data-connectors) and storing it locally in a [Data Accelerator](/data-accelerators) for faster access. Additionally, the data is kept up to date in realtime, so you always have the latest data locally for querying.
 
 ## Benefits
 
-When a dataset is locally accelerated by the Spice runtime, the data is stored alongside your application, providing much faster query times by cutting out network latency to make the request. This benefit is accentuated when the result of a query is large because the data does not need to be transferred over the network. Depending on the [Acceleration Engine](/data-accelerators) chosen, the locally accelerated data can also be stored in-memory, further reducing query times.
+When a dataset is locally accelerated by the Spice runtime, the data is stored alongside your application, providing much faster query times by cutting out network latency to make the request. This benefit is accentuated when the result of a query is large because the data does not need to be transferred over the network. Depending on the [Acceleration Engine](/data-accelerators) chosen, the locally accelerated data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can also be applied, further speeding up certain types of queries.
+
+Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature comes with the ability to specify what should happen when a constraint is violated, either drop the specific row that violates the constraint or upsert that row into the accelerated table.
 
 ## Example Use Case
 
