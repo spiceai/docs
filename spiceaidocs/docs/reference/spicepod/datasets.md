@@ -177,7 +177,7 @@ See [Duration](../duration/index.md)
 
 Optional. A duration to specify how far back to include records based on the most recent timestamp found in the accelerated data. Requires `time_column` and `time_format` to also be configured. Only supported for `append` refresh mode datasets.
 
-This setting helps mitigate the missing data issues caused by late arrival data.
+This setting can help mitigate missing data issues caused by late arriving data.
 
 For example, `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z` given the most recent timestamp in the accelerated data is `2020-01-01T02:00:00Z`.
 
