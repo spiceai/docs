@@ -179,7 +179,7 @@ Optional. A duration to specify how far back to include records based on the mos
 
 This setting can help mitigate missing data issues caused by late arriving data.
 
-For example, `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z` given the most recent timestamp in the accelerated data is `2020-01-01T02:00:00Z`.
+Example: If the most recent timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
 See [Duration](../duration/index.md)
 
