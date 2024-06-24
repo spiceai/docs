@@ -183,6 +183,16 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 See [Duration](../duration/index.md)
 
+## `acceleration.refresh_retry_enabled`
+
+Optional. Specifies whether an accelerated dataset should retry data refresh in the event of transient errors. The default setting is true.
+
+Retries utilize a [Fibonacci backoff strategy](https://en.wikipedia.org/wiki/Fibonacci_sequence). To disable refresh retries, set `refresh_retry_enabled: false`.
+
+## `acceleration.refresh_retry_max_attempts`
+
+Optional. Defines the maximum number of retry attempts when refresh retries are enabled. The default is undefined, allowing for unlimited attempts.
+
 ## `acceleration.params`
 
 Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
