@@ -41,3 +41,32 @@ datasets:
     params:
       open: /my/path/my_database.db
 ```
+
+## Dataset Function 
+Common [data import](https://duckdb.org/docs/data/overview) DuckDB functions can also define datasets. Instead of a fixed table reference (e.g. `database.schema.table`), a DuckDB function is provided in the `from:` key. For example
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: my_dataset
+    params:
+      open: path/to/duckdb_file.duckdb
+
+  - from: duckdb:read_csv('test.csv', header = false)
+    name: from_function
+    params:
+      open: path/to/duckdb_function_file.duckdb
+```
+
+Conceptually datasets created from DuckDB functions are analagous to a standard `SELECT` query. For example
+```SQL
+-- from_function
+SELECT * FROM read_csv('test.csv', header = false)
+```
+
+Importantly, many DuckDB data imports can be rewritten as DuckDB functions, and therefore viable as Spice datasets. For example:
+```sql
+SELECT * FROM 'todos.json';
+
+-- As a DuckDB function
+SELECT * FROM read_json('todos.json');
+```
