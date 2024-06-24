@@ -42,7 +42,7 @@ datasets:
       open: /my/path/my_database.db
 ```
 
-## Dataset Function 
+## DuckDB Functions
 Common [data import](https://duckdb.org/docs/data/overview) DuckDB functions can also define datasets. Instead of a fixed table reference (e.g. `database.schema.table`), a DuckDB function is provided in the `from:` key. For example
 ```yaml
 datasets:
