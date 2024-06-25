@@ -63,7 +63,7 @@ Datasets created from DuckDB functions are similar to a standard `SELECT` query.
 
 ```yaml
 datasets:
-  - from: read_csv('test.csv', header = false)
+  - from: duckdb:read_csv('test.csv', header = false)
 ```
 
 is equivalent to:
