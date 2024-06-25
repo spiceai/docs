@@ -198,3 +198,29 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
 
 The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
+
+## Refresh Retries
+
+By default, accelerated datasets attempt to retry data refreshes on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. This behavior can be adjusted with the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.rrefresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
+
+Example: Disable rertries
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth_recent_blocks
+    acceleration:
+      refresh_retry_enabled: false
+      refresh_check_interval: 30s
+```
+
+Example: Limit retries to a maximum of 10 attempts
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth_recent_blocks
+    acceleration:
+      refresh_retry_max_attempts: 10
+      refresh_check_interval: 30s
+```
