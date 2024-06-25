@@ -1,7 +1,7 @@
 ---
-title: "DuckDB Data Connector"
-sidebar_label: "DuckDB Data Connector"
-description: "DuckDB Data Connector Documentation"
+title: 'DuckDB Data Connector'
+sidebar_label: 'DuckDB Data Connector'
+description: 'DuckDB Data Connector Documentation'
 ---
 
 ## Dataset Source
@@ -40,4 +40,45 @@ datasets:
     name: nyc_rideshare
     params:
       open: /my/path/my_database.db
+```
+
+## DuckDB Functions
+
+Common [data import](https://duckdb.org/docs/data/overview) DuckDB functions can also define datasets. Instead of a fixed table reference (e.g. `database.schema.table`), a DuckDB function is provided in the `from:` key. For example
+
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: my_dataset
+    params:
+      open: path/to/duckdb_file.duckdb
+
+  - from: duckdb:read_csv('test.csv', header = false)
+    name: from_function
+    params:
+      open: path/to/duckdb_function_file.duckdb
+```
+Note: For DuckDB functions, `params.open` is still required.
+
+Datasets created from DuckDB functions are similar to a standard `SELECT` query. For example:
+
+```yaml
+datasets:
+  - from: duckdb:read_csv('test.csv', header = false)
+```
+
+is equivalent to:
+
+```sql
+-- from_function
+SELECT * FROM read_csv('test.csv', header = false)
+```
+
+Many DuckDB data imports can be rewritten as DuckDB functions, making them usable as Spice datasets. For example:
+
+```sql
+SELECT * FROM 'todos.json';
+
+-- As a DuckDB function
+SELECT * FROM read_json('todos.json');
 ```

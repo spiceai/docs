@@ -90,6 +90,7 @@ For the complete reference, view the `refresh_sql` section of [datasets](../refe
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 - Refresh SQL modifications made via API are temporary and will revert after a runtime restart.
+
 :::
 
 ### Refresh Data Window
@@ -165,15 +166,23 @@ datasets:
 
 This configuration will refresh `eth.recent_blocks` data every 10 seconds.
 
-Accelerated datasets can also be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
+## Refresh On-Demand
 
-An example using cURL:
+Accelerated datasets can be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
+
+CLI example:
+
+```bash
+spice refresh eth_recent_blocks
+```
+
+API example using cURL:
 
 ```bash
 curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
 ```
 
-And response
+with response:
 
 ```bash
 HTTP/1.1 201 Created
@@ -183,6 +192,7 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 
 {"message":"Dataset refresh triggered for eth_recent_blocks."}
 ```
+
 ## Retention Policy
 
 A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
