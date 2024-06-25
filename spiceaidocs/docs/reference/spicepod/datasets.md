@@ -93,6 +93,29 @@ Where:
 
 - `<path>`: The path to the dataset within the source.
 
+## `ref`
+
+An alternative to adding the dataset definition inline in the `spicepod.yaml` file.  `ref` can be use to point to an existing dataset defined in a `dataset.yaml` file.  For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
+
+**dataset.yaml**
+```yaml
+from: spice.ai/eth.recent_transactions
+name: eth_recent_transactions
+type: overwrite
+acceleration:
+  enabled: true
+  refresh: 1h
+```
+
+**ref used in spicepod.yaml**
+```yaml
+version: v1beta1
+kind: Spicepod
+name: duckdb
+datasets:
+- ref: datasets/sample
+```
+
 ## `name`
 
 The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
