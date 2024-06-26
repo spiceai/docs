@@ -193,6 +193,10 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 {"message":"Dataset refresh triggered for eth_recent_blocks."}
 ```
 
+:::warning[Note]
+On-demand refresh always initiates a new refresh, terminating any in-progress refresh for the dataset.
+:::
+
 ## Refresh Retries
 
 By default, accelerated datasets attempt to retry data refreshes on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. This behavior can be adjusted with the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.rrefresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
