@@ -95,7 +95,7 @@ Where:
 
 ## `ref`
 
-An alternative to adding the dataset definition inline in the `spicepod.yaml` file.  `ref` can be use to point to an existing dataset defined in a `dataset.yaml` file.  For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
+An alternative to adding the dataset definition inline in the `spicepod.yaml` file.  `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file.  For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
 
 **dataset.yaml**
 ```yaml
