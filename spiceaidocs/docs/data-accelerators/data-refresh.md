@@ -125,9 +125,11 @@ This configuration will only accelerate data from the federated source that matc
 
 ## Behavior on Zero Results
 
-By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql`, `refresh_data_window` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results. Supported for `full` and `append` refresh modes.
+By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
 
-Control this behavior by setting `on_zero_results` in the acceleration configuration.
+To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
+
+The `on_zero_results: use_source` setting applies only to `full` and `append` refresh modes (not `changes).
 
 `on_zero_results`:
 
@@ -172,7 +174,9 @@ This configuration will refresh `eth.recent_blocks` data every 10 seconds.
 
 ## Refresh On-Demand
 
-Accelerated datasets can be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint. Supported for `full` and `append` refresh modes.
+Accelerated datasets can be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
+
+On-demand refresh applies only to `full` and `append` refresh modes (not `changes).
 
 CLI example:
 
@@ -203,7 +207,11 @@ On-demand refresh always initiates a new refresh, terminating any in-progress re
 
 ## Refresh Retries
 
-By default, accelerated datasets attempt to retry data refreshes on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. This behavior can be adjusted with the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters. Supported for `full` and `append` refresh modes.
+By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. 
+
+Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
+
+Data refresh retry applies to `full` and `append` refresh modes not `changes` which inherently supports data integrity and consistency through the CDC mechanism.
 
 Example: Disable rertries
 
