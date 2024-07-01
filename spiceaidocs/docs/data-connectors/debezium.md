@@ -50,4 +50,4 @@ Using the Debezium connector requires acceleration to be enabled. The following 
 
 ### Example
 
-See an example of configuring a dataset to use CDC with Debezium by following the sample at [CDC with Debezium Sample](https://github.com/spiceai/samples).
+See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
