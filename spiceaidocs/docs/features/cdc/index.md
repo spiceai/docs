@@ -11,7 +11,7 @@ Change Data Capture (CDC) is a technique to capture changed rows from a database
 
 ## Benefits
 
-Leveraging locally-accelerated datasets configured with CDC allows Spice to provide a no compromises solution that combines both high-performance accelerated queries with highly efficient real-time delta updates.
+Leveraging locally-accelerated datasets configured with CDC allows Spice to provide a solution that combines both high-performance accelerated queries with efficient real-time delta updates.
 
 ## Example Use Case
 

@@ -44,7 +44,7 @@ datasets:
 
 ## Changes
 
-Accelerations configured with `refresh_mode: changes` requires that the data connector supports Change Data Capture (CDC) and can return a stream of row-level changes. Currently the only supported data connector for this mode is [Debezium](../data-connectors/debezium.md).
+Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](../features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../data-connectors/debezium.md).
 
 ## Filtered Refresh
 
