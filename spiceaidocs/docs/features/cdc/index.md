@@ -33,4 +33,4 @@ Currently, the only supported data connector is [Debezium](../../data-connectors
 
 ## Example
 
-See an example of configuring a dataset to use CDC with Debezium by following the sample at [CDC with Debezium Sample](https://github.com/spiceai/samples).
+See an example of configuring a dataset to use CDC with Debezium by following the sample at [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
