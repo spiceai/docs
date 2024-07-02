@@ -206,3 +206,66 @@ where continent = 'North America' limit 5;
 | North America | Saint Barthélemy    | Gustavia     |
 +---------------+---------------------+--------------+
 ```
+
+### Unnesting object properties
+
+You can also use the `unnest_depth` parameter to control automatic unnesting of objects from GraphQL responses.
+
+For this example, we'll use the GitHub stargazers endpoint:
+```yaml
+from: graphql:https://api.github.com/graphql
+name: stargazers
+params:
+  auth_token: [github_token]
+  unnest_depth: 2
+  json_path: data.repository.stargazers.edges
+  query: |
+    {
+      repository(name: "spiceai", owner: "spiceai") {
+        id
+        name
+        stargazers(first: 100) {
+          edges {
+            node {
+              id
+              name
+              login
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+
+      }
+    }
+```
+
+If `unnest_depth` is set to 0, or unspecified, object unnesting is disabled. When enabled, unnesting automatically pops up nested fields to the parent level.
+
+Without unnesting, stargazers data normally looks like this in a query:
+```bash
+sql> select node from stargazers limit 1;
++------------------------------------------------------------+
+| node                                                       |
++------------------------------------------------------------+
+| {id: MDQ6VXNlcjcwNzIw, login: ashtom, name: Thomas Dohmke} |
++------------------------------------------------------------+
+```
+
+With unnesting, these properties are automatically popped up into their own columns:
+
+Without unnesting, stargazers data normally looks like this in a query:
+```bash
+sql> select node from stargazers limit 1;
++------------------+--------+---------------+
+| id               | login  | name          |
++------------------+--------+---------------+
+| MDQ6VXNlcjcwNzIw | ashtom | Thomas Dohmke |
++------------------+--------+---------------+
+```
+
+:::warning[Limitations]
+- Automatic object unnesting will overwrite columns if multiple properties contain the same sub-keys.
+:::
