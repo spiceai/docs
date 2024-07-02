@@ -33,6 +33,7 @@ datasets:
 
 The GraphQL data connector can be configured by providing the following `params`:
 
+- `unnest_depth`: Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.
 - `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: my_secret_token`
 - `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auth_token`.
 E.g. `auth_token_key: my_secret_token_key`
