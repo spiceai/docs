@@ -81,8 +81,6 @@ gopkg.in/ini.v1, https://github.com/go-ini/ini/blob/v1.66.6/LICENSE, Apache-2.0
 
 gopkg.in/natefinch/lumberjack.v2, https://github.com/natefinch/lumberjack/blob/v2.0.0/LICENSE, MIT
 
-gopkg.in/yaml.v2, https://github.com/go-yaml/yaml/blob/v2.4.0/LICENSE, Apache-2.0
-
 gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 ### Rust Crates
@@ -94,6 +92,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
   <br/>https://github.com/dtolnay/anyhow
 
 - arrow 52.0.0, Apache-2.0
+  <br/>https://github.com/apache/arrow-rs
+
+- arrow-buffer 52.0.0, Apache-2.0
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-flight 52.0.0, Apache-2.0
@@ -243,6 +244,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - futures 0.3.30, Apache-2.0 OR MIT
   <br/>https://github.com/rust-lang/futures-rs
 
+- hf-hub 0.3.2, Apache-2.0
+  <br/>https://github.com/huggingface/hf-hub
+
 - humantime 2.1.0, Apache-2.0 OR MIT
   <br/>https://github.com/tailhook/humantime
 
@@ -269,6 +273,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - lazy_static 1.4.0, Apache-2.0 OR MIT
   <br/>https://github.com/rust-lang-nursery/lazy-static.rs
+
+- metrics 0.21.1, MIT
+  <br/>https://github.com/metrics-rs/metrics
 
 - metrics 0.22.3, MIT
   <br/>https://github.com/metrics-rs/metrics
@@ -345,6 +352,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - rand 0.8.5, Apache-2.0 OR MIT
   <br/>https://github.com/rust-random/rand
 
+- rdkafka 0.36.2, MIT
+  <br/>https://github.com/fede1024/rust-rdkafka
+
 - regex 1.10.5, Apache-2.0 OR MIT
   <br/>https://github.com/rust-lang/regex
 
@@ -404,6 +414,18 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - suppaftp 5.4.0, Apache-2.0
   <br/>https://github.com/veeso/suppaftp
+
+- tempfile 3.10.1, Apache-2.0 OR MIT
+  <br/>https://github.com/Stebalien/tempfile
+
+- text-embeddings-backend-candle 1.2.3,
+  <br/>
+
+- text-embeddings-backend-core 1.2.3,
+  <br/>
+
+- text-embeddings-core 1.2.3,
+  <br/>
 
 - time 0.3.36, Apache-2.0 OR MIT
   <br/>https://github.com/time-rs/time
