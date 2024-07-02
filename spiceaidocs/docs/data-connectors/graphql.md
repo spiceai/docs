@@ -212,7 +212,7 @@ where continent = 'North America' limit 5;
 
 You can also use the `unnest_depth` parameter to control automatic unnesting of objects from GraphQL responses.
 
-For this example, we'll use the GitHub stargazers endpoint:
+This examples uses the GitHub stargazers endpoint:
 ```yaml
 from: graphql:https://api.github.com/graphql
 name: stargazers
@@ -243,9 +243,9 @@ params:
     }
 ```
 
-If `unnest_depth` is set to 0, or unspecified, object unnesting is disabled. When enabled, unnesting automatically pops up nested fields to the parent level.
+If `unnest_depth` is set to 0, or unspecified, object unnesting is disabled. When enabled, unnesting automatically moves nested fields to the parent level.
 
-Without unnesting, stargazers data normally looks like this in a query:
+Without unnesting, stargazers data looks like this in a query:
 ```bash
 sql> select node from stargazers limit 1;
 +------------------------------------------------------------+
@@ -255,7 +255,7 @@ sql> select node from stargazers limit 1;
 +------------------------------------------------------------+
 ```
 
-With unnesting, these properties are automatically popped up into their own columns:
+With unnesting, these properties are automatically placed into their own columns:
 ```bash
 sql> select node from stargazers limit 1;
 +------------------+--------+---------------+
