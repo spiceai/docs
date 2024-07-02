@@ -13,9 +13,9 @@ Spice supports three modes to refresh/update local data from a connected data so
 
 | Mode      | Description                                          | Example                                                             |
 | --------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
-| `full`    | Replace/overwrite the entire dataset on each refresh | A table of mutable users                                            |
-| `append`  | Append/add data to the dataset on each refresh       | Append-only immutable datasets, like time-series or blockchain data |
-| `changes` | \*Coming soon. Apply incremental changes             | Any mutable or immutable dataset                                    |
+| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                                    |
+| `append`  | Append/add data to the dataset on each refresh       | Append-only datasets, like time-series or log data                  |
+| `changes` | Apply incremental changes                            | Customer order lifecycle table                                      |
 
 E.g.
 
@@ -41,6 +41,10 @@ datasets:
       refresh_mode: append # In conjuction with time_column, only fetch data greater than the latest local timestamp
       refresh_check_interval: 10m
 ```
+
+## Changes
+
+Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](../features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../data-connectors/debezium.md).
 
 ## Filtered Refresh
 
@@ -121,9 +125,11 @@ This configuration will only accelerate data from the federated source that matc
 
 ## Behavior on Zero Results
 
-By default, accelerated datasets will only return results that have been accelerated locally. If the locally accelerated data is a subset of the full dataset in the federated source, i.e. through setting `refresh_sql`, `refresh_data_window` or configuring retention policies, queries against the accelerated dataset may return zero results, where the federated table would return results.
+By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
 
-Control this behavior by setting `on_zero_results` in the acceleration configuration.
+To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
+
+The `on_zero_results: use_source` setting applies only to `full` and `append` refresh modes (not `changes).
 
 `on_zero_results`:
 
@@ -170,6 +176,8 @@ This configuration will refresh `eth.recent_blocks` data every 10 seconds.
 
 Accelerated datasets can be refreshed on-demand via the `refresh` CLI command or `POST /v1/datasets/:name/acceleration/refresh` API endpoint.
 
+On-demand refresh applies only to `full` and `append` refresh modes (not `changes).
+
 CLI example:
 
 ```bash
@@ -199,7 +207,11 @@ On-demand refresh always initiates a new refresh, terminating any in-progress re
 
 ## Refresh Retries
 
-By default, accelerated datasets attempt to retry data refreshes on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. This behavior can be adjusted with the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.rrefresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
+By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. 
+
+Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
+
+Data refresh retry applies to `full` and `append` refresh modes not `changes` which inherently supports data integrity and consistency through the CDC mechanism.
 
 Example: Disable rertries
 
@@ -225,6 +237,8 @@ datasets:
 
 ## Retention Policy
 
-A retention policy automatically removes data from accelerated datasets with a temporal column that exceeds the defined retention period, optimizing resource utilization.
+Accelerated datasets can be set to automatically evict time-series data exceeding a retention period by setting a retention policy based on the configured `time_column` and `acceleration.retention_period`.
+
+Retention policies apply to `full` and `append` refresh modes (not `changes`).
 
 The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
