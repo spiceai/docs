@@ -33,6 +33,7 @@ datasets:
 
 The GraphQL data connector can be configured by providing the following `params`:
 
+- `unnest_depth`: Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.
 - `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: my_secret_token`
 - `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auth_token`.
 E.g. `auth_token_key: my_secret_token_key`
@@ -206,3 +207,64 @@ where continent = 'North America' limit 5;
 | North America | Saint Barthélemy    | Gustavia     |
 +---------------+---------------------+--------------+
 ```
+
+### Unnesting object properties
+
+You can also use the `unnest_depth` parameter to control automatic unnesting of objects from GraphQL responses.
+
+This examples uses the GitHub stargazers endpoint:
+```yaml
+from: graphql:https://api.github.com/graphql
+name: stargazers
+params:
+  auth_token: [github_token]
+  unnest_depth: 2
+  json_path: data.repository.stargazers.edges
+  query: |
+    {
+      repository(name: "spiceai", owner: "spiceai") {
+        id
+        name
+        stargazers(first: 100) {
+          edges {
+            node {
+              id
+              name
+              login
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+
+      }
+    }
+```
+
+If `unnest_depth` is set to 0, or unspecified, object unnesting is disabled. When enabled, unnesting automatically moves nested fields to the parent level.
+
+Without unnesting, stargazers data looks like this in a query:
+```bash
+sql> select node from stargazers limit 1;
++------------------------------------------------------------+
+| node                                                       |
++------------------------------------------------------------+
+| {id: MDQ6VXNlcjcwNzIw, login: ashtom, name: Thomas Dohmke} |
++------------------------------------------------------------+
+```
+
+With unnesting, these properties are automatically placed into their own columns:
+```bash
+sql> select node from stargazers limit 1;
++------------------+--------+---------------+
+| id               | login  | name          |
++------------------+--------+---------------+
+| MDQ6VXNlcjcwNzIw | ashtom | Thomas Dohmke |
++------------------+--------+---------------+
+```
+
+:::warning[Limitations]
+- Automatic object unnesting will overwrite columns if multiple properties contain the same sub-keys.
+:::
