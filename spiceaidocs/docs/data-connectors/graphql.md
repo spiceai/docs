@@ -255,8 +255,6 @@ sql> select node from stargazers limit 1;
 ```
 
 With unnesting, these properties are automatically popped up into their own columns:
-
-Without unnesting, stargazers data normally looks like this in a query:
 ```bash
 sql> select node from stargazers limit 1;
 +------------------+--------+---------------+
