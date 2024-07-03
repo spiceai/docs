@@ -86,6 +86,7 @@ Where:
   - [`flightsql`](../../data-connectors/flightsql.md)
   - [`snowflake`](../../data-connectors/snowflake.md)
   - [`ftp`, `sftp`](../../data-connectors/ftp.md)
+  - [`http`, `https`](../../data-connectors/https.md)
   - [`clickhouse`](../../data-connectors/clickhouse.md)
   - [`graphql`](../../data-connectors/graphql.md)
 
