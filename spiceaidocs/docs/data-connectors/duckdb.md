@@ -55,10 +55,7 @@ datasets:
 
   - from: duckdb:read_csv('test.csv', header = false)
     name: from_function
-    params:
-      open: path/to/duckdb_function_file.duckdb
 ```
-Note: For DuckDB functions, `params.open` is still required.
 
 Datasets created from DuckDB functions are similar to a standard `SELECT` query. For example:
 
