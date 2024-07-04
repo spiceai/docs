@@ -5,7 +5,7 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
-The HTTP(s) Data Connector enables federated SQL query against a Parquet/CSV file stored at a HTTP endpoint.
+The HTTP(s) Data Connector enables federated SQL query against a variety of tabular formatted (e.g. Parquet/CSV) files stored at a HTTP endpoint.
 
 The connector supports HTTP authentication via either `param` and/or `secrets`.
 
