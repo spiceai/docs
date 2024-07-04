@@ -11,8 +11,8 @@ The connector supports HTTP authentication via either `param` and/or `secrets`.
 
 ### Parameters
  - `http_port`: Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.
- - `http_username`: Optional. Username to provide connection for HTTP authentication. Default: None.
- - `http_password`: Optional. Password to provide connection for HTTP authentication. Default: None.
+ - `http_username`: Optional. Username to provide connection for HTTP basic authentication. Default: None.
+ - `http_password`: Optional. Password to provide connection for HTTP basic authentication. Default: None.
  - `http_password_key`: Key of the secret that contains the value to use for `http_password`. Default: None.
 
 ### Examples
