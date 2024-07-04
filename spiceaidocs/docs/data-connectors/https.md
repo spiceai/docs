@@ -10,8 +10,8 @@ The HTTP(s) Data Connector enables federated SQL query against a Parquet/CSV fil
 The connector supports HTTP authentication via either `param` and/or `secrets`.
 
 ### Parameters
- - `port`: Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.
- - `username`: Optional. Username to provide connection for HTTP authentication. Default: None.
+ - `http_port`: Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.
+ - `http_username`: Optional. Username to provide connection for HTTP authentication. Default: None.
  - `http_password`: Optional. Password to provide connection for HTTP authentication. Default: None.
  - `http_password_key`: Key of the secret that contains the value to use for `http_password`. Default: None.
 
@@ -21,7 +21,7 @@ datasets:
   - from: https://github.com/LAION-AI/audio-dataset/raw/7fd6ae3cfd7cde619f6bed817da7aa2202a5bc28/metadata/freesound/parquet/freesound_parquet.parquet
     name: laion_freesound
 
-  - from: http://username@localhost:3001/report.csv
+  - from: http://static_username@localhost:3001/report.csv
     name: local_report
     params:
       http_password: BadPa$5w0rd
@@ -30,11 +30,11 @@ datasets:
 To use a secret for the HTTP password, for example, by env variable
 ```yaml
 datasets:
-  - from: http://username@localhost/report.csv
+  - from: http://static_username@localhost/report.csv
     name: local_report
     params:
       http_password_key: local_password
-      port: 3001
+      http_port: 3001
 ```
 
 With the associated secret set, for example:
