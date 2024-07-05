@@ -3,7 +3,7 @@ title: 'Machine Learning Predictions'
 sidebar_label: 'Machine Learning Predictions'
 description: ''
 sidebar_position: 2
-pagination_prev: 'machine-learning/model-deployment/index'
+pagination_prev: 'machine-learning/ml-models/index'
 pagination_next: null
 ---
 
@@ -43,7 +43,7 @@ Spice includes dedicated predictions APIs.
 
 ### GET `/v1/models/:name/predict`
 
-Make a prediction using a specific [deployed model](../model-deployment/index.md).
+Make a prediction using a specific [deployed ML model](../ml-models/index.md).
 
 Example:
 
