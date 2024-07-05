@@ -156,7 +156,7 @@ Parameters:
 Spice supports OpenAI compatible endpoints
 
 ### POST `/v1/chat/completions`
-To specify the model, provide the component name in the `model` key. For example
+OpenAI compatible [endpoint](https://platform.openai.com/docs/api-reference/chat). To specify the model, provide the component name in the `model` key. For example
 ```shell
 curl http://localhost:3000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -176,7 +176,7 @@ curl http://localhost:3000/v1/chat/completions \
 ```
 
 ### POST `/v1/embeddings`
-To specify the embedding model, provide the component name in the `model` key. For example
+OpenAI compatible [endpoint](https://platform.openai.com/docs/api-reference/embeddings). To specify the embedding model, provide the component name in the `model` key. For example
 ```shell
 curl http://localhost:3000/v1/embeddings \
   -H "Content-Type: application/json" \
@@ -185,4 +185,85 @@ curl http://localhost:3000/v1/embeddings \
     "model": "text-embedding-ada-002",
     "encoding_format": "float"
   }'
+```
+
+### POST `v1/search`
+Performs a basic vector similarity search from one or more dataset(s). 
+
+Request Body
+ - `from` (array of strings): Dataset component names to perform similarity search against. Each dataset is expected to have one and only one column augmented with an embedding. 
+ - `text` (string): Query plaintext used to retrieve similar rows from the underlying datasets listed in the `from` request key.
+ - `limit` (integer): The number of rows to return, per `from` dataset. Default: 3.
+
+#### Example
+Spicepod
+```yaml
+embeddings:
+  - name: embedding_maker
+    from: openai
+
+datasets:
+  - name: app_messages
+    from: file://my.csv
+    embeddings:
+      - column: document_text
+        use: embedding_maker
+```
+
+Request
+```shell
+curl -XPOST http://localhost:3000/v1/search \
+  -d '{
+    "from": ["app_messages"],
+    "text": "Tokyo plane tickets",
+    "limit": 10
+}'
+
+```
+
+Response
+```json
+```
+
+### POST `v1/assist`
+
+Performs a basic similarity search (similar to `v1/search`), and with the resulting documents, asks the question to a LM model.
+
+
+Request Body
+ - `from` (array of strings): Dataset component names to perform similarity search against. Each dataset is expected to have one and only one column augmented with an embedding. 
+ - `text` (string): Query plaintext used to retrieve similar rows from the underlying datasets listed in the `from` request key.
+ - `use` (string): LM model component name to use to provide the assistance response.
+
+#### Example
+Spicepod
+```yaml
+models:
+  - name: chat_model
+    from: openai
+
+embeddings:
+  - name: embedding_maker
+    from: openai
+
+datasets:
+  - name: app_messages
+    from: file://my.csv
+    embeddings:
+      - column: document_text
+        use: embedding_maker
+```
+
+Request
+```shell
+curl -XPOST http://localhost:3000/v1/assist \
+  -d '{
+    "from": ["app_messages"],
+    "text": "Tokyo plane tickets",
+    "use": "chat_model"
+}'
+```
+
+Response
+```json
 ```
