@@ -24,7 +24,7 @@ Example:
 
 ```yaml
 models:
-  - from: huggingface:huggingface.co/gpt2:latest
+  - from: huggingface:huggingface.co/gpt4:latest
     name: text_generator
     files:
       - path: model.safetensors
@@ -70,11 +70,11 @@ The `<model_id>` suffix of the `from` field is a unique (per source) identifier 
 
 ### `name`
 
-A unique identifier for this model configuration.
+A unique identifier for this model component.
 
 ### `files`
 
-An optional list of files associated with this model. Each file has:
+Optional. A list of files associated with this model. Each file has:
 
 - `path`: The path to the file
 - `name`: Optional. A name for the file
@@ -106,8 +106,8 @@ Optional. A map of key-value pairs for additional parameters specific to the mod
 
 ### `datasets`
 
-Optional. A list of dataset names that this model should be applied to.
+Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference. 
 
 ### `dependsOn`
 
-Optional. A list of dependencies that must be processed before this model.
+Optional. A list of dependencies that must be loaded and available before this model.

@@ -4,7 +4,7 @@ sidebar_label: 'Filesystem'
 sidebar_position: 3
 ---
 
-To use a model hosted on a filesystem, specify the file path in `from`.
+To use a ML model hosted on a filesystem, specify the file path in `from`.
 
 Example:
 

@@ -32,16 +32,21 @@ The `from` field specifies the source of the embedding model. It supports the fo
 - `file:` - Local file paths
 - `openai` - OpenAI models
 
+Follows the same convention as [`models.from`](./models.md#from).
+
 ### `name`
 
-A unique identifier for this embedding configuration.
+A unique identifier for this embedding component.
 
 ### `files`
 
-Optional. An list of model files associated with this embedding. Each file has:
+Optional. A list of files associated with this model. Each file has:
 
 - `path`: The path to the file
-- `type`: The type of the file (e.g., "model")
+- `name`: Optional. A name for the file
+- `type`: Optional. The type of the file (automatically determined if not specified)
+
+Follows the same convention as [`models.files`](./models.md#files).
 
 ### `params`
 
@@ -49,4 +54,4 @@ Optional. A map of key-value pairs for additional parameters specific to the emb
 
 ### `dependsOn`
 
-Optional. A list of dependencies that must be processed before this embedding.
+Optional. A list of dependencies that must be loaded and available before this embedding model.
