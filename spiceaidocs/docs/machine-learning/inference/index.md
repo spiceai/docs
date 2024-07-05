@@ -1,9 +1,9 @@
 ---
-title: 'Machine Learning Predictions'
-sidebar_label: 'Machine Learning Predictions'
+title: 'Model HTTP APIs'
+sidebar_label: 'Model HTTP APIs'
 description: ''
 sidebar_position: 2
-pagination_prev: 'machine-learning/ml-models/index'
+pagination_prev: null
 pagination_next: null
 ---
 
@@ -38,7 +38,7 @@ For each model, returns the spicepod component's `name`, `from` and `datasets`. 
 
 ```
 
-## Machine Learning APIs
+## Machine Learning
 Spice includes dedicated predictions APIs.
 
 ### GET `/v1/models/:name/predict`
@@ -149,7 +149,8 @@ Parameters:
 - Multiple covariates.
 - Covariate and output variate must have a fixed time frequency.
 - No support for discrete or exogenous variables.
-- :::
+
+:::
 
 ## Language Models
 Spice supports OpenAI compatible endpoints
@@ -168,7 +169,7 @@ curl http://localhost:3000/v1/chat/completions \
       },
       {
         "role": "user",
-        "content": "That's cool!"
+        "content": "That\'s cool!"
       }
     ]
   }'
