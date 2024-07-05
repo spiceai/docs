@@ -265,6 +265,95 @@ sql> select node from stargazers limit 1;
 +------------------+--------+---------------+
 ```
 
-:::warning[Limitations]
-- Automatic object unnesting will overwrite columns if multiple properties contain the same sub-keys.
-:::
+#### Unnesting Duplicate Columns
+
+By default, if no `unnest_duplicate_columns` parameter is specified the Spice Runtime will error when a duplicate column is detected during unnesting.
+
+For example, this example `spicepod.yml` query would fail due to `name` fields:
+```yaml
+from: graphql:https://localhost
+name: stargazers
+params:
+  unnest_depth: 2
+  json_path: data.users
+  query: |
+    query {
+      users {
+        name
+        metadata {
+          name: email
+        }
+      }
+    }
+```
+
+The handling behavior of duplicate columns can be adjusted with the `unnest_duplicate_columns` parameter. If not specified, the value defaults to `error`.
+
+##### Renaming Duplicate Columns
+
+To retain all instances of duplicates, set the `unnest_duplicate_columns` parameter to `rename`.
+In this mode, unnesting will append a numeric counter to duplicate columns for the number of times the column has been seen.
+The counter is appended based on the order the keys are visited.
+
+Take the same example `spicepod.yml` query that would previously error, but with `rename` mode:
+```yaml
+from: graphql:https://localhost
+name: stargazers
+params:
+  unnest_depth: 2
+  unnest_duplicate_columns: rename
+  json_path: data.users
+  query: |
+    query {
+      users {
+        name
+        metadata {
+          name: email
+        }
+      }
+    }
+```
+
+An example query response in this mode would look like:
+```bash
+sql> select name_1, name_2 from users limit 1;
++--------------+-------------------+
+| name_1       | name_2            |
++--------------+-------------------+
+| example name | example@localhost |
++--------------+-------------------+
+```
+
+##### Overwriting Duplicate Columns
+
+To overwrite instances of duplicates, set the `unnest_duplicate_columns` parameter to `overwrite`.
+In this mode, unnesting will overwrite the duplicate column with the latest seen column of the same key.
+
+Take the same example `spicepod.yml` query, but with `overwrite` mode:
+```yaml
+from: graphql:https://localhost
+name: stargazers
+params:
+  unnest_depth: 2
+  unnest_duplicate_columns: overwrite
+  json_path: data.users
+  query: |
+    query {
+      users {
+        name
+        metadata {
+          name: email
+        }
+      }
+    }
+```
+
+An example query response in this mode would look like:
+```bash
+sql> select name from users limit 1;
++-------------------+
+| name              |
++-------------------+
+| example@localhost |
++-------------------+
+```
