@@ -289,41 +289,6 @@ params:
 
 The handling behavior of duplicate columns can be adjusted with the `unnest_duplicate_columns` parameter. If not specified, the value defaults to `error`.
 
-##### Renaming Duplicate Columns
-
-To retain all instances of duplicates, set the `unnest_duplicate_columns` parameter to `rename`.
-In this mode, unnesting will append a numeric counter to duplicate columns for the number of times the column has been seen.
-The counter is appended based on the order the keys are visited.
-
-Take the same example `spicepod.yml` query that would previously error, but with `rename` mode:
-```yaml
-from: graphql:https://localhost
-name: stargazers
-params:
-  unnest_depth: 2
-  unnest_duplicate_columns: rename
-  json_path: data.users
-  query: |
-    query {
-      users {
-        name
-        metadata {
-          name: email
-        }
-      }
-    }
-```
-
-An example query response in this mode would look like:
-```bash
-sql> select name_1, name_2 from users limit 1;
-+--------------+-------------------+
-| name_1       | name_2            |
-+--------------+-------------------+
-| example name | example@localhost |
-+--------------+-------------------+
-```
-
 ##### Overwriting Duplicate Columns
 
 To overwrite instances of duplicates, set the `unnest_duplicate_columns` parameter to `overwrite`.
