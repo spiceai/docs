@@ -8,21 +8,71 @@ pagination_prev: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from Delta Tables in S3.
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) Tables.
 
 ## Configuration
 
-`spice login databricks` can be used to configure the Databricks access token for the Spice runtime.
+`spice login databricks` can be used to configure the secrets needed for Databricks.
+
+<Tabs>
+  <TabItem value="spark_connect" label="Spark Connect" default>
+    ```yaml
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: spark_connect
+      databricks_cluster_id: 1234-567890-abcde123
+    ```
+
+    ```bash
+    spice login databricks --token <access-token>
+    ```
+
+  </TabItem>
+  <TabItem value="delta_lake_s3" label="Delta Lake + S3">
+    ```yaml
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: delta_lake
+    ```
+
+    ```bash
+    spice login databricks --token <access-token> --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
+    ```
+
+  </TabItem>
+  <TabItem value="delta_lake_azure" label="Delta Lake + Azure Blob">
+    ```yaml
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: delta_lake
+    ```
+
+    ```bash
+    spice login databricks --token <access-token> --azure-storage-account-name <account-name> --azure-storage-access-key <access-key>
+    ```
+
+  </TabItem>
+  <TabItem value="delta_lake_gcp" label="Delta Lake + Google Storage">
+    ```yaml
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: delta_lake
+    ```
+
+    ```bash
+    spice login databricks --token <access-token> --google-service-account-path /path/to/service-account.json
+    ```
+
+  </TabItem>
+</Tabs>
 
 ### Parameters
 
 - `endpoint`: The endpoint of the Databricks instance.
 - `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
-  - `spark_connect`: Use Spark Connect to query against Databricks.
-  - `s3`: Query directly from Delta Tables in S3.
-- `format`: The format of the data to query. The default is `deltalake`. Only valid when `mode` is `s3`. Possible values:
-  - `deltalake`: Query Delta Tables.
-- `databricks-cluster-id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
+  - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.
+  - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.
+- `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
 ### Auth
@@ -114,9 +164,17 @@ Check [Secrets Stores](/secret-stores) for more details.
 
 ```yaml
 datasets:
+  # Example for Spark Connect
   - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
     name: my_delta_lake_table
-  params:
-    endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks-cluster-id: 1234-567890-abcde123
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: spark_connect
+      databricks-cluster-id: 1234-567890-abcde123
+  # Example for Delta Lake
+  - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      mode: delta_lake
 ```
