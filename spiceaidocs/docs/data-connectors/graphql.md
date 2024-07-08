@@ -280,16 +280,21 @@ params:
     query {
       users {
         name
-        metadata {
-          name: email
+        emergency_contact {
+          name
         }
       }
     }
 ```
 
-To avoid this error, you should use [use aliases in your query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, we used an alias to induce the duplicate error in our query with `name: email`.
+This example would fail with a runtime error:
+```bash
+WARN runtime: GraphQL Data Connector Error: Invalid object access. Column 'name' already exists in the object.
+```
 
-The example below is more complex where a query returns a person, their name, and their starships' name. We've used an alias to rename `starship.name` to `starshipName` when unnesting, to avoid the duplicate column error:
+Avoid, this error by [using aliases in the query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, a duplicate error was introduced from `emergency_contact { name }`.
+
+The example below is more complex where a query returns a person, their name, and their starships' name. An alias is used to rename `starship.name` to `starshipName` when unnesting, to avoid the duplicate column error:
 ```yaml
 from: graphql:https://localhost
 name: stargazers
