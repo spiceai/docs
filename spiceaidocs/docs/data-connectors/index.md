@@ -14,6 +14,7 @@ Currently supported Data Connectors include:
 | Name            | Description | Status       | Protocol/Format                     | Refresh Modes    | Supports Inserts |
 | --------------- | ----------- | ------------ | ----------------------------------- | ---------------- | ---------------- |
 | `databricks`    | Databricks  | Alpha        | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               |
+| `delta_lake`    | Delta Lake  | Alpha        | Delta Lake                          | `full`           | ❌               |
 | `postgres`      | PostgreSQL  | Alpha        |                                     | `full`           | ❌               |
 | `spiceai`       | Spice.ai    | Alpha        | Arrow Flight                        | `append`, `full` | ✅               |
 | `s3`            | S3          | Alpha        | Parquet, CSV                        | `full`           | ❌               |
