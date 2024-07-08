@@ -267,7 +267,7 @@ sql> select node from stargazers limit 1;
 
 #### Unnesting Duplicate Columns
 
-By default, if no `unnest_duplicate_columns` parameter is specified the Spice Runtime will error when a duplicate column is detected during unnesting.
+By default, the Spice Runtime will error when a duplicate column is detected during unnesting.
 
 For example, this example `spicepod.yml` query would fail due to `name` fields:
 ```yaml
@@ -287,38 +287,22 @@ params:
     }
 ```
 
-The handling behavior of duplicate columns can be adjusted with the `unnest_duplicate_columns` parameter. If not specified, the value defaults to `error`.
+To avoid this error, you should use [use aliases in your query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, we used an alias to induce the duplicate error in our query with `name: email`.
 
-##### Overwriting Duplicate Columns
-
-To overwrite instances of duplicates, set the `unnest_duplicate_columns` parameter to `overwrite`.
-In this mode, unnesting will overwrite the duplicate column with the latest seen column of the same key.
-
-Take the same example `spicepod.yml` query, but with `overwrite` mode:
+The example below is more complex where a query returns a person, their name, and their starships' name. We've used an alias to rename `starship.name` to `starshipName` when unnesting, to avoid the duplicate column error:
 ```yaml
 from: graphql:https://localhost
 name: stargazers
 params:
   unnest_depth: 2
-  unnest_duplicate_columns: overwrite
-  json_path: data.users
+  json_path: data.people
   query: |
     query {
-      users {
+      people {
         name
-        metadata {
-          name: email
+        starship {
+          starshipName: name
         }
       }
     }
-```
-
-An example query response in this mode would look like:
-```bash
-sql> select name from users limit 1;
-+-------------------+
-| name              |
-+-------------------+
-| example@localhost |
-+-------------------+
 ```
