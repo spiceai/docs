@@ -265,6 +265,49 @@ sql> select node from stargazers limit 1;
 +------------------+--------+---------------+
 ```
 
-:::warning[Limitations]
-- Automatic object unnesting will overwrite columns if multiple properties contain the same sub-keys.
-:::
+#### Unnesting Duplicate Columns
+
+By default, the Spice Runtime will error when a duplicate column is detected during unnesting.
+
+For example, this example `spicepod.yml` query would fail due to `name` fields:
+```yaml
+from: graphql:https://localhost
+name: stargazers
+params:
+  unnest_depth: 2
+  json_path: data.users
+  query: |
+    query {
+      users {
+        name
+        emergency_contact {
+          name
+        }
+      }
+    }
+```
+
+This example would fail with a runtime error:
+```bash
+WARN runtime: GraphQL Data Connector Error: Invalid object access. Column 'name' already exists in the object.
+```
+
+Avoid this error by [using aliases in the query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, a duplicate error was introduced from `emergency_contact { name }`.
+
+The example below uses a GraphQL alias to rename `emergency_contact.name` as `emergencyContactName`.
+```yaml
+from: graphql:https://localhost
+name: stargazers
+params:
+  unnest_depth: 2
+  json_path: data.people
+  query: |
+    query {
+      users {
+        name
+        emergency_contact {
+          emergencyContactName: name
+        }
+      }
+    }
+```
