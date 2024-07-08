@@ -292,7 +292,7 @@ This example would fail with a runtime error:
 WARN runtime: GraphQL Data Connector Error: Invalid object access. Column 'name' already exists in the object.
 ```
 
-Avoid, this error by [using aliases in the query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, a duplicate error was introduced from `emergency_contact { name }`.
+Avoid this error by [using aliases in the query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, a duplicate error was introduced from `emergency_contact { name }`.
 
 The example below is more complex where a query returns a person, their name, and their starships' name. An alias is used to rename `starship.name` to `starshipName` when unnesting, to avoid the duplicate column error:
 ```yaml
