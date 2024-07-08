@@ -23,7 +23,7 @@ The MySQL data connector can be configured by providing the following `params`:
 - `mysql_host`: The hostname of the MySQL server.
 - `mysql_tcp_port`: The port of the MySQL server.
 - `mysql_db`: The name of the database to connect to.
-- `mysql_user_key`: The secret key containing the username to connect with.
+- `mysql_user_key`: The name of the secret key containing the MySQL username.
 - `mysql_user`: The username to connect with, ignored if `mysql_user_key` is provided.
 - `mysql_pass_key`: The secret key containing the password to connect with.
 - `mysql_pass`: The raw password to connect with, ignored if `mysql_pass_key` is provided.
