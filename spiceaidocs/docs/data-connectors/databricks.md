@@ -8,7 +8,7 @@ pagination_prev: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) Tables.
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.
 
 ## Configuration
 
@@ -170,7 +170,7 @@ datasets:
     params:
       endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       mode: spark_connect
-      databricks-cluster-id: 1234-567890-abcde123
+      databricks_cluster_id: 1234-567890-abcde123
   # Example for Delta Lake
   - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
     name: my_delta_lake_table
