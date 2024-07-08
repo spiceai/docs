@@ -4,7 +4,7 @@ sidebar_label: 'HuggingFace'
 sidebar_position: 1
 ---
 
-To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` key.
+To use a ML model hosted on HuggingFace, specify the `huggingface.co` path in the `from` key.
 
 ### Example
 
@@ -41,5 +41,5 @@ The `from` key follows the following regex format:
 
 :::warning[Limitations]
 
-- ONNX format support only
+- ML models currently only support ONNX file format.
   :::

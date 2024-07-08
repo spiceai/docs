@@ -1,6 +1,6 @@
 ---
-title: 'Machine Learning'
-sidebar_label: 'Machine Learning'
+title: 'AI Models'
+sidebar_label: 'AI Models'
 description: ''
 sidebar_position: 8
 pagination_prev: null
@@ -8,11 +8,11 @@ pagination_prev: null
 
 :::warning[Early Preview]
 
-Machine Learning (ML) is in preview and is subject to modifications.
+Machine Learning (ML) and Language Models (LM) are in preview and are subject to modifications.
 
 :::
 
-ML models can be defined similarly to [Datasets](../reference/spicepod/datasets.md). The runtime will load the model for inference.
+Models can be defined similarly to [Datasets](../reference/spicepod/datasets.md). The runtime will load the model for inference.
 
 Example:
 
@@ -22,10 +22,10 @@ version: v1beta1
 kind: Spicepod
 
 models:
-  - from: file:/model_path.onnx
-    name: my_model_name
-    datasets:
-      - my_inference_view
+  - from: huggingface:huggingface.co/gpt4:latest
+    name: open_source_gpt
+    params:
+      max_length: "128"
 
 datasets:
   - from: localhost

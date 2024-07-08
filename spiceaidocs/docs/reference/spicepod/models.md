@@ -11,87 +11,103 @@ The model specifications are in early preview and are subject to change.
 
 :::
 
-A Spicepod can contain one or more models referenced by relative path, or defined inline.
+# Models
 
-# `models`
+Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration allows you to specify either type from a variety of sources. The model type is automatically determined based on the model source and files.
 
-Inline example:
 
-`spicepod.yaml`
+## `models`
+
+The `models` section in your configuration allows you to specify one or more models to be used with your datasets.
+
+Example:
+
 ```yaml
 models:
-  - from: spiceai:spice.ai/lukekim/smart/models/drive_stats:latest
-    name: drive_stats
-    datasets:
-      - drive_stats_inferencing
-```
-
-`spicepod.yaml`
-```yaml
-models:
-  - from: huggingface:huggingface.co/spiceai/darts:latest
-    name: drive_stats
+  - from: huggingface:huggingface.co/gpt4:latest
+    name: text_generator
     files:
-      - model.onnx
+      - path: model.safetensors
+        type: weights
+      - path: config.json
+        type: config
+      - path: tokenizer.json
+        type: tokenizer
+    params:
+      max_length: "128"
     datasets:
-      - drive_stats_inferencing
+      - my_text_dataset
 ```
 
-Relative path example:
+### `from`
 
-`spicepod.yaml`
-```yaml
-models:
-  - from: models/drive_stats
-```
-
-`models/drive_stats/model.yaml`
-```yaml
-models:
-  - from: spiceai:spice.ai/lukekim/smart/models/drive_stats:latest
-    name: drive_stats
-    datasets:
-      - drive_stats_inferencing
-```
-
-## `name`
-
-The name of the model. This is used to reference the model in the pod manifest, as well as in external data sources.
-
-## `from`
-
-The `from` field is a string that represents the Uniform Resource Identifier (URI) for the model. This URI is composed of two parts: a prefix indicating the source of the model, and the actual link to the model.
-
-The syntax for the `from` field is as follows:
+The `from` field specifies both the source of the model, and the unique identifier of the model (relative to the source). The `from` value expects the following format
 
 ```yaml
-from: <source>:<link>:<version>
+- from: <model_source>/<model id>
 ```
 
-Where:
+### Model Source
 
-- `<source>`: The source of the model
+The `<model_source>` prefix of the `from` field indicates where the model is sourced from:
 
-  Currently supported sources:
-  - [`spiceai`](/machine-learning/model-deployment/spiceai)
-  - [`huggingface`](/machine-learning/model-deployment/huggingface)
+- `huggingface:huggingface.co` - Models from Hugging Face
+- `file:` - Local file paths
+- `openai` - OpenAI (or compatible) models
+- `spiceai` - Spice AI models
 
-- `<link>`: The actual link to the model.
+### Model ID
 
-- `<version>`: The version of the model. This is optional and if not specified, the latest version of the model will be used.
+The `<model_id>` suffix of the `from` field is a unique (per source) identifier for the model:
 
-## `datasets`
+- For Spice AI: Supports only ML models. Represents the full path to the model in the Spice AI repository. Supports a version suffix (default to `latest`).
+  - Example: `lukekim/smart/models/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`
+- For Hugging Face: A repo_id and, optionally, revision hash or tag.
+    - `Qwen/Qwen1.5-0.5B` (no revision)
+    - `meta-llama/Meta-Llama-3-8B:cd892e8f4da1043d4b01d5ea182a2e8412bf658f` (with revision hash)
+- For local files: Represents the absolute or relative path to the model weights file on the local file system. See [below](#files) for the accepted model weight types and formats. 
+- For OpenAI: Only supports LMs. For OpenAI models, valid IDs can be found in their model [documentation](https://platform.openai.com/docs/models/continuous-model-upgrades). For OpenAI compatible providers, specify the value  required in their `v1/chat/completion` [payload](https://platform.openai.com/docs/api-reference/chat/create#chat-create-model).
 
-An array of dataset names needed for the model.
+### `name`
 
-## `files`
+A unique identifier for this model component.
 
-Only for Huggingface models. List of model files to download from Huggingface.
+### `files`
 
-```yaml
-files:
-  - model.onnx
-  - model.onnx.data
-  ...
-```
+Optional. A list of files associated with this model. Each file has:
 
+- `path`: The path to the file
+- `name`: Optional. A name for the file
+- `type`: Optional. The type of the file (automatically determined if not specified)
+
+File types include:
+- `weights`: Model weights
+  - For ML models: typically `.onnx` files
+  - For LLMs: `.gguf`, `.ggml`, `.safetensors`, or `pytorch_model.bin` files
+  - These files contain the trained parameters of the model
+
+- `config`: Model configuration
+  - Usually a `config.json` file
+  - Contains model architecture and hyperparameters
+
+- `tokenizer`: Tokenizer file
+  - Usually a `tokenizer.json` file
+  - Defines how input text is converted into tokens for the model
+
+- `tokenizer_config`: Tokenizer configuration
+  - Usually a `tokenizer_config.json` file
+  - Contains additional configuration for the tokenizer
+
+The system attempts to automatically determine the file type based on the file name and extension. If the type cannot be determined automatically, you can explicitly specify it in the configuration.
+
+### `params`
+
+Optional. A map of key-value pairs for additional parameters specific to the model.
+
+### `datasets`
+
+Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference. 
+
+### `dependsOn`
+
+Optional. A list of dependencies that must be loaded and available before this model.

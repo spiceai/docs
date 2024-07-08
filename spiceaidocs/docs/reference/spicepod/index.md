@@ -124,10 +124,31 @@ A model defined inline.
 
 ```yaml
 models:
-  - from: spiceai:spice.ai/lukekim/smart/models/drive_stats:latest
+  - from: spiceai/lukekim/smart/models/drive_stats:latest
     name: drive_stats
     datasets:
       - drive_stats_inferencing
+```
+
+## `embeddings`
+
+A Spicepod can contain one or more [embeddings](./embeddings.md) referenced by relative path.
+
+**Example**
+
+An embeddings model referenced by path.
+
+```yaml
+embeddings:
+  - from: embeddings/openai_text_embedding_3
+```
+
+An embedding defined inline.
+
+```yaml
+embeddings:
+  - name: hf_baai_bge
+    from: huggingface:huggingface.co/BAAI/bge-small-en-v1.5
 ```
 
 ## `dependencies`
