@@ -53,7 +53,7 @@ This allows for simple integration into any language or framework
 <Tabs>
 <TabItem value="python" label="Python" default>
 
-````python
+```python
 from typing import Optional
 import requests
 import pandas as pd
