@@ -1,10 +1,10 @@
 ---
-title: 'SDKs'
-sidebar_label: 'SDKs'
-description: 'Connect to spice, using official Spice SDKs'
+title: 'API'
+sidebar_label: 'API'
+sidebar_position: 9
+description: 'API'
 pagination_prev: null
 pagination_next: null
-sidebar_position: 13
 ---
 
 import DocCardList from '@theme/DocCardList';
