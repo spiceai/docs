@@ -49,7 +49,7 @@ And response
 ]
 ```
 
-This allows for simple integrating into any language or framework
+This allows for simple integration into any language or framework
 <Tabs>
 <TabItem value="python" label="Python" default>
 
