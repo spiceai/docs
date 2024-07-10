@@ -1,7 +1,7 @@
 ---
 title: 'Spicepods'
 sidebar_label: 'Spicepods'
-sidebar_position: 2
+sidebar_position: 1
 description: 'An introduction to Spicepods'
 pagination_next: null
 ---
@@ -51,16 +51,16 @@ secrets:
 
 Datasets in a Spicepod can be sourced from various locations, including local files or remote databases. They can be materialized and accelerated using different engines such as DuckDB, SQLite, or PostgreSQL to optimize performance.
 
-Learn more at [Datasets](../reference/spicepod/datasets.md).
+Learn more at [Datasets](/reference/spicepod/datasets.md).
 
 ### Models
 
 ML models are integrated into the Spicepod similarly to datasets. The models can be specified using paths to local files or remote locations. ML inference can be performed using the models and datasets defined within the Spicepod.
 
-Learn more at [Datasets](../reference/spicepod/models.md).
+Learn more at [Datasets](/reference/spicepod/models.md).
 
 ### Secrets
 
 Spice.ai supports various secret stores to manage sensitive information such as API keys or database credentials. Supported secret store types include environment variables, files, AWS Secrets Manager, Kubernetes secrets, and keyrings.
 
-Learn more at [Secret Stores](../secret-stores/index.md)
+Learn more at [Secret Stores](/components/secret-stores/index.md)

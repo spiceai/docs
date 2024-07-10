@@ -11,11 +11,11 @@ pagination_next: null
 
 Spice supports three modes to refresh/update local data from a connected data source. `full` is the default mode.
 
-| Mode      | Description                                          | Example                                                             |
-| --------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
-| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                                    |
-| `append`  | Append/add data to the dataset on each refresh       | Append-only datasets, like time-series or log data                  |
-| `changes` | Apply incremental changes                            | Customer order lifecycle table                                      |
+| Mode      | Description                                          | Example                                            |
+| --------- | ---------------------------------------------------- | -------------------------------------------------- |
+| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                   |
+| `append`  | Append/add data to the dataset on each refresh       | Append-only datasets, like time-series or log data |
+| `changes` | Apply incremental changes                            | Customer order lifecycle table                     |
 
 E.g.
 
@@ -44,7 +44,7 @@ datasets:
 
 ## Changes
 
-Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](../features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../data-connectors/debezium.md).
+Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/components/data-connectors/debezium.md).
 
 ## Filtered Refresh
 
@@ -86,7 +86,7 @@ curl -i -X PATCH \
      127.0.0.1:3000/v1/datasets/accelerated_dataset/acceleration
 ```
 
-For the complete reference, view the `refresh_sql` section of [datasets](../reference/spicepod/datasets.md#accelerationrefresh_sql).
+For the complete reference, view the `refresh_sql` section of [datasets](/reference/spicepod/datasets.md#accelerationrefresh_sql).
 
 :::warning[Limitations]
 
@@ -101,7 +101,7 @@ For the complete reference, view the `refresh_sql` section of [datasets](../refe
 
 Filters data from the federated source outside than the specified window. The only supported window is a lookback starting from `now() - refresh_data_window` to `now()`. This flag is only supported for datasets configured with a `full` refresh mode (the default).
 
-Used in combination with the [`time_column`](../reference/spicepod/datasets.md#time_column) to identify the column that contains the timestamps to filter on. The [`time_format`](../reference/spicepod/datasets.md#time_format) column (optional) can be used to instruct the Spice runtime how to interpret the timestamps in the `time_column`.
+Used in combination with the [`time_column`](/reference/spicepod/datasets.md#time_column) to identify the column that contains the timestamps to filter on. The [`time_format`](/reference/spicepod/datasets.md#time_format) column (optional) can be used to instruct the Spice runtime how to interpret the timestamps in the `time_column`.
 
 Can also be combined with `refresh_sql` to further filter the data based on the temporal dimension.
 
@@ -207,7 +207,7 @@ On-demand refresh always initiates a new refresh, terminating any in-progress re
 
 ## Refresh Retries
 
-By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy. 
+By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.
 
 Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
 

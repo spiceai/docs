@@ -5,7 +5,7 @@ description: 'Debezium Data Connector Documentation'
 pagination_prev: null
 ---
 
-[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../features/cdc/index.md) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
+[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](/features/cdc/index.md) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
 
 ```yaml
 datasets:
@@ -21,7 +21,6 @@ datasets:
       refresh_mode: changes # Optional. If specified, this is required to be set to `changes` - any other value is an error.
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
-
 
 :::warning[Limitations]
 Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. SSL and SASL are not yet supported.
@@ -40,11 +39,12 @@ Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. S
 ### Acceleration Settings
 
 Using the Debezium connector requires acceleration to be enabled. The following settings are required:
+
 - `enabled`: Required. Must be set to `true` to enable acceleration.
 - `engine`: Required. The acceleration engine to use. Possible valid values:
-  - `duckdb`: Use [DuckDB](../data-accelerators/duckdb.md) as the acceleration engine.
-  - `sqlite`: Use [SQLite](../data-accelerators/sqlite.md) as the acceleration engine.
-  - `postgres`: Use [PostgreSQL](../data-accelerators/postgres/index.md) as the acceleration engine.
+  - `duckdb`: Use [DuckDB](/components/data-accelerators/duckdb.md) as the acceleration engine.
+  - `sqlite`: Use [SQLite](/components/data-accelerators/sqlite.md) as the acceleration engine.
+  - `postgres`: Use [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine.
 - `refresh_mode`: Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.
 - `mode`: Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
 

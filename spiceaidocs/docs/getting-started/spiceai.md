@@ -1,28 +1,28 @@
 ---
-title: 'Spice.ai OSS and the Spice.ai Cloud Platform'
-sidebar_label: 'Spice.ai Cloud Platform'
-sidebar_position: 1
-description: 'Connect to the Spice.ai Cloud Platform to access public datasets.'
+title: 'Community Data'
+sidebar_label: 'Community Data'
+sidebar_position: 2
+description: 'Connect to the Spice.ai Cloud Platform to access community datasets.'
 pagination_next: null
 ---
 
-You can use any number of predefined datasets available from the Spice.ai Cloud Platform in the Spice runtime.
+The [Spice.ai Cloud Platform](https://docs.spice.ai) includes a comprehensive set of free, ready-to-query [sample and blockchain datasets](https://docs.spice.ai/building-blocks/datasets).
 
-A list of publically available datasets from Spice.ai can be found here: [https://docs.spice.ai/building-blocks/datasets](https://docs.spice.ai/building-blocks/datasets).
+The Spice runtime can query these datasets using the [Spice.ai Data Connector](/components/data-connectors/spiceai.md).
 
-In order to access public datasets from Spice, you will first need to create an account with Spice.ai by selecting the free tier membership.
+## Quickstart
 
-Navigate to [spice.ai](https://spice.ai/) and create a new account by clicking on Try for Free.
+To access these community datasets, navigate to [spice.ai](https://spice.ai/), and create a new account by clicking Try for Free.
 
 <img width="500" alt="spiceai_try_for_free-1" src="https://github.com/spiceai/spiceai/assets/112157037/27fb47ed-4825-4fa8-94bd-48197406cfaa" />
 
-After creating an account, you will need to create an app in order to create to an API key.
+After logging in, create an app in order to get an API key.
 
 ![create_app-1](https://github.com/spiceai/spiceai/assets/112157037/d2446406-1f06-40fb-8373-1b6d692cb5f7)
 
-You will now be able to access datasets from the Spice.ai Platform. For this quickstart, we will be using the `eth.recent_blocks` dataset.
+This quickstart will use the [`eth.recent_blocks`](https://docs.spice.ai/reference/sql-query-tables/ethereum/core-tables) dataset.
 
-**Step 1.** Log in and authenticate from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
+**Step 1.** Log in to the Spice Cloud Platform from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
 
 ```bash
 spice login

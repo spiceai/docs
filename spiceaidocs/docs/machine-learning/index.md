@@ -12,7 +12,7 @@ Machine Learning (ML) and Language Models (LM) are in preview and are subject to
 
 :::
 
-Models can be defined similarly to [Datasets](../reference/spicepod/datasets.md). The runtime will load the model for inference.
+Models can be defined similarly to [Datasets](/reference/spicepod/datasets.md). The runtime will load the model for inference.
 
 Example:
 
@@ -25,7 +25,7 @@ models:
   - from: huggingface:huggingface.co/gpt4:latest
     name: open_source_gpt
     params:
-      max_length: "128"
+      max_length: '128'
 
 datasets:
   - from: localhost

@@ -14,14 +14,14 @@ Machine learning (ML) models can be loaded from:
 
 Defined in the `spicepod.yml`, a `model` component has the following format.
 
-| field             | Description                                                             |
-| ----------------- | ----------------------------------------------------------------------- |
-| `name`            | Unique, readable name for the model within the Spicepod.                |
-| `from`            | Source-specific address to uniquely identify a model                    |
-| `datasets`        | Datasets that the model depends on for inference                        |
-| `files`           | Specify additional files, or override default files needed by the model |
+| field      | Description                                                             |
+| ---------- | ----------------------------------------------------------------------- |
+| `name`     | Unique, readable name for the model within the Spicepod.                |
+| `from`     | Source-specific address to uniquely identify a model                    |
+| `datasets` | Datasets that the model depends on for inference                        |
+| `files`    | Specify additional files, or override default files needed by the model |
 
-For more detail, refer to the `model` [reference specification](../../reference/spicepod/models.md).
+For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
 
 ## Model Source Docs
 

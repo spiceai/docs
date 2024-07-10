@@ -21,7 +21,7 @@ The DuckDB accelerator can be configured by providing the following `params`:
 
 - `duckdb_file`: The name for the file to back the DuckDB database. If the file does not exist, it will be created. Only applies if `mode` is `file`.
 
-Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](../reference/spicepod/datasets.md).
+Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](/reference/spicepod/datasets.md).
 
 ```yaml
 datasets:
@@ -40,9 +40,5 @@ datasets:
   - Supported:
     - `SELECT [1, 2, 3];`
     - `SELECT ['1992-09-20 11:30:00.123456789', 'epoch'::TIMESTAMP]`
-  - Unsupported:
-    - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]`
-    - `SELECT {'x': 1, 'y': 2, 'z': 3}`
-    - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
-    - `SELECT ['duck', 'goose', 'heron'];`
-:::
+  - Unsupported: - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]` - `SELECT {'x': 1, 'y': 2, 'z': 3}` - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])` - `SELECT ['duck', 'goose', 'heron'];`
+    :::

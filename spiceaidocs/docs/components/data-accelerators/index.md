@@ -2,7 +2,7 @@
 title: 'Data Accelerators'
 sidebar_label: 'Data Accelerators'
 description: ''
-sidebar_position: 5
+sidebar_position: 1
 pagination_prev: null
 pagination_next: null
 ---
@@ -20,7 +20,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](../reference/spicepod/datasets.md).
+For the complete reference specification see [datasets](/reference/spicepod/datasets.md).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -37,7 +37,7 @@ Supported Data Accelerators include:
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../reference/datatypes.md).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](/reference/datatypes.md).
 
 ## Data Accelerator Docs
 
