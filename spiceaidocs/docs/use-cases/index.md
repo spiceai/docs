@@ -13,10 +13,10 @@ pagination_next: null
 
 Colocate a local working set of hot data with data applications and frontends to serve more concurrent requests and users with faster page loads and data updates.
 
-- ✅ Low-latency queries for faster page loads.
-- ✅ High-concurrency queries to serve more users.
-- ✅ Control over resource allocation, performance, and scale.
-- ✅ Local replicas for high resiliency.
+✅ Low-latency queries for faster page loads.
+✅ High-concurrency queries to serve more users.
+✅ Control over resource allocation, performance, and scale.
+✅ Local replicas for high resiliency.
 
 [Try the CQRS sample app](https://github.com/spiceai/samples/tree/trunk/acceleration#local-materialization-and-acceleration-cqrs-sample)
 
@@ -24,15 +24,15 @@ Colocate a local working set of hot data with data applications and frontends to
 
 Keep local replicas of data with the application for significantly higher application resilience and availability.
 
-- ✅ Local replicas for high resiliency.
+✅ Local replicas for high resiliency.
 
 ### Slow dashboards, analytics, and BI
 
 Create a materialization layer for visualization products like Power BI, Tableau, or Superset for faster, more responsive dashboards without massive compute costs.
 
-- ✅ Low-latency queries for faster dashboards.
-- ✅ High-concurrency queries to serve more users.
-- ✅ Control over resource allocation, performance, and scale.
+✅ Low-latency queries for faster dashboards.
+✅ High-concurrency queries to serve more users.
+✅ Control over resource allocation, performance, and scale.
 
 [Watch the Apache Superset demo](https://github.com/spiceai/samples/blob/trunk/sales-bi/README.md)
 
@@ -40,9 +40,9 @@ Create a materialization layer for visualization products like Power BI, Tableau
 
 ### Accessing data across many, disparate data sources
 
-- ✅ Query and join data from disparate data sources.
-- ✅ Minimize data migrations.
-- ✅ High-performance queries to legacy data sources.
+✅ Query and join data from disparate data sources.
+✅ Minimize data migrations.
+✅ High-performance queries to legacy data sources.
 
 [Federated SQL query](/features/federated-queries) across databases, data warehouses, and data lakes using [Data Connectors](/data-connectors).
 
@@ -50,8 +50,8 @@ Create a materialization layer for visualization products like Power BI, Tableau
 
 A drop-in solution to provides a single, unified endpoint to many data systems without changes to the application.
 
-- ✅ Query and join data from disparate data sources.
-- ✅ High-performance queries to legacy data sources.
+✅ Query and join data from disparate data sources.
+✅ High-performance queries to legacy data sources.
 
 ## Spice as a CDN for ML Models and AI
 
@@ -59,8 +59,8 @@ A drop-in solution to provides a single, unified endpoint to many data systems w
 
 Co-locate datasets in pipelines where the data is needed to minimize data-movement and improve query performance.
 
-- ✅ Low-latency queries for fast inference.
-- ✅ High-performance queries for faster training.
+✅ Low-latency queries for fast inference.
+✅ High-performance queries for faster training.
 
 [Predict hard drive failure with the SMART data demo](https://github.com/spiceai/demos/tree/trunk/smart-demo#spiceai-smart-demo)
 
@@ -72,5 +72,5 @@ Enterprises face a new challenge when using AI. They now need to access data fro
 
 Spice is a blazingly fast knowledge index into structured and unstructured data.
 
-- ✅ Query and join data from disparate data sources.
-- ✅ High-performance queries to legacy data sources.
+✅ Query and join data from disparate data sources.
+✅ High-performance queries to legacy data sources.
