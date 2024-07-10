@@ -11,14 +11,14 @@ Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spic
 
 ## `params`
 
-- `endpoint`: The Apache Flight endpoint used to connect to the Flight SQL server. 
+- `endpoint`: The Apache Flight endpoint used to connect to the Flight SQL server.
 
 ## Auth
 
 Username and password credentials can be specified to connect to the Flight SQL server:
 
-- `username` (optional): The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)). 
-- `password` (optional): The password to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)). 
+- `username` (optional): The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).
+- `password` (optional): The password to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).
 
 By default Flight SQL connector will look for a secret named `flightsql` with keys `username` and `password`.
 
@@ -40,11 +40,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: env
-    
+
     # <...>
     ```
 
-    Learn more about [Env Secret Store](/secret-stores/env).
+    Learn more about [Env Secret Store](/components/secret-stores/env).
+
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
     ```bash
@@ -61,11 +62,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: kubernetes
-    
+
     # <...>
     ```
 
-    Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
+
   </TabItem>
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
@@ -84,11 +86,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: keyring
-    
+
     # <...>
     ```
 
-    Learn more about [Keyring Secret Store](/secret-stores/keyring).
+    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
+
   </TabItem>
 </Tabs>
 
@@ -98,5 +101,5 @@ Check [Secrets Stores](/secret-stores) for more details.
 - from: flightsql:my_catalog.good_schemas.cool_dataset
   name: cool_dataset
   params:
-    endpoint: http://127.0.0.1:50051 
+    endpoint: http://127.0.0.1:50051
 ```

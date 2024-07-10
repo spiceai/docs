@@ -14,7 +14,7 @@ The Snowflake Data Connector enables federated SQL queries across datasets in th
 datasets:
   - from: snowflake:DATABASE.SCHEMA.TABLE
     name: table
-    params: 
+    params:
       snowflake_warehouse: COMPUTE_WH
       snowflake_role: accountadmin
 ```
@@ -24,6 +24,7 @@ Unquoted table identifiers should be UPPERCASED in the `from` field. See [Identi
 :::
 
 ### Parameters
+
 - `from`: a Snowflake fully qualified table name (database.schema.table). For instance `snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM` or `snowflake:TAXI_DATA."2024".TAXI_TRIPS`
 - `snowflake_warehouse`: optional, specifies the [Snowflake Warehouse](https://docs.snowflake.com/en/user-guide/warehouses-tasks) to use
 - `snowflake_role`: optional, specifies the role to use for accessing Snowflake data
@@ -45,7 +46,8 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
     ```
 
-    Learn more about [File Secret Store](/secret-stores/file).
+    Learn more about [File Secret Store](/components/secret-stores/file).
+
   </TabItem>
   <TabItem value="env" label="Env">
     Password-based
@@ -72,11 +74,12 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     secrets:
       store: env
-    
+
     # <...>
     ```
 
-    Learn more about [Env Secret Store](/secret-stores/env).
+    Learn more about [Env Secret Store](/components/secret-stores/env).
+
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
     Password-based
@@ -103,11 +106,12 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     secrets:
       store: kubernetes
-    
+
     # <...>
     ```
 
-    Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
+
   </TabItem>
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
@@ -133,11 +137,12 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     secrets:
       store: keyring
-    
+
     # <...>
     ```
 
-    Learn more about [Keyring Secret Store](/secret-stores/keyring).
+    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
+
   </TabItem>
 </Tabs>
 
@@ -147,12 +152,13 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 datasets:
   - from: snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM
     name: lineitem
-    params: 
+    params:
       snowflake_warehouse: COMPUTE_WH
       snowflake_role: accountadmin
 ```
 
 :::warning[Limitations]
+
 1. Account identifier does not support the [Legacy account locator in a region format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-2-legacy-account-locator-in-a-region). Use [Snowflake preferred name in organization format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-1-preferred-account-name-in-your-organization).
 1. The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication.
-:::
+   :::

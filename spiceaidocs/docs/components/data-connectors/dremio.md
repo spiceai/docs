@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 
 [Dremio](https://www.dremio.com/) server as a connector for federated SQL queries.
 
-By default Dremio connector will look for a secret named `dremio` with 
+By default Dremio connector will look for a secret named `dremio` with
 
 ## `params`
 
@@ -28,7 +28,8 @@ Check [Secrets Stores](/secret-stores) for more details.
     spice login dremio -u demo -p demo1234
     ```
 
-    Learn more about [File Secret Store](/secret-stores/file).
+    Learn more about [File Secret Store](/components/secret-stores/file).
+
   </TabItem>
   <TabItem value="env" label="Env">
     ```bash
@@ -45,11 +46,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: env
-    
+
     # <...>
     ```
 
-    Learn more about [Env Secret Store](/secret-stores/env).
+    Learn more about [Env Secret Store](/components/secret-stores/env).
+
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
     ```bash
@@ -66,11 +68,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: kubernetes
-    
+
     # <...>
     ```
 
-    Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
+
   </TabItem>
   <TabItem value="keyring" label="Keyring">
     Add new keychain entry (macOS), with user and password in JSON string
@@ -89,11 +92,12 @@ Check [Secrets Stores](/secret-stores) for more details.
 
     secrets:
       store: keyring
-    
+
     # <...>
     ```
 
-    Learn more about [Keyring Secret Store](/secret-stores/keyring).
+    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
+
   </TabItem>
 </Tabs>
 

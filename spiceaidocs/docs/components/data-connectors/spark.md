@@ -30,7 +30,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     spice login spark --spark_remote <spark-remote>
     ```
 
-    Learn more about [File Secret Store](/secret-stores/file).
+    Learn more about [File Secret Store](/components/secret-stores/file).
 
   </TabItem>
   <TabItem value="env" label="Env">
@@ -51,7 +51,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     # <...>
     ```
 
-    Learn more about [Env Secret Store](/secret-stores/env).
+    Learn more about [Env Secret Store](/components/secret-stores/env).
 
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
@@ -72,7 +72,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     # <...>
     ```
 
-    Learn more about [Kubernetes Secret Store](/secret-stores/kubernetes).
+    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
 
   </TabItem>
   <TabItem value="keyring" label="Keyring">
@@ -96,7 +96,7 @@ Check [Secrets Stores](/secret-stores) for more details.
     # <...>
     ```
 
-    Learn more about [Keyring Secret Store](/secret-stores/keyring).
+    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
 
   </TabItem>
 </Tabs>
