@@ -54,7 +54,7 @@ datasets:
 
 Object store credentials are required to access non-public Delta Lake tables.
 
-Check [Secrets Stores](/secret-stores) for more details.
+Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="local" label="Local" default>

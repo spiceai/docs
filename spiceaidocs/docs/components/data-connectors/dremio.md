@@ -20,7 +20,7 @@ By default Dremio connector will look for a secret named `dremio` with
 Username and password credentials are required to log into the Dremio Server.
 By default Dremio connector will look for a secret named `dremio` with keys `username` and `password`.
 
-Check [Secrets Stores](/secret-stores) for more details.
+Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="local" label="Local" default>

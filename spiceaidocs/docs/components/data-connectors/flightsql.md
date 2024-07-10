@@ -22,7 +22,7 @@ Username and password credentials can be specified to connect to the Flight SQL 
 
 By default Flight SQL connector will look for a secret named `flightsql` with keys `username` and `password`.
 
-Check [Secrets Stores](/secret-stores) for more details.
+Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="env" label="Env">

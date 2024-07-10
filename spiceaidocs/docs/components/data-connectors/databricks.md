@@ -81,7 +81,7 @@ An active personal access token for the Databricks instance is required (equival
 
 By default the Databricks connector will look for a secret named `databricks` with keys `token`.
 
-Check [Secrets Stores](/secret-stores) for more details.
+Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="local" label="Local" default>

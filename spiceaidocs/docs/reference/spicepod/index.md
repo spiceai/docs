@@ -25,7 +25,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/components/secret-stores).
 
 ### `secrets.store`
 
@@ -58,7 +58,7 @@ runtime:
   results_cache:
     enabled: true
     cache_max_size: 128MiB
-    eviction_policy: lru 
+    eviction_policy: lru
     item_ttl: 1s
 ```
 

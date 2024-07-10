@@ -22,7 +22,7 @@ The Apache Spark Connector can be used in two ways: specifying a plaintext conne
 
 Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use a secret named `spark` with key `spark_remote`.
 
-Check [Secrets Stores](/secret-stores) for more details.
+Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="local" label="Local" default>
