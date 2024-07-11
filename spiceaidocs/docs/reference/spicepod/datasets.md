@@ -106,9 +106,13 @@ Required to enable a retention policy on the dataset.
 ## `time_format`
 
 Optional. The format of the `time_column`. The following values are supported:
-- `unix_seconds` - Default. Unix timestamp in seconds.
+- `timestamp` - Default. Timestamp without a timezone.
+- `timestamptz` - Timestamp with a timezone.
+- `unix_seconds` - Unix timestamp in seconds.
 - `unix_millis` - Unix timestamp in milliseconds.
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+
+Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
 
 :::warning[Limitations]
 - String-based columns are assumed to be ISO8601 format.
