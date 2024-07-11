@@ -9,9 +9,10 @@ pagination_next: null
 
 Spice provides a powerful federated query feature that allows you to join and combine data from multiple data sources and perform complex queries. This feature enables you to leverage the full potential of your data by aggregating and analyzing information wherever it is stored.
 
-Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data warehouses (Databricks, Snowflake, BigQuery, etc.), and data lakes (S3, MinIO, etc.). See [Data Connectors](/data-connectors/index.md) for the full list of supported sources.
+Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data warehouses (Databricks, Snowflake, BigQuery, etc.), and data lakes (S3, MinIO, etc.). See [Data Connectors](/components/data-connectors/index.md) for the full list of supported sources.
 
 ### Getting Started
+
 To get started with federated queries using Spice, follow these steps:
 
 **Step 1.** Install Spice by following the [installation instructions](/getting-started/index.md).
@@ -178,9 +179,10 @@ make clean
 
 While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/data-accelerators/index.md), resulting in significant performance gains.
+To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/components/data-accelerators/index.md), resulting in significant performance gains.
 
 :::warning[Limitations]
+
 - **Query Performance:** Without acceleration, federated queries will be slower than local queries due to network latency and data transfer.
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
 :::

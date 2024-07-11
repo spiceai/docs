@@ -1,5 +1,5 @@
 ---
-title: 'Arrow Flight SQL'
+title: 'Arrow Flight SQL API'
 sidebar_label: 'Arrow Flight SQL'
 sidebar_position: 2
 description: 'Query Spice using JDBC/ODBC/ADBC'

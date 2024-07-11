@@ -1,7 +1,8 @@
 ---
-title: 'HTTP API'
-sidebar_label: 'HTTP'
-description: ''
+title: 'Runtime Components'
+sidebar_label: 'Components'
+sidebar_position: 5
+description: Runtime components'
 pagination_prev: null
 pagination_next: null
 ---
