@@ -23,7 +23,7 @@ When configuring datasets to be accelerated with CDC, ensure that the data conne
 
 Startup time for CDC-accelerated datasets may be longer than non-CDC-accelerated datasets due to the initial synchronization of the dataset.
 
-It's recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e. `file` mode for [`DuckDB`](/components/data-accelerators/duckdb.md)/[`Sqlite`](/components/data-accelerators/duckdb.md) or [`PostgreSQL`](/components/data-accelerators/postgres/index.md)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+It's recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e. `file` mode for [`DuckDB`](/components/data-accelerators/duckdb.md)/[`SQLite`](/components/data-accelerators/sqlite.md) or [`PostgreSQL`](/components/data-accelerators/postgres/index.md)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
 
 ## Supported Data Connectors
 
