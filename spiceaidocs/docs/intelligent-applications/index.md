@@ -1,7 +1,7 @@
 ---
 title: 'Intelligent Applications'
 sidebar_label: 'Intelligent Applications'
-sidebar_position: 13
+sidebar_position: 25
 description: 'Building intelligent data and AI-driven applications with Spice.ai'
 pagination_prev: null
 pagination_next: null

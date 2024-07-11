@@ -4,7 +4,7 @@ sidebar_label: 'Spice Cloud Platform'
 sidebar_position: 2
 ---
 
-To use a model hosted on the Spice Cloud Platform, specify the `spice.ai` path in the `from` key.
+To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in `from`.
 
 Example:
 
@@ -16,7 +16,7 @@ models:
       - drive_stats_inferencing
 ```
 
-Specific versions can be used by refencing a version label or Training Run ID.
+Specific model versions can be referenced using a version label or Training Run ID.
 
 ```yaml
 models:
@@ -31,7 +31,7 @@ models:
       - drive_stats_inferencing
 ```
 
-### `from` Format
+## `from` Format
 
 The from key must conform to the following regex format:
 

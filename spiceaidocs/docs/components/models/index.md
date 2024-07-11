@@ -1,16 +1,14 @@
 ---
-title: 'ML Model Deployment'
-sidebar_label: 'ML Model Deployment'
+title: 'AI/ML Models'
+sidebar_label: 'AI/ML Models'
 description: ''
-sidebar_position: 1
-pagination_next: 'machine-learning/inference/index'
 ---
 
-Machine learning (ML) models can be loaded from:
+Machine Learning (ML) models can be deployed and loaded from the following sources.
 
 - **Filesystem**: [ONNX](https://onnx.ai) models.
 - **HuggingFace**: ONNX models hosted on [HuggingFace](https://huggingface.co).
-- **Spice Cloud Platform**: Models hosted on the [Spice Cloud Platform](https://docs.spice.ai)
+- **Spice Cloud Platform**: Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models).
 
 Defined in the `spicepod.yml`, a `model` component has the following format.
 
@@ -23,7 +21,7 @@ Defined in the `spicepod.yml`, a `model` component has the following format.
 
 For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
 
-## Model Source Docs
+## Model Sources
 
 import DocCardList from '@theme/DocCardList';
 
