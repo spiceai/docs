@@ -51,10 +51,50 @@ Examples
         The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert`:
 
     :::danger[Invalid]
-    `yaml
-    datasets:
+      ```yaml
+      datasets:
 
-    - from: spice.ai/eth.recent_blocks
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        acceleration:
+        enabled: true
+        engine: sqlite
+        primary_key: hash
+        indexes:
+        "(number, timestamp)": unique
+        on_conflict:
+        hash: upsert
+        "(number, timestamp)": upsert
+      ```
+    :::
+
+          The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
+
+    :::tip[Valid]
+      ```yaml
+      datasets:
+
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        acceleration:
+        enabled: true
+        engine: sqlite
+        primary_key: hash
+        indexes:
+        "(number, timestamp)": unique
+        on_conflict:
+        hash: drop
+        "(number, timestamp)": drop
+      ```
+    :::
+
+          The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
+
+    :::danger[Invalid]
+      ```yaml
+      datasets:
+
+      - from: spice.ai/eth.recent_blocks
       name: eth.recent_blocks
       acceleration:
       enabled: true
@@ -64,48 +104,8 @@ Examples
       "(number, timestamp)": unique
       on_conflict:
       hash: upsert
-      "(number, timestamp)": upsert
-      `
-    :::
-
-          The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
-
-    :::tip[Valid]
-    `yaml
-    datasets:
-
-    - from: spice.ai/eth.recent_blocks
-      name: eth.recent_blocks
-      acceleration:
-      enabled: true
-      engine: sqlite
-      primary_key: hash
-      indexes:
-      "(number, timestamp)": unique
-      on_conflict:
-      hash: drop
       "(number, timestamp)": drop
-      `
-    :::
-
-          The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
-
-    :::danger[Invalid]
-    `yaml
-    datasets:
-
-    - from: spice.ai/eth.recent_blocks
-    name: eth.recent_blocks
-    acceleration:
-    enabled: true
-    engine: sqlite
-    primary_key: hash
-    indexes:
-    "(number, timestamp)": unique
-    on_conflict:
-    hash: upsert
-    "(number, timestamp)": drop
-    `
+      ```
     :::
 
       </div>
