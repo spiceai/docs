@@ -66,7 +66,7 @@ Examples
       hash: upsert
       "(number, timestamp)": upsert
       `
-      :::
+    :::
 
           The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
 
@@ -86,7 +86,7 @@ Examples
       hash: drop
       "(number, timestamp)": drop
       `
-      :::
+    :::
 
           The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
 
