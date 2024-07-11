@@ -18,7 +18,7 @@ Spice connects, fuses, and delivers data to applications, machine-learning model
 
 The Spice runtime, written in Rust, is built-with industry leading technologies such as [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Apache Arrow Flight, SQLite, and DuckDB.
 
-<ThemeBasedImage width="900" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/f71f227d-d7cd-418c-85b9-5c663a728491" darkSrc="https://github.com/spiceai/spiceai/assets/80174/96b5fcef-a550-4ce8-a74a-83931275e83e" />
+<ThemeBasedImage width="600" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" darkSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" />
 
 ## Why Spice?
 
