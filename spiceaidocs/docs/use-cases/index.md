@@ -44,7 +44,7 @@ Create a materialization layer for visualization products like Power BI, Tableau
 ✅ Minimize data migrations.
 ✅ High-performance queries to legacy data sources.
 
-[Federated SQL query](/features/federated-queries) across databases, data warehouses, and data lakes using [Data Connectors](/data-connectors).
+[Federated SQL query](/features/federated-queries) across databases, data warehouses, and data lakes using [Data Connectors](/components/data-connectors).
 
 ### Migrations from legacy data systems
 
