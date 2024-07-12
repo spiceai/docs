@@ -76,22 +76,48 @@ Where:
 
   Currently supported data connectors:
 
-  - [`spiceai`](../../data-connectors/spiceai.md)
-  - [`dremio`](../../data-connectors/dremio.md)
-  - [`spark`](../../data-connectors/spark.md)
-  - [`databricks`](../../data-connectors/databricks.md)
-  - [`s3`](../../data-connectors/s3.md)
-  - [`postgres`](../../data-connectors/postgres/index.md)
-  - [`mysql`](../../data-connectors/mysql.md)
-  - [`flightsql`](../../data-connectors/flightsql.md)
-  - [`snowflake`](../../data-connectors/snowflake.md)
-  - [`ftp`, `sftp`](../../data-connectors/ftp.md)
-  - [`clickhouse`](../../data-connectors/clickhouse.md)
-  - [`graphql`](../../data-connectors/graphql.md)
+  - [`spiceai`](/components/data-connectors/spiceai.md)
+  - [`dremio`](/components/data-connectors/dremio.md)
+  - [`spark`](/components/data-connectors/spark.md)
+  - [`databricks`](/components/data-connectors/databricks.md)
+  - [`s3`](/components/data-connectors/s3.md)
+  - [`postgres`](/components/data-connectors/postgres/index.md)
+  - [`mysql`](/components/data-connectors/mysql.md)
+  - [`flightsql`](/components/data-connectors/flightsql.md)
+  - [`snowflake`](/components/data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](/components/data-connectors/ftp.md)
+  - [`http`, `https`](/components/data-connectors/https.md)
+  - [`clickhouse`](/components/data-connectors/clickhouse.md)
+  - [`graphql`](/components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
 - `<path>`: The path to the dataset within the source.
+
+## `ref`
+
+An alternative to adding the dataset definition inline in the `spicepod.yaml` file. `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file. For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
+
+**dataset.yaml**
+
+```yaml
+from: spice.ai/eth.recent_transactions
+name: eth_recent_transactions
+type: overwrite
+acceleration:
+  enabled: true
+  refresh: 1h
+```
+
+**ref used in spicepod.yaml**
+
+```yaml
+version: v1beta1
+kind: Spicepod
+name: duckdb
+datasets:
+  - ref: datasets/sample
+```
 
 ## `name`
 
@@ -115,6 +141,7 @@ Optional. The format of the `time_column`. The following values are supported:
 Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
 
 :::warning[Limitations]
+
 - String-based columns are assumed to be ISO8601 format.
 :::
 
@@ -131,9 +158,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](../../data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](../../data-accelerators/sqlite.md) - Accelerated by an embedded Sqlite database.
+- [`duckdb`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`
 
@@ -149,11 +176,11 @@ Optional. The mode of acceleration. The following values are supported:
 Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
-- `append` - Append new data to the dataset.
+- `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 
 ## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. Only supported for `full` refresh_mode datasets. For `append` datasets, the refresh check interval not used.
+Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used.
 
 See [Duration](../duration/index.md)
 
@@ -164,6 +191,7 @@ Optional. Filters the data fetched from the source to be stored in the accelerat
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
 :::warning[Limitations]
+
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
@@ -176,6 +204,26 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
 See [Duration](../duration/index.md)
+
+## `acceleration.refresh_append_overlap`
+
+Optional. A duration to specify how far back to include records based on the most recent timestamp found in the accelerated data. Requires `time_column` to also be configured. Only supported for `append` refresh mode datasets.
+
+This setting can help mitigate missing data issues caused by late arriving data.
+
+Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.refresh_retry_enabled`
+
+Optional. Specifies whether an accelerated dataset should retry data refresh in the event of transient errors. The default setting is true.
+
+Retries utilize a [Fibonacci backoff strategy](https://en.wikipedia.org/wiki/Fibonacci_sequence). To disable refresh retries, set `refresh_retry_enabled: false`.
+
+## `acceleration.refresh_retry_max_attempts`
+
+Optional. Defines the maximum number of retry attempts when refresh retries are enabled. The default is undefined, allowing for unlimited attempts.
 
 ## `acceleration.params`
 
@@ -204,3 +252,76 @@ Optional. How often the retention policy should be checked.
 Required when `acceleration.retention_check_enabled` is `true`.
 
 See [Duration](../duration/index.md)
+
+## `acceleration.indexes`
+
+Optional. Specify which indexes should be applied to the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+
+The `indexes` field is a map where the key is the column reference and the value is the index type.
+
+A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+See [Indexes](../../features/local-acceleration/indexes.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      indexes:
+        number: enabled # Index the `number` column
+        '(hash, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
+```
+
+## `acceleration.primary_key`
+
+Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+See [Constraints](../../features/local-acceleration/constraints.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash # Define a primary key on the `hash` column
+```
+
+## `acceleration.on_conflict`
+
+Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
+
+The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
+
+A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
+
+The possible conflict resolution strategies are:
+
+- `upsert` - Upsert the incoming data when the primary key constraint is violated.
+- `drop` - Drop the data when the primary key constraint is violated.
+
+See [Constraints](../../features/local-acceleration/constraints.md)
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash
+      indexes:
+        '(number, timestamp)': unique
+      on_conflict:
+        # Upsert the incoming data when the primary key constraint on "hash" is violated,
+        # alternatively "drop" can be used instead of "upsert" to drop the data update.
+        hash: upsert
+```

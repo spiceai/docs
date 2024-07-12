@@ -57,7 +57,7 @@ const config: Config = {
     // image: 'img/docusaurus-social-card.jpg',
     announcementBar: {
       content:
-        '<a href="https://github.com/spiceai/spiceai/releases/tag/v0.14.0-alpha">Spice.ai OSS v0.14.0-alpha</a> is now available! 🚀',
+        '<a href="https://github.com/spiceai/spiceai/releases/tag/v0.15.1-alpha">Spice.ai OSS v0.15.1-alpha</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true,
@@ -141,7 +141,7 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
-      additionalLanguages: ['bash', 'json'],
+      additionalLanguages: ['bash', 'json', 'csharp'],
     },
     algolia: {
       appId: '0SP8I8JTL8',

@@ -25,7 +25,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/components/secret-stores).
 
 ### `secrets.store`
 
@@ -43,7 +43,11 @@ secrets:
   store: env
 ```
 
-## `runtime` 
+## `runtime`
+
+### `num_of_parallel_loading_at_start_up`
+
+This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup. This parallel loading capability accelerates Spice's startup process when multiple datasets are configured.
 
 ### `results_cache`
 
@@ -54,7 +58,7 @@ runtime:
   results_cache:
     enabled: true
     cache_max_size: 128MiB
-    eviction_policy: lru 
+    eviction_policy: lru
     item_ttl: 1s
 ```
 
@@ -120,10 +124,31 @@ A model defined inline.
 
 ```yaml
 models:
-  - from: spiceai:spice.ai/lukekim/smart/models/drive_stats:latest
+  - from: spiceai/lukekim/smart/models/drive_stats:latest
     name: drive_stats
     datasets:
       - drive_stats_inferencing
+```
+
+## `embeddings`
+
+A Spicepod can contain one or more [embeddings](./embeddings.md) referenced by relative path.
+
+**Example**
+
+An embeddings model referenced by path.
+
+```yaml
+embeddings:
+  - from: embeddings/openai_text_embedding_3
+```
+
+An embedding defined inline.
+
+```yaml
+embeddings:
+  - name: hf_baai_bge
+    from: huggingface:huggingface.co/BAAI/bge-small-en-v1.5
 ```
 
 ## `dependencies`
