@@ -15,17 +15,17 @@ Spice supports ADBC clients using the [FlightSQL driver](https://arrow.apache.or
 
 Get started with ADBC using Python.
 
-### Start a Python environment
+### Installation
+
+Start Python Envionment.
 
 ```shell
 python
 ```
 
-### Installation
-
 Install the ADBC driver manager, FlightSQL driver, and PyArrow.
 
-```shell
+```python
 pip install adbc_driver_manager adbc_driver_flightsql pyarrow
 ```
 
