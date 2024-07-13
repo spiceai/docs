@@ -197,7 +197,7 @@ SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
 
 ## HAVING clause
 
-The HAVING clause can be used with `GROUP BY` to eliminate groups that don't satisfy the condition given.
+The `HAVING` clause can be used with `GROUP BY` to eliminate groups that don't satisfy the condition given.
 
 Example:
 
