@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 
 Spice supports SQL queries directly from HTTP requests.
 
-An example CuRL:
+An example cURL:
 
 ```shell
 curl -XPOST "127.0.0.1:3000/v1/sql" \
