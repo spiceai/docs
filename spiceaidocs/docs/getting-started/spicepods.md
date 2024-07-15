@@ -57,7 +57,7 @@ Learn more at [Datasets](/reference/spicepod/datasets.md).
 
 ML models are integrated into the Spicepod similarly to datasets. The models can be specified using paths to local files or remote locations. ML inference can be performed using the models and datasets defined within the Spicepod.
 
-Learn more at [Datasets](/reference/spicepod/models.md).
+Learn more at [Models](/reference/spicepod/models.md).
 
 ### Secrets
 
