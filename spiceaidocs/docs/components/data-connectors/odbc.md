@@ -16,6 +16,14 @@ datasets:
       odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
 ```
 
+:::info
+
+The Spice Runtime combines queries with `JOIN`s to multiple ODBC datasets that share the same `odbc_connection_string`. This allows the runtime to execute queries with multiple joins directly on the ODBC connection, instead of performing a full table scan and joining on the local runtime client.
+
+To take advantage of this, ensure the ODBC connection string is the same for the same datbase/connection.
+
+:::
+
 ## Configuration
 
 In addition to the connection string, the following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:
