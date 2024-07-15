@@ -180,7 +180,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 ## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used.
+Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See [Duration](../duration/index.md)
 
