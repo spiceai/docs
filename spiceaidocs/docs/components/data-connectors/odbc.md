@@ -18,9 +18,7 @@ datasets:
 
 :::info
 
-The Spice Runtime combines queries with `JOIN`s to multiple ODBC datasets that share the same `odbc_connection_string`. This allows the runtime to execute queries with multiple joins directly on the ODBC connection, instead of performing a full table scan and joining on the local runtime client.
-
-To take advantage of this, ensure the ODBC connection string is the same for the same datbase/connection.
+For the best `JOIN` performance, ensure all ODBC datasets from the same database are configured with the exact same `odbc_connection_string` in Spice.
 
 :::
 
