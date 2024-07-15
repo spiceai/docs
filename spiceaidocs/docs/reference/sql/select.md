@@ -6,7 +6,9 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
+:::info
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+:::
 
 ## SELECT syntax
 
