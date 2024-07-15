@@ -6,11 +6,12 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-# SELECT syntax
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+
+## SELECT syntax
 
 The queries in Spice scan data from tables and return 0 or more rows.
-Please be aware that column names in queries are made lower-case, but not on the inferred schema. Accordingly, if you
-want to query against a capitalized field, make sure to use double quotes.
+Please be aware that column names in queries are made lower-case, but not on the inferred schema. Accordingly, if you want to query against a capitalized field, make sure to use double quotes.
 
 Spice supports the following syntax for queries:
 
@@ -26,7 +27,7 @@ Spice supports the following syntax for queries:
 [ [LIMIT](#limit-clause) count ]  
 [ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]  
 
-## WITH clause
+### WITH clause
 
 A with clause allows to give names for queries and reference them by name.
 
@@ -35,7 +36,7 @@ WITH x AS (SELECT a, MAX(b) AS b FROM t GROUP BY a)
 SELECT a, b FROM x;
 ```
 
-## SELECT clause
+### SELECT clause
 
 The `SELECT` clause is used to select data from a database by defining the colummns it returns.  Each `select_expr` in the
  SELECT list can be an expression or wildcards.
@@ -53,7 +54,7 @@ By default `ALL` will be used, which returns all the rows.
 SELECT DISTINCT person, age FROM employees
 ```
 
-## FROM clause
+### FROM clause
 
 The `FROM` clause is used to specify which table to select data from.
 
@@ -63,7 +64,7 @@ Example:
 SELECT t.a FROM table AS t
 ```
 
-## WHERE clause
+### WHERE clause
 
 The `WHERE` clause is used define the conditions to filter the query results.  
 
@@ -73,7 +74,7 @@ Example:
 SELECT a FROM table WHERE a > 10
 ```
 
-## JOIN clause
+### JOIN clause
 
 Spice supports `INNER JOIN`, `LEFT OUTER JOIN`, `RIGHT OUTER JOIN`, `FULL OUTER JOIN`, `NATURAL JOIN` and `CROSS JOIN`.
 
@@ -88,7 +89,7 @@ select * from x;
 +----------+----------+
 ```
 
-### INNER JOIN
+#### INNER JOIN
 
 The keywords `JOIN` or `INNER JOIN` define a join that only shows rows where there is a match in both tables.
 
@@ -101,7 +102,7 @@ select * from x inner join x y ON x.column_1 = y.column_1;
 +----------+----------+----------+----------+
 ```
 
-### LEFT OUTER JOIN
+#### LEFT OUTER JOIN
 
 The keywords `LEFT JOIN` or `LEFT OUTER JOIN` define a join that includes all rows from the left table even if there
 is not a match in the right table. When there is no match, null values are produced for the right side of the join.
@@ -115,7 +116,7 @@ select * from x left join x y ON x.column_1 = y.column_2;
 +----------+----------+----------+----------+
 ```
 
-### RIGHT OUTER JOIN
+#### RIGHT OUTER JOIN
 
 The keywords `RIGHT JOIN` or `RIGHT OUTER JOIN` define a join that includes all rows from the right table even if there
 is not a match in the left table. When there is no match, null values are produced for the left side of the join.
@@ -129,7 +130,7 @@ select * from x right join x y ON x.column_1 = y.column_2;
 +----------+----------+----------+----------+
 ```
 
-### FULL OUTER JOIN
+#### FULL OUTER JOIN
 
 The keywords `FULL JOIN` or `FULL OUTER JOIN` define a join that is effectively a union of a `LEFT OUTER JOIN` and
 `RIGHT OUTER JOIN`. It will show all rows from the left and right side of the join and will produce null values on
@@ -145,7 +146,7 @@ select * from x full outer join x y ON x.column_1 = y.column_2;
 +----------+----------+----------+----------+
 ```
 
-### NATURAL JOIN
+#### NATURAL JOIN
 
 A natural join defines an inner join based on common column names found between the input tables. When no common
 column names are found, it behaves like a cross join.
@@ -159,7 +160,7 @@ select * from x natural join x y;
 +----------+----------+
 ```
 
-### CROSS JOIN
+#### CROSS JOIN
 
 A cross join produces a cartesian product that matches every row in the left side of the join with every row in the
 right side of the join.
@@ -173,7 +174,7 @@ select * from x cross join x y;
 +----------+----------+----------+----------+
 ```
 
-## GROUP BY clause
+### GROUP BY clause
 
 The `GROUP BY` clause groups together input rows that have the same value into summary rows.  
 
@@ -195,7 +196,7 @@ Example:
 SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
 ```
 
-## HAVING clause
+### HAVING clause
 
 The `HAVING` clause can be used with `GROUP BY` to eliminate groups that don't satisfy the condition given.
 
@@ -205,7 +206,7 @@ Example:
 SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10
 ```
 
-## UNION clause
+### UNION clause
 
 The `UNION` clause combines the results of two or more `SELECT` statments.  By default `UNION` removes
  duplicates.  To include duplicates, use `UNION ALL`.
@@ -226,7 +227,7 @@ SELECT
 FROM table2
 ```
 
-## ORDER BY clause
+### ORDER BY clause
 
 Orders the results by the referenced expression. By default it uses ascending order (`ASC`).
 This order can be changed to descending by adding `DESC` after the order-by expressions.
@@ -239,7 +240,7 @@ SELECT age, person FROM table ORDER BY age DESC;
 SELECT age, person FROM table ORDER BY age, person DESC;
 ```
 
-## LIMIT clause
+### LIMIT clause
 
 Limits the number of rows to be a maximum of `count` rows. `count` should be a non-negative integer.
 
@@ -250,7 +251,7 @@ SELECT age, person FROM table
 LIMIT 10
 ```
 
-## EXCLUDE and EXCEPT clause
+### EXCLUDE and EXCEPT clause
 
 Excluded named columns from query results.
 
