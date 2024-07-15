@@ -14,7 +14,7 @@ Connect to a [Databricks Unity Catalog](https://www.databricks.com/product/unity
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
-    name: uc_catalog # tables from this catalog will be available in the "uc_catalog" schema in Spice
+    name: uc_catalog # tables from this catalog will be available in the "uc_catalog" catalog in Spice
     include:
       - "*.my_table_name" # include only the "my_table_name" tables
     params:
