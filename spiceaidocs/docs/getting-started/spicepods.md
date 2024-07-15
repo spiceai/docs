@@ -18,8 +18,9 @@ A Spicepod is described by a YAML manifest file, typically named `spicepod.yaml`
 
 - **Metadata:** Basic information about the Spicepod, such as its name and version.
 - **Datasets:** Definitions of datasets that are used or produced within the Spicepod.
+- **Catalogs:** Definitions of catalogs that are used within the Spicepod.
 - **Models:** Definitions of ML models that the Spicepod manages, including their sources and associated datasets.
-- **Secrets:** Configuration for any secret stores used by the Spicepod.
+- **Secrets:** Configuration for any secret stores used within the Spicepod.
 
 ## Example Manifest
 
@@ -52,6 +53,12 @@ secrets:
 Datasets in a Spicepod can be sourced from various locations, including local files or remote databases. They can be materialized and accelerated using different engines such as DuckDB, SQLite, or PostgreSQL to optimize performance.
 
 Learn more at [Datasets](/reference/spicepod/datasets.md).
+
+### Catalogs
+
+Catalogs in a Spicepod can contain multiple schemas. Each schema, in turn, contains multiple tables where the actual data is stored.
+
+Learn more at [Catalogs](/reference/spicepod/catalogs.md).
 
 ### Models
 
