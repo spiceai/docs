@@ -16,6 +16,12 @@ datasets:
       odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
 ```
 
+:::info
+
+For the best `JOIN` performance, ensure all ODBC datasets from the same database are configured with the exact same `odbc_connection_string` in Spice.
+
+:::
+
 ## Configuration
 
 In addition to the connection string, the following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:
