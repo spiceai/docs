@@ -19,5 +19,5 @@ spice catalogs
 >>> spice catalogs
 
 FROM    NAME     
-spice.ai spice.ai 
+spice.ai spiceai 
 ```
