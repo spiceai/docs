@@ -11,7 +11,6 @@ Connect to a [Databricks Unity Catalog](https://www.databricks.com/product/unity
 
 ## Configuration
 
-Example:
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
@@ -31,6 +30,12 @@ catalogs:
       databricks_cluster_id: 1234-567890-abcde123
 ```
 
+## `from`
+The `from` field is used to specify the catalog provider. For Databricks, use `databricks:<catalog_name>`. The `catalog_name` is the name of the catalog in the Databricks Unity Catalog you want to connect to.
+
+## `name`
+The `name` field is used to specify the name of the catalog in Spice. Tables from the Databricks catalog will be available in the schema with this name in Spice. The schema hierarchy of the external catalog is preserved in Spice.
+
 ## `include`
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
@@ -38,6 +43,7 @@ Use the `include` field to specify which tables to include from the catalog. The
 The `params` field is used to configure the connection to the Databricks Unity Catalog. The following parameters are supported:
 
 - `endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
+- `token`: The Databricks API token to authenticate with the Unity Catalog API. Can also be specified in the `databricks` secret. See the [Databricks Data Connector](/components/data-connectors/databricks.md) for more information on configuring the secret.
 - `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
   - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.
   - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided, either as a secret or inline in the params.
