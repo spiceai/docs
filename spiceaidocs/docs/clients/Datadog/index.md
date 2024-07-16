@@ -10,7 +10,7 @@ The Spice runtime metrics could be integrated to Datadog via Spice [Prometheus e
 
 ## Spice Prometheus endpoint configuration
 
-By default, Prometheus endpoint is running on port `9000`. Review Spice runtime output after it is started to confirm metrics endpoint is correctly displayed.
+The metrics endpoint uses port `9000` by default. The metrics endpoint configuration is logged at startup.
 
 ```bash
 2024-07-15T21:48:00.158267Z  INFO spiced: Metrics listening on 127.0.0.1:9000
