@@ -8,7 +8,7 @@ pagination_next: null
 
 The Spice runtime metrics could be integrated to Datadog via Spice [Prometheus endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
 
-## Spice Prometheus endpoint configuration
+## Metrics Endpoint Configuration
 
 The metrics endpoint uses port `9000` by default. The metrics endpoint configuration is logged at startup.
 
