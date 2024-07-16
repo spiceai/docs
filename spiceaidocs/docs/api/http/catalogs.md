@@ -19,7 +19,7 @@ Response:
 ```json
 [
   {
-    "from": "spice.ai",
+    "from": "spiceai",
     "name": "spiceai"
   }
 ]
