@@ -1,7 +1,7 @@
 ---
 title: "Datadog"
 sidebar_label: "Datadog"
-description: 'Monitoring Spice instances with Datadog'
+description: 'Monitoring Spice with Datadog'
 pagination_prev: 'clients/index'
 pagination_next: null
 ---
