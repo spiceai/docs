@@ -16,7 +16,7 @@ By default, Prometheus endpoint is running on port `9000`. Review Spice runtime 
 2024-07-15T21:48:00.158267Z  INFO spiced: Metrics listening on 127.0.0.1:9000
 ```
 
-Use `--metrics` param to configure Prometheus endpoint, for example
+Pass the `--metrics` parameter to bind to a specific port. For example, to bind to port `9090`:
 
 ```bash
  spiced --metrics 0.0.0.0:9090
