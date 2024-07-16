@@ -75,7 +75,7 @@ instances:
 
 <img width="800" src="/img/datadog/spice_datadog_metrics_explorer.png"/>
 
-## Import Spice.ai Dashboard
+## Import the Spice Datadog Dashboard
 
 1. Create [New Datadog Dashboard](https://docs.datadoghq.com/dashboards/#get-started)
 
