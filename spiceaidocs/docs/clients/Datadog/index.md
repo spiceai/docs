@@ -29,7 +29,7 @@ FROM spiceai/spiceai:latest
 
 # Docker configuration ...
 
-# Run Promeheus metrics exporter on port 9090
+# Configure the metrics endpoint on port 9090
 CMD ["--metrics", "0.0.0.0:9090"]
 EXPOSE 9090
 ```
