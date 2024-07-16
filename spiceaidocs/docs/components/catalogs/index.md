@@ -21,7 +21,7 @@ Currently supported Catalog Connectors include:
 | --------------- | ----------- | ------ | ----------------------------------- |
 | `databricks`    | Databricks  | Alpha  | Spark Connect <br/> S3 / Delta Lake | 
 | `unity_catalog`    | Unity Catalog  | Alpha  | Delta Lake                          | 
-| `spice.ai`       | Spice.ai Cloud Platform    | Alpha  | Arrow Flight                        |
+| `spiceai`       | Spice.ai Cloud Platform    | Alpha  | Arrow Flight                        |
 
 ## Catalog Connector Docs
 
@@ -33,7 +33,7 @@ Use the `include` field to specify which tables to include from the catalog. The
 Example:
 ```yaml
 catalogs:
-  - from: spice.ai
+  - from: spiceai
     name: spiceai
     include:
       - "tpch.*" # Include only the "tpch" tables.
