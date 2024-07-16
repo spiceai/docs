@@ -3,10 +3,11 @@ title: "Datadog"
 sidebar_label: "Datadog"
 description: 'Monitoring Spice with Datadog'
 pagination_prev: 'clients/index'
+sidebar_position: 3
 pagination_next: null
 ---
 
-Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Prometheus metrics endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
+Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Spice Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info).
 
 ## Metrics Endpoint Configuration
 
@@ -51,9 +52,9 @@ datasets_count{engine="arrow"} 1
 ...
 ```
 
-## Datadog Agent configuration
+## Datadog Agent Configuration
 
-Prerequisite: [Datadog Agent version 6.5.0 or later is installed](https://docs.datadoghq.com/getting_started/agent/). The Datadog Agent supports Prometheus metrics scraping by default, no additional packages are required on host or container.
+Prerequisite: [Datadog Agent version 6.5.0 or later is installed](https://docs.datadoghq.com/getting_started/agent/).
 
 Configure the Datadog Agent to scrape the Spice metrics endpoint:
 
@@ -69,7 +70,7 @@ instances:
           - '*'
 ```
 
-1. [Restart the Agent](https://docs.datadoghq.com/agent/guide/agent-commands/#start-stop-and-restart-the-agent) to start collecting Spice runtime metrics.
+1. [Restart the Agent](https://docs.datadoghq.com/agent/guide/agent-commands/#start-stop-and-restart-the-agent) to start collecting Spice metrics.
 1. Refer to [Prometheus and OpenMetrics metrics collection from a host](https://docs.datadoghq.com/integrations/guide/prometheus-host-collection/) for all available configuration options and supported parameters.
 1. Open Datadog Metrics Explorer and type `spice` to confirm Spice telemetry information is successfully collected.
 
@@ -81,7 +82,7 @@ instances:
 
 <img width="800" src="/img/datadog/spice_datadog_dashboard_new.png"/>
 
-2. Click **Import dashboard JSON** and drag and drop [monitoring/datadog-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/datadog-dashboard.json) file
+2. Click **Import dashboard JSON** and drag and drop [monitoring/datadog-dashboard.json](https://raw.githubusercontent.com/spiceai/spiceai/trunk/monitoring/datadog-dashboard.json) file
 
 <img width="800" src="/img/datadog/spice_datadog_dashboard_import.png"/>
 
