@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime metrics could be integrated to Datadog via Spice [Prometheus endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
+Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Prometheus metrics endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
 
 ## Metrics Endpoint Configuration
 
