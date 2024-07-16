@@ -34,7 +34,7 @@ CMD ["--metrics", "0.0.0.0:9090"]
 EXPOSE 9090
 ```
 
-Prometheus endpoint could be verified by using HTTP GET request, for example:
+Configuration of the metrics endpoint can be verified using a HTTP GET request, for example:
 
 ```bash
 curl http://localhost:9000/metrics
