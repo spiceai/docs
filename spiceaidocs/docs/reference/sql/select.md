@@ -1,7 +1,6 @@
 ---
 title: "SELECT"
 sidebar_label: "SELECT"
-sidebar_position: 4
 pagination_prev: 'reference/index'
 pagination_next: null
 ---

@@ -1,8 +1,8 @@
 ---
 title: "SQL Reference"
 sidebar_label: "SQL Reference"
-sidebar_position: 4
 pagination_prev: 'reference/index'
+sidebar_position: 6
 pagination_next: null
 ---
 
