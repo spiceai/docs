@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime metrics could be integrated to Datadog via Spice Prometheus endpoint configured by default on port `9000`.
+The Spice runtime metrics could be integrated to Datadog via Spice [Prometheus endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
 
 ## Spice Prometheus endpoint configuration
 
@@ -34,9 +34,26 @@ CMD ["--metrics", "0.0.0.0:9090"]
 EXPOSE 9090
 ```
 
+Prometheus endpoint could be verified by using HTTP GET request, for example:
+
+```bash
+curl http://localhost:9000/metrics
+
+# TYPE spiced_runtime_http_server_start counter
+spiced_runtime_http_server_start 1
+
+# TYPE spiced_runtime_flight_server_start counter
+spiced_runtime_flight_server_start 1
+
+# TYPE datasets_count gauge
+datasets_count{engine="None"} 1
+datasets_count{engine="arrow"} 1
+...
+```
+
 ## Datadog Agent configuration
 
-Prerequisite: [Datadog Agent version 6.5.0 or later is installed](https://docs.datadoghq.com/getting_started/agent/). Datadog Agent supports Prometheus metrics scraping by default, no additional packages are required on your container or host.
+Prerequisite: [Datadog Agent version 6.5.0 or later is installed](https://docs.datadoghq.com/getting_started/agent/). Datadog Agent supports Prometheus metrics scraping by default, no additional packages are required on host or container.
 
 To start collecting Spice runtime metrics:
 
@@ -46,7 +63,7 @@ To start collecting Spice runtime metrics:
 init_config:
 
 instances:
-    - prometheus_url: SPICE-METRICS-ENDPOINT>/metrics
+    - prometheus_url: SPICE-METRICS-ENDPOINT>/metrics # for example http://localhost:9000/metrics
       namespace: spice
       metrics:
           - '*'
@@ -58,10 +75,16 @@ instances:
 
 <img width="800" src="/img/datadog/spice_datadog_metrics_explorer.png"/>
 
-TODO: troubleshooting
+## Import Spice.ai Dashboard
 
-## Import Spice.ai Dashboard for Datadog
+1. Create [New Datadog Dashboard](https://docs.datadoghq.com/dashboards/#get-started)
 
-In-progress
+<img width="800" src="/img/datadog/spice_datadog_dashboard_new.png"/>
+
+2. Click **Import dashboard JSON** and drag and drop [monitoring/datadog-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/datadog-dashboard.json) file
+
+<img width="800" src="/img/datadog/spice_datadog_dashboard_import.png"/>
+
+3. Dashbord is now configured to display Spice.ai OSS key performance metrics
 
 <img width="800" src="/img/datadog/spice_datadog_dashboard.png"/>
