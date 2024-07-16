@@ -55,7 +55,7 @@ datasets_count{engine="arrow"} 1
 
 Prerequisite: [Datadog Agent version 6.5.0 or later is installed](https://docs.datadoghq.com/getting_started/agent/). Datadog Agent supports Prometheus metrics scraping by default, no additional packages are required on host or container.
 
-To start collecting Spice runtime metrics:
+Configure the Datadog Agent to scrape the Spice metrics endpoint:
 
 1. Edit the `openmetrics.d/conf.yaml` file in the `conf.d/` folder at the root of your [Agent’s configuration directory](https://docs.datadoghq.com/agent/guide/agent-configuration-files/#agent-configuration-directory):
 
