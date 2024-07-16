@@ -1,6 +1,7 @@
 ---
 title: "File Formats"
 sidebar_label: "File Formats"
+sidebar_position: 5
 pagination_prev: 'reference/index'
 pagination_next: null
 ---

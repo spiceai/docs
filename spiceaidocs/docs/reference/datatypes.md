@@ -1,6 +1,7 @@
 ---
 title: "Data Types"
 sidebar_label: "Data Types"
+sidebar_position: 4
 pagination_prev: 'reference/index'
 pagination_next: null
 ---
