@@ -27,7 +27,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_sslmode`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
   - `verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
   - `verify-ca`: This mode requires an SSL connection and a valid root certificate.
-  - `required`: This mode requires an SSL connection.
+  - `require`: This mode requires an SSL connection.
   - `prefer`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
   - `disable`: This mode will not attempt to use an SSL connection, even if the server supports it.
 - `pg_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
