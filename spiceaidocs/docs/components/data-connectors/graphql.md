@@ -28,7 +28,6 @@ datasets:
 
 - The GraphQL data connector does not support variables in the query.
 - Filter pushdown is not currently supported; however, when using the limit, the connector will request only the necessary data.
-- Acceleration of response nested data only works with `arrow` engine. Support for other engines is in progress.
 
 :::
 
@@ -58,7 +57,7 @@ query: |
   }
 ```
 
-- `json_pointer`: The path to the JSON data in the response. E.g. `json_pointer: /data/some/nodes`
+- `json_pointer`: The pointer to the JSON data in the response. E.g. `json_pointer: /data/some/nodes`
 
 Example using GitHub GraphQL API using Bearer Auth:
 
