@@ -57,9 +57,11 @@ query: |
   }
 ```
 
-- `json_pointer`: The pointer to the JSON data in the response. E.g. `json_pointer: /data/some/nodes`
+- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) pointing to the JSON data in the response.
 
-Example using GitHub GraphQL API using Bearer Auth:
+### Examples
+
+Example using the GitHub GraphQL API and Bearer Auth.  The following will use `json_pointer` to retrieve all of the nodes in starredRepositories:
 
 ```yaml
 from: graphql:https://api.github.com/graphql
@@ -67,6 +69,33 @@ name: stars
 params:
   auth_token: [github_token]
   json_pointer: /data/viewer/starredRepositories/nodes
+  query: |
+    {
+      viewer {
+        starredRepositories {
+          nodes {
+            name
+            stargazerCount
+            languages (first: 10) {
+              nodes {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+
+```
+
+ To get access to a specific node in starredRepositories, use the index in the `json_pointer`:
+
+```yaml
+from: graphql:https://api.github.com/graphql
+name: stars
+params:
+  auth_token: [github_token]
+  json_pointer: /data/viewer/starredRepositories/nodes/0
   query: |
     {
       viewer {
