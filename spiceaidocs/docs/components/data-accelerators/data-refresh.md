@@ -37,6 +37,7 @@ datasets:
   - from: databricks:my_dataset
     name: accelerated_dataset
     time_column: timestamp
+    time_format: unix_seconds
     acceleration:
       refresh_mode: append # In conjuction with time_column, only fetch data greater than the latest local timestamp
       refresh_check_interval: 10m
@@ -112,6 +113,7 @@ datasets:
   - from: databricks:my_dataset
     name: accelerated_dataset
     time_column: created_at
+    time_format: unix_seconds
     acceleration:
       enabled: true
       refresh_mode: full
