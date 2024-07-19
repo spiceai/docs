@@ -7,14 +7,17 @@ pagination_next: null
 Spice runtime status
 
 ### Usage
+
 ```shell
 spice status [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for status
+#### Flags
 
-### Examples:
+- `-h`, `--help`   help for status
+
+### Examples
+
 ```shell 
 >>> spice status
 

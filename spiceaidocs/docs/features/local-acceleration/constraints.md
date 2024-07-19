@@ -51,6 +51,7 @@ Examples
         The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert`:
 
     :::danger[Invalid]
+
       ```yaml
       datasets:
 
@@ -66,11 +67,13 @@ Examples
         hash: upsert
         "(number, timestamp)": upsert
       ```
+
     :::
 
           The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
 
     :::tip[Valid]
+
       ```yaml
       datasets:
 
@@ -86,6 +89,7 @@ Examples
         hash: drop
         "(number, timestamp)": drop
       ```
+
     :::
 
           The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
@@ -106,6 +110,7 @@ Examples
       hash: upsert
       "(number, timestamp)": drop
       ```
+
     :::
 
       </div>

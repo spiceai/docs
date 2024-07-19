@@ -185,4 +185,5 @@ To improve query performance, step 9 demonstrates the same query executed agains
 
 - **Query Performance:** Without acceleration, federated queries will be slower than local queries due to network latency and data transfer.
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
+
 :::

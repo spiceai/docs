@@ -48,4 +48,3 @@ pagination_next: null
     ![Query Results](./img/datagrip-7.png "Query Results")
 
 DataGrip is now configured to query the Spice runtime using SQL! 🎉
-    

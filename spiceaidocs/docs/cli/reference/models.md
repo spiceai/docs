@@ -7,15 +7,18 @@ pagination_next: null
 
 Lists models loaded by the Spice runtime
 
-### Usage:
+### Usage
+
 ```shell 
 spice models [flags]
 ```
 
-#### Flags:
+#### Flags
+
   - `-h`, `--help`   help for models
 
-### Examples:
+### Examples
+
 ```shell
 >>> spice models
 

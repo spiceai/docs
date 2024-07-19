@@ -7,15 +7,18 @@ pagination_next: null
 
 Lists datasets loaded by the Spice runtime
 
-### Usage:
+### Usage
+
 ```shell
 spice datasets [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for datasets
+#### Flags
+
+- `-h`, `--help`   help for datasets
 
 ### Examples:
+
 ```shell
 >>> spice datasets
 
