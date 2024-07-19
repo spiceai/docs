@@ -6,16 +6,18 @@ pagination_next: null
 ---
 Run Spice - starts the Spice runtime, installing if necessary
 
-### Usage:
+### Usage
+
 ```shell 
 spice run [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   Print this help message
+#### Flags
 
-### Examples:
+- `-h`, `--help`   Print this help message
+
+### Examples
+
 ```shell
 spice run
 ```
-

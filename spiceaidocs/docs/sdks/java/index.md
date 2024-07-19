@@ -8,7 +8,7 @@ pagination_next: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Java SDK for Spice.ai
+## Java SDK for Spice.ai
 
 https://github.com/spiceai/spice-java
 

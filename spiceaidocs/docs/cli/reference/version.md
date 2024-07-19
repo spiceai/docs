@@ -6,15 +6,18 @@ pagination_next: null
 ---
 Spice CLI version
 
-### Usage:
+### Usage
+
 ```shell 
 spice version [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for version
+#### Flags
 
-### Examples:
+- `-h`, `--help`   help for version
+
+### Examples
+
 ```shell
 spice version
 ```

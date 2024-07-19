@@ -7,15 +7,18 @@ pagination_next: null
 
 Add Spicepod - adds a Spicepod to the project
 
-### Usage:
+### Usage
+
 ```shell
 spice add [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   Print this help message
+#### Flags
 
-### Examples:
+- `-h`, `--help`   Print this help message
+
+### Examples
+
 ```shell
 spice add spiceai/quickstart
 ```

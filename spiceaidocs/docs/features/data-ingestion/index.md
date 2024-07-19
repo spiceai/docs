@@ -33,6 +33,7 @@ Data Security: Assess data sensitivity and secure network connections between ed
 ### [Disk SMART](https://en.wikipedia.org/wiki/Self-Monitoring,_Analysis_and_Reporting_Technology)
 
 - Start Spice with the following dataset:
+
 ```yaml
 datasets:
   - from: spice.ai/coolorg/smart/datasets/drive_stats
@@ -45,6 +46,7 @@ datasets:
 ```
 
 - Start telegraf with the following config:
+
 ```
 [[inputs.smart]]
   attributes = true
@@ -58,5 +60,7 @@ datasets:
 SMART data will be available in the `smart_attribute_raw_value` dataset in Spice.ai OSS and replicated to the `coolorg.smart.drive_stats` dataset in Spice.ai Cloud.
 
 :::warning[Limitations]
+
 - Only Spice.ai replication is supported for now.
+
 :::

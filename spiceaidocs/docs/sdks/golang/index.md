@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-# Golang SDK for Spice.ai
+## Golang SDK for Spice.ai
 
 https://github.com/spiceai/gospice
 
