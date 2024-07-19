@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-# Rust SDK for Spice.ai
+## Rust SDK for Spice.ai
 
 https://github.com/spiceai/spice-rs
 

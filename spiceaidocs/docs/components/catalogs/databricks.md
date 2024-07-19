@@ -31,15 +31,19 @@ catalogs:
 ```
 
 ## `from`
+
 The `from` field is used to specify the catalog provider. For Databricks, use `databricks:<catalog_name>`. The `catalog_name` is the name of the catalog in the Databricks Unity Catalog you want to connect to.
 
 ## `name`
+
 The `name` field is used to specify the name of the catalog in Spice. Tables from the Databricks catalog will be available in the schema with this name in Spice. The schema hierarchy of the external catalog is preserved in Spice.
 
 ## `include`
+
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
 ## `params`
+
 The `params` field is used to configure the connection to the Databricks Unity Catalog. The following parameters are supported:
 
 - `endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
@@ -50,12 +54,15 @@ The `params` field is used to configure the connection to the Databricks Unity C
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
 ## `dataset_params`
+
 The `dataset_params` field is used to configure the dataset-specific parameters for the catalog. The following parameters are supported:
 
 ### Spark Connect parameters
+
 - `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. e.g. `1234-567890-abcde123`.
 
 ### Delta Lake parameters
+
 These settings can also be configured in the `databricks` secret. See the [Databricks Data Connector](/components/data-connectors/databricks.md) for more information on configuring the secret.
 
 #### AWS S3
@@ -66,6 +73,7 @@ These settings can also be configured in the `databricks` secret. See the [Datab
 - `aws_endpoint`: The endpoint for the S3 object store.
 
 #### Azure Blob
+
 Note: One of the following must be provided: `azure_storage_account_key`, `azure_storage_client_id` and `azure_storage_client_secret`, or `azure_storage_sas_key`.
 
 - `azure_storage_account_name`: The Azure Storage account name.

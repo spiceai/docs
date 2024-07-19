@@ -7,16 +7,19 @@ pagination_next: null
 
 Start an interactive SQL query session against the Spice runtime
 
-### Usage:
+### Usage
+
 ```shell 
 spice sql [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   Print this help message
+#### Flags
+
+- `-h`, `--help`   Print this help message
 
 
 ### Examples
+
 ```shell 
 $ spice sql
 Welcome to the Spice.ai SQL REPL! Type 'help' for help.

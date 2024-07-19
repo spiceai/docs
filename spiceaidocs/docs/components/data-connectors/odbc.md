@@ -62,11 +62,9 @@ $ docker build -t spice-libsqliteodbc .
 
 Validate that the ODBC configuration was updated to reference the newly installed driver:
 
-
 :::warning[Note]
 Since `libsqliteodbc` is vendored by Debian, the package install hooks append the driver configuration to `/etc/odbcinst.ini`. When using a custom driver (e.g. [Databricks Simba](https://www.databricks.com/spark/odbc-drivers-download)), it is your responsibility to update `/etc/odbcinst.ini` to point at the location of the newly installed driver.
 :::
-
 
 ```bash
 $ docker run --entrypoint /bin/bash -it spice-libsqliteodbc
@@ -95,7 +93,7 @@ Setup=libsqlite3odbc.so
 UsageCount=1
 ```
 
-###### `test.db`
+### `test.db`
 
 To fully test the image, make an example SQLite database (`test.db`) and spicepod on your host:
 
@@ -109,7 +107,7 @@ sqlite> insert into spice_test values ("Hopper");
 sqlite> insert into spice_test values ("Linus");
 ```
 
-###### `spicepod.yaml`
+### `spicepod.yaml`
 
 Make sure that the `DRIVER` parameter matches the name of the driver section in `odbcinst.ini`.
 

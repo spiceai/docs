@@ -28,9 +28,11 @@ Currently supported Catalog Connectors include:
 Catalog are configured using a Catalog Connector in the `catalogs` section of the Spicepod. See the specific Catalog Connector documentation for configuration details.
 
 ### `include`
+
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
 Example:
+
 ```yaml
 catalogs:
   - from: spiceai

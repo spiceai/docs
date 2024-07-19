@@ -5,15 +5,15 @@ description: "Spice CLI command reference"
 pagination_next: null
 ---
 
-# spice
+## spice
 
-## Usage
+### Usage
 
 ```bash
 spice [command] [--help]
 ```
 
-## Full Command Reference
+### Full Command Reference
 
 | Command                                            | Description                                                         |
 | -------------------------------------------------- | --------------------------------------------------------------------|
@@ -34,7 +34,7 @@ spice [command] [--help]
 | [upgrade](/cli/reference/upgrade)       | Upgrades the Spice CLI to the latest release                        |
 | [version](/cli/reference/version)       | Spice CLI version                                                   |
 
-## Command Flags
+### Command Flags
 
 All commands have a help flag **--help** or **-h** to print its usage documentation:
 

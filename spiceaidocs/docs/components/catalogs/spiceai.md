@@ -23,10 +23,13 @@ catalogs:
 ```
 
 ## `from`
+
 The `from` field is used to specify the catalog provider. For the Spice.ai catalog connector, use `spiceai`.
 
 ## `name`
+
 The `name` field is used to specify the name of the catalog in Spice. Tables from the Spice.ai built-in catalog will be available in the schema with this name in Spice.
 
 ## `include`
+
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
