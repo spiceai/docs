@@ -14,7 +14,7 @@ Example:
 
 ```shell
 curl --request POST \
-  --url http://localhost:3000/v1/predict \
+  --url http://localhost:8090/v1/predict \
   --data '{
     "predictions": [
         {
@@ -71,7 +71,7 @@ Make a prediction using a specific [model](/components/models/index.md).
 Example:
 
 ```shell
-curl "http://localhost:3000/v1/models/my_model_name/predict"
+curl "http://localhost:8090/v1/models/my_model_name/predict"
 ```
 
 Parameters:

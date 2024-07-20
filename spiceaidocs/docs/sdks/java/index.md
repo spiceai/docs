@@ -67,7 +67,7 @@ Or pass custom flight address:
 
 ```java
 SpiceClient client = SpiceClient.builder()
-    .withFlightAddress(new URI("grpc://my_remote_spice_instance:50051"))
+    .withFlightAddress(new URI("grpc://my_remote_spice_instance:50090"))
     .build();
 ```
 

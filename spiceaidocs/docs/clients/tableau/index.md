@@ -39,7 +39,7 @@ Download and install [Tableau Desktop](https://www.tableau.com/products/desktop/
 1. Open **Tableau**
 2. In the **Connect** column, under **To a Server**, select **Other Databases (JDBC)**.
 3. Provide the following configuration:
- - **URL**: `jdbc:arrow-flight-sql://127.0.0.1:50051?useEncryption=false`
+ - **URL**: `jdbc:arrow-flight-sql://127.0.0.1:50090?useEncryption=false`
  - **Dialect**: `PostgreSQL`
  <img width="400" src="/img/tableau/tableau-jdbc-conn.png" />
 4. Ensure Spice is running

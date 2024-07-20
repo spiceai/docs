@@ -33,7 +33,7 @@ pip install adbc_driver_manager adbc_driver_flightsql pyarrow
 
 ```python
 >>> import adbc_driver_flightsql.dbapi
->>> conn = adbc_driver_flightsql.dbapi.connect('grpc://localhost:50051')
+>>> conn = adbc_driver_flightsql.dbapi.connect('grpc://localhost:50090')
 ```
 
 ### Create a cursor

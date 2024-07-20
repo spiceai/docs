@@ -96,7 +96,7 @@ Under `Supported Databases` select `Other`.
 
 Set the Display Name to `Spice` and the SQL Alchemy URI to `datafusion+flightsql://spiceai_host:[spiceai_port]`. Specify `?insecure=true` to skip connecting over TLS.
 
-Example: `datafusion+flightsql://spiceai-sales-bi-demo:50051?insecure=true`.
+Example: `datafusion+flightsql://spiceai-sales-bi-demo:50090?insecure=true`.
 
 Click `Test Connection` to verify the connection.
 

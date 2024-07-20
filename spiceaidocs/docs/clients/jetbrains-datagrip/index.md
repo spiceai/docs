@@ -34,7 +34,7 @@ pagination_next: null
 
 9. Create a new Database Connection:
     1. In Database Explorer menu, select "+", choose "Data Source" > "Arrow Flight JDBC"
-    2. Set the host to `localhost` and the port to `50051`
+    2. Set the host to `localhost` and the port to `50090`
     3. In "Authentication" select "No auth"
     4. Click "Test Connection" to verify
 

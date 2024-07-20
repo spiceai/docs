@@ -46,7 +46,7 @@ pagination_next: null
    1. Choose the ```Apache Arrow Flight SQL``` driver - the window should look like this:
    ![Connect to a database window](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/61cee5fe-dc75-4ac1-e558-eea3aff4c100/public "Connect to a database window")
    1. Click the blue "Next >" button on the bottom of the window
-   1. On the next screen, the JDBC URL should be filled out already - just supply the Host (`localhost`) and Port (`50051`) values for the Spice runtime. The window should look like this:
+   1. On the next screen, the JDBC URL should be filled out already - just supply the Host (`localhost`) and Port (`50090`) values for the Spice runtime. The window should look like this:
    ![Connect to a database window 2](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/2a2b2fdc-00db-49d3-5359-059b12342b00/public "Connect to a database window 2")
    1. Click the "Test Connection" button - the window should look like this:
    ![Test Connection results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/a3fc5f5f-a39f-47ce-7955-4b384ec1ae00/public "Test Connection results")

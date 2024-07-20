@@ -35,7 +35,7 @@ Or pass custom flight address:
 from spicepy import Client
 
 client = Client(
-  flight_url="grpc://my_remote_spice_instance:50051"
+  flight_url="grpc://my_remote_spice_instance:50090"
 )
 
 data = client.query(

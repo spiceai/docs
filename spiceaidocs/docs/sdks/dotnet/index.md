@@ -33,7 +33,7 @@ Or pass custom flight address:
 using Spice;
 
 var client = new SpiceClientBuilder()
-    .WithFlightAddress("http://my_remote_spice_instance:50051")
+    .WithFlightAddress("http://my_remote_spice_instance:50090")
     .Build();
 
 var data = await client.query("SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;");

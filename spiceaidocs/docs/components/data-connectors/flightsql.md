@@ -101,5 +101,5 @@ Check [Secrets Stores](/components/secret-stores) for more details.
 - from: flightsql:my_catalog.good_schemas.cool_dataset
   name: cool_dataset
   params:
-    endpoint: http://127.0.0.1:50051
+    endpoint: http://127.0.0.1:50090
 ```
