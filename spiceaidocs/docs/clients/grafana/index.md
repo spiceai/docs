@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime has a Prometheus endpoint configured by default on port `9000`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances.
+The Spice runtime has a Prometheus endpoint configured by default on port `9090`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances.
 
 ## Import Grafana Dashboard
 
@@ -34,7 +34,7 @@ global:
     scrape_configs:
     - job_name: spiceai
         static_configs:
-        - targets: ['127.0.0.1:9000'] # Change to your Spice runtime endpoint + port
+        - targets: ['127.0.0.1:9090'] # Change to your Spice runtime endpoint + port
 ```
 
 ## Local Quickstart
@@ -96,7 +96,7 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
     docker-compose up
     ```
 
-1. Go to `http://localhost:3000/dashboard/import` and add the JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
+1. Go to `http://localhost:8090/dashboard/import` and add the JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
 
 1. The dashboard will have data from the Spice runtimes.
 

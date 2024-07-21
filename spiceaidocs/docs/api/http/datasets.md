@@ -11,7 +11,7 @@ Example:
 
 ```bash
 curl --request GET \
-  --url http://localhost:3000/v1/datasets
+  --url http://localhost:8090/v1/datasets
 ```
 
 Response:
