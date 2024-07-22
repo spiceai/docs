@@ -88,27 +88,27 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 #### AWS S3
 
-- `databricks_aws_region`: Optional. The AWS region for the S3 object store. E.g. `us-west-2`.
-- `databricks_aws_access_key_id`: The access key ID for the S3 object store. 
-- `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
-- `databricks_aws_endpoint`: Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
+- `delta_lake_aws_region`: Optional. The AWS region for the S3 object store. E.g. `us-west-2`.
+- `delta_lake_aws_access_key_id`: The access key ID for the S3 object store. 
+- `delta_lake_aws_secret_access_key`: The secret access key for the S3 object store.
+- `delta_lake_aws_endpoint`: Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
 #### Azure Blob
 
 :::info Note
 One of the following auth values must be provided for Azure Blob:
 
-- `databricks_azure_storage_account_key`, 
-- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or 
-- `databricks_azure_storage_sas_key`.
+- `delta_lake_azure_storage_account_key`, 
+- `delta_lake_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `delta_lake_azure_storage_sas_key`.
 :::
 
-- `databricks_azure_storage_account_name`: The Azure Storage account name.
-- `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
-- `databricks_azure_storage_client_id`: The service principal client id for accessing the storage account.
-- `databricks_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
-- `databricks_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
-- `databricks_azure_storage_endpoint`: Optional. The endpoint for the Azure Blob storage account.
+- `delta_lake_azure_storage_account_name`: The Azure Storage account name.
+- `delta_lake_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
+- `delta_lake_azure_storage_client_id`: The service principal client id for accessing the storage account.
+- `delta_lake_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
+- `delta_lake_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
+- `delta_lake_azure_storage_endpoint`: Optional. The endpoint for the Azure Blob storage account.
 
 #### Google Storage (GCS)
 
