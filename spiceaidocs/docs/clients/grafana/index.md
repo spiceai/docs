@@ -96,7 +96,7 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
     docker-compose up
     ```
 
-1. Go to `http://localhost:8090/dashboard/import` and add the JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
+1. Go to `http://localhost:3000/dashboard/import` and add the JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
 
 1. The dashboard will have data from the Spice runtimes.
 
