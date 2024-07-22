@@ -57,20 +57,18 @@ Object store credentials are required to access non-public Delta Lake tables.
 Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
-  <TabItem value="local" label="Local" default>
-    ```bash
-    spice login delta_lake --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
-    ```
-
-    Learn more about [File Secret Store](/components/secret-stores/file).
-
-  </TabItem>
   <TabItem value="env" label="Env">
     ```bash
     SPICE_SECRET_DELTA_LAKE_AWS_REGION=<aws-region> \
     SPICE_SECRET_DELTA_LAKE_AWS_ACCESS_KEY_ID=<aws-access-key-id> \
     SPICE_SECRET_DELTA_LAKE_AWS_SECRET_ACCESS_KEY=<aws-secret
     spice run
+    ```
+
+    or 
+
+    ```bash
+    spice login delta_lake --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
     ```
 
     `spicepod.yaml`

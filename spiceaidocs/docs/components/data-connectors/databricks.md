@@ -84,19 +84,19 @@ By default the Databricks connector will look for a secret named `databricks` wi
 Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
-  <TabItem value="local" label="Local" default>
+  <TabItem value="env" label="Env">
+    ```bash
+    SPICE_DATABRICKS_TOKEN=<access-token> \
+    spice run
+    ```
+
+    or
+
     ```bash
     spice login databricks --token <access-token>
     ```
 
-    Learn more about [File Secret Store](/components/secret-stores/file).
-
-  </TabItem>
-  <TabItem value="env" label="Env">
-    ```bash
-    SPICE_SECRET_DATABRICKS_TOKEN=<access-token> \
-    spice run
-    ```
+    to create a `.env` file with the secret.
 
     `spicepod.yaml`
     ```yaml
