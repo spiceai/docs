@@ -56,7 +56,7 @@ datasets:
 
 ## .env Files
 
-The `env` secret store reads secrets from any `.env.local` or `.env` files in the project directory. The `.env.local` file takes precedence over the `.env` file. This allows defining template secrets in the `.env` file which can be checked into source control and overriding them with local secrets in the `.env.local` file.
+The `env` secret store reads secrets from any `.env.local` or `.env` files in the project directory. The `.env.local` file takes precedence over the `.env` file. This enables defining template secrets in the `.env` file which can be checked into source control and overriding them with local secrets in the `.env.local` file.
 
 Example `.env` file:
 
