@@ -5,7 +5,7 @@ sidebar_position: 3
 description: 'Kubernetes Secret Store Documentation'
 ---
 
-The `kubernetes` store allows Spice to read Kubernetes secrets by specifying the secret’s name with a selector.
+The `kubernetes` store supports reading specific secrets using a selector with the secret's name.
 
 ## Example
 

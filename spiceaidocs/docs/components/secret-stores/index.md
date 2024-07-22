@@ -9,7 +9,7 @@ pagination_next: null
 
 A Secret Store is a location where `secrets` are stored and can be used to store sensitive data, like passwords, tokens, and secret keys.
 
-Spice supports several secret stores: `env`, `kubernetes`, `keyring` and `aws_secrets_manager`. The `env` secret store is loaded by default.
+Spice supports secret stores: `env`, `kubernetes`, `keyring` and `aws_secrets_manager`. The `env` secret store is loaded by default.
 
 ### Default
 
@@ -21,11 +21,13 @@ secrets:
     name: env
 ```
 
-## Define secret stores
+## Configured Secret Stores
 
-Define secret stores in the `secrets` section of the configuration file. The `from` field specifies the secret store type, and the `name` field specifies the name of the secret store to be referenced in the parameters. Some secret store types support adding a `:` to the end of the field, as an additional selector. For example, `from: kubernetes:my_secret` would select the `my_secret` secret in the Kubernetes secret store, and look for keys within that Kubernetes secret only.
+Secret Stores can be configured using the `secrets` section of the `spicepod.yml` file.
 
-Additional parameters can also be specified in the `params` field. The parameters are specific to the secret store type.
+The Secret Store type and name are specified using the `from` and `name` fields. The `name` can be referenced by other components, like datasets or models. Some Secret Stores support adding a selector delimited by a colon (`:`), For example, when using the Kubernetes Secret Store, `from: kubernetes:my_secret` selects and enables the `my_secret` secret only to be referenced.
+
+Additional parameters may be specified in the `params` field, which are typically specific to the secret store type.
 
 Example:
 ```yaml
@@ -36,9 +38,9 @@ secrets:
     name: env
 ```
 
-## Reference secrets in parameters
+## Using referenced secrets in component parameters
 
-Reference secrets defined in a secret store by using the syntax `${<secret_store_name>:<key_name>}`. For example, to reference a secret stored as an environment variable named `MY_SECRET` in the `env` secret store, use `${env:MY_SECRET}`.
+Secrets may be used by components with the syntax `${<secret_store_name>:<key_name>}`. For example, to reference a secret stored as an environment variable named `MY_SECRET` in the `env` secret store, use `${env:MY_SECRET}`.
 
 Example:
 ```yaml
@@ -49,7 +51,7 @@ datasets:
       pg_host: localhost
       pg_port: 5432
       pg_user: ${env:PG_USER}
-      pg_pass: ${env:FOO_PASSWORD} # The environment variable doesn't need to be named the same as the parameter.
+      pg_pass: ${env:FOO_PASSWORD} # The environment variable name may differ from the parameter name.
 ```
 
 This syntax also works within a larger string, like a connection string:
@@ -84,7 +86,7 @@ datasets:
 
 ## Load secrets from multiple secret stores
 
-Spice allows configuring multiple secret stores in the `secrets` section. The secret stores are loaded in the order they are defined in the configuration file. If a secret is defined in multiple secret stores, the secret store defined last will take precedence.
+Spice supports configuring multiple secret stores which are loaded in the order they are defined in the `secrets` section of the `spicepod.yml` configuration file. If a secret is defined in multiple secret stores, the secret store defined last will take precedence.
 
 To load a secret from any of the configured secret stores in precedence order, use the `${secrets:<key_name>}` syntax.
 
@@ -108,9 +110,9 @@ datasets:
       pg_pass: ${secrets:pg_pass}
 ```
 
-This example would look for `pg_user` and `pg_pass` in the `keyring` secret store first, and then in the `env` secret store. The `<key_name>` value in `${secrets:<key_name>}` is automatically uppercased for the `env` secret store.
+In this example, the runtime would look for `pg_user` and `pg_pass` in the `keyring` secret store first and then in the `env` secret store. The `<key_name>` value in `${secrets:<key_name>}` is automatically uppercased for the `env` secret store.
 
-In this example, to allow environment variables to override the `keyring` secret store, change the order of the secret stores in the configuration file:
+In this example, override the `keyring` secret store secrets with environment variables, change the order of the secret stores in the configuration file:
 
 ```yaml
 secrets:

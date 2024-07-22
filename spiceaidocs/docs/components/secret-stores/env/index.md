@@ -29,7 +29,7 @@ datasets:
       pg_pass: ${env:MY_PG_PASSWORD}
 ```
 
-This syntax also works within a larger string, like a connection string:
+The `${}` replacement syntax also works within a larger string, like a connection string:
 
 ```yaml
 datasets:
@@ -67,7 +67,7 @@ MY_PG_PASSWORD=postgres
 
 ### Additional Parameters
 
-To load environment variables from a specific `.env` file, use the `file_path` parameter. This will not load environment variables from the default `.env` or `.env.local` files.
+To load environment variables from a specific `.env` file, use the `file_path` parameter. When using specific environment variable file using `file_path` environment variables from the default `.env` or `.env.local` files will not be loaded.
 
 ```yaml
 secrets:

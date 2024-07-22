@@ -16,13 +16,13 @@ The Keyring Store will read entries where the entry account or user is set to `s
 
 ## Example
 
-For setting the `spiceai` api key secret using macOS keychain, create a new keychain entry, with value as the api key.
+To set the `spiceai` API Key secret using macOS keychain, create a new keychain entry, and set the value with the API Key.
 
 `"<your spice.ai app api key>"`
 
 <img src="/img/secrets-keychain-example.png" alt="" width="800" />
 
-The `keyring` store is defined in the Spicepod manifest:
+The `keyring` store is configured in the Spicepod manifest:
 
 ```yaml
 secrets:
@@ -30,7 +30,7 @@ secrets:
     name: keyring
 ```
 
-And the secret can be referenced in the parameters:
+And the secret can be referenced in parameters:
 
 ```yaml
 datasets:

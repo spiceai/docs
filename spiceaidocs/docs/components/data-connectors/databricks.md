@@ -96,7 +96,7 @@ Check [Secrets Stores](/components/secret-stores) for more details.
     spice login databricks --token <access-token>
     ```
 
-    to create a `.env` file with the secret.
+    to create or update an `.env` file with the secret.
 
     `spicepod.yaml`
     ```yaml
