@@ -24,10 +24,10 @@ The Clickhouse data connector can be configured by providing the following `para
 - `clickhouse_db`: The name of the database to connect to.
 - `clickhouse_user`: The username to connect with.
 - `clickhouse_pass`: The password to connect with. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_clickhouse_pass}`.
-- `clickhouse_secure`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
+- `clickhouse_secure`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
   - `true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
   - `false`: This mode will not attempt to use an SSL connection, even if the server supports it.
-- `connection_timeout`: Optional parameter, specifies the connection timeout in milliseconds.
+- `connection_timeout`: Optional. Specifies the connection timeout in milliseconds.
 
 Configuration `params` are provided in the top level `dataset` for a dataset source and federated SQL query.
 

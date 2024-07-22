@@ -21,7 +21,7 @@ Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spic
 ## `params`
 
 - `flightsql_endpoint`: The Apache Flight endpoint used to connect to the Flight SQL server.
-- `flightsql_username` (optional): The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).
+- `flightsql_username`: Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).
 - `flightsql_password` (optional): The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`.
 
 ## Auth Example

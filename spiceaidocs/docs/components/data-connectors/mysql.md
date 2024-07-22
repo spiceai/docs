@@ -30,7 +30,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 - `mysql_db`: The name of the database to connect to.
 - `mysql_user`: The MySQL username.
 - `mysql_pass`: The password to connect with.
-- `mysql_sslmode`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
+- `mysql_sslmode`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
   - `required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
   - `preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
   - `disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.
