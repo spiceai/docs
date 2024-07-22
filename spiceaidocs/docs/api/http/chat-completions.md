@@ -10,7 +10,7 @@ Chat completions is an OpenAI compatible endpoint.
 Specify the model by providing the component name in the `model` key. For example:
 
 ```shell
-curl http://localhost:3000/v1/chat/completions \
+curl http://localhost:8090/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "my_language_model",
