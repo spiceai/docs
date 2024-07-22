@@ -112,7 +112,7 @@ datasets:
 
 In this example, the runtime would look for `pg_user` and `pg_pass` in the `keyring` secret store first and then in the `env` secret store. The `<key_name>` value in `${secrets:<key_name>}` is automatically uppercased for the `env` secret store.
 
-In this example, override the `keyring` secret store secrets with environment variables, change the order of the secret stores in the configuration file:
+To override the `keyring` secret store secrets with environment variables, re-order the secret stores in the configuration file:
 
 ```yaml
 secrets:
