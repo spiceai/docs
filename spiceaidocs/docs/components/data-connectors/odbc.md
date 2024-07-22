@@ -128,7 +128,7 @@ datasets:
 All together now:
 
 ```bash
-$ docker run -8090:8090 -p50051:50051 -v $(pwd)/spicepod.yaml:/spicepod.yaml -v $(pwd)/test.db:/test.db -it spice-libsqliteodbc --http=0.0.0.0:8090 --flight=0.0.0.0:50051
+$ docker run -p8090:8090 -p50051:50051 -v $(pwd)/spicepod.yaml:/spicepod.yaml -v $(pwd)/test.db:/test.db -it spice-libsqliteodbc --http=0.0.0.0:8090 --flight=0.0.0.0:50051
 $ spice sql
 
 Welcome to the interactive Spice.ai SQL Query Utility! Type 'help' for help.
