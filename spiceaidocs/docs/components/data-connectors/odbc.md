@@ -53,7 +53,7 @@ The runtime will attempt to detect the dialect to use for a connection based on 
 * SQLite
 * Databricks
 
-These connection types are also the supported values for overriding dialect in `sql_dialect`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
+These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
 ```yaml
 datasets:
   - from: odbc:path.to.my_dataset
