@@ -23,19 +23,17 @@ By default Dremio connector will look for a secret named `dremio` with keys `use
 Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
-  <TabItem value="local" label="Local" default>
-    ```bash
-    spice login dremio -u demo -p demo1234
-    ```
-
-    Learn more about [File Secret Store](/components/secret-stores/file).
-
-  </TabItem>
   <TabItem value="env" label="Env">
     ```bash
     SPICE_SECRET_DREMIO_USERNAME=demo \
     SPICE_SECRET_DREMIO_PASSWORD=demo1234 \
     spice run
+    ```
+
+    or
+
+    ```bash
+    spice login dremio -u demo -p demo1234
     ```
 
     `spicepod.yaml`

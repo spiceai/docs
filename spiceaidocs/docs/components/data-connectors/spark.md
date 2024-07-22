@@ -25,18 +25,16 @@ Spark clusters configured to accept authenticated requests should not set `spark
 Check [Secrets Stores](/components/secret-stores) for more details.
 
 <Tabs>
-  <TabItem value="local" label="Local" default>
-    ```bash
-    spice login spark --spark_remote <spark-remote>
-    ```
-
-    Learn more about [File Secret Store](/components/secret-stores/file).
-
-  </TabItem>
   <TabItem value="env" label="Env">
     ```bash
     SPICE_SECRET_SPARK_SPARK_REMOTE=<spark-remote> \
     spice run
+    ```
+
+    or
+
+    ```bash
+    spice login spark --spark_remote <spark-remote>
     ```
 
     `spicepod.yaml`

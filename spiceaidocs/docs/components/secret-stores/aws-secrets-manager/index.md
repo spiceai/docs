@@ -5,36 +5,40 @@ sidebar_position: 3
 description: 'AWS Secrets Manager Secret Store Documentation'
 ---
 
-The `aws_secrets_manager` store enables Spice to read secrets from [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
+The `aws_secrets_manager` store enables Spice to read secrets from [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) by specifying the secret’s name with a selector.
 
 ```yaml
-version: v1beta1
-kind: Spicepod
-name: taxi_trips
 secrets:
-  store: aws_secrets_manager
+  from: aws_secrets_manager:my_secret_name
+  name: aws
 ```
-The store reads secrets named as `spice_secret_<secret-name>`, for example `dremio` login and password must be defined as `spice_secret_dremio` secret in [AWS Secrets Manager](https://console.aws.amazon.com/secretsmanager/listsecrets)
 
-<img src="/img/secrets-aws-secrets-manager-dremio-1.png" alt="" width="800" />
+The store reads keys from the secret named in the selector. In the above example `my_secret_name` must be defined in [AWS Secrets Manager](https://console.aws.amazon.com/secretsmanager/listsecrets), and any keys referenced using `${aws:my_key}` will look for a key `my_key` within `my_secret_name`.
 
-<img src="/img/secrets-aws-secrets-manager-dremio-2.png" alt="" width="800" />
+<img src="/img/secrets-aws-secrets-manager-1.png" alt="" width="800" />
 
-A complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager created above.
+<img src="/img/secrets-aws-secrets-manager-2.png" alt="" width="800" />
+
+## Example
+
+A complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager.
 
 ```yaml
 version: v1beta1
 kind: Spicepod
 name: taxi_trips
 secrets:
-  store: aws_secrets_manager
+  - from: aws_secrets_manager:dremio
+    name: dremio
 
 datasets:
 - from: dremio:datasets.taxi_trips
   name: taxi_trips
   description: dremio taxi trips
   params:
-    endpoint: grpc://20.163.171.81:32010
+    dremio_endpoint: grpc://20.163.171.81:32010
+    dremio_username: ${dremio:username}
+    dremio_password: ${dremio:password}
 ```
 
 ## AWS Secrets Manager Access

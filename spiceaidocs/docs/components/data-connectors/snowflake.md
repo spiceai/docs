@@ -36,19 +36,6 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 <img width="800" src="/img/snowflake/ui-snowsight-account-identifier.png" />
 
 <Tabs>
-  <TabItem value="local" label="Local" default>
-    Password-based
-    ```bash
-    spice login snowflake -a <account-identifier> -u <username> -p <password>
-    ```
-    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
-    ```bash
-    spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
-    ```
-
-    Learn more about [File Secret Store](/components/secret-stores/file).
-
-  </TabItem>
   <TabItem value="env" label="Env">
     Password-based
     ```bash
@@ -64,6 +51,17 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
     SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
+    ```
+
+    or
+
+    Password-based
+    ```bash
+    spice login snowflake -a <account-identifier> -u <username> -p <password>
+    ```
+    Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    ```bash
+    spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
     ```
 
     `spicepod.yaml`
