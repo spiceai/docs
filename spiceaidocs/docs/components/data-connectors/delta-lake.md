@@ -10,127 +10,106 @@ import TabItem from '@theme/TabItem';
 
 Query/accelerate [Delta Lake](https://delta.io/) tables in Spice.
 
+```yaml
+datasets:
+  # Example for local Delta Lake
+  - from: delta_lake:/path/to/local/delta/table  # A local filesystem path to a Delta Lake table
+    name: my_delta_lake_table
+  # Example for Delta Lake on S3
+  - from: delta_lake:s3://my_bucket/path/to/s3/delta/table/  # A reference to a table in S3
+    name: my_delta_lake_table
+    params:
+      delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
+      delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
+  # Example for Delta Lake on Azure Blob
+  - from: delta_lake:abfss://my_container@my_account.dfs.core.windows.net/path/to/azure/delta/table/  # A reference to a table in Azure Blob
+    name: my_delta_lake_table
+    params:
+      delta_lake_azure_storage_account_name: my_account
+      delta_lake_azure_storage_account_key: ${secrets:my_key}
+```
+
 ## Configuration
 
-`spice login delta_lake` can be used to configure the secrets needed for connecting to Delta Lake tables.
-
 <Tabs>
-  <TabItem value="delta_lake_s3" label="Delta Lake + S3">
-    ```bash
-    spice login delta_lake --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
+  <TabItem value="delta_lake_local" label="Delta Lake + Local" default>
+
+    ```yaml
+    - from: delta_lake:/path/to/local/delta/table  # A local filesystem path to a Delta Lake table
+      name: my_delta_lake_table
+    ```
+
+  </TabItem>
+  <TabItem value="delta_lake_s3" label="Delta Lake + S3" default>
+
+    ```yaml
+    - from: delta_lake:s3://my_bucket/path/to/s3/delta/table/  # A reference to a table in S3
+      name: my_delta_lake_table
+      params:
+        delta_lake_aws_region: us-west-2 # Optional
+        delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
+        delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
+        delta_lake_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
     ```
 
   </TabItem>
   <TabItem value="delta_lake_azure" label="Delta Lake + Azure Blob">
-    ```bash
-    spice login delta_lake --azure-storage-account-name <account-name> --azure-storage-access-key <access-key>
+
+    ```yaml
+    - from: delta_lake:abfss://my_container@my_account.dfs.core.windows.net/path/to/azure/delta/table/  # A reference to a table in Azure Blob
+      name: my_delta_lake_table
+      params:
+        # Account Name + Key
+        delta_lake_azure_storage_account_name: my_account
+        delta_lake_azure_storage_account_key: ${secrets:my_key}
+
+        # OR Service Principal + Secret
+        delta_lake_azure_storage_client_id: my_client_id
+        delta_lake_azure_storage_client_secret: ${secrets:my_secret}
+
+        # OR SAS Key
+        delta_lake_azure_storage_sas_key: my_sas_key
     ```
 
   </TabItem>
   <TabItem value="delta_lake_gcp" label="Delta Lake + Google Storage">
-    ```bash
-    spice login delta_lake --google-service-account-path /path/to/service-account.json
+
+    ```yaml
+    params:
+      delta_lake_google_service_account_path: /path/to/service-account.json
     ```
 
   </TabItem>
 </Tabs>
 
-## Example
+### Delta Lake object store parameters
 
-```yaml
-datasets:
-  # Example for local Delta Lake
-  - from: delta_lake:/path/to/local/delta/table  // A local filesystem path to a Delta Lake table
-    name: my_delta_lake_table
-  # Example for Delta Lake on S3
-  - from: delta_lake:s3://my_bucket/path/to/s3/delta/table/  // A reference to a table in S3
-    name: my_delta_lake_table
-  # Example for Delta Lake on Azure Blob
-  - from: delta_lake:abfss://my_container@my_account.dfs.core.windows.net/path/to/azure/delta/table/  // A reference to a table in Azure Blob
-    name: my_delta_lake_table
-```
+Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
-### Auth
+#### AWS S3
 
-Object store credentials are required to access non-public Delta Lake tables.
+- `databricks_aws_region`: Optional. The AWS region for the S3 object store. E.g. `us-west-2`.
+- `databricks_aws_access_key_id`: The access key ID for the S3 object store. 
+- `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
+- `databricks_aws_endpoint`: Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
-Check [Secrets Stores](/components/secret-stores) for more details.
+#### Azure Blob
 
-<Tabs>
-  <TabItem value="env" label="Env">
-    ```bash
-    SPICE_SECRET_DELTA_LAKE_AWS_REGION=<aws-region> \
-    SPICE_SECRET_DELTA_LAKE_AWS_ACCESS_KEY_ID=<aws-access-key-id> \
-    SPICE_SECRET_DELTA_LAKE_AWS_SECRET_ACCESS_KEY=<aws-secret
-    spice run
-    ```
+:::info Note
+One of the following auth values must be provided for Azure Blob:
 
-    or 
+- `databricks_azure_storage_account_key`, 
+- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `databricks_azure_storage_sas_key`.
+:::
 
-    ```bash
-    spice login delta_lake --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
-    ```
+- `databricks_azure_storage_account_name`: The Azure Storage account name.
+- `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
+- `databricks_azure_storage_client_id`: The service principal client id for accessing the storage account.
+- `databricks_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
+- `databricks_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
+- `databricks_azure_storage_endpoint`: Optional. The endpoint for the Azure Blob storage account.
 
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
+#### Google Storage (GCS)
 
-    secrets:
-      store: env
-
-    # <...>
-    ```
-
-    Learn more about [Env Secret Store](/components/secret-stores/env).
-
-  </TabItem>
-  <TabItem value="k8s" label="Kubernetes">
-    ```bash
-    kubectl create secret generic delta_lake \
-      --from-literal=aws-region='<aws-region>'
-      --from-literal=aws-access-key-id='<aws-access-key-id>'
-      --from-literal=aws-secret-access-key='<aws-secret-access-key>'
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      store: kubernetes
-
-    # <...>
-    ```
-
-    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
-
-  </TabItem>
-  <TabItem value="keyring" label="Keyring">
-    Add new keychain entry (macOS), with secrets in JSON string
-
-    ```bash
-    security add-generic-password -l "Delta Lake Secret" \
-    -a spiced -s spice_secret_delta_lake \
-    -w $(echo -n '{"aws-region": "<aws-region>", "aws-access-key-id": "<aws-access-key-id>", "aws-secret-access-key": "<aws-secret-access-key>"}')
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      store: keyring
-
-    # <...>
-    ```
-
-    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
-
-  </TabItem>
-</Tabs>
+- `google_service_account`: Filesystem path to the Google service account JSON key file.

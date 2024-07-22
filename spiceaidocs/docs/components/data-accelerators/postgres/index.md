@@ -24,8 +24,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_port`: The port of the PostgreSQL server.
 - `pg_db`: The name of the database to connect to.
 - `pg_user`: The username to connect with.
-- `pg_pass_key`: The secret key containing the password to connect with.
-- `pg_pass`: The raw password to connect with, ignored if `pg_pass_key` is provided.
+- `pg_pass`: The password to connect with. Use the [secret replacement syntax](../../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.
 - `pg_sslmode`: Optional parameter, specifies the SSL/TLS behavior for the connection, supported values:
   - `verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
   - `verify-ca`: This mode requires an SSL connection and a valid root certificate.
@@ -47,11 +46,11 @@ datasets:
         pg_port: 5432
         pg_db: my_database
         pg_user: my_user
-        pg_pass_key: my_secret
+        pg_pass: ${secrets:my_pg_pass}
         pg_sslmode: required
 ```
 
-Additionally, an `engine_secret` may be provided when configuring a PostgreSQL data store to allow for using a different secret store to specify the password for a dataset using PostgreSQL as both the data source and data store.
+Specify different secrets for a PostgreSQL source and acceleration:
 
 ```yaml
 datasets:
@@ -62,14 +61,13 @@ datasets:
       pg_port: 5432
       pg_db: data_store
       pg_user: my_user
-      pg_pass_key: my_secret
+      pg_pass: ${secrets:pg1_pass}
     acceleration:
       engine: postgres
-      engine_secret: pg_backend
       params:
         pg_host: localhost
         pg_port: 5433
-        pg_db: data_store
-        pg_user: my_user
-        pg_pass_key: my_secret
+        pg_db: acceleration
+        pg_user: two_user_two_furious
+        pg_pass: ${secrets:pg2_pass}
 ```

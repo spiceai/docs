@@ -22,13 +22,7 @@ After logging in, create an app in order to get an API key.
 
 This quickstart will use the [`eth.recent_blocks`](https://docs.spice.ai/reference/sql-query-tables/ethereum/core-tables) dataset.
 
-**Step 1.** Log in to the Spice Cloud Platform from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
-
-```bash
-spice login
-```
-
-**Step 2.** Initialize a new project and start the runtime:
+**Step 1.** Initialize a new project:
 
 ```bash
 # Initialize a new Spice app
@@ -36,12 +30,24 @@ spice init spice_app
 
 # Change to app directory
 cd spice_app
+```
 
+**Step 2.** Log in to the Spice Cloud Platform from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
+
+```bash
+spice login
+```
+
+Logging in will create or update a `.env` file in the project directory with the API key.
+
+**Step 3.** Start the runtime:
+
+```bash
 # Start the runtime
 spice run
 ```
 
-**Step 3.** Configure the dataset:
+**Step 4.** Configure the dataset:
 
 In a new terminal window, configure a new dataset using the `spice dataset configure` command:
 
@@ -80,7 +86,7 @@ You should see the following output from your runtime terminal:
 2024-05-20T22:50:17.998125Z  INFO runtime::accelerated_table::refresh: Loading data for dataset eth_recent_blocks
 ```
 
-**Step 4.** In a new terminal window, use the Spice SQL REPL to query the dataset
+**Step 5.** In a new terminal window, use the Spice SQL REPL to query the dataset
 
 ```bash
 spice sql

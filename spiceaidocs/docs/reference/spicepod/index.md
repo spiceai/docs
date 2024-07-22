@@ -27,21 +27,44 @@ The name of the Spicepod.
 
 The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/components/secret-stores).
 
-### `secrets.store`
+### `secrets.from`
+
+The `from` field is a string that represents the Uniform Resource Identifier (URI) for the secret store. This URI is composed of two parts: a prefix indicating the Secret Store to use, and an optional selector that specifies the secret to retrieve.
+
+The syntax for the `from` field is as follows:
+
+```yaml
+from: <secret_store>:<selector>
+```
+
+Where:
+
+- `<secret_store>`: The Secret Store to use
+
+  Currently supported secret stores:
+
+  - [`env`](/components/secret-stores/env/index.md)
+  - [`kubernetes`](/components/secret-stores/kubernetes/index.md)
+  - [`keyring`](/components/secret-stores/keyring/index.md)
+  - [`aws-secrets-manager`](/components/secret-stores/aws-secrets-manager/index.md)
+
+  If no secret stores are explicitly specified, it defaults to `env`.
+
+- `<selector>`: The secret within the secret store to load.
 
 The type of secret store for reading secrets.
-
-- `file` (default)
-- `env`
-- `kubernetes`
-- `keyring`
 
 Example
 
 ```yaml
 secrets:
-  store: env
+  - from: env
+    name: env
 ```
+
+### `secrets.name`
+
+The name of the secret store. This is used to reference the store in the secret replacement syntax, `${<secret_store_name>:<key_name>}`.
 
 ## `runtime`
 

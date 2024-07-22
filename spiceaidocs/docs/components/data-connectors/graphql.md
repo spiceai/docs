@@ -13,7 +13,7 @@ datasets:
     name: my_dataset
     params:
       json_pointer: /data/some/nodes
-      query: |
+      graphql_query: |
         {
           some {
             nodes {
@@ -33,17 +33,13 @@ datasets:
 
 ## Configuration
 
-The GraphQL data connector can be configured by providing the following `params`:
+The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
 
 - `unnest_depth`: Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.
-- `auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication. E.g. `auth_token: my_secret_token`
-- `auth_token_key`: The secret key containing the authentication token to use to connect to the GraphQL server. Can be used instead of `auth_token`.
-E.g. `auth_token_key: my_secret_token_key`
-- `auth_user`: The username to use for basic auth. E.g. `auth_user: my_user`
-- `auth_user_key`: The secret key containing the user to use for basic auth. Can be used instead of `auth_user`. E.g. `auth_user_key: my_secret_user`
-- `auth_pass`: The password to use for basic auth. E.g. `auth_pass: my_password`
-- `auth_pass_key`: The secret key containing the password to use for basic auth. Can be used instead of `auth_pass`. E.g. `auth_pass_key: my_secret_password`
-- `query`: The GraphQL query to execute. E.g.
+- `graphql_auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication.
+- `graphql_auth_user`: The username to use for basic auth. E.g. `graphql_auth_user: my_user`
+- `graphql_auth_pass`: The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`
+- `graphql_query`: The GraphQL query to execute. E.g.
 
 ```yaml
 query: |
@@ -61,15 +57,15 @@ query: |
 
 ### Examples
 
-Example using the GitHub GraphQL API and Bearer Auth.  The following will use `json_pointer` to retrieve all of the nodes in starredRepositories:
+Example using the GitHub GraphQL API and Bearer Auth. The following will use `json_pointer` to retrieve all of the nodes in starredRepositories:
 
 ```yaml
 from: graphql:https://api.github.com/graphql
 name: stars
 params:
-  auth_token: [github_token]
+  graphql_auth_token: ${env:GITHUB_TOKEN}
   json_pointer: /data/viewer/starredRepositories/nodes
-  query: |
+  graphql_query: |
     {
       viewer {
         starredRepositories {
@@ -94,9 +90,9 @@ params:
 from: graphql:https://api.github.com/graphql
 name: stars
 params:
-  auth_token: [github_token]
+  graphql_auth_token: ${env:GITHUB_TOKEN}
   json_pointer: /data/viewer/starredRepositories/nodes/0
-  query: |
+  graphql_query: |
     {
       viewer {
         starredRepositories {
@@ -121,10 +117,10 @@ Example using Basic Auth:
 from: graphql:https://my-site.com/graphql
 name: my_dataset
 params:
-  auth_user: [my_user]
-  auth_pass: [my_password]
+  graphql_auth_user: ${env:GRAPHQL_USER}
+  graphql_auth_pass: ${env:GRAPHQL_PASS}
   json_pointer: /data/some/nodes
-  query: |
+  graphql_query: |
     {
       some {
         nodes {
@@ -147,9 +143,9 @@ Example:
 from: graphql:https://api.github.com/graphql
 name: stargazers
 params:
-  auth_token: [github_token]
+  graphql_auth_token: ${env:GITHUB_TOKEN}
   json_pointer: /data/repository/stargazers/edges
-  query: |
+  graphql_query: |
     {
       repository(name: "spiceai", owner: "spiceai") {
         id
@@ -211,7 +207,7 @@ from: graphql:https://countries.trevorblades.com
 name: countries
 params:
   json_pointer: /data/continents
-  query: |
+  graphql_query: |
     {
       continents {
         name
@@ -256,10 +252,10 @@ This examples uses the GitHub stargazers endpoint:
 from: graphql:https://api.github.com/graphql
 name: stargazers
 params:
-  auth_token: [github_token]
+  graphql_auth_token: ${env:GITHUB_TOKEN}
   unnest_depth: 2
   json_pointer: /data/repository/stargazers/edges
-  query: |
+  graphql_query: |
     {
       repository(name: "spiceai", owner: "spiceai") {
         id
@@ -318,7 +314,7 @@ name: stargazers
 params:
   unnest_depth: 2
   json_pointer: /data/users
-  query: |
+  graphql_query: |
     query {
       users {
         name
@@ -345,7 +341,7 @@ name: stargazers
 params:
   unnest_depth: 2
   json_pointer: /data/people
-  query: |
+  graphql_query: |
     query {
       users {
         name

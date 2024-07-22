@@ -12,13 +12,15 @@ To connect to a DuckDB [persistent database](https://duckdb.org/docs/connect/ove
 datasets:
   - from: duckdb:database.schema.table
     name: my_dataset
+    params:
+      duckdb_open: path/to/duckdb_file.duckdb
 ```
 
 ## Configuration
 
 The DuckDB data connector can be configured by providing the following `params`:
 
-- `open`: The name for the file to back the DuckDB database. `open` is a required parameter, and DuckDB run in the `file` mode to open the DuckDB database file.
+- `duckdb_open`: The name for the file to back the DuckDB database.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
@@ -29,7 +31,7 @@ datasets:
   - from: duckdb:database.schema.table
     name: my_dataset
     params:
-      open: path/to/duckdb_file.duckdb
+      duckdb_open: path/to/duckdb_file.duckdb
 ```
 
 This example uses a DuckDB database file that is at location /my/path/
@@ -39,7 +41,7 @@ datasets:
   - from: duckdb:sample_data.nyc.rideshare
     name: nyc_rideshare
     params:
-      open: /my/path/my_database.db
+      duckdb_open: /my/path/my_database.db
 ```
 
 ## DuckDB Functions
@@ -51,7 +53,7 @@ datasets:
   - from: duckdb:database.schema.table
     name: my_dataset
     params:
-      open: path/to/duckdb_file.duckdb
+      duckdb_open: path/to/duckdb_file.duckdb
 
   - from: duckdb:read_csv('test.csv', header = false)
     name: from_function

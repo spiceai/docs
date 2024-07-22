@@ -19,10 +19,10 @@ catalogs:
       - "*.my_table"
     dataset_params:
       # delta_lake S3 parameters
-      aws_region: us-west-2
-      aws_access_key_id: <aws-access-key-id>
-      aws_secret_access_key: <aws-secret>
-      aws_endpoint: s3.us-west-2.amazonaws.com
+      unity_catalog_aws_region: us-west-2
+      unity_catalog_aws_access_key_id: ${secrets:aws_access_key_id}
+      unity_catalog_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      unity_catalog_aws_endpoint: s3.us-west-2.amazonaws.com
 ```
 
 ## `from`
@@ -41,25 +41,30 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 The `dataset_params` field is used to configure the dataset-specific parameters for the catalog.
 
-These settings can also be configured in the `delta_lake` secret. See the [Delta Lake Data Connector](/components/data-connectors/delta-lake.md) for more information on configuring the secret.
-
 ### AWS S3
 
-- `aws_region`: The AWS region for the S3 object store.
-- `aws_access_key_id`: The access key ID for the S3 object store.
-- `aws_secret_access_key`: The secret access key for the S3 object store.
-- `aws_endpoint`: The endpoint for the S3 object store.
+- `unity_catalog_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
+- `unity_catalog_aws_access_key_id`: The access key ID for the S3 object store.
+- `unity_catalog_aws_secret_access_key`: The secret access key for the S3 object store.
+- `unity_catalog_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
 ### Azure Blob
-Note: One of the following must be provided: `azure_storage_account_key`, `azure_storage_client_id` and `azure_storage_client_secret`, or `azure_storage_sas_key`.
 
-- `azure_storage_account_name`: The Azure Storage account name.
-- `azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
-- `azure_storage_client_id`: The service principal client id for accessing the storage account.
-- `azure_storage_client_secret`: The service principal client secret for accessing the storage account.
-- `azure_storage_sas_key`: The shared access signature key for accessing the storage account.
-- `azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
+:::info Note
+One of the following auth values must be provided for Azure Blob:
+
+- `unity_catalog_azure_storage_account_key`, 
+- `unity_catalog_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `unity_catalog_azure_storage_sas_key`.
+:::
+
+- `unity_catalog_azure_storage_account_name`: The Azure Storage account name.
+- `unity_catalog_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
+- `unity_catalog_azure_storage_client_id`: The service principal client id for accessing the storage account.
+- `unity_catalog_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
+- `unity_catalog_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
+- `unity_catalog_azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
 
 ### Google Storage (GCS)
 
-- `google_service_account`: Filesystem path to the Google service account JSON key file.
+- `unity_catalog_google_service_account`: Filesystem path to the Google service account JSON key file.
