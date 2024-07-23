@@ -41,7 +41,7 @@ datasets:
       clickhouse_db: my_database
       clickhouse_user: my_user
       clickhouse_pass: ${secrets:my_clickhouse_pass}
-      clickhouse_connection_timeout: 10000
+      connection_timeout: 10000
       clickhouse_secure: true
 ```
 
@@ -51,7 +51,7 @@ datasets:
     name: my_dataset
     params:
       clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database
-      clickhouse_connection_timeout: 10000
+      connection_timeout: 10000
       clickhouse_secure: true
 ```
 
