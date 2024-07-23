@@ -11,9 +11,9 @@ The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query acr
 
 ### Secrets
 
-Secrets will be automatically configured by using the `spice login` command and logging in with an active Spice AI account.
+Secrets will be written to a `.env` file by using the `spice login` command and logging in with an active Spice AI account. Learn more about the [Env Secret Store](/components/secret-stores/env).
 
-- `key`: A Spice.ai API key.
+- `api_key`: A Spice.ai API key.
 - `token`: An active personal access token that is configured when logging in to spice via `spice login` 
 
 ### Parameters
@@ -32,6 +32,8 @@ Secrets will be automatically configured by using the `spice login` command and 
 ```yaml
 - from: spice.ai/eth.recent_blocks
   name: eth_recent_blocks
+  params:
+    spiceai_api_key: ${secrets:spiceai_api_key}
   acceleration:
     enabled: true
     refresh_mode: append

@@ -13,7 +13,7 @@ Spice supports SQL queries directly from HTTP requests.
 An example cURL:
 
 ```shell
-curl -XPOST "127.0.0.1:3000/v1/sql" \
+curl -XPOST "127.0.0.1:8090/v1/sql" \
      --data "SELECT avg(total_amount), \
                     avg(tip_amount), \
                     count(1), \
@@ -59,7 +59,7 @@ This allows for simple integration into any language or framework.
     import requests
     import pandas as pd
 
-    def query_runtime(query: str, url: str =  "http://127.0.0.1:3000") -> Optional[pd.DataFrame]:
+    def query_runtime(query: str, url: str =  "http://127.0.0.1:8090") -> Optional[pd.DataFrame]:
         response = requests.post(url, data=query)
 
         if response.status_code != 200:
@@ -72,7 +72,7 @@ This allows for simple integration into any language or framework.
   </TabItem>
   <TabItem value="javascript" label="Javascript">
     ```javascript
-    async function queryRuntime(query, url = "http://127.0.0.1:3000") {
+    async function queryRuntime(query, url = "http://127.0.0.1:8090") {
         try {
             const response = await fetch(url, {method: 'POST', body: query});
             if (!response.ok) {

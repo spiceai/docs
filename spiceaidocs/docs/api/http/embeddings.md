@@ -10,7 +10,7 @@ Chat completions is an OpenAI compatible endpoint.
 Specify the embedding model by providing the component name in the `model` key. For example:
 
 ```shell
-curl http://localhost:3000/v1/embeddings \
+curl http://localhost:8090/v1/embeddings \
   -H "Content-Type: application/json" \
   -d '{
     "input": "The food was delicious and the waiter...",

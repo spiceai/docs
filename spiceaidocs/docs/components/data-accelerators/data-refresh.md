@@ -83,7 +83,7 @@ curl -i -X PATCH \
      -d '{
            "refresh_sql": "SELECT * FROM accelerated_dataset WHERE city = 'Bellevue'"
          }' \
-     127.0.0.1:3000/v1/datasets/accelerated_dataset/acceleration
+     127.0.0.1:8090/v1/datasets/accelerated_dataset/acceleration
 ```
 
 For the complete reference, view the `refresh_sql` section of [datasets](/reference/spicepod/datasets.md#accelerationrefresh_sql).
@@ -187,7 +187,7 @@ spice refresh eth_recent_blocks
 API example using cURL:
 
 ```bash
-curl -i -XPOST 127.0.0.1:3000/v1/datasets/eth_recent_blocks/refresh
+curl -i -XPOST 127.0.0.1:8090/v1/datasets/eth_recent_blocks/refresh
 ```
 
 with response:

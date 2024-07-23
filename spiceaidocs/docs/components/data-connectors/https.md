@@ -7,14 +7,13 @@ pagination_prev: null
 
 The HTTP(s) Data Connector enables federated SQL query against a variety of tabular formatted (e.g. Parquet/CSV) files stored at a HTTP endpoint.
 
-The connector supports HTTP authentication via either `param` and/or `secrets`.
+The connector supports Basic HTTP authentication via `param` values.
 
 ### Parameters
 
 - `http_port`: Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.
 - `http_username`: Optional. Username to provide connection for HTTP basic authentication. Default: None.
-- `http_password`: Optional. Password to provide connection for HTTP basic authentication. Default: None.
-- `http_password_key`: Key of the secret that contains the value to use for `http_password`. Default: None.
+- `http_password`: Optional. Password to provide connection for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.
 
 ### Examples
 
@@ -26,22 +25,5 @@ datasets:
   - from: http://static_username@localhost:3001/report.csv
     name: local_report
     params:
-      http_password: BadPa$5w0rd
-```
-
-To use a secret for the HTTP password, for example, by env variable
-
-```yaml
-datasets:
-  - from: http://static_username@localhost/report.csv
-    name: local_report
-    params:
-      http_password_key: local_password
-      http_port: 3001
-```
-
-With the associated secret set, for example:
-
-```shell
-export SPICE_SECRET_HTTP_LOCAL_PASSWORD="BadPa$5w0rd"
+      http_password: ${env:MY_HTTP_PASS}
 ```

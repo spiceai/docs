@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime has a Prometheus endpoint configured by default on port `9000`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances.
+Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Import Grafana Dashboard
 
@@ -34,7 +34,7 @@ global:
     scrape_configs:
     - job_name: spiceai
         static_configs:
-        - targets: ['127.0.0.1:9000'] # Change to your Spice runtime endpoint + port
+        - targets: ['127.0.0.1:9090'] # Change to your Spice runtime endpoint + port
 ```
 
 ## Local Quickstart
