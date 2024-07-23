@@ -43,7 +43,8 @@ models:
       - qs
 
 secrets:
-  store: env
+  - from: env
+    name: env
 ```
 
 ## Key Components

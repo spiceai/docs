@@ -10,57 +10,90 @@ import TabItem from '@theme/TabItem';
 
 Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.
 
+
+```yaml
+datasets:
+  # Example for Spark Connect
+  - from: databricks:spiceai.datasets.my_awesome_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: spark_connect
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token} # Use the key `my_token` from any secret store
+      databricks_cluster_id: 1234-567890-abcde123
+  # Example for Delta Lake + S3
+  - from: databricks:spiceai.datasets.my_awesome_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_aws_region: us-west-2 # Optional
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
+```
+
+
 ## Configuration
 
-`spice login databricks` can be used to configure the secrets needed for Databricks.
+Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
 
 <Tabs>
   <TabItem value="spark_connect" label="Spark Connect" default>
+
     ```yaml
     params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       mode: spark_connect
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       databricks_cluster_id: 1234-567890-abcde123
-    ```
-
-    ```bash
-    spice login databricks --token <access-token>
+      databricks_token: ${secrets:my_token}
     ```
 
   </TabItem>
   <TabItem value="delta_lake_s3" label="Delta Lake + S3">
+
     ```yaml
     params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       mode: delta_lake
-    ```
-
-    ```bash
-    spice login databricks --token <access-token> --aws-region <aws-region> --aws-access-key-id <aws-access-key-id> --aws-secret-access-key <aws-secret-access-key>
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_aws_region: us-west-2 # Optional
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
     ```
 
   </TabItem>
   <TabItem value="delta_lake_azure" label="Delta Lake + Azure Blob">
+
     ```yaml
     params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       mode: delta_lake
-    ```
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
 
-    ```bash
-    spice login databricks --token <access-token> --azure-storage-account-name <account-name> --azure-storage-access-key <access-key>
+      # Account Name + Key
+      databricks_azure_storage_account_name: my_account
+      databricks_azure_storage_account_key: ${secrets:my_key}
+
+      # OR Service Principal + Secret
+      databricks_azure_storage_client_id: my_client_id
+      databricks_azure_storage_client_secret: ${secrets:my_secret}
+
+      # OR SAS Key
+      databricks_azure_storage_sas_key: my_sas_key
     ```
 
   </TabItem>
   <TabItem value="delta_lake_gcp" label="Delta Lake + Google Storage">
+
     ```yaml
     params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       mode: delta_lake
-    ```
-
-    ```bash
-    spice login databricks --token <access-token> --google-service-account-path /path/to/service-account.json
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_google_service_account_path: /path/to/service-account.json
     ```
 
   </TabItem>
@@ -68,113 +101,41 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 
 ### Parameters
 
-- `endpoint`: The endpoint of the Databricks instance.
 - `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
   - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.
   - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.
+- `databricks_endpoint`: The endpoint of the Databricks instance. Required for both modes.
 - `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
-### Auth
+### Delta Lake object store parameters
 
-An active personal access token for the Databricks instance is required (equivalent to `DATABRICKS_TOKEN`).
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
-By default the Databricks connector will look for a secret named `databricks` with keys `token`.
+#### AWS S3
 
-Check [Secrets Stores](/components/secret-stores) for more details.
+- `databricks_aws_region`: Optional. The AWS region for the S3 object store. E.g. `us-west-2`.
+- `databricks_aws_access_key_id`: The access key ID for the S3 object store. 
+- `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
+- `databricks_aws_endpoint`: Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
-<Tabs>
-  <TabItem value="env" label="Env">
-    ```bash
-    SPICE_DATABRICKS_TOKEN=<access-token> \
-    spice run
-    ```
+#### Azure Blob
 
-    or
+:::info Note
+One of the following auth values must be provided for Azure Blob:
 
-    ```bash
-    spice login databricks --token <access-token>
-    ```
+- `databricks_azure_storage_account_key`, 
+- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `databricks_azure_storage_sas_key`.
+:::
 
-    to create or update an `.env` file with the secret.
+- `databricks_azure_storage_account_name`: The Azure Storage account name.
+- `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
+- `databricks_azure_storage_client_id`: The service principal client id for accessing the storage account.
+- `databricks_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
+- `databricks_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
+- `databricks_azure_storage_endpoint`: Optional. The endpoint for the Azure Blob storage account.
 
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
+#### Google Storage (GCS)
 
-    secrets:
-      store: env
-
-    # <...>
-    ```
-
-    Learn more about [Env Secret Store](/components/secret-stores/env).
-
-  </TabItem>
-  <TabItem value="k8s" label="Kubernetes">
-    ```bash
-    kubectl create secret generic databricks \
-      --from-literal=token='<access-token>'
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      store: kubernetes
-
-    # <...>
-    ```
-
-    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
-
-  </TabItem>
-  <TabItem value="keyring" label="Keyring">
-    Add new keychain entry (macOS), with user and password in JSON string
-
-    ```bash
-    security add-generic-password -l "Databricks Secret" \
-    -a spiced -s spice_secret_databricks \
-    -w $(echo -n '{"token": "<access-token>"}')
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      store: keyring
-
-    # <...>
-    ```
-
-    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
-
-  </TabItem>
-</Tabs>
-
-## Example
-
-```yaml
-datasets:
-  # Example for Spark Connect
-  - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
-    name: my_delta_lake_table
-    params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-      mode: spark_connect
-      databricks_cluster_id: 1234-567890-abcde123
-  # Example for Delta Lake
-  - from: databricks:spiceai.datasets.my_awesome_table  // A reference to a table in the Databricks unity catalog
-    name: my_delta_lake_table
-    params:
-      endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-      mode: delta_lake
-```
+- `google_service_account`: Filesystem path to the Google service account JSON key file.

@@ -18,14 +18,14 @@ catalogs:
     include:
       - "*.my_table_name" # include only the "my_table_name" tables
     params:
-      endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
       mode: delta_lake # or spark_connect
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
     dataset_params:
       # delta_lake S3 parameters
-      aws_region: us-west-2
-      aws_access_key_id: <aws-access-key-id>
-      aws_secret_access_key: <aws-secret>
-      aws_endpoint: s3.us-west-2.amazonaws.com
+      databricks_aws_region: us-west-2
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      databricks_aws_endpoint: s3.us-west-2.amazonaws.com
       # spark_connect parameters
       databricks_cluster_id: 1234-567890-abcde123
 ```
@@ -46,11 +46,11 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 The `params` field is used to configure the connection to the Databricks Unity Catalog. The following parameters are supported:
 
-- `endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
-- `token`: The Databricks API token to authenticate with the Unity Catalog API. Can also be specified in the `databricks` secret. See the [Databricks Data Connector](/components/data-connectors/databricks.md) for more information on configuring the secret.
 - `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
   - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.
-  - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided, either as a secret or inline in the params.
+  - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.
+- `databricks_endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
+- `databricks_token`: The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_databricks_token}`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
 ## `dataset_params`
@@ -61,28 +61,84 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 
 - `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. e.g. `1234-567890-abcde123`.
 
-### Delta Lake parameters
+### Delta Lake object store parameters
 
-These settings can also be configured in the `databricks` secret. See the [Databricks Data Connector](/components/data-connectors/databricks.md) for more information on configuring the secret.
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 #### AWS S3
 
-- `aws_region`: The AWS region for the S3 object store.
-- `aws_access_key_id`: The access key ID for the S3 object store.
-- `aws_secret_access_key`: The secret access key for the S3 object store.
-- `aws_endpoint`: The endpoint for the S3 object store.
+- `databricks_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
+- `databricks_aws_access_key_id`: The access key ID for the S3 object store. 
+- `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
+- `databricks_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
+
+Example:
+  
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - "*.my_table_name"
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+    dataset_params:
+      databricks_aws_region: us-west-2
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      databricks_aws_endpoint: s3.us-west-2.amazonaws.com
+```
 
 #### Azure Blob
 
-Note: One of the following must be provided: `azure_storage_account_key`, `azure_storage_client_id` and `azure_storage_client_secret`, or `azure_storage_sas_key`.
+:::info Note
+One of the following auth values must be provided for Azure Blob:
 
-- `azure_storage_account_name`: The Azure Storage account name.
-- `azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
-- `azure_storage_client_id`: The service principal client id for accessing the storage account.
-- `azure_storage_client_secret`: The service principal client secret for accessing the storage account.
-- `azure_storage_sas_key`: The shared access signature key for accessing the storage account.
-- `azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
+- `databricks_azure_storage_account_key`, 
+- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `databricks_azure_storage_sas_key`.
+:::
+
+- `databricks_azure_storage_account_name`: The Azure Storage account name.
+- `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
+- `databricks_azure_storage_client_id`: The service principal client id for accessing the storage account.
+- `databricks_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
+- `databricks_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
+- `databricks_azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
+
+Example:
+  
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - "*.my_table_name"
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+    dataset_params:
+      databricks_azure_storage_account_name: myaccount
+      databricks_azure_storage_account_key: ${secrets:azure_storage_account_key}
+      databricks_azure_storage_endpoint: myaccount.blob.core.windows.net
+```
 
 #### Google Storage (GCS)
 
 - `google_service_account`: Filesystem path to the Google service account JSON key file.
+
+Example:
+  
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - "*.my_table_name"
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+    dataset_params:
+      databricks_google_service_account: /path/to/service-account.json
+```
