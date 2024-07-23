@@ -57,7 +57,7 @@ const config: Config = {
     // image: 'img/docusaurus-social-card.jpg',
     announcementBar: {
       content:
-        '<a href="https://github.com/spiceai/spiceai/releases/tag/v0.15.2-alpha">Spice.ai OSS v0.15.2-alpha</a> is now available! 🚀',
+        '<a href="https://github.com/spiceai/spiceai/releases/tag/v0.16.0-alpha">Spice.ai OSS v0.16-alpha</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true,
