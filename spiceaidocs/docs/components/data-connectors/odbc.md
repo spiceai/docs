@@ -54,6 +54,7 @@ The runtime will attempt to detect the dialect to use for a connection based on 
 * Databricks
 
 These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
+
 ```yaml
 datasets:
   - from: odbc:path.to.my_dataset
@@ -78,7 +79,7 @@ RUN apt update \
 Build the container:
 
 ```bash
-$ docker build -t spice-libsqliteodbc .
+docker build -t spice-libsqliteodbc .
 ```
 
 Validate that the ODBC configuration was updated to reference the newly installed driver:
