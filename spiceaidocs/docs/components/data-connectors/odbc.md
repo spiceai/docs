@@ -28,7 +28,7 @@ In addition to the connection string, the following [arrow_odbc builder paramete
 
 | Parameter               | Type           | Description                                                                                                                                                                                      | Default                                           |
 |-------------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| sql_dialect     | string | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite` or `databricks` values.   | Unset (auto-detected) |
+| sql_dialect     | string | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values.   | Unset (auto-detected) |
 | odbc_max_bytes_per_batch     | number (bytes) | Upper allocation limit for transit buffer.   | `512_000_000` |
 | odbc_max_num_rows_per_batch  | number (rows)  | Upper limit for number of rows fetched for one batch. | `65536` |
 | odbc_max_text_size           | number (bytes) | Upper limit for value buffers bound to columns with text values. | Unset (allocates driver-reported max column size) |
@@ -52,8 +52,9 @@ The runtime will attempt to detect the dialect to use for a connection based on 
 * MySQL
 * SQLite
 * Databricks
+* AWS Athena
 
-These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
+These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`, `athena`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
 
 ```yaml
 datasets:
