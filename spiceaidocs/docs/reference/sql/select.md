@@ -1,8 +1,9 @@
 ---
 title: "SELECT"
 sidebar_label: "SELECT"
-pagination_prev: 'reference/index'
+pagination_prev: 'reference/sql/index'
 pagination_next: null
+sidebar_position: 1
 ---
 
 :::info
