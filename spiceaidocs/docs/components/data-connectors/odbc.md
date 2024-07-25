@@ -6,6 +6,12 @@ description: 'ODBC Data Connector Documentation'
 
 ## Setup
 
+:::warning
+
+ODBC support is not included in the released binaries. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
+
+:::
+
 An ODBC connection requires a compatible ODBC driver. Whether running as a Docker image or directly on a computer, a valid ODBC driver configuration is necessary. ODBC drivers for various connection types are available from their respective vendors:
 
 - [PostgreSQL](https://odbc.postgresql.org/)
