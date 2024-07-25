@@ -1,5 +1,5 @@
 ---
-title: POST /v1/predict'
+title: 'POST /v1/predict'
 sidebar_label: 'POST /v1/predict'
 description: ''
 sidebar_position: 10
