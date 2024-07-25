@@ -4,6 +4,17 @@ sidebar_label: 'ODBC Data Connector'
 description: 'ODBC Data Connector Documentation'
 ---
 
+## Setup
+
+An ODBC connection requires a compatible ODBC driver. Whether running as a Docker image or directly on a computer, a valid ODBC driver configuration is necessary. ODBC drivers for various connection types are available from their respective vendors:
+
+- [PostgreSQL](https://odbc.postgresql.org/)
+- [MySQL](https://dev.mysql.com/downloads/connector/odbc/)
+- [Databricks](https://www.databricks.com/spark/odbc-drivers-download)
+- [AWS Athena](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
+
+Please note that this is not an exhaustive list of drivers, as there are many ODBC adapters available.
+
 ## Federated SQL query
 
 To connect to any ODBC database for federated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required. Spice must be built with the `odbc` feature, and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
@@ -48,11 +59,11 @@ The default SQL dialect may not be supported by every ODBC connection. The `sql_
 
 The runtime will attempt to detect the dialect to use for a connection based on the contents of `Driver=` in the `odbc_connection_string`. The runtime will usually detect the correct SQL dialect for the following connection types:
 
-* PostgreSQL
-* MySQL
-* SQLite
-* Databricks
-* AWS Athena
+- PostgreSQL
+- MySQL
+- SQLite
+- Databricks
+- AWS Athena
 
 These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`, `athena`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
 
