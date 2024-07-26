@@ -12,7 +12,6 @@ The Spice runtime stores information about completed queries in the `spice.runti
 SELECT
   *
 FROM
-  *
 spice.runtime.query_history
 LIMIT
   100;
@@ -23,23 +22,23 @@ LIMIT
 | Column Name       | Data Type                   | Description |
 |-------------------|-----------------------------|-------------|
 | query_id          | Utf8                        | The unique identifier of the SQL query. |
-| schema            | Utf8                        | The Schema of the query result.       |
+| schema            | Utf8                        | The schema of the query result.       |
 | sql               | Utf8                        | The query text of the SQL statement.     |
-| nsql              | Utf8                        | Optional. If the query was generated through the natural language to SQL api, the natural language text of the query. |
+| nsql              | Utf8                        | Optional. If the query was generated through the natural language to SQL API, the natural language text of the query. |
 | start_time        | Timestamp(Nanosecond, None) | The query execution start time (UTC).    |
 | end_time          | Timestamp(Nanosecond, None) | The query execution end time (UTC).          |
 | execution_time    | Float32                     | The total execution time in seconds.          |
 | execution_status  | Int8                        | The [status code](query_history.md#execution-status-codes) returned from query execution.     |
 | rows_produced     | UInt64                      | The total number of rows returned from the query.           |
 | results_cache_hit | Boolean                     | True if the result of the query was returned from the results cache, otherwise, false.          |
-| error_message     | Utf8                        | The error message that was returned        |
+| error_message     | Utf8                        | The error message that was returned.        |
 
 ### Execution Status Codes
 
 | Value | Status           | Description |
 |-------|-----------------------|-------------|
 | 0     | Success               | The query completed with no errors. |
-| -10   | Syntax Error          | The SQL query text provided has a syntax error.  For instance, a misspelled SQL statement was in the query. |
+| -10   | Syntax Error          | The SQL query text provided has a syntax error. For instance, a misspelled SQL statement was in the query. |
 | -20   | Query Planning Error  | An error occurred while mapping the SQL query to a query plan. For instance, attempting to call a function that does not exist, or providing a query with unsupported types. |
-| -30   | Query Execution Error | An error occurred during an execution due to a malformed input. For instance, passing malformed arguments to a SQL method. |
+| -30   | Query Execution Error | An error occurred during execution due to a malformed input. For instance, passing malformed arguments to a SQL method. |
 | -120  | Internal Error        | An internal error occurred within Spice. |
