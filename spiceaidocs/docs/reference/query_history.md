@@ -23,7 +23,7 @@ LIMIT
 | Column Name       | Data Type                   | Description |
 |-------------------|-----------------------------|-------------|
 | query_id          | Utf8                        | The unique identifier of the SQL query. |
-| schema            | Utf8                        | The Schema of the tables queried.       |
+| schema            | Utf8                        | The Schema of the query result.       |
 | sql               | Utf8                        | The query text of the SQL statment.     |
 | nsql              | Utf8                        | Optional. If the query was generated through the natural langauge to sql api, the natural language text of the query. |
 | start_time        | Timestamp(Nanosecond, None) | The query execution start time (UTC).    |
