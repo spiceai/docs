@@ -24,8 +24,8 @@ LIMIT
 |-------------------|-----------------------------|-------------|
 | query_id          | Utf8                        | The unique identifier of the SQL query. |
 | schema            | Utf8                        | The Schema of the query result.       |
-| sql               | Utf8                        | The query text of the SQL statment.     |
-| nsql              | Utf8                        | Optional. If the query was generated through the natural langauge to sql api, the natural language text of the query. |
+| sql               | Utf8                        | The query text of the SQL statement.     |
+| nsql              | Utf8                        | Optional. If the query was generated through the natural language to sql api, the natural language text of the query. |
 | start_time        | Timestamp(Nanosecond, None) | The query execution start time (UTC).    |
 | end_time          | Timestamp(Nanosecond, None) | The query execution end time (UTC).          |
 | execution_time    | Float32                     | The total execution time in seconds.          |
@@ -39,7 +39,7 @@ LIMIT
 | Value | Status           | Description |
 |-------|-----------------------|-------------|
 | 0     | Success               | The query completed with no errors. |
-| -10   | Syntax Error          | The SQL query text provided has a syntax error.  For instance, a misspeled SQL statement was in the query. |
+| -10   | Syntax Error          | The SQL query text provided has a syntax error.  For instance, a misspelled SQL statement was in the query. |
 | -20   | Query Planning Error  | An error occurred while mapping the SQL query to a query plan. For instance, attempting to call a function that does not exist, or providing a query with unsupported types. |
-| -30   | Query Execution Error | An error occurred during en execution due to a malformed input. For instance, passing malformed arguments to a SQL method. |
+| -30   | Query Execution Error | An error occurred during an execution due to a malformed input. For instance, passing malformed arguments to a SQL method. |
 | -120  | Internal Error        | An internal error occurred within Spice. |
