@@ -25,7 +25,7 @@ LIMIT
 | query_id          | Utf8                        | The unique identifier of the SQL query. |
 | schema            | Utf8                        | The Schema of the query result.       |
 | sql               | Utf8                        | The query text of the SQL statement.     |
-| nsql              | Utf8                        | Optional. If the query was generated through the natural language to sql api, the natural language text of the query. |
+| nsql              | Utf8                        | Optional. If the query was generated through the natural language to SQL api, the natural language text of the query. |
 | start_time        | Timestamp(Nanosecond, None) | The query execution start time (UTC).    |
 | end_time          | Timestamp(Nanosecond, None) | The query execution end time (UTC).          |
 | execution_time    | Float32                     | The total execution time in seconds.          |
