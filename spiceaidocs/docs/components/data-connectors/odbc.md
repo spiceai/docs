@@ -12,7 +12,7 @@ ODBC support is not included in the released binaries. To use ODBC with Spice, y
 
 :::
 
-An ODBC connection requires a compatible ODBC driver and valid driver configuration. ODBC drivers are available from their respective vendors.  Here are a few examples:
+An ODBC connection requires a compatible ODBC driver and valid driver configuration. ODBC drivers are available from their respective vendors. Here are a few examples:
 
 - [PostgreSQL](https://odbc.postgresql.org/)
 - [MySQL](https://dev.mysql.com/downloads/connector/odbc/)
