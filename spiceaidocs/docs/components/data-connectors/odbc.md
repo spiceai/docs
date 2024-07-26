@@ -12,14 +12,12 @@ ODBC support is not included in the released binaries. To use ODBC with Spice, y
 
 :::
 
-An ODBC connection requires a compatible ODBC driver. Whether running as a Docker image or directly on a computer, a valid ODBC driver configuration is necessary. ODBC drivers for various connection types are available from their respective vendors:
+An ODBC connection requires a compatible ODBC driver and valid driver configuration. ODBC drivers are available from their respective vendors.  Here are a few examples:
 
 - [PostgreSQL](https://odbc.postgresql.org/)
 - [MySQL](https://dev.mysql.com/downloads/connector/odbc/)
 - [Databricks](https://www.databricks.com/spark/odbc-drivers-download)
 - [AWS Athena](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
-
-Please note that this is not an exhaustive list of drivers, as there are many ODBC adapters available.
 
 ## Federated SQL query
 
