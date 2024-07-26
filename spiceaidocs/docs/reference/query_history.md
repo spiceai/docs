@@ -31,7 +31,7 @@ LIMIT
 | execution_time    | Float32                     | The total execution time in seconds.          |
 | execution_status  | Int8                        | The [status code](query_history.md#execution-status-codes) returned from query execution.     |
 | rows_produced     | UInt64                      | The total number of rows returned from the query.           |
-| results_cache_hit | Boolean                     | True if the result from the query was returned from the results cache, otherwise false.          |
+| results_cache_hit | Boolean                     | True if the result of the query was returned from the results cache, otherwise, false.          |
 | error_message     | Utf8                        | The error message that was returned        |
 
 ### Execution Status Codes
