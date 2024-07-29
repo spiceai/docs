@@ -68,11 +68,11 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-### `num_of_parallel_loading_at_start_up`
+### `runtime.num_of_parallel_loading_at_start_up`
 
 This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup. This parallel loading capability accelerates Spice's startup process when multiple datasets are configured.
 
-### `results_cache`
+### `runtime.results_cache`
 
 The results cache section specifies runtime cache configuration. [Learn more](/features/caching).
 
@@ -89,6 +89,76 @@ runtime:
 - `cache_max_size` - optional, maximum cache size. Default is `128MiB`
 - `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
 - `item_ttl` - optional, cache entry expiration time, 1 second by default.
+
+### `runtime.tls`
+
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/api/tls).
+
+In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file` flags.
+
+#### `runtime.tls.certificate`
+
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/components/secret-stores).
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate: |
+      -----BEGIN CERTIFICATE-----
+      ...
+      -----END CERTIFICATE-----
+```
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate: ${secrets:tls_cert}
+```
+
+#### `runtime.tls.certificate_file`
+
+The path to the TLS PEM-encoded certificate file. Only one of `certificate` or `certificate_file` must be used.
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate_file: /path/to/cert.pem
+```
+
+#### `runtime.tls.key`
+
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/components/secret-stores).
+
+```yaml
+runtime:
+  tls:
+    ...
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      ...
+      -----END PRIVATE KEY-----
+```
+
+```yaml
+runtime:
+  tls:
+    ...
+    key: ${secrets:tls_key}
+```
+
+#### `runtime.tls.key_file`
+
+The path to the TLS PEM-encoded key file. Only one of `key` or `key_file` must be used.
+
+```yaml
+runtime:
+  tls:
+    ...
+    key_file: /path/to/key.pem
+```
 
 ## `metadata`
 

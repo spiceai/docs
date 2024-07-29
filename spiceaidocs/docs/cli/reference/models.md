@@ -15,7 +15,8 @@ spice models [flags]
 
 #### Flags
 
-  - `-h`, `--help`   help for models
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-h`, `--help`   help for models
 
 ### Examples
 
