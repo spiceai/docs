@@ -86,3 +86,37 @@ The output shows TLS is enabled and which certificate is being used.
 ```bash
 INFO runtime: All endpoints secured with TLS using certificate: CN=spiced.localhost, OU=IT, O=Widgets, Inc., L=Seattle, S=Washington, C=US
 ```
+
+## Using the Spice CLI
+
+When TLS is enabled, the Spice CLI can connect to the Spice runtime using the `--tls-root-certificate-file` flag. This flag is used to specify the path to the root certificate file that can be used to verify the Spice runtime's certificate.
+
+`spice sql`
+
+```bash
+spice sql --tls-root-certificate-file /path/to/root.pem
+```
+
+`spice status`
+
+```bash
+spice status --tls-root-certificate-file /path/to/root.pem
+```
+
+`spice datasets`
+
+```bash
+spice datasets --tls-root-certificate-file /path/to/root.pem
+```
+
+`spice models`
+
+```bash
+spice models --tls-root-certificate-file /path/to/root.pem
+```
+
+`spice catalogs`
+
+```bash
+spice catalogs --tls-root-certificate-file /path/to/root.pem
+```
