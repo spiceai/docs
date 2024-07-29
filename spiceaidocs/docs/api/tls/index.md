@@ -15,7 +15,7 @@ A valid TLS certificate and private key in the [PEM](https://en.wikipedia.org/wi
 
 ## Via command line arguments
 
-Use the `--tls` flag to enable TLS. The `--tls-certificate-file` and `--tls-key-file` flags are used to specify the paths to the certificate and private key files.
+Use the `--tls-*` flags to enable TLS. The `--tls-certificate-file` and `--tls-key-file` flags are used to specify the paths to the certificate and private key files.
 
 ```bash
 spiced --tls --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
@@ -26,13 +26,13 @@ Alternatively, the `--tls-certificate` and `--tls-key` flags can be used to spec
 ```bash
 export TLS_CERT=$(cat /path/to/cert.pem)
 export TLS_KEY=$(cat /path/to/key.pem)
-spiced --tls --tls-certificate "$TLS_CERT" --tls-key "$TLS_KEY"
+spiced --tls-certificate "$TLS_CERT" --tls-key "$TLS_KEY"
 ```
 
 The arguments can also be passed to `spice run` to enable TLS.
 
 ```bash
-spice run -- --tls --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
+spice run -- --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
 
 Note that `--` is used to separate the `spice run` arguments from the Spice runtime arguments.
