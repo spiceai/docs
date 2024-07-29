@@ -45,7 +45,8 @@ github.com/prometheus/client_model/go, https://github.com/prometheus/client_mode
 
 github.com/prometheus/common, https://github.com/prometheus/common/blob/v0.50.0/LICENSE, Apache-2.0
 
-github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg, https://github.com/prometheus/common/blob/v0.50.0/internal/bitbucket.org/ww/goautoneg/README.txt, BSD-3-Clause
+github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg,
+https://github.com/prometheus/common/blob/v0.50.0/internal/bitbucket.org/ww/goautoneg/README.txt, BSD-3-Clause
 
 github.com/rivo/uniseg, https://github.com/rivo/uniseg/blob/v0.4.6/LICENSE.txt, MIT
 
@@ -220,7 +221,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - datafusion-table-providers 0.1.0,
   <br/>https://github.com/datafusion-contrib/datafusion-table-providers
 
-- delta_kernel 0.1.1, Apache-2.0
+- delta_kernel 0.2.0, Apache-2.0
   <br/>https://github.com/delta-incubator/delta-kernel-rs
 
 - dirs 5.0.1, Apache-2.0 OR MIT
@@ -250,8 +251,26 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - hf-hub 0.3.2, Apache-2.0
   <br/>https://github.com/huggingface/hf-hub
 
+- http 0.2.12, Apache-2.0 OR MIT
+  <br/>https://github.com/hyperium/http
+
+- http 1.1.0, Apache-2.0 OR MIT
+  <br/>https://github.com/hyperium/http
+
+- http-body-util 0.1.2, MIT
+  <br/>https://github.com/hyperium/http-body
+
 - humantime 2.1.0, Apache-2.0 OR MIT
   <br/>https://github.com/tailhook/humantime
+
+- hyper 0.14.30, MIT
+  <br/>https://github.com/hyperium/hyper
+
+- hyper 1.4.1, MIT
+  <br/>https://github.com/hyperium/hyper
+
+- hyper-util 0.1.6, MIT
+  <br/>https://github.com/hyperium/hyper-util
 
 - indexmap 1.9.3, Apache-2.0 OR MIT
   <br/>https://github.com/bluss/indexmap
@@ -273,9 +292,6 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - keyring 2.3.3, Apache-2.0 OR MIT
   <br/>https://github.com/hwchen/keyring-rs.git
-
-- lazy_static 1.5.0, Apache-2.0 OR MIT
-  <br/>https://github.com/rust-lang-nursery/lazy-static.rs
 
 - logos 0.14.0, Apache-2.0 OR MIT
   <br/>https://github.com/maciejhirsz/logos
@@ -310,7 +326,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - notify 6.1.1, CC0-1.0
   <br/>https://github.com/notify-rs/notify.git
 
-- object_store 0.10.1, Apache-2.0 OR MIT
+- object_store 0.10.2, Apache-2.0 OR MIT
   <br/>https://github.com/apache/arrow-rs/tree/master/object_store
 
 - odbc-api 8.1.2, MIT
@@ -442,6 +458,15 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - tokio-rusqlite 0.5.1, MIT
   <br/>https://github.com/programatik29/tokio-rusqlite
 
+- tokio-rustls 0.24.1, Apache-2.0 OR MIT
+  <br/>https://github.com/rustls/tokio-rustls
+
+- tokio-rustls 0.25.0, Apache-2.0 OR MIT
+  <br/>https://github.com/rustls/tokio-rustls
+
+- tokio-rustls 0.26.0, Apache-2.0 OR MIT
+  <br/>https://github.com/rustls/tokio-rustls
+
 - tonic 0.9.2, MIT
   <br/>https://github.com/hyperium/tonic
 
@@ -474,3 +499,6 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - uuid 1.10.0, Apache-2.0 OR MIT
   <br/>https://github.com/uuid-rs/uuid
+
+- x509-certificate 0.23.1, MPL-2.0
+  <br/>https://github.com/indygreg/cryptography-rs.git
