@@ -75,7 +75,7 @@ For more information on using secrets, see the [Secret Stores](../../components/
 
 :::info
 
-Spice will only configure the endpoints based on the initial configuration it starts up with. Changing the parameters at runtime in the spicepod will have no effect.
+Spice configures endpoints based on its configuration at startup. Changing parameters while Spice is running will have no effect.
 
 :::
 
