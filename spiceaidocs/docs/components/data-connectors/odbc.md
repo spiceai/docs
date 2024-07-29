@@ -19,6 +19,11 @@ An ODBC connection requires a compatible ODBC driver and valid driver configurat
 - [Databricks](https://www.databricks.com/spark/odbc-drivers-download)
 - [AWS Athena](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
 
+Unix additionally requires the installation of `unixodbc`. Here are some examples for installing this package:
+
+- Ubuntu: `sudo apt-get install unixodbc`
+- MacOS: `brew install unixodbc`
+
 ## Federated SQL query
 
 To connect to any ODBC database for federated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required. Spice must be built with the `odbc` feature, and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
