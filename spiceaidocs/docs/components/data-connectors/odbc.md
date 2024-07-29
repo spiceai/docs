@@ -19,7 +19,7 @@ An ODBC connection requires a compatible ODBC driver and valid driver configurat
 - [Databricks](https://www.databricks.com/spark/odbc-drivers-download)
 - [AWS Athena](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
 
-Unix additionally requires the installation of `unixodbc`. Here are some examples for installing this package:
+Non-Windows systems additionally require the installation of an ODBC Driver Manager like `unixodbc`.
 
 - Ubuntu: `sudo apt-get install unixodbc`
 - MacOS: `brew install unixodbc`
