@@ -4,6 +4,36 @@ sidebar_label: 'ODBC Data Connector'
 description: 'ODBC Data Connector Documentation'
 ---
 
+## Setup
+
+:::warning
+
+ODBC support is not included in the released binaries. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
+
+Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
+
+```bash
+# Pull the latest official Spice image
+docker pull spiceai/spiceai:latest
+
+# Pull the official v0.17-beta Spice image
+docker pull spiceai/spiceai:0.17.0-beta
+```
+
+:::
+
+An ODBC connection requires a compatible ODBC driver and valid driver configuration. ODBC drivers are available from their respective vendors. Here are a few examples:
+
+- [PostgreSQL](https://odbc.postgresql.org/)
+- [MySQL](https://dev.mysql.com/downloads/connector/odbc/)
+- [Databricks](https://www.databricks.com/spark/odbc-drivers-download)
+- [AWS Athena](https://docs.aws.amazon.com/athena/latest/ug/connect-with-odbc.html)
+
+Non-Windows systems additionally require the installation of an ODBC Driver Manager like `unixodbc`.
+
+- Ubuntu: `sudo apt-get install unixodbc`
+- MacOS: `brew install unixodbc`
+
 ## Federated SQL query
 
 To connect to any ODBC database for federated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required. Spice must be built with the `odbc` feature, and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
@@ -48,11 +78,11 @@ The default SQL dialect may not be supported by every ODBC connection. The `sql_
 
 The runtime will attempt to detect the dialect to use for a connection based on the contents of `Driver=` in the `odbc_connection_string`. The runtime will usually detect the correct SQL dialect for the following connection types:
 
-* PostgreSQL
-* MySQL
-* SQLite
-* Databricks
-* AWS Athena
+- PostgreSQL
+- MySQL
+- SQLite
+- Databricks
+- AWS Athena
 
 These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`, `athena`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
 
