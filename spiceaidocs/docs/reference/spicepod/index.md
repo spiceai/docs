@@ -94,6 +94,8 @@ runtime:
 
 The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/api/tls).
 
+In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file` flags.
+
 #### `runtime.tls.certificate`
 
 The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/components/secret-stores).
