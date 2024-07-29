@@ -96,27 +96,3 @@ When TLS is enabled, the Spice CLI can connect to the Spice runtime using the `-
 ```bash
 spice sql --tls-root-certificate-file /path/to/root.pem
 ```
-
-`spice status`
-
-```bash
-spice status --tls-root-certificate-file /path/to/root.pem
-```
-
-`spice datasets`
-
-```bash
-spice datasets --tls-root-certificate-file /path/to/root.pem
-```
-
-`spice models`
-
-```bash
-spice models --tls-root-certificate-file /path/to/root.pem
-```
-
-`spice catalogs`
-
-```bash
-spice catalogs --tls-root-certificate-file /path/to/root.pem
-```
