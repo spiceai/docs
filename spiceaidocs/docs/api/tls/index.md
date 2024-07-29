@@ -18,7 +18,7 @@ A valid TLS certificate and private key in the [PEM](https://en.wikipedia.org/wi
 Use the `--tls-*` flags to enable TLS. The `--tls-certificate-file` and `--tls-key-file` flags are used to specify the paths to the certificate and private key files.
 
 ```bash
-spiced --tls --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
+spiced --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
 
 Alternatively, the `--tls-certificate` and `--tls-key` flags can be used to specify the certificate and private key directly.
