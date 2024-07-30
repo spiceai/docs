@@ -2,44 +2,47 @@
 title: 'TLS: Transport Layer Security'
 sidebar_label: 'TLS'
 sidebar_position: 2
-description: 'TLS Endpoint Documentation'
+description: 'Encryption in transit with TLS documentation'
 pagination_prev: null
 pagination_next: null
 ---
 
-[TLS](https://www.cloudflare.com/learning/ssl/transport-layer-security-tls/) (Transport Layer Security) is a cryptographic protocol that secures communication over a network. Learn how Spice can be configured to use TLS on all of its endpoints.
+[Transport Layer Security](https://en.wikipedia.org/wiki/Transport_Layer_Security) (TLS) is a cryptographic protocol that secures communication over a network. TLS is the successor to deprecated Secure-Sockets-Layer (SSL). Learn how to configure Spice to use TLS for encryption in transit.
 
 ## Pre-requisites
 
-A valid TLS certificate and private key in the [PEM](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) format are required. Follow the [TLS Sample](https://github.com/spiceai/samples/tree/trunk/tls) to generate these for testing.
+A valid TLS certificate and private key in [PEM](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) format are required. To generate certificates for testing, follow the [TLS Sample](https://github.com/spiceai/samples/tree/trunk/tls).
 
-## Via command line arguments
+## Enable TLS via command line arguments
 
-Use the `--tls-*` flags to enable TLS. The `--tls-certificate-file` and `--tls-key-file` flags are used to specify the paths to the certificate and private key files.
+Use the `--tls-*` arguments to enable TLS from the command line. Arguments `--tls-certificate-file` and `--tls-key-file` specify the paths to the certificate and private key files.
 
 ```bash
+# Provide the TLS certicate and key PEM files to the Spice runtime
 spiced --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
 
-Alternatively, the `--tls-certificate` and `--tls-key` flags can be used to specify the certificate and private key directly.
+Alternatively, to pass PEM-encoded certificate and private key strings directly, use the `--tls-certificate` and `--tls-key` arguments.
 
 ```bash
+# Provide the TLS certicate and key using PEM-encoded strings to the Spice runtime
 export TLS_CERT=$(cat /path/to/cert.pem)
 export TLS_KEY=$(cat /path/to/key.pem)
 spiced --tls-certificate "$TLS_CERT" --tls-key "$TLS_KEY"
 ```
 
-The arguments can also be passed to `spice run` to enable TLS.
+When using the Spice CLI, arguments, including the TLS arguments, are passed to `spice run` automatically.
 
 ```bash
+# Run Spice using the CLI and provide the TLS certicate and key as PEM files
 spice run -- --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
 
 Note that `--` is used to separate the `spice run` arguments from the Spice runtime arguments.
 
-## Via spicepod.yaml
+## Enable TLS via spicepod.yaml
 
-The `runtime` configuration can be added to the root `spicepod.yaml` to enable TLS.
+Use the `tls` section as a child to `runtime` to provide the certificate and key files/strings.
 
 ```yaml
 runtime:
@@ -66,22 +69,22 @@ runtime:
 ```yaml
 runtime:
   tls:
-    # The certificate and key can also come from secrets
+    # Provide the certificate and key using secrets
     certificate: ${secrets:tls_cert}
     key: ${secrets:tls_key}
 ```
 
-For more information on using secrets, see the [Secret Stores](../../components/secret-stores/index.md) documentation.
+To learn more about secrets, see [Secret Stores](../../components/secret-stores/index.md).
 
 :::info
 
-Spice configures endpoints based on its configuration at startup. Changing parameters while Spice is running will have no effect.
+Changes to TLS configuration are not applied at runtime and will only take effect on startup.
 
 :::
 
 ## Output
 
-The output shows TLS is enabled and which certificate is being used.
+When TLS is enabled, the runtime output will print the TLS certificate details.
 
 ```bash
 INFO runtime: All endpoints secured with TLS using certificate: CN=spiced.localhost, OU=IT, O=Widgets, Inc., L=Seattle, S=Washington, C=US
@@ -89,9 +92,7 @@ INFO runtime: All endpoints secured with TLS using certificate: CN=spiced.localh
 
 ## Using the Spice CLI
 
-When TLS is enabled, the Spice CLI can connect to the Spice runtime using the `--tls-root-certificate-file` flag. This flag is used to specify the path to the root certificate file that can be used to verify the Spice runtime's certificate.
-
-`spice sql`
+When TLS is enabled in the runtime, the Spice CLI can be configured to connect to the runtime using TLS by specifying the `--tls-root-certificate-file` argument, providing the path to the root certificate file.
 
 ```bash
 spice sql --tls-root-certificate-file /path/to/root.pem
