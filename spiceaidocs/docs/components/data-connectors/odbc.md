@@ -16,8 +16,8 @@ Alternatively, use the official Spice Docker image. To use the official Spice Do
 # Pull the latest official Spice image
 docker pull spiceai/spiceai:latest
 
-# Pull the official v0.17-beta Spice image
-docker pull spiceai/spiceai:0.17.0-beta
+# Pull the official v0.17.1-beta Spice image
+docker pull spiceai/spiceai:0.17.1-beta
 ```
 
 :::
