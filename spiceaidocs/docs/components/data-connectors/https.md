@@ -14,7 +14,7 @@ The connector supports Basic HTTP authentication via `param` values.
 - `http_port`: Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.
 - `http_username`: Optional. Username to provide connection for HTTP basic authentication. Default: None.
 - `http_password`: Optional. Password to provide connection for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.
-- `client_timeout`: Specifies timeout for HTTP response. Default value is `30s` E.g. `client_timeout: 60s`
+- `client_timeout`: Optional. Specifies timeout for HTTP operations. Default value is `30s` E.g. `client_timeout: 60s`
 
 ### Examples
 
