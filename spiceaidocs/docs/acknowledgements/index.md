@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice.AI acknowledges the following open source projects for making this project possible:
+Spice AI acknowledges the following open source projects for making this project possible:
 
 ## Go Modules
 
