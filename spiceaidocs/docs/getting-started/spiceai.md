@@ -82,8 +82,9 @@ Locally accelerate (y/n)? y
 You should see the following output from your runtime terminal:
 
 ```bash
-2024-05-20T22:50:17.997446Z  INFO runtime: Registered dataset eth_recent_blocks
-2024-05-20T22:50:17.998125Z  INFO runtime::accelerated_table::refresh: Loading data for dataset eth_recent_blocks
+2024-08-05T13:09:08.342450Z  INFO runtime: Dataset eth_recent_blocks registered (spice.ai/eth.recent_blocks), acceleration (arrow, 10s refresh), results cache enabled.
+2024-08-05T13:09:08.343641Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset eth_recent_blocks
+2024-08-05T13:09:09.575822Z  INFO runtime::accelerated_table::refresh_task: Loaded 146 rows (6.36 MiB) for dataset eth_recent_blocks in 1s 232ms.
 ```
 
 **Step 5.** In a new terminal window, use the Spice SQL REPL to query the dataset
@@ -102,19 +103,19 @@ The output displays the results of the query along with the query execution time
 +----------+--------+----------+
 | number   | size   | gas_used |
 +----------+--------+----------+
-| 19281345 | 400378 | 16150051 |
-| 19281344 | 200501 | 16480224 |
-| 19281343 | 97758  | 12605531 |
-| 19281342 | 89629  | 12035385 |
-| 19281341 | 133649 | 13335719 |
-| 19281340 | 307584 | 18389159 |
-| 19281339 | 89233  | 13391332 |
-| 19281338 | 75250  | 12806684 |
-| 19281337 | 100721 | 11823522 |
-| 19281336 | 150137 | 13418403 |
+| 20462425 | 32466  | 6705045  |
+| 20462435 | 262114 | 29985196 |
+| 20462427 | 138376 | 29989452 |
+| 20462444 | 40541  | 9480363  |
+| 20462431 | 78505  | 16994166 |
+| 20462461 | 110372 | 21987571 |
+| 20462441 | 51089  | 11136440 |
+| 20462428 | 327660 | 29998593 |
+| 20462429 | 133518 | 20159194 |
+| 20462422 | 61461  | 13389415 |
 +----------+--------+----------+
 
-Query took: 0.004057791 seconds
+Time: 0.008562625 seconds. 10 rows.
 ```
 
 You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.
