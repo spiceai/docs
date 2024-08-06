@@ -107,6 +107,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 - `databricks_endpoint`: The endpoint of the Databricks instance. Required for both modes.
 - `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
+- `client_timeout`: Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`
 
 ### Delta Lake object store parameters
 
