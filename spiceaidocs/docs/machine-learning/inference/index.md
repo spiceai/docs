@@ -216,54 +216,27 @@ curl -XPOST http://localhost:3000/v1/search \
   -d '{
     "from": ["app_messages"],
     "text": "Tokyo plane tickets",
-    "limit": 10
+    "limit": 3
 }'
 
 ```
 
 Response
 ```json
-```
-
-### POST `v1/assist`
-
-Performs a basic similarity search (similar to `v1/search`), and with the resulting documents, asks the question to a LM model.
-
-
-Request Body
- - `from` (array of strings): Dataset component names to perform similarity search against. Each dataset is expected to have one and only one column augmented with an embedding. 
- - `text` (string): Query plaintext used to retrieve similar rows from the underlying datasets listed in the `from` request key.
- - `use` (string): LM model component name to use to provide the assistance response.
-
-#### Example
-Spicepod
-```yaml
-models:
-  - name: chat_model
-    from: openai
-
-embeddings:
-  - name: embedding_maker
-    from: openai
-
-datasets:
-  - name: app_messages
-    from: file://my.csv
-    embeddings:
-      - column: document_text
-        use: embedding_maker
-```
-
-Request
-```shell
-curl -XPOST http://localhost:3000/v1/assist \
-  -d '{
-    "from": ["app_messages"],
-    "text": "Tokyo plane tickets",
-    "use": "chat_model"
-}'
-```
-
-Response
-```json
+{
+  "entries": {
+    "app_messages": [
+      "I booked use some tickets",
+      "direct to Narata",
+      "Yes, we're sitting together",
+    ],
+  },
+  "retrieved_primary_keys": {
+    "app_messages": [
+      "6fd5a215-0881-421d-ace0-b293b83452b5",
+      "8a25595f-99fb-4404-8c82-e1046d8f4c4b",
+      "8421ed84-b86d-4b10-b4da-7a432e8912c0"
+    ],
+  }
+}
 ```
