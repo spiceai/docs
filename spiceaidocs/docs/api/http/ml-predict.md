@@ -1,6 +1,6 @@
 ---
-title: 'Model HTTP APIs'
-sidebar_label: 'Model HTTP APIs'
+title: 'POST /v1/predict'
+sidebar_label: 'POST /v1/predict'
 description: ''
 sidebar_position: 2
 pagination_prev: null
