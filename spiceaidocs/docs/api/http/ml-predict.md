@@ -2,71 +2,11 @@
 title: 'POST /v1/predict'
 sidebar_label: 'POST /v1/predict'
 description: ''
-sidebar_position: 2
-pagination_prev: null
-pagination_next: null
+sidebar_position: 10
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-
-## Machine Learning
-Spice includes dedicated predictions APIs.
-
-### GET `/v1/models/:name/predict`
-
-Make a prediction using a specific [deployed ML model](../ml-models/index.md).
-
-Example:
-
-```shell
-curl "http://localhost:3000/v1/models/my_model_name/predict"
-```
-
-Parameters:
-
-- `name`: References the model name defined in the `spicepod.yaml`.
-
-#### Response
-
-<Tabs>
-  <TabItem value="Success" label="Success" default>
-    ```json
-    {
-        "status": "Success",
-        "model_name": "my_model_name",
-        "model_version": "1.0",
-        "lookback": 30,
-        "prediction": [0.45, 0.50, 0.55],
-        "duration_ms": 123
-    }
-    ```
-  </TabItem>
-  <TabItem value="Bad Request" label="Bad Request">
-    ```json
-    {
-        "status": "BadRequest",
-        "error_message": "You have me a bad request :(",
-        "model_name": "my_model_name",
-        "lookback": 30,
-        "duration_ms": 12
-    }
-    ```
-  </TabItem>
-  <TabItem value="Internal Error" label="Internal Error">
-    ```json
-    {
-        "status": "InternalError",
-        "error_message": "Oops, the server couldn't predict",
-        "model_name": "my_model_name",
-        "lookback": 30,
-        "duration_ms": 12
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### POST `/v1/predict`
 
 Make predictions using all loaded forecasting models in parallel, useful for ensembling or A/B testing.
 
@@ -123,3 +63,56 @@ Parameters:
 - No support for discrete or exogenous variables.
 
 :::
+
+## GET `/v1/models/:name/predict`
+
+Make a prediction using a specific [model](/components/models/index.md).
+
+Example:
+
+```shell
+curl "http://localhost:8090/v1/models/my_model_name/predict"
+```
+
+Parameters:
+
+- `name`: References the model name defined in the `spicepod.yaml`.
+
+### Response
+
+<Tabs>
+  <TabItem value="Success" label="Success" default>
+    ```json
+    {
+        "status": "Success",
+        "model_name": "my_model_name",
+        "model_version": "1.0",
+        "lookback": 30,
+        "prediction": [0.45, 0.50, 0.55],
+        "duration_ms": 123
+    }
+    ```
+  </TabItem>
+  <TabItem value="Bad Request" label="Bad Request">
+    ```json
+    {
+        "status": "BadRequest",
+        "error_message": "You have me a bad request :(",
+        "model_name": "my_model_name",
+        "lookback": 30,
+        "duration_ms": 12
+    }
+    ```
+  </TabItem>
+  <TabItem value="Internal Error" label="Internal Error">
+    ```json
+    {
+        "status": "InternalError",
+        "error_message": "Oops, the server couldn't predict",
+        "model_name": "my_model_name",
+        "lookback": 30,
+        "duration_ms": 12
+    }
+    ```
+  </TabItem>
+</Tabs>
