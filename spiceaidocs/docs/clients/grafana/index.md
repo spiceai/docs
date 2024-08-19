@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-The Spice runtime has a Prometheus endpoint configured by default on port `9000`. There's also prebuilt Grafana dashboards for out of the box monitoring of all your Spice instances.
+Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Import Grafana Dashboard
 
@@ -34,15 +34,16 @@ global:
     scrape_configs:
     - job_name: spiceai
         static_configs:
-        - targets: ['127.0.0.1:9000'] # Change to your Spice runtime endpoint + port
+        - targets: ['127.0.0.1:9090'] # Change to your Spice runtime endpoint + port
 ```
 
 ## Local Quickstart
+
 This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes:
     - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
 
-
 1. Create a `compose.yaml`:
+
     ```yaml
     version: "3"
     services:
@@ -62,7 +63,8 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
         network_mode: "host"
     ```
 
-1. Create a `prometheus.yaml` to 
+1. Create a `prometheus.yaml` to
+
     ```yaml
     global:
     scrape_interval: 1s
@@ -76,6 +78,7 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
     ```
 
 1. Add a prometheus as a source to grafana. Create a `.grafana/provisioning/datasources/prometheus.yml`
+
     ```yaml
     apiVersion: 1
 
@@ -86,12 +89,15 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
         url: http://localhost:9090
         isDefault: true
     ```
+
 1. Run the Docker Compose
+
     ```bash
     docker-compose up
     ```
 
 1. Go to `http://localhost:3000/dashboard/import` and add the JSON from [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
 
-1. The dashboard will have data from the Spice runtimes. 
+1. The dashboard will have data from the Spice runtimes.
+
 <img src="/img/grafana/screenshot.png" />

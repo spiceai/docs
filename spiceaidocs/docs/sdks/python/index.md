@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-# Python SDK for Spice.ai
+## Python SDK for Spice.ai
 
 https://github.com/spiceai/spicepy
 

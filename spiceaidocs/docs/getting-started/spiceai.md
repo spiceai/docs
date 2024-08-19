@@ -1,34 +1,28 @@
 ---
-title: 'Spice.ai OSS and the Spice.ai Cloud Platform'
-sidebar_label: 'Spice.ai Cloud Platform'
-sidebar_position: 1
-description: 'Connect to the Spice.ai Cloud Platform to access public datasets.'
+title: 'Community Data'
+sidebar_label: 'Community Data'
+sidebar_position: 2
+description: 'Connect to the Spice.ai Cloud Platform to access community datasets.'
 pagination_next: null
 ---
 
-You can use any number of predefined datasets available from the Spice.ai Cloud Platform in the Spice runtime.
+The [Spice.ai Cloud Platform](https://docs.spice.ai) includes a comprehensive set of free, ready-to-query [sample and blockchain datasets](https://docs.spice.ai/building-blocks/datasets).
 
-A list of publically available datasets from Spice.ai can be found here: [https://docs.spice.ai/building-blocks/datasets](https://docs.spice.ai/building-blocks/datasets).
+The Spice runtime can query these datasets using the [Spice.ai Data Connector](/components/data-connectors/spiceai.md).
 
-In order to access public datasets from Spice, you will first need to create an account with Spice.ai by selecting the free tier membership.
+## Quickstart
 
-Navigate to [spice.ai](https://spice.ai/) and create a new account by clicking on Try for Free.
+To access these community datasets, navigate to [spice.ai](https://spice.ai/), and create a new account by clicking Try for Free.
 
 <img width="500" alt="spiceai_try_for_free-1" src="https://github.com/spiceai/spiceai/assets/112157037/27fb47ed-4825-4fa8-94bd-48197406cfaa" />
 
-After creating an account, you will need to create an app in order to create to an API key.
+After logging in, create an app in order to get an API key.
 
 ![create_app-1](https://github.com/spiceai/spiceai/assets/112157037/d2446406-1f06-40fb-8373-1b6d692cb5f7)
 
-You will now be able to access datasets from the Spice.ai Platform. For this quickstart, we will be using the `eth.recent_blocks` dataset.
+This quickstart will use the [`eth.recent_blocks`](https://docs.spice.ai/reference/sql-query-tables/ethereum/core-tables) dataset.
 
-**Step 1.** Log in and authenticate from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
-
-```bash
-spice login
-```
-
-**Step 2.** Initialize a new project and start the runtime:
+**Step 1.** Initialize a new project:
 
 ```bash
 # Initialize a new Spice app
@@ -36,12 +30,24 @@ spice init spice_app
 
 # Change to app directory
 cd spice_app
+```
 
+**Step 2.** Log in to the Spice Cloud Platform from the command line using the `spice login` command. A pop up browser window will prompt you to authenticate:
+
+```bash
+spice login
+```
+
+Logging in will create or update a `.env` file in the project directory with the API key.
+
+**Step 3.** Start the runtime:
+
+```bash
 # Start the runtime
 spice run
 ```
 
-**Step 3.** Configure the dataset:
+**Step 4.** Configure the dataset:
 
 In a new terminal window, configure a new dataset using the `spice dataset configure` command:
 
@@ -76,11 +82,12 @@ Locally accelerate (y/n)? y
 You should see the following output from your runtime terminal:
 
 ```bash
-2024-05-20T22:50:17.997446Z  INFO runtime: Registered dataset eth_recent_blocks
-2024-05-20T22:50:17.998125Z  INFO runtime::accelerated_table::refresh: Loading data for dataset eth_recent_blocks
+2024-08-05T13:09:08.342450Z  INFO runtime: Dataset eth_recent_blocks registered (spice.ai/eth.recent_blocks), acceleration (arrow, 10s refresh), results cache enabled.
+2024-08-05T13:09:08.343641Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset eth_recent_blocks
+2024-08-05T13:09:09.575822Z  INFO runtime::accelerated_table::refresh_task: Loaded 146 rows (6.36 MiB) for dataset eth_recent_blocks in 1s 232ms.
 ```
 
-**Step 4.** In a new terminal window, use the Spice SQL REPL to query the dataset
+**Step 5.** In a new terminal window, use the Spice SQL REPL to query the dataset
 
 ```bash
 spice sql
@@ -96,19 +103,19 @@ The output displays the results of the query along with the query execution time
 +----------+--------+----------+
 | number   | size   | gas_used |
 +----------+--------+----------+
-| 19281345 | 400378 | 16150051 |
-| 19281344 | 200501 | 16480224 |
-| 19281343 | 97758  | 12605531 |
-| 19281342 | 89629  | 12035385 |
-| 19281341 | 133649 | 13335719 |
-| 19281340 | 307584 | 18389159 |
-| 19281339 | 89233  | 13391332 |
-| 19281338 | 75250  | 12806684 |
-| 19281337 | 100721 | 11823522 |
-| 19281336 | 150137 | 13418403 |
+| 20462425 | 32466  | 6705045  |
+| 20462435 | 262114 | 29985196 |
+| 20462427 | 138376 | 29989452 |
+| 20462444 | 40541  | 9480363  |
+| 20462431 | 78505  | 16994166 |
+| 20462461 | 110372 | 21987571 |
+| 20462441 | 51089  | 11136440 |
+| 20462428 | 327660 | 29998593 |
+| 20462429 | 133518 | 20159194 |
+| 20462422 | 61461  | 13389415 |
 +----------+--------+----------+
 
-Query took: 0.004057791 seconds
+Time: 0.008562625 seconds. 10 rows.
 ```
 
 You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.

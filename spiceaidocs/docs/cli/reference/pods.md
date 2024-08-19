@@ -6,15 +6,19 @@ pagination_next: null
 ---
 Lists Spicepods loaded by the Spice runtime
 
-### Usage:
-```shell 
+### Usage
+
+```shell
 spice pods [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for pods
+#### Flags
 
-### Examples:
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-h`, `--help`   help for pods
+
+### Examples
+
 ```shell 
 >>> spice pods
 
@@ -22,4 +26,3 @@ VERSION NAME        DATASETSCOUNT MODELSCOUNT DEPENDENCIESCOUNT
 v1beta1 demo        2             1           0
 v1beta1 another_pod 3             0           1
 ```
-

@@ -1,7 +1,7 @@
 ---
 title: 'Spicepods'
 sidebar_label: 'Spicepods'
-sidebar_position: 2
+sidebar_position: 1
 description: 'An introduction to Spicepods'
 pagination_next: null
 ---
@@ -18,8 +18,9 @@ A Spicepod is described by a YAML manifest file, typically named `spicepod.yaml`
 
 - **Metadata:** Basic information about the Spicepod, such as its name and version.
 - **Datasets:** Definitions of datasets that are used or produced within the Spicepod.
+- **Catalogs:** Definitions of catalogs that are used within the Spicepod.
 - **Models:** Definitions of ML models that the Spicepod manages, including their sources and associated datasets.
-- **Secrets:** Configuration for any secret stores used by the Spicepod.
+- **Secrets:** Configuration for any secret stores used within the Spicepod.
 
 ## Example Manifest
 
@@ -42,7 +43,8 @@ models:
       - qs
 
 secrets:
-  store: env
+  - from: env
+    name: env
 ```
 
 ## Key Components
@@ -51,16 +53,22 @@ secrets:
 
 Datasets in a Spicepod can be sourced from various locations, including local files or remote databases. They can be materialized and accelerated using different engines such as DuckDB, SQLite, or PostgreSQL to optimize performance.
 
-Learn more at [Datasets](../reference/spicepod/datasets.md).
+Learn more at [Datasets](/reference/spicepod/datasets.md).
+
+### Catalogs
+
+Catalogs in a Spicepod can contain multiple schemas. Each schema, in turn, contains multiple tables where the actual data is stored.
+
+Learn more at [Catalogs](/reference/spicepod/catalogs.md).
 
 ### Models
 
 ML models are integrated into the Spicepod similarly to datasets. The models can be specified using paths to local files or remote locations. ML inference can be performed using the models and datasets defined within the Spicepod.
 
-Learn more at [Datasets](../reference/spicepod/models.md).
+Learn more at [Models](/reference/spicepod/models.md).
 
 ### Secrets
 
 Spice.ai supports various secret stores to manage sensitive information such as API keys or database credentials. Supported secret store types include environment variables, files, AWS Secrets Manager, Kubernetes secrets, and keyrings.
 
-Learn more at [Secret Stores](../secret-stores/index.md)
+Learn more at [Secret Stores](/components/secret-stores/index.md)

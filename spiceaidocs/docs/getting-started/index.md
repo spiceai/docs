@@ -59,12 +59,11 @@ Example output will be shown as follows:
 
 ```bash
 Spice.ai runtime starting...
-Using latest 'local' runtime version.
-2024-06-03T23:21:26.819978Z  INFO spiced: Metrics listening on 127.0.0.1:9000
-2024-06-03T23:21:26.821863Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:3000
-2024-06-03T23:21:26.821898Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
-2024-06-03T23:21:26.821958Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
-2024-06-03T23:21:26.822128Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
+2024-08-05T13:02:40.247484Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
+2024-08-05T13:02:40.247490Z  INFO runtime::metrics_server: Spice Runtime Metrics listening on 127.0.0.1:9090
+2024-08-05T13:02:40.247949Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
+2024-08-05T13:02:40.248611Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
+2024-08-05T13:02:40.252356Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
 ```
 
 The runtime is now started and ready for queries.
@@ -80,17 +79,17 @@ The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependenc
 ```yaml
 version: v1beta1
 kind: Spicepod
-name: PROJECT_NAME
+name: spice_qs
 dependencies:
-  - spiceai/quickstart
+    - spiceai/quickstart
 ```
 
 The `spiceai/quickstart` Spicepod will add a `taxi_trips` data table to the runtime which is now available to query by SQL.
 
 ```bash
-2024-06-03T23:21:29.721705Z  INFO runtime: Registered dataset taxi_trips
-2024-06-03T23:21:29.722839Z  INFO runtime::accelerated_table::refresh: Loading data for dataset taxi_trips
-2024-06-03T23:21:50.813510Z  INFO runtime::accelerated_table::refresh: Loaded 2,964,624 rows (421.71 MiB) for dataset taxi_trips in 21s 90ms.
+2024-08-05T13:04:56.742779Z  INFO runtime: Dataset taxi_trips registered (s3://spiceai-demo-datasets/taxi_trips/2024/), acceleration (arrow, 10s refresh), results cache enabled.
+2024-08-05T13:04:56.744062Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset taxi_trips
+2024-08-05T13:05:03.556169Z  INFO runtime::accelerated_table::refresh_task: Loaded 2,964,624 rows (421.71 MiB) for dataset taxi_trips in 6s 812ms.
 ```
 
 **Step 5.** Start the Spice SQL REPL:
@@ -115,12 +114,12 @@ sql> show tables
 +---------------+--------------+---------------+------------+
 | table_catalog | table_schema | table_name    | table_type |
 +---------------+--------------+---------------+------------+
-| spice         | runtime      | metrics       | BASE TABLE |
-| spice         | runtime      | query_history | BASE TABLE |
 | spice         | public       | taxi_trips    | BASE TABLE |
+| spice         | runtime      | query_history | BASE TABLE |
+| spice         | runtime      | metrics       | BASE TABLE |
 +---------------+--------------+---------------+------------+
 
-Time: 0.007505084 seconds. 1 rows.
+Time: 0.022671708 seconds. 3 rows.
 ```
 
 Enter a query to display the longest taxi trips:
@@ -147,7 +146,7 @@ Output:
 | 44018.64      | 52.43        |
 +---------------+--------------+
 
-Time: 0.015596458 seconds. 10 rows.
+Time: 0.045150667 seconds. 10 rows.
 ```
 
 ## Next Steps

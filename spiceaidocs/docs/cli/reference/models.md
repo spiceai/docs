@@ -7,15 +7,19 @@ pagination_next: null
 
 Lists models loaded by the Spice runtime
 
-### Usage:
+### Usage
+
 ```shell 
 spice models [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for models
+#### Flags
 
-### Examples:
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-h`, `--help`   help for models
+
+### Examples
+
 ```shell
 >>> spice models
 

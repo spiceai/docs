@@ -46,21 +46,20 @@ spicepod:
 
 ### Common Parameters
 
-| Name                | Description                                                                                          | Value                  |
-| ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------- |
-| `image.repository`    | The repository of the Docker image .                                                                           | `spiceai`        |
-| `image.tag`  | Replace with a specific version of Spice.ai to run.                                                                              | `latest` |
-| `monitoring.podMonitoring.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false` |
-| `replicaCount`      | Number of Spice.ai replicas to run | `1`                   |
-| `image.pullSecrets` | Specify docker-registry secret names as an array                                                     | `[]`                   |
-| `tolerations`      | List of node taints to tolerate                                        | `[]`                   |
-| `resources`        | Resource requests and limits for the Spice.ai container                                              | `{}`                   |
-| `additionalEnv`    | Additional environment variables to set in the Spice.ai container                                   | `[]`                   |
-
+| Name                               | Description                                                                                                                                                                               | Value     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `image.repository`                 | The repository of the Docker image .                                                                                                                                                      | `spiceai` |
+| `image.tag`                        | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `latest`  |
+| `monitoring.podMonitoring.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`   |
+| `replicaCount`                     | Number of Spice.ai replicas to run                                                                                                                                                        | `1`       |
+| `image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                                                                          | `[]`      |
+| `tolerations`                      | List of node taints to tolerate                                                                                                                                                           | `[]`      |
+| `resources`                        | Resource requests and limits for the Spice.ai container                                                                                                                                   | `{}`      |
+| `additionalEnv`                    | Additional environment variables to set in the Spice.ai container                                                                                                                         | `[]`      |
 
 ### Adding extra environment variables
 
-Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environement Secret Store](../../secret-stores/env/index.md).
+Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/components/secret-stores/env/index.md).
 
 ```yaml
 additionalEnv:
@@ -87,6 +86,7 @@ The Spice Helm chart includes compatibility with the [Prometheus Operator](https
           --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
           --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
     ```
+
   </div>
 </details>
 

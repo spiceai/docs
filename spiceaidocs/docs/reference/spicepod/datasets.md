@@ -76,18 +76,19 @@ Where:
 
   Currently supported data connectors:
 
-  - [`spiceai`](../../data-connectors/spiceai.md)
-  - [`dremio`](../../data-connectors/dremio.md)
-  - [`spark`](../../data-connectors/spark.md)
-  - [`databricks`](../../data-connectors/databricks.md)
-  - [`s3`](../../data-connectors/s3.md)
-  - [`postgres`](../../data-connectors/postgres/index.md)
-  - [`mysql`](../../data-connectors/mysql.md)
-  - [`flightsql`](../../data-connectors/flightsql.md)
-  - [`snowflake`](../../data-connectors/snowflake.md)
-  - [`ftp`, `sftp`](../../data-connectors/ftp.md)
-  - [`clickhouse`](../../data-connectors/clickhouse.md)
-  - [`graphql`](../../data-connectors/graphql.md)
+  - [`spiceai`](/components/data-connectors/spiceai.md)
+  - [`dremio`](/components/data-connectors/dremio.md)
+  - [`spark`](/components/data-connectors/spark.md)
+  - [`databricks`](/components/data-connectors/databricks.md)
+  - [`s3`](/components/data-connectors/s3.md)
+  - [`postgres`](/components/data-connectors/postgres/index.md)
+  - [`mysql`](/components/data-connectors/mysql.md)
+  - [`flightsql`](/components/data-connectors/flightsql.md)
+  - [`snowflake`](/components/data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](/components/data-connectors/ftp.md)
+  - [`http`, `https`](/components/data-connectors/https.md)
+  - [`clickhouse`](/components/data-connectors/clickhouse.md)
+  - [`graphql`](/components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -95,9 +96,10 @@ Where:
 
 ## `ref`
 
-An alternative to adding the dataset definition inline in the `spicepod.yaml` file.  `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file.  For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
+An alternative to adding the dataset definition inline in the `spicepod.yaml` file. `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file. For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
 
 **dataset.yaml**
+
 ```yaml
 from: spice.ai/eth.recent_transactions
 name: eth_recent_transactions
@@ -108,12 +110,13 @@ acceleration:
 ```
 
 **ref used in spicepod.yaml**
+
 ```yaml
 version: v1beta1
 kind: Spicepod
 name: duckdb
 datasets:
-- ref: datasets/sample
+  - ref: datasets/sample
 ```
 
 ## `name`
@@ -129,11 +132,16 @@ Required to enable a retention policy on the dataset.
 ## `time_format`
 
 Optional. The format of the `time_column`. The following values are supported:
-- `unix_seconds` - Default. Unix timestamp in seconds.
-- `unix_millis` - Unix timestamp in milliseconds.
+- `timestamp` - Default. Timestamp without a timezone. E.g. `2016-06-22 19:10:25` with data type `timestamp`.
+- `timestamptz` - Timestamp with a timezone. E.g. `2016-06-22 19:10:25-07` with data type `timestamptz`.
+- `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
+- `unix_millis` - Unix timestamp in milliseconds. E.g. `1718756687000`.
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 
+Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
+
 :::warning[Limitations]
+
 - String-based columns are assumed to be ISO8601 format.
 :::
 
@@ -150,9 +158,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](../../data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](../../data-accelerators/sqlite.md) - Accelerated by an embedded Sqlite database.
+- [`duckdb`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`
 
@@ -172,7 +180,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 ## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used.
+Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See [Duration](../duration/index.md)
 
@@ -183,6 +191,7 @@ Optional. Filters the data fetched from the source to be stored in the accelerat
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
 :::warning[Limitations]
+
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
@@ -263,7 +272,7 @@ datasets:
       engine: sqlite
       indexes:
         number: enabled # Index the `number` column
-        "(hash, timestamp)": unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
+        '(hash, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
 ```
 
 ## `acceleration.primary_key`
@@ -295,6 +304,7 @@ A column reference can be a single column name or a multicolumn key. The column 
 Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
 
 The possible conflict resolution strategies are:
+
 - `upsert` - Upsert the incoming data when the primary key constraint is violated.
 - `drop` - Drop the data when the primary key constraint is violated.
 
@@ -309,9 +319,9 @@ datasets:
       engine: sqlite
       primary_key: hash
       indexes:
-        "(number, timestamp)": unique
+        '(number, timestamp)': unique
       on_conflict:
-        # Upsert the incoming data when the primary key constraint on "hash" is violated, 
+        # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert
 ```

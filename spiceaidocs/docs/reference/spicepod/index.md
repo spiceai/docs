@@ -25,31 +25,54 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/components/secret-stores).
 
-### `secrets.store`
+### `secrets.from`
+
+The `from` field is a string that represents the Uniform Resource Identifier (URI) for the secret store. This URI is composed of two parts: a prefix indicating the Secret Store to use, and an optional selector that specifies the secret to retrieve.
+
+The syntax for the `from` field is as follows:
+
+```yaml
+from: <secret_store>:<selector>
+```
+
+Where:
+
+- `<secret_store>`: The Secret Store to use
+
+  Currently supported secret stores:
+
+  - [`env`](/components/secret-stores/env/index.md)
+  - [`kubernetes`](/components/secret-stores/kubernetes/index.md)
+  - [`keyring`](/components/secret-stores/keyring/index.md)
+  - [`aws-secrets-manager`](/components/secret-stores/aws-secrets-manager/index.md)
+
+  If no secret stores are explicitly specified, it defaults to `env`.
+
+- `<selector>`: The secret within the secret store to load.
 
 The type of secret store for reading secrets.
-
-- `file` (default)
-- `env`
-- `kubernetes`
-- `keyring`
 
 Example
 
 ```yaml
 secrets:
-  store: env
+  - from: env
+    name: env
 ```
+
+### `secrets.name`
+
+The name of the secret store. This is used to reference the store in the secret replacement syntax, `${<secret_store_name>:<key_name>}`.
 
 ## `runtime`
 
-### `num_of_parallel_loading_at_start_up`
+### `runtime.num_of_parallel_loading_at_start_up`
 
 This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup. This parallel loading capability accelerates Spice's startup process when multiple datasets are configured.
 
-### `results_cache`
+### `runtime.results_cache`
 
 The results cache section specifies runtime cache configuration. [Learn more](/features/caching).
 
@@ -58,7 +81,7 @@ runtime:
   results_cache:
     enabled: true
     cache_max_size: 128MiB
-    eviction_policy: lru 
+    eviction_policy: lru
     item_ttl: 1s
 ```
 
@@ -66,6 +89,87 @@ runtime:
 - `cache_max_size` - optional, maximum cache size. Default is `128MiB`
 - `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
 - `item_ttl` - optional, cache entry expiration time, 1 second by default.
+
+### `runtime.tls`
+
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/api/tls).
+
+In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using with `--tls-enabled true` and `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file` flags.
+
+#### `runtime.tls.enabled`
+
+Enables or disables TLS for the runtime endpoints.
+
+```yaml
+runtime:
+  tls:
+    ...
+    enabled: true # or false
+```
+
+#### `runtime.tls.certificate`
+
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/components/secret-stores).
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate: |
+      -----BEGIN CERTIFICATE-----
+      ...
+      -----END CERTIFICATE-----
+```
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate: ${secrets:tls_cert}
+```
+
+#### `runtime.tls.certificate_file`
+
+The path to the TLS PEM-encoded certificate file. Only one of `certificate` or `certificate_file` must be used.
+
+```yaml
+runtime:
+  tls:
+    ...
+    certificate_file: /path/to/cert.pem
+```
+
+#### `runtime.tls.key`
+
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/components/secret-stores).
+
+```yaml
+runtime:
+  tls:
+    ...
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      ...
+      -----END PRIVATE KEY-----
+```
+
+```yaml
+runtime:
+  tls:
+    ...
+    key: ${secrets:tls_key}
+```
+
+#### `runtime.tls.key_file`
+
+The path to the TLS PEM-encoded key file. Only one of `key` or `key_file` must be used.
+
+```yaml
+runtime:
+  tls:
+    ...
+    key_file: /path/to/key.pem
+```
 
 ## `metadata`
 

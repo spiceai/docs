@@ -18,11 +18,13 @@ Spice connects, fuses, and delivers data to applications, machine-learning model
 
 The Spice runtime, written in Rust, is built-with industry leading technologies such as [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Apache Arrow Flight, SQLite, and DuckDB.
 
-<ThemeBasedImage width="900" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/f71f227d-d7cd-418c-85b9-5c663a728491" darkSrc="https://github.com/spiceai/spiceai/assets/80174/96b5fcef-a550-4ce8-a74a-83931275e83e" />
+<ThemeBasedImage width="600" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" darkSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" />
 
 ## Why Spice?
 
 Spice makes it easy and fast to query data from one or more sources using SQL. You can co-locate a managed dataset with your application or machine learning model, and accelerate it with Arrow in-memory, SQLite/DuckDB, or with attached PostgreSQL for fast, high-concurrency, low-latency queries. Accelerated engines give you flexibility and control over query cost and performance.
+
+<ThemeBasedImage width="800" alt="Before Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b" darkSrc="https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b" />
 
 ### How is Spice different?
 
@@ -44,15 +46,7 @@ Spice makes it easy and fast to query data from one or more sources using SQL. Y
 | Query Federation           | Native with query push-down        | Supported with push-down         | Supported with limited push-down | Limited                 |
 | Materialization            | Arrow/SQLite/DuckDB/PostgreSQL     | Intermediate Storage             | Reflections (Iceberg)            | Views & MergeTree       |
 | Query Result Caching       | Supported                          | Supported                        | Supported                        | Supported               |
-| Typical Configuration      | Single-Binary/Sidecar/Microservice | Coodinator+Executor w/ Zookeeper | Coodinator+Executor w/ Zookeeper              | Clickhouse Keeper+Nodes |
-
-### Before Spice
-
-<ThemeBasedImage width="750" alt="Before Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/0550d682-cf3b-4b1b-a3bd-d8b3ad7d8caf" darkSrc="https://github.com/spiceai/spiceai/assets/80174/64a3216e-0bbb-48b0-bf98-72e656d690af" />
-
-### With Spice
-
-<ThemeBasedImage width="900" alt="With Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/b57514fe-d53d-42de-b8f0-97ae313c5708" darkSrc="https://github.com/spiceai/spiceai/assets/80174/02dbedb4-b209-4d08-bf83-4785a1bf886f" />
+| Typical Configuration      | Single-Binary/Sidecar/Microservice | Coodinator+Executor w/ Zookeeper | Coodinator+Executor w/ Zookeeper | Clickhouse Keeper+Nodes |
 
 ### Example Use-Cases
 
@@ -62,7 +56,7 @@ Spice makes it easy and fast to query data from one or more sources using SQL. Y
 
 **3. Faster data pipelines, machine learning training and inferencing.** Co-locate datasets in pipelines where the data is needed to minimize data-movement and improve query performance. [Predict hard drive failure with the SMART data demo](https://github.com/spiceai/demos/tree/trunk/smart-demo#spiceai-smart-demo)
 
-**4. Easily query many data sources.** Federated SQL query across databases, data warehouses, and data lakes using [Data Connectors](/data-connectors).
+**4. Easily query many data sources.** Federated SQL query across databases, data warehouses, and data lakes using [Data Connectors](/components/data-connectors).
 
 ### FAQ
 

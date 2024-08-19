@@ -7,15 +7,19 @@ pagination_next: null
 
 Lists datasets loaded by the Spice runtime
 
-### Usage:
+### Usage
+
 ```shell
 spice datasets [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for datasets
+#### Flags
+
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-h`, `--help`   help for datasets
 
 ### Examples:
+
 ```shell
 >>> spice datasets
 

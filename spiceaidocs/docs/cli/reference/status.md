@@ -7,19 +7,23 @@ pagination_next: null
 Spice runtime status
 
 ### Usage
+
 ```shell
 spice status [flags]
 ```
 
-#### Flags:
-  - `-h`, `--help`   help for status
+#### Flags
 
-### Examples:
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-h`, `--help`   help for status
+
+### Examples
+
 ```shell 
 >>> spice status
 
 NAME          ENDPOINT        STATUS
-http          127.0.0.1:3000  Ready
+http          127.0.0.1:8090  Ready
 flight        127.0.0.1:50051 Ready
 metrics       N/A             Disabled
 opentelemetry 127.0.0.1:50052 Ready
