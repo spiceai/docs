@@ -86,6 +86,8 @@ datasets:
 
 Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
+- `client_timeout`: Optional. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`
+
 #### AWS S3
 
 - `delta_lake_aws_region`: Optional. The AWS region for the S3 object store. E.g. `us-west-2`.
