@@ -1,7 +1,7 @@
 ---
-title: "Timestamps"
-sidebar_label: "Timestamps"
-sidebar_position: 2
+title: 'Timestamps'
+sidebar_label: 'Timestamps'
+sidebar_position: 5
 pagination_prev: 'reference/index'
 pagination_next: null
 ---
