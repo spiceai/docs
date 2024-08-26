@@ -45,5 +45,5 @@ datasets:
     - `SELECT {'x': 1, 'y': 2, 'z': 3}`
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
     - `SELECT ['duck', 'goose', 'heron'];`
-
+- The DuckDB accelerator does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
 :::
