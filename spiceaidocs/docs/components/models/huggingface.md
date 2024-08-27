@@ -41,6 +41,7 @@ The `from` key follows the following regex format:
 
 :::warning[Limitations]
 
+- ML models currently only support ONNX file format.
 - Only ONNX and GGUF file formats are currently supported.
 
 :::
