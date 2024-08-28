@@ -35,7 +35,10 @@ datasets:
         sqlite_file: /my/chosen/location/sqlite.db
 ```
 
-## Limitations
+:::warning[Limitations]
 
 - The SQLite accelerator only support arrow `Decimal128` and `Decimal256` for up to 16 precision, as SQLite REAL type conforms to the [IEEE 754 Binary-64](https://en.wikipedia.org/wiki/Double-precision_floating-point_format#IEEE_754_double-precision_binary_floating-point_format:_binary64) format which supports 16 decimal digits.
 - The SQLite accelerator don't support arrow `Interval` types, as [SQLite](https://www.sqlite.org/lang_datefunc.html) doesn't have a native interval type.
+- Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
+
+:::
