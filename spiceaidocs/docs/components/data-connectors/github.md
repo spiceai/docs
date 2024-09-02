@@ -10,7 +10,7 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 The GitHub data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token from a secret store, e.g. `${secrets:GITHUB_TOKEN}`.
 
-- `github_access_token`: Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+- `github_token`: Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 - `owner` - Required. Specifies the owner of the GitHub repository.
 - `repo` - Required. Specifies the name of the GitHub repository.
 
@@ -24,7 +24,7 @@ datasets:
   - from: github:github.com/<owner>/<repo>/files/<ref>
     name: spiceai.files
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
       include: "**/*.json; **/*.yaml"
     acceleration:
       enabled: true
@@ -56,7 +56,7 @@ datasets:
   - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
     name: spiceai.files
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
       include: "**/*.txt" # include txt files only
     acceleration:
       enabled: true
@@ -81,7 +81,7 @@ datasets:
   - from: github:github.com/<owner>/<repo>/issues
     name: spiceai.issues
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
     acceleration:
       enabled: true
 ```
@@ -115,7 +115,7 @@ datasets:
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
 ```
 
 ```console
@@ -141,7 +141,7 @@ datasets:
   - from: github:github.com/<owner>/<repo>/pulls
     name: spiceai.pulls
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
 ```
 
 #### Schema
@@ -175,7 +175,7 @@ datasets:
   - from: github:github.com/spiceai/spiceai/pulls
     name: spiceai.pulls
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
     acceleration:
       enabled: true
 ```
@@ -198,7 +198,7 @@ datasets:
   - from: github:github.com/<owner>/<repo>/commits
     name: spiceai.commits
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
 ```
 
 #### Schema
@@ -223,7 +223,7 @@ datasets:
   - from: github:github.com/spiceai/spiceai/commits
     name: spiceai.commits
     params:
-      github_access_token: ${secrets:GITHUB_TOKEN}
+      github_token: ${secrets:GITHUB_TOKEN}
     acceleration:
       enabled: true
 ```
