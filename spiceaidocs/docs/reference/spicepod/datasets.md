@@ -330,6 +330,15 @@ datasets:
 
 Optional. Create vector embeddings for specific columns of the dataset.
 
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    embeddings:
+      - column: extra_data
+        use: hf_minilm
+```
+
 ## `embeddings[*].column`
 
 The column name to create an embedding for.
