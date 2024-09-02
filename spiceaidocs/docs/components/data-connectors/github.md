@@ -51,7 +51,7 @@ datasets:
     name: spiceai.files
     params:
       github_access_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.txt"
+      include: "**/*.txt" # filter to includeonly txt files
     acceleration:
       enabled: true
 ```
@@ -74,7 +74,7 @@ Time: 0.005067 seconds. 1 rows.
 
 :::
 
-### Querying Issues
+### Querying GitHub Issues
 
 ```yaml
 datasets:
@@ -134,7 +134,7 @@ Time: 0.011877542 seconds. 5 rows.
 ```
 
 
-### Querying Pull Requests
+### Querying GitHub Pull Requests
 
 ```yaml
 datasets:
@@ -189,7 +189,7 @@ sql> select title, url, state from spiceai.pulls where title like '%GitHub conne
 Time: 0.034996667 seconds. 1 rows.
 ```
 
-### Querying Commits
+### Querying GitHub Commits
 
 ```yaml
 datasets:
