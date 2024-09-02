@@ -325,3 +325,19 @@ datasets:
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert
 ```
+
+## `embeddings`
+
+Optional. Create vector embeddings for specific columns of the dataset.
+
+## `embeddings[*].column`
+
+The column name to create an embedding for.
+
+## `embeddings[*].use`
+
+The embedding model to use, specific the component name `embeddings[*].name`.
+
+## `embeddings[*].column_pk`
+
+Optional. For datasets without a primary key, explicitly specify column(s) that uniquely identify a row.
