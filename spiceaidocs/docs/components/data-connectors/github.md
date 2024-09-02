@@ -25,7 +25,7 @@ datasets:
     name: spiceai.files
     params:
       github_access_token: ${secrets:GITHUB_TOKEN}
-      # include: **/*.json; **/*.yaml. # everything by default  
+      include: "**/*.json; **/*.yaml"
     acceleration:
       enabled: true
 ```
@@ -43,6 +43,12 @@ datasets:
 | download_url | Utf8      | YES         |
 | content      | Utf8      | YES         |
 
+:::warning[Limitations]
+
+- `content` column is included only when acceleration is enabled.
+
+:::
+
 #### Example
 
 ```yaml
@@ -51,7 +57,7 @@ datasets:
     name: spiceai.files
     params:
       github_access_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.txt" # filter to include only txt files
+      include: "**/*.txt" # include txt files only
     acceleration:
       enabled: true
 ```
@@ -67,12 +73,6 @@ sql> select * from spiceai.files
 
 Time: 0.005067 seconds. 1 rows.
 ```
-
-:::warning[Limitations]
-
-- `content` column is included only when acceleration is enabled.
-
-:::
 
 ### Querying GitHub Issues
 
@@ -98,16 +98,15 @@ datasets:
 | id              | Utf8         | YES         |
 | labels          | List(Utf8)   | YES         |
 | login           | Utf8         | YES         |
-| milestoneId     | Utf8         | YES         |
-| milestoneTitle  | Utf8         | YES         |
+| milestone_id    | Utf8         | YES         |
+| milestone_title  | Utf8         | YES         |
 | comments_count  | Int64        | YES         |
 | number          | Int64        | YES         |
 | state           | Utf8         | YES         |
 | title           | Utf8         | YES         |
 | updated_at      | Utf8         | YES         |
 | url             | Utf8         | YES         |
-| milestone_id    | Utf8         | YES         |
-| milestone_title | Utf8         | YES         |
+
 
 #### Example
 
@@ -149,8 +148,8 @@ datasets:
 
 | Column Name     | Data Type  | Is Nullable |
 |-----------------|------------|-------------|
-| assignees       | List(Utf8) | YES         |
 | additions       | Int64      | YES         |
+| assignees       | List(Utf8) | YES         |
 | body            | Utf8       | YES         |
 | changed_files   | Int64      | YES         |
 | closed_at       | Utf8       | YES         |
