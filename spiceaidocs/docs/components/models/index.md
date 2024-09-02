@@ -4,7 +4,7 @@ sidebar_label: 'AI/ML Models'
 description: ''
 ---
 
-Spice supports both traditional machine learning (ML) models and language models (LLMs).
+Spice supports traditional machine learning (ML) models and language models (LLMs).
 
 - **Filesystem**: [ONNX](https://onnx.ai) models.
 - **HuggingFace**: ONNX models hosted on [HuggingFace](https://huggingface.co).
@@ -20,6 +20,6 @@ Spice supports both traditional machine learning (ML) models and language models
 | `spice.ai`                   | Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models) | ONNX  | - |
 | `openai`                     | OpenAI (or compatible) LLM endpoint | -  | Remote HTTP endpoint |
 
-* LLM Format(s) may require additional auxiliary files (e.g. tokenizer_config.json).
+* LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
 
-The model type is automatically determined based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
+The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).

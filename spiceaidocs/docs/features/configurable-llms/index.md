@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice handles using language models (LLMs) from a variety of sources (see [model components](/components/models/index.md)) and provides additional customisation on how inference will be performed in the Spice runtime. This includes:
+Spice supports language models (LLMs) from several sources (see [model components](/components/models/index.md)) and provides configuration for how inference will be performed in the Spice runtime. This includes:
  - Providing tools to the language model, enabling it to interact with the Spice runtime.
  - Specifying system prompts and overriding defaults for [`v1/chat/completion`](/api/http/chat-completions.md).
 

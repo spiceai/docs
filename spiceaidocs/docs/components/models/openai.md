@@ -4,8 +4,10 @@ sidebar_label: 'OpenAI'
 sidebar_position: 4
 ---
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path in `from`. For a specific model, include it as the model id in `from` (see example below). Default `"gpt-3.5-turbo"`.
-Several params are specific to OpenAI models.
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path in `from`. 
+
+For a specific model, include it as the model ID in `from` (see example below). Defaults to `"gpt-3.5-turbo"`.
+These parameters are specific to OpenAI models:
 
 | Param | Description | Default |
 | ----- | ----------- | ------- |
@@ -19,12 +21,12 @@ Example:
 
 ```yaml
 models:
-  - from: openai/gpt-4o
+  - from: openai:gpt-4o
     name: local_fs_model
     params:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 
-  - from: openai/llama3-groq-70b-8192-tool-use-preview
+  - from: openai:llama3-groq-70b-8192-tool-use-preview
     name: groq-llama
     params:
       endpoint: https://api.groq.com/openai/v1

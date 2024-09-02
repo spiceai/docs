@@ -8,11 +8,13 @@ pagination_next: null
 ---
 
 ### Chat Completion Parameter Overrides
-[`v1/chat/completion`](/api/http/chat-completions) is a fully OpenAI compatible endpoint. It also supports all request body parameters defined in [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice can configure different defaults for these request parameters.
+[`v1/chat/completion`](/api/http/chat-completions) is an OpenAI compatible endpoint.
+
+It supports all request body parameters defined in the [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice can configure different defaults for these request parameters.
 ```yaml
 models:
   - name: pirate-haikus
-    from: openai/gpt-4o
+    from: openai:gpt-4o
     params:
       openai_temperature: 0.1
       openai_response_format: { "type": "json_object" }
@@ -24,10 +26,10 @@ In addition to any system prompts provided in message dialogue, or added by mode
 ```yaml
 models:
   - name: pirate-haikus
-    from: openai/gpt-4o
+    from: openai:gpt-4o
     params:
       system_prompt: |
         Write everything in Haiku like a pirate
 ```
 
-Any request to [HTTP `v1/chat/completion`](/api/http/chat-completions) will include this system prompt.
+Any request to [HTTP `v1/chat/completion`](/api/http/chat-completions) will include the configured system prompt.
