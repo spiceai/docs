@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a fully OpenAI compatible [`v1/chat/completion`](/api/http/chat-completions)] endpoint.
+Spice provides a fully OpenAI compatible [`v1/chat/completion`](/api/http/chat-completions) endpoint.
 In addition to user-provided tools (in the request payload), Spice provides a set of tools to let LLM interact with the runtime. To provide these tools to a Spice model, specify them in its `params.spice_tools`.
 ```yaml
 models:
