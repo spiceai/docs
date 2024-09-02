@@ -16,14 +16,14 @@ The model specifications are in early preview and are subject to change.
 Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration allows you to specify either type from a variety of sources. The model type is automatically determined based on the model source and files.
 
 
-| field         | Description                                                                |
-| ------------- | -------------------------------------------------------------------------- |
-| `name`        | Unique, readable name for the model within the Spicepod.                   |
-| `from`        | Source-specific address to uniquely identify a model                       |
-| `description` | Additional details about the model, useful for displaying to  of the model |
-| `datasets`    | Datasets that the model depends on for inference                           |
-| `files`       | Specify additional files, or override default files needed by the model    |
-| `params`      | Additional parameters to be passed to the model                            |
+| field         | Description                                                             |
+| ------------- | ----------------------------------------------------------------------- |
+| `name`        | Unique, readable name for the model within the Spicepod.                |
+| `from`        | Source-specific address to uniquely identify a model                    |
+| `description` | Additional details about the model, useful for displaying to users      |
+| `datasets`    | Datasets that the model depends on for inference                        |
+| `files`       | Specify additional files, or override default files needed by the model |
+| `params`      | Additional parameters to be passed to the model                         |
 
 ## `models`
 
@@ -83,7 +83,7 @@ A unique identifier for this model component.
 
 ### `description`
 
-Additional details about the model, useful for displaying to  of the model
+Additional details about the model, useful for displaying to users 
 
 ### `files`
 
