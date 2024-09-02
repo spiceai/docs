@@ -88,25 +88,26 @@ datasets:
 
 #### Schema
 
-| Column Name     | Data Type | Is Nullable |
-|-----------------|-----------|-------------|
-| body            | Utf8      | YES         |
-| closed_at       | Utf8      | YES         |
-| comments        | List()    | YES         |
-| created_at      | Utf8      | YES         |
-| id              | Utf8      | YES         |
-| labels          | List()    | YES         |
-| login           | Utf8      | YES         |
-| milestoneId     | Null      | YES         |
-| milestoneTitle  | Null      | YES         |
-| num_of_comments | Int64     | YES         |
-| number          | Int64     | YES         |
-| state           | Utf8      | YES         |
-| title           | Utf8      | YES         |
-| updated_at      | Utf8      | YES         |
-| url             | Utf8      | YES         |
-| milestone_id    | Utf8      | YES         |
-| milestone_title | Utf8      | YES         |
+| Column Name     | Data Type    | Is Nullable |
+|-----------------|--------------|-------------|
+| assignees       | List(Utf8)   | YES         |
+| body            | Utf8         | YES         |
+| closed_at       | Utf8         | YES         |
+| comments        | List(Struct) | YES         |
+| created_at      | Utf8         | YES         |
+| id              | Utf8         | YES         |
+| labels          | List(Utf8)   | YES         |
+| login           | Utf8         | YES         |
+| milestoneId     | Utf8         | YES         |
+| milestoneTitle  | Utf8         | YES         |
+| num_of_comments | Int64        | YES         |
+| number          | Int64        | YES         |
+| state           | Utf8         | YES         |
+| title           | Utf8         | YES         |
+| updated_at      | Utf8         | YES         |
+| url             | Utf8         | YES         |
+| milestone_id    | Utf8         | YES         |
+| milestone_title | Utf8         | YES         |
 
 #### Example
 
@@ -146,25 +147,27 @@ datasets:
 
 #### Schema
 
-| Column Name     | Data Type | Is Nullable |
-|-----------------|-----------|-------------|
-| additions       | Int64     | YES         |
-| body            | Utf8      | YES         |
-| changed_files   | Int64     | YES         |
-| closed_at       | Utf8      | YES         |
-| created_at      | Utf8      | YES         |
-| deletions       | Int64     | YES         |
-| hashes          | List()    | YES         |
-| id              | Utf8      | YES         |
-| login           | Utf8      | YES         |
-| merged_at       | Utf8      | YES         |
-| num_of_comments | Int64     | YES         |
-| num_of_commits  | Int64     | YES         |
-| num_of_reviews  | Int64     | YES         |
-| number          | Int64     | YES         |
-| state           | Utf8      | YES         |
-| title           | Utf8      | YES         |
-| url             | Utf8      | YES         |
+| Column Name     | Data Type  | Is Nullable |
+|-----------------|------------|-------------|
+| assignees       | List(Utf8) | YES         |
+| additions       | Int64      | YES         |
+| body            | Utf8       | YES         |
+| changed_files   | Int64      | YES         |
+| closed_at       | Utf8       | YES         |
+| created_at      | Utf8       | YES         |
+| deletions       | Int64      | YES         |
+| hashes          | List(Utf8) | YES         |
+| id              | Utf8       | YES         |
+| labels          | List(Utf8) | YES         |
+| login           | Utf8       | YES         |
+| merged_at       | Utf8       | YES         |
+| num_of_comments | Int64      | YES         |
+| num_of_commits  | Int64      | YES         |
+| num_of_reviews  | Int64      | YES         |
+| number          | Int64      | YES         |
+| state           | Utf8       | YES         |
+| title           | Utf8       | YES         |
+| url             | Utf8       | YES         |
 
 #### Example
 
