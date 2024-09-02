@@ -16,6 +16,15 @@ The model specifications are in early preview and are subject to change.
 Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration allows you to specify either type from a variety of sources. The model type is automatically determined based on the model source and files.
 
 
+| field         | Description                                                                |
+| ------------- | -------------------------------------------------------------------------- |
+| `name`        | Unique, readable name for the model within the Spicepod.                   |
+| `from`        | Source-specific address to uniquely identify a model                       |
+| `description` | Additional details about the model, useful for displaying to  of the model |
+| `datasets`    | Datasets that the model depends on for inference                           |
+| `files`       | Specify additional files, or override default files needed by the model    |
+| `params`      | Additional parameters to be passed to the model                            |
+
 ## `models`
 
 The `models` section in your configuration allows you to specify one or more models to be used with your datasets.
@@ -41,13 +50,13 @@ models:
 
 ### `from`
 
-The `from` field specifies both the source of the model, and the unique identifier of the model (relative to the source). The `from` value expects the following format
+The `from` field specifies both the source of the model (e.g Huggingface, or a local file), and the unique identifier of the model (relative to the source). The `from` value expects the following format
 
 ```yaml
 - from: <model_source>/<model id>
 ```
 
-### Model Source
+#### Model Source
 
 The `<model_source>` prefix of the `from` field indicates where the model is sourced from:
 
@@ -56,7 +65,7 @@ The `<model_source>` prefix of the `from` field indicates where the model is sou
 - `openai` - OpenAI (or compatible) models
 - `spiceai` - Spice AI models
 
-### Model ID
+#### Model ID
 
 The `<model_id>` suffix of the `from` field is a unique (per source) identifier for the model:
 
@@ -65,12 +74,16 @@ The `<model_id>` suffix of the `from` field is a unique (per source) identifier 
 - For Hugging Face: A repo_id and, optionally, revision hash or tag.
     - `Qwen/Qwen1.5-0.5B` (no revision)
     - `meta-llama/Meta-Llama-3-8B:cd892e8f4da1043d4b01d5ea182a2e8412bf658f` (with revision hash)
-- For local files: Represents the absolute or relative path to the model weights file on the local file system. See [below](#files) for the accepted model weight types and formats. 
+- For local files: Represents the absolute or relative path to the model weights file on the local file system. See [below](#files) for the accepted model weight types and formats.
 - For OpenAI: Only supports LMs. For OpenAI models, valid IDs can be found in their model [documentation](https://platform.openai.com/docs/models/continuous-model-upgrades). For OpenAI compatible providers, specify the value  required in their `v1/chat/completion` [payload](https://platform.openai.com/docs/api-reference/chat/create#chat-create-model).
 
 ### `name`
 
 A unique identifier for this model component.
+
+### `description`
+
+Additional details about the model, useful for displaying to  of the model
 
 ### `files`
 
@@ -106,7 +119,7 @@ Optional. A map of key-value pairs for additional parameters specific to the mod
 
 ### `datasets`
 
-Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference. 
+Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
 
 ### `dependsOn`
 

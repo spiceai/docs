@@ -13,7 +13,7 @@ models:
   - from: huggingface:huggingface.co/spiceai/darts:latest
     name: hf_model
     files:
-      - model.onnx
+      - path: model.onnx
     datasets:
       - taxi_trips
 ```

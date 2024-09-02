@@ -4,25 +4,22 @@ sidebar_label: 'AI/ML Models'
 description: ''
 ---
 
-Machine Learning (ML) models can be deployed and loaded from the following sources.
+Spice supports both traditional machine learning (ML) models and language models (LLMs).
 
 - **Filesystem**: [ONNX](https://onnx.ai) models.
 - **HuggingFace**: ONNX models hosted on [HuggingFace](https://huggingface.co).
 - **Spice Cloud Platform**: Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models).
+- **OpenAI**: OpenAI (or compatible) LLM endpoints.
 
-Defined in the `spicepod.yml`, a `model` component has the following format.
+### Model Sources
 
-| field      | Description                                                             |
-| ---------- | ----------------------------------------------------------------------- |
-| `name`     | Unique, readable name for the model within the Spicepod.                |
-| `from`     | Source-specific address to uniquely identify a model                    |
-| `datasets` | Datasets that the model depends on for inference                        |
-| `files`    | Specify additional files, or override default files needed by the model |
+| Name                         | Description      | ML Format(s) | LLM Format(s)*          |
+| ---------------------------- | ---------------- | ------------ | ----------------------- |
+| `file`                       | Local filesystem |    ONNX      | GGUF, GGML, SafeTensor  |
+| `huggingface:huggingface.co` | Models hosted on [HuggingFace](https://huggingface.co)                                          | ONNX  | GGUF, GGML, SafeTensor |
+| `spice.ai`                   | Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models) | ONNX  | - |
+| `openai`                     | OpenAI (or compatible) LLM endpoint | -  | Remote HTTP endpoint |
 
-For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
+* LLM Format(s) may require additional auxiliary files (e.g. tokenizer_config.json).
 
-## Model Sources
-
-import DocCardList from '@theme/DocCardList';
-
-<DocCardList />
+The model type is automatically determined based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
