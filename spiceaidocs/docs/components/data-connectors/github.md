@@ -100,7 +100,7 @@ datasets:
 | login           | Utf8         | YES         |
 | milestoneId     | Utf8         | YES         |
 | milestoneTitle  | Utf8         | YES         |
-| num_of_comments | Int64        | YES         |
+| comments_count  | Int64        | YES         |
 | number          | Int64        | YES         |
 | state           | Utf8         | YES         |
 | title           | Utf8         | YES         |
@@ -154,6 +154,8 @@ datasets:
 | body            | Utf8       | YES         |
 | changed_files   | Int64      | YES         |
 | closed_at       | Utf8       | YES         |
+| comments_count  | Int64      | YES         |
+| commits_count   | Int64      | YES         |
 | created_at      | Utf8       | YES         |
 | deletions       | Int64      | YES         |
 | hashes          | List(Utf8) | YES         |
@@ -161,10 +163,8 @@ datasets:
 | labels          | List(Utf8) | YES         |
 | login           | Utf8       | YES         |
 | merged_at       | Utf8       | YES         |
-| num_of_comments | Int64      | YES         |
-| num_of_commits  | Int64      | YES         |
-| num_of_reviews  | Int64      | YES         |
 | number          | Int64      | YES         |
+| reviews_count   | Int64      | YES         |
 | state           | Utf8       | YES         |
 | title           | Utf8       | YES         |
 | url             | Utf8       | YES         |
