@@ -51,7 +51,7 @@ datasets:
     name: spiceai.files
     params:
       github_access_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.txt" # filter to includeonly txt files
+      include: "**/*.txt" # filter to include only txt files
     acceleration:
       enabled: true
 ```
