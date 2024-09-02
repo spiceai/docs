@@ -26,6 +26,7 @@ Currently supported Data Connectors include:
 | `spark`         | Spark       | Alpha  | Spark Connect                       | `full`           | ❌               |
 | `ftp`, `sftp`   | FTP/SFTP    | Alpha  | Parquet, CSV                        | `full`           | ❌               |
 | `graphql`       | GraphQL     | Alpha  | GraphQL                             | `full`           | ❌               |
+| `github`        | GitHub      | Alpha  |                                     | `full`           | ❌               |
 | `odbc`          | ODBC        | Alpha  | ODBC                                | `full`           | ❌               |
 | `http`, `https` | HTTP(s)     | Alpha  | Parquet, CSV                        | `full`           | ❌               |
 
