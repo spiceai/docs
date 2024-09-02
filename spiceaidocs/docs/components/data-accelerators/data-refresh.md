@@ -187,7 +187,7 @@ spice refresh eth_recent_blocks
 API example using cURL:
 
 ```bash
-curl -i -XPOST 127.0.0.1:8090/v1/datasets/eth_recent_blocks/refresh
+curl -i -XPOST 127.0.0.1:8090/v1/datasets/eth_recent_blocks/acceleration/refresh
 ```
 
 with response:
