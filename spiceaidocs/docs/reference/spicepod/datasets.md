@@ -325,3 +325,28 @@ datasets:
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert
 ```
+
+## `embeddings`
+
+Optional. Create vector embeddings for specific columns of the dataset.
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    embeddings:
+      - column: extra_data
+        use: hf_minilm
+```
+
+## `embeddings[*].column`
+
+The column name to create an embedding for.
+
+## `embeddings[*].use`
+
+The embedding model to use, specific the component name `embeddings[*].name`.
+
+## `embeddings[*].column_pk`
+
+Optional. For datasets without a primary key, explicitly specify column(s) that uniquely identify a row.
