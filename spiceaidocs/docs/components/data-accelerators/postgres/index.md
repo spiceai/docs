@@ -50,7 +50,7 @@ datasets:
         pg_db: my_database
         pg_user: my_user
         pg_pass: ${secrets:my_pg_pass}
-        pg_sslmode: required
+        pg_sslmode: require
 ```
 
 Specify different secrets for a PostgreSQL source and acceleration:
