@@ -9,14 +9,13 @@ pagination_next: null
 
 [JDBC](https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html) (Java Database Connectivity) is a standard API for connecting to and interacting with databases.
 
-Spice supports JDBC clients through a JDBC driver implementation based on the [Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) protocol, which is natively supported by Spice. This enables any JDBC-compatible application to connect to Spice, execute queries, and retrieve data.
+Spice supports JDBC clients through a JDBC driver implementation based on the [Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) protocol. This enables any JDBC-compatible application to connect to Spice, execute queries, and retrieve data.
 
 ## Download and install the Flight SQL JDBC driver
 
 ### Download the Flight SQL JDBC driver
 
-- Visit the [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/) page
-- Select the **Versions** tab
+- Find the appropriate [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/versions) version. 
 - Click **Browse**  next to the version you want to download
 - Click the `flight-sql-jdbc-driver-XX.XX.XX.jar` file (with only the `.jar` file extension) from the list of files to download the driver jar file
 
@@ -38,7 +37,7 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 
 [Full instruction](/clients/jetbrains-datagrip)
 
-**DBeave**:
+**DBeaver**:
 
 - In the DBeaver application menu bar, open the "Database" menu and choose: "Driver Manager"
 - Click the "New" button and follow instructions to add JDBC `.jar` file.
@@ -49,7 +48,7 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 
 1. Use the following configuration settings:
 
-- **URL**: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`
+- **URL**: `jdbc:arrow-flight-sql://{host}:{port}`
 - **Dialect**: `PostgreSQL`
 
  For example:
