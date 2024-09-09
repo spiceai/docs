@@ -57,6 +57,8 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 1. **Ensure Spice is running**
 1. Click **Connect**
 
+Note: Spice has [TLS support](/api/tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
+
 ## Execute Test Query
 
 In the configured application, run a sample query, such as `SELECT * FROM taxi_trips;`
