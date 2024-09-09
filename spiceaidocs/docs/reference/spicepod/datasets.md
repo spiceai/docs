@@ -255,7 +255,7 @@ See [Duration](../duration/index.md)
 
 ## `acceleration.refresh_jitter_enabled`
 
-Optional. Enable or disable refresh jitter, defaults to `false`.
+Optional. Enable or disable refresh jitter, defaults to `false`. The refresh jitter adds/substracts a randomized time period from the `refresh_check_interval`.
 
 ## `acceleration.refresh_jitter_max`
 
