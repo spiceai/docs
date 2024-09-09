@@ -29,7 +29,7 @@ Follow the instructions specific to your application for adding a custom JDBC dr
     - Mac: `~/Library/Tableau/Drivers`
     - Linux: `/opt/tableau/tableau_driver/jdbc` - Start or restart Tableau
 
-[Full instruction](clients/tableau)
+[Full instruction](/clients/tableau)
 
 **JetBrains DataGrip**:
 
