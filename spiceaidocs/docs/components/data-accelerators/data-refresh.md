@@ -242,3 +242,25 @@ Accelerated datasets can be set to automatically evict time-series data exceedin
 Retention policies apply to `full` and `append` refresh modes (not `changes`).
 
 The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
+
+
+## Refresh Jitter
+Accelerated datasets can be configured to add a random jitter to the refresh interval. This can be useful to avoid a thundering herd problem where multiple datasets are refreshed at the same time. The jitter is added or subtracted from the refresh interval and is between 0 and `refresh_jitter_max`.
+
+Example:
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth_recent_blocks
+    acceleration:
+      refresh_check_interval: 10s
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 1s
+```
+
+In this example, the refresh interval will be between 9s and 11s.
+
+Refresh jitter can be configured using the following parameters:
+- [`refresh_jitter_enabled`](/reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
+- [`refresh_jitter_max`](/reference/spicepod/datasets#accelerationrefresh_jitter_max)

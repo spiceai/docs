@@ -253,6 +253,14 @@ Required when `acceleration.retention_check_enabled` is `true`.
 
 See [Duration](../duration/index.md)
 
+## `acceleration.refresh_jitter_enabled`
+
+Optional. Enable or disable refresh jitter, defaults to `false`. The refresh jitter adds/substracts a randomized time period from the `refresh_check_interval`.
+
+## `acceleration.refresh_jitter_max`
+
+Optional. The maximum amount of jitter to add to the refresh interval. The jitter is a random value between 0 and `refresh_jitter_max`. Defaults to 10% of `refresh_check_interval`.
+
 ## `acceleration.indexes`
 
 Optional. Specify which indexes should be applied to the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
