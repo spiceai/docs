@@ -13,22 +13,23 @@ Currently supported Data Connectors include:
 
 | Name            | Description | Status | Protocol/Format                     | Refresh Modes    | Supports Inserts |
 | --------------- | ----------- | ------ | ----------------------------------- | ---------------- | ---------------- |
+| `clickhouse`    | Clickhouse  | Alpha  |                                     | `full`           | ❌               |
 | `databricks`    | Databricks  | Alpha  | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               |
 | `delta_lake`    | Delta Lake  | Alpha  | Delta Lake                          | `full`           | ❌               |
-| `postgres`      | PostgreSQL  | Alpha  |                                     | `full`           | ❌               |
-| `spiceai`       | Spice.ai    | Alpha  | Arrow Flight                        | `append`, `full` | ✅               |
-| `s3`            | S3          | Alpha  | Parquet, CSV                        | `full`           | ❌               |
 | `dremio`        | Dremio      | Alpha  | Arrow Flight SQL                    | `full`           | ❌               |
 | `flightsql`     | FlightSQL   | Alpha  | Arrow Flight SQL                    | `full`           | ❌               |
-| `snowflake`     | Snowflake   | Alpha  | Arrow                               | `full`           | ❌               |
-| `mysql`         | MySQL       | Alpha  |                                     | `full`           | ❌               |
-| `clickhouse`    | Clickhouse  | Alpha  |                                     | `full`           | ❌               |
-| `spark`         | Spark       | Alpha  | Spark Connect                       | `full`           | ❌               |
 | `ftp`, `sftp`   | FTP/SFTP    | Alpha  | Parquet, CSV                        | `full`           | ❌               |
-| `graphql`       | GraphQL     | Alpha  | GraphQL                             | `full`           | ❌               |
 | `github`        | GitHub      | Alpha  | GraphQL, REST                       | `full`           | ❌               |
-| `odbc`          | ODBC        | Alpha  | ODBC                                | `full`           | ❌               |
+| `graphql`       | GraphQL     | Alpha  | GraphQL                             | `full`           | ❌               |
 | `http`, `https` | HTTP(s)     | Alpha  | Parquet, CSV                        | `full`           | ❌               |
+| `mysql`         | MySQL       | Alpha  |                                     | `full`           | ❌               |
+| `odbc`          | ODBC        | Alpha  | ODBC                                | `full`           | ❌               |
+| `postgres`      | PostgreSQL  | Alpha  |                                     | `full`           | ❌               |
+| `s3`            | S3          | Alpha  | Parquet, CSV                        | `full`           | ❌               |
+| `sharepoint`    | SharePoint  | Alpha  |                                     | `full`           | ❌               |
+| `snowflake`     | Snowflake   | Alpha  | Arrow                               | `full`           | ❌               |
+| `spark`         | Spark       | Alpha  | Spark Connect                       | `full`           | ❌               |
+| `spiceai`       | Spice.ai    | Alpha  | Arrow Flight                        | `append`, `full` | ✅               |
 
 ## Data Connector Docs
 
