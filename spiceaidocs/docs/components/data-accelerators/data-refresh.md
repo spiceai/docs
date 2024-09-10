@@ -11,13 +11,13 @@ pagination_next: null
 
 Spice supports three modes to refresh/update local data from a connected data source. `full` is the default mode.
 
-| Mode      | Description                                          | Example                                            |
-| --------- | ---------------------------------------------------- | -------------------------------------------------- |
-| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                   |
-| `append`  | Append/add data to the dataset on each refresh       | Append-only datasets, like time-series or log data |
-| `changes` | Apply incremental changes                            | Customer order lifecycle table                     |
+| Mode      | Description                                          | Example                                                          |
+| --------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
+| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                                 |
+| `append`  | Append/add data to the dataset on each refresh       | Append-only, immutable datasets, such as time-series or log data |
+| `changes` | Apply incremental changes                            | Customer order lifecycle table                                   |
 
-E.g.
+Example:
 
 ```yaml
 datasets:
@@ -28,7 +28,9 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-If the dataset definition includes a `time_column` and the refresh mode is `append`, data will be refreshed for data where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
+### Append
+
+If the dataset definition includes a `time_column` and the refresh mode is `append`, data will be incrementally refreshed for data where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
 
 E.g.
 
@@ -42,7 +44,9 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-## Changes
+When using `mode: append`, if late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/reference/spicepod/datasets#accelerationrefresh_append_overlap).
+
+### Changes (CDC)
 
 Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/components/data-connectors/debezium.md).
 
@@ -57,7 +61,7 @@ Typically only a working subset of an entire dataset is used in an application o
 
 Specify filters for data accelerated from the connected source using arbitrary SQL. Supported for `full` and `append` refresh modes.
 
-Filters will be pushed down to the remote source, and only the requested data will be transferred over the network.
+Filters will be pushed down to the remote source when possible, so only the requested data will be transferred over the network.
 
 Example:
 
@@ -73,7 +77,7 @@ datasets:
         SELECT * FROM accelerated_dataset WHERE city = 'Seattle'
 ```
 
-The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert at the next runtime restart.
+The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert to the `spicepod.yml` definition at the next runtime restart.
 
 Example:
 
@@ -90,20 +94,20 @@ For the complete reference, view the `refresh_sql` section of [datasets](/refere
 
 :::warning[Limitations]
 
-- The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
+- Refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
-- Queries for data that have been filtered out will not fall back to querying against the federated table.
+- Queries for data that have been filtered out will not fallback to querying the federated table.
 - Refresh SQL modifications made via API are temporary and will revert after a runtime restart.
 
 :::
 
 ### Refresh Data Window
 
-Filters data from the federated source outside than the specified window. The only supported window is a lookback starting from `now() - refresh_data_window` to `now()`. This flag is only supported for datasets configured with a `full` refresh mode (the default).
+Filters data from the federated source that falls outside the specified time window. The only supported window is a lookback period starting from `now() - refresh_data_window` to `now()`. This flag is supported datasets configured with the default `full` refresh mode.
 
-Used in combination with the [`time_column`](/reference/spicepod/datasets.md#time_column) to identify the column that contains the timestamps to filter on. The [`time_format`](/reference/spicepod/datasets.md#time_format) column (optional) can be used to instruct the Spice runtime how to interpret the timestamps in the `time_column`.
+This filter works with the `time_column` to identify the column containing timestamps for filtering. Optionally, the `time_format` can be specified to instruct the Spice runtime on how to interpret timestamps in the `time_column`.
 
-Can also be combined with `refresh_sql` to further filter the data based on the temporal dimension.
+It can also be used alongside `refresh_sql` to apply additional filtering based on time-related criteria.
 
 Example:
 
@@ -243,9 +247,11 @@ Retention policies apply to `full` and `append` refresh modes (not `changes`).
 
 The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
 
-
 ## Refresh Jitter
-Accelerated datasets can be configured to add a random jitter to the refresh interval. This can be useful to avoid a thundering herd problem where multiple datasets are refreshed at the same time. The jitter is added or subtracted from the refresh interval and is between 0 and `refresh_jitter_max`.
+
+Accelerated datasets can include a random jitter in the refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter, ranging from `0` to `refresh_jitter_max`, is randomly added or subtracted from the refresh interval.
+
+Refresh Jitter applies on the first dataset load, so on a restart of multiple similarily configured Spice instances at once, on restart they will load with jitter of 0 to `refresh_jitter_max`.
 
 Example:
 
@@ -262,5 +268,6 @@ datasets:
 In this example, the refresh interval will be between 9s and 11s.
 
 Refresh jitter can be configured using the following parameters:
+
 - [`refresh_jitter_enabled`](/reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
 - [`refresh_jitter_max`](/reference/spicepod/datasets#accelerationrefresh_jitter_max)
