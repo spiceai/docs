@@ -27,7 +27,7 @@ Example `spicepod.yml`
 
 ```yaml
 datasets:
-  - from: file://path/to/customer.parque
+  - from: file://path/to/customer.parquet
     name: customer
     params:
       file_format: parquet
