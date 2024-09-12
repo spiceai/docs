@@ -7,7 +7,7 @@ description: 'File Data Connector Documentation'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The File Data Connector enables federated SQL queries across files stored on a local disk. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
+The File Data Connector enables federated SQL queries on files stored by locally accessible filesystems. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
 
 File formats are specified using the `file_format` parameter in the `params` section. File formats currently supported are:
 
