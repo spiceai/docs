@@ -35,7 +35,7 @@ Currently supported Data Connectors include:
 ## Object Store File Formats
 For data connectors that are object store compatible, if a folder is provided, the file format must be specified with `params.file_format`.
 
-For individual files, the file format will be inferred, and `params.file_format` is unnecessary.
+If a file is provided, the file format will be inferred, and `params.file_format` is unnecessary.
 
 File formats currently supported are:
 
