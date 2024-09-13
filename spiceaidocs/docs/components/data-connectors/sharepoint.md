@@ -27,7 +27,7 @@ The sharepoint connector does not support creating a dataset from a single file 
 - `sharepoint_client_id`: Required. The client ID of the Azure AD (Entra) application.
 - `sharepoint_tenant_id`: Required. The tenant ID of the Azure AD (Entra) application.
 - `sharepoint_client_secret`: Optional. For service principal authentication. The client secret of the Azure AD (Entra) application.
-- `sharepoint_authorization_code`: Optional. For user authentication. The authorization code obtained from the OAuth2 flow (see `spice login sharepoint` [docs](cli/reference/login)).
+- `sharepoint_authorization_code`: Optional. For user authentication. The authorization code obtained from the OAuth2 flow (see `spice login sharepoint` [docs](/cli/reference/login)).
 
 Note: Only one of `sharepoint_client_secret` or `sharepoint_authorization_code` is allowed.
 
