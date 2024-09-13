@@ -79,26 +79,26 @@ datasets:
 A Document table will be created.
 ```shell
 >>> SELECT * FROM my_documents LIMIT 3
-+--------------------------------------------------------------------------------+--------------------------------------------------+
-| location                                                                       | content                                          |
-+--------------------------------------------------------------------------------+--------------------------------------------------+
-| Users/jeadie/Github/data-platform/docs/decisions/DR-000-Template.md            | # DR-000: DR Template                            |
-|                                                                                | **Date:** <>                                     |
-|                                                                                | **Decision Makers:**                             |                                            |
-|                                                                                | - @<>                                            |
-|                                                                                | - @<>                                            |
-|                                                                                | ...                                              |
-| Users/jeadie/Github/data-platform/docs/decisions/DR-001-Dremio-Architecture.md | # DR-001: Add "Cached" Dremio Dataset            |
-|                                                                                |                                                  |
-|                                                                                | ## Context                                       |
-|                                                                                |                                                  |
-|                                                                                | We use [Dremio](https://www.dremio.com/) to p... |
-| Users/jeadie/Github/data-platform/docs/decisions/DR-002-Data-Completeness.md   | # DR-002: Append-Only Data Completeness          |
-|                                                                                |                                                  |
-|                                                                                | ## Context                                       |
-|                                                                                |                                                  |
-|                                                                                | Our Ethereum append-only dataset is incomple...  |
-+--------------------------------------------------------------------------------+--------------------------------------------------+
++----------------------------------------------------+--------------------------------------------------+
+| location                                           | content                                          |
++----------------------------------------------------+--------------------------------------------------+
+| Users/docs/decisions/DR-000-Template.md            | # DR-000: DR Template                            |
+|                                                    | **Date:** <>                                     |
+|                                                    | **Decision Makers:**                             |
+|                                                    | - @<>                                            |
+|                                                    | - @<>                                            |
+|                                                    | ...                                              |
+| Users/docs/decisions/DR-001-Dremio-Architecture.md | # DR-001: Add "Cached" Dremio Dataset            |
+|                                                    |                                                  |
+|                                                    | ## Context                                       |
+|                                                    |                                                  |
+|                                                    | We use [Dremio](https://www.dremio.com/) to p... |
+| Users/docs/decisions/DR-002-Data-Completeness.md   | # DR-002: Append-Only Data Completeness          |
+|                                                    |                                                  |
+|                                                    | ## Context                                       |
+|                                                    |                                                  |
+|                                                    | Our Ethereum append-only dataset is incomple...  |
++----------------------------------------------------+--------------------------------------------------+
 ```
 
 ## Data Connector Docs
