@@ -26,6 +26,7 @@ Currently supported Data Connectors include:
 | `mysql`         | MySQL       | Alpha  |                                     | `full`           | ❌               | ❌                |
 | `odbc`          | ODBC        | Alpha  | ODBC                                | `full`           | ❌               | ❌                |
 | `postgres`      | PostgreSQL  | Alpha  |                                     | `full`           | ❌               | ❌                |
+| `sharepoint`    | SharePoint  | Alpha  |                                     | `full`           | ❌               | ✅                |
 | `snowflake`     | Snowflake   | Alpha  | Arrow                               | `full`           | ❌               | ❌                |
 | `spiceai`       | Spice.ai    | Alpha  | Arrow Flight                        | `append`, `full` | ✅               | ❌                |
 | `s3`            | S3          | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
