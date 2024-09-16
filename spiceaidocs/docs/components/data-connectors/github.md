@@ -30,7 +30,7 @@ datasets:
       enabled: true
 ```
 
-#### Schema:
+#### Schema
 
 | Column Name  | Data Type | Is Nullable |
 |--------------|-----------|-------------|
@@ -92,19 +92,19 @@ datasets:
 |-----------------|--------------|-------------|
 | assignees       | List(Utf8)   | YES         |
 | body            | Utf8         | YES         |
-| closed_at       | Utf8         | YES         |
+| closed_at       | Timestamp    | YES         |
 | comments        | List(Struct) | YES         |
-| created_at      | Utf8         | YES         |
+| created_at      | Timestamp    | YES         |
 | id              | Utf8         | YES         |
 | labels          | List(Utf8)   | YES         |
 | login           | Utf8         | YES         |
 | milestone_id    | Utf8         | YES         |
-| milestone_title  | Utf8         | YES         |
+| milestone_title | Utf8         | YES         |
 | comments_count  | Int64        | YES         |
 | number          | Int64        | YES         |
 | state           | Utf8         | YES         |
 | title           | Utf8         | YES         |
-| updated_at      | Utf8         | YES         |
+| updated_at      | Timestamp    | YES         |
 | url             | Utf8         | YES         |
 
 
@@ -133,7 +133,6 @@ sql> select title, state, labels from spiceai.issues where title like '%duckdb%'
 Time: 0.011877542 seconds. 5 rows.
 ```
 
-
 ### Querying GitHub Pull Requests
 
 ```yaml
@@ -152,16 +151,16 @@ datasets:
 | assignees       | List(Utf8) | YES         |
 | body            | Utf8       | YES         |
 | changed_files   | Int64      | YES         |
-| closed_at       | Utf8       | YES         |
+| closed_at       | Timestamp  | YES         |
 | comments_count  | Int64      | YES         |
 | commits_count   | Int64      | YES         |
-| created_at      | Utf8       | YES         |
+| created_at      | Timestamp  | YES         |
 | deletions       | Int64      | YES         |
 | hashes          | List(Utf8) | YES         |
 | id              | Utf8       | YES         |
 | labels          | List(Utf8) | YES         |
 | login           | Utf8       | YES         |
-| merged_at       | Utf8       | YES         |
+| merged_at       | Timestamp  | YES         |
 | number          | Int64      | YES         |
 | reviews_count   | Int64      | YES         |
 | state           | Utf8       | YES         |
@@ -208,7 +207,7 @@ datasets:
 | additions         | Int64     | YES         |
 | author_email      | Utf8      | YES         |
 | author_name       | Utf8      | YES         |
-| committed_date    | Utf8      | YES         |
+| committed_date    | Timestamp | YES         |
 | deletions         | Int64     | YES         |
 | id                | Utf8      | YES         |
 | message           | Utf8      | YES         |
@@ -246,4 +245,60 @@ sql> select sha, message_head_line from spiceai.commits limit 10
 +------------------------------------------+------------------------------------------------------------------------+
 
 Time: 0.0065395 seconds. 10 rows.
+```
+
+### Querying GitHub stars (Stargazers)
+
+```yaml
+datasets:
+  - from: github:github.com/<owner>/<repo>/stargazers
+    name: spiceai.stargazers
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+```
+
+#### Schema
+
+| Column Name       | Data Type | Is Nullable |
+|-------------------|-----------|-------------|
+| starred_at        | Timestamp | YES         |
+| login             | Utf8      | YES         |
+| email             | Utf8      | YES         |
+| name              | Utf8      | YES         |
+| company           | Utf8      | YES         |
+| x_username        | Utf8      | YES         |
+| location          | Utf8      | YES         |
+| avatar_url        | Utf8      | YES         |
+| bio               | Utf8      | YES         |
+
+#### Example
+
+```yaml
+datasets:
+  - from: github:github.com/spiceai/spiceai/stargazers
+    name: spiceai.stargazers
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+    acceleration:
+      enabled: true
+```
+
+```console
+sql> select starred_at, login from spiceai.stargazers order by starred_at DESC limit 10
++----------------------+----------------------+
+| starred_at           | login                |
++----------------------+----------------------+
+| 2024-09-15T13:22:09Z | cisen                |
+| 2024-09-14T18:04:22Z | tyan-boot            |
+| 2024-09-13T10:38:01Z | yofriadi             |
+| 2024-09-13T10:01:33Z | FourSpaces           |
+| 2024-09-13T04:02:11Z | d4x1                 |
+| 2024-09-11T18:10:28Z | stephenakearns-insta |
+| 2024-09-09T22:17:42Z | Lrs121               |
+| 2024-09-09T19:56:26Z | jonathanfinley       |
+| 2024-09-09T07:02:10Z | leookun              |
+| 2024-09-09T03:04:27Z | royswale             |
++----------------------+----------------------+
+
+Time: 0.0088075 seconds. 10 rows.
 ```
