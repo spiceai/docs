@@ -27,13 +27,13 @@ Returns
     {
         "created_by_id": "cbccd193-f9f1-4603-b01d-ff6f3e6f2108",
         "created_by_name": "Jack Eadie",
-        "created_date_time": "2024-09-09T04:57:00",
+        "created_at": "2024-09-09T04:57:00",
         "c_tag": "\"c:{BD4D130F-2C95-4E59-9F93-85BD0A9E1B19},1\"",
         "e_tag": "\"{BD4D130F-2C95-4E59-9F93-85BD0A9E1B19},1\"",
         "id": "01YRH3MPAPCNG33FJMLFHJ7E4FXUFJ4GYZ",
         "last_modified_by_id": "cbccd193-f9f1-4603-b01d-ff6f3e6f2108",
         "last_modified_by_name": "Jack Eadie",
-        "last_modified_date_time": "2024-09-09T04:57:00",
+        "last_modified_at": "2024-09-09T04:57:00",
         "name": "ngx_google_perftools_module.md",
         "size": 959,
         "web_url": "https://spiceai.sharepoint.com/Shared%20Documents/md/ngx_google_perftools_module.md",
@@ -56,7 +56,7 @@ The sharepoint connector does not yet support creating a dataset from a single f
 - `sharepoint_client_secret`: Optional. For service principal authentication. The client secret of the Azure AD (Entra) application.
 - `sharepoint_auth_code`: Optional. For user authentication. The authorization code obtained from the OAuth2 flow (see `spice login sharepoint` [docs](/cli/reference/login)).
 
-Note: Only one of `sharepoint_client_secret` or `sharepoint_authorization_code` is allowed.
+Note: Only one of `sharepoint_client_secret` or `sharepoint_auth_code` is allowed.
 
 ### `from` formats
 
@@ -103,7 +103,7 @@ To use the Sharepoint connector with service principal authentication, you will 
 4. (For service principal authentication): Under the application's `Certificates & secrets`, create a new client secret. Use this in `params.sharepoint_client_secret`.
 
 ### Default Spice Application
-For convenience, the SpiceAI team maintains a default Azure AD application that can be used for Sharepoint authentication. This application requires OAuth2 authentication. To use it:
+For convenience, Spice AI maintains a default Azure AD application that can be used for Sharepoint authentication. This application requires OAuth2 authentication. To use it:
 ```yaml
 datasets:
   - from: sharepoint:me/root # Set the drive and subpath as needed.
