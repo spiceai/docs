@@ -9,7 +9,7 @@ The Sharepoint Data Connector enables federated SQL queries on documents stored 
 
 ```yaml
 datasets:
-  - from: sharepoint:drive:Documents/path:/nuclear_secrets/
+  - from: sharepoint:drive:Documents/path:/top_secrets/
     name: important_documents
     params:
       sharepoint_client_id: ${secrets:SPICE_SHAREPOINT_CLIENT_ID}
@@ -85,7 +85,7 @@ For a name-based `drive_id`, the connector will attempt to resolve the name to a
 
 Within a drive, the sharepoint connector can load documents from:
  - The root folder: `from: sharepoint:me/root`. In this case, no `subpath_value` is specified.
- - A specific path: `from: sharepoint:me/path:/nuclear_secrets` (`path` being the keyword).
+ - A specific path: `from: sharepoint:me/path:/top_secrets` (`path` being the keyword).
  - A specific folder ID: `from: sharepoint:me/id:01QM2NJSNHBISUGQ52P5AJQ3CBNOXDMVNT`
 
 ## Authentication
