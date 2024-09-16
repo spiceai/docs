@@ -44,9 +44,8 @@ Returns
 
 
 :::warning[Limitations]
-The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents.
+The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Support](/components/data-connectors/index.md#document-support)).
 :::
-
 
 
 ## Configuration
@@ -88,3 +87,33 @@ Within a drive, the sharepoint connector can load documents from:
  - The root folder: `from: sharepoint:me/root`. In this case, no `subpath_value` is specified.
  - A specific path: `from: sharepoint:me/path:/nuclear_secrets` (`path` being the keyword).
  - A specific folder ID: `from: sharepoint:me/id:01QM2NJSNHBISUGQ52P5AJQ3CBNOXDMVNT`
+
+## Authentication
+As outlined in the [connector parameters](#parameters), the Sharepoint connector supports two types of authentication:
+ 1. Service principal authentication, by setting the `sharepoint_client_secret` parameters.
+ 2. User authentication, by setting the `sharepoint_auth_code` parameter. Generally this is obtained by running `spice login sharepoint` and following the OAuth2 flow.
+
+### Creating an Enterprise Application
+To use the Sharepoint connector with service principal authentication, you will need to create an Azure AD application and grant it the necessary permissions. This will also support OAuth2 authentication for users within the tenant (i.e. `params.sharepoint_auth_code`).
+
+1. Create a new Azure AD application in the [Azure portal]().
+2. Under the application's `API permissions`, add the following permissions: `Sites.Read.All`, `Files.Read.All`, `User.Read`, `GroupMember.Read.All`
+  - For service principal authentication, Application permissions are required. For user authentication, only delegated permissions are required.
+3. Add `sharepoint_client_id` and `sharepoint_tenant_id` to the connector configuration.
+4. (For service principal authentication): Under the application's `Certificates & secrets`, create a new client secret. Use this as the `sharepoint_client_secret` parameter.
+
+### Default Spice Application
+For convenience, the SpiceAI team maintains a default Azure AD application that can be used for Sharepoint authentication. This application requires OAuth2 authentication. To use it:
+```yaml
+datasets:
+  - from: sharepoint:me/root # Set the drive and subpath as needed.
+    name: my_data
+    params:
+      sharepoint_client_id: f2b3116e-b4c4-464f-80ec-73cd9d9886b4
+      sharepoint_tenant_id: 92543123-2b6a-4eec-9b6f-595720cd1c8f
+      sharepoint_auth_code: ${secrets:SPICE_SHAREPOINT_AUTH_CODE}
+```
+And set the `SPICE_SHAREPOINT_AUTH_CODE` secret via:
+```shell
+spice login sharepoint --tenant-id 92543123-2b6a-4eec-9b6f-595720cd1c8f --client-id f2b3116e-b4c4-464f-80ec-73cd9d9886b4
+```
