@@ -110,10 +110,11 @@ datasets:
     name: my_data
     params:
       sharepoint_client_id: f2b3116e-b4c4-464f-80ec-73cd9d9886b4
-      sharepoint_tenant_id: 92543123-2b6a-4eec-9b6f-595720cd1c8f
+      sharepoint_tenant_id: #{env:YOUR_TENANT_ID}
       sharepoint_auth_code: ${secrets:SPICE_SHAREPOINT_AUTH_CODE}
 ```
+
 And set the `SPICE_SHAREPOINT_AUTH_CODE` secret via:
 ```shell
-spice login sharepoint --tenant-id 92543123-2b6a-4eec-9b6f-595720cd1c8f --client-id f2b3116e-b4c4-464f-80ec-73cd9d9886b4
+spice login sharepoint --tenant-id $YOUR_TENANT_ID --client-id f2b3116e-b4c4-464f-80ec-73cd9d9886b4
 ```
