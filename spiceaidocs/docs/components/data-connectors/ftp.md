@@ -19,9 +19,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
 
     The connection to FTP can be configured by providing the following params:
 
-    - `file_format`: Specifies the data file format. Required if the format cannot be inferred by from the `from` path.
-      - `parquet`: Parquet file format.
-      - `csv`: CSV file format.
+    - `file_format`: Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
     - `ftp_port`: Optional, specifies the port of the FTP server. Default is 21. E.g. `ftp_port: 21`
     - `ftp_user`: The username for the FTP server. E.g. `ftp_user: my-ftp-user`
     - `ftp_pass`: The password for the FTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_ftp_pass}`.
