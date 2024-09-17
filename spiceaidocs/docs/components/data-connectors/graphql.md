@@ -53,7 +53,7 @@ query: |
   }
 ```
 
-- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) pointing to the JSON data in the response. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred.
+- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred.
 
 ### Examples
 
