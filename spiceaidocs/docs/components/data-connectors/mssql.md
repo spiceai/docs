@@ -50,5 +50,6 @@ datasets:
 :::warning[Limitations]
 
 1. The connector supports SQL Server authentication (SQL Login and Password) only.
+1. Spatial types (`geography`) are not supported, and columns with these types will be ignored.
 
 :::
