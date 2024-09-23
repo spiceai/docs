@@ -126,6 +126,10 @@ readynessProbe:
     port: 8090
 ```
 
+:::note
+For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes)
+:::
+
 ## Example values.yaml
 
 ```yaml
