@@ -61,3 +61,9 @@ datasets:
       pg_sslmode: verify-ca
       pg_sslrootcert: ./custom_cert.pem
 ```
+
+To lean how to use Postgres as Data Accelerator read [Postgres Data Accelerator documentation](/components/data-accelerators/postgres).
+
+:::warning[Limitations]
+
+- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
