@@ -115,7 +115,7 @@ livenessProbe:
 
 In Kubernetes, this pod will not be marked as *Healthy* until the `/health` endpoint returns `200`.
 
-#### Readyness probe
+#### Readiness probe
 
 The `/ready` endpoint indicates **whether or not the Spice datasets are ready**. This means that while `/health` might indicate that Spice is up and running, until `/ready` reports a status of `200`, your queries may return 0 results
 
