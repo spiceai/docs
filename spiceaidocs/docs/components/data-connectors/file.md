@@ -29,7 +29,7 @@ datasets:
 
 ## Trigger accelerated refresh on file change
 
-The File Data Connector can automatically refresh the associated acceleration when the file is modified. This is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
+The File Data Connector can automatically refresh the associated acceleration when the source file is modified. This is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
 
 ```yaml
 datasets:
