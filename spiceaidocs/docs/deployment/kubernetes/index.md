@@ -100,7 +100,7 @@ Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clien
 
 ### Health and Readyness
 
-Spice supports three endpoints to help you monitor the state of your Spice: `/health` and `/ready`:
+Spice provides two HTTP endpoints to help monitor the state of the Spice runtime: `/health` and `/ready`:
 
 #### Health probe
 
