@@ -40,14 +40,14 @@ Output:
 
 The following top-level task types are currently recorded:
 
-| Task Type         | Description                        |
-| ----------------- | ---------------------------------- |
-| `sql_query`       | SQL Query                          |
-| `nsql_query`      | Natural Language to SQL Query      |
-| `ai_chat`         | AI Chat Completion                 |
-| `vector_search`   | Vector Search                      |
-| `accelerated_refresh` | Accelerated Table Refresh      |
-| `text_embed`      | Text Embedding                     |
+| Task Type             | Description                   | CLI Command    |
+| --------------------- | ----------------------------- | -------------- |
+| `sql_query`           | SQL Query                     | `spice sql`    |
+| `nsql_query`          | Natural Language to SQL Query |                |
+| `ai_chat`             | AI Chat Completion            | `spice chat`   |
+| `vector_search`       | Vector Search                 | `spice search` |
+| `accelerated_refresh` | Accelerated Table Refresh     |                |
+| `text_embed`          | Text Embedding                |                |
 
 ## Configuration
 
