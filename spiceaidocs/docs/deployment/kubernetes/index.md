@@ -122,7 +122,7 @@ The `/ready` endpoint indicates **whether or not the Spice datasets are ready**.
 ```yaml
 readynessProbe:
   httpGet:
-    path: /ready
+    path: /v1/ready
     port: 8090
 ```
 
