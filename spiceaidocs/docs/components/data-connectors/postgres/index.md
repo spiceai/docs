@@ -4,8 +4,6 @@ sidebar_label: 'PostgreSQL Data Connector'
 description: 'PostgreSQL Data Connector Documentation'
 ---
 
-## Dataset Source/Federated SQL Query
-
 To use PostgreSQL as a dataset source specify `postgres` as the selector in the `from` value for the dataset.
 
 ```yaml
