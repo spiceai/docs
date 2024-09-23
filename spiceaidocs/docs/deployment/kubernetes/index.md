@@ -24,7 +24,7 @@ The following table lists the configurable parameters of the Spice.ai chart and 
 helm upgrade --install spiceai spiceai/spiceai -f values.yaml
 ```
 
-### Spicepod
+## Spicepod
 
 Add a custom Spicepod to be loaded by the Spice.ai runtime by overriding the `spicepod` value in the `values.yaml` file.
 
@@ -44,7 +44,7 @@ spicepod:
         enabled: true
 ```
 
-### Common Parameters
+## Common Parameters
 
 | Name                               | Description                                                                                                                                                                               | Value     |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -57,7 +57,7 @@ spicepod:
 | `resources`                        | Resource requests and limits for the Spice.ai container                                                                                                                                   | `{}`      |
 | `additionalEnv`                    | Additional environment variables to set in the Spice.ai container                                                                                                                         | `[]`      |
 
-### Adding extra environment variables
+## Adding extra environment variables
 
 Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/components/secret-stores/env/index.md).
 
@@ -70,7 +70,7 @@ additionalEnv:
         key: spiceai-key
 ```
 
-### Monitoring
+## Monitoring
 
 The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../clients/grafana/index.md). To enable this feature, set the `monitoring.podMonitoring.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
 
@@ -98,7 +98,39 @@ helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitoring.en
 
 Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clients/grafana/index.md) to visualize the Spice.ai metrics.
 
-### Example values.yaml
+### Health and Readiness
+
+Spice provides two HTTP endpoints to help monitor the state of the Spice runtime: `/health` and `/ready`:
+
+#### Health probe
+
+The `/health` endpoint indicates whether or not the Spice process is up and running and ready to receive requests. You can add a probe to query this endpoint like so:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8090
+```
+
+In Kubernetes, this pod will not be marked as *Healthy* until the `/health` endpoint returns `200`.
+
+#### Readiness probe
+
+The `/ready` endpoint indicates **whether or not the Spice datasets are ready**. This means that while `/health` might indicate that Spice is up and running, until `/ready` reports a status of `200`, your queries may return 0 results
+
+```yaml
+readynessProbe:
+  httpGet:
+    path: /v1/ready
+    port: 8090
+```
+
+:::note
+For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes)
+:::
+
+## Example values.yaml
 
 ```yaml
 image:
