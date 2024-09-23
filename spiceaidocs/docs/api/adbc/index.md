@@ -52,7 +52,7 @@ DBAPI interface:
 (1, 2.0, 'Hello, world!')
 >>> cursor.execute("SHOW TABLES")
 >>> cursor.fetchall()
-[('spice', 'public', 'messages', 'BASE TABLE'), ('spice', 'runtime', 'query_history', 'BASE TABLE'), ('spice', 'information_schema', 'tables', 'VIEW'), ('spice', 'information_schema', 'views', 'VIEW'), ('spice', 'information_schema', 'columns', 'VIEW'), ('spice', 'information_schema', 'df_settings', 'VIEW'), ('spice', 'information_schema', 'schemata', 'VIEW')]
+[('spice', 'public', 'messages', 'BASE TABLE'), ('spice', 'runtime', 'task_history', 'BASE TABLE'), ('spice', 'information_schema', 'tables', 'VIEW'), ('spice', 'information_schema', 'views', 'VIEW'), ('spice', 'information_schema', 'columns', 'VIEW'), ('spice', 'information_schema', 'df_settings', 'VIEW'), ('spice', 'information_schema', 'schemata', 'VIEW')]
 ```
 
 Arrow:

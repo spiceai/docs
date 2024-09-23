@@ -115,7 +115,7 @@ sql> show tables
 | table_catalog | table_schema | table_name    | table_type |
 +---------------+--------------+---------------+------------+
 | spice         | public       | taxi_trips    | BASE TABLE |
-| spice         | runtime      | query_history | BASE TABLE |
+| spice         | runtime      | task_history | BASE TABLE |
 | spice         | runtime      | metrics       | BASE TABLE |
 +---------------+--------------+---------------+------------+
 
