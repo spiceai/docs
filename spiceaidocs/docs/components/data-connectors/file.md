@@ -26,3 +26,20 @@ datasets:
       file_format: csv
       csv_has_header: false
 ```
+
+## Trigger data refresh on file change
+
+In addition to standard [Data Refresh](/components/data-accelerators/data-refresh), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
+
+```yaml
+datasets:
+  - from: file://path/to/my_file.csv
+    name: my_file
+    acceleration:
+      enabled: true
+      refresh_mode: full
+      params:
+        file_watcher: enabled
+```
+
+When the file is modified, the acceleration will be refreshed and will include the latest data.
