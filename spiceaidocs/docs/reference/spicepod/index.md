@@ -171,6 +171,24 @@ runtime:
     key_file: /path/to/key.pem
 ```
 
+### `runtime.task_history`
+
+The task history section specifies runtime task history configuration.
+
+```yaml
+runtime:
+  task_history:
+    enabled: true
+    captured_output: truncated
+    retention_period: 8h
+    retention_check_interval: 15m
+```
+
+- `enabled` - optional, `true` by default.
+- `captured_output` - optional, what level of output is captured by the task history table. `truncated` by default. Possible values are `truncated`, or `none`.
+- `retention_period` - optional, how long records in the task history table should be retained. Default is `8h`, or 8 hours.
+- `retention_check_interval` - optional, how often should old records be checked for removal. Default is `15m`, or 15 minutes.
+
 ## `metadata`
 
 An optional `map` of metadata.
