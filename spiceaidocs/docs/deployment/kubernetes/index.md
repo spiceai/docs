@@ -98,7 +98,7 @@ helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitoring.en
 
 Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clients/grafana/index.md) to visualize the Spice.ai metrics.
 
-### Health and Readyness
+### Health and Readiness
 
 Spice provides two HTTP endpoints to help monitor the state of the Spice runtime: `/health` and `/ready`:
 
