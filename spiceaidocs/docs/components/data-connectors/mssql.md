@@ -4,9 +4,7 @@ sidebar_label: 'Microsoft SQL Server'
 description: 'Microsoft SQL Server Data Connector'
 ---
 
-## Federated SQL query
-
-To connect to a Microsoft SQL Server database as connector for federated SQL query, specify `mssql` as the selector in the `from` value for the dataset.
+The Microsoft SQL Server Data Connector enables federated SQL queries on data stored in [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) databases.
 
 ```yaml
 datasets:
