@@ -11,27 +11,28 @@ Data Connectors provide connections to databases, data warehouses, and data lake
 
 Currently supported Data Connectors include:
 
-| Name            | Description | Status | Protocol/Format                     | Refresh Modes    | Supports Inserts | Supports Documents |
-| --------------- | ----------- | ------ | ----------------------------------- | ---------------- | ---------------- | ------------------ |
-| `clickhouse`    | Clickhouse  | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `databricks`    | Databricks  | Alpha  | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               | ❌                |
-| `delta_lake`    | Delta Lake  | Alpha  | Delta Lake                          | `full`           | ❌               | ❌                |
-| `dremio`        | Dremio      | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
-| `file`          | File        | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `flightsql`     | FlightSQL   | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
-| `ftp`, `sftp`   | FTP/SFTP    | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `graphql`       | GraphQL     | Alpha  | GraphQL                             | `full`           | ❌               | ❌                |
-| `github`        | GitHub      | Alpha  | GraphQL, REST                       | `full`           | ❌               | ❌                |
-| `http`, `https` | HTTP(s)     | Alpha  | Parquet, CSV                        | `full`           | ❌               | ❌                |
-| `mysql`         | MySQL       | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `odbc`          | ODBC        | Alpha  | ODBC                                | `full`           | ❌               | ❌                |
-| `postgres`      | PostgreSQL  | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `sharepoint`    | SharePoint  | Alpha  |                                     | `full`           | ❌               | ✅                |
-| `snowflake`     | Snowflake   | Alpha  | Arrow                               | `full`           | ❌               | ❌                |
-| `spiceai`       | Spice.ai    | Alpha  | Arrow Flight                        | `append`, `full` | ✅               | ❌                |
-| `s3`            | S3          | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `sharepoint`    | SharePoint  | Alpha  |                                     | `full`           | ❌               | ✅                |
-| `spark`         | Spark       | Alpha  | Spark Connect                       | `full`           | ❌               | ❌                |
+| Name            | Description   | Status | Protocol/Format                     | Refresh Modes    | Supports Inserts | Supports Documents |
+| --------------- | --------------| ------ | ----------------------------------- | ---------------- | ---------------- | ------------------ |
+| `clickhouse`    | Clickhouse    | Alpha  |                                     | `full`           | ❌               | ❌                |
+| `databricks`    | Databricks    | Alpha  | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               | ❌                |
+| `delta_lake`    | Delta Lake    | Alpha  | Delta Lake                          | `full`           | ❌               | ❌                |
+| `dremio`        | Dremio        | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
+| `file`          | File          | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
+| `flightsql`     | FlightSQL     | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
+| `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
+| `graphql`       | GraphQL       | Alpha  | GraphQL                             | `full`           | ❌               | ❌                |
+| `github`        | GitHub        | Alpha  | GraphQL, REST                       | `full`           | ❌               | ❌                |
+| `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `full`           | ❌               | ❌                |
+| `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `full`           | ❌               | ❌                |
+| `mysql`         | MySQL         | Alpha  |                                     | `full`           | ❌               | ❌                |
+| `odbc`          | ODBC          | Alpha  | ODBC                                | `full`           | ❌               | ❌                |
+| `postgres`      | PostgreSQL    | Alpha  |                                     | `full`           | ❌               | ❌                |
+| `sharepoint`    | SharePoint    | Alpha  |                                     | `full`           | ❌               | ✅                |
+| `snowflake`     | Snowflake     | Alpha  | Arrow                               | `full`           | ❌               | ❌                |
+| `spiceai`       | Spice.ai      | Alpha  | Arrow Flight                        | `append`, `full` | ✅               | ❌                |
+| `s3`            | S3            | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
+| `sharepoint`    | SharePoint    | Alpha  |                                     | `full`           | ❌               | ✅                |
+| `spark`         | Spark         | Alpha  | Spark Connect                       | `full`           | ❌               | ❌                |
 
 ## Object Store File Formats
 For data connectors that are object store compatible, if a folder is provided, the file format must be specified with `params.file_format`.
