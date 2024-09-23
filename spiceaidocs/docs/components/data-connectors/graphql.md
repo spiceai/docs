@@ -53,7 +53,7 @@ query: |
   }
 ```
 
-- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) pointing to the JSON data in the response.
+- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred.
 
 ### Examples
 
@@ -64,6 +64,8 @@ from: graphql:https://api.github.com/graphql
 name: stars
 params:
   graphql_auth_token: ${env:GITHUB_TOKEN}
+  graphql_auth_user: ${env:GRAPHQL_USER}                                                                                            ...
+  graphql_auth_pass: ${env:GRAPHQL_PASS}
   json_pointer: /data/viewer/starredRepositories/nodes
   graphql_query: |
     {
@@ -84,93 +86,46 @@ params:
 
 ```
 
- To get access to a specific node in starredRepositories, use the index in the `json_pointer`:
-
-```yaml
-from: graphql:https://api.github.com/graphql
-name: stars
-params:
-  graphql_auth_token: ${env:GITHUB_TOKEN}
-  json_pointer: /data/viewer/starredRepositories/nodes/0
-  graphql_query: |
-    {
-      viewer {
-        starredRepositories {
-          nodes {
-            name
-            stargazerCount
-            languages (first: 10) {
-              nodes {
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-
-```
-
-Example using Basic Auth:
-
-```yaml
-from: graphql:https://my-site.com/graphql
-name: my_dataset
-params:
-  graphql_auth_user: ${env:GRAPHQL_USER}
-  graphql_auth_pass: ${env:GRAPHQL_PASS}
-  json_pointer: /data/some/nodes
-  graphql_query: |
-    {
-      some {
-        nodes {
-          field1
-          field2
-        }
-      }
-    }
-```
-
 ## Pagination
 
 The GraphQL Data Connector supports automatic pagination of the response for queries using [cursor pagination](https://graphql.org/learn/pagination/).
 
-In order to enable pagination you need to specify `first` and `pageInfo` with both `endCursor` and `hasNextPage` fields. The `json_pointer` must point to the field which is the child of the paginated resource.
+The `graphql_query` must include the `pageInfo` field as per [spec](https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo). The connector will parse the `graphql_query`, and when `pageInfo` is present, will retrieve data until pagination completes.
 
-Example:
+The query must have the correct pagination arguments in the associated paginated field.
 
-```yaml
-from: graphql:https://api.github.com/graphql
-name: stargazers
-params:
-  graphql_auth_token: ${env:GITHUB_TOKEN}
-  json_pointer: /data/repository/stargazers/edges
-  graphql_query: |
-    {
-      repository(name: "spiceai", owner: "spiceai") {
-        id
-        name
-        stargazers(first: 100) {
-          edges {
-            node {
-              id
-              name
-              login
-            }
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-        }
 
-      }
+### Example
+**Forward Pagination:**
+```graphql
+{
+  something_paginated(first: 100) {
+    nodes {
+      foo
+      bar
     }
-description: spiceai stargazers
-acceleration:
-  enabled: true
-  refresh_mode: full
-  refresh_check_interval: 30m
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+```
+
+**Backward Pagination:**
+```graphql
+{
+  something_paginated(last: 100) {
+    nodes {
+      foo
+      bar
+    }
+    pageInfo {
+      startCursor
+      hasPreviousPage
+    }
+  }
+}
 ```
 
 ## Working with JSON Data
