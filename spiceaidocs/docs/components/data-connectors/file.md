@@ -26,3 +26,20 @@ datasets:
       file_format: csv
       csv_has_header: false
 ```
+
+## Trigger accelerated refresh on file change
+
+The File Data Connector can automatically refresh the associated acceleration when the file is modified. This is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
+
+```yaml
+datasets:
+  - from: file://path/to/my_file.csv
+    name: my_file
+    acceleration:
+      enabled: true
+      refresh_mode: full
+      params:
+        file_watcher: enabled
+```
+
+When the file is modified, the acceleration will be refreshed and will include the latest data.
