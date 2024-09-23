@@ -6,7 +6,7 @@ description: 'PostgreSQL Data Connector Documentation'
 
 ## Dataset Source/Federated SQL Query
 
-To use PostgreSQL as a dataset source or for federated SQL query, specify `postgres` as the selector in the `from` value for the dataset.
+To use PostgreSQL as a dataset source specify `postgres` as the selector in the `from` value for the dataset.
 
 ```yaml
 datasets:
@@ -16,9 +16,7 @@ datasets:
 
 ## Configuration
 
-The connection to PostgreSQL can be configured by providing the following `params`:
-
-<!-- When making changes to this list, also update components/data-accelerators/postgres/index.md -->
+The following connection `params` are supported:
 
 - `pg_host`: The hostname of the PostgreSQL server.
 - `pg_port`: The port of the PostgreSQL server.
@@ -35,6 +33,8 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `connection_pool_size`: Optional. The maximum number of connections to keep open in the connection pool. Default is 10.
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query, or in the `acceleration` section for a data store.
+
+### Example
 
 ```yaml
 datasets:
@@ -61,29 +61,3 @@ datasets:
       pg_sslmode: verify-ca
       pg_sslrootcert: ./custom_cert.pem
 ```
-
-Specify different secrets for a PostgreSQL source and acceleration:
-
-```yaml
-datasets:
-  - from: spiceai:path.to.my_dataset
-    name: my_dataset
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: data_store
-      pg_user: my_user
-      pg_pass: ${secrets:pg1_pass}
-    acceleration:
-      engine: postgres
-      params:
-        pg_host: localhost
-        pg_port: 5433
-        pg_db: acceleration
-        pg_user: two_user_two_furious
-        pg_pass: ${secrets:pg2_pass}
-```
-
-:::warning[Limitations]
-
-- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
