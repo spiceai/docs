@@ -1,11 +1,11 @@
 ---
-title: 'Sharepoint Data Connector'
-sidebar_label: 'Sharepoint Data Connector'
-description: 'Sharepoint Data Connector Documentation'
+title: 'SharePoint Data Connector'
+sidebar_label: 'SharePoint Data Connector'
+description: 'SharePoint Data Connector Documentation'
 pagination_prev: null
 ---
 
-The Sharepoint Data Connector enables federated SQL queries on documents stored in Sharepoint.
+The SharePoint Data Connector enables federated SQL queries on documents stored in SharePoint.
 
 ```yaml
 datasets:
@@ -51,66 +51,80 @@ The sharepoint connector does not yet support creating a dataset from a single f
 ## Configuration
 ### Parameters
 
-- `sharepoint_client_id`: Required. The client ID of the Azure AD (Entra) application.
-- `sharepoint_tenant_id`: Required. The tenant ID of the Azure AD (Entra) application.
-- `sharepoint_client_secret`: Optional. For service principal authentication. The client secret of the Azure AD (Entra) application.
-- `sharepoint_auth_code`: Optional. For user authentication. The authorization code obtained from the OAuth2 flow (see `spice login sharepoint` [docs](/cli/reference/login)).
+| Name  | Required?  | Description |
+|---|---| --- |
+| `sharepoint_client_id` | **Yes**  | The client ID of the Azure AD (Entra) application |
+| `sharepoint_tenant_id` | **Yes**  | The tenant ID of the Azure AD (Entra) application. |
+| `sharepoint_client_secret` | Optional  | For service principal authentication. The client secret of the Azure AD (Entra) application. |
+| `sharepoint_client_code` | Optional  | For user authentication. The authorization code obtained from the OAuth2 flow (see `spice login sharepoint` [docs](/cli/reference/login)). |
 
-Note: Only one of `sharepoint_client_secret` or `sharepoint_auth_code` is allowed.
+:::note
+Only one of `sharepoint_client_secret` or `sharepoint_auth_code` is allowed.
+:::
 
 ### `from` formats
 
-The `from` field in a Sharepoint dataset takes the following format:
+The `from` field in a SharePoint dataset takes the following format:
 ```yaml
 from: 'sharepoint:<drive_type>:<drive_id>/<subpath_type>:<subpath_value>'
 ```
 
 #### Drives
 
-The sharepoint connector supports datasets from a variety of sources:
- - Drives: A user's OneDrive or a document library in SharePoint.
-  - From the drive's name: `from: sharepoint:drive:Documents/...`
-  - From the drive's ID: `from: sharepoint:driveId:b!Mh8opUGD80ec7zGXgX9r/...`
- - Sites: A SharePoint site's default document library.
-  - From the site's name: `from: sharepoint:site:MySite/...`
-  - From the site's ID: `from: sharepoint:siteId:b!Mh8opUGD80ec7zGXgX9r/...`
- - User Drives: A user's OneDrive, `from: sharepoint:me/...`. In this case, no `drive_id` is specified. The user is identified based on the provided authentication.
- - Group Drives: A Group's default document library ( a Microsoft Entra, 365 group, or security group).
-  - From the group's name: `from: sharepoint:group:MyGroup/...`
-  - From the group's ID: `from: sharepoint:groupId:b!Mh8opUGD80ec7zGXgX9r/...`
+`drive_type` in a SharePoint Connector `from` field supports the following types:
+
+| Drive Type  | Description  | Example |
+|---|---| --- |
+| `drive`  | The SharePoint drive's name | `from: sharepoint:drive:Documents/...` |
+| `driveID` | The SharePoint drive's ID | `from: sharepoint:driveId:b!Mh8opUGD80ec7zGXgX9r/...` |
+| `site` | A SharePoint site's name | `from: sharepoint:site:MySite/...` |
+| `siteID` | A SharePoint site's ID | `from: sharepoint:siteId:b!Mh8opUGD80ec7zGXgX9r/...` |
+| `group` | A SharePoint group's name | `from: sharepoint:group:MyGroup/...` |
+| `groupId` | A SharePoint group's ID | `from: sharepoint:groupId:b!Mh8opUGD80ec7zGXgX9r/...` |
+| `me` | A user's OneDrive | `from: sharepoint:me/...` |
+
+:::note
+For the `me` drive type the user is identified based on `sharepoint_client_code` and cannot be used with `sharepoint_client_secret`
+:::
 
 For a name-based `drive_id`, the connector will attempt to resolve the name to an ID at startup.
 
 #### Subpaths
 
-Within a drive, the sharepoint connector can load documents from:
- - The root folder: `from: sharepoint:me/root`. In this case, no `subpath_value` is specified.
- - A specific path: `from: sharepoint:me/path:/top_secrets` (`path` being the keyword).
- - A specific folder ID: `from: sharepoint:me/id:01QM2NJSNHBISUGQ52P5AJQ3CBNOXDMVNT`
+Within a drive, the SharePoint connector can load documents from:
+
+| Description  | Example |
+| ---| --- |
+| The root of the drive  | `from: sharepoint:me/root` |
+| A specific path within the drive | `from: sharepoint:drive:Documents/path:/top_secrets` |
+| A specific folder ID | `from: sharepoint:group:MyGroup/id:01QM2NJSNHBISUGQ52P5AJQ3CBNOXDMVNT` |
+
 
 ## Authentication
-As outlined in the [connector parameters](#parameters), the Sharepoint connector supports two types of authentication:
- 1. Service principal authentication, by setting the `sharepoint_client_secret` parameters.
+As outlined in the [connector parameters](#parameters), the SharePoint connector supports two types of authentication:
+ 1. Service principal authentication, by setting the `sharepoint_client_secret` parameter.
  2. User authentication, by setting the `sharepoint_auth_code` parameter. Generally this is obtained by running `spice login sharepoint` and following the OAuth2 flow.
 
 ### Creating an Enterprise Application
-To use the Sharepoint connector with service principal authentication, you will need to create an Azure AD application and grant it the necessary permissions. This will also support OAuth2 authentication for users within the tenant (i.e. `params.sharepoint_auth_code`).
+To use the SharePoint connector with service principal authentication, you will need to create an Azure AD application and grant it the necessary permissions. This will also support OAuth2 authentication for users within the tenant (i.e. `sharepoint_auth_code`).
 
 1. Create a new Azure AD application in the [Azure portal](https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview).
 2. Under the application's `API permissions`, add the following permissions: `Sites.Read.All`, `Files.Read.All`, `User.Read`, `GroupMember.Read.All`
-  - For service principal authentication, Application permissions are required. For user authentication, only delegated permissions are required.
-3. Add `sharepoint_client_id` and `sharepoint_tenant_id` to the connector configuration.
-4. (For service principal authentication): Under the application's `Certificates & secrets`, create a new client secret. Use this in `params.sharepoint_client_secret`.
+    - For service principal authentication, Application permissions are required. 
+    - For user authentication, only delegated permissions are required.
+3. Add `sharepoint_client_id` (from the `Application (Client) ID` field) and `sharepoint_tenant_id` to the connector configuration.
+4. (For service principal authentication): Under the application's `Certificates & secrets`, create a new client secret. Use this for the `sharepoint_client_secret` parameter.
 
 ### Default Spice Application
-For convenience, Spice AI maintains a default Azure AD application that can be used for Sharepoint authentication. This application requires OAuth2 authentication. To use it:
+For your convenience, Spice AI maintains a default Entra (Azure AD) application that can be used for authentication against your SharePoint instance. This application requires OAuth2 authentication. To use it:
+
 ```yaml
 datasets:
   - from: sharepoint:me/root # Set the drive and subpath as needed.
     name: my_data
     params:
       sharepoint_client_id: f2b3116e-b4c4-464f-80ec-73cd9d9886b4
-      sharepoint_tenant_id: #{env:TENANT_ID}
+      sharepoint_tenant_id: #${env:TENANT_ID}
       sharepoint_auth_code: ${secrets:SPICE_SHAREPOINT_AUTH_CODE}
 ```
 
