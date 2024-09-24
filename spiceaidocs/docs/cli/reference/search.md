@@ -25,8 +25,22 @@ spice search [query] [flags]
 ### Examples
 
 ```shell
->>> spice search
+>>> spice search --limit 2
 ```
 
 ```shell
+search> artificial intelligence
+
+
+Rank 1, Score: 20.6, Datasets [pdf]
+Undergraduate Texts in Mathematics Editors: F. W. Gehring P. R.
+Halmos ·
+Advisory Board: C. DePrima
+I. Herstein J. Kiefer W. LeVeque Kai Lai Chung
+Elementary Probability
+Theory with Stochastic Processes Springer Science+Business Media, LLC
+...
+
+Rank 2, Score: 17.8, Datasets [pdf]
+Forecasting at Scale Sean J. Taylor  y Facebook, Menlo Park, California, United States sjt@fb.com and Benjamin Letham y Facebook, Menlo Park, California, United States bletham@fb.com Abstract Forecasting is a common data science...
 ```
