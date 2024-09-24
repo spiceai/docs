@@ -56,7 +56,7 @@ Set the following parameters in the `runtime.task_history` section of the `spice
 - `enabled`: Enable or disable task history. Default: `true`.
 - `retention_period`: The duration for which task history data is retained. Default: `8h`.
 - `retention_check_interval`: The interval at which the task history retention is checked. Default: `1m`.
-- `captured_output`: The level of output captured for tasks. `none` or `truncated`. Default: `truncated`. For the `sql_query` and `nsql_query` task types, `truncated` captures the first 3 rows of the result set. All other task types capture the entire output.
+- `captured_output`: The level of output captured for tasks. `none` or `truncated`. Default: `truncated`. `truncated` captures the first 3 rows of the result set for `sql_query` and `nsql_query` task types. Other task types currently capture the entire output even in truncated mode.
 
 ### Examples
 
