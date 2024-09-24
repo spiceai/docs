@@ -29,6 +29,7 @@ spice [command] [--help]
 | [pods](/cli/reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
 | [refresh](/cli/reference/refresh)       | Refreshes an accelerated dataset loaded by the Spice runtime          |
 | [run](/cli/reference/run)               | Run Spice - starts the Spice runtime, installing if necessary |
+| [search](/cli/reference/search)         | Perform embeddings-based searches across |
 | [sql](/cli/reference/sql)               | Start an interactive SQL query session against the Spice runtime |
 | [status](/cli/reference/status)         | Spice runtime status                                                |
 | [upgrade](/cli/reference/upgrade)       | Upgrades the Spice CLI to the latest release                        |
