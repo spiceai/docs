@@ -10,7 +10,7 @@ To use SQLite as Data Accelerator, specify `sqlite` as the `engine` for accelera
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: sqlite
@@ -26,7 +26,7 @@ Configuration `params` are provided in the `acceleration` section of a dataset. 
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: sqlite

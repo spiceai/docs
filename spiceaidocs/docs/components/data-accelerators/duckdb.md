@@ -9,7 +9,7 @@ To use DuckDB as Data Accelerator, specify `duckdb` as the `engine` for accelera
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: duckdb
@@ -25,7 +25,7 @@ Configuration `params` are provided in the `acceleration` section for a data sto
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: duckdb

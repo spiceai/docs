@@ -34,7 +34,7 @@ And the secret can be referenced in parameters:
 
 ```yaml
 datasets:
-  - from: spiceai:eth.recent_blocks
+  - from: spice.ai:eth.recent_blocks
     name: blocks
     params:
       spiceai_api_key: ${keyring:spiceai_api_key} # ${secrets:spiceai_api_key} can also be used
