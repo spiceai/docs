@@ -85,6 +85,6 @@ datasets:
 
 When accelerating a dataset some or all of the data will be put into memory. Ensure that you have enough memory for all of your datasets. Some overhead for the query engine will also be required as well, especially with multiple concurrent queries.
 
-To help alleviate these limitations, [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) have the option to spill the data onto the local disk.
+To help alleviate these limitations, [`duckdb`](../duckdb.md) and [`sqlite`](../sqlite.md) have the option to spill the data onto the local disk.
 
 :::
