@@ -71,3 +71,38 @@ datasets:
     params:
       mysql_connection_string: mysql://${secrets:my_user}:${secrets:my_password}@localhost:3306/my_db
 ```
+
+## Types
+
+The table below shows the MySQL data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| MySQL Type | Arrow Type                   |
+| ---------- | ---------------------------- |
+| TINYINT    | Int8                         |
+| SMALLINT   | Int16                        |
+| INT        | Int32                        |
+| MEDIUMINT  | Int32                        |
+| BIGINT     | Int64                        |
+| DECIMAL    | Decimal128 / Decimal256      |
+| FLOAT      | Float32                      |
+| DOUBLE     | Float64                      |
+| DATETIME   | Timestamp(Microsecond, None) |
+| TIMESTAMP  | Timestamp(Microsecond, None) |
+| YEAR       | Int16                        |
+| TIME       | Time64(Nanosecond)           |
+| DATE       | Date32                       |
+| CHAR       | Utf8                         |
+| BINARY     | Binary                       |
+| VARCHAR    | Utf8                         |
+| VARBINARY  | Binary                       |
+| TINYBLOB   | Binary                       |
+| TINYTEXT   | Utf8                         |
+| BLOB       | Binary                       |
+| TEXT       | Utf8                         |
+| MEDIUMBLOB | Binary                       |
+| MEDIUMTEXT | Utf8                         |
+| LONGBLOB   | LargeBinary                  |
+| LONGTEXT   | LargeUtf8                    |
+| SET        | Utf8                         |
+| ENUM       | Dictionary(UInt16, Utf8)     |
+| BIT        | UInt64                       |
