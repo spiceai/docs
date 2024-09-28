@@ -106,3 +106,9 @@ The table below shows the MySQL data types supported, along with the type mappin
 | SET        | Utf8                         |
 | ENUM       | Dictionary(UInt16, Utf8)     |
 | BIT        | UInt64                       |
+
+:::note
+
+- MySQL `TIMESTAMP` value is the local time to the MySQL server timezone, the corresponding arrow `Timestamp(Microsecond, None)` type has the same local time value as MySQL `TIMESTAMP` value.
+
+:::
