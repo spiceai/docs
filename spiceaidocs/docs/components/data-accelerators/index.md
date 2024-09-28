@@ -39,6 +39,14 @@ Supported Data Accelerators include:
 
 Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](/reference/datatypes.md).
 
+:::warning[Memory Considerations]
+
+When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
+
+:::
+
 ## Data Accelerator Docs
 
 import DocCardList from '@theme/DocCardList';
