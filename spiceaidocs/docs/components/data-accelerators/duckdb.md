@@ -53,8 +53,8 @@ datasets:
 
 :::warning[Memory Considerations]
 
-When accelerating a dataset some or all of the data will be put into memory. Ensure that you have enough memory for all of your datasets. Some overhead for the query engine will also be required as well, especially with multiple concurrent queries.
+When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-To help alleviate these limitations, [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) have the option to spill the data onto the local disk.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
 
 :::
