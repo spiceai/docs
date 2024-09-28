@@ -5,3 +5,5 @@ spiceaidocs/resources
 spiceaidocs/public
 
 .hugo_build.lock
+
+.env
