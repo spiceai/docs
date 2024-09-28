@@ -50,12 +50,16 @@ File formats currently supported are:
 | Microsoft Excel                               | `file_format: xlsx`     | Roadmap   | ❌                 |
 | Markdown                                      | `file_format: md`       | ✅        | ✅                 |
 | Text                                          | `file_format: txt`      | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`      | Roadmap   | ✅                 |
-| Microsoft Word                                | `file_format: doc`      | Roadmap   | ✅                 |
+| PDF                                           | `file_format: pdf`      | Alpha  | ✅                 |
+| Microsoft Word                                | `file_format: docx`     | Alpha  | ✅                 |
 
 File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](/reference/file_format)
 
 If a format is a document format, each file will be treated as a document, as per [document support](#document-support) below.
+
+:::warning[Note]
+Document formats in Alpha (e.g. pdf, docx) may not parse all structure or text from the underlying documents correctly. 
+:::
 
 ### Document Support
 If a Data Connector supports documents, when the appropriate file format is specified (see [above](#object-store-file-formats)), each file will be treated as a row in the table, with the contents of the file within the `content` column. Additional columns will exist, dependent on the data connector.
