@@ -7,7 +7,7 @@ datasets:
     name: spiceai.docs
     description: Spice.ai OSS documentation and reference, from https://docs.spiceai.org
     metadata:
-      reference_base_url: https://docs.spiceai.org/<docs_path>, exclude `spiceaidocs` prefix from docs path
+      reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
       include: "spiceaidocs/docs/**/*.md"
@@ -15,7 +15,7 @@ datasets:
       enabled: true
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 5m
+      refresh_jitter_max: 1m
     embeddings:
       - column: content
         use: openai_embeddings
@@ -34,7 +34,7 @@ datasets:
       enabled: true
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 5m
+      refresh_jitter_max: 1m
     embeddings:
       - column: content
         use: openai_embeddings
@@ -53,7 +53,7 @@ datasets:
       enabled: true
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 5m
+      refresh_jitter_max: 1m
     embeddings:
       - column: content
         use: openai_embeddings
@@ -81,6 +81,7 @@ models:
         Always strive to be accurate, concise, and helpful in your responses.
 
         Prefer spiceai.docs for documentation and reference information questions.
+        When generating reference links for spiceai.docs, use https://docs.spiceai.org/<docs_path> as a template and exclude `spiceaidocs/docs` prefix from docs path and `.md` file extension. Also replace `/index.md` with `/` in the path.
         
         Prefer spiceai.samples and spiceai.quickstarts for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
 
