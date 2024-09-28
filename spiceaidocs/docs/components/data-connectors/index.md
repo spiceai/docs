@@ -50,8 +50,8 @@ File formats currently supported are:
 | Microsoft Excel                               | `file_format: xlsx`     | Roadmap   | ❌                 |
 | Markdown                                      | `file_format: md`       | ✅        | ✅                 |
 | Text                                          | `file_format: txt`      | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`      | In Alpha  | ✅                 |
-| Microsoft Word                                | `file_format: docx`     | In Alpha  | ✅                 |
+| PDF                                           | `file_format: pdf`      | Alpha  | ✅                 |
+| Microsoft Word                                | `file_format: docx`     | Alpha  | ✅                 |
 
 File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](/reference/file_format)
 
