@@ -10,7 +10,7 @@ datasets:
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      include: "spiceaidocs/docs/**/*.md"
+      include: 'spiceaidocs/docs/**/*.md'
     acceleration:
       enabled: true
       refresh_check_interval: 12h
@@ -21,7 +21,7 @@ datasets:
         use: openai_embeddings
         column_pk:
           - path
-  
+
   - from: github:github.com/spiceai/samples/files/trunk
     name: spiceai.samples
     description: Spice.ai OSS samples
@@ -29,7 +29,7 @@ datasets:
       reference_base_url: https://github.com/spiceai/samples/tree/trunk/<sample_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.md"
+      include: '**/*.md'
     acceleration:
       enabled: true
       refresh_check_interval: 12h
@@ -48,12 +48,33 @@ datasets:
       reference_base_url: https://github.com/spiceai/quickstarts/tree/trunk/<quickstart_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.md"
+      include: '**/*.md'
     acceleration:
       enabled: true
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
       refresh_jitter_max: 1m
+    embeddings:
+      - column: content
+        use: openai_embeddings
+        column_pk:
+          - path
+
+  - from: github:github.com/spiceai/blog/files/trunk
+    name: spiceai.blog
+    description: Spice.ai OSS blog posts
+    metadata:
+      instructions: |
+        This dataset provides access to the Spice.ai OSS project blog posts in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
+      reference_base_url: https://github.com/spiceai/blog/tree/trunk/content/posts/<post_path>
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+      include: 'content/posts/**/*.md'
+    acceleration:
+      enabled: true
+      refresh_check_interval: 1d
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 10m
     embeddings:
       - column: content
         use: openai_embeddings
@@ -82,7 +103,7 @@ models:
 
         Prefer spiceai.docs for documentation and reference information questions.
         When generating reference links for spiceai.docs, use https://docs.spiceai.org/<docs_path> as a template and exclude `spiceaidocs/docs` prefix from docs path and `.md` file extension. Also replace `/index.md` with `/` in the path.
-        
+
         Prefer spiceai.samples and spiceai.quickstarts for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
 
         Use the SQL tool when:
@@ -101,4 +122,3 @@ models:
 
         General guidelines:
           1. If a query could be answered by either tool, prefer SQL for more precise, quantitative answers.
-
