@@ -4,10 +4,14 @@ name: spice-oss-docs
 
 datasets:
   - from: github:github.com/spiceai/docs/files/trunk
-    name: spiceai.docs
+    name: docs
     description: Spice.ai OSS documentation and reference, from https://docs.spiceai.org
     metadata:
-      instructions: Documents are stored in Markdown. Always provide citations.
+      instructions: |
+        Documents are stored in Markdown. Always provide citations.
+        When generating reference links for docs, use https://docs.spiceai.org/<docs_path> as a template
+        Exclude `spiceaidocs/docs` prefix from docs path and `.md` file extension.
+        Also replace `/index.md` with `/` in the path.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
@@ -24,7 +28,7 @@ datasets:
           - path
 
   - from: github:github.com/spiceai/samples/files/trunk
-    name: spiceai.samples
+    name: samples
     description: Spice.ai OSS samples
     metadata:
       instructions: Documents are stored in Markdown. Always provide citations.
@@ -44,7 +48,7 @@ datasets:
           - path
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
-    name: spiceai.quickstarts
+    name: quickstarts
     description: Spice.ai OSS quickstarts
     metadata:
       instructions: Documents are stored in Markdown. Always provide citations.
@@ -64,7 +68,7 @@ datasets:
           - path
 
   - from: github:github.com/spiceai/blog/files/trunk
-    name: spiceai.blog
+    name: blog
     description: Spice.ai OSS blog posts
     metadata:
       instructions: |
@@ -101,10 +105,11 @@ models:
 
         Always strive to be accurate, concise, and helpful in your responses.
 
-        Prefer spiceai.docs for documentation and reference information questions.
-        When generating reference links for spiceai.docs, use https://docs.spiceai.org/<docs_path> as a template and exclude `spiceaidocs/docs` prefix from docs path and `.md` file extension. Also replace `/index.md` with `/` in the path.
+        Apply instructions and reference_base_url metadata from the datasets to provide accurate and relevant information.
 
-        Prefer spiceai.samples and spiceai.quickstarts for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
+        Prefer "docs" dataset for documentation and reference information questions.
+    
+        Prefer "samples" and "quickstarts" datasets for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
 
         Use the SQL tool (sql_query) when:
           1. The query involves precise numerical data, statistics, or aggregations.
