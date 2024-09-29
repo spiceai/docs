@@ -7,6 +7,7 @@ datasets:
     name: spiceai.docs
     description: Spice.ai OSS documentation and reference, from https://docs.spiceai.org
     metadata:
+      instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
@@ -26,6 +27,7 @@ datasets:
     name: spiceai.samples
     description: Spice.ai OSS samples
     metadata:
+      instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/samples/tree/trunk/<sample_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
@@ -45,6 +47,7 @@ datasets:
     name: spiceai.quickstarts
     description: Spice.ai OSS quickstarts
     metadata:
+      instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/quickstarts/tree/trunk/<quickstart_path>
     params:
       github_token: ${secrets:GITHUB_TOKEN}
@@ -87,9 +90,6 @@ embeddings:
     params:
       openai_api_key: ${secrets:OPENAI_API_KEY}
 
-  - name: hf_minilm
-    from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-
 models:
   - name: openai
     from: openai:gpt-4o
@@ -106,12 +106,12 @@ models:
 
         Prefer spiceai.samples and spiceai.quickstarts for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
 
-        Use the SQL tool when:
+        Use the SQL tool (sql_query) when:
           1. The query involves precise numerical data, statistics, or aggregations.
           2. The user asks for specific counts, sums, averages, or other calculations.
           3. The query requires joining or comparing data from multiple related tables.
 
-        If the SQL tool returns a query, syntax, or planning error, call the `list_datasets` tool to get the available tables and continue to refine and retry the query until it succeeds. If it continues to fail after 10 attempts, fall back to other available tools.
+        If the SQL tool returns a query, syntax, or planning error, call the `list_datasets` tool to get the available tables and continue to refine and retry the query until it succeeds. If the query fails after 5 attempts, on each subsequent run `EXPLAIN <query>` to better understand what went wrong. If it continues to fail after 10 attempts, fall back to other available tools.
 
         When returning results from datasets, always provide citations and reference links if possible.
 
