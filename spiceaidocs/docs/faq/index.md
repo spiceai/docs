@@ -32,7 +32,7 @@ Yes, Spice acts like a CDN for different data sources. It allows you to load a w
 
 ## 6. How does Spice differ from Trino/Presto and Dremio?
 
-Spice is tailored for data and AI applications, while systems like Trino/Presto and Dremio are optimized for big data and real-time analytics. Spice specializes in high-concurrency, low-latency access and materialization of data close to the application.
+Spice is designed for data and AI applications, while systems like Trino/Presto and Dremio are optimized for big data and real-time analytics. Spice specializes in high-concurrency, low-latency access and data materialization close to the application.
 
 A key differentiator of Spice is its single-node distributed nature, which sets it apart from bulky, centralized Cloud Data Warehouses (CDW). Instead of consolidating data access into a central hub, Spice facilitates bringing working sets of use-case/application-specific data closer to where it's actually queried and used. This architecture provides several advantages:
 
@@ -43,7 +43,7 @@ A key differentiator of Spice is its single-node distributed nature, which sets 
 
 ### 7. How does Spice compare to Spark?
 
-Spark is primarily designed for large-scale data processing and batch processing pipelines with its distributed computing engine. In contrast, Spice is focused on accelerating data access and query speeds for applications through materialization and tier-optimized storage strategies.
+Spark is primarily designed for large-scale data processing and batch-processing pipelines with its distributed computing engine. In contrast, Spice is focused on accelerating data access and query speeds for applications through materialization and tier-optimized storage strategies.
 
 ### 8. How does Spice compare to DuckDB?
 
