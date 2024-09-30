@@ -372,16 +372,16 @@ datasets:
         use: hf_minilm
         chunking:
           enabled: true
-          desired_chunk_size: 512
+          target_chunk_size: 512
           overlap_size: 128
-          trim: false
+          trim_whitespace: false
 ```
 
 ## `embeddings[*].chunking.enabled`
 
 Optional. Enable or disable chunking for the embedding column. Defaults to `false`.
 
-## `embeddings[*].chunking.desired_chunk_size`
+## `embeddings[*].chunking.target_chunk_size`
 
 Optional. The desired size of each chunk, in tokens. Defaults to the maximum size of the embedding model.
 
@@ -391,6 +391,6 @@ If the desired chunk size is larger than the maximum size of the embedding model
 
 Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
-## `embeddings[*].chunking.trim`
+## `embeddings[*].chunking.trim_whitespace`
 
 Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
