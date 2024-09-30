@@ -15,6 +15,12 @@ The GitHub data connector can be configured by providing the following `params`.
 - `owner` - Required. Specifies the owner of the GitHub repository.
 - `repo` - Required. Specifies the name of the GitHub repository.
 
+:::warning[Limitations]
+
+- Due to limitations from the GitHub search API, when using `github_query_mode: search` queries return a maximum of 1000 records.
+
+:::
+
 ### Querying GitHub Files
 
 - `ref` -  Required. Specifies the GitHub branch or tag to fetch files from.
