@@ -21,7 +21,7 @@ datasets:
 The connection to SQLite can be configured by providing the following `params`:
 
 - `sqlite_file`: The filename for the file to back the SQLite database. Only applies if `mode` is `file`.
-- `busy_timeout`: Optional. The SQLite [busy_timeout](https://www.sqlite.org/c3ref/busy_timeout.html) in millisecond for SQLite database file connection. Default is 5000 (milliseconds).
+- `busy_timeout`: Optional. A duration to specify the SQLite [busy_timeout](https://www.sqlite.org/c3ref/busy_timeout.html) for SQLite database file connection. Default is 5000ms.
 
 Configuration `params` are provided in the `acceleration` section of a dataset. Other common `acceleration` fields can be configured for sqlite, see see [datasets](/reference/spicepod/datasets.md).
 
