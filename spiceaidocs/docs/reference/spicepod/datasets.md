@@ -358,3 +358,39 @@ The embedding model to use, specific the component name `embeddings[*].name`.
 ## `embeddings[*].column_pk`
 
 Optional. For datasets without a primary key, explicitly specify column(s) that uniquely identify a row.
+
+## `embeddings[*].chunking`
+
+Optional. The configuration to enable and define the chunking strategy for the embedding column.
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    embeddings:
+      - column: extra_data
+        use: hf_minilm
+        chunking:
+          enabled: true
+          desired_chunk_size: 512
+          overlap_size: 128
+          trim: false
+```
+
+## `embeddings[*].chunking.enabled`
+
+Optional. Enable or disable chunking for the embedding column. Defaults to `false`.
+
+## `embeddings[*].chunking.desired_chunk_size`
+
+Optional. The desired size of each chunk, in tokens. Defaults to the maximum size of the embedding model.
+
+If the desired chunk size is larger than the maximum size of the embedding model, the maximum size will be used.
+
+## `embeddings[*].chunking.overlap_size`
+
+Optional. The number of tokens to overlap between chunks. Defaults to `0`.
+
+## `embeddings[*].chunking.trim`
+
+Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
