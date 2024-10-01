@@ -11,6 +11,7 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 The GitHub data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token from a secret store, e.g. `${secrets:GITHUB_TOKEN}`.
 
 - `github_token`: Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+- `github_query_mode`: Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`.
 - `owner` - Required. Specifies the owner of the GitHub repository.
 - `repo` - Required. Specifies the name of the GitHub repository.
 
@@ -106,7 +107,6 @@ datasets:
 | title           | Utf8         | YES         |
 | updated_at      | Timestamp    | YES         |
 | url             | Utf8         | YES         |
-
 
 #### Example
 
