@@ -1,15 +1,17 @@
 ---
-title: 'Search '
+title: 'Search Functionality'
 sidebar_label: 'Search'
-description: 'Learn how Spice can search across datasets.'
+description: 'Learn how Spice can search across datasets using database-native and vector-search methods.'
 sidebar_position: 8
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice offers powerful search functionality above the in-built SQL query capabilities.
+Spice provides advanced search capabilities that go beyond standard SQL queries, offering both traditional SQL search patterns and vector-based search functionality.
 
-As a full feature SQL database, spice offers basic search patterns directly in SQL.
+## SQL-Based Search
+
+Spice supports basic search patterns directly through SQL, leveraging its SQL query features. For example, you can perform a text search within a table using SQL's `LIKE` clause:
 
 ```sql
 SELECT id, text_column
@@ -22,11 +24,12 @@ WHERE
 
 ## Vector Search
 
-Beyond SQL, Spice provides powerful vector-based search functionality. The runtime has support for both:
-  1. Local embedding models, e.g. [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
-  2. Remote embedding providers e.g. [Open AI](https://platform.openai.com/docs/api-reference/embeddings/create).
+In addition to SQL, Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches. The runtime supports both:
 
-Embedding models are a first-class component in a `spicepod.yaml`
+1. Local embedding models, e.g. [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+2. Remote embedding providers, e.g. [OpenAI](https://platform.openai.com/docs/api-reference/embeddings/create).
+
+Embedding models are defined in the `spicepod.yaml` file as top-level components.
 
 ```yaml
 embeddings:
@@ -35,11 +38,11 @@ embeddings:
     params:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 
-  - name: i_run_locally
+  - name: local_embedding_model
     from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 ```
 
-With this, datasets can be augmented to have embeddings created for specific columns.
+Datasets can be augmented with embeddings targeting specific columns, to enable search capabilities through similarity searches.
 
 ```yaml
 datasets:
@@ -48,11 +51,11 @@ datasets:
     acceleration:
       enabled: true
     embeddings:
-      - column: body # Text column in `spiceai.issues` dataset
-        use: i_run_locally # Embedding model to use
+      - column: body # The text column in the `spiceai.issues` dataset
+        use: local_embedding_model # Embedding model used for this column
 ```
 
-With this, Spice can perform similarity searches against this dataset.
+By defining embeddings on the `body` column, Spice is now configured to execute similarity searches on the dataset.
 
 ```shell
 curl -XPOST http://localhost:8090/v1/search \
@@ -66,11 +69,11 @@ curl -XPOST http://localhost:8090/v1/search \
   }'
 ```
 
-See [/v1/search](/api/http/search) for API reference.
+For more details, see the [API reference for /v1/search](/api/http/search).
 
-### Chunking
+### Chunking Support
 
-Spice supports chunking a table's column prior to being embedded. This is useful for large text columns (e.g. [Document Tables](/components/data-connectors/index.md#document-support)), where a small part of the content may be relevant to the query. Chunking is also configured in the dataset.
+Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
 
 ```yaml
 datasets:
@@ -80,19 +83,19 @@ datasets:
       enabled: true
     embeddings:
       - column: body
-        use: i_run_locally
+        use: local_embedding_model
         chunking:
           enabled: true
           target_chunk_size: 512
 ```
 
-The `body` column will automatically be divided into chunks close to 512 tokens, whilst keeping structural and semantic integrity (e.g. not splitting within a sentence).
+The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences).
 
-#### Document Retrieval
+### Document Retrieval
 
-For [vector-based search endpoints](/api/http/search), datasets with chunking [enabled](/reference/spicepod/datasets.md) only return the most relevant chunk for each match.
+When performing searches on datasets with chunking enabled, Spice returns the most relevant chunk for each match. To retrieve the full content of a column, include the embedding column in the `additional_columns` list.
 
-To retrieve the entire column, provide the embedding column into the `additional_columns` list. For example:
+For example:
 
 ```shell
 curl -XPOST http://localhost:8090/v1/search \
@@ -106,7 +109,8 @@ curl -XPOST http://localhost:8090/v1/search \
   }'
 ```
 
-Response
+Response:
+
 ```json
 {
   "matches": [
