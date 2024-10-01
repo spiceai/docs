@@ -383,7 +383,7 @@ Optional. Enable or disable chunking for the embedding column. Defaults to `fals
 
 ## `embeddings[*].chunking.target_chunk_size`
 
-Optional. The desired size of each chunk, in tokens. Defaults to the maximum size of the embedding model.
+The desired size of each chunk, in tokens.
 
 If the desired chunk size is larger than the maximum size of the embedding model, the maximum size will be used.
 
