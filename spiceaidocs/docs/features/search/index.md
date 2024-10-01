@@ -88,7 +88,7 @@ datasets:
 
 The `body` column will automatically be divided into chunks close to 512 tokens, whilst keeping structural and semantic integrity (e.g. not splitting within a sentence).
 
-#### Full text retrieval
+#### Document Retrieval
 
 For [vector-based search endpoints](/api/http/search), datasets with chunking [enabled](/reference/spicepod/datasets.md) only return the most relevant chunk for each match.
 

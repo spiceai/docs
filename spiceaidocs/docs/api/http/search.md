@@ -68,4 +68,4 @@ Response
 }
 ```
 
-The `v1/search` endpoint supports [chunked](spiceaidocs/docs/features/search/index.md#chunking) embedding columns.
+The `v1/search` endpoint supports [chunked](/features/search/index.md#chunking) embedding columns.
