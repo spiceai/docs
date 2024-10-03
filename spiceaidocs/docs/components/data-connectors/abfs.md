@@ -34,7 +34,7 @@ The ABFS-compatible URI to a folder or object in one of two forms:
 
 :::note
 
-A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/spiceaidocs/docs/components/secret-stores/index.md). When using secrets use a dummy account/container name and the values will be replaced with the values contained by the secrets at runtime.
+A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets use a dummy account/container name and the values will be replaced with the values contained by the secrets at runtime.
 
 See the example [below](#using-secrets-for-container-and-account-name).
 
