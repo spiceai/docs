@@ -67,3 +67,15 @@ datasets:
       refresh_check_interval: 1d
       refresh_jitter_enabled: true
       refresh_jitter_max: 10m
+
+  - from: github:github.com/spiceai/spiceai/issues
+    name: spiceai.issues
+    description: Spice.ai OSS issues from https://github.com/spiceai/spiceai/issues
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+    acceleration:
+      enabled: true
+      refresh_check_interval: 12h
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 5m
+  
