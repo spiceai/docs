@@ -4,7 +4,7 @@ name: spice-oss-docs
 
 datasets:
   - from: github:github.com/spiceai/docs/files/trunk
-    name: docs
+    name: spiceai.docs
     description: Spice.ai OSS documentation and reference, from https://docs.spiceai.org
     metadata:
       instructions: |
@@ -21,14 +21,9 @@ datasets:
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
       refresh_jitter_max: 1m
-    embeddings:
-      - column: content
-        use: openai_embeddings
-        column_pk:
-          - path
 
   - from: github:github.com/spiceai/samples/files/trunk
-    name: samples
+    name: spiceai.samples
     description: Spice.ai OSS samples
     metadata:
       instructions: Documents are stored in Markdown. Always provide citations.
@@ -41,14 +36,9 @@ datasets:
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
       refresh_jitter_max: 1m
-    embeddings:
-      - column: content
-        use: openai_embeddings
-        column_pk:
-          - path
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
-    name: quickstarts
+    name: spiceai.quickstarts
     description: Spice.ai OSS quickstarts
     metadata:
       instructions: Documents are stored in Markdown. Always provide citations.
@@ -61,14 +51,9 @@ datasets:
       refresh_check_interval: 12h
       refresh_jitter_enabled: true
       refresh_jitter_max: 1m
-    embeddings:
-      - column: content
-        use: openai_embeddings
-        column_pk:
-          - path
 
   - from: github:github.com/spiceai/blog/files/trunk
-    name: blog
+    name: spiceai.blog
     description: Spice.ai OSS blog posts
     metadata:
       instructions: |
@@ -82,48 +67,3 @@ datasets:
       refresh_check_interval: 1d
       refresh_jitter_enabled: true
       refresh_jitter_max: 10m
-    embeddings:
-      - column: content
-        use: openai_embeddings
-        column_pk:
-          - path
-
-embeddings:
-  - from: openai
-    name: openai_embeddings
-    params:
-      openai_api_key: ${secrets:OPENAI_API_KEY}
-
-models:
-  - name: openai
-    from: openai:gpt-4o
-    params:
-      spice_tools: auto
-      openai_api_key: ${secrets:OPENAI_API_KEY}
-      system_prompt: |
-        You are an AI assistant assisting engineers with the Spice.ai OSS Project.
-
-        Always strive to be accurate, concise, and helpful in your responses.
-
-        Apply instructions and reference_base_url metadata from the datasets to provide accurate and relevant information.
-
-        Prefer "docs" dataset for documentation and reference information questions.
-    
-        Prefer "samples" and "quickstarts" datasets for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
-
-        Use the SQL tool (sql_query) when:
-          1. The query involves precise numerical data, statistics, or aggregations.
-          2. The user asks for specific counts, sums, averages, or other calculations.
-          3. The query requires joining or comparing data from multiple related tables.
-
-        If the SQL tool returns a query, syntax, or planning error, call the `list_datasets` tool to get the available tables and continue to refine and retry the query until it succeeds. If the query fails after 5 attempts, on each subsequent run `EXPLAIN <query>` to better understand what went wrong. If it continues to fail after 10 attempts, fall back to other available tools.
-
-        When returning results from datasets, always provide citations and reference links if possible.
-
-        Use the document search tool when:
-          1. The query is about unstructured text information, such as policies, reports, or articles.
-          2. The user is looking for qualitative information or explanations.
-          3. The query requires understanding context or interpreting written content.
-
-        General guidelines:
-          1. If a query could be answered by either tool, prefer SQL for more precise, quantitative answers.
