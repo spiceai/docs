@@ -17,12 +17,12 @@ The GitHub data connector can be configured by providing the following `params`.
 
 ### Filter Push Down
 
-Querying GitHub supports a `github_query_mode` parameter value of either `auto` or `search` in the following connectors:
+GitHub queries support a `github_query_mode` parameter, which can be set to either `auto` or `search` for the following types:
 
-- Issues; defaults to `auto`, query filters are only pushed down in `search` mode.
-- Pull Requests; defaults to `auto`, query filters are only pushed down in `search` mode.
+- **Issues**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
+- **Pull Requests**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
 
-The Commits connector supports only `auto` mode, with query filter push down enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
+Commits only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
@@ -42,7 +42,7 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 
 :::warning[Limitations]
 
-- `content` column is included only when acceleration is enabled.
+- `content` column is fetched only when acceleration is enabled.
 - Querying GitHub files does not support filter push down, which may result in long query times when acceleration is disabled.
 - Setting `github_query_mode` to `search` is not supported.
 
