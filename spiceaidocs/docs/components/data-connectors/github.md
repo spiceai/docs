@@ -22,13 +22,13 @@ Querying GitHub supports a `github_query_mode` parameter value of either `auto` 
 - Issues; defaults to `auto`, query filters are only pushed down in `search` mode.
 - Pull Requests; defaults to `auto`, query filters are only pushed down in `search` mode.
 
-The Commits connector supports only `auto` mode, with query filter push down enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in ISO8601 format, like `WHERE committed_date > '2024-09-24'`.
+The Commits connector supports only `auto` mode, with query filter push down enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
 - `author` and `state`; supports exact matches, or NOT matches. For exmaple, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.
 - `body` and `title`; supports exact matches, or LIKE matches. For example, `WHERE body LIKE '%duckdb%'`.
-- `updated_at`, `created_at`, `merged_at` and `closed_at`; supports exact matches, or greater/less than matches with dates provided in ISO8601 format. For example, `WHERE created_at > '2024-09-24'`.
+- `updated_at`, `created_at`, `merged_at` and `closed_at`; supports exact matches, or greater/less than matches with dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. For example, `WHERE created_at > '2024-09-24'`.
 
 All other filters are supported when `github_query_mode` is set to `search`, but cannot be pushed down to the GitHub API for improved performance.
 
@@ -102,6 +102,12 @@ Time: 0.005067 seconds. 1 rows.
 
 ### Querying GitHub Issues
 
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE created_at > '2024-09-24'`.
+
+:::
+
 ```yaml
 datasets:
   - from: github:github.com/<owner>/<repo>/issues
@@ -159,6 +165,12 @@ Time: 0.011877542 seconds. 5 rows.
 ```
 
 ### Querying GitHub Pull Requests
+
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE created_at > '2024-09-24'`.
+
+:::
 
 ```yaml
 datasets:
@@ -219,6 +231,7 @@ Time: 0.034996667 seconds. 1 rows.
 
 :::warning[Limitations]
 
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE committed_date > '2024-09-24'`.
 - Setting `github_query_mode` to `search` is not supported.
 
 :::
@@ -282,6 +295,7 @@ Time: 0.0065395 seconds. 10 rows.
 
 :::warning[Limitations]
 
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE starred_at > '2024-09-24'`.
 - Setting `github_query_mode` to `search` is not supported.
 
 :::
