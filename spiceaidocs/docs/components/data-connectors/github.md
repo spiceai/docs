@@ -15,7 +15,38 @@ The GitHub data connector can be configured by providing the following `params`.
 - `owner` - Required. Specifies the owner of the GitHub repository.
 - `repo` - Required. Specifies the name of the GitHub repository.
 
+### Filter Push Down
+
+GitHub queries support a `github_query_mode` parameter, which can be set to either `auto` or `search` for the following types:
+
+- **Issues**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
+- **Pull Requests**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
+
+Commits only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
+
+When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
+
+- `author` and `state`; supports exact matches, or NOT matches. For exmaple, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.
+- `body` and `title`; supports exact matches, or LIKE matches. For example, `WHERE body LIKE '%duckdb%'`.
+- `updated_at`, `created_at`, `merged_at` and `closed_at`; supports exact matches, or greater/less than matches with dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. For example, `WHERE created_at > '2024-09-24'`.
+
+All other filters are supported when `github_query_mode` is set to `search`, but cannot be pushed down to the GitHub API for improved performance.
+
+:::warning[Limitations]
+
+- GitHub has a limitation in the Search API where it may return more stale data than the standard API used in the default query mode.
+
+:::
+
 ### Querying GitHub Files
+
+:::warning[Limitations]
+
+- `content` column is fetched only when acceleration is enabled.
+- Querying GitHub files does not support filter push down, which may result in long query times when acceleration is disabled.
+- Setting `github_query_mode` to `search` is not supported.
+
+:::
 
 - `ref` -  Required. Specifies the GitHub branch or tag to fetch files from.
 - `include` - Optional. Specifies a pattern to include specific files. Supports glob patterns. If not specified, all files are included by default.
@@ -44,12 +75,6 @@ datasets:
 | download_url | Utf8      | YES         |
 | content      | Utf8      | YES         |
 
-:::warning[Limitations]
-
-- `content` column is included only when acceleration is enabled.
-
-:::
-
 #### Example
 
 ```yaml
@@ -77,6 +102,12 @@ Time: 0.005067 seconds. 1 rows.
 
 ### Querying GitHub Issues
 
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE created_at > '2024-09-24'`.
+
+:::
+
 ```yaml
 datasets:
   - from: github:github.com/<owner>/<repo>/issues
@@ -92,13 +123,13 @@ datasets:
 | Column Name     | Data Type    | Is Nullable |
 |-----------------|--------------|-------------|
 | assignees       | List(Utf8)   | YES         |
+| author          | Utf8         | YES         |
 | body            | Utf8         | YES         |
 | closed_at       | Timestamp    | YES         |
 | comments        | List(Struct) | YES         |
 | created_at      | Timestamp    | YES         |
 | id              | Utf8         | YES         |
 | labels          | List(Utf8)   | YES         |
-| login           | Utf8         | YES         |
 | milestone_id    | Utf8         | YES         |
 | milestone_title | Utf8         | YES         |
 | comments_count  | Int64        | YES         |
@@ -135,6 +166,12 @@ Time: 0.011877542 seconds. 5 rows.
 
 ### Querying GitHub Pull Requests
 
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE created_at > '2024-09-24'`.
+
+:::
+
 ```yaml
 datasets:
   - from: github:github.com/<owner>/<repo>/pulls
@@ -149,6 +186,7 @@ datasets:
 |-----------------|------------|-------------|
 | additions       | Int64      | YES         |
 | assignees       | List(Utf8) | YES         |
+| author          | Utf8       | YES         |
 | body            | Utf8       | YES         |
 | changed_files   | Int64      | YES         |
 | closed_at       | Timestamp  | YES         |
@@ -159,7 +197,6 @@ datasets:
 | hashes          | List(Utf8) | YES         |
 | id              | Utf8       | YES         |
 | labels          | List(Utf8) | YES         |
-| login           | Utf8       | YES         |
 | merged_at       | Timestamp  | YES         |
 | number          | Int64      | YES         |
 | reviews_count   | Int64      | YES         |
@@ -191,6 +228,13 @@ Time: 0.034996667 seconds. 1 rows.
 ```
 
 ### Querying GitHub Commits
+
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE committed_date > '2024-09-24'`.
+- Setting `github_query_mode` to `search` is not supported.
+
+:::
 
 ```yaml
 datasets:
@@ -248,6 +292,13 @@ Time: 0.0065395 seconds. 10 rows.
 ```
 
 ### Querying GitHub stars (Stargazers)
+
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE starred_at > '2024-09-24'`.
+- Setting `github_query_mode` to `search` is not supported.
+
+:::
 
 ```yaml
 datasets:
