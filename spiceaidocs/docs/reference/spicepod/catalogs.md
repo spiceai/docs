@@ -14,7 +14,7 @@ Example:
 
 ```yaml
 catalogs:
-  - from: spiceai
+  - from: spice.ai
     name: spiceai
     include:
       - "tpch.*" # Include only the "tpch" tables.
@@ -36,7 +36,7 @@ Where:
 
   Currently supported catalog connectors:
 
-  - [`spiceai`](/components/catalogs/spiceai.md)
+  - [`spice.ai`](/components/catalogs/spiceai.md)
   - [`databricks`](/components/catalogs/databricks.md)
   - [`unity_catalog`](/components/catalogs/unity-catalog.md)
 
@@ -51,7 +51,7 @@ An alternative to adding the catalog definition inline in the `spicepod.yaml` fi
 **catalogs/sample/catalog.yaml**
 
 ```yaml
-from: spiceai
+from: spice.ai
 name: spiceai
 include:
   - "tpch.*" # Include only the "tpch" tables.

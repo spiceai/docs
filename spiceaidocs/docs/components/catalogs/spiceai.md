@@ -16,7 +16,7 @@ Create a [Spice.ai Cloud Platform](https://spice.ai) account and login with the 
 Example:
 ```yaml
 catalogs:
-  - from: spiceai
+  - from: spice.ai
     name: spicey # tables from the Spice.ai platform will be available in the "spicey" schema in Spice
     include:
       - "tpch.*" # include only the tables from the "tpch" schema

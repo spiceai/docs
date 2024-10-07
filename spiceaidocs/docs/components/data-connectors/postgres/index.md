@@ -66,7 +66,7 @@ Specify different secrets for a PostgreSQL source and acceleration:
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     params:
       pg_host: localhost

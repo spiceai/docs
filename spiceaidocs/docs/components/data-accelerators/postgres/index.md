@@ -10,7 +10,7 @@ To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for ac
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: postgres
@@ -40,7 +40,7 @@ Configuration `params` are provided either in the `acceleration` section of a da
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
       engine: postgres
@@ -57,7 +57,7 @@ Specify different secrets for a PostgreSQL source and acceleration:
 
 ```yaml
 datasets:
-  - from: spiceai:path.to.my_dataset
+  - from: spice.ai:path.to.my_dataset
     name: my_dataset
     params:
       pg_host: localhost
