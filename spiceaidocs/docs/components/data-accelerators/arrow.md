@@ -22,7 +22,6 @@ datasets:
 ## Limitations
 
 - The In-Memory Arrow Data Accelerator does not support persistent storage. Data is stored in-memory and will be lost when the Spice runtime is stopped.
-- The In-Memory Arrow Data Accelerator does not support schemas with nested arrays/lists, UTF8/string arrays/lists, structs, nested structs, or map fields.
 - The In-Memory Arrow Data Accelerator does not support `Decimal256` (76 digits), as it exceeds Arrow's maximum Decimal width of 38 digits.
 
 :::warning[Memory Considerations]
