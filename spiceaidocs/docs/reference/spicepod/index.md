@@ -282,3 +282,26 @@ dependencies:
   - lukekim/demo
   - spicehq/nfts
 ```
+
+## `views`
+
+A Spicepod can contain one or more views which are virtual tables defined by SQL queries.
+
+**Example**
+
+```yaml
+views:
+  - name: rankings
+    sql: |
+      WITH a AS (
+        SELECT products.id, SUM(count) AS count
+        FROM orders
+        INNER JOIN products ON orders.product_id = products.id
+        GROUP BY products.id
+      )
+      SELECT name, count
+      FROM products
+      LEFT JOIN a ON products.id = a.id
+      ORDER BY count DESC
+      LIMIT 5
+```
