@@ -1,7 +1,7 @@
 ---
 title: 'ODBC: Open Database Connectivity'
 sidebar_label: 'ODBC'
-sidebar_position: 2
+sidebar_position: 4
 description: 'ODBC API Documentation'
 pagination_prev: null
 pagination_next: null
