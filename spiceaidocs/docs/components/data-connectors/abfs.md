@@ -50,50 +50,58 @@ Example: `name: cool_dataset`
 SELECT COUNT(*) FROM cool_dataset
 ```
 
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
 ### `params`
 
 #### Basic parameters
 
-| Parameter name | Description |
-|---|---|
-| `abfs_account` | Azure storage account name |
-| `abfs_container_name` | Azure storage container name |
-| `abfs_sas_string` | SAS Token to use for authorization |
-| `abfs_endpoint` | Storage endpoint to connect to. Defaults to `https://{account}.blob.core.windows.net` |
-| `abfs_use_emulator` | Connect to a locally-running Azure Storage emulator. Valid values are `true` or `false` |
-| `abfs_allow_http` | Allow insecure HTTP connections |
-| `abfs_authority_host` | Use an alternative authority host. Defaults to `https://login.microsoftonline.com` |
-| `abfs_proxy_url` | Proxy URL to use when connecting |
-| `abfs_proxy_ca_certificate` | A trusted CA certificate for the proxy |
-| `abfs_proxy_exludes` | A list of hosts to exclude from proxy connections |
-| `abfs_disable_tagging` | Ignore any tags provided to `put_opts` |
+| Parameter name              | Description                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `abfs_account`              | Azure storage account name                                                              |
+| `abfs_container_name`       | Azure storage container name                                                            |
+| `abfs_sas_string`           | SAS Token to use for authorization                                                      |
+| `abfs_endpoint`             | Storage endpoint to connect to. Defaults to `https://{account}.blob.core.windows.net`   |
+| `abfs_use_emulator`         | Connect to a locally-running Azure Storage emulator. Valid values are `true` or `false` |
+| `abfs_allow_http`           | Allow insecure HTTP connections                                                         |
+| `abfs_authority_host`       | Use an alternative authority host. Defaults to `https://login.microsoftonline.com`      |
+| `abfs_proxy_url`            | Proxy URL to use when connecting                                                        |
+| `abfs_proxy_ca_certificate` | A trusted CA certificate for the proxy                                                  |
+| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                       |
+| `abfs_disable_tagging`      | Ignore any tags provided to `put_opts`                                                  |
 
 
 #### Authentication parameters
 
 The following parameters are used when authenticating with Azure. Only one of `abfs_access_key`, `abfs_bearer_token`, `abfs_client_secret` or `abfs_skip_signature` can be set at the same time. If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
 
-| Parameter name | Description |
-|---|---|
-| `abfs_access_key` | Secret access key to use when authenticating |
-| `abfs_bearer_token` | `BEARER` token to use when authenticating |
-| `abfs_client_id` | Client ID to use with the client authentication flow |
-| `abfs_client_secret` | Client Secret to use with the client authentication flow |
-| `abfs_tenant_id` | Tenant ID to use with client authentication flow |
-| `abfs_skip_signature` | Skip fetching credentials and skip signing requests. Used for interacting with public containers |
-| `abfs_msi_endpoint` | The endpoing to use for acquiring managed identity tokens |
-| `abfs_federated_token_file` | File path for acquiring Azure federated identity token in Kubernetes |
-| `abfs_use_cli` | Set to `true` to use the Azure CLI to acquire access tokens |
+| Parameter name              | Description                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------ |
+| `abfs_access_key`           | Secret access key to use when authenticating                                                     |
+| `abfs_bearer_token`         | `BEARER` token to use when authenticating                                                        |
+| `abfs_client_id`            | Client ID to use with the client authentication flow                                             |
+| `abfs_client_secret`        | Client Secret to use with the client authentication flow                                         |
+| `abfs_tenant_id`            | Tenant ID to use with client authentication flow                                                 |
+| `abfs_skip_signature`       | Skip fetching credentials and skip signing requests. Used for interacting with public containers |
+| `abfs_msi_endpoint`         | The endpoing to use for acquiring managed identity tokens                                        |
+| `abfs_federated_token_file` | File path for acquiring Azure federated identity token in Kubernetes                             |
+| `abfs_use_cli`              | Set to `true` to use the Azure CLI to acquire access tokens                                      |
 
 #### Retry parameters
 
-| Parameter name | Description |
-|---|---|
-| `abfs_max_retries` | Maximum number of retries |
-| `abfs_retry_timeout` | Timeout for all retries. Accepts any duration string (i.e `5s`, `1m`, etc) |
+| Parameter name                  | Description                                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `abfs_max_retries`              | Maximum number of retries                                                                    |
+| `abfs_retry_timeout`            | Timeout for all retries. Accepts any duration string (i.e `5s`, `1m`, etc)                   |
 | `abfs_backoff_initial_duration` | How long to wait before the initial retry. Accepts any duration string (i.e `5s`, `1m`, etc) |
-| `abfs_backoff_max_duration` | Maximum length to wait for a retry. Accepts any duration string (i.e `5s`, `1m`, etc) |
-| `abfs_backoff_base` | Floating-point base of the exponential to use when backing off retries |
+| `abfs_backoff_max_duration`     | Maximum length to wait for a retry. Accepts any duration string (i.e `5s`, `1m`, etc)        |
+| `abfs_backoff_base`             | Floating-point base of the exponential to use when backing off retries                       |
 
 #### File format parameters
 
