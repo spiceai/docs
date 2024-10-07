@@ -18,9 +18,9 @@ datasets:
       include: 'spiceaidocs/docs/**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 12h
+      refresh_check_interval: 4h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 1m
+      refresh_jitter_max: 30m
 
   - from: github:github.com/spiceai/samples/files/trunk
     name: spiceai.samples
@@ -33,9 +33,9 @@ datasets:
       include: '**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 12h
+      refresh_check_interval: 4h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 1m
+      refresh_jitter_max: 30m
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
     name: spiceai.quickstarts
@@ -48,9 +48,9 @@ datasets:
       include: '**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 12h
+      refresh_check_interval: 4h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 1m
+      refresh_jitter_max: 30m
 
   - from: github:github.com/spiceai/blog/files/trunk
     name: spiceai.blog
@@ -64,9 +64,9 @@ datasets:
       include: 'content/posts/**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 1d
+      refresh_check_interval: 4h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 10m
+      refresh_jitter_max: 30m
 
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
@@ -75,7 +75,7 @@ datasets:
       github_token: ${secrets:GITHUB_TOKEN}
     acceleration:
       enabled: true
-      refresh_check_interval: 12h
+      refresh_check_interval: 4h
       refresh_jitter_enabled: true
-      refresh_jitter_max: 5m
+      refresh_jitter_max: 30m
   
