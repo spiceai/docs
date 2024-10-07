@@ -31,6 +31,7 @@ Currently supported Data Connectors include:
 | `snowflake`     | Snowflake     | Alpha  | Arrow                               | `full`           | ❌               | ❌                |
 | `spiceai`       | Spice.ai      | Alpha  | Arrow Flight                        | `append`, `full` | ✅               | ❌                |
 | `s3`            | S3            | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
+| `abfs`            | Azure BlobFS            | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
 | `sharepoint`    | SharePoint    | Alpha  |                                     | `full`           | ❌               | ✅                |
 | `spark`         | Spark         | Alpha  | Spark Connect                       | `full`           | ❌               | ❌                |
 
