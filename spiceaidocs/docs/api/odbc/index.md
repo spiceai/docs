@@ -114,7 +114,12 @@ spiced --flight 0.0.0.0:50051
 2024-10-06T20:06:50.921420Z  INFO runtime: Dataset taxi_trips registered (s3://spiceai-demo-datasets/taxi_trips/2024/), results cache enabled.
 ```
 
-Configure client app to use `Arrow Flight SQL ODBC Driver` and run a sample query, such as `SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;`
+Configure the client app to use `Arrow Flight SQL ODBC Driver` and run a sample query, such as 
+
+```sql
+SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;
+```
+
 
  <img width="800" alt="Example ODBC Client Configuration" src="/img/odbc/spice-odbc-example-config.png" />
 
