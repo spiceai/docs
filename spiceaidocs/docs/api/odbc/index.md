@@ -37,6 +37,7 @@ Spice supports ODBC clients through an ODBC driver implementation based on the [
   <TabItem value="default" label="Windows" default>
     - Open **Start Menu** -> **Windows Administrative Tools** -> click **ODBC Data Sources (64-bit)**
     - In the **ODBC Data Source Administrator (64-bit)** dialog, click **System DSN**
+     <img width="600" alt="ODBC Data Source Administrator" src="/img/odbc/spice-odbc-windows-config.png" />
     - Select **Arrow Flight SQL ODBC DSN** and click **Configure**
     - Specify Spice.ai OSS runtime `HOST`, `PORT`, in the `UseEncryption` field, specify one of these values:
       - `true`, if [Spice is configured for encrypted communication (TLS)](https://docs.spiceai.org/api/tls)
@@ -72,6 +73,7 @@ Spice supports ODBC clients through an ODBC driver implementation based on the [
     - Specify Spice.ai OSS runtime `HOST`, `PORT`, in the `UseEncryption` field, specify one of these values:
       - `true`, if [Spice is configured for encrypted communication (TLS)](https://docs.spiceai.org/api/tls)
       - `false`, otherwise
+    <img width="600" alt="ODBC Data Source Administrator" src="/img/odbc/spice-odbc-macos-config.png" />
     - For descriptions of all the parameters, see [ODBC Connection Parameters](#odbc-connection-parameters).
 
   </TabItem>
