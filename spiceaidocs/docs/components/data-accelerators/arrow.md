@@ -9,13 +9,26 @@ The In-Memory Arrow Data Accelerator is the default data accelerator in Spice. I
 
 ## Configuration
 
-To use the In-Memory Arrow Data Accelerator, specify `arrow` as the `engine` for acceleration.
+To use the In-Memory Arrow Data Accelerator, no additional configuration is required beyond enabling acceleration.
+
+Example:
 
 ```yaml
 datasets:
   - from: spice.ai:path.to.my_dataset
     name: my_dataset
     acceleration:
+      enabled: true
+```
+
+However Arrow can be specified explicitly using `arrow` as the `engine` for acceleration.
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      enabled: true
       engine: arrow
 ```
 
