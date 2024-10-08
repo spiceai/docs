@@ -2,7 +2,7 @@
 title: 'Results Caching'
 sidebar_label: 'Results Caching'
 description: 'Learn how to use Spice in-memory caching of query results'
-sidebar_position: 5
+sidebar_position: 3
 pagination_prev: null
 pagination_next: null
 ---
