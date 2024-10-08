@@ -30,4 +30,13 @@ spice refresh [dataset] [flags]
 
 Refreshing dataset taxi_trips ...
 Dataset refresh triggered for taxi_trips.
+
+### Additional Example
+
+```shell
+>>> spice refresh taxi_trips --refresh-mode append
+```
+
+Refreshing dataset taxi_trips with append mode...
+Dataset refresh triggered for taxi_trips.
 ```

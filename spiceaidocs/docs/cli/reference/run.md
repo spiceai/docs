@@ -45,3 +45,10 @@ spice run -- --http 0.0.0.0:8090
 # Expose the HTTP & Flight servers on all interfaces with TLS
 spice run -- --http 0.0.0.0:8090 --flight 0.0.0.0:50051 --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
+
+### Additional Example
+
+```shell
+# Run Spice with OpenTelemetry enabled
+spice run -- --open_telemetry 0.0.0.0:50052
+```

@@ -27,3 +27,13 @@ FROM                             NAME                      REPLICATION ACCELERAT
 spice.ai/eth.beacon.recent_slots eth_beacon_recent_slotsss false       false                  Ready
 spice.ai/eth.recent_blocks       eth_rec_blocks            false       false                  Initializing
 ```
+
+### Additional Example
+
+```shell
+>>> spice datasets --tls-root-certificate-file /path/to/cert.pem
+
+FROM                             NAME                      REPLICATION ACCELERATION DEPENDSON STATUS
+spice.ai/eth.beacon.recent_slots eth_beacon_recent_slotsss false       false                  Ready
+spice.ai/eth.recent_blocks       eth_rec_blocks            false       false                  Initializing
+```

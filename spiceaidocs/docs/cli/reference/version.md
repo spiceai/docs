@@ -21,3 +21,9 @@ spice version [flags]
 ```shell
 spice version
 ```
+
+### Additional Example
+
+```shell
+spice version --short
+```

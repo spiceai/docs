@@ -23,4 +23,8 @@ spice add [flags]
 spice add spiceai/quickstart
 ```
 
+### Additional Example
 
+```shell
+spice add spiceai/samplepod
+```

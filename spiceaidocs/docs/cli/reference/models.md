@@ -26,3 +26,12 @@ spice models [flags]
 NAME  FROM                                    DATASETS STATUS
 modlz file:/Users/jeadie/Downloads/model.onnx []       Ready
 ```
+
+### Additional Example
+
+```shell
+>>> spice models --tls-root-certificate-file /path/to/cert.pem
+
+NAME  FROM                                    DATASETS STATUS
+modlz file:/Users/jeadie/Downloads/model.onnx []       Ready
+```

@@ -30,3 +30,13 @@ Supported time units are:
 # 1 hour
 1h
 ```
+
+### Additional Example
+
+```example
+# 2 days
+2d
+
+# 1 week
+1w
+```

@@ -23,3 +23,9 @@ spice init
 spice init <spice app name>
 spice init my_app
 ```
+
+### Additional Example
+
+```shell
+spice init another_app
+```

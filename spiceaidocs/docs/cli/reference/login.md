@@ -33,3 +33,9 @@ spice login [command] [flags]
 ```shell
 spice login
 ```
+
+### Additional Example
+
+```shell
+spice login --key <API_KEY>
+```
