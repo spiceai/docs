@@ -22,4 +22,4 @@ Spice supports a variety of LLMs (see [Model Components](/components/models/inde
 - **Custom Tools**: Equip models with tools to interact with the Spice runtime.
 - **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/http/chat-completions.md).
 
-For detailed configuration and API usage, refer to the [API Documentation](/api/overview.md).
+For detailed configuration and API usage, refer to the [API Documentation](/api).
