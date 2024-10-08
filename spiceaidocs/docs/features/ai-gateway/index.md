@@ -26,24 +26,14 @@ For detailed configuration and API usage, refer to the [API Documentation](/api)
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path in `from`. 
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`.
 
-Specific the model ID in `from`.
-These parameters are specific to OpenAI models:
-
-| Param | Description | Default |
-| ----- | ----------- | ------- |
-| `openai_api_key` | The OpenAI API key.        | -                           |
-| `openai_org_id` | The OpenAI organization id. | -                           |
-| `openai_project_id` | The OpenAI project id.  | -                           |
-| `endpoint` | The OpenAI API base endpoint.    | `https://api.openai.com/v1` |
-
-Example configuration:
+Example `spicepod.yml`:
 
 ```yaml
 models:
-  - from: openai:gpt-4o
-    name: local_fs_model
+  - from: openai:gpt-4o-mini
+    name: openai
     params:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 
@@ -54,4 +44,4 @@ models:
       openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
 ```
 
-This example demonstrates how to configure an OpenAI model in the AI Gateway. The `from` field specifies the model source and ID, while the `params` field includes necessary parameters such as the API key and endpoint.
+For details, see [OpenAI (or Compatible) Language Models](/components/models/openai/index.md).
