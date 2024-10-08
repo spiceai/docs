@@ -111,7 +111,7 @@ curl -XPOST http://localhost:8090/v1/search \
 
 Response:
 
-````json
+```json
 {
   "matches": [
     {
@@ -135,4 +135,4 @@ Response:
   ],
   "duration_ms": 45
 }
-````
+```
