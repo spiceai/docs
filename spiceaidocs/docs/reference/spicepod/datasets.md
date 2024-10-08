@@ -132,6 +132,7 @@ Required to enable a retention policy on the dataset.
 ## `time_format`
 
 Optional. The format of the `time_column`. The following values are supported:
+
 - `timestamp` - Default. Timestamp without a timezone. E.g. `2016-06-22 19:10:25` with data type `timestamp`.
 - `timestamptz` - Timestamp with a timezone. E.g. `2016-06-22 19:10:25-07` with data type `timestamptz`.
 - `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
@@ -269,7 +270,7 @@ The `indexes` field is a map where the key is the column reference and the value
 
 A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Indexes](../../features/local-acceleration/indexes.md)
+See [Indexes](../../features/data-acceleration/indexes.md)
 
 ```yaml
 datasets:
@@ -289,7 +290,7 @@ Optional. Specify the primary key constraint on the locally accelerated table. N
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Constraints](../../features/local-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints.md)
 
 ```yaml
 datasets:
@@ -316,7 +317,7 @@ The possible conflict resolution strategies are:
 - `upsert` - Upsert the incoming data when the primary key constraint is violated.
 - `drop` - Drop the data when the primary key constraint is violated.
 
-See [Constraints](../../features/local-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints.md)
 
 ```yaml
 datasets:

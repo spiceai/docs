@@ -165,8 +165,8 @@ const config: Config = {
             to: '/features/data-ingestion',
           },
           {
-            from: '/local-acceleration',
-            to: '/features/local-acceleration',
+            from: '/data-acceleration',
+            to: '/features/data-acceleration',
           },
         ],
       },

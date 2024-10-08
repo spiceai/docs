@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Change Data Capture (CDC) is a technique to capture changed rows from a database's transaction log and deliver to consumers with low latency. Leveraging this technique allows Spice to keep [locally accelerated](../local-acceleration/index.md) datasets up-to-date in real-time with the source data, and is highly efficient by only transferring the changed rows instead of re-fetching the entire dataset on refresh.
+Change Data Capture (CDC) is a technique to capture changed rows from a database's transaction log and deliver to consumers with low latency. Leveraging this technique allows Spice to keep [locally accelerated](../data-acceleration/index.md) datasets up-to-date in real-time with the source data, and is highly efficient by only transferring the changed rows instead of re-fetching the entire dataset on refresh.
 
 ## Benefits
 
