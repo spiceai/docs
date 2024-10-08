@@ -1,6 +1,6 @@
 ---
-title: "SELECT"
-sidebar_label: "SELECT"
+title: 'SELECT'
+sidebar_label: 'SELECT'
 pagination_prev: 'reference/sql/index'
 pagination_next: null
 sidebar_position: 1
@@ -27,7 +27,7 @@ Spice supports the following syntax for queries:
 [ [UNION](#union-clause) [ ALL | select ]  
 [ [ORDER BY](#order-by-clause) expression \[ ASC | DESC \][, ...] ]  
 [ [LIMIT](#limit-clause) count ]  
-[ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]  
+[ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]
 
 ### WITH clause
 
@@ -40,8 +40,8 @@ SELECT a, b FROM x;
 
 ### SELECT clause
 
-The `SELECT` clause is used to select data from a database by defining the colummns it returns.  Each `select_expr` in the
- SELECT list can be an expression or wildcards.
+The `SELECT` clause is used to select data from a database by defining the colummns it returns. Each `select_expr` in the
+SELECT list can be an expression or wildcards.
 
 Example:
 
@@ -68,7 +68,7 @@ SELECT t.a FROM table AS t
 
 ### WHERE clause
 
-The `WHERE` clause is used define the conditions to filter the query results.  
+The `WHERE` clause is used define the conditions to filter the query results.
 
 Example:
 
@@ -178,10 +178,10 @@ select * from x cross join x y;
 
 ### GROUP BY clause
 
-The `GROUP BY` clause groups together input rows that have the same value into summary rows.  
+The `GROUP BY` clause groups together input rows that have the same value into summary rows.
 
 `GROUP BY` is typically used with aggregrate functions (`COUNT()`, `MAX()`, `SUM()`), but if no aggregate functions are
- included, the query with a `GROUP BY` clause is the same as `SELECT DISTINCT`.
+included, the query with a `GROUP BY` clause is the same as `SELECT DISTINCT`.
 
 Example:
 
@@ -210,8 +210,8 @@ SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10
 
 ### UNION clause
 
-The `UNION` clause combines the results of two or more `SELECT` statments.  By default `UNION` removes
- duplicates.  To include duplicates, use `UNION ALL`.
+The `UNION` clause combines the results of two or more `SELECT` statments. By default `UNION` removes
+duplicates. To include duplicates, use `UNION ALL`.
 
 Example:
 

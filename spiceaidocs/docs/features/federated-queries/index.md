@@ -2,7 +2,7 @@
 title: 'Federated Queries'
 sidebar_label: 'Federated Queries'
 description: 'Learn how to use federated queries in Spice.'
-sidebar_position: 2
+sidebar_position: 1
 pagination_prev: null
 pagination_next: null
 ---

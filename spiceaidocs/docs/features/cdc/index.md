@@ -2,7 +2,7 @@
 title: 'Change Data Capture (CDC)'
 sidebar_label: 'Change Data Capture'
 description: 'Learn how to use Change Data Capture (CDC) in Spice.'
-sidebar_position: 6
+sidebar_position: 4
 pagination_prev: null
 pagination_next: null
 ---

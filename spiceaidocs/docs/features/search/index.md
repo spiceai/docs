@@ -2,7 +2,7 @@
 title: 'Search Functionality'
 sidebar_label: 'Search'
 description: 'Learn how Spice can search across datasets using database-native and vector-search methods.'
-sidebar_position: 8
+sidebar_position: 6
 pagination_prev: null
 pagination_next: null
 ---
@@ -111,7 +111,7 @@ curl -XPOST http://localhost:8090/v1/search \
 
 Response:
 
-```json
+````json
 {
   "matches": [
     {
@@ -135,4 +135,4 @@ Response:
   ],
   "duration_ms": 45
 }
-```
+````

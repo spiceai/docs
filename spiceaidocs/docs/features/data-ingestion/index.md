@@ -2,11 +2,10 @@
 title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
 description: 'Learn how to ingest data in Spice.'
-sidebar_position: 4
+sidebar_position: 7
 pagination_prev: null
 pagination_next: null
 ---
-
 
 Data can be ingested by the Spice runtime for replication to a Data Connector, like PostgreSQL or the Spice.ai Cloud platform.
 
