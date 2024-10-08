@@ -28,7 +28,7 @@ For detailed configuration and API usage, refer to the [API Documentation](/api)
 
 To use a language model hosted on OpenAI (or compatible), specify the `openai` path in `from`. 
 
-For a specific model, include it as the model ID in `from`. Defaults to `"gpt-3.5-turbo"`.
+Specific the model ID in `from`.
 These parameters are specific to OpenAI models:
 
 | Param | Description | Default |
