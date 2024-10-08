@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-However it can also be specified explicitly using `arrow` as the `engine` for acceleration.
+However Arrow can be specified explicitly using `arrow` as the `engine` for acceleration.
 
 ```yaml
 datasets:
