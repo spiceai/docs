@@ -35,6 +35,7 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 :::warning[Limitations]
 
 - GitHub has a limitation in the Search API where it may return more stale data than the standard API used in the default query mode.
+- GitHub has a limitation in the Search API where it only returns a maximum of 1000 results for a query. Use [append mode acceleration](../data-accelerators/data-refresh.md) to retrieve more results over time. See the [append example](#append-example) for pull requests.
 
 :::
 
@@ -225,6 +226,23 @@ sql> select title, url, state from spiceai.pulls where title like '%GitHub conne
 +---------------------------------------------------------------------+----------------------------------------------+--------+
 
 Time: 0.034996667 seconds. 1 rows.
+```
+
+#### Append Example
+
+```yaml
+datasets:
+- from: github:github.com/spiceai/spiceai/pulls
+  name: spiceai.pulls
+  params:
+    github_token: ${secrets:GITHUB_TOKEN}
+    github_query_mode: search
+  time_column: created_at
+  acceleration:
+    enabled: true
+    refresh_mode: append
+    refresh_check_interval: 6h # check for new results every 6 hours
+    refresh_data_window: 90d # at initial load, load the last 90 days of pulls
 ```
 
 ### Querying GitHub Commits
