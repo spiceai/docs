@@ -41,3 +41,83 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/i
 ## Direct Download
 
 x86_x64 and ARM binaries for linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
+
+## Building Spice from Source
+
+### Build prerequisites
+
+<Tabs>
+  <TabItem value="default" label="macOS" default>
+  1. If you don't already have it installed, install Homebrew:
+
+    ```shell
+    # Note: Be sure to follow the steps in the Homebrew installation output to add Homebrew to your PATH.
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+
+  2. Install the Xcode Command Line tools
+    ```shell
+      xcode-select --install
+    ```
+
+  3. Install dependencies
+    ```shell
+    brew install rust
+    brew install go
+    brew install cmake
+    brew install protobuf
+    ```
+  </TabItem>
+  <TabItem value="linux" label="Linux (Ubuntu)">
+  1. Install system dependencies
+    ```shell
+    sudo apt update
+    sudo apt install build-essential curl openssl libssl-dev pkg-config protobuf-compiler cmake
+    ```
+  
+  2. Install Go
+    ```shell
+    export GO_VERSION="1.22.4"
+    rm -rf /tmp/spice
+    mkdir -p /tmp/spice
+    cd /tmp/spice
+    wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
+    tar xvfz go$GO_VERSION.linux-amd64.tar.gz
+    sudo mv ./go /usr/local/go
+    echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+    source $HOME/.profile
+    cd $HOME
+    rm -rf /tmp/spice
+    ```
+
+  3. Install Rust
+    ```shell
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended
+      source $HOME/.cargo/env
+    ```
+  </TabItem>
+</Tabs>
+
+### Build Spice OSS
+
+```shell
+# Clone SpiceAI OSS Repo
+git clone https://github.com/spiceai/spiceai.git
+cd spiceai
+
+# Build and install OSS project in release mode
+make install
+
+# Build and install OSS project in dev mode
+make install-dev
+
+# Build and install OSS project with models
+make install-with-models
+
+# Also you can specify specific features
+SPICED_CUSTOM_FEATURES="postgres sqlite" make install
+
+# Run the following to temporarily add spice to your PATH.
+# Add it to the end of your .bashrc or .zshrc to permanently add spice to your PATH.
+export PATH="$PATH:$HOME/.spice/bin"
+```
