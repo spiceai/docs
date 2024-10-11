@@ -9,8 +9,6 @@ Constraints are rules that enforce data integrity in a database. Spice supports 
 
 Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
-The behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
-
 If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
 
 Example Spicepod:
