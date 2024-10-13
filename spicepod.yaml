@@ -14,7 +14,9 @@ datasets:
         Also replace `/index.md` with `/` in the path.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
-      github_token: ${secrets:GITHUB_TOKEN}
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
       include: 'spiceaidocs/docs/**/*.md'
     acceleration:
       enabled: true
@@ -29,7 +31,9 @@ datasets:
       instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/samples/tree/trunk/<sample_path>
     params:
-      github_token: ${secrets:GITHUB_TOKEN}
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
       include: '**/*.md'
     acceleration:
       enabled: true
@@ -44,7 +48,9 @@ datasets:
       instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/quickstarts/tree/trunk/<quickstart_path>
     params:
-      github_token: ${secrets:GITHUB_TOKEN}
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
       include: '**/*.md'
     acceleration:
       enabled: true
@@ -60,7 +66,9 @@ datasets:
         This dataset provides access to the Spice.ai OSS project blog posts in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
       reference_base_url: https://github.com/spiceai/blog/tree/trunk/content/posts/<post_path>
     params:
-      github_token: ${secrets:GITHUB_TOKEN}
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
       include: 'content/posts/**/*.md'
     acceleration:
       enabled: true
@@ -72,7 +80,9 @@ datasets:
     name: spiceai.issues
     description: Spice.ai OSS issues from https://github.com/spiceai/spiceai/issues
     params:
-      github_token: ${secrets:GITHUB_TOKEN}
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
     acceleration:
       enabled: true
       refresh_check_interval: 4h
