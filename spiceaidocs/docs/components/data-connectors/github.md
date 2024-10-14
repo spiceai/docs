@@ -10,7 +10,28 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 The GitHub data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token from a secret store, e.g. `${secrets:GITHUB_TOKEN}`.
 
+The GitHub data connector supports two authentication methods: using a personal access token or GitHub App Installation credentials. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token or other secrets from a secret store.
+
+### Personal Access Token
+
 - `github_token`: Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+### GitHub App Installation
+
+GitHub Apps provide a secure and scalable way to integrate with GitHub's API. [Learn more](https://docs.github.com/en/apps).
+
+- `github_client_id`: Required. Specifies the client ID for GitHub App Installation auth mode.
+- `github_private_key`: Required. Specifies the private key for GitHub App Installation auth mode.
+- `github_installation_id`: Required. Specifies the installation ID for GitHub App Installation auth mode.
+
+:::note[Limitations]
+
+With GitHub App Installation authentication, the connector's functionality depends on the permissions and scope of the GitHub App. Ensure that the app is installed on the repositories and configured with content, commits, issues and pull permissions to allow the corresponding datasets to work.
+
+:::
+
+### Common Parameters
+
 - `github_query_mode`: Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`.
 - `owner` - Required. Specifies the owner of the GitHub repository.
 - `repo` - Required. Specifies the name of the GitHub repository.
