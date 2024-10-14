@@ -11,7 +11,7 @@ Data Connectors provide connections to databases, data warehouses, and data lake
 
 Currently supported Data Connectors include:
 
-| Name            | Description   | Status | Protocol/Format                     | Refresh Modes               | Supports Ingestion | Supports Documents |
+| Name            | Description   | Status | Protocol/Format                     | Refresh Modes               | Supports [Ingestion](https://docs.spiceai.org/features/data-ingestion) | Supports Documents |
 | --------------- | ------------- | ------ | ----------------------------------- | --------------------------- | ------------------ | ------------------ |
 | `abfs`          | Azure BlobFS  | Alpha  | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
 | `clickhouse`    | Clickhouse    | Alpha  |                                     | `append`, `full`            | ❌                 | ❌                 |
