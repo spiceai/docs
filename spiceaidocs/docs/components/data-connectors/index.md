@@ -27,7 +27,7 @@ Currently supported Data Connectors include:
 | `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ❌                 |
 | `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                 | ❌                 |
 | `mysql`         | MySQL         | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
-| `odbc`          | ODBC          | Alpha  |                                     | `append`, `full`            | ❌                 | ❌                 |
+| `odbc`          | ODBC          | Beta  |                                     | `append`, `full`            | ❌                 | ❌                 |
 | `postgres`      | PostgreSQL    | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
 | `s3`            | S3            | Beta   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
 | `sharepoint`    | SharePoint    | Alpha  |                                     | `append`, `full`            | ❌                 | ✅                 |
