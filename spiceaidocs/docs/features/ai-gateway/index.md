@@ -23,3 +23,25 @@ Spice supports a variety of LLMs (see [Model Components](/components/models/inde
 - **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/http/chat-completions.md).
 
 For detailed configuration and API usage, refer to the [API Documentation](/api).
+
+### Example: Configuring an OpenAI Model
+
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`.
+
+Example `spicepod.yml`:
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: openai
+    params:
+      openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
+
+  - from: openai:llama3-groq-70b-8192-tool-use-preview
+    name: groq-llama
+    params:
+      endpoint: https://api.groq.com/openai/v1
+      openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
+```
+
+For details, see [OpenAI (or Compatible) Language Models](/components/models/openai.md).
