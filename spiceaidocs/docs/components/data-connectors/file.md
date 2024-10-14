@@ -27,6 +27,15 @@ datasets:
       csv_has_header: false
 ```
 
+## Parameters
+
+| Parameter name         | Description                                                                                           |
+|------------------------|-------------------------------------------------------------------------------------------------------|
+| `file_format`          | Specifies the data file format. Required if the format cannot be inferred from the `from` path.       |
+| `hive_infer_partitions`| Infer the partition columns for hive-style partitioning from the folder structure. Defaults to true.  |
+
+For CSV-specific parameters, see [CSV Parameters](/reference/file_format.md#csv).
+
 ## Trigger data refresh on file change
 
 In addition to standard [Data Refresh](/components/data-accelerators/data-refresh), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
