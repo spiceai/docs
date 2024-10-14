@@ -10,7 +10,7 @@ pagination_next: null
 Performs a basic vector similarity search across one or more datasets.
 
 Request Body
- - `datasets` (array of strings): Names of the dataset components to perform the similarity search on. Each dataset must have exactly one column augmented with an embedding.
+ - `datasets` (array of strings, Optional): Names of the dataset components to perform the similarity search on. Each dataset must have exactly one column augmented with an embedding. If None, all available datasets are used.
  - `text` (string): Query plaintext used to retrieve similar rows from the underlying datasets listed in the `from` request key.
  - `limit` (integer): The number of rows to return, per `from` dataset. Default: 3.
  - `where` (string): An SQL filter predicate to apply within the search.
