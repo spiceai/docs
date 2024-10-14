@@ -4,9 +4,7 @@ sidebar_label: 'Clickhouse Data Connector'
 description: 'Clickhouse Data Connector Documentation'
 ---
 
-## Federated SQL query
-
-To connect to any Clickhouse database as connector for federated SQL query, specify `clickhouse` as the selector in the `from` value for the dataset.
+ClickHouse is a fast, open-source columnar database management system designed for online analytical processing (OLAP) and real-time analytics. This connector enables federated SQL queries on top of data from a Clickhouse server.
 
 ```yaml
 datasets:
@@ -18,18 +16,22 @@ datasets:
 
 The Clickhouse data connector can be configured by providing the following `params`:
 
-- `clickhouse_connection_string`: The connection string to use to connect to the Clickhouse server. This can be used instead of providing individual connection parameters. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_clickhouse_conn_string}`.
-- `clickhouse_host`: The hostname of the Clickhouse server.
-- `clickhouse_tcp_port`: The port of the Clickhouse server.
-- `clickhouse_db`: The name of the database to connect to.
-- `clickhouse_user`: The username to connect with.
-- `clickhouse_pass`: The password to connect with. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_clickhouse_pass}`.
-- `clickhouse_secure`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
-  - `true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
-  - `false`: This mode will not attempt to use an SSL connection, even if the server supports it.
-- `connection_timeout`: Optional. Specifies the connection timeout in milliseconds.
+| Parameter Name                 | Definition                                                                                                                                                                                                                                                                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clickhouse_connection_string` | The connection string to use to connect to the Clickhouse server. This can be used instead of providing individual connection parameters.                                                                                                                                                                               |
+| `clickhouse_host`              | The hostname of the Clickhouse server.                                                                                                                                                                                                                                                                                  |
+| `clickhouse_tcp_port`          | The port of the Clickhouse server.                                                                                                                                                                                                                                                                                      |
+| `clickhouse_db`                | The name of the database to connect to.                                                                                                                                                                                                                                                                                 |
+| `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                           |
+| `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                           |
+| `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br> - `true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.<br> - `false`: This mode will not attempt to use an SSL connection, even if the server supports it. |
+| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                             |
 
 Configuration `params` are provided in the top level `dataset` for a dataset source and federated SQL query.
+
+## Examples
+
+### Connecting to localhost
 
 ```yaml
 datasets:
@@ -42,8 +44,10 @@ datasets:
       clickhouse_user: my_user
       clickhouse_pass: ${secrets:my_clickhouse_pass}
       connection_timeout: 10000
-      clickhouse_secure: true
+      clickhouse_secure: false
 ```
+
+### Specifying a connection timeout
 
 ```yaml
 datasets:
@@ -55,6 +59,8 @@ datasets:
       clickhouse_secure: true
 ```
 
+### Using a connection string
+
 ```yaml
 datasets:
   - from: clickhouse:path.to.my_dataset
@@ -62,3 +68,11 @@ datasets:
     params:
       clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database?connection_timeout=10000&secure=true
 ```
+
+## Using secrets
+
+There are currently three supported [secret stores](/components/secret-stores):
+
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)

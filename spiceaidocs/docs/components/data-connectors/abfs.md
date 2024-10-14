@@ -110,7 +110,7 @@ The following parameters are used when authenticating with Azure. Only one of `a
 | `abfs_backoff_max_duration`     | Maximum length to wait for a retry. Accepts any duration string (i.e `5s`, `1m`, etc)        |
 | `abfs_backoff_base`             | Floating-point base of the exponential to use when backing off retries                       |
 
-#### File format parameters
+## Supported file formats
 
 File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
 
@@ -176,109 +176,10 @@ datasets:
       abfs_client_secret: ${ secrets:MY_CLIENT_SECRET }
 ```
 
-### Using secrets
+## Using secrets
 
-<Tabs>
-  <TabItem value="env" label="Env">
-    Start Spice with the secrets in-line:
-    ```bash
-    SPICE_ABFS_ACCOUNT=<abfs-account> SPICE_ABFS_CONTAINER=<abfs-container> SPICE_ABFS_ACCESS_KEY=<access-key> \
-    spice run
-    ```
+There are currently three supported [secret stores](/components/secret-stores):
 
-    Or use a `.env` file
-    ```bash
-    SPICE_ABFS_ACCOUNT=<abfs-account> 
-    SPICE_ABFS_CONTAINER=<abfs-container> 
-    SPICE_ABFS_ACCESS_KEY=<access-key>
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: env
-        name: env
-
-    datasets:
-        # dummy_container will be overridden by the value in `abfs_container`
-        - from: abfs://dummy_container/my_csv.csv
-            name: prod_data
-            params:
-            abfs_account: ${ env:ABFS_ACCOUNT }
-            abfs_container: ${ env:ABFS_CONTAINER }
-            abfs_access_key: ${ env:ABFS_ACCESS_KEY }
-            file_format: csv
-    ```
-
-    Learn more about [Env Secret Store](/components/secret-stores/env).
-
-  </TabItem>
-  <TabItem value="k8s" label="Kubernetes">
-    Create a secret in Kubernetes:
-    ```bash
-    kubectl create secret generic abfs \
-      --from-literal=access_key='<access_key>'
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: kubernetes:abfs
-        name: abfs
-
-    datasets:
-        # dummy_container will be overridden by the value in `abfs_container`
-        - from: abfs://dummy_container/my_csv.csv
-            name: prod_data
-            params:
-                abfs_account: my_prod_account
-                abfs_container: my_prod_container
-                abfs_access_key: ${ abfs:access_key }
-                file_format: csv
-    ```
-
-    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
-
-  </TabItem>
-  <TabItem value="keyring" label="Keyring">
-    Add new keychain entry (macOS) with the ABFS access key:
-
-    ```bash
-    security add-generic-password -l "ABFS Access key" \
-    -a spiced -s spice_abfs_access_key \
-    -w <access_key>
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: keyring
-        name: keyring
-
-    datasets:
-        # dummy_container will be overridden by the value in `abfs_container`
-        - from: abfs://dummy_container/my_csv.csv
-            name: prod_data
-            params:
-                abfs_account: my_prod_account
-                abfs_container: my_prod_container
-                abfs_access_key: ${ keyring:spice_abfs_access_key }
-                file_format: csv
-    ```
-
-    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
-
-  </TabItem>
-</Tabs>
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
