@@ -99,7 +99,7 @@ datasets:
 
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
-          acceleration:
+        acceleration:
           enabled: true
           engine: sqlite
           primary_key: hash
