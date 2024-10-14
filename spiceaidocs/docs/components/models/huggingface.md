@@ -39,9 +39,21 @@ The `from` key follows the following regex format:
 4. **Model Name:** After a `/`, the model name (`model`).
 5. **Revision (Optional):** A colon (`:`) followed by the git-like revision identifier (`revision`).
 
+### Access Tokens
+Access tokens can be provided for Huggingface models in two ways:
+  1. In the Huggingface token cache (i.e. `~/.cache/huggingface/token`). Default.
+  1. Via model params (see below).
+
+```yaml
+models:
+  - name: llama_3.2_1B
+    from: huggingface:huggingface.co/meta-llama/Llama-3.2-1B
+    params:
+      hf_token: ${ secrets:HF_TOKEN }
+```
+
 :::warning[Limitations]
 
 - ML models currently only support ONNX file format.
-- Only ONNX and GGUF file formats are currently supported.
 
 :::
