@@ -44,4 +44,4 @@ models:
       openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
 ```
 
-For details, see [OpenAI (or Compatible) Language Models](/components/models/openai/index.md).
+For details, see [OpenAI (or Compatible) Language Models](/components/models/openai.md).
