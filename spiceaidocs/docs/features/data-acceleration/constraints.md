@@ -7,11 +7,40 @@ description: 'Learn how to add/configure constraints on local acceleration table
 
 Constraints are rules that enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality, as well as configuring the behavior for inserting data updates that violate constraints.
 
-Constraints are specified in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`.
+Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
+
+If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+
+Example Spicepod:
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash # Define a primary key on the `hash` column
+      indexes:
+        '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
+```
+
+## Column References
+
+Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+
+Examples
+
+- `number`: Reference a constraint on the `number` column
+- `(hash, timestamp)`: Reference a constraint on the `hash` and `timestamp` columns
+
+## Handling conflicts
 
 The behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
 
+:::warning
 If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+:::
 
 Example Spicepod:
 
@@ -31,15 +60,6 @@ datasets:
         hash: upsert
 ```
 
-## Column References
-
-Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
-
-Examples
-
-- `number`: Reference a constraint on the `number` column
-- `(hash, timestamp)`: Reference a constraint on the `hash` and `timestamp` columns
-
 ## Limitations
 
 - **Not supported for in-memory Arrow:** The default in-memory Arrow acceleration engine does not support constraints. Use [DuckDB](/components/data-accelerators/duckdb.md), [SQLite](/components/data-accelerators/duckdb.md), or [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine to enable constraint checking.
@@ -58,14 +78,14 @@ Examples
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
         acceleration:
-        enabled: true
-        engine: sqlite
-        primary_key: hash
-        indexes:
-        "(number, timestamp)": unique
-        on_conflict:
-        hash: upsert
-        "(number, timestamp)": upsert
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            "(number, timestamp)": unique
+          on_conflict:
+            hash: upsert
+            "(number, timestamp)": upsert
       ```
 
     :::
@@ -80,14 +100,14 @@ Examples
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
         acceleration:
-        enabled: true
-        engine: sqlite
-        primary_key: hash
-        indexes:
-        "(number, timestamp)": unique
-        on_conflict:
-        hash: drop
-        "(number, timestamp)": drop
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            "(number, timestamp)": unique
+          on_conflict:
+            hash: drop
+            "(number, timestamp)": drop
       ```
 
     :::
@@ -99,16 +119,16 @@ Examples
       datasets:
 
       - from: spice.ai/eth.recent_blocks
-      name: eth.recent_blocks
-      acceleration:
-      enabled: true
-      engine: sqlite
-      primary_key: hash
-      indexes:
-      "(number, timestamp)": unique
-      on_conflict:
-      hash: upsert
-      "(number, timestamp)": drop
+        name: eth.recent_blocks
+        acceleration:
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            "(number, timestamp)": unique
+          on_conflict:
+            hash: upsert
+            "(number, timestamp)": drop
       ```
 
     :::
@@ -148,7 +168,7 @@ Examples
           it has a UNIQUE/PRIMARY KEY constraint
           ```
 
-          This is a limitation in DuckDB.
+          This is a limitation of DuckDB.
 
         </div>
       </details>
