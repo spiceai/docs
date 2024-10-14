@@ -1,7 +1,7 @@
 ---
 title: 'Data Connectors'
 sidebar_label: 'Data Connectors'
-description: ''
+description: 'Learn how to use Data Connector to query external data.'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
@@ -11,62 +11,66 @@ Data Connectors provide connections to databases, data warehouses, and data lake
 
 Currently supported Data Connectors include:
 
-| Name            | Description   | Status | Protocol/Format                     | Refresh Modes    | Supports Inserts | Supports Documents |
-| --------------- | --------------| ------ | ----------------------------------- | ---------------- | ---------------- | ------------------ |
-| `clickhouse`    | Clickhouse    | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `databricks`    | Databricks    | Alpha  | Spark Connect <br/> S3 / Delta Lake | `full`           | ❌               | ❌                |
-| `delta_lake`    | Delta Lake    | Alpha  | Delta Lake                          | `full`           | ❌               | ❌                |
-| `dremio`        | Dremio        | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
-| `file`          | File          | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `flightsql`     | FlightSQL     | Alpha  | Arrow Flight SQL                    | `full`           | ❌               | ❌                |
-| `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `graphql`       | GraphQL       | Alpha  | GraphQL                             | `full`           | ❌               | ❌                |
-| `github`        | GitHub        | Alpha  | GraphQL, REST                       | `full`           | ❌               | ❌                |
-| `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `full`           | ❌               | ❌                |
-| `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `full`           | ❌               | ❌                |
-| `mysql`         | MySQL         | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `odbc`          | ODBC          | Alpha  | ODBC                                | `full`           | ❌               | ❌                |
-| `postgres`      | PostgreSQL    | Alpha  |                                     | `full`           | ❌               | ❌                |
-| `sharepoint`    | SharePoint    | Alpha  |                                     | `full`           | ❌               | ✅                |
-| `snowflake`     | Snowflake     | Alpha  | Arrow                               | `full`           | ❌               | ❌                |
-| `spiceai`       | Spice.ai      | Alpha  | Arrow Flight                        | `append`, `full` | ✅               | ❌                |
-| `s3`            | S3            | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `abfs`            | Azure BlobFS            | Alpha  | Parquet, CSV                        | `full`           | ❌               | ✅                |
-| `sharepoint`    | SharePoint    | Alpha  |                                     | `full`           | ❌               | ✅                |
-| `spark`         | Spark         | Alpha  | Spark Connect                       | `full`           | ❌               | ❌                |
+| Name            | Description   | Status | Protocol/Format                     | Refresh Modes               | Supports [Ingestion](https://docs.spiceai.org/features/data-ingestion) | Supports Documents |
+| --------------- | ------------- | ------ | ----------------------------------- | --------------------------- | ------------------ | ------------------ |
+| `abfs`          | Azure BlobFS  | Alpha  | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
+| `clickhouse`    | Clickhouse    | Alpha  |                                     | `append`, `full`            | ❌                 | ❌                 |
+| `databricks`    | Databricks    | Beta   | Spark Connect <br/> S3 / Delta Lake | `append`, `full`            | Roadmap            | ❌                 |
+| `debezium`      | Debezium      | Alpha  | CDC, Kafka                          | `append`, `full`, `changes` | ❌                 | ❌                 |
+| `delta_lake`    | Delta Lake    | Beta   | Delta Lake                          | `append`, `full`            | Roadmap            | ❌                 |
+| `dremio`        | Dremio        | Alpha  | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
+| `file`          | File          | Alpha   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
+| `flightsql`     | FlightSQL     | Beta   | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
+| `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ✅                 |
+| `github`        | GitHub        | Alpha   | GraphQL, REST                       | `append`, `full`            | ❌                 | ❌                 |
+| `graphql`       | GraphQL       | Alpha  | GraphQL                             | `append`, `full`            | ❌                 | ❌                 |
+| `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ❌                 |
+| `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                 | ❌                 |
+| `mysql`         | MySQL         | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
+| `odbc`          | ODBC          | Beta  |                                     | `append`, `full`            | ❌                 | ❌                 |
+| `postgres`      | PostgreSQL    | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
+| `s3`            | S3            | Beta   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
+| `sharepoint`    | SharePoint    | Alpha  |                                     | `append`, `full`            | ❌                 | ✅                 |
+| `snowflake`     | Snowflake     | Alpha  | Arrow                               | `append`, `full`            | Roadmap            | ❌                 |
+| `spiceai`       | Spice.ai      | Beta   | Arrow Flight                        | `append`, `full`            | ✅                 | ❌                 |
+| `spark`         | Spark         | Alpha  | Spark Connect                       | `append`, `full`            | ❌                 | ❌                 |
 
 ## Object Store File Formats
+
 For data connectors that are object store compatible, if a folder is provided, the file format must be specified with `params.file_format`.
 
 If a file is provided, the file format will be inferred, and `params.file_format` is unnecessary.
 
 File formats currently supported are:
 
-| Name                                          | Parameter               | Supported | Is Document Format |
-| --------------------------------------------- | ----------------------- | --------- | ------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet`  | ✅        | ❌                 |
-| [CSV](/reference/file_format.md#csv)          | `file_format: csv`      | ✅        | ❌                 |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg`  | Roadmap   | ❌                 |
-| JSON                                          | `file_format: json`     | Roadmap   | ❌                 |
-| Microsoft Excel                               | `file_format: xlsx`     | Roadmap   | ❌                 |
-| Markdown                                      | `file_format: md`       | ✅        | ✅                 |
-| Text                                          | `file_format: txt`      | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`      | Alpha  | ✅                 |
-| Microsoft Word                                | `file_format: docx`     | Alpha  | ✅                 |
+| Name                                          | Parameter              | Supported | Is Document Format |
+| --------------------------------------------- | ---------------------- | --------- | ------------------ |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
+| [CSV](/reference/file_format.md#csv)          | `file_format: csv`     | ✅        | ❌                 |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
+| Markdown                                      | `file_format: md`      | ✅        | ✅                 |
+| Text                                          | `file_format: txt`     | ✅        | ✅                 |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                 |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                 |
 
 File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](/reference/file_format)
 
 If a format is a document format, each file will be treated as a document, as per [document support](#document-support) below.
 
 :::warning[Note]
-Document formats in Alpha (e.g. pdf, docx) may not parse all structure or text from the underlying documents correctly. 
+Document formats in Alpha (e.g. pdf, docx) may not parse all structure or text from the underlying documents correctly.
 :::
 
 ### Document Support
+
 If a Data Connector supports documents, when the appropriate file format is specified (see [above](#object-store-file-formats)), each file will be treated as a row in the table, with the contents of the file within the `content` column. Additional columns will exist, dependent on the data connector.
 
 #### Example
+
 Consider a local filesystem
+
 ```shell
 >>> ls -la
 total 232
@@ -78,14 +82,17 @@ drwxr-sr-x@ 18 jeadie  staff    576 30 Jul 13:12 ..
 ```
 
 And the spicepod
+
 ```yaml
 datasets:
-    - name: my_documents
-      from: file:docs/decisions/
-      params:
-        file_format: md
+  - name: my_documents
+    from: file:docs/decisions/
+    params:
+      file_format: md
 ```
+
 A Document table will be created.
+
 ```shell
 >>> SELECT * FROM my_documents LIMIT 3
 +----------------------------------------------------+--------------------------------------------------+
