@@ -119,3 +119,22 @@ Time: 0.008562625 seconds. 10 rows.
 ```
 
 You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.
+
+### Additional Example
+
+```bash
+# Query to display the average gas used in recent Ethereum blocks
+SELECT AVG(gas_used) FROM eth_recent_blocks;
+```
+
+The output displays the average gas used:
+
+```bash
++------------------+
+| avg              |
++------------------+
+| 15000000.1234567 |
++------------------+
+
+Time: 0.005678123 seconds. 1 row.
+```

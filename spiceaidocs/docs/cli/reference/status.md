@@ -28,3 +28,15 @@ flight        127.0.0.1:50051 Ready
 metrics       N/A             Disabled
 opentelemetry 127.0.0.1:50052 Ready
 ```
+
+### Additional Example
+
+```shell
+>>> spice status --tls-root-certificate-file /path/to/cert.pem
+
+NAME          ENDPOINT        STATUS
+http          127.0.0.1:8090  Ready
+flight        127.0.0.1:50051 Ready
+metrics       N/A             Disabled
+opentelemetry 127.0.0.1:50052 Ready
+```

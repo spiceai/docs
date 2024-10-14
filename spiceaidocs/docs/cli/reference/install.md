@@ -21,3 +21,9 @@ spice install [flags]
 ```shell 
 spice install
 ```
+
+### Additional Example
+
+```shell
+spice install --version latest
+```

@@ -37,3 +37,22 @@ sql> show tables
 | datafusion    | information_schema | df_settings   | VIEW       |
 +---------------+--------------------+---------------+------------+
 ```
+
+### Additional Example
+
+```shell
+$ spice sql --tls-root-certificate-file /path/to/cert.pem
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+
+show tables;  -- list available tables
+sql> show tables
++---------------+--------------------+---------------+------------+
+| table_catalog | table_schema       | table_name    | table_type |
++---------------+--------------------+---------------+------------+
+| datafusion    | public             | tmp_view_test | VIEW       |
+| datafusion    | information_schema | tables        | VIEW       |
+| datafusion    | information_schema | views         | VIEW       |
+| datafusion    | information_schema | columns       | VIEW       |
+| datafusion    | information_schema | df_settings   | VIEW       |
++---------------+--------------------+---------------+------------+
+```

@@ -149,6 +149,34 @@ Output:
 Time: 0.045150667 seconds. 10 rows.
 ```
 
+### Additional Example
+
+```shell
+# Query to display the shortest taxi trips
+sql> SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance ASC LIMIT 10;
+```
+
+Output:
+
+```
++---------------+--------------+
+| trip_distance | total_amount |
++---------------+--------------+
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
+| 0.0           | 2.5          |
++---------------+--------------+
+
+Time: 0.045150667 seconds. 10 rows.
+```
+
 ## Next Steps
 
 import DocCardList from '@theme/DocCardList';

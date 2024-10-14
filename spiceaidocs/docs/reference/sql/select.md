@@ -268,3 +268,9 @@ FROM table;
 SELECT * EXCLUDE(age, person)
 FROM table;
 ```
+
+### Additional Example
+
+```sql
+SELECT name, age FROM employees WHERE age > 30 ORDER BY age DESC;
+```

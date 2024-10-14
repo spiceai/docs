@@ -21,3 +21,9 @@ spice upgrade [flags]
 ```shell
 spice upgrade
 ```
+
+### Additional Example
+
+```shell
+spice upgrade --version latest
+```

@@ -47,6 +47,31 @@ secrets:
     name: env
 ```
 
+### Additional Example
+
+```yaml
+version: v1beta1
+kind: Spicepod
+name: another_spicepod
+
+datasets:
+  - from: spice.ai/spiceai/sample
+    name: sample_ds
+    acceleration:
+      enabled: true
+      refresh_mode: full
+
+models:
+  - from: file://another_model_path.onnx
+    name: another_model
+    datasets:
+      - sample_ds
+
+secrets:
+  - from: env
+    name: env
+```
+
 ## Key Components
 
 ### Datasets
