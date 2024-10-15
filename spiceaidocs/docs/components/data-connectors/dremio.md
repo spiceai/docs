@@ -7,7 +7,9 @@ description: 'Dremio Data Connector Documentation'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-[Dremio](https://www.dremio.com/) is a data lake engine that enables high-performance SQL queries directly on data lake storage. It provides a unified interface for querying and analyzing data from various sources without the need for complex data movement or transformation. This connector enables using Dremio as a Data source for federated SQL queries.
+[Dremio](https://www.dremio.com/) is a data lake engine that enables high-performance SQL queries directly on data lake storage. It provides a unified interface for querying and analyzing data from various sources without the need for complex data movement or transformation. 
+
+This connector enables using Dremio as a Data source for federated SQL queries.
 
 ```yaml
 - from: dremio:datasets.dremio_dataset
