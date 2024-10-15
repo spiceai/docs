@@ -25,13 +25,13 @@ datasets:
 
 The `from` field for the GitHub connector takes the form `github:host/owner/repo/type/ref` where:
 
-| Parameter Name | Description                                                                       |
-| -------------- | --------------------------------------------------------------------------------- |
-| `host`         | This is the base host for the GitHub instance, usually `github.com`               |
-| `owner`        | The name of the owner of the repository                                           |
-| `repo`         | The repository name                                                               |
+| Parameter Name | Description                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `host`         | This is the base host for the GitHub instance, usually `github.com`                             |
+| `owner`        | The name of the owner of the repository                                                         |
+| `repo`         | The repository name                                                                             |
 | `type`         | The type of data to fetch. Can be one of: `files`, `issues`, `pulls`, `commits` or `stargazers` |
-| `ref`          | Commit SHA to use as the version of the files to read from. Required when `type` set to `files`            |
+| `ref`          | Commit SHA to use as the version of the files to read from. Required when `type` set to `files` |
 
 ### `name`
 
@@ -62,30 +62,30 @@ SELECT COUNT(*) FROM cool_dataset;
 
 The GitHub data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token from a secret store, e.g. `${secrets:GITHUB_TOKEN}`.
 
-| Parameter Name    | Description                                                                                                                                                                                                 |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `github_token`    | Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). |
+| Parameter Name      | Description                                                                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `github_token`      | Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).                        |
 | `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
-| `owner`           | Required. Specifies the owner of the GitHub repository.                                                                                                                                                      |
-| `repo`            | Required. Specifies the name of the GitHub repository.                                                                                                                                                       |
+| `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
+| `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
 
 ## Filter Push Down
 
 GitHub queries support a `github_query_mode` parameter
 
-| Type | Description                                                                                   |
-| -------------- | --------------------------------------------------------------------------------------------- |
-| Issues (`issues`)        | Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.    |
-| Pull Requests (`pulls`)  | Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.    |
-| Commits (`commits`) | Only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `committed_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`. |
-| Stargazers (`stargazers`) | Only supports `auto` mode. Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE starred_at > '2024-09-24'`. |
+| Type                      | Description                                                                                                                                                                                                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issues (`issues`)         | Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.                                                                                                                                                                                                                                |
+| Pull Requests (`pulls`)   | Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.                                                                                                                                                                                                                                |
+| Commits (`commits`)       | Only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `committed_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`. |
+| Stargazers (`stargazers`) | Only supports `auto` mode. Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE starred_at > '2024-09-24'`.                                                                                                |
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
-| Column Names                          | Match Support                                                                                                      |
-|---------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| `author`, `state`                     | Supports exact matches, or NOT matches. For example, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.       |
-| `body`, `title`                       | Supports exact matches, or LIKE matches. For example, `WHERE body LIKE '%duckdb%'`.                                 |
+| Column Names                                         | Match Support                                                                                                                                                                                         |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `author`, `state`                                    | Supports exact matches, or NOT matches. For example, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.                                                                                         |
+| `body`, `title`                                      | Supports exact matches, or LIKE matches. For example, `WHERE body LIKE '%duckdb%'`.                                                                                                                   |
 | `updated_at`, `created_at`, `merged_at`, `closed_at` | Supports exact matches, or greater/less than matches with dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. For example, `WHERE created_at > '2024-09-24'`. |
 
 All other filters are supported when `github_query_mode` is set to `search`, but cannot be pushed down to the GitHub API for improved performance.
@@ -121,14 +121,14 @@ datasets:
 
 
 The following parameter must be included in the `from` field:
-| Path Parameter Name | Description                                                                 |
-| -------------- | --------------------------------------------------------------------------- |
-| `ref`          | Required. Specifies the GitHub branch or tag to fetch files from.           |
+| Path Parameter Name | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| `ref`               | Required. Specifies the GitHub branch or tag to fetch files from. |
 
 The following parameter is included in the `params` field:
 
-| Parameter Name | Description |
-| -------------- | ----------- |
+| Parameter Name | Description                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `include`      | Optional. Specifies a pattern to include specific files. Supports glob patterns. If not specified, all files are included by default. |
 
 #### Schema
@@ -158,7 +158,7 @@ datasets:
 ```
 
 ```console
-sql> select * from spiceai.files
+sql> select * from spiceai.files;
 +-------------+-------------+------+------------------------------------------+--------+-------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+-------------+
 | name        | path        | size | sha                                      | mode   | url                                                                                             | download_url                                                               | content     |
 +-------------+-------------+------+------------------------------------------+--------+-------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------+-------------+
@@ -219,7 +219,7 @@ datasets:
 ```
 
 ```console
-sql> select title, state, labels from spiceai.issues where title like '%duckdb%'
+sql> select title, state, labels from spiceai.issues where title like '%duckdb%';
 +-----------------------------------------------------------------------------------------------------------+--------+----------------------+
 | title                                                                                                     | state  | labels               |
 +-----------------------------------------------------------------------------------------------------------+--------+----------------------+
@@ -286,7 +286,7 @@ datasets:
 ```
 
 ```console
-sql> select title, url, state from spiceai.pulls where title like '%GitHub connector%'
+sql> select title, url, state from spiceai.pulls where title like '%GitHub connector%';
 +---------------------------------------------------------------------+----------------------------------------------+--------+
 | title                                                               | url                                          | state  |
 +---------------------------------------------------------------------+----------------------------------------------+--------+
@@ -341,7 +341,7 @@ datasets:
 ```
 
 ```console
-sql> select sha, message_head_line from spiceai.commits limit 10
+sql> select sha, message_head_line from spiceai.commits limit 10;
 +------------------------------------------+------------------------------------------------------------------------+
 | sha                                      | message_head_line                                                      |
 +------------------------------------------+------------------------------------------------------------------------+
@@ -404,7 +404,7 @@ datasets:
 ```
 
 ```console
-sql> select starred_at, login from spiceai.stargazers order by starred_at DESC limit 10
+sql> select starred_at, login from spiceai.stargazers order by starred_at DESC limit 10;
 +----------------------+----------------------+
 | starred_at           | login                |
 +----------------------+----------------------+
