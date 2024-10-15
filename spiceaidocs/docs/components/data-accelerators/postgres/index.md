@@ -80,3 +80,33 @@ datasets:
 - The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
 
 :::
+
+## Arrow to PostgreSQL Type Mapping
+
+The table below lists the supported [Apache Arrow data types](https://arrow.apache.org/rust/arrow/datatypes/enum.DataType.html) and their mappings to [PostgreSQL types](https://www.postgresql.org/docs/current/datatype.html) when stored
+
+| Arrow Type                     | sea_query ColumnType       | PostgreSQL Type              |
+| ------------------------------ | -------------------------- | ---------------------------- |
+| Int8                           | TinyInteger                | smallint                     |
+| Int16                          | SmallInteger               | smallint                     |
+| Int32                          | Integer                    | integer                      |
+| Int64                          | BigInteger                 | bigint                       |
+| UInt8                          | TinyUnsigned               | smallint                     |
+| UInt16                         | SmallUnsigned              | smallint                     |
+| UInt32                         | Unsigned                   | bigint                       |
+| UInt64                         | BigUnsigned                | numeric                      |
+| Decimal128 / Decimal256        | Decimal                    | decimal                      |
+| Float32                        | Float                      | real                         |
+| Float64                        | Double                     | double precision             |
+| Utf8 / LargeUtf8               | Text                       | text                         |
+| Boolean                        | Boolean                    | bool                         |
+| Binary / LargeBinary           | VarBinary                  | bytea                        |
+| FixedSizeBinary                | Binary                     | bytea                        |
+| Timestamp (no Timezone)        | Timestamp                  | timestamp without time zone  |
+| Timestamp (with Timezone)      | TimestampWithTimeZone      | timestamp with time zone     |
+| Date32 / Date64                | Date                       | date                         |
+| Time32 / Time64                | Time                       | time                         |
+| Interval                       | Interval                   | interval                     |
+| Duration                       | BigInteger                 | bigint                       |
+| List / LargeList / FixedSizeList | Array                    | array                        |
+| Struct                         | N/A                        | Composite (Custom type)      |
