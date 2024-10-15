@@ -54,20 +54,20 @@ SELECT COUNT(*) FROM cool_dataset;
 
 Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
-| Parameter Name | Description |
-|----------------|-------------|
+| Parameter Name   | Description                                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
 | `client_timeout` | Optional. Specifies timeout for object store operations. Default value is `30s`. E.g. `client_timeout: 60s` |
 
 ## Delta Lake object store parameters
 
 ### AWS S3
 
-| Parameter Name                    | Description                                                                 |
-|-----------------------------------|-----------------------------------------------------------------------------|
-| `delta_lake_aws_region`           | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.          |
-| `delta_lake_aws_access_key_id`    | The access key ID for the S3 object store.                                   |
-| `delta_lake_aws_secret_access_key`| The secret access key for the S3 object store.                               |
-| `delta_lake_aws_endpoint`         | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
+| Parameter Name                     | Description                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `delta_lake_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                |
+| `delta_lake_aws_access_key_id`     | The access key ID for the S3 object store.                                         |
+| `delta_lake_aws_secret_access_key` | The secret access key for the S3 object store.                                     |
+| `delta_lake_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
 
 ### Azure Blob
 
@@ -79,20 +79,20 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 - `delta_lake_azure_storage_sas_key`.
 :::
 
-| Parameter Name                         | Description                                                                 |
-|----------------------------------------|-----------------------------------------------------------------------------|
-| `delta_lake_azure_storage_account_name`| The Azure Storage account name.                                             |
-| `delta_lake_azure_storage_account_key` | The Azure Storage master key for accessing the storage account.             |
-| `delta_lake_azure_storage_client_id`   | The service principal client id for accessing the storage account.          |
-| `delta_lake_azure_storage_client_secret`| The service principal client secret for accessing the storage account.      |
-| `delta_lake_azure_storage_sas_key`     | The shared access signature key for accessing the storage account.          |
-| `delta_lake_azure_storage_endpoint`    | Optional. The endpoint for the Azure Blob storage account.                  |
+| Parameter Name                           | Description                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `delta_lake_azure_storage_account_name`  | The Azure Storage account name.                                        |
+| `delta_lake_azure_storage_account_key`   | The Azure Storage master key for accessing the storage account.        |
+| `delta_lake_azure_storage_client_id`     | The service principal client id for accessing the storage account.     |
+| `delta_lake_azure_storage_client_secret` | The service principal client secret for accessing the storage account. |
+| `delta_lake_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
+| `delta_lake_azure_storage_endpoint`      | Optional. The endpoint for the Azure Blob storage account.             |
 
 ### Google Storage (GCS)
 
-| Parameter Name               | Description                                                      |
-|------------------------------|------------------------------------------------------------------|
-| `google_service_account`     | Filesystem path to the Google service account JSON key file.     |
+| Parameter Name           | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 
