@@ -4,8 +4,9 @@ sidebar_label: 'GraphQL Data Connector'
 description: 'GraphQL Data Connector Documentation'
 ---
 
+[GraphQL](https://graphql.org/) is a query language for APIs and a runtime for executing those queries by allowing clients to request exactly the data they need and nothing more.
 
-The [GraphQL](https://graphql.org/) Data Connector enables federated SQL queries on any GraphQL endpoint by specifying `graphql` as the selector in the `from` value for the dataset.
+The GraphQL Data Connector enables federated SQL queries on any GraphQL endpoint.
 
 ```yaml
 datasets:
@@ -33,58 +34,47 @@ datasets:
 
 ## Configuration
 
+### `from`
+
+The `from` field uses the form `graphsql:endpoint` where `endpoint` is your GraphQL endpoint, such as `https://api.github.com/graphql`.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+```yaml
+datasets:
+  - from: graphql:https://api.github.com/graphql
+    name: cool_dataset
+    params:
+      ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
 The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
 
-- `unnest_depth`: Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.
-- `graphql_auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication.
-- `graphql_auth_user`: The username to use for basic auth. E.g. `graphql_auth_user: my_user`
-- `graphql_auth_pass`: The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`
-- `graphql_query`: The GraphQL query to execute. E.g.
-
-```yaml
-query: |
-  {
-    some {
-      nodes {
-        field1
-        field2
-      }
-    }
-  }
-```
-
-- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred.
-
-### Examples
-
-Example using the GitHub GraphQL API and Bearer Auth. The following will use `json_pointer` to retrieve all of the nodes in starredRepositories:
-
-```yaml
-from: graphql:https://api.github.com/graphql
-name: stars
-params:
-  graphql_auth_token: ${env:GITHUB_TOKEN}
-  graphql_auth_user: ${env:GRAPHQL_USER}                                                                                            ...
-  graphql_auth_pass: ${env:GRAPHQL_PASS}
-  json_pointer: /data/viewer/starredRepositories/nodes
-  graphql_query: |
-    {
-      viewer {
-        starredRepositories {
-          nodes {
-            name
-            stargazerCount
-            languages (first: 10) {
-              nodes {
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-
-```
+| Parameter Name       | Description                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unnest_depth`       | Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.                                                                                     |
+| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication.                                                                                   |
+| `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           |
+| `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   |
+| `graphql_query`      | The GraphQL query to execute. See the [examples](#examples) below                                                                                                               |
+| `json_pointer`       | The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred. |
 
 ## Pagination
 
@@ -93,40 +83,6 @@ The GraphQL Data Connector supports automatic pagination of the response for que
 The `graphql_query` must include the `pageInfo` field as per [spec](https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo). The connector will parse the `graphql_query`, and when `pageInfo` is present, will retrieve data until pagination completes.
 
 The query must have the correct pagination arguments in the associated paginated field.
-
-
-### Example
-**Forward Pagination:**
-```graphql
-{
-  something_paginated(first: 100) {
-    nodes {
-      foo
-      bar
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-  }
-}
-```
-
-**Backward Pagination:**
-```graphql
-{
-  something_paginated(last: 100) {
-    nodes {
-      foo
-      bar
-    }
-    pageInfo {
-      startCursor
-      hasPreviousPage
-    }
-  }
-}
-```
 
 ## Working with JSON Data
 
@@ -154,8 +110,78 @@ sql> select node['login'] as login, node['name'] as name from stargazers limit 5
 
 ### Piping array into rows
 
-You can use Datafusion `unnest` function to pipe values from array into rows.
-We'll be using [countries GraphQL api](https://countries.trevorblades.com) as an example.
+You can use Datafusion `unnest` function to pipe values from array into rows. 
+
+## Examples
+
+### Simple query
+
+Example using the GitHub GraphQL API and Bearer Auth. The following will use `json_pointer` to retrieve all of the nodes in starredRepositories:
+
+```yaml
+from: graphql:https://api.github.com/graphql
+name: stars
+params:
+  graphql_auth_token: ${env:GITHUB_TOKEN}
+  graphql_auth_user: ${env:GRAPHQL_USER}
+  graphql_auth_pass: ${env:GRAPHQL_PASS}
+  json_pointer: /data/viewer/starredRepositories/nodes
+  graphql_query: |
+    {
+      viewer {
+        starredRepositories {
+          nodes {
+            name
+            stargazerCount
+            languages (first: 10) {
+              nodes {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+
+```
+
+### Pagination
+
+#### Forward Pagination
+```graphql
+{
+  something_paginated(first: 100) {
+    nodes {
+      foo
+      bar
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+```
+
+#### Backward Pagination
+```graphql
+{
+  something_paginated(last: 100) {
+    nodes {
+      foo
+      bar
+    }
+    pageInfo {
+      startCursor
+      hasPreviousPage
+    }
+  }
+}
+```
+
+### Unnesting
+
+Using [countries GraphQL API](https://countries.trevorblades.com) as an example:
 
 ```yaml
 from: graphql:https://countries.trevorblades.com
@@ -172,15 +198,9 @@ params:
         }
       }
     }
-
-description: countries
-acceleration:
-  enabled: true
-  refresh_mode: full
-  refresh_check_interval: 30m
 ```
 
-Example query:
+Then `unnest`-ing in Spice:
 
 ```bash
 sql> select continent, country['name'] as country, country['capital'] as capital
@@ -199,7 +219,7 @@ where continent = 'North America' limit 5;
 
 ### Unnesting object properties
 
-You can also use the `unnest_depth` parameter to control automatic unnesting of objects from GraphQL responses.
+The `unnest_depth` parameter can be used to control automatic unnesting of objects from GraphQL responses.
 
 This examples uses the GitHub stargazers endpoint:
 
@@ -306,3 +326,11 @@ params:
       }
     }
 ```
+
+## Using secrets
+
+There are currently three supported [secret stores](/components/secret-stores/index.md):
+
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
