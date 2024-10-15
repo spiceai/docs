@@ -7,9 +7,9 @@ description: 'Azure BlobFS Data Connector Documentation'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Azure BlobFS (ABFS) Data Connector enables federated SQL query on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
+The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
 
-If a folder path is provided, all child files will be loaded.
+When a folder path is provided, all the contained files will be loaded.
 
 File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
 
@@ -34,9 +34,9 @@ The ABFS-compatible URI to a folder or object in one of two forms:
 
 :::note
 
-A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets use a dummy account/container name and the values will be replaced with the values contained by the secrets at runtime.
+A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets, a dummy account/container name should be used. The values will be replaced at runtime with the values contained in the secrets.
 
-See the example [below](#using-secrets-for-container-and-account-name).
+See the example [below](#using-secrets).
 
 :::
 
@@ -44,10 +44,17 @@ See the example [below](#using-secrets-for-container-and-account-name).
 
 The dataset name. This will be used as the table name within Spice.
 
-Example: `name: cool_dataset`
+Example:
+```yaml
+datasets:
+  - from: abfs://foocontainer/taxi_sample.csv
+    name: cool_dataset
+    params:
+      ...
+```
 
 ```sql
-SELECT COUNT(*) FROM cool_dataset
+SELECT COUNT(*) FROM cool_dataset;
 ```
 
 ```shell
@@ -66,7 +73,7 @@ SELECT COUNT(*) FROM cool_dataset
 | --------------------------- | --------------------------------------------------------------------------------------- |
 | `abfs_account`              | Azure storage account name                                                              |
 | `abfs_container_name`       | Azure storage container name                                                            |
-| `abfs_sas_string`           | SAS Token to use for authorization                                                      |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                            |
 | `abfs_endpoint`             | Storage endpoint to connect to. Defaults to `https://{account}.blob.core.windows.net`   |
 | `abfs_use_emulator`         | Connect to a locally-running Azure Storage emulator. Valid values are `true` or `false` |
 | `abfs_allow_http`           | Allow insecure HTTP connections                                                         |
@@ -133,6 +140,17 @@ datasets:
       file_format: csv
 ```
 
+### Connecting to the Storage Emulator
+
+```yaml
+datasets:
+  - from: abfs://test_container/test_csv.csv
+    name: test_data
+    params:
+      abfs_use_emulator: true
+      file_format: csv
+```
+
 ### Using secrets for container and account name
 
 ```yaml
@@ -143,17 +161,6 @@ datasets:
     params:
       abfs_account: ${ secrets:PROD_ACCOUNT }
       abfs_container: ${ secrets:PROD_CONTAINER }
-      file_format: csv
-```
-
-### Connecting to the Storage Emulator
-
-```yaml
-datasets:
-  - from: abfs://test_container/test_csv.csv
-    name: test_data
-    params:
-      abfs_use_emulator: true
       file_format: csv
 ```
 
@@ -168,3 +175,110 @@ datasets:
       abfs_client_id: ${ secrets:MY_CLIENT_ID }
       abfs_client_secret: ${ secrets:MY_CLIENT_SECRET }
 ```
+
+### Using secrets
+
+<Tabs>
+  <TabItem value="env" label="Env">
+    Start Spice with the secrets in-line:
+    ```bash
+    SPICE_ABFS_ACCOUNT=<abfs-account> SPICE_ABFS_CONTAINER=<abfs-container> SPICE_ABFS_ACCESS_KEY=<access-key> \
+    spice run
+    ```
+
+    Or use a `.env` file
+    ```bash
+    SPICE_ABFS_ACCOUNT=<abfs-account> 
+    SPICE_ABFS_CONTAINER=<abfs-container> 
+    SPICE_ABFS_ACCESS_KEY=<access-key>
+    ```
+
+    `spicepod.yaml`
+    ```yaml
+    version: v1beta1
+    kind: Spicepod
+    name: spice-app
+
+    secrets:
+      - from: env
+        name: env
+
+    datasets:
+        # dummy_container will be overridden by the value in `abfs_container`
+        - from: abfs://dummy_container/my_csv.csv
+            name: prod_data
+            params:
+            abfs_account: ${ env:ABFS_ACCOUNT }
+            abfs_container: ${ env:ABFS_CONTAINER }
+            abfs_access_key: ${ env:ABFS_ACCESS_KEY }
+            file_format: csv
+    ```
+
+    Learn more about [Env Secret Store](/components/secret-stores/env).
+
+  </TabItem>
+  <TabItem value="k8s" label="Kubernetes">
+    Create a secret in Kubernetes:
+    ```bash
+    kubectl create secret generic abfs \
+      --from-literal=access_key='<access_key>'
+    ```
+
+    `spicepod.yaml`
+    ```yaml
+    version: v1beta1
+    kind: Spicepod
+    name: spice-app
+
+    secrets:
+      - from: kubernetes:abfs
+        name: abfs
+
+    datasets:
+        # dummy_container will be overridden by the value in `abfs_container`
+        - from: abfs://dummy_container/my_csv.csv
+            name: prod_data
+            params:
+                abfs_account: my_prod_account
+                abfs_container: my_prod_container
+                abfs_access_key: ${ abfs:access_key }
+                file_format: csv
+    ```
+
+    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
+
+  </TabItem>
+  <TabItem value="keyring" label="Keyring">
+    Add new keychain entry (macOS) with the ABFS access key:
+
+    ```bash
+    security add-generic-password -l "ABFS Access key" \
+    -a spiced -s spice_abfs_access_key \
+    -w <access_key>
+    ```
+
+    `spicepod.yaml`
+    ```yaml
+    version: v1beta1
+    kind: Spicepod
+    name: spice-app
+
+    secrets:
+      - from: keyring
+        name: keyring
+
+    datasets:
+        # dummy_container will be overridden by the value in `abfs_container`
+        - from: abfs://dummy_container/my_csv.csv
+            name: prod_data
+            params:
+                abfs_account: my_prod_account
+                abfs_container: my_prod_container
+                abfs_access_key: ${ keyring:spice_abfs_access_key }
+                file_format: csv
+    ```
+
+    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
+
+  </TabItem>
+</Tabs>
