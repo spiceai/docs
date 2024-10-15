@@ -4,14 +4,7 @@ sidebar_label: 'File Data Connector'
 description: 'File Data Connector Documentation'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 The File Data Connector enables federated SQL queries on files stored by locally accessible filesystems. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
-
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
-
-Example `spicepod.yml`
 
 ```yaml
 datasets:
@@ -19,12 +12,73 @@ datasets:
     name: customer
     params:
       file_format: parquet
+```
 
-  - from: file://path/to/orders.csv
-    name: orders
+## Configuration
+
+### `from`
+
+The `from` field for the File connector takes the form `file://path` where `path` is the path to the file to read from. See the [examples](#examples) below for examples of relative and absolute paths
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+```yaml
+datasets:
+  - from: file://path/to/customer.parquet
+    name: cool_dataset
     params:
-      file_format: csv
-      csv_has_header: false
+      ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
+The only `params` available for the `file` connector are related to the file type that you're reading. The supported parameters are described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats). 
+
+## Examples
+
+### Absolute path
+
+In this example, `path` is an absolute path to the file on the filesystem.
+
+```yaml
+datasets:
+  - from: file://path/to/customer.parquet
+    name: customer
+    params:
+      file_format: parquet
+```
+
+### Relative path
+
+In this example, the path is relative to the directory where your `spicepod.yaml` is located.
+
+```bash
+├── foo
+│   └── yellow_tripdata_2024-01.parquet
+└── spicepod.yaml
+```
+
+```yaml
+datasets:
+  - from: file:foo/yellow_tripdata_2024-01.parquet
+    name: trip_data
+    params:
+      file_format: parquet
 ```
 
 ## Trigger data refresh on file change
