@@ -28,26 +28,59 @@ Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. S
 
 ## Configuration
 
-### Parameters
+### `from`
 
-- `debezium_transport`: Optional. The message broker transport to use. The default is `kafka`. Possible values:
-  - `kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.
-- `debezium_message_format`: Optional. The message format to use. The default is `json`. Possible values:
-  - `json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `arvo`.
-- `kafka_bootstrap_servers`: Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`.
+The `from` field takes the form of `debezium:kafka_topic` where `kafka_topic` is the name of the Kafka topic where Debezium is notifying consumers about any upstream changes. In the example above it would listen to the `my_kafka_topic_with_debeziu_changes` topic.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+```yaml
+datasets:
+  - from: debezium:my_kafka_topic_with_debezium_changes
+    name: cool_dataset
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
+| Parameter Name            | Description                                                                                                                                                                                                                      |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values: <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>              |
+| `debezium_message_format` | Optional. The message format to use. The default is `json`. Possible values: <ul><li>`json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `avro`.</li></ul>         |
+| `kafka_bootstrap_servers` | Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
 
 ### Acceleration Settings
 
-Using the Debezium connector requires acceleration to be enabled. The following settings are required:
+Using the Debezium connector **requires** acceleration to be enabled. The following settings are required:
 
-- `enabled`: Required. Must be set to `true` to enable acceleration.
-- `engine`: Required. The acceleration engine to use. Possible valid values:
-  - `duckdb`: Use [DuckDB](/components/data-accelerators/duckdb.md) as the acceleration engine.
-  - `sqlite`: Use [SQLite](/components/data-accelerators/sqlite.md) as the acceleration engine.
-  - `postgres`: Use [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine.
-- `refresh_mode`: Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.
-- `mode`: Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+| Parameter Name | Description |
+|----------------|-------------|
+| `enabled` | Required. Must be set to `true` to enable acceleration. |
+| `engine` | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](/components/data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](/components/data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine.</li></ul> |
+| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error. |
+| `mode` | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset. |
 
 ### Example
 
 See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
+
+## Using secrets
+
+There are currently three supported [secret stores](/components/secret-stores/index.md):
+
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
