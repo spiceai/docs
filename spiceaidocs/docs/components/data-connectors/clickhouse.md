@@ -14,6 +14,34 @@ datasets:
 
 ## Configuration
 
+### `from`
+
+The `from` field for the Clickhouse connector takes the form of `from:path_to_my_dataset` where `path_to_my_dataset` is the path to the Dataset within Clickhouse. In the example above it would be `path.to.my_dataset`.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+```yaml
+datasets:
+  - from: clickhouse:path.to.my_dataset
+    name: cool_dataset
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
 The Clickhouse data connector can be configured by providing the following `params`:
 
 | Parameter Name                 | Definition                                                                                                                                                                                                                                                                                                              |
@@ -24,10 +52,8 @@ The Clickhouse data connector can be configured by providing the following `para
 | `clickhouse_db`                | The name of the database to connect to.                                                                                                                                                                                                                                                                                 |
 | `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                           |
 | `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                           |
-| `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br> - `true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.<br> - `false`: This mode will not attempt to use an SSL connection, even if the server supports it. |
+| `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                             |
-
-Configuration `params` are provided in the top level `dataset` for a dataset source and federated SQL query.
 
 ## Examples
 
