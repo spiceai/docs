@@ -56,22 +56,28 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-| Parameter Name            | Description                                                                                                                                                                                                                      |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values: <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>              |
-| `debezium_message_format` | Optional. The message format to use. The default is `json`. Possible values: <ul><li>`json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `avro`.</li></ul>         |
+| Parameter Name            | Description                                                                                                                                                                                                                                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values: <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>                                                                                                        |
+| `debezium_message_format` | Optional. The message format to use. The default is `json`. Possible values: <ul><li>`json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `avro`.</li></ul>                                                                                                  |
 | `kafka_bootstrap_servers` | Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
 
 ### Acceleration Settings
 
-Using the Debezium connector **requires** acceleration to be enabled. The following settings are required:
+:::warning
 
-| Parameter Name | Description |
-|----------------|-------------|
-| `enabled` | Required. Must be set to `true` to enable acceleration. |
-| `engine` | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](/components/data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](/components/data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine.</li></ul> |
-| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error. |
-| `mode` | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset. |
+Using the Debezium connector **requires** [acceleration](/components/data-accelerators/index.md) to be enabled.
+
+:::
+
+The following settings are required:
+
+| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](/components/data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](/components/data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](/components/data-accelerators/postgres/index.md) as the acceleration engine.</li></ul> |
+| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                                                                         |
+| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                                                               |
 
 ### Example
 
