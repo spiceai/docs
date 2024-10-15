@@ -22,6 +22,20 @@ docker pull spiceai/spiceai:0.17.1-beta
 
 :::
 
+ODBC (Open Database Connectivity) is a standard API for accessing database management systems, allowing applications to connect to and query databases using a common interface regardless of the database type.
+
+The ODBC Data Connector enables federated SQL queries on data stored in sources that expose and ODBC interface.
+
+```yaml
+datasets:
+  - from: odbc:path.to.my_dataset
+    name: my_dataset
+    params:
+      odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
+```
+
+## Drivers
+
 An ODBC connection requires a compatible ODBC driver and valid driver configuration. ODBC drivers are available from their respective vendors. Here are a few examples:
 
 - [PostgreSQL](https://odbc.postgresql.org/)
@@ -34,18 +48,6 @@ Non-Windows systems additionally require the installation of an ODBC Driver Mana
 - Ubuntu: `sudo apt-get install unixodbc`
 - MacOS: `brew install unixodbc`
 
-## Federated SQL query
-
-To connect to any ODBC database for federated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required. Spice must be built with the `odbc` feature, and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
-
-```yaml
-datasets:
-  - from: odbc:path.to.my_dataset
-    name: my_dataset
-    params:
-      odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
-```
-
 :::info
 
 For the best `JOIN` performance, ensure all ODBC datasets from the same database are configured with the exact same `odbc_connection_string` in Spice.
@@ -54,23 +56,47 @@ For the best `JOIN` performance, ensure all ODBC datasets from the same database
 
 ## Configuration
 
-In addition to the connection string, the following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:
+### `from`
 
-| Parameter               | Type           | Description                                                                                                                                                                                      | Default                                           |
-|-------------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| sql_dialect     | string | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values.   | Unset (auto-detected) |
-| odbc_max_bytes_per_batch     | number (bytes) | Upper allocation limit for transit buffer.   | `512_000_000` |
-| odbc_max_num_rows_per_batch  | number (rows)  | Upper limit for number of rows fetched for one batch. | `65536` |
-| odbc_max_text_size           | number (bytes) | Upper limit for value buffers bound to columns with text values. | Unset (allocates driver-reported max column size) |
-| odbc_max_binary_size         | number (bytes) | Upper limit for value buffers bound to columns with binary values. | Unset (allocates driver-reported max column size) |
+The `from` field takes the form `mysql:path.to.my_dataset` where `path.to.my_dataset` is the fully-qualified table name in the ODBC server.
 
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
 ```yaml
 datasets:
   - from: odbc:path.to.my_dataset
-    name: my_dataset
+    name: cool_dataset
     params:
-      odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
+      ...
 ```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
+In addition to the connection string, the following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:
+
+| Parameter Name                | Type           | Description                                                                                                                                                                                    | Default                                           |
+| ----------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `connection_string`           | string         | The ODBC connection string. Use the [secret replacement syntax](/components/secret-stores/index.md) to load the password or connection string from a secret store, e.g. `${secrets:odbc_pass}` |                                                   |
+| `sql_dialect`                 | string         | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values.                                                          | Unset (auto-detected)                             |
+| `odbc_max_bytes_per_batch`    | number (bytes) | Upper allocation limit for transit buffer.                                                                                                                                                     | `512_000_000`                                     |
+| `odbc_max_num_rows_per_batch` | number (rows)  | Upper limit for number of rows fetched for one batch.                                                                                                                                          | `65536`                                           |
+| `odbc_max_text_size`          | number (bytes) | Upper limit for value buffers bound to columns with text values.                                                                                                                               | Unset (allocates driver-reported max column size) |
+| `odbc_max_binary_size`        | number (bytes) | Upper limit for value buffers bound to columns with binary values.                                                                                                                             | Unset (allocates driver-reported max column size) |
 
 ### Selecting SQL Dialect
 
@@ -84,7 +110,13 @@ The runtime will attempt to detect the dialect to use for a connection based on 
 - Databricks
 - AWS Athena
 
-These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`, `athena`. For example, overriding the dialect for your connection to a `postgresql` style dialect:
+These connection types are also the supported values for overriding dialect in `sql_dialect`, in lowercase format: `postgresql`, `mysql`, `sqlite`, `databricks`, `athena`. 
+
+## Examples
+
+### Overriding the SQL dialect
+
+Overriding the dialect for your connection to a `postgresql` style dialect:
 
 ```yaml
 datasets:
@@ -95,9 +127,9 @@ datasets:
       odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
 ```
 
-## Baking an image with ODBC Support
+### Baking an image with ODBC Support
 
-There are many dozens of ODBC adapters; this recipe covers making your own image and configuring it to work with Spice.
+There are numerous ODBC adapters available; this guide details how to create a custom image and configure it to work with Spice.
 
 ```Dockerfile
 FROM spiceai/spiceai:latest
@@ -116,7 +148,7 @@ docker build -t spice-libsqliteodbc .
 Validate that the ODBC configuration was updated to reference the newly installed driver:
 
 :::warning[Note]
-Since `libsqliteodbc` is vendored by Debian, the package install hooks append the driver configuration to `/etc/odbcinst.ini`. When using a custom driver (e.g. [Databricks Simba](https://www.databricks.com/spark/odbc-drivers-download)), it is your responsibility to update `/etc/odbcinst.ini` to point at the location of the newly installed driver.
+Since `libsqliteodbc` is provided by Debian, the package installation scripts automatically append the driver configuration to `/etc/odbcinst.ini`. When using a custom driver (e.g., [Databricks Simba](https://www.databricks.com/spark/odbc-drivers-download)), it is the user's responsibility to update `/etc/odbcinst.ini` to reference the location of the newly installed driver.
 :::
 
 ```bash
@@ -146,9 +178,9 @@ Setup=libsqlite3odbc.so
 UsageCount=1
 ```
 
-### `test.db`
+#### `test.db`
 
-To fully test the image, make an example SQLite database (`test.db`) and spicepod on your host:
+To fully test the image, an example SQLite database (`test.db`) and spicepod should be created on the host:
 
 ```bash
 $ sqlite3 test.db
@@ -160,7 +192,7 @@ sqlite> insert into spice_test values ("Hopper");
 sqlite> insert into spice_test values ("Linus");
 ```
 
-### `spicepod.yaml`
+#### `spicepod.yaml`
 
 Make sure that the `DRIVER` parameter matches the name of the driver section in `odbcinst.ini`.
 
@@ -206,3 +238,11 @@ sql> select * from spice_test;
 
 Query took: 1.8504053329999999 seconds. 3/3 rows displayed.
 ```
+
+## Using secrets
+
+There are currently three supported [secret stores](/components/secret-stores/index.md):
+
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
