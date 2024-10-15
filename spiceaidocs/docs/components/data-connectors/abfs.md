@@ -23,7 +23,7 @@ datasets:
       file_format: csv
 ```
 
-## Dataset Schema Reference
+## Configuration
 
 ### `from`
 
