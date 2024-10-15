@@ -36,11 +36,42 @@ datasets:
 
 ## Configuration
 
+### `from`
+
+The `from` field for the Databricks connector takes the form `databricks:schema.database.table` where `schema.database.table` is the fully-qualified path to the table to read from.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: cool_dataset
+    params:
+      ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
 Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
 
 | Parameter Name          | Description                                                                                                                                                                                                                                                                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                  | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values: <br> - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available. <br> - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided. |
+| `mode`                  | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br />  <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
 | `databricks_endpoint`   | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                  |
 | `databricks_cluster_id` | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                       |
 | `databricks_use_ssl`    | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                            |
@@ -72,9 +103,9 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 | Parameter Name                           | Description                                                            |
 | ---------------------------------------- | ---------------------------------------------------------------------- |
 | `databricks_azure_storage_account_name`  | The Azure Storage account name.                                        |
-| `databricks_azure_storage_account_key`   | The Azure Storage master key for accessing the storage account.        |
-| `databricks_azure_storage_client_id`     | The service principal client id for accessing the storage account.     |
-| `databricks_azure_storage_client_secret` | The service principal client secret for accessing the storage account. |
+| `databricks_azure_storage_account_key`   | The Azure Storage key for accessing the storage account.        |
+| `databricks_azure_storage_client_id`     | The Service Principal client ID for accessing the storage account.     |
+| `databricks_azure_storage_client_secret` | The Service Principal client secret for accessing the storage account. |
 | `databricks_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
 | `databricks_azure_storage_endpoint`      | Optional. The endpoint for the Azure Blob storage account.             |
 

@@ -30,7 +30,7 @@ Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. S
 
 ### `from`
 
-The `from` field takes the form of `debezium:kafka_topic` where `kafka_topic` is the name of the Kafka topic where Debezium is notifying consumers about any upstream changes. In the example above it would listen to the `my_kafka_topic_with_debeziu_changes` topic.
+The `from` field takes the form of `debezium:kafka_topic` where `kafka_topic` is the name of the Kafka topic where Debezium is notifying consumers about any upstream changes. In the example above it would listen to the `my_kafka_topic_with_debezium_changes` topic.
 
 ### `name`
 
@@ -58,7 +58,7 @@ SELECT COUNT(*) FROM cool_dataset;
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                 |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values: <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>                                                                                                        |
+| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values:<br /> <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>                                                                                                        |
 | `debezium_message_format` | Optional. The message format to use. The default is `json`. Possible values: <ul><li>`json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `avro`.</li></ul>                                                                                                  |
 | `kafka_bootstrap_servers` | Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
 
