@@ -71,7 +71,7 @@ datasets:
 
 ## Using secrets
 
-There are currently three supported [secret stores](/components/secret-stores):
+There are currently three supported [secret stores](/components/secret-stores/index.md):
 
 * [Environment variables](/components/secret-stores/env)
 * [Kubernetes Secret Store](/components/secret-stores/kubernetes)
