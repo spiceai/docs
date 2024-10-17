@@ -14,6 +14,7 @@ datasets:
         Also replace `/index.md` with `/` in the path.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
+      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
@@ -23,6 +24,16 @@ datasets:
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
+    embeddings:
+      - column: content
+        column_pk:
+          - path
+        use: openai_embeddings
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: true
 
   - from: github:github.com/spiceai/samples/files/trunk
     name: spiceai.samples
@@ -40,6 +51,16 @@ datasets:
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
+    embeddings:
+      - column: content
+        column_pk:
+          - path
+        use: openai_embeddings
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: true
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
     name: spiceai.quickstarts
@@ -48,6 +69,7 @@ datasets:
       instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/quickstarts/tree/trunk/<quickstart_path>
     params:
+      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
@@ -57,6 +79,16 @@ datasets:
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
+    embeddings:
+      - column: content
+        column_pk:
+          - path
+        use: openai_embeddings
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: true
 
   - from: github:github.com/spiceai/blog/files/trunk
     name: spiceai.blog
@@ -66,6 +98,7 @@ datasets:
         This dataset provides access to the Spice.ai OSS project blog posts in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
       reference_base_url: https://github.com/spiceai/blog/tree/trunk/content/posts/<post_path>
     params:
+      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
@@ -75,6 +108,16 @@ datasets:
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
+    embeddings:
+      - column: content
+        column_pk:
+          - path
+        use: openai_embeddings
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: true
 
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
@@ -88,4 +131,43 @@ datasets:
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
-  
+
+embeddings:
+  - from: openai
+    name: openai_embeddings
+    params:
+      openai_api_key: ${ secrets:OPENAI_API_KEY }
+
+models:
+  - name: openai
+    from: openai:gpt-4o
+    params:
+      spice_tools: auto
+      openai_api_key: ${secrets:OPENAI_API_KEY}
+      system_prompt: |
+        You are an AI assistant assisting engineers with the Spice.ai OSS Project.
+
+        Always strive to be accurate, concise, and helpful in your responses.
+
+        Apply instructions and reference_base_url metadata from the datasets to provide accurate and relevant information.
+
+        Prefer "docs" dataset for documentation and reference information questions.
+
+        Prefer "samples" and "quickstarts" datasets for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
+
+        Use the SQL tool (sql_query) when:
+          1. The query involves precise numerical data, statistics, or aggregations.
+          2. The user asks for specific counts, sums, averages, or other calculations.
+          3. The query requires joining or comparing data from multiple related tables.
+
+        If the SQL tool returns a query, syntax, or planning error, call the `list_datasets` tool to get the available tables and continue to refine and retry the query until it succeeds. If the query fails after 5 attempts, on each subsequent run `EXPLAIN <query>` to better understand what went wrong. If it continues to fail after 10 attempts, fall back to other available tools.
+
+        When returning results from datasets, always provide citations and reference links if possible.
+
+        Use the document search tool when:
+          1. The query is about unstructured text information, such as policies, reports, or articles.
+          2. The user is looking for qualitative information or explanations.
+          3. The query requires understanding context or interpreting written content.
+
+        General guidelines:
+          1. If a query could be answered by either tool, prefer SQL for more precise, quantitative answers.
