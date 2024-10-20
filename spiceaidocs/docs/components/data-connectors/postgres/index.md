@@ -14,6 +14,12 @@ datasets:
     name: my_dataset
 ```
 
+:::warning[Limitations]
+
+- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
+
+:::
+
 ## Configuration
 
 The connection to PostgreSQL can be configured by providing the following `params`:
@@ -84,6 +90,41 @@ datasets:
         pg_pass: ${secrets:pg2_pass}
 ```
 
-:::warning[Limitations]
+## Types
 
-- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
+The table below shows the PostgreSQL data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| PostgreSQL Type   | Arrow Type                                      |
+| ----------------- | ----------------------------------------------- |
+| `int2`            | `Int16`                                         |
+| `int4`            | `Int32`                                         |
+| `int8`            | `Int64`                                         |
+| `money`           | `Int64`                                         |
+| `float4`          | `Float32`                                       |
+| `float8`          | `Float64`                                       |
+| `numeric`         | `Decimal128`                                    |
+| `text`            | `Utf8`                                          |
+| `varchar`         | `Utf8`                                          |
+| `bpchar`          | `Utf8`                                          |
+| `uuid`            | `Utf8`                                          |
+| `bytea`           | `Binary`                                        |
+| `bool`            | `Boolean`                                       |
+| `json`            | `LargeUtf8`                                     |
+| `timestamp`       | `Timestamp(Nanosecond, None)`                   |
+| `timestampz`      | `Timestamp(Nanosecond, TimeZone`                |
+| `date`            | `Date32`                                        |
+| `time`            | `Time64(Nanosecond)`                            |
+| `interval`        | `Interval(MonthDayNano)`                        |
+| `point`           | `FixedSizeList(Float64[2])`                     |
+| `int2[]`          | `List(Int16)`                                   |
+| `int4[]`          | `List(Int32)`                                   |
+| `int8[]`          | `List(Int64)`                                   |
+| `float4[]`        | `List(Float32)`                                 |
+| `float8[]`        | `List(Float64)`                                 |
+| `text[]`          | `List(Utf8)`                                    |
+| `bool[]`          | `List(Boolean)`                                 |
+| `bytea[]`         | `List(Binary)`                                  |
+| `geometry`        | `Binary`                                        |
+| `geography`       | `Binary`                                        |
+| `enum`            | `Dictionary(Int8, Utf8)`                        |
+| Composite Types   | `Struct`                                        |
