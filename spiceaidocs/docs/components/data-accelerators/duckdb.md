@@ -46,7 +46,6 @@ datasets:
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
     - `SELECT ['duck', 'goose', 'heron'];`
 - The DuckDB accelerator does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
-- The DuckDB accelerator does not support using the same `duckdb_file` for multiple accelerated datasets.
 - Updating a dataset with DuckDB acceleration while the Spice Runtime is running (hot-reload) will cause DuckDB accelerator query federation to disable until the Runtime is restarted.
 
 :::
