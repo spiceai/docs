@@ -2,6 +2,7 @@
 title: 'AI/ML Models'
 sidebar_label: 'AI/ML Models'
 description: ''
+sidebar_position: 5
 ---
 
 Spice supports traditional machine learning (ML) models and language models (LLMs).

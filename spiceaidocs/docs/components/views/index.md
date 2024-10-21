@@ -2,6 +2,7 @@
 title: 'Views'
 sidebar_label: 'Views'
 description: 'Documentation for defining Views'
+sidebar_position: 7
 ---
 
 Views in Spice are virtual tables defined by SQL queries. They simplify complex queries and support reuse across applications.
