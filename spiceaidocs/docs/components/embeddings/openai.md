@@ -9,7 +9,7 @@ To use a hosted OpenAI (or compatible) embedding model, specify the `openai` pat
 For a specific model, include it as the model ID in `from` (see example below). Defaults to `"text-embedding-3-small"`.
 These parameters are specific to OpenAI models:
 
-| Param | Description | Default |
+| Parameter | Description | Default |
 | ----- | ----------- | ------- |
 | `openai_api_key` | The OpenAI API key.        | -                           |
 | `openai_org_id` | The OpenAI organization id. | -                           |
