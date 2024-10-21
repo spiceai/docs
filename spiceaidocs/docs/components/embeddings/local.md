@@ -16,6 +16,6 @@ embeddings:
 ```
 
 ## Required Files
- - Model file, one of: `model.safetensors`, `pytorch_model.bin` or `model.safetensors.index.json` (and associated referenced files).
+ - Model file, one of: `model.safetensors`, `pytorch_model.bin`.
  - A tokenizer file, with filename, `tokenizer.json`.
  - Config file, with filename, `config.json`.
