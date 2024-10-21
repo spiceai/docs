@@ -75,7 +75,7 @@ SELECT COUNT(*) FROM cool_dataset
 | `abfs_proxy_ca_certificate` | A trusted CA certificate for the proxy                                                  |
 | `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                       |
 | `abfs_disable_tagging`      | Ignore any tags provided to `put_opts`                                                  |
-| `hive_infer_partitions`     | Infer the partition columns for hive-style partitioning from the folder structure. Defaults to `false` |
+| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false` |
 
 #### Authentication parameters
 

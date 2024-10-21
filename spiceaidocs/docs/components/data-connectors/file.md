@@ -32,7 +32,7 @@ datasets:
 | Parameter name         | Description                                                                                           |
 |------------------------|-------------------------------------------------------------------------------------------------------|
 | `file_format`          | Specifies the data file format. Required if the format cannot be inferred from the `from` path.       |
-| `hive_infer_partitions`| Infer the partition columns for hive-style partitioning from the folder structure. Defaults to `false`  |
+| `hive_partitioning_enabled`| Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`  |
 
 For CSV-specific parameters, see [CSV Parameters](/reference/file_format.md#csv).
 

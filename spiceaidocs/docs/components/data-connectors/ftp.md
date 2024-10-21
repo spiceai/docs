@@ -24,7 +24,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     - `ftp_user`: The username for the FTP server. E.g. `ftp_user: my-ftp-user`
     - `ftp_pass`: The password for the FTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_ftp_pass}`.
     - `client_timeout`: Optional. Specifies timeout for FTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for FTP client.
-    - `hive_infer_partitions`: Optional. Infer the partition columns for hive-style partitioning from the folder structure. Defaults to `false`
+    - `hive_partitioning_enabled`: Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`
 
     More CSV related parameters can be configured, see [CSV Parameters](/reference/file_format.md#csv)
 
@@ -36,7 +36,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
           file_format: csv
           ftp_user: my-ftp-user
           ftp_pass: ${secrets:my_ftp_password}
-          hive_infer_partitions: false
+          hive_partitioning_enabled: false
     ```
 
   </TabItem>
@@ -52,7 +52,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
     - `sftp_user`: The username for the SFTP server. E.g. `sftp_user: my-sftp-user`
     - `sftp_pass`: The password for the SFTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_sftp_pass}`.
     - `client_timeout`: Optional. Specifies timeout for SFTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for SFTP client.
-    - `hive_infer_partitions`: Optional. Infer the partition columns for hive-style partitioning from the folder structure. Defaults to `false`
+    - `hive_partitioning_enabled`: Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`
 
     More CSV related parameters can be configured, see [CSV Parameters](/reference/file_format.md#csv)
 
@@ -65,7 +65,7 @@ If a folder is provided, all child Parquet/CSV files will be loaded.
           sftp_port: 20
           sftp_user: my-sftp-user
           sftp_pass: ${secrets:my_sftp_password}
-          hive_infer_partitions: true
+          hive_partitioning_enabled: true
     ```
 
   </TabItem>
