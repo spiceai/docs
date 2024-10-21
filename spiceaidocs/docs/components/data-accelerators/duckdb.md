@@ -36,7 +36,7 @@ datasets:
 
 :::warning[Limitations]
 
-- The DuckDB accelerator does not support schemas with [field types](https://duckdb.org/docs/sql/data_types/overview): nested arrays/lists, UTF8/string arrays/lists, structs, nested structs or map fields. For example:
+- The DuckDB accelerator does not support schemas with [field types](https://duckdb.org/docs/sql/data_types/overview): nested arrays/lists, UTF8/string arrays/lists, boolean arrays/lists, structs, nested structs or map fields. For example:
   - Supported:
     - `SELECT [1, 2, 3];`
     - `SELECT ['1992-09-20 11:30:00.123456789', 'epoch'::TIMESTAMP]`
@@ -45,8 +45,8 @@ datasets:
     - `SELECT {'x': 1, 'y': 2, 'z': 3}`
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
     - `SELECT ['duck', 'goose', 'heron'];`
+    - `SELECT [true, false];`
 - The DuckDB accelerator does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
-- The DuckDB accelerator does not support using the same `duckdb_file` for multiple accelerated datasets.
 - Updating a dataset with DuckDB acceleration while the Spice Runtime is running (hot-reload) will cause DuckDB accelerator query federation to disable until the Runtime is restarted.
 
 :::
