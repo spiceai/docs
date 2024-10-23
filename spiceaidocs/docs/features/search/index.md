@@ -71,6 +71,8 @@ curl -XPOST http://localhost:8090/v1/search \
 
 For more details, see the [API reference for /v1/search](/api/http/search).
 
+Spice also supports vector search on datasets with preexisting embeddings. See [below](#preexisting-embeddings) for compatibility details.
+
 ### Chunking Support
 
 Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
@@ -135,4 +137,87 @@ Response:
   ],
   "duration_ms": 45
 }
+```
+
+### Pre-Existing Embeddings
+Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, these table columns must adhere to the following constraints:
+
+1. **Underlying Column Presence:**
+    - The underlying column must exist in the table, and be of `string` [Arrow data type](reference/datatypes.md) .
+
+2. **Embeddings Column Naming Convention:**
+    - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
+
+3. **Embeddings Column Data Type:**
+    - The embeddings column must have the following [Arrow data type](reference/datatypes.md) when loaded into Spice:
+      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
+      2. If the column is [**chunked**](#chunking-support), use `List[FixedSizeList[Float32 or Float64, N]]`.
+
+4. **Offset Column for Chunked Data:**
+    - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
+      1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
+        - *For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively.*
+
+By following these guidelines, you can ensure that your dataset with pre-existing embeddings is fully compatible with the vector search and other embedding functionalities provided by Spice.
+
+#### Example
+A table `sales` with an `address` column and corresponding embedding column(s).
+
+```shell
+sql> describe sales;
++-------------------+-----------------------------------------+-------------+
+| column_name       | data_type                               | is_nullable |
++-------------------+-----------------------------------------+-------------+
+| order_number      | Int64                                   | YES         |
+| quantity_ordered  | Int64                                   | YES         |
+| price_each        | Float64                                 | YES         |
+| order_line_number | Int64                                   | YES         |
+| address           | Utf8                                    | YES         |
+| address_embedding | FixedSizeList(                          | NO          |
+|                   |   Field {                               |             |
+|                   |     name: "item",                       |             |
+|                   |     data_type: Float32,                 |             |
+|                   |     nullable: false,                    |             |
+|                   |     dict_id: 0,                         |             |
+|                   |     dict_is_ordered: false,             |             |
+|                   |     metadata: {}                        |             |
+|                   |   },                                    |             |
+|                   |   384                                   |             |
++-------------------+-----------------------------------------+-------------+
+```
+
+The same table if it was chunked:
+```shell
+sql> describe sales;
++-------------------+-----------------------------------------+-------------+
+| column_name       | data_type                               | is_nullable |
++-------------------+-----------------------------------------+-------------+
+| order_number      | Int64                                   | YES         |
+| quantity_ordered  | Int64                                   | YES         |
+| price_each        | Float64                                 | YES         |
+| order_line_number | Int64                                   | YES         |
+| address           | Utf8                                    | YES         |
+| address_embedding | List(Field {                            | NO          |
+|                   |   name: "item",                         |             |
+|                   |   data_type: FixedSizeList(             |             |
+|                   |     Field {                             |             |
+|                   |       name: "item",                     |             |
+|                   |       data_type: Float32,               |             |
+|                   |     },                                  |             |
+|                   |     384                                 |             |
+|                   |   ),                                    |             |
+|                   | })                                      |             |
++-------------------+-----------------------------------------+-------------+
+| address_offset    | List(Field {                            | NO          |
+|                   |   name: "item",                         |             |
+|                   |   data_type: FixedSizeList(             |             |
+|                   |     Field {                             |             |
+|                   |       name: "item",                     |             |
+|                   |       data_type: Int32,                 |             |
+|                   |     },                                  |             |
+|                   |     2                                   |             |
+|                   |   ),                                    |             |
+|                   | })                                      |             |
++-------------------+-----------------------------------------+-------------+
+
 ```
