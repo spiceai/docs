@@ -22,7 +22,7 @@ Currently supported Data Connectors include:
 | `file`          | File          | Alpha   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
 | `flightsql`     | FlightSQL     | Beta   | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
 | `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ✅                 |
-| `github`        | GitHub        | Alpha   | GraphQL, REST                       | `append`, `full`            | ❌                 | ❌                 |
+| `github`        | GitHub        | Beta   | GraphQL, REST                       | `append`, `full`            | ❌                 | ❌                 |
 | `graphql`       | GraphQL       | Alpha  | GraphQL                             | `append`, `full`            | ❌                 | ❌                 |
 | `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ❌                 |
 | `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                 | ❌                 |
