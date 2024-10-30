@@ -19,7 +19,7 @@ Currently supported Data Connectors include:
 | `debezium`      | Debezium      | Alpha  | CDC, Kafka                          | `append`, `full`, `changes` | ❌                 | ❌                 |
 | `delta_lake`    | Delta Lake    | Beta   | Delta Lake                          | `append`, `full`            | Roadmap            | ❌                 |
 | `dremio`        | Dremio        | Alpha  | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
-| `file`          | File          | Alpha   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
+| `file`          | File          | Alpha  | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
 | `flightsql`     | FlightSQL     | Beta   | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
 | `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ✅                 |
 | `github`        | GitHub        | Beta   | GraphQL, REST                       | `append`, `full`            | ❌                 | ❌                 |
@@ -27,13 +27,14 @@ Currently supported Data Connectors include:
 | `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ❌                 |
 | `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                 | ❌                 |
 | `mysql`         | MySQL         | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
-| `odbc`          | ODBC          | Beta  |                                     | `append`, `full`            | ❌                 | ❌                 |
+| `odbc`          | ODBC          | Beta   |                                     | `append`, `full`            | ❌                 | ❌                 |
 | `postgres`      | PostgreSQL    | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
 | `s3`            | S3            | Beta   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
 | `sharepoint`    | SharePoint    | Alpha  |                                     | `append`, `full`            | ❌                 | ✅                 |
 | `snowflake`     | Snowflake     | Alpha  | Arrow                               | `append`, `full`            | Roadmap            | ❌                 |
 | `spiceai`       | Spice.ai      | Beta   | Arrow Flight                        | `append`, `full`            | ✅                 | ❌                 |
 | `spark`         | Spark         | Alpha  | Spark Connect                       | `append`, `full`            | ❌                 | ❌                 |
+| `localpod`      | Local dataset replication | Alpha |                          | `append`, `full`            | ❌                 | ✅                 |
 
 ## Object Store File Formats
 
