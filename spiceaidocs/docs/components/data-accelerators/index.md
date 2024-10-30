@@ -30,10 +30,10 @@ Supported Data Accelerators include:
 
 | Engine Name                       | Description             | Status | Engine Modes     |
 | --------------------------------- | ----------------------- | ------ | ---------------- |
-| [`arrow`](./arrow.md)             | In-Memory Arrow Records | Alpha  | `memory`         |
-| [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Alpha  | `memory`, `file` |
-| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
+| [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Beta   | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Beta   |                  |
+| [`arrow`](./arrow.md)             | In-Memory Arrow Records | Alpha  | `memory`         |
+| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Alpha  | `memory`, `file` |
 
 ## Data Types
 
