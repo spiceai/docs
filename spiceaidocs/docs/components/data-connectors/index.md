@@ -11,30 +11,32 @@ Data Connectors provide connections to databases, data warehouses, and data lake
 
 Currently supported Data Connectors include:
 
-| Name            | Description   | Status | Protocol/Format                     | Refresh Modes               | Supports [Ingestion](https://docs.spiceai.org/features/data-ingestion) | Supports Documents |
-| --------------- | ------------- | ------ | ----------------------------------- | --------------------------- | ------------------ | ------------------ |
-| `mysql`         | MySQL         | Release Candidate   |                                     | `append`, `full`            | Roadmap            | ❌                 |
-| `databricks`    | Databricks    | Beta   | Spark Connect <br/> S3 / Delta Lake | `append`, `full`            | Roadmap            | ❌                 |
-| `delta_lake`    | Delta Lake    | Beta   | Delta Lake                          | `append`, `full`            | Roadmap            | ❌                 |
-| `flightsql`     | FlightSQL     | Beta   | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
-| `github`        | GitHub        | Beta   | GraphQL, REST                       | `append`, `full`            | ❌                 | ❌                 |
-| `odbc`          | ODBC          | Beta  |                                      | `append`, `full`            | ❌                 | ❌                 |
-| `postgres`      | PostgreSQL    | Beta   |                                     | `append`, `full`            | Roadmap            | ❌                 |
-| `s3`            | S3            | Beta   | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
-| `spiceai`       | Spice.ai      | Beta   | Arrow Flight                        | `append`, `full`            | ✅                 | ❌                 |
-| `abfs`          | Azure BlobFS  | Alpha  | Parquet, CSV                        | `append`, `full`            | Roadmap            | ✅                 |
-| `clickhouse`    | Clickhouse    | Alpha  |                                     | `append`, `full`            | ❌                 | ❌                 |
-| `debezium`      | Debezium      | Alpha  | CDC, Kafka                          | `append`, `full`, `changes` | ❌                 | ❌                 |
-| `dremio`        | Dremio        | Alpha  | Arrow Flight SQL                    | `append`, `full`            | ❌                 | ❌                 |
-| `duckdb`        | DuckDB        | Alpha  |                                     | `append`, `full`            | ❌                 | ❌                 |
-| `file`          | File          | Alpha   | Parquet, CSV                       | `append`, `full`            | Roadmap            | ✅                 |
-| `ftp`, `sftp`   | FTP/SFTP      | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ✅                 |
-| `graphql`       | GraphQL       | Alpha  | GraphQL                             | `append`, `full`            | ❌                 | ❌                 |
-| `http`, `https` | HTTP(s)       | Alpha  | Parquet, CSV                        | `append`, `full`            | ❌                 | ❌                 |
-| `mssql`         | MS SQL Server | Alpha  | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                 | ❌                 |
-| `sharepoint`    | SharePoint    | Alpha  |                                     | `append`, `full`            | ❌                 | ✅                 |
-| `snowflake`     | Snowflake     | Alpha  | Arrow                               | `append`, `full`            | Roadmap            | ❌                 |
-| `spark`         | Spark         | Alpha  | Spark Connect                       | `append`, `full`            | ❌                 | ❌                 |
+| Name            | Description   | Status            | Protocol/Format                     | Refresh Modes               | Supports [Ingestion][ingestion] | Supports Documents |
+| --------------- | ------------- | ----------------- | ----------------------------------- | --------------------------- | ------------------------------- | ------------------ |
+| `github`        | GitHub        | Release Candidate | GraphQL, REST                       | `append`, `full`            | ❌                             | ❌                 |
+| `mysql`         | MySQL         | Release Candidate |                                     | `append`, `full`            | Roadmap                         | ❌                 |
+| `databricks`    | Databricks    | Beta              | Spark Connect <br/> S3 / Delta Lake | `append`, `full`            | Roadmap                         | ❌                 |
+| `delta_lake`    | Delta Lake    | Beta              | Delta Lake                          | `append`, `full`            | Roadmap                         | ❌                 |
+| `flightsql`     | FlightSQL     | Beta              | Arrow Flight SQL                    | `append`, `full`            | ❌                             | ❌                 |
+| `odbc`          | ODBC          | Beta              |                                     | `append`, `full`            | ❌                             | ❌                 |
+| `postgres`      | PostgreSQL    | Beta              |                                     | `append`, `full`            | Roadmap                         | ❌                 |
+| `s3`            | S3            | Beta              | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
+| `spiceai`       | Spice.ai      | Beta              | Arrow Flight                        | `append`, `full`            | ✅                             | ❌                 |
+| `abfs`          | Azure BlobFS  | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
+| `clickhouse`    | Clickhouse    | Alpha             |                                     | `append`, `full`            | ❌                             | ❌                 |
+| `debezium`      | Debezium      | Alpha             | CDC, Kafka                          | `append`, `full`, `changes` | ❌                             | ❌                 |
+| `dremio`        | Dremio        | Alpha             | Arrow Flight SQL                    | `append`, `full`            | ❌                             | ❌                 |
+| `duckdb`        | DuckDB        | Alpha             |                                     | `append`, `full`            | ❌                             | ❌                 |
+| `file`          | File          | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
+| `ftp`, `sftp`   | FTP/SFTP      | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                             | ✅                 |
+| `graphql`       | GraphQL       | Alpha             | GraphQL                             | `append`, `full`            | ❌                             | ❌                 |
+| `http`, `https` | HTTP(s)       | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                             | ❌                 |
+| `mssql`         | MS SQL Server | Alpha             | Tabular Data Stream (TDS)           | `append`, `full`            | ❌                             | ❌                 |
+| `sharepoint`    | SharePoint    | Alpha             |                                     | `append`, `full`            | ❌                             | ✅                 |
+| `snowflake`     | Snowflake     | Alpha             | Arrow                               | `append`, `full`            | Roadmap                         | ❌                 |
+| `spark`         | Spark         | Alpha             | Spark Connect                       | `append`, `full`            | ❌                             | ❌                 |
+
+[ingestion]: https://docs.spiceai.org/features/data-ingestion
 
 ## Object Store File Formats
 
