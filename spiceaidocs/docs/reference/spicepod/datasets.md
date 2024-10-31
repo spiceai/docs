@@ -226,6 +226,24 @@ Retries utilize a [Fibonacci backoff strategy](https://en.wikipedia.org/wiki/Fib
 
 Optional. Defines the maximum number of retry attempts when refresh retries are enabled. The default is undefined, allowing for unlimited attempts.
 
+## `acceleration.ready_state`
+
+Supports one of two values:
+
+* `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+* `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+
+```yaml
+datasets:
+  - from: s3://my_bucket/my_dataset/
+    name: my_dataset
+    params:
+      ...
+    acceleration:
+      enabled: true
+      ready_state: on_registration # or on_load
+```
+
 ## `acceleration.params`
 
 Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
