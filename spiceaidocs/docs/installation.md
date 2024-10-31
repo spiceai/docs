@@ -121,3 +121,12 @@ SPICED_CUSTOM_FEATURES="postgres sqlite" make install
 # Add it to the end of your .bashrc or .zshrc to permanently add spice to your PATH.
 export PATH="$PATH:$HOME/.spice/bin"
 ```
+
+#### Build with Hardware Acceleration
+```shell
+## CUDA support
+make install-with-models-cuda
+
+## Apple Silicon
+make install-with-models-metal
+```
