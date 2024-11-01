@@ -4,9 +4,9 @@ sidebar_label: 'MySQL Data Connector'
 description: 'MySQL Data Connector Documentation'
 ---
 
-## Federated SQL query
+MySQL is an open-source relational database management system that uses structured query language (SQL) for managing and manipulating databases.
 
-To connect to any MySQL database as connector for federated SQL query, specify `mysql` as the selector in the `from` value for the dataset.
+The MySQL Data Connector enables federated SQL queries on data stored in MySQL databases.
 
 ```yaml
 datasets:
@@ -22,21 +22,94 @@ datasets:
 
 ## Configuration
 
+### `from`
+
+The `from` field takes the form `mysql:path.to.my_dataset` where `path.to.my_dataset` is the fully-qualified table name in the SQL server.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+```yaml
+datasets:
+  - from: mysql:path.to.my_dataset
+    name: cool_dataset
+    params:
+      ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+### `params`
+
 The MySQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mysql_conn_string}`.
 
-- `mysql_connection_string`: The connection string to use to connect to the MySQL server. This can be used instead of providing individual connection parameters.
-- `mysql_host`: The hostname of the MySQL server.
-- `mysql_tcp_port`: The port of the MySQL server.
-- `mysql_db`: The name of the database to connect to.
-- `mysql_user`: The MySQL username.
-- `mysql_pass`: The password to connect with.
-- `mysql_sslmode`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
-  - `required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.
-  - `preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.
-  - `disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.
-- `mysql_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
+| Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mysql_connection_string` | The connection string to use to connect to the MySQL server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                                                                                                                                                                                         |
+| `mysql_host`              | The hostname of the MySQL server.                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `mysql_tcp_port`          | The port of the MySQL server.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `mysql_db`                | The name of the database to connect to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `mysql_user`              | The MySQL username.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `mysql_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `mysql_sslmode`           | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
+| `mysql_sslrootcert`       | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
 
-Configuration `params` are provided either in the top level `dataset` for a dataset source and federated SQL query.
+## Types
+
+The table below shows the MySQL data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| MySQL Type   | Arrow Type                     |
+| ------------ | ------------------------------ |
+| `TINYINT`    | `Int8`                         |
+| `SMALLINT`   | `Int16`                        |
+| `INT`        | `Int32`                        |
+| `MEDIUMINT`  | `Int32`                        |
+| `BIGINT`     | `Int64`                        |
+| `DECIMAL`    | `Decimal128` / `Decimal256`    |
+| `FLOAT`      | `Float32`                      |
+| `DOUBLE`     | `Float64`                      |
+| `DATETIME`   | `Timestamp(Microsecond, None)` |
+| `TIMESTAMP`  | `Timestamp(Microsecond, None)` |
+| `YEAR`       | `Int16`                        |
+| `TIME`       | `Time64(Nanosecond)`           |
+| `DATE`       | `Date32`                       |
+| `CHAR`       | `Utf8`                         |
+| `BINARY`     | `Binary`                       |
+| `VARCHAR`    | `Utf8`                         |
+| `VARBINARY`  | `Binary`                       |
+| `TINYBLOB`   | `Binary`                       |
+| `TINYTEXT`   | `Utf8`                         |
+| `BLOB`       | `Binary`                       |
+| `TEXT`       | `Utf8`                         |
+| `MEDIUMBLOB` | `Binary`                       |
+| `MEDIUMTEXT` | `Utf8`                         |
+| `LONGBLOB`   | `LargeBinary`                  |
+| `LONGTEXT`   | `LargeUtf8`                    |
+| `SET`        | `Utf8`                         |
+| `ENUM`       | `Dictionary(UInt16, Utf8)`     |
+| `BIT`        | `UInt64`                       |
+
+:::note
+
+- MySQL `TIMESTAMP` value is the local time to the MySQL server timezone, the corresponding arrow `Timestamp(Microsecond, None)` type has the same local time value as MySQL `TIMESTAMP` value.
+
+:::
+
+## Examples
+
+### Connecting using username and password
 
 ```yaml
 datasets:
@@ -49,6 +122,8 @@ datasets:
       mysql_user: my_user
       mysql_pass: ${secrets:mysql_pass}
 ```
+
+### Connecting using SSL
 
 ```yaml
 datasets:
@@ -64,6 +139,8 @@ datasets:
       mysql_sslrootcert: ./custom_cert.pem
 ```
 
+### Connecting using a Connection String
+
 ```yaml
 datasets:
   - from: mysql:path.to.my_dataset
@@ -72,43 +149,10 @@ datasets:
       mysql_connection_string: mysql://${secrets:my_user}:${secrets:my_password}@localhost:3306/my_db
 ```
 
-## Types
+## Using secrets
 
-The table below shows the MySQL data types supported, along with the type mapping to Apache Arrow types in Spice.
+There are currently three supported [secret stores](/components/secret-stores/index.md):
 
-| MySQL Type | Arrow Type                   |
-| ---------- | ---------------------------- |
-| TINYINT    | Int8                         |
-| SMALLINT   | Int16                        |
-| INT        | Int32                        |
-| MEDIUMINT  | Int32                        |
-| BIGINT     | Int64                        |
-| DECIMAL    | Decimal128 / Decimal256      |
-| FLOAT      | Float32                      |
-| DOUBLE     | Float64                      |
-| DATETIME   | Timestamp(Microsecond, None) |
-| TIMESTAMP  | Timestamp(Microsecond, None) |
-| YEAR       | Int16                        |
-| TIME       | Time64(Nanosecond)           |
-| DATE       | Date32                       |
-| CHAR       | Utf8                         |
-| BINARY     | Binary                       |
-| VARCHAR    | Utf8                         |
-| VARBINARY  | Binary                       |
-| TINYBLOB   | Binary                       |
-| TINYTEXT   | Utf8                         |
-| BLOB       | Binary                       |
-| TEXT       | Utf8                         |
-| MEDIUMBLOB | Binary                       |
-| MEDIUMTEXT | Utf8                         |
-| LONGBLOB   | LargeBinary                  |
-| LONGTEXT   | LargeUtf8                    |
-| SET        | Utf8                         |
-| ENUM       | Dictionary(UInt16, Utf8)     |
-| BIT        | UInt64                       |
-
-:::note
-
-- MySQL `TIMESTAMP` value is the local time to the MySQL server timezone, the corresponding arrow `Timestamp(Microsecond, None)` type has the same local time value as MySQL `TIMESTAMP` value.
-
-:::
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
