@@ -7,9 +7,9 @@ description: 'Azure BlobFS Data Connector Documentation'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Azure BlobFS (ABFS) Data Connector enables federated SQL query on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
+The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
 
-If a folder path is provided, all child files will be loaded.
+When a folder path is provided, all the contained files will be loaded.
 
 File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
 
@@ -18,12 +18,12 @@ datasets:
   - from: abfs://foocontainer/taxi_sample.csv
     name: azure_test
     params:
-      azure_account: spiceadls
-      azure_access_key: abc123==
+      abfs_account: spiceadls
+      abfs_access_key: abc123==
       file_format: csv
 ```
 
-## Dataset Schema Reference
+## Configuration
 
 ### `from`
 
@@ -34,9 +34,9 @@ The ABFS-compatible URI to a folder or object in one of two forms:
 
 :::note
 
-A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets use a dummy account/container name and the values will be replaced with the values contained by the secrets at runtime.
+A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets, a dummy account/container name should be used. The values will be replaced at runtime with the values contained in the secrets.
 
-See the example [below](#using-secrets-for-container-and-account-name).
+See the example [below](#using-secrets).
 
 :::
 
@@ -44,10 +44,17 @@ See the example [below](#using-secrets-for-container-and-account-name).
 
 The dataset name. This will be used as the table name within Spice.
 
-Example: `name: cool_dataset`
+Example:
+```yaml
+datasets:
+  - from: abfs://foocontainer/taxi_sample.csv
+    name: cool_dataset
+    params:
+      ...
+```
 
 ```sql
-SELECT COUNT(*) FROM cool_dataset
+SELECT COUNT(*) FROM cool_dataset;
 ```
 
 ```shell
@@ -66,7 +73,7 @@ SELECT COUNT(*) FROM cool_dataset
 | --------------------------- | --------------------------------------------------------------------------------------- |
 | `abfs_account`              | Azure storage account name                                                              |
 | `abfs_container_name`       | Azure storage container name                                                            |
-| `abfs_sas_string`           | SAS Token to use for authorization                                                      |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                            |
 | `abfs_endpoint`             | Storage endpoint to connect to. Defaults to `https://{account}.blob.core.windows.net`   |
 | `abfs_use_emulator`         | Connect to a locally-running Azure Storage emulator. Valid values are `true` or `false` |
 | `abfs_allow_http`           | Allow insecure HTTP connections                                                         |
@@ -75,7 +82,7 @@ SELECT COUNT(*) FROM cool_dataset
 | `abfs_proxy_ca_certificate` | A trusted CA certificate for the proxy                                                  |
 | `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                       |
 | `abfs_disable_tagging`      | Ignore any tags provided to `put_opts`                                                  |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false` |
+
 
 #### Authentication parameters
 
@@ -103,7 +110,7 @@ The following parameters are used when authenticating with Azure. Only one of `a
 | `abfs_backoff_max_duration`     | Maximum length to wait for a retry. Accepts any duration string (i.e `5s`, `1m`, etc)        |
 | `abfs_backoff_base`             | Floating-point base of the exponential to use when backing off retries                       |
 
-#### File format parameters
+## Supported file formats
 
 File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
 
@@ -133,6 +140,17 @@ datasets:
       file_format: csv
 ```
 
+### Connecting to the Storage Emulator
+
+```yaml
+datasets:
+  - from: abfs://test_container/test_csv.csv
+    name: test_data
+    params:
+      abfs_use_emulator: true
+      file_format: csv
+```
+
 ### Using secrets for container and account name
 
 ```yaml
@@ -143,17 +161,6 @@ datasets:
     params:
       abfs_account: ${ secrets:PROD_ACCOUNT }
       abfs_container: ${ secrets:PROD_CONTAINER }
-      file_format: csv
-```
-
-### Connecting to the Storage Emulator
-
-```yaml
-datasets:
-  - from: abfs://test_container/test_csv.csv
-    name: test_data
-    params:
-      abfs_use_emulator: true
       file_format: csv
 ```
 
@@ -168,3 +175,11 @@ datasets:
       abfs_client_id: ${ secrets:MY_CLIENT_ID }
       abfs_client_secret: ${ secrets:MY_CLIENT_SECRET }
 ```
+
+## Using secrets
+
+There are currently three supported [secret stores](/components/secret-stores):
+
+* [Environment variables](/components/secret-stores/env)
+* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
+* [Keyring Secret Store](/components/secret-stores/keyring)
