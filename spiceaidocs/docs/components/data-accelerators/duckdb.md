@@ -2,7 +2,7 @@
 title: 'DuckDB Data Accelerator'
 sidebar_label: 'DuckDB Data Accelerator'
 description: 'DuckDB Data Accelerator Documentation'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 To use DuckDB as Data Accelerator, specify `duckdb` as the `engine` for acceleration.

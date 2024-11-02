@@ -2,7 +2,7 @@
 title: 'SQLite Data Accelerator'
 sidebar_label: 'SQLite Data Accelerator'
 description: 'SQLite Data Accelerator Documentation'
-sidebar_position: 3
+sidebar_position: 4
 pagination_next: null
 ---
 
