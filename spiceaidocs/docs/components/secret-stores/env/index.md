@@ -77,12 +77,6 @@ secrets:
       file_path: ./custom/path/to/.env
 ```
 
-:::info
-
-When using a custom `.env` file with `file_path`, the path must reference a file in the current working directory and cannot be a symbolic link.
-
-:::
-
 To continue loading `.env` or `.env.local`, specify them as additional secret stores:
 
 ```yaml
