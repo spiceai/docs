@@ -19,7 +19,7 @@ datasets:
 
 The DuckDB accelerator can be configured by providing the following `params`:
 
-- `duckdb_file`: The name for the file to back the DuckDB database. If the file does not exist, it will be created. Only applies if `mode` is `file`.
+- `duckdb_file`: The name for the file to back the DuckDB database. If the file does not exist, it will be created. Only applies if `mode` is `file`. Must reference a file in the current working directory.
 
 Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](/reference/spicepod/datasets.md).
 
@@ -33,6 +33,12 @@ datasets:
       params:
         duckdb_file: /my/chosen/location/duckdb.db
 ```
+
+:::info
+
+When using `mode: file`, the DuckDB database file must reference a location in the current working directory, and cannot be a symbolic link.
+
+:::
 
 :::warning[Limitations]
 

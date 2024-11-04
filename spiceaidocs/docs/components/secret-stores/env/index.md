@@ -67,12 +67,30 @@ MY_PG_PASSWORD=postgres
 
 ### Additional Parameters
 
-To load environment variables from a specific `.env` file, use the `file_path` parameter. When using specific environment variable file using `file_path` environment variables from the default `.env` or `.env.local` files will not be loaded.
+To load environment variables from a specific `.env` file, use the `file_path` parameter. When a `file_path` parameter is specified, environment variables from `.env` or `.env.local` will not be loaded.
 
 ```yaml
 secrets:
   - from: env
     name: env
     params:
-      file_path: /custom/path/to/.env
+      file_path: ./custom/path/to/.env
+```
+
+:::info
+
+When using a custom `.env` file with `file_path`, the path must reference a file in the current working directory and cannot be a symbolic link.
+
+:::
+
+To continue loading `.env` or `.env.local`, specify them as additional secret stores:
+
+```yaml
+secrets:
+  - from: env
+    name: env
+  - from: env
+    name: env
+    params:
+      file_path: ./custom/path/to/.env
 ```
