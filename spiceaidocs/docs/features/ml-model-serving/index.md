@@ -41,4 +41,4 @@ Spice integrates with Hugging Face, enabling you to use a wide range of pre-trai
 
 ## Spice Cloud Platform
 
-The Spice Cloud platform provides a scalable environment for training, hosting, and managing your models. For further details, see the [Spice Cloud Platform Model Component](/components/models/spice-cloud.md).
+The Spice Cloud platform provides a scalable environment for training, hosting, and managing your models. For further details, see the [Spice Cloud Platform Model Component](/components/models/spiceai.md).
