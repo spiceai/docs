@@ -4,9 +4,6 @@ sidebar_label: 'Azure BlobFS Data Connector'
 description: 'Azure BlobFS Data Connector Documentation'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
 
 When a folder path is provided, all the contained files will be loaded.
@@ -27,14 +24,14 @@ datasets:
 
 ### `from`
 
-The ABFS-compatible URI to a folder or object in one of two forms:
+Defines the ABFS-compatible URI to a folder or object:
 
 - `from: abfs://<container>/<path>` with the account name configured using `abfs_account` parameter, or 
 - `from: abfs://<container>@<account_name>.dfs.core.windows.net/<path>`
 
 :::note
 
-A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets, a dummy account/container name should be used. The values will be replaced at runtime with the values contained in the secrets.
+A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets, a dummy account/container name must be used. The values will be replaced at runtime with the values contained in the secrets.
 
 See the example [below](#using-secrets).
 
@@ -42,7 +39,7 @@ See the example [below](#using-secrets).
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice.
+Defines the dataset name, which is used as the table name within Spice.
 
 Example:
 ```yaml
@@ -69,54 +66,61 @@ SELECT COUNT(*) FROM cool_dataset;
 
 #### Basic parameters
 
-| Parameter name              | Description                                                                             |
-| --------------------------- | --------------------------------------------------------------------------------------- |
-| `abfs_account`              | Azure storage account name                                                              |
-| `abfs_container_name`       | Azure storage container name                                                            |
-| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                            |
-| `abfs_endpoint`             | Storage endpoint to connect to. Defaults to `https://{account}.blob.core.windows.net`   |
-| `abfs_use_emulator`         | Connect to a locally-running Azure Storage emulator. Valid values are `true` or `false` |
-| `abfs_allow_http`           | Allow insecure HTTP connections                                                         |
-| `abfs_authority_host`       | Use an alternative authority host. Defaults to `https://login.microsoftonline.com`      |
-| `abfs_proxy_url`            | Proxy URL to use when connecting                                                        |
-| `abfs_proxy_ca_certificate` | A trusted CA certificate for the proxy                                                  |
-| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                       |
-| `abfs_disable_tagging`      | Ignore any tags provided to `put_opts`                                                  |
+| Parameter name              | Description                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `abfs_account`              | Azure storage account name                                               |
+| `abfs_container_name`       | Azure storage container name                                             |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization             |
+| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`     |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                     |
+| `abfs_allow_http`           | Allow insecure HTTP connections                                          |
+| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com` |
+| `abfs_proxy_url`            | Proxy URL                                                                |
+| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                             |
+| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                        |
+| `abfs_disable_tagging`      | Ignore tags in `put_opts`                                                |
 
 
 #### Authentication parameters
 
-The following parameters are used when authenticating with Azure. Only one of `abfs_access_key`, `abfs_bearer_token`, `abfs_client_secret` or `abfs_skip_signature` can be set at the same time. If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
+The following parameters are used when authenticating with Azure. Only one of these parameters can be used at a time:
 
-| Parameter name              | Description                                                                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------------ |
-| `abfs_access_key`           | Secret access key to use when authenticating                                                     |
-| `abfs_bearer_token`         | `BEARER` token to use when authenticating                                                        |
-| `abfs_client_id`            | Client ID to use with the client authentication flow                                             |
-| `abfs_client_secret`        | Client Secret to use with the client authentication flow                                         |
-| `abfs_tenant_id`            | Tenant ID to use with client authentication flow                                                 |
-| `abfs_skip_signature`       | Skip fetching credentials and skip signing requests. Used for interacting with public containers |
-| `abfs_msi_endpoint`         | The endpoing to use for acquiring managed identity tokens                                        |
-| `abfs_federated_token_file` | File path for acquiring Azure federated identity token in Kubernetes                             |
-| `abfs_use_cli`              | Set to `true` to use the Azure CLI to acquire access tokens                                      |
+* `abfs_access_key`
+* `abfs_bearer_token`
+* `abfs_client_secret`
+* `abfs_skip_signature`
+
+If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
+
+| Parameter name              | Description                                                 |
+| --------------------------- | ----------------------------------------------------------- |
+| `abfs_access_key`           | Secret access key                                           |
+| `abfs_bearer_token`         | `BEARER` token                                              |
+| `abfs_client_id`            | Client ID for client authentication flow                    |
+| `abfs_client_secret`        | Client Secret to use for client authentication flow         |
+| `abfs_tenant_id`            | Tenant ID to use for client authentication flow             |
+| `abfs_skip_signature`       | Skip credentials and request signing for public containers  |
+| `abfs_msi_endpoint`         | Endpoint for managed identity tokens                        |
+| `abfs_federated_token_file` | File path for federated identity token in Kubernetes        |
+| `abfs_use_cli`              | Set to `true` to use the Azure CLI to acquire access tokens |
 
 #### Retry parameters
 
-| Parameter name                  | Description                                                                                  |
-| ------------------------------- | -------------------------------------------------------------------------------------------- |
-| `abfs_max_retries`              | Maximum number of retries                                                                    |
-| `abfs_retry_timeout`            | Timeout for all retries. Accepts any duration string (i.e `5s`, `1m`, etc)                   |
-| `abfs_backoff_initial_duration` | How long to wait before the initial retry. Accepts any duration string (i.e `5s`, `1m`, etc) |
-| `abfs_backoff_max_duration`     | Maximum length to wait for a retry. Accepts any duration string (i.e `5s`, `1m`, etc)        |
-| `abfs_backoff_base`             | Floating-point base of the exponential to use when backing off retries                       |
+| Parameter name                  | Description                                  |
+| ------------------------------- | -------------------------------------------- |
+| `abfs_max_retries`              | Maximum retries                              |
+| `abfs_retry_timeout`            | Total timeout for retries (e.g., `5s`, `1m`) |
+| `abfs_backoff_initial_duration` | Initial retry delay (e.g., `5s`)             |
+| `abfs_backoff_max_duration`     | Maximum retry delay (e.g., `1m`)             |
+| `abfs_backoff_base`             | Exponential backoff base (e.g., `0.1`)       |
 
 ## Supported file formats
 
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
+Specify the file format using `file_format` parameter. More details in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
 
 ## Examples
 
-### Reading a CSV file using an Access Key
+### Reading a CSV file with an Access Key
 
 ```yaml
 datasets:
@@ -128,7 +132,7 @@ datasets:
       file_format: csv
 ```
 
-### Reading from a public container
+### Using Public Containers
 
 ```yaml
 datasets:
@@ -151,7 +155,9 @@ datasets:
       file_format: csv
 ```
 
-### Using secrets for container and account name
+### Using secrets for Account and Container
+
+When using secrets for `abfs_container`, a dummy container name needs to be provided in the `from` field. This dummy value will be replaced by the value in the secret at runtime.
 
 ```yaml
 datasets:
@@ -172,14 +178,16 @@ datasets:
     name: my_data
     params:
       abfs_tentant_id: B3E1A8F4-9D5B-4D3B-8D2E-1F4A9D5B4D3B
-      abfs_client_id: ${ secrets:MY_CLIENT_ID }
-      abfs_client_secret: ${ secrets:MY_CLIENT_SECRET }
+      abfs_client_id: A587D13A-7E4E-46AB-BB87-E7A8AAFB42F3
+      abfs_client_secret: qoiwdjqidj213094103213o0~!!
 ```
 
-## Using secrets
+## Secrets
 
-There are currently three supported [secret stores](/components/secret-stores):
+Spice supports three types of [secret stores](/components/secret-stores):
 
 * [Environment variables](/components/secret-stores/env)
 * [Kubernetes Secret Store](/components/secret-stores/kubernetes)
 * [Keyring Secret Store](/components/secret-stores/keyring)
+
+Explore the different options to manage sensitive data securely.
