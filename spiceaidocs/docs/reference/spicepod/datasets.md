@@ -401,7 +401,7 @@ Optional. The configuration to enable and define the chunking strategy for the e
 columns:
   - name: description
     embeddings:
-      - use: hf_minilm
+      - from: hf_minilm
         chunking:
           enabled: true
           target_chunk_size: 512

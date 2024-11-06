@@ -86,7 +86,7 @@ datasets:
       enabled: true
     embeddings:
       - column: body
-        use: local_embedding_model
+        from: local_embedding_model
         chunking:
           enabled: true
           target_chunk_size: 512
