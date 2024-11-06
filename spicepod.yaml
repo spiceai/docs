@@ -18,22 +18,22 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: 'spiceaidocs/docs/**/*.md'
+      include: "spiceaidocs/docs/**/*.md"
     acceleration:
       enabled: true
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
-    embeddings:
-      - column: content
-        column_pk:
-          - path
-        use: openai_embeddings
-        chunking:
-          enabled: true
-          target_chunk_size: 512
-          overlap_size: 128
-          trim_whitespace: true
+    columns:
+      - name: content
+        embeddings:
+          from: openai_embeddings
+          row_id: path
+          chunking:
+            enabled: true
+            target_chunk_size: 512
+            overlap_size: 128
+            trim_whitespace: true
 
   - from: github:github.com/spiceai/samples/files/trunk
     name: spiceai.samples
@@ -45,22 +45,22 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: '**/*.md'
+      include: "**/*.md"
     acceleration:
       enabled: true
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
-    embeddings:
-      - column: content
-        column_pk:
-          - path
-        use: openai_embeddings
-        chunking:
-          enabled: true
-          target_chunk_size: 512
-          overlap_size: 128
-          trim_whitespace: true
+    columns:
+      - name: content
+        embeddings:
+          from: openai_embeddings
+          row_id: path
+          chunking:
+            enabled: true
+            target_chunk_size: 512
+            overlap_size: 128
+            trim_whitespace: true
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
     name: spiceai.quickstarts
@@ -73,22 +73,22 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: '**/*.md'
+      include: "**/*.md"
     acceleration:
       enabled: true
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
-    embeddings:
-      - column: content
-        column_pk:
-          - path
-        use: openai_embeddings
-        chunking:
-          enabled: true
-          target_chunk_size: 512
-          overlap_size: 128
-          trim_whitespace: true
+    columns:
+      - name: content
+        embeddings:
+          from: openai_embeddings
+          row_id: path
+          chunking:
+            enabled: true
+            target_chunk_size: 512
+            overlap_size: 128
+            trim_whitespace: true
 
   - from: github:github.com/spiceai/blog/files/trunk
     name: spiceai.blog
@@ -102,22 +102,22 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: 'content/posts/**/*.md'
+      include: "content/posts/**/*.md"
     acceleration:
       enabled: true
       refresh_check_interval: 4h
       refresh_jitter_enabled: true
       refresh_jitter_max: 30m
-    embeddings:
-      - column: content
-        column_pk:
-          - path
-        use: openai_embeddings
-        chunking:
-          enabled: true
-          target_chunk_size: 512
-          overlap_size: 128
-          trim_whitespace: true
+    columns:
+      - name: content
+        embeddings:
+          from: openai_embeddings
+          row_id: path
+          chunking:
+            enabled: true
+            target_chunk_size: 512
+            overlap_size: 128
+            trim_whitespace: true
 
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues

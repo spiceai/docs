@@ -50,9 +50,10 @@ datasets:
     name: spiceai.issues
     acceleration:
       enabled: true
-    embeddings:
-      - column: body # The text column in the `spiceai.issues` dataset
-        use: local_embedding_model # Embedding model used for this column
+    columns:
+      - name: body
+        embeddings:
+          - from: local_embedding_model  # Embedding model used for this column
 ```
 
 By defining embeddings on the `body` column, Spice is now configured to execute similarity searches on the dataset.
