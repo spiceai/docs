@@ -66,19 +66,20 @@ SELECT COUNT(*) FROM cool_dataset;
 
 #### Basic parameters
 
-| Parameter name              | Description                                                              |
-| --------------------------- | ------------------------------------------------------------------------ |
-| `abfs_account`              | Azure storage account name                                               |
-| `abfs_container_name`       | Azure storage container name                                             |
-| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization             |
-| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`     |
-| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                     |
-| `abfs_allow_http`           | Allow insecure HTTP connections                                          |
-| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com` |
-| `abfs_proxy_url`            | Proxy URL                                                                |
-| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                             |
-| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                        |
-| `abfs_disable_tagging`      | Ignore tags in `put_opts`                                                |
+| Parameter name              | Description                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. |
+| `abfs_account`              | Azure storage account name                                                                    |
+| `abfs_container_name`       | Azure storage container name                                                                  |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                  |
+| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                          |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                          |
+| `abfs_allow_http`           | Allow insecure HTTP connections                                                               |
+| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                      |
+| `abfs_proxy_url`            | Proxy URL                                                                                     |
+| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                  |
+| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                             |
+| `abfs_disable_tagging`      | Ignore tags in `put_opts`                                                                     |
 
 
 #### Authentication parameters
