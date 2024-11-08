@@ -32,8 +32,10 @@ pagination_next: null
    1. Click the "Settings" tab
    1. In the "Driver Name" field - enter: ```Apache Arrow Flight SQL```
    1. In the "URL Template" field - enter: ```jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true```
+     - If [API key authentication](../../api/auth/index.md) is enabled, the URL template should be: ```jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true&user=&password=<enter-api-key-here>``` - where `<enter-api-key-here>` is the API key value
    1. In the "Driver Type" drop-down box - choose: "SQLite"
    1. Select "No authentication"
+     - This should be selected even if API key authentication is enabled in the runtime, as the API key is supplied via the URL template above.
    1. The driver manager "Edit Driver" window should look like this:
    ![Driver Manager completed](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/20348c42-117b-4763-80d2-6e615b23ae00/public "Driver Manager completed")
    1. Click the blue "OK" button on the lower-right to save the driver
