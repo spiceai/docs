@@ -15,6 +15,13 @@ datasets:
       debezium_transport: kafka # Optional. Only `kafka` is currently supported.
       debezium_message_format: json # Optional. Only `json` is currently supported.
       kafka_bootstrap_servers: broker1:9092,broker2:9092,broker3:9092 # Required. A comma separated list of Kafka broker servers.
+      kafka_security_protocol: SASL_SSL # Default is `SASL_SSL`. Valid values are `PLAINTEXT`, `SSL`, `SASL_PLAINTEXT`, `SASL_SSL`.
+      kafka_sasl_mechanism: SCRAM-SHA-512 # Default is `SCRAM-SHA-512`. Valid values are `PLAIN`, `SCRAM-SHA-256`, `SCRAM-SHA-512`.
+      kafka_sasl_username: kafka # Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.
+      kafka_sasl_password: ${secrets:kafka_sasl_password} # Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.
+      kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem # Optional. Used to verify the SSL/TLS certificate of the Kafka broker.
+      kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
+
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
       engine: duckdb # `duckdb`, `sqlite` and `postgres` are supported acceleration engines for Debezium.
@@ -22,19 +29,30 @@ datasets:
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
 
-:::warning[Limitations]
-Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. SSL and SASL are not yet supported.
-:::
-
 ## Configuration
 
 ### Parameters
+
+`SASL` = Simple Authentication and Security Layer.
 
 - `debezium_transport`: Optional. The message broker transport to use. The default is `kafka`. Possible values:
   - `kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.
 - `debezium_message_format`: Optional. The message format to use. The default is `json`. Possible values:
   - `json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `arvo`.
 - `kafka_bootstrap_servers`: Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`.
+- `kafka_security_protocol`: Optional. The security protocol to use. The default is `SASL_SSL`. Possible values:
+  - `PLAINTEXT`: Communication is in plaintext with no encryption or authentication.
+  - `SSL`: Communication is encrypted using SSL/TLS with no authentication.
+  - `SASL_PLAINTEXT`: Communication is in plaintext with SASL authentication.
+  - `SASL_SSL`: Communication is encrypted using SSL/TLS with SASL authentication.
+- `kafka_sasl_mechanism`: Optional. The SASL mechanism to use. The default is `SCRAM-SHA-512`. Possible values:
+  - `PLAIN`: Usernames and passwords are sent as clear text.
+  - `SCRAM-SHA-256`: Salted Challenge Response Authentication Mechanism (SCRAM) using SHA-256 hashing.
+  - `SCRAM-SHA-512`: Salted Challenge Response Authentication Mechanism (SCRAM) using SHA-512 hashing.
+- `kafka_sasl_username`: The SASL username to use.
+- `kafka_sasl_password`: The SASL password to use.
+- `kafka_ssl_ca_location`: Optional. The location of the SSL CA certificate file to use.
+- `kafka_enable_ssl_certificate_verification`: Optional. Whether to enable SSL certificate verification. The default is `true`. Set to `false` to disable SSL certificate verification.
 
 ### Acceleration Settings
 
@@ -51,3 +69,5 @@ Using the Debezium connector requires acceleration to be enabled. The following 
 ### Example
 
 See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
+
+An example of configuring [SASL authentication over SSL](https://github.com/spiceai/samples/tree/trunk/cdc-debezium/sasl-scram) is available as well.
