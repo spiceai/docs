@@ -7,7 +7,7 @@ sidebar_position: 5
 
 To use a language model hosted on Anthropic, specify `anthropic` in the `from` field.
 
-To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `"claude-3-5-sonnet-20240620"`.
+To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `"claude-3-5-sonnet-latest"`.
 
 The following parameters are specific to Anthropic models:
 
