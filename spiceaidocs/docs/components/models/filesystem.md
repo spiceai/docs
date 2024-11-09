@@ -1,6 +1,6 @@
 ---
 title: 'Filesystem'
-description: 'Instructions for using machine learning models hosted on a filesystem with Spice.'
+description: 'Instructions for using models hosted on a filesystem with Spice.'
 sidebar_label: 'Filesystem'
 sidebar_position: 3
 ---
