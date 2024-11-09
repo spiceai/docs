@@ -21,7 +21,7 @@ models:
 
 ```yaml
 models:
-  - from: file://absolute/path/to/my/model.ggml
+  - from: file://absolute/path/to/my/model.gguf
     name: local_ggml_model
 ```
 
