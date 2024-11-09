@@ -31,6 +31,10 @@ models:
 models:
   - from: file://absolute/path/to/my/model.ggml
     name: local_ggml_model
+    files:
+      - path: models/llms/ggml/tokenizer.json
+      - path: models/llms/ggml/tokenizer_config.json
+      - path: models/llms/ggml/config.json
 ```
 
 ### Example: Loading a SafeTensor Model
