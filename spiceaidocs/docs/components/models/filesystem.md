@@ -37,6 +37,12 @@ models:
 
 ```yaml
 models:
-  - from: file://absolute/path/to/my/model.safetensor
-    name: local_safetensor_model
+  - name: safety
+    from: file:models/llms/llama3.2-1b-instruct/model.safetensors
+    params:
+      model_type: llama3
+    files:
+      - path: models/llms/llama3.2-1b-instruct/tokenizer.json
+      - path: models/llms/llama3.2-1b-instruct/tokenizer_config.json
+      - path: models/llms/llama3.2-1b-instruct/config.json
 ```
