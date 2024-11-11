@@ -122,10 +122,6 @@ SELECT * FROM 'todos.json';
 SELECT * FROM read_json('todos.json');
 ```
 
-## Using secrets
+## Secrets
 
-There are currently three supported [secret stores](/components/secret-stores/index.md):
-
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
