@@ -56,85 +56,25 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-| Parameter Name    | Description                                                                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                                       |
-| `dremio_username` | The username to connect with.                                                                                                                                            |
-| `dremio_password` | The password to connect with. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
+| Parameter Name    | Description                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                      |
+| `dremio_username` | The username to connect with.                                                                                                                           |
+| `dremio_password` | The password to connect with. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
 
 ## Examples
 
-### Environment Authentication
+### Connecting to a GRPC endpoint
 
-connection parameters can be specified as inline variables:
-```bash
-SPICE_DREMIO_USERNAME=demo \
-SPICE_DREMIO_PASSWORD=demo1234 \
-spice run
-```
-
-
-Or using the CLI to configure the secrets into an `.env` file
-```bash
-spice login dremio -u demo -p demo1234
-```
-
-`.env`
-```bash
-SPICE_DREMIO_USERNAME=demo
-SPICE_DREMIO_PASSWORD=demo1234
-```
-
-Then configure the `spicepod.yaml`:
 ```yaml
-version: v1beta1
-kind: Spicepod
-name: spice-app
-
-secrets:
-  - from: env
-    name: env
-
-datasets:
-  - from: dremio:datasets.dremio_dataset
-    name: dremio_dataset
-    params:
-      dremio_endpoint: grpc://1.2.3.4:32010
-      dremio_username: ${env:SPICE_DREMIO_USERNAME}
-      dremio_password: ${env:SPICE_DREMIO_PASSWORD}
+- from: dremio:datasets.dremio_dataset
+  name: dremio_dataset
+  params:
+    dremio_endpoint: grpc://127.0.0.1:32010
+    dremio_username: demo
+    dremio_password: ${secrets:my_dremio_pass}
 ```
 
-### Kubernetes secrets
+## Secrets
 
-```bash
-kubectl create secret generic dremio \
-  --from-literal=username='demo' \
-  --from-literal=password='demo1234'
-```
-
-`spicepod.yaml`
-```yaml
-version: v1beta1
-kind: Spicepod
-name: spice-app
-
-secrets:
-  - from: kubernetes:dremio
-    name: dremio
-
-datasets:
-  - from: dremio:datasets.dremio_dataset
-    name: dremio_dataset
-    params:
-      dremio_endpoint: grpc://1.2.3.4:32010
-      dremio_username: ${dremio:username}
-      dremio_password: ${dremio:password}
-```
-
-## Using secrets
-
-There are currently three supported [secret stores](/components/secret-stores/index.md):
-
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
