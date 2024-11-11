@@ -185,10 +185,4 @@ datasets:
 
 ## Secrets
 
-Spice supports three types of [secret stores](/components/secret-stores):
-
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
-
-Explore the different options to manage sensitive data securely.
+Spice supports several [secret stores](/components/secret-stores). See [using referenced secrets in component parameters](/components/secret-stores#using-secrets) for more information on how to manage sensitive data securely.

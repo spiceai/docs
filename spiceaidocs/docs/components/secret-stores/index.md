@@ -38,7 +38,7 @@ secrets:
     name: env
 ```
 
-## Using referenced secrets in component parameters
+## Using referenced secrets in component parameters {#using-secrets}
 
 Secrets may be used by components with the syntax `${<secret_store_name>:<key_name>}`. For example, to reference a secret stored as an environment variable named `MY_SECRET` in the `env` secret store, use `${env:MY_SECRET}`.
 
