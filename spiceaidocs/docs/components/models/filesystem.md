@@ -50,3 +50,20 @@ models:
       - path: models/llms/llama3.2-1b-instruct/tokenizer_config.json
       - path: models/llms/llama3.2-1b-instruct/config.json
 ```
+
+### Example: Overriding the Chat Template
+```yaml
+models:
+  - name: local_model
+    from: file:path/to/my/model.gguf
+    params:
+      chat_template: |
+        {% set loop_messages = messages %}
+        {% for message in loop_messages %}
+          {% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}
+          {{ content }}
+        {% endfor %}
+        {% if add_generation_prompt %}
+          {{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}
+        {% endif %}
+```
