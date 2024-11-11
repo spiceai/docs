@@ -40,19 +40,19 @@ datasets:
 - `debezium_message_format`: Optional. The message format to use. The default is `json`. Possible values:
   - `json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `arvo`.
 - `kafka_bootstrap_servers`: Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`.
-- `kafka_security_protocol`: Optional. The security protocol to use. The default is `SASL_SSL`. Possible values:
-  - `PLAINTEXT`: Communication is in plaintext with no encryption or authentication.
-  - `SSL`: Communication is encrypted using SSL/TLS with no authentication.
-  - `SASL_PLAINTEXT`: Communication is in plaintext with SASL authentication.
-  - `SASL_SSL`: Communication is encrypted using SSL/TLS with SASL authentication.
-- `kafka_sasl_mechanism`: Optional. The SASL mechanism to use. The default is `SCRAM-SHA-512`. Possible values:
-  - `PLAIN`: Usernames and passwords are sent as clear text.
+- `kafka_security_protocol`: Security protocol for Kafka connections. Default: `sasl_ssl`. Options:
+  - `PLAINTEXT`: Plaintext communication; no encryption or authentication.
+  - `SSL`: Encrypted communication via TLS; no authentication.
+  - `SASL_PLAINTEXT`: Plaintext communication; SASL authentication.
+  - `SASL_SSL`: Encrypted communication via TLS; SASL authentication.
+- `kafka_sasl_mechanism`: SASL authentication mechanism. Default: `SCRAM-SHA-512`. Options:
+  - `PLAIN`: Usernames and passwords transmitted in plaintext.
   - `SCRAM-SHA-256`: Salted Challenge Response Authentication Mechanism (SCRAM) using SHA-256 hashing.
   - `SCRAM-SHA-512`: Salted Challenge Response Authentication Mechanism (SCRAM) using SHA-512 hashing.
-- `kafka_sasl_username`: The SASL username to use.
-- `kafka_sasl_password`: The SASL password to use.
-- `kafka_ssl_ca_location`: Optional. The location of the SSL CA certificate file to use.
-- `kafka_enable_ssl_certificate_verification`: Optional. Whether to enable SSL certificate verification. The default is `true`. Set to `false` to disable SSL certificate verification.
+- `kafka_sasl_username`: SASL username.
+- `kafka_sasl_password`: SASL password.
+- `kafka_ssl_ca_location`: Path to the SSL/TLS CA certificate file for server verification.
+- `kafka_enable_ssl_certificate_verification`: Enable SSL/TLS certificate verification. Default: `true`.
 
 ### Acceleration Settings
 
