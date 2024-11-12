@@ -179,7 +179,7 @@ datasets:
     name: my_data
     params:
       abfs_tenant_id: ${ secrets:MY_TENANT_ID }
-      abfs_client_id: A587D13A-7E4E-46AB-BB87-E7A8AAFB42F3
+      abfs_client_id: ${ secrets:MY_CLIENT_ID }
       abfs_client_secret: ${ secrets:MY_CLIENT_SECRET }
 ```
 
