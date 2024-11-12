@@ -13,6 +13,7 @@ Currently supported Data Connectors include:
 
 | Name            | Description               | Status            | Protocol/Format                     | Refresh Modes               | Supports [Ingestion][ingestion] | Supports Documents |
 | --------------- | ------------------------- | ----------------- | ----------------------------------- | --------------------------- | ------------------------------- | ------------------ |
+| `duckdb`        | DuckDB                    | Release Candidate |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `github`        | GitHub                    | Release Candidate | GraphQL, REST                       | `append`, `full`            | ❌                              | ❌                 |
 | `mysql`         | MySQL                     | Release Candidate |                                     | `append`, `full`            | Roadmap                         | ❌                 |
 | `postgres`      | PostgreSQL                | Release Candidate |                                     | `append`, `full`            | Roadmap                         | ❌                 |
@@ -26,7 +27,6 @@ Currently supported Data Connectors include:
 | `clickhouse`    | Clickhouse                | Alpha             |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `debezium`      | Debezium                  | Alpha             | CDC, Kafka                          | `append`, `full`, `changes` | ❌                              | ❌                 |
 | `dremio`        | Dremio                    | Alpha             | Arrow Flight SQL                    | `append`, `full`            | ❌                              | ❌                 |
-| `duckdb`        | DuckDB                    | Alpha             |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `file`          | File                      | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `ftp`, `sftp`   | FTP/SFTP                  | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                              | ✅                 |
 | `graphql`       | GraphQL                   | Alpha             | GraphQL                             | `append`, `full`            | ❌                              | ❌                 |

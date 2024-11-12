@@ -144,6 +144,23 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 :::warning[Limitations]
 
 - String-based columns are assumed to be ISO8601 format.
+
+:::
+
+## `invalid_type_action`
+
+Optional. Specifies the action to take when a data type that is not supported by the data connector is encountered.
+
+The following values are supported:
+
+- `error` - Default. Return an error when an unsupported data type is encountered.
+- `warn` - Log a warning and ignore the column containing the unsupported data type.
+- `ignore` - Log nothing and ignore the column containing the unsupported data type.
+
+:::warning[Limitations]
+
+Not all connectors support specifying an `invalid_type_action`. When specified on a connector that does not support the option, the connector will fail to register.
+
 :::
 
 ## `acceleration`
@@ -196,6 +213,7 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
+
 :::
 
 ## `acceleration.refresh_data_window`
@@ -230,8 +248,8 @@ Optional. Defines the maximum number of retry attempts when refresh retries are 
 
 Supports one of two values:
 
-* `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
-* `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+- `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
 
 ```yaml
 datasets:

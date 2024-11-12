@@ -24,6 +24,8 @@ The DuckDB data connector can be configured by providing the following `params`:
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
+The DuckDB data connector supports specifying an [`invalid_type_action` dataset parameter](../../reference/spicepod/datasets.md#invalid_type_action), modifying the behavior of the Runtime when a data type the connector does not support is encountered.
+
 A generic example of DuckDB data connector configuration.
 
 ```yaml
