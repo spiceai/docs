@@ -178,7 +178,7 @@ datasets:
   - from: abfs://my_data/input.parquet
     name: my_data
     params:
-      abfs_tentant_id: B3E1A8F4-9D5B-4D3B-8D2E-1F4A9D5B4D3B
+      abfs_tenant_id: ${ secrets:MY_TENANT_ID }
       abfs_client_id: A587D13A-7E4E-46AB-BB87-E7A8AAFB42F3
       abfs_client_secret: qoiwdjqidj213094103213o0~!!
 ```
