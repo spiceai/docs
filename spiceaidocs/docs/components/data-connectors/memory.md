@@ -19,4 +19,8 @@ datasets:
     - name: value
       embeddings: # Easily make your LLM learnings searchable.
         - from: all-MiniLM-L6-v2
+
+embeddings:
+  - name: all-MiniLM-L6-v2
+    from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 ```

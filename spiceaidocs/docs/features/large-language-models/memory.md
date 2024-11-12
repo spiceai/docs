@@ -25,11 +25,10 @@ datasets:
 
 models:
   - name: memory-enabled-model
-    from: openai:gpt-4
+    from: openai:gpt-4o
     params:
       spice_tools: memory, sql # Can be combined with other tool groups
 ```
-
 
 ## Available Tools
  - `store_memory`: Store important information for future reference
