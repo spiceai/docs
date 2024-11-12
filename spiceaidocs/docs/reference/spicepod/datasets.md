@@ -4,9 +4,7 @@ sidebar_label: 'Datasets'
 description: 'Datasets YAML reference'
 ---
 
-A Spicepod can contain one or more datasets referenced by relative path, or defined inline.
-
-# `datasets`
+A Spicepod can contain one or more `datasets` referenced by relative path or defined inline.
 
 Inline example:
 
@@ -121,7 +119,11 @@ datasets:
 
 ## `name`
 
-The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources.
+
+## `description`
+
+The description of the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
 
 ## `time_column`
 
@@ -257,8 +259,7 @@ Supports one of two values:
 datasets:
   - from: s3://my_bucket/my_dataset/
     name: my_dataset
-    params:
-      ...
+    params: ...
     acceleration:
       enabled: true
       ready_state: on_registration # or on_load
@@ -399,7 +400,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose.
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -411,7 +412,9 @@ The embedding model to use, specify the component name.
 
 ## `columns[*].embeddings[*].row_id`
 
-Optional. For datasets without a primary key, explicitly specify column(s) that uniquely identify a row.
+Optional. For datasets without a primary key, used to explicitly specify column(s) that uniquely identify a row.
+
+Specifying a `row_id` enables unique identifier lookups for datasets from external systems that may not have a primary key.
 
 ## `columns[*].embeddings[*].chunking`
 
@@ -491,3 +494,15 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 ## `embeddings[*].chunking.trim_whitespace`
 
 Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
+
+## `metdata`
+
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    metadata:
+      instructions: The last 128 blocks.
+```
