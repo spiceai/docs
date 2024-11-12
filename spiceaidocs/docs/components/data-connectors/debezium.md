@@ -33,8 +33,6 @@ datasets:
 
 ### Parameters
 
-`SASL` = Simple Authentication and Security Layer.
-
 - `debezium_transport`: Optional. The message broker transport to use. The default is `kafka`. Possible values:
   - `kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.
 - `debezium_message_format`: Optional. The message format to use. The default is `json`. Possible values:
@@ -43,7 +41,7 @@ datasets:
 - `kafka_security_protocol`: Security protocol for Kafka connections. Default: `sasl_ssl`. Options:
   - `PLAINTEXT`: Plaintext communication; no encryption or authentication.
   - `SSL`: Encrypted communication via TLS; no authentication.
-  - `SASL_PLAINTEXT`: Plaintext communication; SASL authentication.
+  - `SASL_PLAINTEXT`: Plaintext communication; SASL (Simple Authentication and Security Layer) authentication.
   - `SASL_SSL`: Encrypted communication via TLS; SASL authentication.
 - `kafka_sasl_mechanism`: SASL authentication mechanism. Default: `SCRAM-SHA-512`. Options:
   - `PLAIN`: Usernames and passwords transmitted in plaintext.
