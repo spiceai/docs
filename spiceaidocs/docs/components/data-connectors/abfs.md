@@ -16,7 +16,7 @@ datasets:
     name: azure_test
     params:
       abfs_account: spiceadls
-      abfs_access_key: abc123==
+      abfs_access_key: ${ secrets:access_key }
       file_format: csv
 ```
 
