@@ -50,6 +50,26 @@ When using `mode: append`, if late arriving data or clock-skew needs to be accou
 
 Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/components/data-connectors/debezium.md).
 
+## Ready State
+
+By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/api/http/ready) is used in production deployments to control when queries are sent to the Spice runtime.
+
+The ready state for an accelerated dataset can be configured using the [`ready_state`](/reference/spicepod/datasets#accelerationready_state) parameter in the acceleration configuration.
+
+- `ready_state: on_load`: Default. The dataset is considered ready after the initial load of the accelerated data. For file-based accelerated datasets that have existing data, this will be ready immediately. Queries against this dataset before the data is loaded will return an error.
+- `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Queries against this dataset before the data is loaded will automatically fallback to the federated source. Once the data is loaded, queries will be served from the acceleration.
+
+Example:
+
+```yaml
+datasets:
+  - from: s3://my_bucket/my_dataset
+    name: my_dataset
+    acceleration:
+      enabled: true
+      ready_state: on_load # or on_registration
+```
+
 ## Filtered Refresh
 
 Typically only a working subset of an entire dataset is used in an application or dashboard. Use these features to filter refresh data, creating a smaller subset for faster processing and to reduce the data transferred and stored locally.

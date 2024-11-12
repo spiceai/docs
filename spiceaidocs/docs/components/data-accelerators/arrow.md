@@ -2,7 +2,7 @@
 title: 'In-Memory Arrow Data Accelerator'
 sidebar_label: 'In-Memory Arrow Data Accelerator'
 description: 'In-Memory Arrow Data Accelerator Documentation'
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 The In-Memory Arrow Data Accelerator is the default data accelerator in Spice. It uses Apache Arrow to store data in-memory for fast access and query performance.

@@ -1,26 +1,21 @@
 ---
-title: 'AI/ML Models'
-sidebar_label: 'AI/ML Models'
-description: ''
+title: 'Model Providers'
+sidebar_label: 'Model Providers'
+description: 'Overview of supported model providers for ML and LLMs in Spice.'
 sidebar_position: 5
 ---
 
-Spice supports traditional machine learning (ML) models and language models (LLMs).
+Spice supports various model providers for traditional machine learning (ML) models and large language models (LLMs).
 
-- **Filesystem**: [ONNX](https://onnx.ai) models.
-- **HuggingFace**: ONNX models hosted on [HuggingFace](https://huggingface.co).
-- **Spice Cloud Platform**: Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models).
-- **OpenAI**: OpenAI (or compatible) LLM endpoints.
+| Source        | Description                                                                                     | ML Format(s) | LLM Format(s)\*        |
+| ------------- | ----------------------------------------------------------------------------------------------- | ------------ | ---------------------- |
+| `file`        | Local filesystem                                                                                | ONNX         | GGUF, GGML, SafeTensor |
+| `huggingface` | Models hosted on [HuggingFace](https://huggingface.co)                                          | ONNX         | GGUF, GGML, SafeTensor |
+| `spice.ai`    | Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models) | ONNX         | -                      |
+| `openai`      | OpenAI (or compatible) LLM endpoint                                                             | -            | Remote HTTP endpoint   |
+| `anthropic`   | Models hosted on [Anthropic](https://www.anthropic.com)                                         | -            | Remote HTTP endpoint   |
+| `grok`        | Coming soon                                                                                     | -            | Remote HTTP endpoint   |
 
-### Model Sources
-
-| Name                         | Description      | ML Format(s) | LLM Format(s)*          |
-| ---------------------------- | ---------------- | ------------ | ----------------------- |
-| `file`                       | Local filesystem |    ONNX      | GGUF, GGML, SafeTensor  |
-| `huggingface:huggingface.co` | Models hosted on [HuggingFace](https://huggingface.co)                                          | ONNX  | GGUF, GGML, SafeTensor |
-| `spice.ai`                   | Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models) | ONNX  | - |
-| `openai`                     | OpenAI (or compatible) LLM endpoint | -  | Remote HTTP endpoint |
-
-* LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
+- LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).

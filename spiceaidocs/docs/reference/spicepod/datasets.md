@@ -353,6 +353,64 @@ datasets:
         hash: upsert
 ```
 
+## `columns`
+
+Optional. Define metadata and features for specific columns in the dataset.
+
+```yaml
+datasets:
+  - from: file:sales_data.parquet
+    name: sales
+    columns:
+      - name: address_line1
+        description: The first line of the address.
+        embeddings:
+          - from: hf_minilm
+            row_id: order_number
+            chunking:
+              enabled: true
+              target_chunk_size: 256
+              overlap_size: 32
+```
+
+## `columns[*].name`
+
+The name of the column in the table schema.
+
+## `columns[*].description`
+
+Optional. A description of the column's contents and purpose.
+
+## `columns[*].embeddings`
+
+Optional. Create vector embeddings for this column.
+
+## `columns[*].embeddings[*].from`
+
+The embedding model to use, specify the component name.
+
+## `columns[*].embeddings[*].row_id`
+
+Optional. For datasets without a primary key, explicitly specify column(s) that uniquely identify a row.
+
+## `columns[*].embeddings[*].chunking`
+
+Optional. The configuration to enable and define the chunking strategy for the embedding column.
+
+```yaml
+columns:
+  - name: description
+    embeddings:
+      - from: hf_minilm
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: false
+```
+
+See [`embeddings[*].chunking`](#embeddingschunking) for details.
+
 ## `embeddings`
 
 Optional. Create vector embeddings for specific columns of the dataset.

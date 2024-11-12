@@ -1,12 +1,13 @@
 ---
 title: 'HuggingFace'
+description: 'Instructions for using machine learning models hosted on HuggingFace with Spice.'
 sidebar_label: 'HuggingFace'
 sidebar_position: 1
 ---
 
-To use a ML model hosted on HuggingFace, specify the `huggingface.co` path in `from` along with the files to include.
+To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` field along with the files to include.
 
-Example:
+Example configuration:
 
 ```yaml
 models:
@@ -40,9 +41,11 @@ The `from` key follows the following regex format:
 5. **Revision (Optional):** A colon (`:`) followed by the git-like revision identifier (`revision`).
 
 ### Access Tokens
+
 Access tokens can be provided for Huggingface models in two ways:
-  1. In the Huggingface token cache (i.e. `~/.cache/huggingface/token`). Default.
-  1. Via model params (see below).
+
+1. In the Huggingface token cache (i.e. `~/.cache/huggingface/token`). Default.
+1. Via model params (see below).
 
 ```yaml
 models:

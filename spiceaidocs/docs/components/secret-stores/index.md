@@ -30,6 +30,7 @@ The Secret Store type and name are specified using the `from` and `name` fields.
 Additional parameters may be specified in the `params` field, which are typically specific to the secret store type.
 
 Example:
+
 ```yaml
 secrets:
   - from: kubernetes:my_secret
@@ -43,6 +44,7 @@ secrets:
 Secrets may be used by components with the syntax `${<secret_store_name>:<key_name>}`. For example, to reference a secret stored as an environment variable named `MY_SECRET` in the `env` secret store, use `${env:MY_SECRET}`.
 
 Example:
+
 ```yaml
 datasets:
   - from: postgres:my_table
@@ -67,6 +69,7 @@ datasets:
 The `<secret_store_name>` value in `${<secret_store_name>:<key_name>}` is the `name` value defined in the secret store configuration. This can be renamed to any value.
 
 Example:
+
 ```yaml
 secrets:
   - from: env
@@ -91,6 +94,7 @@ Spice supports configuring multiple secret stores which are loaded in the order 
 To load a secret from any of the configured secret stores in precedence order, use the `${secrets:<key_name>}` syntax.
 
 Example:
+
 ```yaml
 secrets:
   - from: env
