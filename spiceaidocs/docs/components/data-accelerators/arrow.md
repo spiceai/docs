@@ -36,6 +36,7 @@ datasets:
 
 - The In-Memory Arrow Data Accelerator does not support persistent storage. Data is stored in-memory and will be lost when the Spice runtime is stopped.
 - The In-Memory Arrow Data Accelerator does not support `Decimal256` (76 digits), as it exceeds Arrow's maximum Decimal width of 38 digits.
+- The In-Memory Arrow Data Accelerator does not support [constraints](/features/data-acceleration/constraints) and [indexes](/features/data-acceleration/indexes).
 
 :::warning[Memory Considerations]
 
