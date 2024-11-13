@@ -32,7 +32,7 @@ Supported Data Accelerators include:
 | --------------------------------- | ----------------------- | ------ | ---------------- |
 | [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Beta   | `memory`, `file` |
 | [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Beta   |                  |
-| [`arrow`](./arrow.md)             | In-Memory Arrow Records | Beta   | `memory`         |
+| [`arrow`](./arrow.md)             | In-Memory Arrow Records | RC     | `memory`         |
 | [`sqlite`](./sqlite.md)           | Embedded SQLite         | Beta   | `memory`, `file` |
 
 ## Data Types
