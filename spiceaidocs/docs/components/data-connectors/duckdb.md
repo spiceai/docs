@@ -96,6 +96,5 @@ SELECT * FROM read_json('todos.json');
   - Unsupported:
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
 - The DuckDB connector does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
-- Updating a dataset with a DuckDB connector while the Spice Runtime is running (hot-reload) will cause the DuckDB connector query federation to disable until the Runtime is restarted.
 
 :::
