@@ -28,12 +28,12 @@ A choice of DuckDB, SQLite, or PostgreSQL engines can be used to materialize dat
 
 Supported Data Accelerators include:
 
-| Engine Name                       | Description             | Status | Engine Modes     |
-| --------------------------------- | ----------------------- | ------ | ---------------- |
-| [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Beta   | `memory`, `file` |
-| [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Beta   |                  |
-| [`arrow`](./arrow.md)             | In-Memory Arrow Records | RC     | `memory`         |
-| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Beta   | `memory`, `file` |
+| Engine Name                       | Description             | Status            | Engine Modes     |
+| --------------------------------- | ----------------------- | ----------------- | ---------------- |
+| [`arrow`](./arrow.md)             | In-Memory Arrow Records | Release Candidate | `memory`         |
+| [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Beta              | `memory`, `file` |
+| [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Beta              |                  |
+| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Beta              | `memory`, `file` |
 
 ## Data Types
 
