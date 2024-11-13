@@ -15,7 +15,7 @@ Spice provides memory persistence tools that allow language models to store and 
 
 To enable memory tools for Spice models you need to:
  1. Define a `store` [memory](/components/data-connectors/memory.md) dataset.
- 2. Specify `memory` in the model's `spice_tools` parameter.
+ 2. Specify `memory` in the model's `tools` parameter.
 
 ```yaml
 datasets:
@@ -27,7 +27,7 @@ models:
   - name: memory-enabled-model
     from: openai:gpt-4o
     params:
-      spice_tools: memory, sql # Can be combined with other tool groups
+      tools: memory, sql # Can be combined with other tool groups
 ```
 
 ## Available Tools
