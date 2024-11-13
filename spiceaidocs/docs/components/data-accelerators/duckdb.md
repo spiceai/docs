@@ -37,8 +37,11 @@ datasets:
 :::warning[Limitations]
 
 - The DuckDB accelerator does not support nested lists, or structs with nested structs/lists [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
+  - Supported:
+    - `SELECT {'x': 1, 'y': 2, 'z': 3}`
   - Unsupported:
     - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]`
+    - `SELECT {'x': [1, 2, 3]}`
 - The DuckDB accelerator does not support enum, dictionary, or map [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
   - Unsupported:
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
