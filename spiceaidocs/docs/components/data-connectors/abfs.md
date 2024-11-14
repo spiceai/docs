@@ -70,7 +70,7 @@ SELECT COUNT(*) FROM cool_dataset;
 | `abfs_proxy_url`            | Proxy URL                                                                                        |
 | `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                     |
 | `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                |
-| `abfs_disable_tagging`      | Ignore tags in `put_opts`                                                                        |
+| `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                     |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false` |
 
 
