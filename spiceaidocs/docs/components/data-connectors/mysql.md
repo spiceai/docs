@@ -10,7 +10,7 @@ The MySQL Data Connector enables federated/accelerated SQL queries on data store
 
 ```yaml
 datasets:
-  - from: mysql:path.to.my_dataset
+  - from: mysql:mytable
     name: my_dataset
     params:
       mysql_host: localhost
@@ -24,7 +24,28 @@ datasets:
 
 ### `from`
 
-The `from` field takes the form `mysql:path.to.my_dataset` where `path.to.my_dataset` is the fully-qualified table name in the SQL server.
+The `from` field takes the form `mysql:database_name.table_name` where `database_name` is the fully-qualified table name in the SQL server.
+
+If `database_name` is omitted the connector will use the `mysql_db` parameter if specified, or the default database otherwise.
+
+These two examples are identical:
+
+```yaml
+datasets:
+  - from: mysql:mytable
+    name: my_dataset
+    params:
+      mysql_db: my_database
+      ...
+```
+
+```yaml
+datasets:
+  - from: mysql:my_database.mytable
+    name: my_dataset
+    params:
+      ...
+```
 
 ### `name`
 
@@ -147,6 +168,19 @@ datasets:
     name: my_dataset
     params:
       mysql_connection_string: mysql://${secrets:my_user}:${secrets:my_password}@localhost:3306/my_db
+```
+
+### Connecting to the default database
+
+```yaml
+datasets:
+  - from: mysql:mytable
+    name: my_dataset
+    params:
+      mysql_host: localhost
+      mysql_tcp_port: 3306
+      mysql_user: my_user
+      mysql_pass: ${secrets:mysql_pass}
 ```
 
 ## Secrets
