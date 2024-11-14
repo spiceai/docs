@@ -4,7 +4,7 @@ sidebar_label: 'Microsoft SQL Server'
 description: 'Microsoft SQL Server Data Connector'
 ---
 
-[Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) is a relational database management system developed by Microsoft, designed to store and retrieve data as requested by other software applications.
+[Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) is a relational database management system developed by Microsoft.
 
 The Microsoft SQL Server Data Connector enables federated/accelerated SQL queries on data stored in MSSQL databases.
 
