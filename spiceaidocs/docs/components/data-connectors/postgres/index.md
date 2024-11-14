@@ -6,7 +6,7 @@ description: 'PostgreSQL Data Connector Documentation'
 
 PostgreSQL is an advanced open-source relational database management system known for its robustness, extensibility, and support for SQL compliance.
 
-The PostgreSQL Server Data Connector enables federated SQL queries on data stored in PostgreSQL databases.
+The PostgreSQL Server Data Connector enables federated/accelerated SQL queries on data stored in PostgreSQL databases.
 
 ```yaml
 datasets:
