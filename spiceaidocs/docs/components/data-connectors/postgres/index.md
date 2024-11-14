@@ -14,12 +14,6 @@ datasets:
     name: my_dataset
 ```
 
-:::warning[Limitations]
-
-The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
-
-:::
-
 ## Configuration
 
 ### `from`
@@ -107,6 +101,12 @@ The table below shows the PostgreSQL data types supported, along with the type m
 | `enum`            | `Dictionary(Int8, Utf8)`                        |
 | Composite Types   | `Struct`                                        |
 
+:::info
+
+The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
+
+:::
+
 ## Examples
 
 ### Connecting using Username/Password
@@ -145,7 +145,7 @@ Specify different secrets for a PostgreSQL source and acceleration:
 
 ```yaml
 datasets:
-  - from: spice.ai:path.to.my_dataset
+  - from: postgres:path.to.my_dataset
     name: my_dataset
     params:
       pg_host: localhost
