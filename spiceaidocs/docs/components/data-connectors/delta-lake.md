@@ -137,10 +137,6 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
       delta_lake_google_service_account_path: /path/to/service-account.json
 ```
 
-## Using secrets
+## Secrets
 
-There are currently three supported [secret stores](/components/secret-stores/index.md):
-
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
