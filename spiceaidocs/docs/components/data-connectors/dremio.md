@@ -25,7 +25,7 @@ The `from` field takes the form `dremio:dataset` where `dataset` is the fully qu
 
 :::warning [Limitations]
 
-Only three nested levels of a dataset name is currently supported, e.g `a.b.c`. Any futher than that is not supported at this time.
+Currently, only up to three levels of nesting are supported for dataset names (e.g., a.b.c). Additional levels are not supported at this time.
 
 :::
 
