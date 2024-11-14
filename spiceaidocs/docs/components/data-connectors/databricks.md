@@ -9,32 +9,21 @@ Databricks as a connector for federated SQL query against Databricks using [Spar
 
 ```yaml
 datasets:
-  # Example for Spark Connect
-  - from: databricks:spiceai.datasets.my_awesome_table  # A reference to a table in the Databricks unity catalog
-    name: my_delta_lake_table
-    params:
-      mode: spark_connect
-      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-      databricks_token: ${secrets:my_token} # Use the key `my_token` from any secret store
-      databricks_cluster_id: 1234-567890-abcde123
-  # Example for Delta Lake + S3
   - from: databricks:spiceai.datasets.my_awesome_table  # A reference to a table in the Databricks unity catalog
     name: my_delta_lake_table
     params:
       mode: delta_lake
       databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
       databricks_token: ${secrets:my_token}
-      databricks_aws_region: us-west-2 # Optional
       databricks_aws_access_key_id: ${secrets:aws_access_key_id}
       databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
-      databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
 ```
 
 ## Configuration
 
 ### `from`
 
-The `from` field for the Databricks connector takes the form `databricks:schema.database.table` where `schema.database.table` is the fully-qualified path to the table to read from.
+The `from` field for the Databricks connector takes the form `databricks:catalog.schema.table` where `catalog.schema.table` is the fully-qualified path to the table to read from.
 
 ### `name`
 
@@ -116,60 +105,64 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 ### Spark Connect
 
 ```yaml
-  params:
-    mode: spark_connect
-    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks_cluster_id: 1234-567890-abcde123
-    databricks_token: ${secrets:my_token}
+  - from: databricks:spiceai.datasets.my_spark_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: spark_connect
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_cluster_id: 1234-567890-abcde123
+      databricks_token: ${secrets:my_token}
 ```
 
 ### Delta Lake (S3)
 
 ```yaml
-  params:
-    mode: delta_lake
-    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks_token: ${secrets:my_token}
-    databricks_aws_region: us-west-2 # Optional
-    databricks_aws_access_key_id: ${secrets:aws_access_key_id}
-    databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
-    databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
+  - from: databricks:spiceai.datasets.my_delta_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_aws_region: us-west-2 # Optional
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
 ```
 
 ### Delta Lake (Azure Blobs)
 
 ```yaml
-  params:
-    mode: delta_lake
-    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks_token: ${secrets:my_token}
+  - from: databricks:spiceai.datasets.my_adls_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
 
-    # Account Name + Key
-    databricks_azure_storage_account_name: my_account
-    databricks_azure_storage_account_key: ${secrets:my_key}
+      # Account Name + Key
+      databricks_azure_storage_account_name: my_account
+      databricks_azure_storage_account_key: ${secrets:my_key}
 
-    # OR Service Principal + Secret
-    databricks_azure_storage_client_id: my_client_id
-    databricks_azure_storage_client_secret: ${secrets:my_secret}
+      # OR Service Principal + Secret
+      databricks_azure_storage_client_id: my_client_id
+      databricks_azure_storage_client_secret: ${secrets:my_secret}
 
-    # OR SAS Key
-    databricks_azure_storage_sas_key: my_sas_key
+      # OR SAS Key
+      databricks_azure_storage_sas_key: my_sas_key
 ```
 
 ### Delta Lake (GCP)
 
 ```yaml
-  params:
-    mode: delta_lake
-    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks_token: ${secrets:my_token}
-    databricks_google_service_account_path: /path/to/service-account.json
+  - from: databricks:spiceai.datasets.my_gcp_table  # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_google_service_account_path: /path/to/service-account.json
 ```
 
-## Using secrets
+## Secrets
 
-There are currently three supported [secret stores](/components/secret-stores/index.md):
-
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
