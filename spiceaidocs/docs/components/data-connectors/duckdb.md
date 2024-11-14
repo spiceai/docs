@@ -24,6 +24,8 @@ The DuckDB data connector can be configured by providing the following `params`:
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
+The DuckDB data connector supports specifying an [`invalid_type_action` dataset parameter](../../reference/spicepod/datasets.md#invalid_type_action), modifying the behavior of the Runtime when a data type the connector does not support is encountered.
+
 A generic example of DuckDB data connector configuration.
 
 ```yaml
@@ -81,3 +83,18 @@ SELECT * FROM 'todos.json';
 -- As a DuckDB function
 SELECT * FROM read_json('todos.json');
 ```
+
+:::warning[Limitations]
+
+- The DuckDB connector does not support nested lists, or structs with nested structs/lists [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
+  - Supported:
+    - `SELECT {'x': 1, 'y': 2, 'z': 3}`
+  - Unsupported:
+    - `SELECT [['duck', 'goose', 'heron'], ['frog', 'toad']]`
+    - `SELECT {'x': [1, 2, 3]}`
+- The DuckDB connector does not support enum, dictionary, or map [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
+  - Unsupported:
+    - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
+- The DuckDB connector does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
+
+:::

@@ -1,5 +1,6 @@
 ---
 title: 'Spice Cloud Platform'
+description: 'Instructions for using models hosted on the Spice Cloud Platform with Spice.'
 sidebar_label: 'Spice Cloud Platform'
 sidebar_position: 2
 ---

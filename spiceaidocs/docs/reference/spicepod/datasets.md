@@ -4,9 +4,7 @@ sidebar_label: 'Datasets'
 description: 'Datasets YAML reference'
 ---
 
-A Spicepod can contain one or more datasets referenced by relative path, or defined inline.
-
-# `datasets`
+A Spicepod can contain one or more `datasets` referenced by relative path or defined inline.
 
 Inline example:
 
@@ -121,7 +119,11 @@ datasets:
 
 ## `name`
 
-The name of the dataset. This is used to reference the dataset in the pod manifest, as well as in external data sources.
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources.
+
+## `description`
+
+The description of the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
 
 ## `time_column`
 
@@ -144,6 +146,25 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 :::warning[Limitations]
 
 - String-based columns are assumed to be ISO8601 format.
+
+:::
+
+## `invalid_type_action`
+
+Optional. Specifies the action to take when a data type that is not supported by the data connector is encountered.
+
+The following values are supported:
+
+- `error` - Default. Return an error when an unsupported data type is encountered.
+- `warn` - Log a warning and ignore the column containing the unsupported data type.
+- `ignore` - Log nothing and ignore the column containing the unsupported data type.
+
+:::warning[Limitations]
+
+Not all connectors support specifying an `invalid_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `invalid_type_action`:
+
+- [DuckDB](../../components/data-connectors/duckdb.md)
+
 :::
 
 ## `acceleration`
@@ -196,6 +217,7 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
+
 :::
 
 ## `acceleration.refresh_data_window`
@@ -230,15 +252,14 @@ Optional. Defines the maximum number of retry attempts when refresh retries are 
 
 Supports one of two values:
 
-* `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
-* `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+- `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset/
     name: my_dataset
-    params:
-      ...
+    params: ...
     acceleration:
       enabled: true
       ready_state: on_registration # or on_load
@@ -353,6 +374,66 @@ datasets:
         hash: upsert
 ```
 
+## `columns`
+
+Optional. Define metadata and features for specific columns in the dataset.
+
+```yaml
+datasets:
+  - from: file:sales_data.parquet
+    name: sales
+    columns:
+      - name: address_line1
+        description: The first line of the address.
+        embeddings:
+          - from: hf_minilm
+            row_id: order_number
+            chunking:
+              enabled: true
+              target_chunk_size: 256
+              overlap_size: 32
+```
+
+## `columns[*].name`
+
+The name of the column in the table schema.
+
+## `columns[*].description`
+
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+
+## `columns[*].embeddings`
+
+Optional. Create vector embeddings for this column.
+
+## `columns[*].embeddings[*].from`
+
+The embedding model to use, specify the component name.
+
+## `columns[*].embeddings[*].row_id`
+
+Optional. For datasets without a primary key, used to explicitly specify column(s) that uniquely identify a row.
+
+Specifying a `row_id` enables unique identifier lookups for datasets from external systems that may not have a primary key.
+
+## `columns[*].embeddings[*].chunking`
+
+Optional. The configuration to enable and define the chunking strategy for the embedding column.
+
+```yaml
+columns:
+  - name: description
+    embeddings:
+      - from: hf_minilm
+        chunking:
+          enabled: true
+          target_chunk_size: 512
+          overlap_size: 128
+          trim_whitespace: false
+```
+
+See [`embeddings[*].chunking`](#embeddingschunking) for details.
+
 ## `embeddings`
 
 Optional. Create vector embeddings for specific columns of the dataset.
@@ -413,3 +494,15 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 ## `embeddings[*].chunking.trim_whitespace`
 
 Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
+
+## `metdata`
+
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    metadata:
+      instructions: The last 128 blocks.
+```

@@ -1,36 +1,30 @@
 ---
-title: 'Anthropic Language Models'
+title: 'Anthropic Models'
+description: 'Instructions for using language models hosted on Anthropic with Spice.'
 sidebar_label: 'Anthropic'
 sidebar_position: 5
 ---
 
-To use a language model hosted on Anthropic, specify `anthropic` in `from`.
+To use a language model hosted on Anthropic, specify `anthropic` in the `from` field.
 
-For a specific model, include it as the model ID in `from` (see example below). Defaults to `"claude-3-5-sonnet-20240620"`.
-These parameters are specific to Anthropic models:
+To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `"claude-3-5-sonnet-latest"`.
 
-| Param | Description | Default |
-| ----- | ----------- | ------- |
-| `anthropic_api_key` | The Anthropic API key.        | -                           |
-| `anthropic_auth_token` | The Anthropic auth token. | -                           |
-| `endpoint` | The Anthropic API base endpoint.    | `https://api.anthropic.com/v1` |
+The following parameters are specific to Anthropic models:
 
-Example:
+| Parameter              | Description                      | Default                        |
+| ---------------------- | -------------------------------- | ------------------------------ |
+| `anthropic_api_key`    | The Anthropic API key.           | -                              |
+| `anthropic_auth_token` | The Anthropic auth token.        | -                              |
+| `endpoint`             | The Anthropic API base endpoint. | `https://api.anthropic.com/v1` |
+
+Example `spicepod.yml` configuration:
 
 ```yaml
 models:
-  - from: anthropic:claude-3-5-sonnet-20240620
+  - from: anthropic:claude-3-5-sonnet-latest
     name: claude_3_5_sonnet
     params:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
 
-## Supported Models
-
-- `claude-3-5-sonnet-20240620`
-- `claude-3-opus-20240229`
-- `claude-3-sonnet-20240229`
-- `claude-3-haiku-20240307`
-- `claude-2.1`
-- `claude-2.0`
-- `claude-instant-1.2`
+See [Anthropic Model Names](https://docs.anthropic.com/en/docs/about-claude/models#model-names) for a list of supported model names.

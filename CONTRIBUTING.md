@@ -9,5 +9,5 @@ We will add a Spice specific style-guide in the future. Until then, we recommend
 - Kubernetes [Documentation Style Guide](https://kubernetes.io/docs/contribute/style/style-guide/)
 - Google [developer documentation style guide](https://developers.google.com/style/)
 - GitLab [Documentation guidelines](https://docs.gitlab.com/ee/development/documentation/index.html)
-- Mozilla [Writing style guide](https://developer.mozilla.org/en-US/docs/MDN/Guidelines/Writing_style_guide) 
+- Mozilla [Writing style guide](https://developer.mozilla.org/en-US/docs/MDN/Guidelines/Writing_style_guide)
 - Microsoft [Writing Style Guide](https://docs.microsoft.com/en-us/style-guide/welcome/)

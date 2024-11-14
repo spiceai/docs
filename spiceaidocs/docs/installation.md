@@ -74,7 +74,7 @@ x86_x64 and ARM binaries for linux, Windows, and macOS are available for downloa
     sudo apt update
     sudo apt install build-essential curl openssl libssl-dev pkg-config protobuf-compiler cmake
     ```
-  
+
   2. Install Go
     ```shell
     export GO_VERSION="1.22.4"
@@ -121,3 +121,39 @@ SPICED_CUSTOM_FEATURES="postgres sqlite" make install
 # Add it to the end of your .bashrc or .zshrc to permanently add spice to your PATH.
 export PATH="$PATH:$HOME/.spice/bin"
 ```
+
+### Build with Hardware Acceleration
+Spice OSS supports running both local language models and embedding models on dedicated hardware. This is for models from either Huggingface or models located locally.
+
+Currently, neither CUDA nor metal have dedicated Dockerfiles or release binaries.
+
+#### CUDA Support
+
+**Steps**:
+1. GPUs with Cuda compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series, ...).
+1. Ensure both Cuda and associated Nvidia drivers are installed. Requires CUDA version 12.2 or higher
+1. Ensure Nvidia binaries are in your path:
+```shell
+export PATH=$PATH:/usr/local/cuda/bin
+```
+1. Build Spice OSS with CUDA support:
+```shell
+make install-with-models-cuda
+```
+
+This ensures CUDA devices are selected on model load, and CUDA-specifiy kernels used when possible.
+
+#### Metal Support
+
+**Steps**:
+1. Ensure you have Xcode installed.
+```shell
+xcode-select --install
+```
+
+1. Build Spice OSS with Metal support:
+```shell
+make install-with-models-metal
+```
+
+Similarily, this ensures Metal devices are selected on model load, and Metal-specific kernels used when possible.

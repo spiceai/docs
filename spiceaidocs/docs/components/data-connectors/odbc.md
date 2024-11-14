@@ -52,6 +52,35 @@ For the best `JOIN` performance, ensure all ODBC datasets from the same database
 
 :::
 
+## ODBC Connection String
+
+The ODBC connection string requires the use of an installed and registered driver based on your system type:
+
+- Unix systems; ODBC driver installations can be managed using [unixODBC](https://www.unixodbc.org/), or directly edited through `/etc/odbc.ini` or `/etc/odbcinst.ini`. For example, in the [Databricks DSN Connection Setup Guide](https://docs.databricks.com/en/integrations/odbc/dsn.html#linux) for Linux.
+- Windows systems; ODBC driver installations are managed using the [ODBC Data Source Administrator](https://support.microsoft.com/en-au/office/administer-odbc-data-sources-b19f856b-5b9b-48c9-8b93-07484bfab5a7).
+
+For an example Unix system with an installed PostgreSQL driver where the contents of `/etc/odbcinst.ini` is:
+
+```ini
+[PostgreSQL Unicode]
+Description=PostgreSQL ODBC driver (Unicode version)
+Driver=psqlodbcw.so
+Setup=libodbcpsqlS.so
+Debug=0
+CommLog=1
+UsageCount=1
+```
+
+The Spice Runtime can use this driver installation where `Driver={PostgreSQL Unicode}` is used in the connection string, like:
+
+```yaml
+datasets:
+  - from: odbc:my_table
+    name: my_dataset
+    params:
+      odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=postgres;Uid=myuser;Pwd=mypass
+```
+
 ## Configuration
 
 In addition to the connection string, the following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:

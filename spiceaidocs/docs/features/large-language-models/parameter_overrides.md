@@ -1,6 +1,6 @@
 ---
 title: 'Language Model Overrides'
-sidebar_label: 'Default overrides'
+sidebar_label: 'Parameter overrides'
 description: 'Learn how to override default LLM hyperparameters in Spice.'
 sidebar_position: 1
 pagination_prev: null

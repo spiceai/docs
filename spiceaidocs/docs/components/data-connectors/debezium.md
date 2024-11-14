@@ -15,16 +15,19 @@ datasets:
       debezium_transport: kafka # Optional. Only `kafka` is currently supported.
       debezium_message_format: json # Optional. Only `json` is currently supported.
       kafka_bootstrap_servers: broker1:9092,broker2:9092,broker3:9092 # Required. A comma separated list of Kafka broker servers.
+      kafka_security_protocol: SASL_SSL # Default is `SASL_SSL`. Valid values are `PLAINTEXT`, `SSL`, `SASL_PLAINTEXT`, `SASL_SSL`.
+      kafka_sasl_mechanism: SCRAM-SHA-512 # Default is `SCRAM-SHA-512`. Valid values are `PLAIN`, `SCRAM-SHA-256`, `SCRAM-SHA-512`.
+      kafka_sasl_username: kafka # Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.
+      kafka_sasl_password: ${secrets:kafka_sasl_password} # Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.
+      kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem # Optional. Used to verify the SSL/TLS certificate of the Kafka broker.
+      kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
+
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
       engine: duckdb # `duckdb`, `sqlite` and `postgres` are supported acceleration engines for Debezium.
       refresh_mode: changes # Optional. If specified, this is required to be set to `changes` - any other value is an error.
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
-
-:::warning[Limitations]
-Currently, only the `PLAINTEXT` protocol is supported for connecting to Kafka. SSL and SASL are not yet supported.
-:::
 
 ## Configuration
 
@@ -58,9 +61,15 @@ SELECT COUNT(*) FROM cool_dataset;
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                 |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values:<br /> <ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>                                                                                                        |
+| `debezium_transport`      | Optional. The message broker transport to use. The default is `kafka`. Possible values:<ul><li>`kafka`: Use Kafka as the message broker transport. Spice may support additional transports in the future.</li></ul>                                                                                                        |
 | `debezium_message_format` | Optional. The message format to use. The default is `json`. Possible values: <ul><li>`json`: Use JSON as the message format. Spice is expected to support additional message formats in the future, like `avro`.</li></ul>                                                                                                  |
-| `kafka_bootstrap_servers` | Required. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
+| `kafka_bootstrap_servers` | **Required**. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
+| `kafka_security_protocol`               | Security protocol for Kafka connections. Default: `SASL_SSL`. Options: <ul><li>`PLAINTEXT`</li><li>`SSL`</li><li>`SASL_PLAINTEXT`</li><li>`SASL_SSL`</li></ul>                                                                                                           |
+| `kafka_sasl_mechanism`                  | SASL (Simple Authentication and Security Layer) authentication mechanism. Default: `SCRAM-SHA-512`. Options: <ul><li>`PLAIN`</li><li>`SCRAM-SHA-256`</li><li>`SCRAM-SHA-512`</li></ul>                                                                                                                      |
+| `kafka_sasl_username`                   | SASL username.                                                                                                                                                                                                                    |
+| `kafka_sasl_password`                   | SASL password.                                                                                                                                                                                                                    |
+| `kafka_ssl_ca_location`                 | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                  |
+| `kafka_enable_ssl_certificate_verification` | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                         |
 
 ### Acceleration Settings
 
@@ -83,10 +92,8 @@ The following settings are required:
 
 See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
 
-## Using secrets
+An example of configuring [SASL authentication over SSL](https://github.com/spiceai/samples/tree/trunk/cdc-debezium/sasl-scram) is available as well.
 
-There are currently three supported [secret stores](/components/secret-stores/index.md):
+## Secrets
 
-* [Environment variables](/components/secret-stores/env)
-* [Kubernetes Secret Store](/components/secret-stores/kubernetes)
-* [Keyring Secret Store](/components/secret-stores/keyring)
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).

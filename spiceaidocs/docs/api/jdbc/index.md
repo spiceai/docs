@@ -15,7 +15,7 @@ Spice supports JDBC clients through a JDBC driver implementation based on the [F
 
 ### Download the Flight SQL JDBC driver
 
-- Find the appropriate [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/versions) version. 
+- Find the appropriate [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/versions) version.
 - Click **Browse**  next to the version you want to download
 - Click the `flight-sql-jdbc-driver-XX.XX.XX.jar` file (with only the `.jar` file extension) from the list of files to download the driver jar file
 
@@ -57,7 +57,19 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 1. **Ensure Spice is running**
 1. Click **Connect**
 
-Note: Spice has [TLS support](/api/tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
+:::info
+
+Spice has [TLS support](/api/tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
+
+:::
+
+### Authentication
+
+If [API Key authentication](../../api/auth/index.md) is enabled, the API key can be provided in the JDBC connection URL as a query parameter:
+
+`jdbc:arrow-flight-sql://{host}:{port}?user=&password=<enter-api-key-here>`
+
+Replace `<enter-api-key-here>` with the API key value. The `user` and `password` parameters are required by the JDBC driver, but only the `password` parameter is used for the API key.
 
 ## Execute Test Query
 

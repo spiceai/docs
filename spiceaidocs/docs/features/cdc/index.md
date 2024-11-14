@@ -23,7 +23,6 @@ When configuring datasets to be accelerated with CDC, ensure that the [data conn
 
 The startup time for CDC-accelerated datasets may be longer than that for non-CDC-accelerated datasets due to the initial synchronization of the dataset.
 
-
 :::tip
 
 It's recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e. `file` mode for [`DuckDB`](/components/data-accelerators/duckdb.md)/[`SQLite`](/components/data-accelerators/sqlite.md) or [`PostgreSQL`](/components/data-accelerators/postgres/index.md)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
@@ -51,6 +50,7 @@ datasets:
       debezium_transport: kafka
       debezium_message_format: json
       kafka_bootstrap_servers: localhost:19092
+      kafka_security_protocol: PLAINTEXT
     acceleration:
       enabled: true
       engine: sqlite
