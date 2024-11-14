@@ -6,7 +6,7 @@ description: 'MySQL Data Connector Documentation'
 
 MySQL is an open-source relational database management system that uses structured query language (SQL) for managing and manipulating databases.
 
-The MySQL Data Connector enables federated SQL queries on data stored in MySQL databases.
+The MySQL Data Connector enables federated/accelerated SQL queries on data stored in MySQL databases.
 
 ```yaml
 datasets:
