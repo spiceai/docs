@@ -14,7 +14,7 @@ datasets:
     name: my_dataset
     params:
       file_format: csv
-      sftp_port: 20
+      sftp_port: 22
       sftp_user: my-sftp-user
       sftp_pass: ${secrets:my_sftp_password}
 ```
@@ -23,7 +23,7 @@ datasets:
 
 ### `from`
 
-The `from` field takes one of two forms: `ftp://path` or `sftp://path` where `path` is the path to the file or directory to read from.
+The `from` field takes one of two forms: `ftp://<host>/<path>` or `sftp://<host>/<path>` where `<host>` is the host to connect to and `<path>` is the path to the file or directory to read from.
 
 If a folder is provided, all child files will be loaded.
 
@@ -96,11 +96,15 @@ SELECT COUNT(*) FROM cool_dataset;
     name: my_dataset
     params:
       file_format: csv
-      sftp_port: 20
+      sftp_port: 22
       sftp_user: my-sftp-user
       sftp_pass: ${secrets:my_sftp_password}
       hive_partitioning_enabled: false
 ```
+
+## Quickstarts and Samples
+
+Refer to the [FTP quickstart](https://github.com/spiceai/quickstarts/tree/trunk/ftp) to see an example of the FTP connector in use.
 
 ## Secrets
 
