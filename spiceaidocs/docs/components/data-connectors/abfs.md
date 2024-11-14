@@ -4,7 +4,7 @@ sidebar_label: 'Azure BlobFS Data Connector'
 description: 'Azure BlobFS Data Connector Documentation'
 ---
 
-The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
+The Azure BlobFS (ABFS) Data Connector enables federated/accelerated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
 
 When a folder path is provided, all the contained files will be loaded.
 
@@ -28,14 +28,6 @@ Defines the ABFS-compatible URI to a folder or object:
 
 - `from: abfs://<container>/<path>` with the account name configured using `abfs_account` parameter, or 
 - `from: abfs://<container>@<account_name>.dfs.core.windows.net/<path>`
-
-:::note
-
-A valid URI must always be specified in the `from` field, even if you are setting the account or container name using [secrets](/components/secret-stores/index.md). When using secrets, a dummy account/container name must be used. The values will be replaced at runtime with the values contained in the secrets.
-
-See the example [below](#using-secrets).
-
-:::
 
 ### `name`
 
@@ -70,7 +62,6 @@ SELECT COUNT(*) FROM cool_dataset;
 | --------------------------- | --------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. |
 | `abfs_account`              | Azure storage account name                                                                    |
-| `abfs_container_name`       | Azure storage container name                                                                  |
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                  |
 | `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                          |
 | `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                          |
@@ -129,7 +120,7 @@ datasets:
     name: azure_test
     params:
       abfs_account: spiceadls
-      abfs_access_key: abc123==
+      abfs_access_key: ${ secrets:ACCESS_KEY }
       file_format: csv
 ```
 
@@ -156,18 +147,14 @@ datasets:
       file_format: csv
 ```
 
-### Using secrets for Account and Container
-
-When using secrets for `abfs_container`, a dummy container name needs to be provided in the `from` field. This dummy value will be replaced by the value in the secret at runtime.
+### Using secrets for Account name
 
 ```yaml
 datasets:
-  # dummy_container will be overridden by the value in `abfs_container`
-  - from: abfs://dummy_container/my_csv.csv
+  - from: abfs://my_container/my_csv.csv
     name: prod_data
     params:
       abfs_account: ${ secrets:PROD_ACCOUNT }
-      abfs_container: ${ secrets:PROD_CONTAINER }
       file_format: csv
 ```
 
