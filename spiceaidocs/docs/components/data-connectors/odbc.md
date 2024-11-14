@@ -259,6 +259,35 @@ datasets:
     odbc_connection_string: DRIVER={SQLite3};SERVER=localhost;DATABASE=test.db;Trusted_connection=yes
 ```
 
+### Connecting to Postgres
+
+Ensure that the Postgres ODBC driver is installed. On Unix systems, this will create an entry in `/etc/odbcinst.ini` similar to:
+
+```ini
+[PostgreSQL Unicode]
+Description=PostgreSQL ODBC driver (Unicode version)
+Driver=psqlodbcw.so
+Setup=libodbcpsqlS.so
+Debug=0
+CommLog=1
+UsageCount=1
+```
+
+Then, in your `spicepod.yaml` the `odbc_connection_string` parameter can be used for the ODBC connection string:
+
+```yaml
+version: v1beta1
+kind: Spicepod
+name: odbc-demo
+datasets:
+- from: odbc:taxi_trips
+  name: taxi_trips
+  params:
+    odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
+```
+
+See the [ODBC Quickstart](https://github.com/spiceai/quickstarts/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
