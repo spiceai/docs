@@ -24,7 +24,7 @@ The Postgres federated queries may result in unexpected result types due to the 
 
 ### `from`
 
-The `from` field takes the form `postgres:my_table` where `my_table` is the table name in the SQL server to read from.
+The `from` field takes the form `postgres:my_table` where `my_table` is the table identifer in the PostgreSQL server to read from.
 
 ### `name`
 
