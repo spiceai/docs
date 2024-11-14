@@ -27,7 +27,7 @@ datasets:
 
 ### `from`
 
-The `from` field takes the form `mssql:path.to.my_dataset` where `path.to.my_dataset` is the fully-qualified table name in the SQL server.
+The `from` field takes the form `mssql:database.schema.table` where `database.schema.table` is the fully-qualified table name in the SQL server.
 
 ### `name`
 
