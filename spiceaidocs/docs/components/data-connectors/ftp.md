@@ -6,7 +6,7 @@ description: 'FTP/SFTP Data Connector Documentation'
 
 FTP (File Transfer Protocol) and SFTP (SSH File Transfer Protocol) are network protocols used for transferring files between a client and server, with FTP being less secure and SFTP providing encrypted file transfer over SSH.
 
-The FTP/SFTP Data Connector enables federated SQL query across [supported file formats](/components/data-connectors/index.md#object-store-file-formats) stored in FTP/SFTP servers.
+The FTP/SFTP Data Connector enables federated/accelerated SQL query across [supported file formats](/components/data-connectors/index.md#object-store-file-formats) stored in FTP/SFTP servers.
 
 ```yaml
 datasets:
