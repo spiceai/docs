@@ -8,7 +8,7 @@ ClickHouse is a fast, open-source columnar database management system designed f
 
 ```yaml
 datasets:
-  - from: clickhouse:path.to.my_dataset
+  - from: clickhouse:my.dataset
     name: my_dataset
 ```
 
@@ -16,7 +16,7 @@ datasets:
 
 ### `from`
 
-The `from` field for the Clickhouse connector takes the form of `from:path_to_my_dataset` where `path_to_my_dataset` is the path to the Dataset within Clickhouse. In the example above it would be `path.to.my_dataset`.
+The `from` field for the Clickhouse connector takes the form of `from:path_to_my_dataset` where `path_to_my_dataset` is the path to the Dataset within Clickhouse. In the example above it would be `my.dataset`.
 
 ### `name`
 
@@ -24,7 +24,7 @@ The dataset name. This will be used as the table name within Spice.
 
 ```yaml
 datasets:
-  - from: clickhouse:path.to.my_dataset
+  - from: clickhouse:my.dataset
     name: cool_dataset
 ```
 
@@ -61,7 +61,7 @@ The Clickhouse data connector can be configured by providing the following `para
 
 ```yaml
 datasets:
-  - from: clickhouse:path.to.my_dataset
+  - from: clickhouse:my.dataset
     name: my_dataset
     params:
       clickhouse_host: localhost
@@ -77,7 +77,7 @@ datasets:
 
 ```yaml
 datasets:
-  - from: clickhouse:path.to.my_dataset
+  - from: clickhouse:my.dataset
     name: my_dataset
     params:
       clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database
@@ -89,7 +89,7 @@ datasets:
 
 ```yaml
 datasets:
-  - from: clickhouse:path.to.my_dataset
+  - from: clickhouse:my.dataset
     name: my_dataset
     params:
       clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database?connection_timeout=10000&secure=true
