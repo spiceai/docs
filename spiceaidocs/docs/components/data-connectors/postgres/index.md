@@ -10,8 +10,10 @@ The PostgreSQL Server Data Connector enables federated/accelerated SQL queries o
 
 ```yaml
 datasets:
-  - from: postgres:path.to.my_dataset
+  - from: postgres:my_table
     name: my_dataset
+    params:
+      ...
 ```
 
 ## Configuration
@@ -20,6 +22,16 @@ datasets:
 
 The `from` field takes the form `postgres:my_table` where `my_table` is the table identifer in the PostgreSQL server to read from.
 
+The fully-qualified table name (`database.schema.table`) can also be used in the `from` field.
+
+```yaml
+datasets:
+  - from: postgres:my_database.my_schema.my_table
+    name: my_dataset
+    params:
+      ...
+```
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice.
@@ -27,7 +39,7 @@ The dataset name. This will be used as the table name within Spice.
 Example:
 ```yaml
 datasets:
-  - from: postgres:path.to.my_dataset
+  - from: postgres:my_database.my_schema.my_table
     name: cool_dataset
     params:
       ...
@@ -113,7 +125,7 @@ The Postgres federated queries may result in unexpected result types due to the 
 
 ```yaml
 datasets:
-  - from: postgres:path.to.my_dataset
+  - from: postgres:my_database.my_schema.my_table
     name: my_dataset
     params:
       pg_host: localhost
@@ -127,7 +139,7 @@ datasets:
 
 ```yaml
 datasets:
-  - from: postgres:path.to.my_dataset
+  - from: postgres:my_database.my_schema.my_table
     name: my_dataset
     params:
       pg_host: localhost
@@ -145,12 +157,12 @@ Specify different secrets for a PostgreSQL source and acceleration:
 
 ```yaml
 datasets:
-  - from: postgres:path.to.my_dataset
+  - from: postgres:my_schema.my_table
     name: my_dataset
     params:
       pg_host: localhost
       pg_port: 5432
-      pg_db: data_store
+      pg_db: my_database
       pg_user: my_user
       pg_pass: ${secrets:pg1_pass}
     acceleration:
