@@ -26,7 +26,7 @@ datasets:
 
 The `from` field takes the form `mysql:database_name.table_name` where `database_name` is the fully-qualified table name in the SQL server.
 
-If `database_name` is omitted the connector will use the `mysql_db` parameter if specified, or the default database otherwise.
+If the `database_name` is omitted in the `from` field, the connector will use the database specified in the `mysql_db` parameter. If the `mysql_db` parameter is not provided, it will default to the user's default database.
 
 These two examples are identical:
 
