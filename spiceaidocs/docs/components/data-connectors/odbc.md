@@ -11,6 +11,18 @@ ODBC (Open Database Connectivity) is a standard API that allows applications to 
 
 Spice must be [built with the `odbc` feature](#building-spice-with-odbc), and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
 
+Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
+
+# Pull the latest official Spice image
+```bash
+docker pull spiceai/spiceai:latest
+```
+
+# Pull the official v0.20.0-beta Spice image
+```bash
+docker pull spiceai/spiceai:0.20.0-beta
+```
+
 :::
 
 ```yaml
