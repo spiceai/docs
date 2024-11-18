@@ -22,10 +22,10 @@ datasets:
 
 The `from` field supports one of two forms:
 
-| `from`                         | Description                                                                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                |
-| `duckdb:read_*()`              | Read data using one of the common [data import](https://duckdb.org/docs/data/overview) DuckDB functions, e.g `read_json`, `read_parquet` or `read_csv`. |
+| `from`                         | Description                                                                                                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                                                              |
+| `duckdb:*`                     | Read data using any DuckDB function that produces a table. For example one of the [data import](https://duckdb.org/docs/data/overview) functions such as `read_json`, `read_parquet` or `read_csv`. |
 
 ### `name`
 
