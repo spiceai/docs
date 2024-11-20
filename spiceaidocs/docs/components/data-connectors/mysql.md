@@ -43,8 +43,7 @@ datasets:
 datasets:
   - from: mysql:my_database.mytable
     name: my_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ### `name`
@@ -52,12 +51,12 @@ datasets:
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: mysql:path.to.my_dataset
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -124,7 +123,7 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::note
 
-- MySQL `TIMESTAMP` value is the local time to the MySQL server timezone, the corresponding arrow `Timestamp(Microsecond, None)` type has the same local time value as MySQL `TIMESTAMP` value.
+- The MySQL `TIMESTAMP` value is retrieved as a UTC time value, regardless of the MySQL server's local time zone. The corresponding Arrow `Timestamp(Microsecond, None)` type retains this UTC time value.
 
 :::
 
