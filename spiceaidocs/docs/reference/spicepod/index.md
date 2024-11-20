@@ -191,15 +191,14 @@ runtime:
 
 ### `runtime.cors`
 
-The CORS section specifies the configuration for enabling Cross-Origin Resource Sharing (CORS) for the HTTP endpoint. By default, CORS is enabled with all origins.
+The CORS section specifies the configuration for enabling Cross-Origin Resource Sharing (CORS) for the HTTP endpoint. By default, CORS is disabled.
 
 Default configuration:
 
 ```yaml
 runtime:
   cors:
-    enabled: true
-    allowed_origins: ["*"]
+    enabled: false
 ```
 
 ### `runtime.cors.enabled`
