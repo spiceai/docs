@@ -123,7 +123,7 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::note
 
-- The MySQL `TIMESTAMP` value is retrieved as a UTC time value, regardless of the MySQL server's local time zone. The corresponding Arrow `Timestamp(Microsecond, None)` type retains this UTC time value.
+- The MySQL `TIMESTAMP` value is [retrieved as a UTC time value](https://dev.mysql.com/doc/refman/8.4/en/datetime.html).
 
 :::
 
