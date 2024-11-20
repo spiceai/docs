@@ -189,6 +189,38 @@ runtime:
 - `retention_period` - optional, how long records in the task history table should be retained. Default is `8h`, or 8 hours.
 - `retention_check_interval` - optional, how often should old records be checked for removal. Default is `15m`, or 15 minutes.
 
+### `runtime.cors`
+
+The CORS section specifies the configuration for enabling Cross-Origin Resource Sharing (CORS) for the HTTP endpoint. By default, CORS is enabled with all origins.
+
+Default configuration:
+
+```yaml
+runtime:
+  cors:
+    enabled: true
+    allowed_origins: ["*"]
+```
+
+### `runtime.cors.enabled`
+
+Enables or disables CORS for the HTTP endpoint. `true` by default.
+
+### `runtime.cors.allowed_origins`
+
+A list of allowed origins for CORS requests. `["*"]` by default, which allows all origins.
+
+Example:
+
+```yaml
+runtime:
+  cors:
+    enabled: true
+    allowed_origins: ["https://example.com"]
+```
+
+This configuration allows requests from the `https://example.com` origin only.
+
 ## `metadata`
 
 An optional `map` of metadata.
