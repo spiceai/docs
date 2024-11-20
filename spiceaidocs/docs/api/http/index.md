@@ -17,4 +17,12 @@ API Key authentication is supported for all HTTP routes. See [API Key Authentica
 
 ## Cross-Origin Resource Sharing (CORS)
 
-CORS is enabled by default with all origins. See [CORS](/reference/spicepod/index.md#runtimecors) for more details.
+CORS is disabled by default. Enable for all origins with:
+
+```yaml
+runtime:
+  cors:
+    enabled: true
+```
+
+See [CORS](/reference/spicepod/index.md#runtimecors) for more details.

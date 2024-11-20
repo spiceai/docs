@@ -204,7 +204,7 @@ runtime:
 
 ### `runtime.cors.enabled`
 
-Enables or disables CORS for the HTTP endpoint. `true` by default.
+Enables or disables CORS for the HTTP endpoint. `false` by default.
 
 ### `runtime.cors.allowed_origins`
 
