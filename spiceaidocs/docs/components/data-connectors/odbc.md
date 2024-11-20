@@ -4,8 +4,7 @@ sidebar_label: 'ODBC Data Connector'
 description: 'ODBC Data Connector Documentation'
 ---
 
-ODBC (Open Database Connectivity) is a standard API that allows applications to connect to and interact with various database management systems using a common interface. To connect to any ODBC database for federated/accelerated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required. 
-
+ODBC (Open Database Connectivity) is a standard API that allows applications to connect to and interact with various database management systems using a common interface. To connect to any ODBC database for federated/accelerated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required.
 
 :::warning
 
@@ -14,11 +13,13 @@ Spice must be [built with the `odbc` feature](#building-spice-with-odbc), and th
 Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
 
 # Pull the latest official Spice image
+
 ```bash
 docker pull spiceai/spiceai:latest
 ```
 
 # Pull the official v0.20.0-beta Spice image
+
 ```bash
 docker pull spiceai/spiceai:0.20.0-beta
 ```
@@ -91,6 +92,7 @@ The `from` field takes the form `odbc:path.to.my.dataset` where `path.to.my.data
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: odbc:my.cool.table
@@ -113,15 +115,13 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-The following [arrow_odbc builder parameters](https://docs.rs/arrow-odbc/latest/arrow_odbc/struct.OdbcReaderBuilder.html) are exposed as params:
-
 | Parameter                     | Type           | Description                                                                                                                                                             |
 | ----------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sql_dialect`                 | string         | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values. Default is unset (auto-detected). |
-| `odbc_max_bytes_per_batch`    | number (bytes) | Upper allocation limit for transit buffer. Default is `512_000_000`.                                                                                                    |
-| `odbc_max_num_rows_per_batch` | number (rows)  | Upper limit for number of rows fetched for one batch. Default is `65536`.                                                                                               |
-| `odbc_max_text_size`          | number (bytes) | Upper limit for value buffers bound to columns with text values. Default is unset (allocates driver-reported max column size).                                          |
-| `odbc_max_binary_size`        | number (bytes) | Upper limit for value buffers bound to columns with binary values. Default is unset (allocates driver-reported max column size).                                        |
+| `odbc_max_bytes_per_batch`    | number (bytes) | Maximum number of bytes transferred in each query record batch. A lower value may improve performance on low-memory systems. Default is `512_000_000`.                                                                                                    |
+| `odbc_max_num_rows_per_batch` | number (rows)  | Maximum number of rows transferred in each query record batch. A higher value may speed up query results, but requires more memory in conjunction with `odbc_max_bytes_per_batch`. Default is `65536`.                                                                                               |
+| `odbc_max_text_size`          | number (bytes) | A limit for the maximum size of text columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                          |
+| `odbc_max_binary_size`        | number (bytes) | A limit for the maximum size of binary columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                        |
 | `odbc_connection_string`      | string         | Connection string to use to connect to the ODBC server                                                                                                                  |
 
 ```yaml
@@ -134,9 +134,9 @@ datasets:
 
 ## Selecting SQL Dialect
 
-The default SQL dialect may not be supported by every ODBC connection. The `sql_dialect` parameter allows overriding the selected SQL dialect for a specified connection.
+The default SQL dialect may not be supported by every ODBC connection. The `sql_dialect` parameter supports overriding the selected SQL dialect for a specified connection.
 
-The runtime will attempt to detect the dialect to use for a connection based on the contents of `Driver=` in the `odbc_connection_string`. The runtime will usually detect the correct SQL dialect for the following connection types:
+The runtime will attempt to detect the dialect to use for a connection based on the contents of `Driver=` in the `odbc_connection_string`. The runtime will detect the correct SQL dialect for the following connection types, when setup with a standard driver configuration:
 
 - PostgreSQL
 - MySQL
@@ -168,7 +168,6 @@ docker pull spiceai/spiceai:latest
 # Pull the official v0.20.0-beta Spice image
 docker pull spiceai/spiceai:0.20.0-beta
 ```
-
 
 ## Baking an image with ODBC Support
 
