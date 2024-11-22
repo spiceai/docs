@@ -43,13 +43,20 @@ models:
 models:
   - name: safety
     from: file:models/llms/llama3.2-1b-instruct/model.safetensors
-    params:
-      model_type: llama3
     files:
       - path: models/llms/llama3.2-1b-instruct/tokenizer.json
       - path: models/llms/llama3.2-1b-instruct/tokenizer_config.json
       - path: models/llms/llama3.2-1b-instruct/config.json
 ```
+
+### Example: Loading from a directory
+```yaml
+models:
+  - name: hello
+    from: file:models/llms/llama3.2-1b-instruct/
+```
+Note: The folder provided should contain all the expected files (see examples above) to load a model in the base level.
+
 
 ### Example: Overriding the Chat Template
 Chat templates convert the OpenAI compatible chat messages (see [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages)) and other components of a request
