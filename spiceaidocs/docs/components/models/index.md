@@ -19,3 +19,5 @@ Spice supports various model providers for traditional machine learning (ML) mod
 - LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
+
+For details about augmenting language models (e.g. using [tools](/features/large-language-models/runtime_tools.md)), see the [LLM documentation](/features/large-language-models).
