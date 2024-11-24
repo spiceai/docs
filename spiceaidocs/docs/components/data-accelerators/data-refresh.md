@@ -269,9 +269,9 @@ The policy is set using the [`acceleration.retention_check_enabled`](/reference/
 
 ## Refresh Jitter
 
-Accelerated datasets can include a random jitter in the refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter, ranging from `0` to `refresh_jitter_max`, is randomly added or subtracted from the refresh interval.
+Accelerated datasets can include a random jitter in their refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter is a random value between 0 and `refresh_jitter_max`, which is added to or subtracted from the base `refresh_check_interval`. If `refresh_jitter_max` is not specified, it defaults to 10% of `refresh_check_interval`.
 
-Refresh Jitter applies on the first dataset load, so on a restart of multiple similarily configured Spice instances at once, on restart they will load with jitter of 0 to `refresh_jitter_max`.
+Refresh Jitter applies to the initial dataset load. If multiple similarly configured Spice instances are restarted at the same time, they will load with a jitter between 0 and `refresh_jitter_max`.
 
 Example:
 
@@ -285,9 +285,12 @@ datasets:
       refresh_jitter_max: 1s
 ```
 
-In this example, the refresh interval will be between 9s and 11s.
+In the configuration above:
 
-Refresh jitter can be configured using the following parameters:
+1. The initial load will include a random delay between **0** and **1 second**.
+1. Subsequent refresh intervals will vary randomly between **9 seconds** and **11 seconds**.
+
+Refresh jitter configuration:
 
 - [`refresh_jitter_enabled`](/reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
 - [`refresh_jitter_max`](/reference/spicepod/datasets#accelerationrefresh_jitter_max)
