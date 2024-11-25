@@ -2,7 +2,7 @@
 title: 'SELECT'
 sidebar_label: 'SELECT'
 pagination_prev: 'reference/sql/index'
-pagination_next: null
+pagination_next: 'reference/sql/task_history'
 sidebar_position: 1
 ---
 
