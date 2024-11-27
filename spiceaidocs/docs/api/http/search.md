@@ -23,12 +23,14 @@ Spicepod
 embeddings:
   - name: embedding_maker
     from: openai
+
 datasets:
   - name: app_messages
     from: file://my.csv
-    embeddings:
-      - column: document_text
-        use: embedding_maker
+    columns:
+      - name: document_text
+        embeddings:
+          - from: embedding_maker
 ```
 
 Request

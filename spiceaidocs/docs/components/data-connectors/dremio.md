@@ -4,10 +4,9 @@ sidebar_label: 'Dremio Data Connector'
 description: 'Dremio Data Connector Documentation'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+[Dremio](https://www.dremio.com/) is a data lake engine that enables high-performance SQL queries directly on data lake storage. It provides a unified interface for querying and analyzing data from various sources without the need for complex data movement or transformation. 
 
-[Dremio](https://www.dremio.com/) server as a connector for federated SQL queries.
+This connector enables using Dremio as a data source for federated/accelerated SQL queries.
 
 ```yaml
 - from: dremio:datasets.dremio_dataset
@@ -20,117 +19,62 @@ import TabItem from '@theme/TabItem';
 
 ## Configuration
 
-- `dremio_endpoint`: The endpoint used to connect to the Dremio server.
-- `dremio_username`: The username to connect with.
-- `dremio_password`: The password to connect with. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`.
+### `from`
 
-## Auth Example
+The `from` field takes the form `dremio:dataset` where `dataset` is the fully qualified name of the dataset to read from.
 
-Check [Secrets Stores](/components/secret-stores) for more details.
+:::warning [Limitations]
 
-<Tabs>
-  <TabItem value="env" label="Env">
+Currently, only up to three levels of nesting are supported for dataset names (e.g., a.b.c). Additional levels are not supported at this time.
 
-    ```bash
-    SPICE_DREMIO_USERNAME=demo \
-    SPICE_DREMIO_PASSWORD=demo1234 \
-    spice run
-    # Or using the CLI to configure the secrets into an `.env` file
-    spice login dremio -u demo -p demo1234
-    ```
+:::
 
-    `.env`
-    ```bash
-    SPICE_DREMIO_USERNAME=demo
-    SPICE_DREMIO_PASSWORD=demo1234
-    ```
+### `name`
 
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
+The dataset name. This will be used as the table name within Spice.
 
-    secrets:
-      - from: env
-        name: env
+Example:
+```yaml
+datasets:
+  - from: dremio:datasets.dremio_dataset
+    name: cool_dataset
+    params:
+      ...
+```
 
-    datasets:
-      - from: dremio:datasets.dremio_dataset
-        name: dremio_dataset
-        params:
-          dremio_endpoint: grpc://1.2.3.4:32010
-          dremio_username: ${env:SPICE_DREMIO_USERNAME}
-          dremio_password: ${env:SPICE_DREMIO_PASSWORD}
-    ```
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
 
-    Learn more about [Env Secret Store](/components/secret-stores/env).
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
 
-  </TabItem>
-  <TabItem value="k8s" label="Kubernetes">
+### `params`
 
-    ```bash
-    kubectl create secret generic dremio \
-      --from-literal=username='demo' \
-      --from-literal=password='demo1234'
-    ```
+| Parameter Name    | Description                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                      |
+| `dremio_username` | The username to connect with.                                                                                                                           |
+| `dremio_password` | The password to connect with. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
 
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
+## Examples
 
-    secrets:
-      - from: kubernetes:dremio
-        name: dremio
-    
-    datasets:
-      - from: dremio:datasets.dremio_dataset
-        name: dremio_dataset
-        params:
-          dremio_endpoint: grpc://1.2.3.4:32010
-          dremio_username: ${dremio:username}
-          dremio_password: ${dremio:password}
-    ```
+### Connecting to a GRPC endpoint
 
-    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
+```yaml
+- from: dremio:datasets.dremio_dataset
+  name: dremio_dataset
+  params:
+    dremio_endpoint: grpc://127.0.0.1:32010
+    dremio_username: demo
+    dremio_password: ${secrets:my_dremio_pass}
+```
 
-  </TabItem>
-  <TabItem value="keyring" label="Keyring">
-    Add new keychain entries (macOS) for the user and password:
+## Secrets
 
-    ```bash
-    # Add Username to keychain
-    security add-generic-password -l "Dremio Username" \
-    -a spiced -s spice_dremio_username \
-    -w demo
-    # Add Password to keychain
-    security add-generic-password -l "Dremio Password" \
-    -a spiced -s spice_dremio_password \
-    -w demo1234
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: keyring
-        name: keyring
-
-    datasets:
-      - from: dremio:datasets.dremio_dataset
-        name: dremio_dataset
-        params:
-          dremio_endpoint: grpc://1.2.3.4:32010
-          dremio_username: ${keyring:spice_dremio_username}
-          dremio_password: ${keyring:spice_dremio_password}
-    ```
-
-    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
-
-  </TabItem>
-</Tabs>
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).

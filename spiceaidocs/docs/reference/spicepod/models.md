@@ -83,7 +83,7 @@ A unique identifier for this model component.
 
 ### `description`
 
-Additional details about the model, useful for displaying to users 
+Additional details about the model, useful for displaying to users
 
 ### `files`
 
@@ -116,6 +116,10 @@ The system attempts to automatically determine the file type based on the file n
 ### `params`
 
 Optional. A map of key-value pairs for additional parameters specific to the model.
+
+Example uses include:
+ - Setting default OpenAI request parameters for language models, see [parameter overrides](/features/large-language-models/parameter_overrides.md).
+ - Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](/features/large-language-models/runtime_tools.md).
 
 ### `datasets`
 

@@ -179,15 +179,46 @@ The task history section specifies runtime task history configuration.
 runtime:
   task_history:
     enabled: true
-    captured_output: truncated
+    captured_output: none
     retention_period: 8h
     retention_check_interval: 15m
 ```
 
 - `enabled` - optional, `true` by default.
-- `captured_output` - optional, what level of output is captured by the task history table. `truncated` by default. Possible values are `truncated`, or `none`.
+- `captured_output` - optional, what level of output is captured by the task history table. `none` by default. Possible values are `truncated`, or `none`.
 - `retention_period` - optional, how long records in the task history table should be retained. Default is `8h`, or 8 hours.
 - `retention_check_interval` - optional, how often should old records be checked for removal. Default is `15m`, or 15 minutes.
+
+### `runtime.cors`
+
+The CORS section specifies the configuration for enabling Cross-Origin Resource Sharing (CORS) for the HTTP endpoint. By default, CORS is disabled.
+
+Default configuration:
+
+```yaml
+runtime:
+  cors:
+    enabled: false
+```
+
+### `runtime.cors.enabled`
+
+Enables or disables CORS for the HTTP endpoint. `false` by default.
+
+### `runtime.cors.allowed_origins`
+
+A list of allowed origins for CORS requests. `["*"]` by default, which allows all origins.
+
+Example:
+
+```yaml
+runtime:
+  cors:
+    enabled: true
+    allowed_origins: ["https://example.com"]
+```
+
+This configuration allows requests from the `https://example.com` origin only.
 
 ## `metadata`
 

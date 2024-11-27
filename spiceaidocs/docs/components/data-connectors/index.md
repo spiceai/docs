@@ -13,20 +13,20 @@ Currently supported Data Connectors include:
 
 | Name            | Description               | Status            | Protocol/Format                     | Refresh Modes               | Supports [Ingestion][ingestion] | Supports Documents |
 | --------------- | ------------------------- | ----------------- | ----------------------------------- | --------------------------- | ------------------------------- | ------------------ |
+| `duckdb`        | DuckDB                    | Release Candidate |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `github`        | GitHub                    | Release Candidate | GraphQL, REST                       | `append`, `full`            | ❌                              | ❌                 |
 | `mysql`         | MySQL                     | Release Candidate |                                     | `append`, `full`            | Roadmap                         | ❌                 |
 | `postgres`      | PostgreSQL                | Release Candidate |                                     | `append`, `full`            | Roadmap                         | ❌                 |
+| `s3`            | S3                        | Release Candidate | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `databricks`    | Databricks                | Beta              | Spark Connect <br/> S3 / Delta Lake | `append`, `full`            | Roadmap                         | ❌                 |
 | `delta_lake`    | Delta Lake                | Beta              | Delta Lake                          | `append`, `full`            | Roadmap                         | ❌                 |
 | `flightsql`     | FlightSQL                 | Beta              | Arrow Flight SQL                    | `append`, `full`            | ❌                              | ❌                 |
 | `odbc`          | ODBC                      | Beta              |                                     | `append`, `full`            | ❌                              | ❌                 |
-| `s3`            | S3                        | Beta              | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `spiceai`       | Spice.ai                  | Beta              | Arrow Flight                        | `append`, `full`            | ✅                              | ❌                 |
 | `abfs`          | Azure BlobFS              | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `clickhouse`    | Clickhouse                | Alpha             |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `debezium`      | Debezium                  | Alpha             | CDC, Kafka                          | `append`, `full`, `changes` | ❌                              | ❌                 |
 | `dremio`        | Dremio                    | Alpha             | Arrow Flight SQL                    | `append`, `full`            | ❌                              | ❌                 |
-| `duckdb`        | DuckDB                    | Alpha             |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `file`          | File                      | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `ftp`, `sftp`   | FTP/SFTP                  | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                              | ✅                 |
 | `graphql`       | GraphQL                   | Alpha             | GraphQL                             | `append`, `full`            | ❌                              | ❌                 |

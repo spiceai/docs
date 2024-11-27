@@ -50,6 +50,26 @@ When using `mode: append`, if late arriving data or clock-skew needs to be accou
 
 Datasets configured with acceleration `refresh_mode: changes` require a [Change Data Capture (CDC)](/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/components/data-connectors/debezium.md).
 
+## Ready State
+
+By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/api/http/ready) is used in production deployments to control when queries are sent to the Spice runtime.
+
+The ready state for an accelerated dataset can be configured using the [`ready_state`](/reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
+
+- `ready_state: on_load`: Default. The dataset is considered ready after the initial load of the accelerated data. For file-based accelerated datasets that have existing data, this will be ready immediately. Queries against this dataset before the data is loaded will return an error.
+- `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Queries against this dataset before the data is loaded will automatically fallback to the federated source. Once the data is loaded, queries will be served from the acceleration.
+
+Example:
+
+```yaml
+datasets:
+  - from: s3://my_bucket/my_dataset
+    name: my_dataset
+    ready_state: on_load # or on_registration
+    acceleration:
+      enabled: true
+```
+
 ## Filtered Refresh
 
 Typically only a working subset of an entire dataset is used in an application or dashboard. Use these features to filter refresh data, creating a smaller subset for faster processing and to reduce the data transferred and stored locally.
@@ -249,9 +269,9 @@ The policy is set using the [`acceleration.retention_check_enabled`](/reference/
 
 ## Refresh Jitter
 
-Accelerated datasets can include a random jitter in the refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter, ranging from `0` to `refresh_jitter_max`, is randomly added or subtracted from the refresh interval.
+Accelerated datasets can include a random jitter in their refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter is a random value between 0 and `refresh_jitter_max`, which is added to or subtracted from the base `refresh_check_interval`. If `refresh_jitter_max` is not specified, it defaults to 10% of `refresh_check_interval`.
 
-Refresh Jitter applies on the first dataset load, so on a restart of multiple similarily configured Spice instances at once, on restart they will load with jitter of 0 to `refresh_jitter_max`.
+Refresh Jitter applies to the initial dataset load. If multiple similarly configured Spice instances are restarted at the same time, they will load with a jitter between 0 and `refresh_jitter_max`.
 
 Example:
 
@@ -265,9 +285,12 @@ datasets:
       refresh_jitter_max: 1s
 ```
 
-In this example, the refresh interval will be between 9s and 11s.
+In the configuration above:
 
-Refresh jitter can be configured using the following parameters:
+1. The initial load will include a random delay between **0** and **1 second**.
+1. Subsequent refresh intervals will vary randomly between **9 seconds** and **11 seconds**.
+
+Refresh jitter configuration:
 
 - [`refresh_jitter_enabled`](/reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
 - [`refresh_jitter_max`](/reference/spicepod/datasets#accelerationrefresh_jitter_max)

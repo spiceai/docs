@@ -7,22 +7,31 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a set of tools that let LLMs interact with the runtime. To provide these tools to a Spice model, specify them in its `params.spice_tools`.
+Spice provides a set of tools that let LLMs interact with the runtime. To provide these tools to a Spice model, specify them in its `params.tools`.
 ```yaml
 models:
   - name: sql-model
     from: openai:gpt-4o
     params:
-      spice_tools: list_datasets, sql, table_schema
+      tools: list_datasets, sql, table_schema
 
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      spice_tools: auto # Use all available tools
+      tools: auto # Use all available tools
+```
+
+To use all builtin tools with additional tools, use the `builtin` tool group.
+```yaml
+models:
+  - name: full-runtime
+    from: openai:gpt-4o
+    params:
+      tools: builtin, memory
 ```
 
 ### Tool Recursion Limit
-When a model requests to call a runtime tool, Spice runs the tool internally and feeds it back to the model. The `tool_recursion_limit` parameter limits the depth of internal recursion Spice will undertake. By default, Spice can infinitely recurse if the model requests to do so. 
+When a model requests to call a runtime tool, Spice runs the tool internally and feeds it back to the model. The `tool_recursion_limit` parameter limits the depth of internal recursion Spice will undertake. By default, Spice can infinitely recurse if the model requests to do so.
 
 ```yaml
 models:
