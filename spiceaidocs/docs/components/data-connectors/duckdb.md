@@ -58,7 +58,7 @@ The DuckDB data connector can be configured by providing the following `params`:
 
 | Parameter Name | Description                                        |
 | -------------- | -------------------------------------------------- |
-| `duckdb_open`  | The name for the file to back the DuckDB database. |
+| `duckdb_open`  | The name of the DuckDB database to open. |
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
