@@ -4,7 +4,7 @@ sidebar_label: 'Clickhouse Data Connector'
 description: 'Clickhouse Data Connector Documentation'
 ---
 
-ClickHouse is a fast, open-source columnar database management system designed for online analytical processing (OLAP) and real-time analytics. This connector enables federated/accelerated SQL queries on top of a Clickhouse server.
+ClickHouse is a fast, open-source columnar database management system designed for online analytical processing (OLAP) and real-time analytics. This connector enables federated SQL queries from a ClickHouse server.
 
 ```yaml
 datasets:
