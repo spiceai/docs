@@ -4,7 +4,7 @@ sidebar_label: 'DuckDB Data Connector'
 description: 'DuckDB Data Connector Documentation'
 ---
 
-DuckDB is an in-process SQL OLAP database management system designed for analytical query workloads. It is optimized for fast execution and can be embedded directly into applications, providing efficient data processing without the need for a separate database server.
+DuckDB is an in-process SQL OLAP (Online Analytical Processing) database management system designed for analytical query workloads. It is optimized for fast execution and can be embedded directly into applications, providing efficient data processing without the need for a separate database server.
 
 This connector supports DuckDB [persistent databases](https://duckdb.org/docs/connect/overview#persistent-database) as a data source for federated SQL queries.
 
