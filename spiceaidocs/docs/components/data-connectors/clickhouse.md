@@ -44,7 +44,7 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-The Clickhouse data connector can be configured by providing the following `params`:
+The ClickHouse data connector can be configured by providing the following `params`:
 
 | Parameter Name                 | Definition                                                                                                                                                                                                                                                                                                              |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
