@@ -17,7 +17,7 @@ Get started with ADBC using Python.
 
 ### Installation
 
-Start Python Envionment.
+Start a Python environment.
 
 ```shell
 python

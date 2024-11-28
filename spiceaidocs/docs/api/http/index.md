@@ -13,11 +13,11 @@ import DocCardList from '@theme/DocCardList';
 
 ## Authentication
 
-API Key authentication is supported for all HTTP routes. See [API Key Authentication](../../api/auth/index.md) for more details.
+API Key authentication is supported for all HTTP routes. For more details, see [API Key Authentication](../../api/auth/index.md).
 
 ## Cross-Origin Resource Sharing (CORS)
 
-CORS is disabled by default. Enable for all origins with:
+CORS is disabled by default. To enable CORS for all origins, add the following configuration to your `spicepod.yaml` file:
 
 ```yaml
 runtime:

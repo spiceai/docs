@@ -5,9 +5,9 @@ description: 'Fetch datasets'
 sidebar_position: 2
 ---
 
-Returns a the list of configured datasets.
+The `GET /v1/datasets` endpoint returns a list of configured datasets.
 
-Example:
+Example request:
 
 ```bash
 curl --request GET \

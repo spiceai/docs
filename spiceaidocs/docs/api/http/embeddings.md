@@ -5,7 +5,7 @@ description: ''
 sidebar_position: 7
 ---
 
-Chat completions is an OpenAI compatible endpoint.
+The `POST /v1/embeddings` endpoint is an OpenAI compatible endpoint for generating embeddings.
 
 Specify the embedding model by providing the component name in the `model` key. For example:
 

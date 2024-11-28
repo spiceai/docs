@@ -8,9 +8,9 @@ sidebar_position: 10
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Make predictions using all loaded forecasting models in parallel, useful for ensembling or A/B testing.
+The `POST /v1/predict` endpoint is used to make predictions using all loaded forecasting models in parallel. This is useful for ensembling or A/B testing different models.
 
-Example:
+Example request:
 
 ```shell
 curl --request POST \

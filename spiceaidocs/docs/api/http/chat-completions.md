@@ -5,7 +5,7 @@ description: ''
 sidebar_position: 6
 ---
 
-Chat completions is an OpenAI compatible endpoint.
+The `POST /v1/chat/completions` endpoint is an OpenAI compatible endpoint for generating chat completions.
 
 Specify the model by providing the component name in the `model` key. For example:
 

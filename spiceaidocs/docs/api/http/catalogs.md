@@ -5,9 +5,9 @@ description: 'Fetch catalogs'
 sidebar_position: 5
 ---
 
-Returns the list of configured [catalogs](/components/catalogs)
+The `GET /v1/catalogs` endpoint returns a list of configured catalogs.
 
-Example:
+Example request:
 
 ```bash
 curl --request GET \

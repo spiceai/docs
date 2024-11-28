@@ -16,17 +16,14 @@ Spice supports JDBC clients through a JDBC driver implementation based on the [F
 ### Download the Flight SQL JDBC driver
 
 - Find the appropriate [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/versions) version.
-- Click **Browse**  next to the version you want to download
+- Click **Browse** next to the version you want to download
 - Click the `flight-sql-jdbc-driver-XX.XX.XX.jar` file (with only the `.jar` file extension) from the list of files to download the driver jar file
 
 ### Add the driver to your application
 
 Follow the instructions specific to your application for adding a custom JDBC driver. Examples:
 
-**Tableau**:
-    - Windows: `C:\Program Files\Tableau\Drivers`
-    - Mac: `~/Library/Tableau/Drivers`
-    - Linux: `/opt/tableau/tableau_driver/jdbc` - Start or restart Tableau
+**Tableau**: - Windows: `C:\Program Files\Tableau\Drivers` - Mac: `~/Library/Tableau/Drivers` - Linux: `/opt/tableau/tableau_driver/jdbc` - Start or restart Tableau
 
 [Full instruction](/clients/tableau)
 
@@ -51,8 +48,8 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 - **URL**: `jdbc:arrow-flight-sql://{host}:{port}`
 - **Dialect**: `PostgreSQL`
 
- For example:
- <img width="400" src="/img/tableau/tableau-jdbc-conn.png"/>
+For example:
+<img width="400" src="/img/tableau/tableau-jdbc-conn.png"/>
 
 1. **Ensure Spice is running**
 1. Click **Connect**
@@ -75,4 +72,4 @@ Replace `<enter-api-key-here>` with the API key value. The `user` and `password`
 
 In the configured application, run a sample query, such as `SELECT * FROM taxi_trips;`
 
-![Query Results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/0e9f3c0f-2e03-47f9-8d5e-65e078d7e900/public "Query Results")
+![Query Results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/0e9f3c0f-2e03-47f9-8d5e-65e078d7e900/public 'Query Results')

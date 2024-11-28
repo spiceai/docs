@@ -10,10 +10,11 @@ pagination_next: null
 Performs an on-demand refresh for an accelerated dataset. On-demand refresh applies only to `full` and `append` refresh modes (not `changes`).
 
 Request Body:
- - `refresh_sql` (String, Optional): Refresh SQL to use, see [Refresh SQL docs](/components/data-accelerators/data-refresh.md#refresh-sql). Defaults to the `refresh_sql` specified in the spicepod.
- - `refresh_mode` (String, Optional): Refresh mode to use, see [Refresh Modes docs](/components/data-accelerators/data-refresh.md#refresh-modes). Defaults to `refresh_mode` specified in the spicepod.
 
- Example:
+- `refresh_sql` (String, Optional): Refresh SQL to use, see [Refresh SQL docs](/components/data-accelerators/data-refresh.md#refresh-sql). Defaults to the `refresh_sql` specified in the spicepod.
+- `refresh_mode` (String, Optional): Refresh mode to use, see [Refresh Modes docs](/components/data-accelerators/data-refresh.md#refresh-modes). Defaults to `refresh_mode` specified in the spicepod.
+
+Example:
 
 ```bash
 curl -i -XPOST 127.0.0.1:8090/v1/datasets/taxi_trips/acceleration/refresh \
