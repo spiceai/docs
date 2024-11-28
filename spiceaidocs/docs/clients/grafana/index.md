@@ -6,7 +6,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
+Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](/features/monitoring/) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Import Grafana Dashboard
 

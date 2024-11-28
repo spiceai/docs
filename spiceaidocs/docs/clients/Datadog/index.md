@@ -7,50 +7,7 @@ sidebar_position: 3
 pagination_next: null
 ---
 
-Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Spice Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info).
-
-## Metrics Endpoint Configuration
-
-The metrics endpoint uses port `9090` by default. The metrics endpoint configuration is logged at startup.
-
-```bash
-2024-07-15T21:48:00.158267Z  INFO spiced: Metrics listening on 127.0.0.1:9090
-```
-
-Pass the `--metrics` parameter to bind to a specific port. For example, to bind to port `9091`:
-
-```bash
- spiced --metrics 0.0.0.0:9091
-```
-
-or when using Docker:
-
-```Dockerfile
-FROM spiceai/spiceai:latest
-
-# Docker configuration ...
-
-# Configure the metrics endpoint on port 9090
-CMD ["--metrics", "0.0.0.0:9090"]
-EXPOSE 9090
-```
-
-Configuration of the metrics endpoint can be verified using a HTTP GET request, for example:
-
-```bash
-curl http://localhost:9090/metrics
-
-# TYPE spiced_runtime_http_server_start counter
-spiced_runtime_http_server_start 1
-
-# TYPE spiced_runtime_flight_server_start counter
-spiced_runtime_flight_server_start 1
-
-# TYPE datasets_count gauge
-datasets_count{engine="None"} 1
-datasets_count{engine="arrow"} 1
-...
-```
+Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Spice Metrics Endpoint](/features/monitoring/) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Datadog Agent Configuration
 
