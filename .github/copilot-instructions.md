@@ -6,7 +6,7 @@ Remember to be concise, but do not omit useful information. Pay attention to det
 
 Use plain, clear, simple, easy-to-understand language. Do not use hyperbole or hype.
 
-Avoid "allows" to describe functionality.
+Avoid "allows" to describe functionality. Use "helps" where it makes sense.
 
 Always provide references and citations with links.
 
