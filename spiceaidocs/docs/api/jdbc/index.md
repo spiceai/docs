@@ -23,7 +23,12 @@ Spice supports JDBC clients through a JDBC driver implementation based on the [F
 
 Follow the instructions specific to your application for adding a custom JDBC driver. Examples:
 
-**Tableau**: - Windows: `C:\Program Files\Tableau\Drivers` - Mac: `~/Library/Tableau/Drivers` - Linux: `/opt/tableau/tableau_driver/jdbc` - Start or restart Tableau
+**Tableau**:
+
+- Windows: `C:\Program Files\Tableau\Drivers`
+- Mac: `~/Library/Tableau/Drivers`
+- Linux: `/opt/tableau/tableau_driver/jdbc`
+- Start or restart Tableau
 
 [Full instruction](/clients/tableau)
 
