@@ -39,7 +39,8 @@ global:
 
 ## Local Quickstart
 
-This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes: - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
+This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes: 
+  - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
 
 1. Create a `compose.yaml`:
 
