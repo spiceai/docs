@@ -7,7 +7,7 @@ description: 'Detailed documentation on the Spicepod manifest syntax (spicepod.y
 
 ## About YAML syntax for Spicepod manifests (spicepod.yaml)
 
-Spicepod manifests use YAML syntax and must be named `spicepod.yaml` or `spicepod.yml`. If you're new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+Spicepod manifests use YAML syntax and must be named `spicepod.yaml` or `spicepod.yml`. If you are new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
 
 Spicepod manifest files are stored in the root directory of your application code.
 
@@ -25,7 +25,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. [Learn more](/components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/components/secret-stores).
 
 ### `secrets.from`
 
@@ -215,7 +215,7 @@ Example:
 runtime:
   cors:
     enabled: true
-    allowed_origins: ["https://example.com"]
+    allowed_origins: ['https://example.com']
 ```
 
 This configuration allows requests from the `https://example.com` origin only.

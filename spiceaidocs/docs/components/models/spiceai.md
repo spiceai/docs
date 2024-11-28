@@ -5,7 +5,7 @@ sidebar_label: 'Spice Cloud Platform'
 sidebar_position: 2
 ---
 
-To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in `from`.
+To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in the `from` field.
 
 Example:
 

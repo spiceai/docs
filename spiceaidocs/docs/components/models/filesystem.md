@@ -5,7 +5,7 @@ sidebar_label: 'Filesystem'
 sidebar_position: 3
 ---
 
-To use a model hosted on a filesystem, specify the path to the model file in `from`.
+To use a model hosted on a filesystem, specify the path to the model file in the `from` field.
 
 Supported formats include ONNX for traditional machine learning models and GGUF, GGML, and SafeTensor for large language models (LLMs).
 
@@ -50,15 +50,17 @@ models:
 ```
 
 ### Example: Loading from a directory
+
 ```yaml
 models:
   - name: hello
     from: file:models/llms/llama3.2-1b-instruct/
 ```
+
 Note: The folder provided should contain all the expected files (see examples above) to load a model in the base level.
 
-
 ### Example: Overriding the Chat Template
+
 Chat templates convert the OpenAI compatible chat messages (see [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages)) and other components of a request
 into a stream of characters for the language model. It follows Jinja3 templating [syntax](https://jinja.palletsprojects.com/en/3.1.x/templates/).
 
@@ -81,6 +83,7 @@ models:
 ```
 
 #### Templating Variables
- - `messages`: List of chat messages, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages).
- - `add_generation_prompt`: Boolean flag whether to add a [generation prompt](https://huggingface.co/docs/transformers/main/chat_templating#what-are-generation-prompts).
- - `tools`: List of callable tools, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools).
+
+- `messages`: List of chat messages, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages).
+- `add_generation_prompt`: Boolean flag whether to add a [generation prompt](https://huggingface.co/docs/transformers/main/chat_templating#what-are-generation-prompts).
+- `tools`: List of callable tools, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools).

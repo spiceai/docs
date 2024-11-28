@@ -7,31 +7,31 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Data can be ingested by the Spice runtime for replication to a Data Connector, like PostgreSQL or the Spice.ai Cloud platform.
+Data can be ingested by the Spice runtime for replication to a Data Connector, such as PostgreSQL or the Spice.ai Cloud platform.
 
-By default, the runtime exposes an [OpenTelemety](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50052 for data ingestion.
+By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50052 for data ingestion.
 
 OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
 
 ## Benefits
 
-Spice.ai OSS incorporates built-in data ingestion support, enabling the collection of the latest data from edge nodes for use in subsequent queries. This capability avoids the need for additional ETL pipelines, while also enhancing the speed of the feedback loop.
+Spice.ai OSS includes built-in data ingestion support, allowing the collection of the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and enhances the speed of the feedback loop.
 
-As an example, consider CPU usage anomaly detection. When CPU metrics are sent to the Spice OpenTelemetry endpoint, the loaded machine learning model can utilize the most recent observations for inferencing and provide recommendations to the edge node. This process occurs rapidly on the edge itself, within milliseconds and without generating network traffic.
+For example, consider CPU usage anomaly detection. When CPU metrics are sent to the Spice OpenTelemetry endpoint, the loaded machine learning model can use the most recent observations for inferencing and provide recommendations to the edge node. This process occurs quickly on the edge itself, within milliseconds, and without generating network traffic.
 
-Additional, Spice will replicate the data periodically to the data connector for further usage.
+Additionally, Spice will periodically replicate the data to the data connector for further use.
 
 ## Considerations
 
-Data Quality: Leverage Spice SQL capabilities to transform and cleanse ingested edge data, ensuring high-quality inputs.
+Data Quality: Use Spice SQL capabilities to transform and cleanse ingested edge data, ensuring high-quality inputs.
 
-Data Security: Assess data sensitivity and secure network connections between edge and data connector when replicating data for further usage. Implement encryption, access controls, and secure protocols.
+Data Security: Evaluate data sensitivity and secure network connections between the edge and data connector when replicating data for further use. Implement encryption, access controls, and secure protocols.
 
 ## Example
 
 ### [Disk SMART](https://en.wikipedia.org/wiki/Self-Monitoring,_Analysis_and_Reporting_Technology)
 
-- Start Spice with the following dataset:
+Start Spice with the following dataset:
 
 ```yaml
 datasets:
@@ -44,7 +44,7 @@ datasets:
       enabled: true
 ```
 
-- Start telegraf with the following config:
+Start telegraf with the following config:
 
 ```
 [[inputs.smart]]

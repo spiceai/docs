@@ -7,10 +7,10 @@ pagination_prev: null
 pagination_next: null
 ---
 
-## Accessing data across many, disparate data sources
+## Accessing data across multiple, disparate data sources
 
-[Federated SQL query](/features/federated-queries) across databases, data warehouses, and data lakes using [Data Connectors](/components/data-connectors).
+Perform [federated SQL queries](/features/federated-queries) across databases, data warehouses, and data lakes using [Data Connectors](/components/data-connectors).
 
-## Migrations from legacy data systems
+## Migrating from legacy data systems
 
-A drop-in solution to provides a single, unified endpoint to many data systems without changes to the application.
+Spice provides a drop-in solution that offers a single, unified endpoint to multiple data systems without requiring changes to the application.

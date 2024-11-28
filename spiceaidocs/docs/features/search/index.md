@@ -53,7 +53,7 @@ datasets:
     columns:
       - name: body
         embeddings:
-          - from: local_embedding_model  # Embedding model used for this column
+          - from: local_embedding_model # Embedding model used for this column
 ```
 
 By defining embeddings on the `body` column, Spice is now configured to execute similarity searches on the dataset.

@@ -7,8 +7,8 @@ pagination_prev: null
 pagination_next: null
 ---
 
-## Vector similarily search across disparate and legacy data systems
+## Vector similarity search across disparate and legacy data systems
 
-Enterprises face a new challenge when using AI. They now need to access data from disparate and legacy systems so AI has full-knowledge for context. It needs to be fast to be useful.
+Enterprises face the challenge of accessing data from various disparate and legacy systems to provide AI with comprehensive context. Speed is crucial for this process to be effective.
 
-Spice is a blazingly fast knowledge index into structured and unstructured data.
+Spice offers a fast knowledge index into both structured and unstructured data, enabling efficient vector similarity search across multiple data sources. This ensures that AI applications have access to the necessary data for accurate and timely responses.

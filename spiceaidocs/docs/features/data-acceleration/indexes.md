@@ -5,7 +5,7 @@ sidebar_position: 1
 description: 'Learn how to add indexes to local acceleration tables in Spice.'
 ---
 
-Database indexes are an essential tool for optimizing the performance of queries. Learn how to add indexes to the tables that Spice creates to accelerate data locally.
+Database indexes are essential for optimizing query performance. This document explains how to add indexes to tables created by Spice for local data acceleration.
 
 Example Spicepod:
 

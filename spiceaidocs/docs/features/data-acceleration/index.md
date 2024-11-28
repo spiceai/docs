@@ -6,23 +6,23 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/components/data-connectors) and storing it locally in a [Data Accelerator](/components/data-accelerators) for faster access. Additionally, the data can be configured to be kept up-to-date in realtime or on a refresh schedule, so you always have the latest data locally for querying.
+Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/components/data-connectors) and storing it locally in a [Data Accelerator](/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
 
 ## Benefits
 
-When a dataset is locally accelerated by the Spice runtime, the data is stored alongside your application, providing much faster query times by cutting out network latency to make the request. This benefit is accentuated when the result of a query is large because the data does not need to be transferred over the network. Depending on the [Acceleration Engine](/components/data-accelerators) chosen, the locally accelerated data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can also be applied, further speeding up certain types of queries.
+Local data acceleration stores data alongside your application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
 
-Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature comes with the ability to specify what should happen when a constraint is violated, either drop the specific row that violates the constraint or upsert that row into the accelerated table.
+Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
 
 ## Example Use Case
 
-Consider a high volume e-trading frontend application backed by an AWS RDS database containing a table of trades. In order to retrieve all trades over the last 24 hours, the application would need to query the remote database for all trades in the last 24 hours and then transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds-aurora-mysql), we can bring the data to the application, saving the round trip time to the database and the time to transfer the data over the network.
+Consider a high-volume e-trading frontend application backed by an AWS RDS database containing a table of trades. To retrieve all trades over the last 24 hours, the application would need to query the remote database and transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds-aurora-mysql), the data is brought to the application, saving round trip time and data transfer time.
 
 ## Considerations
 
-Data Storage: Ensure that the local storage has enough capacity to store the accelerated data. The amount and type (i.e. Disk or RAM) of storage required will depend on the size of the dataset and the acceleration engine used.
+Data Storage: Ensure local storage has enough capacity for the accelerated data. The required storage type (Disk or RAM) and amount depend on the dataset size and the acceleration engine used.
 
-Data Security: Assess data sensitivity and secure network connections between edge and data connector when replicating data for further usage. Assess the security of any Data Accelerator that is external to the Spice runtime and connected to the Spice runtime. Implement encryption, access controls, and secure protocols.
+Data Security: Assess data sensitivity and secure network connections between the edge and data connector when replicating data. Secure any external Data Accelerator connected to the Spice runtime with encryption, access controls, and secure protocols.
 
 ## Example
 

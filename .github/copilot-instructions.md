@@ -6,13 +6,18 @@ Remember to be concise, but do not omit useful information. Pay attention to det
 
 Use plain, clear, simple, easy-to-understand language. Do not use hyperbole or hype.
 
+Avoid "allows" to describe functionality.
+
 Always provide references and citations with links.
 
 Adhere to the instructions in CONTRIBUTING.md.
 
 Never use the words:
 
+- delve
 - seamlessly
 - empower / empowering
 - supercharge
 - countless
+- enhance / enhancing
+- allow / allowing

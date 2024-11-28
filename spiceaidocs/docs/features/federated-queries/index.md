@@ -7,17 +7,15 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a powerful federated query feature that allows you to join and combine data from multiple data sources and perform complex queries. This feature enables you to leverage the full potential of your data by aggregating and analyzing information wherever it is stored.
-
-Spice supports federated query across databases (PostgreSQL, MySQL, etc.), data warehouses (Databricks, Snowflake, BigQuery, etc.), and data lakes (S3, MinIO, etc.). See [Data Connectors](/components/data-connectors/index.md) for the full list of supported sources.
+Spice supports federated queries, enabling you to join and combine data from multiple sources, including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO). For a full list of supported sources, see [Data Connectors](/components/data-connectors/index.md).
 
 ### Getting Started
 
-To get started with federated queries using Spice, follow these steps:
+To start using federated queries in Spice, follow these steps:
 
 **Step 1.** Install Spice by following the [installation instructions](/getting-started/index.md).
 
-**Step 2.** Clone the [Spice Quickstarts repo](https://github.com/spiceai/quickstarts) and navigate to the `federation` directory.
+**Step 2.** Clone the Spice Quickstarts repository and navigate to the `federation` directory.
 
 ```bash
 git clone https://github.com/spiceai/quickstarts.git

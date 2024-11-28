@@ -5,11 +5,11 @@ sidebar_position: 2
 description: 'Learn how to add/configure constraints on local acceleration tables in Spice.'
 ---
 
-Constraints are rules that enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality, as well as configuring the behavior for inserting data updates that violate constraints.
+Constraints enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality and configure behavior for data updates that violate constraints.
 
 Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
-If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+If multiple rows in the incoming data violate any constraint, the entire incoming batch of data will be dropped.
 
 Example Spicepod:
 
@@ -72,9 +72,8 @@ datasets:
 
     :::danger[Invalid]
 
-      ```yaml
-      datasets:
-
+    ```yaml
+    datasets:
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
         acceleration:
@@ -82,11 +81,11 @@ datasets:
           engine: sqlite
           primary_key: hash
           indexes:
-            "(number, timestamp)": unique
+            '(number, timestamp)': unique
           on_conflict:
             hash: upsert
-            "(number, timestamp)": upsert
-      ```
+            '(number, timestamp)': upsert
+    ```
 
     :::
 
@@ -94,9 +93,8 @@ datasets:
 
     :::tip[Valid]
 
-      ```yaml
-      datasets:
-
+    ```yaml
+    datasets:
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
         acceleration:
@@ -104,20 +102,20 @@ datasets:
           engine: sqlite
           primary_key: hash
           indexes:
-            "(number, timestamp)": unique
+            '(number, timestamp)': unique
           on_conflict:
             hash: drop
-            "(number, timestamp)": drop
-      ```
+            '(number, timestamp)': drop
+    ```
 
     :::
 
           The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
 
     :::danger[Invalid]
-      ```yaml
-      datasets:
 
+    ```yaml
+    datasets:
       - from: spice.ai/eth.recent_blocks
         name: eth.recent_blocks
         acceleration:
@@ -125,11 +123,11 @@ datasets:
           engine: sqlite
           primary_key: hash
           indexes:
-            "(number, timestamp)": unique
+            '(number, timestamp)': unique
           on_conflict:
             hash: upsert
-            "(number, timestamp)": drop
-      ```
+            '(number, timestamp)': drop
+    ```
 
     :::
 

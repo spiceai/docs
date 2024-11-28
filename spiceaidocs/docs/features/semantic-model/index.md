@@ -7,19 +7,17 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Semantic data models in Spice are defined using the `datasets[*].columns` configuration.
-
-Structured and meaningful data representations can be added to datasets, beneficial for both AI large language models (LLMs) and traditional data analysis.
+Semantic data models in Spice are defined using the `datasets[*].columns` configuration. These models provide structured and meaningful data representations, which are beneficial for both AI large language models (LLMs) and traditional data analysis.
 
 ## Use-Cases
 
 ### Large Language Models (LLMs)
 
-The semantic model will automatically be used by [Spice Models](/reference/spicepod/models.md) as context to produce more accurate and context-aware AI responses.
+The semantic model is automatically used by [Spice Models](/reference/spicepod/models.md) as context to produce more accurate and context-aware AI responses.
 
 ## Defining a Semantic Model
 
-Semantic data models are defined within the `spicepod.yaml` file, specifically under the `datasets` section. Each dataset supports `description`, `metadata` and a `columns` field where individual columns are described with metadata and features for utility and clarity.
+Semantic data models are defined within the `spicepod.yaml` file, specifically under the `datasets` section. Each dataset supports `description`, `metadata`, and a `columns` field where individual columns are described with metadata and features for utility and clarity.
 
 ### Example Configuration
 

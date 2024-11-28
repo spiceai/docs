@@ -10,19 +10,19 @@ import ThemeBasedImage from '@site/src/components/ThemeBasedImage';
 
 ## What is Spice?
 
-**Spice** is a portable runtime offering developers a unified SQL interface to materialize, accelerate, and query data from any database, data warehouse, or data lake.
+**Spice** is a portable runtime written in Rust that offers developers a unified SQL interface to materialize, accelerate, and query data from any database, data warehouse, or data lake.
 
 📣 Read the [Spice.ai OSS announcement blog post](https://blog.spiceai.org/posts/2024/03/28/adding-spice-the-next-generation-of-spice.ai-oss/).
 
 Spice connects, fuses, and delivers data to applications, machine-learning models, and AI-backends, functioning as an application-specific, tier-optimized Database CDN.
 
-The Spice runtime, written in Rust, is built-with industry leading technologies such as [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Apache Arrow Flight, SQLite, and DuckDB.
+Spice is built-with industry leading technologies such as [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Apache Arrow Flight, SQLite, and DuckDB.
 
 <ThemeBasedImage width="600" alt="OGP" lightSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" darkSrc="https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7" />
 
 ## Why Spice?
 
-Spice makes it easy and fast to query data from one or more sources using SQL. You can co-locate a managed dataset with your application or machine learning model, and accelerate it with Arrow in-memory, SQLite/DuckDB, or with attached PostgreSQL for fast, high-concurrency, low-latency queries. Accelerated engines give you flexibility and control over query cost and performance.
+Spice makes it fast and easy to query data from one or more sources using SQL. You can co-locate a managed dataset with your application or machine learning model, and accelerate it with Arrow in-memory, SQLite/DuckDB, or with attached PostgreSQL for fast, high-concurrency, low-latency queries. Accelerated engines give you flexibility and control over query cost and performance.
 
 <ThemeBasedImage width="800" alt="Before Spice" lightSrc="https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b" darkSrc="https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b" />
 
@@ -40,7 +40,7 @@ Spice makes it easy and fast to query data from one or more sources using SQL. Y
 
 |                            | Spice                              | Trino/Presto                     | Dremio                           | Clickhouse              |
 | -------------------------- | ---------------------------------- | -------------------------------- | -------------------------------- | ----------------------- |
-| Primary Use-Case           | Data & AI Applications             | Big Data Analytics               | Interative Analytics             | Real-Time Analytics     |
+| Primary Use-Case           | Data & AI Applications             | Big Data Analytics               | Interactive Analytics            | Real-Time Analytics     |
 | Typical Deployment         | Colocated with application         | Cloud Cluster                    | Cloud Cluster                    | On-Prem/Cloud Cluster   |
 | Application-to-Data System | One-to-One/Many                    | Many-to-One                      | Many-to-One                      | Many-to-One             |
 | Query Federation           | Native with query push-down        | Supported with push-down         | Supported with limited push-down | Limited                 |
@@ -63,10 +63,6 @@ Spice makes it easy and fast to query data from one or more sources using SQL. Y
 - **Is Spice a cache?** No, however you can think of Spice data materialization like an _active_ cache or data prefetcher. A cache would fetch data on a cache-miss while Spice prefetches and materializes filtered data on an interval or as new data becomes available. In addition to materialization Spice supports [results caching](/features/caching).
 
 - **Is Spice a CDN for databases?** Yes, you can think of Spice like a CDN for different data sources. Using CDN concepts, Spice enables you to ship (load) a working set of your database (or data lake, or data warehouse) where it's most frequently accessed, like from a data application or for AI-inference.
-
-:::warning[DEVELOPER PREVIEW]
-Spice is under active **alpha** stage development and is not intended to be used in production until its **1.0-stable** release. If you are interested in running Spice in production, please get in touch below so we can support you.
-:::
 
 ### Intelligent Applications
 

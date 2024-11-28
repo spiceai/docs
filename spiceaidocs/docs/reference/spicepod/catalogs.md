@@ -17,7 +17,7 @@ catalogs:
   - from: spice.ai
     name: spiceai
     include:
-      - "tpch.*" # Include only the "tpch" tables.
+      - 'tpch.*' # Include only the "tpch" tables.
 ```
 
 ## `from`
@@ -54,7 +54,7 @@ An alternative to adding the catalog definition inline in the `spicepod.yaml` fi
 from: spice.ai
 name: spiceai
 include:
-  - "tpch.*" # Include only the "tpch" tables.
+  - 'tpch.*' # Include only the "tpch" tables.
 ```
 
 **ref used in spicepod.yaml**

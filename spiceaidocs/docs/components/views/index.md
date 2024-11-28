@@ -1,17 +1,19 @@
 ---
 title: 'Views'
 sidebar_label: 'Views'
-description: 'Documentation for defining Views'
+description: 'Documentation for defining Views in Spice'
 sidebar_position: 7
 ---
 
-Views in Spice are virtual tables defined by SQL queries. They simplify complex queries and support reuse across applications.
+Views in Spice are virtual tables defined by SQL queries. They help simplify complex queries and promote reuse across different applications by encapsulating query logic in a single, reusable entity.
 
 ## Defining a View
 
-To define a view in `spicepod.yaml`, specify the `views` section. Each view requires a `name` and a `sql` field.
+To define a view in the `spicepod.yaml` configuration file, specify the `views` section. Each view definition must include a `name` and a `sql` field.
 
 ### Example
+
+The following example demonstrates how to define a view named `rankings` that lists the top five products based on the total count of orders:
 
 ```yaml
 views:

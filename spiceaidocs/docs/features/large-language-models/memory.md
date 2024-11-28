@@ -13,9 +13,9 @@ Spice provides memory persistence tools that allow language models to store and 
 
 ## Enabling Memory Tools
 
-To enable memory tools for Spice models you need to:
- 1. Define a `store` [memory](/components/data-connectors/memory.md) dataset.
- 2. Specify `memory` in the model's `tools` parameter.
+To enable memory tools for Spice models, define a `store` [memory](/components/data-connectors/memory.md) dataset and specify `memory` in the model's `tools` parameter.
+
+### Example: Enabling Memory Tools
 
 ```yaml
 datasets:
@@ -31,5 +31,6 @@ models:
 ```
 
 ## Available Tools
- - `store_memory`: Store important information for future reference
- - `load_memory`: Retrieve previously stored memories from the last time period.
+
+- `store_memory`: Store important information for future reference
+- `load_memory`: Retrieve previously stored memories from the last time period.

@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice supports loading and serving ONNX models and GGUF LLMs from various sources for embeddings and inference, including local filesystems, Hugging Face, and the Spice Cloud platform.
 
-Example `spicepod.yml` loading a LLM from HuggingFace:
+### Example: Loading a LLM from Hugging Face
 
 ```yaml
 models:

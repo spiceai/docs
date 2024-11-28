@@ -5,16 +5,17 @@ sidebar_label: 'OpenAI'
 sidebar_position: 4
 ---
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path in `from`.
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path in the `from` field.
 
-For a specific model, include it as the model ID in `from` (see example below). Defaults to `"gpt-3.5-turbo"`.
+For a specific model, include it as the model ID in the `from` field (see example below). The default model is `"gpt-3.5-turbo"`.
+
 These parameters are specific to OpenAI models:
 
 | Param               | Description                   | Default                     |
 | ------------------- | ----------------------------- | --------------------------- |
 | `openai_api_key`    | The OpenAI API key.           | -                           |
-| `openai_org_id`     | The OpenAI organization id.   | -                           |
-| `openai_project_id` | The OpenAI project id.        | -                           |
+| `openai_org_id`     | The OpenAI organization ID.   | -                           |
+| `openai_project_id` | The OpenAI project ID.        | -                           |
 | `endpoint`          | The OpenAI API base endpoint. | `https://api.openai.com/v1` |
 
 Example:

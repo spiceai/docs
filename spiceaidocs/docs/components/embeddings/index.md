@@ -7,11 +7,11 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Embedding models are used to convert raw text into a numerical representation that can be used by machine learning models.
-
-Spice supports running embedding models locally, or use remote services such as OpenAI, or [la Plateforme](https://console.mistral.ai/).
+Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
 
 Embedding models are defined in the `spicepod.yaml` file as top-level components.
+
+Example configuration in `spicepod.yaml`:
 
 ```yaml
 embeddings:
@@ -31,5 +31,6 @@ embeddings:
 ```
 
 Embedding models can be used either by:
- - An OpenAI-compatible [endpoint](/api/http/embeddings.md)
- - By augmenting a dataset with column-level [embeddings](/reference/spicepod/datasets.md#embeddings), to provide vector-based [search functionality](/features/search/index.md#vector-search).
+
+- An OpenAI-compatible [endpoint](/api/http/embeddings.md)
+- By augmenting a dataset with column-level [embeddings](/reference/spicepod/datasets.md#embeddings), to provide vector-based [search functionality](/features/search/index.md#vector-search).
