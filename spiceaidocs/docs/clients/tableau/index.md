@@ -25,7 +25,7 @@ Download and install [Tableau Desktop](https://www.tableau.com/products/desktop/
 
 - Visit the [Flight SQL JDBC driver](https://central.sonatype.com/artifact/org.apache.arrow/flight-sql-jdbc-driver/) page
 - Select the **Versions** tab
-- Click **Browse**  next to the version you want to download
+- Click **Browse** next to the version you want to download
 - Click the `flight-sql-jdbc-driver-XX.XX.XX.jar` file (with only the `.jar` file extension) from the list of files to download the driver jar file
 
 2. **Copy the downloaded jar file into the following directory based on your operating system**
@@ -39,13 +39,15 @@ Download and install [Tableau Desktop](https://www.tableau.com/products/desktop/
 1. Open **Tableau**
 2. In the **Connect** column, under **To a Server**, select **Other Databases (JDBC)**.
 3. Provide the following configuration:
- - **URL**: `jdbc:arrow-flight-sql://127.0.0.1:50051?useEncryption=false`
- - **Dialect**: `PostgreSQL`
- <img width="400" src="/img/tableau/tableau-jdbc-conn.png" />
+
+- **URL**: `jdbc:arrow-flight-sql://127.0.0.1:50051?useEncryption=false`
+- **Dialect**: `PostgreSQL`
+  <img width="400" src="/img/tableau/tableau-jdbc-conn.png" />
+
 4. Ensure Spice is running
 5. Click **Sign In**
 
-## Working with Spice datasets 
+## Working with Spice datasets
 
 Once connected, Spice datasets will be listed under the `datafusion.public` schema.
 
@@ -60,6 +62,3 @@ Tableau support is currently in alpha, and not all functionality is supported. U
 <img width="800" src="/img/tableau/tableau-custom-sql.png" />
 
 <img width="800" src="/img/tableau/tableau-spice-chart.png" />
-
-
-

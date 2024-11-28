@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 Use [Apache Superset](https://superset.apache.org/) to query and visualize datasets loaded in Spice.
 
 > Apache Superset is a modern, enterprise-ready business intelligence web application. It is fast, lightweight, intuitive, and loaded with options that make it easy for users of all skill sets to explore and visualize their data, from simple pie charts to highly detailed deck.gl geospatial charts.
-> 
+>
 > – [Apache Superset documentation](https://superset.apache.org/docs/intro/)
 
 ## Start Apache Superset with Flight SQL & DataFusion SQL Dialect support
@@ -42,6 +42,7 @@ Select the appropriate tab based on whether you are experimenting with this feat
     Log into Apache Superset at [http://localhost:8088](http://localhost:8088) with the username and password `admin/admin`.
 
     Follow the below steps to configure a database connection to Spice manually, or run `make import-dashboards` to automatically configure the connection and create a sample dashboard.
+
   </TabItem>
   <TabItem value="existing" label="Integrating with Existing Superset">
     ## Generic / Virtual Machine
@@ -68,7 +69,7 @@ Select the appropriate tab based on whether you are experimenting with this feat
 
     ## Temporary Docker Container Modification
     It's possible to modify a running Docker container to install the library, but the change will be lost on container restart.
-      
+
     ```bash
     docker exec -u root -it superset /bin/bash
 
