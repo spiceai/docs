@@ -41,13 +41,7 @@ spice init demo
 cd demo
 ```
 
-**Step 5.** Start the Spice runtime.
-
-```bash
-spice run
-```
-
-**Step 6.** Open a new terminal, navigate back to the `demo` directory and add the `spiceai/fed-demo` Spicepod.
+**Step 5.** Add the `spiceai/fed-demo` Spicepod.
 
 ```bash
 # Change to demo directory.
@@ -57,6 +51,12 @@ spice add spiceai/fed-demo
 ```
 
 Note in the Spice runtime output several datasets are loaded.
+
+**Step 6.** Start the Spice runtime.
+
+```bash
+spice run
+```
 
 **Step 7.** Show available tables and query them, regardless of source.
 
@@ -95,7 +95,7 @@ SELECT *
 FROM dremio_source_accelerated LIMIT 10
 ```
 
-**Step 8.** Join tables across remote sources and query
+**Step 8.** Join tables across remote sources and locally accelerated source
 
 ```sql
 -- Query across S3, PostgreSQL, and Dremio
@@ -110,26 +110,26 @@ WITH order_numbers AS (
 SELECT
   AVG(total_amount),
   passenger_count
-FROM dremio_source
+FROM dremio_source_accelerated
 WHERE passenger_count IN (
   SELECT DISTINCT order_number % 10 AS num_of_passenger
   FROM order_numbers
 )
 GROUP BY passenger_count;
 
-+---------------------------------+-----------------+
-| AVG(dremio_source.total_amount) | passenger_count |
-+---------------------------------+-----------------+
-| 17.219515789473693              | 4               |
-| 22.401176470588233              | 6               |
-| 21.12263157894737               | 5               |
-| 17.441359661495103              | 3               |
-| 23.2                            | 0               |
-| 17.714222499449477              | 2               |
-| 15.394881909237105              | 1               |
-+---------------------------------+-----------------+
++---------------------------------------------+-----------------+
+| avg(dremio_source_accelerated.total_amount) | passenger_count |
++---------------------------------------------+-----------------+
+| 17.441359661495113                          | 3               |
+| 22.401176470588233                          | 6               |
+| 21.122631578947367                          | 5               |
+| 17.219515789473697                          | 4               |
+| 17.71422249944938                           | 2               |
+| 15.394881909237206                          | 1               |
+| 23.2                                        | 0               |
++---------------------------------------------+-----------------+
 
-Time: 3.345525166 seconds. 7 rows.
+Time: 0.557610333 seconds. 7 rows.
 ```
 
 **Step 9.** Join tables across locally accelerated sources and query
