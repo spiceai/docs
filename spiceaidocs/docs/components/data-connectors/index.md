@@ -20,6 +20,7 @@ Currently supported Data Connectors include:
 | `s3`            | S3                        | Release Candidate | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `databricks`    | Databricks                | Beta              | Spark Connect <br/> S3 / Delta Lake | `append`, `full`            | Roadmap                         | ❌                 |
 | `delta_lake`    | Delta Lake                | Beta              | Delta Lake                          | `append`, `full`            | Roadmap                         | ❌                 |
+| `file`          | File                      | Beta              | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `flightsql`     | FlightSQL                 | Beta              | Arrow Flight SQL                    | `append`, `full`            | ❌                              | ❌                 |
 | `odbc`          | ODBC                      | Beta              |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `spiceai`       | Spice.ai                  | Beta              | Arrow Flight                        | `append`, `full`            | ✅                              | ❌                 |
@@ -27,7 +28,6 @@ Currently supported Data Connectors include:
 | `clickhouse`    | Clickhouse                | Alpha             |                                     | `append`, `full`            | ❌                              | ❌                 |
 | `debezium`      | Debezium                  | Alpha             | CDC, Kafka                          | `append`, `full`, `changes` | ❌                              | ❌                 |
 | `dremio`        | Dremio                    | Alpha             | Arrow Flight SQL                    | `append`, `full`            | ❌                              | ❌                 |
-| `file`          | File                      | Alpha             | Parquet, CSV                        | `append`, `full`            | Roadmap                         | ✅                 |
 | `ftp`, `sftp`   | FTP/SFTP                  | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                              | ✅                 |
 | `graphql`       | GraphQL                   | Alpha             | GraphQL                             | `append`, `full`            | ❌                              | ❌                 |
 | `http`, `https` | HTTP(s)                   | Alpha             | Parquet, CSV                        | `append`, `full`            | ❌                              | ❌                 |
