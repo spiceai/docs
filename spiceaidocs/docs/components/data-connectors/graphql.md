@@ -27,7 +27,7 @@ datasets:
 :::warning[Limitations]
 
 - The GraphQL data connector does not support variables in the query.
-- Filter pushdown is not currently supported; however, when using the limit, the connector will request only the necessary data.
+- Filter pushdown, with the exclusion of `LIMIT`, is not currently supported. Using a `LIMIT` will reduce the amount of data requested from the GraphQL server.
 
 :::
 
@@ -94,9 +94,10 @@ The `graphql_query` must include the `pageInfo` field as per [spec](https://rela
 
 The query must have the correct pagination arguments in the associated paginated field.
 
-
 ### Example
+
 **Forward Pagination:**
+
 ```graphql
 {
   something_paginated(first: 100) {
@@ -113,6 +114,7 @@ The query must have the correct pagination arguments in the associated paginated
 ```
 
 **Backward Pagination:**
+
 ```graphql
 {
   something_paginated(last: 100) {
