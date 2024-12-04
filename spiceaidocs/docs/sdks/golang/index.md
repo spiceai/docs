@@ -12,7 +12,7 @@ https://github.com/spiceai/gospice
 ### Install
 
 ```shell
-go get github.com/spiceai/gospice/v6
+go get github.com/spiceai/gospice/v7
 ```
 
 ### Connect to spice runtime
@@ -20,7 +20,7 @@ go get github.com/spiceai/gospice/v6
 Import the package:
 
 ```go
-import "github.com/spiceai/gospice/v6"
+import "github.com/spiceai/gospice/v7"
 ```
 
 Create a `SpiceClient` using default configuration:
