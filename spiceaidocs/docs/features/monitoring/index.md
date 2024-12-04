@@ -81,7 +81,8 @@ dataset_active_count{engine="duckdb"} 1
 | `flight_request_duration_ms`<br/>*(histogram)*     | Measures the duration of Flight requests in milliseconds.                                        |
 | `flight_requests`<br/>*(count)*                    | Total number of Flight requests.                                                                 |
 | `http_requests_duration_ms`<br/>*(histogram)*      | Measures the duration of HTTP requests in milliseconds.                                          |
-| `http_requests_total`<br/>*(count)*                | Total number of HTTP requests.                                                                   |
+| `http_requests`<br/>*(count)*                      | Number of HTTP requests.                                                                         |
+| `http_requests_total`<br/>*(count)*                | Number of HTTP requests. Deprecated, use `http_requests` instead                                 |
 | `llm_load_state`<br/>*(gauge)*                     | Status of the LLM model. 1=Initializing, 2=Ready, 3=Disabled, 4=Error, 5=Refreshing.             |
 | `model_active_count`<br/>*(gauge)*                 | Number of currently loaded models.                                                               |
 | `model_load_duration_ms`<br/>*(histogram)*         | Duration in milliseconds to load the model.                                                      |
