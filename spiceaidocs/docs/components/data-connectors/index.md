@@ -20,6 +20,7 @@ Currently supported Data Connectors include:
 | `s3`                               | S3                        | Release Candidate | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `databricks (mode: delta_lake)`    | Databricks                | Release Candidate | S3 / Delta Lake           | `append`, `full`            | Roadmap                         | ❌                 |
 | `databricks (mode: spark_connect)` | Databricks                | Beta              | Spark Connect             | `append`, `full`            | Roadmap                         | ❌                 |
+| `file`                             | File                      | Beta              | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `delta_lake`                       | Delta Lake                | Beta              | Delta Lake                | `append`, `full`            | Roadmap                         | ❌                 |
 | `flightsql`                        | FlightSQL                 | Beta              | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
 | `odbc`                             | ODBC                      | Beta              |                           | `append`, `full`            | ❌                              | ❌                 |
