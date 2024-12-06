@@ -169,24 +169,24 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 The table below shows the Databricks (mode: delta_lake) data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| Delta Kernel Type | Arrow Type                            |
-| ----------------- | ------------------------------------- |
-| `String`          | `Utf8`                                |
-| `Long`            | `Int64`                               |
-| `Integer`         | `Int32`                               |
-| `Short`           | `Int16`                               |
-| `Byte`            | `Int8`                                |
-| `Float`           | `Float32`                             |
-| `Double`          | `Float64`                             |
-| `Boolean`         | `Boolean`                             |
-| `Binary`          | `Binary`                              |
-| `Date`            | `Date32`                              |
-| `Timestamp`       | `Timestamp(Microsecond, Some("UTC"))` |
-| `TimestampNtz`    | `Timestamp(Microsecond, None)`        |
-| `Decimal`         | `Decimal128`                          |
-| `Array`           | `List`                                |
-| `Struct`          | `Struct`                              |
-| `Map`             | `Map`                                 |
+| Databricks SQL Type | Arrow Type                            |
+| ------------------- | ------------------------------------- |
+| `STRING`            | `Utf8`                                |
+| `BIGINT`            | `Int64`                               |
+| `INT`               | `Int32`                               |
+| `SMALLINT`          | `Int16`                               |
+| `TINYINT`           | `Int8`                                |
+| `FLOAT`             | `Float32`                             |
+| `DOUBLE`            | `Float64`                             |
+| `BOOLEAN`           | `Boolean`                             |
+| `BINARY`            | `Binary`                              |
+| `DATE`              | `Date32`                              |
+| `TIMESTAMP`         | `Timestamp(Microsecond, Some("UTC"))` |
+| `TIMESTAMP_NTZ`     | `Timestamp(Microsecond, None)`        |
+| `DECIMAL`           | `Decimal128`                          |
+| `ARRAY`             | `List`                                |
+| `STRUCT`            | `Struct`                              |
+| `MAP`               | `Map`                                 |
 
 ## Secrets
 
