@@ -21,6 +21,7 @@ datasets:
       kafka_sasl_password: ${secrets:kafka_sasl_password} # Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.
       kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem # Optional. Used to verify the SSL/TLS certificate of the Kafka broker.
       kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
+      kafka_ssl_endpoint_identification_algorithm: https # Default is `https`. Valid values are `none` and `https`.
 
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
@@ -70,6 +71,7 @@ SELECT COUNT(*) FROM cool_dataset;
 | `kafka_sasl_password`                   | SASL password.                                                                                                                                                                                                                    |
 | `kafka_ssl_ca_location`                 | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                  |
 | `kafka_enable_ssl_certificate_verification` | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                         |
+| `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                         |
 
 ### Acceleration Settings
 
