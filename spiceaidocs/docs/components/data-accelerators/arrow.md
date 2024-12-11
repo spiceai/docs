@@ -36,7 +36,8 @@ datasets:
 
 - The In-Memory Arrow Data Accelerator does not support persistent storage. Data is stored in-memory and will be lost when the Spice runtime is stopped.
 - The In-Memory Arrow Data Accelerator does not support `Decimal256` (76 digits), as it exceeds Arrow's maximum Decimal width of 38 digits.
-- The In-Memory Arrow Data Accelerator does not support [constraints](/features/data-acceleration/constraints) and [indexes](/features/data-acceleration/indexes).
+- The In-Memory Arrow Data Accelerator does not support [indexes](/features/data-acceleration/indexes).
+- The In-Memory Arrow Data Accelerator only supports primary-key [constraints](/features/data-acceleration/constraints), not `unique` constraints.
 - With Arrow acceleration, mathematical operations like `value1 / value2` are treated as integer division if the values are integers. For example, `1 / 2` will result in 0 instead of the expected 0.5. Use casting to FLOAT to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)` (or `CAST(1 AS FLOAT) / 2`).
 
 :::warning[Memory Considerations]
