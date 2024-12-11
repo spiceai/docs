@@ -14,17 +14,22 @@ The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query acr
 Secrets will be written to a `.env` file by using the `spice login` command and logging in with an active Spice AI account. Learn more about the [Env Secret Store](/components/secret-stores/env).
 
 - `api_key`: A Spice.ai API key.
-- `token`: An active personal access token that is configured when logging in to spice via `spice login` 
+- `token`: An active personal access token that is configured when logging in to spice via `spice login`.
 
 ### Parameters
 
-- `from`: The Spice.ai dataset ID. For instance `spice.ai/eth.recent_blocks` or `spice.ai/eth.recent_traces`
+- `from`: The Spice.ai dataset ID. For instance `spice.ai/eth.recent_blocks` or `spice.ai/eth.recent_traces`. To query a dataset in a shared Spicepod, use the format `spice.ai/<org>/<app>/datasets/<dataset_id>`.
 
 ## Example
 
 ```yaml
 - from: spice.ai/eth.recent_blocks
   name: eth_recent_blocks
+```
+
+```yaml
+- from: spice.ai/spiceai/tpch/datasets/customer
+  name: tpch.customer
 ```
 
 ## Full Configuration Example
@@ -36,17 +41,4 @@ Secrets will be written to a `.env` file by using the `spice login` command and 
     spiceai_api_key: ${secrets:spiceai_api_key}
   acceleration:
     enabled: true
-    refresh_mode: append
 ```
-
-:::warning[Limitations]
-
-`refresh_mode: append` is supported for the following datasets:
-
-- eth.recent_blocks
-- eth.recent_transactions
-- eth.recent_traces
-
-All other datasets need to be configured with `refresh_mode: full`.
-
-:::
