@@ -28,7 +28,7 @@ datasets:
       - name: content
         embeddings:
           - from: openai_embeddings
-            row_ids:
+            row_id:
               - path
             chunking:
               enabled: true
@@ -56,7 +56,7 @@ datasets:
       - name: content
         embeddings:
           - from: openai_embeddings
-            row_ids:
+            row_id:
               - path
             chunking:
               enabled: true
@@ -85,7 +85,7 @@ datasets:
       - name: content
         embeddings:
           - from: openai_embeddings
-            row_ids:
+            row_id:
               - path
             chunking:
               enabled: true
@@ -115,7 +115,7 @@ datasets:
       - name: content
         embeddings:
           - from: openai_embeddings
-            row_ids:
+            row_id:
               - path
             chunking:
               enabled: true
