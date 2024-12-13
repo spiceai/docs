@@ -122,7 +122,7 @@ To use the ABFS connector with user authentication, create an Azure AD applicati
 2. Under the application's `API permissions`, add the permission: `Azure Storage - user_impersonation`.
 3. Under the applications's `Authentication`, add `http://localhost` as Mobile and desktop applications redirect URI.
 4. Under the storage account's `Access Control (IAM)`, grant the user data read access to storage account, this can be done using `Storage Blob Data Reader` built in role.
-5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. See `spice login sharepoint` [docs](/cli/reference/login) for more details.
+5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. See [`spice login` docs](/cli/reference/login) for more details.
 
 ```shell
 spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
