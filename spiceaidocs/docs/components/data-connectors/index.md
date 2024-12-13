@@ -23,6 +23,7 @@ Currently supported Data Connectors include:
 | `file`                             | File                      | Beta              | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `delta_lake`                       | Delta Lake                | Beta              | Delta Lake                | `append`, `full`            | Roadmap                         | ❌                 |
 | `flightsql`                        | FlightSQL                 | Beta              | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
+| `mssql`                            | MS SQL Server             | Beta              | Tabular Data Stream (TDS) | `append`, `full`            | ❌                              | ❌                 |
 | `odbc`                             | ODBC                      | Beta              |                           | `append`, `full`            | ❌                              | ❌                 |
 | `spiceai`                          | Spice.ai                  | Beta              | Arrow Flight              | `append`, `full`            | ✅                              | ❌                 |
 | `abfs`                             | Azure BlobFS              | Alpha             | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
@@ -34,7 +35,6 @@ Currently supported Data Connectors include:
 | `graphql`                          | GraphQL                   | Alpha             | GraphQL                   | `append`, `full`            | ❌                              | ❌                 |
 | `http`, `https`                    | HTTP(s)                   | Alpha             | Parquet, CSV              | `append`, `full`            | ❌                              | ❌                 |
 | `localpod`                         | Local dataset replication | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
-| `mssql`                            | MS SQL Server             | Alpha             | Tabular Data Stream (TDS) | `append`, `full`            | ❌                              | ❌                 |
 | `sharepoint`                       | SharePoint                | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
 | `snowflake`                        | Snowflake                 | Alpha             | Arrow                     | `append`, `full`            | Roadmap                         | ❌                 |
 | `spark`                            | Spark                     | Alpha             | Spark Connect             | `append`, `full`            | ❌                              | ❌                 |
