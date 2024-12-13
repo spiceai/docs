@@ -84,17 +84,17 @@ The following parameters are used when authenticating with Azure. Only one of th
 
 If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
 
-| Parameter name              | Description                                                                                                                                                                                                                            |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `abfs_access_key`           | Secret access key                                                                                                                                                                                                                      |
-| `abfs_bearer_token`         | `BEARER` access token for user authentication. The token can be obtained from the OAuth2 flow (see [Obtain `abfs_bearer_token` with interactive user authentication](#obtain-abfs_bearer_token-with-interactive-user-authentication)). |
-| `abfs_client_id`            | Client ID for client authentication flow                                                                                                                                                                                               |
-| `abfs_client_secret`        | Client Secret to use for client authentication flow                                                                                                                                                                                    |
-| `abfs_tenant_id`            | Tenant ID to use for client authentication flow                                                                                                                                                                                        |
-| `abfs_skip_signature`       | Skip credentials and request signing for public containers                                                                                                                                                                             |
-| `abfs_msi_endpoint`         | Endpoint for managed identity tokens                                                                                                                                                                                                   |
-| `abfs_federated_token_file` | File path for federated identity token in Kubernetes                                                                                                                                                                                   |
-| `abfs_use_cli`              | Set to `true` to use the Azure CLI to acquire access tokens                                                                                                                                                                            |
+| Parameter name              | Description                                                                                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `abfs_access_key`           | Secret access key                                                                                                                                                |
+| `abfs_bearer_token`         | `BEARER` access token for user authentication. The token can be obtained from the OAuth2 flow (see [access token authentication](#access-token-authentication)). |
+| `abfs_client_id`            | Client ID for client authentication flow                                                                                                                         |
+| `abfs_client_secret`        | Client Secret to use for client authentication flow                                                                                                              |
+| `abfs_tenant_id`            | Tenant ID to use for client authentication flow                                                                                                                  |
+| `abfs_skip_signature`       | Skip credentials and request signing for public containers                                                                                                       |
+| `abfs_msi_endpoint`         | Endpoint for managed identity tokens                                                                                                                             |
+| `abfs_federated_token_file` | File path for federated identity token in Kubernetes                                                                                                             |
+| `abfs_use_cli`              | Set to `true` to use the Azure CLI to acquire access tokens                                                                                                      |
 
 #### Retry parameters
 
@@ -110,19 +110,26 @@ If none of these are set the connector will default to using a [managed identity
 
 ABFS connector supports three types of authentication, as detailed in the [authentication parameters](#authentication-parameters)
 
-1. Service principal authentication, by setting the `abfs_client_secret` parameter.
-2. User authentication, by setting the `abfs_bearer_token` parameter. Typically this is obtained by running `spice login abfs` and following the OAuth2 flow.
-3. Access key authentication, by setting the `abfs_access_key` parameter to [Azure Storage Account Access Key](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal)
+### Service principal authentication
 
-### Obtain `abfs_bearer_token` with interactive user authentication
+Configure service principal authentication by setting the `abfs_client_secret` parameter.
 
-To use the ABFS connector with user authentication, create an Azure AD application and grant the necessary permissions to both the user and the Azure AD application. This setup supports OAuth2 authentication for users within the tenant (i.e. `abfs_bearer_token`).
+1. Create a new Azure AD application in the [Azure portal](https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview) and generate a `client secret` under `Certificates & secrets`.
+2. Grant the Azure AD application read access to the storage account under `Access Control (IAM)`, this can typically be done using the `Storage Blob Data Reader` built-in role.
+
+### Access key authentication
+
+Configure service principal authentication by setting the `abfs_access_key` parameter to [Azure Storage Account Access Key](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal)
+
+### Access token authentication
+
+Configure access token authentication by setting the `abfs_bearer_token` parameter, typically obtained through the following the OAuth2 flow with `spice login abfs`.
 
 1. Create a new Azure AD application in the [Azure portal](https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview).
 2. Under the application's `API permissions`, add the permission: `Azure Storage - user_impersonation`.
 3. Under the applications's `Authentication`, add `http://localhost` as Mobile and desktop applications redirect URI.
-4. Under the storage account's `Access Control (IAM)`, grant the user data read access to storage account, this can be done using `Storage Blob Data Reader` built in role.
-5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. See [`spice login` docs](/cli/reference/login) for more details.
+4. Grant the user read access to the storage account under `Access Control (IAM)`, this can typically be done using the `Storage Blob Data Reader` built-in role.
+5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](/cli/reference/login) documentation for more details.
 
 ```shell
 spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
