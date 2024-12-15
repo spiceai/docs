@@ -13,7 +13,7 @@ Request Body
 
 - `datasets` (array of strings, Optional): Names of the dataset components to perform the similarity search on. Each dataset must have exactly one column augmented with an embedding. If None, all available datasets are used.
 - `text` (string): Query plaintext used to retrieve similar rows from the underlying datasets listed in the `from` request key.
-- `limit` (integer): The number of rows to return, per `from` dataset. Default: 3.
+- `limit` (integer): The number of rows to return. Default: 3.
 - `where` (string): An SQL filter predicate to apply within the search.
 - `additional_columns` (array of strings): Additional columns, from the datasets, to return in the response (under `.matches[*].metadata`).
 

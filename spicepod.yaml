@@ -27,13 +27,14 @@ datasets:
     columns:
       - name: content
         embeddings:
-          from: openai_embeddings
-          row_id: path
-          chunking:
-            enabled: true
-            target_chunk_size: 512
-            overlap_size: 128
-            trim_whitespace: true
+          - from: openai_embeddings
+            row_id:
+              - path
+            chunking:
+              enabled: true
+              target_chunk_size: 512
+              overlap_size: 128
+              trim_whitespace: true
 
   - from: github:github.com/spiceai/samples/files/trunk
     name: spiceai.samples
@@ -54,13 +55,14 @@ datasets:
     columns:
       - name: content
         embeddings:
-          from: openai_embeddings
-          row_id: path
-          chunking:
-            enabled: true
-            target_chunk_size: 512
-            overlap_size: 128
-            trim_whitespace: true
+          - from: openai_embeddings
+            row_id:
+              - path
+            chunking:
+              enabled: true
+              target_chunk_size: 512
+              overlap_size: 128
+              trim_whitespace: true
 
   - from: github:github.com/spiceai/quickstarts/files/trunk
     name: spiceai.quickstarts
@@ -82,13 +84,14 @@ datasets:
     columns:
       - name: content
         embeddings:
-          from: openai_embeddings
-          row_id: path
-          chunking:
-            enabled: true
-            target_chunk_size: 512
-            overlap_size: 128
-            trim_whitespace: true
+          - from: openai_embeddings
+            row_id:
+              - path
+            chunking:
+              enabled: true
+              target_chunk_size: 512
+              overlap_size: 128
+              trim_whitespace: true
 
   - from: github:github.com/spiceai/blog/files/trunk
     name: spiceai.blog
@@ -111,13 +114,14 @@ datasets:
     columns:
       - name: content
         embeddings:
-          from: openai_embeddings
-          row_id: path
-          chunking:
-            enabled: true
-            target_chunk_size: 512
-            overlap_size: 128
-            trim_whitespace: true
+          - from: openai_embeddings
+            row_id:
+              - path
+            chunking:
+              enabled: true
+              target_chunk_size: 512
+              overlap_size: 128
+              trim_whitespace: true
 
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues

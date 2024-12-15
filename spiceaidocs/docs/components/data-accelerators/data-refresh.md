@@ -99,13 +99,15 @@ datasets:
 
 The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1/datasets/:name/acceleration`. This change is temporary and will revert to the `spicepod.yml` definition at the next runtime restart.
 
+Columns can be selected in the query via the `SELECT` clause, but only column names are supported. Arbitrary expressions or aliases are not supported.
+
 Example:
 
 ```bash
 curl -i -X PATCH \
      -H "Content-Type: application/json" \
      -d '{
-           "refresh_sql": "SELECT * FROM accelerated_dataset WHERE city = 'Bellevue'"
+           "refresh_sql": "SELECT city, state FROM accelerated_dataset WHERE city = 'Bellevue'"
          }' \
      127.0.0.1:8090/v1/datasets/accelerated_dataset/acceleration
 ```
@@ -115,7 +117,6 @@ For the complete reference, view the `refresh_sql` section of [datasets](/refere
 :::warning[Limitations]
 
 - Refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
-- Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fallback to querying the federated table.
 - Refresh SQL modifications made via API are temporary and will revert after a runtime restart.
 

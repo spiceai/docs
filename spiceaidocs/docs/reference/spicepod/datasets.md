@@ -164,6 +164,7 @@ The following values are supported:
 Not all connectors support specifying an `invalid_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `invalid_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb.md)
+- [PostgreSQL](../../components/data-connectors/postgres/index.md)
 
 :::
 
