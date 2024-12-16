@@ -18,13 +18,15 @@ Secrets will be written to a `.env` file by using the `spice login` command and 
 
 ### Parameters
 
-- `from`: The Spice.ai dataset ID. For instance `spice.ai/eth.recent_blocks` or `spice.ai/eth.recent_traces`. To query a dataset in a shared Spicepod, use the format `spice.ai/<org>/<app>/datasets/<dataset_id>`.
+#### `from`
+
+The Spice.ai Cloud Platform dataset URI. To query a dataset in a public Spice.ai App, use the format `spice.ai/<org>/<app>/datasets/<dataset_name>`.
 
 ## Example
 
 ```yaml
-- from: spice.ai/eth.recent_blocks
-  name: eth_recent_blocks
+- from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+  name: taxi_trips
 ```
 
 ```yaml
@@ -35,8 +37,8 @@ Secrets will be written to a `.env` file by using the `spice login` command and 
 ## Full Configuration Example
 
 ```yaml
-- from: spice.ai/eth.recent_blocks
-  name: eth_recent_blocks
+- from: spice.ai/spiceai/tpch/datasets/customer
+  name: tpch.customer
   params:
     spiceai_api_key: ${secrets:spiceai_api_key}
   acceleration:

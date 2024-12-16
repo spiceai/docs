@@ -19,8 +19,8 @@ And the secret can be referenced in parameters:
 
 ```yaml
 datasets:
-  - from: spice.ai:eth.recent_blocks
-    name: blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     params:
       spiceai_api_key: ${k8s:spiceai_api_key} # ${secrets:spiceai_api_key} can also be used to fallback to other secret stores
 ```

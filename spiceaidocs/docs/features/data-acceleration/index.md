@@ -26,35 +26,35 @@ Data Security: Assess data sensitivity and secure network connections between th
 
 ## Example
 
-### Locally Accelerating eth.recent_blocks
+### Locally Accelerating taxi_trips
 
 - Start Spice with the following dataset:
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_recent_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       enabled: true
       refresh_mode: full
       refresh_check_interval: 10s
 ```
 
-- The dataset `eth.recent_blocks` will be accelerated locally by the Spice runtime. The data will be refreshed every 10 seconds.
+- The dataset `taxi_trips` will be accelerated locally by the Spice runtime. The data will be refreshed every 10 seconds.
 
 - Compare query times against the Spice platform:
 
 ```bash
 curl \
 --url 'https://data.spiceai.io/v1/sql?api_key=[API_KEY]' \
---data 'select * from eth.recent_blocks'
+--data 'select * from taxi_trips'
 ```
 
 And the locally accelerated dataset:
 
 ```bash
 spice sql
-select * from eth_recent_blocks
+select * from taxi_trips;
 ```
 
 [Learn more about Data Accelerators](/components/data-accelerators) for faster access.

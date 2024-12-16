@@ -23,9 +23,16 @@ spice datasets [flags]
 ```shell
 >>> spice datasets
 
-FROM                             NAME                      REPLICATION ACCELERATION DEPENDSON STATUS
-spice.ai/eth.beacon.recent_slots eth_beacon_recent_slotsss false       false                  Ready
-spice.ai/eth.recent_blocks       eth_rec_blocks            false       false                  Initializing
+FROM                                            NAME          REPLICATION ACCELERATION STATUS PROPERTIES 
+spice.ai/spiceai/quickstart/datasets/taxi_trips taxi_trips    false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.customer    tpch.customer false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.lineitem    tpch.lineitem false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.nation      tpch.nation   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.orders      tpch.orders   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.part        tpch.part     false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.partsupp    tpch.partsupp false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.region      tpch.region   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.supplier    tpch.supplier false       false        Ready  map[]  
 ```
 
 ### Additional Example
@@ -33,7 +40,14 @@ spice.ai/eth.recent_blocks       eth_rec_blocks            false       false    
 ```shell
 >>> spice datasets --tls-root-certificate-file /path/to/cert.pem
 
-FROM                             NAME                      REPLICATION ACCELERATION DEPENDSON STATUS
-spice.ai/eth.beacon.recent_slots eth_beacon_recent_slotsss false       false                  Ready
-spice.ai/eth.recent_blocks       eth_rec_blocks            false       false                  Initializing
+FROM                                            NAME          REPLICATION ACCELERATION STATUS PROPERTIES 
+spice.ai/spiceai/quickstart/datasets/taxi_trips taxi_trips    false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.customer    tpch.customer false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.lineitem    tpch.lineitem false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.nation      tpch.nation   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.orders      tpch.orders   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.part        tpch.part     false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.partsupp    tpch.partsupp false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.region      tpch.region   false       false        Ready  map[]      
+spice.ai/spiceai/tpch/datasets/tpch.supplier    tpch.supplier false       false        Ready  map[]  
 ```

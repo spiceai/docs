@@ -12,8 +12,8 @@ Inline example:
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.beacon.eigenlayer
-    name: strategy_manager_deposits
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       enabled: true
       mode: memory # / file
@@ -44,14 +44,14 @@ Relative path example:
 
 ```yaml
 datasets:
-  - ref: datasets/eth_recent_transactions
+  - ref: datasets/taxi_trips
 ```
 
-`datasets/eth_recent_transactions/dataset.yaml`
+`datasets/taxi_trips/dataset.yaml`
 
 ```yaml
-from: spice.ai/eth.recent_transactions
-name: eth_recent_transactions
+from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true
@@ -105,8 +105,8 @@ An alternative to adding the dataset definition inline in the `spicepod.yaml` fi
 **dataset.yaml**
 
 ```yaml
-from: spice.ai/eth.recent_transactions
-name: eth_recent_transactions
+from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true

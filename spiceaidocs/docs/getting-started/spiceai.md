@@ -20,7 +20,7 @@ After logging in, create an app in order to get an API key.
 
 ![create_app-1](https://github.com/spiceai/spiceai/assets/112157037/d2446406-1f06-40fb-8373-1b6d692cb5f7)
 
-This quickstart will use the [`eth.recent_blocks`](https://docs.spice.ai/reference/sql-query-tables/ethereum/core-tables) dataset.
+This quickstart will use the `taxi_trips` dataset from https://spice.ai/spiceai/quickstart Spice.ai app.
 
 **Step 1.** Initialize a new project:
 
@@ -58,19 +58,19 @@ spice dataset configure
 Enter a dataset name that will be used to reference the dataset in queries. This name does not need to match the name in the dataset source.
 
 ```bash
-dataset name: (spice_app) eth_recent_blocks
+dataset name: (spice_app) taxi_trips
 ```
 
 Enter the description of the dataset:
 
 ```
-description: Recent Ethereum blocks
+description: Taxi trips dataset
 ```
 
 Enter the location of the dataset:
 
 ```bash
-from: spice.ai/eth.recent_blocks
+from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 ```
 
 Select `y` when prompted whether to accelerate the data:
@@ -82,9 +82,9 @@ Locally accelerate (y/n)? y
 You should see the following output from your runtime terminal:
 
 ```bash
-2024-08-05T13:09:08.342450Z  INFO runtime: Dataset eth_recent_blocks registered (spice.ai/eth.recent_blocks), acceleration (arrow, 10s refresh), results cache enabled.
-2024-08-05T13:09:08.343641Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset eth_recent_blocks
-2024-08-05T13:09:09.575822Z  INFO runtime::accelerated_table::refresh_task: Loaded 146 rows (6.36 MiB) for dataset eth_recent_blocks in 1s 232ms.
+2024-12-16T05:12:45.803694Z  INFO runtime::init::dataset: Dataset taxi_trips registered (spice.ai/spiceai/quickstart/datasets/taxi_trips), acceleration (arrow, 10s refresh), results cache enabled.
+2024-12-16T05:12:45.805494Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset taxi_trips
+2024-12-16T05:13:24.218345Z  INFO runtime::accelerated_table::refresh_task: Loaded 2,964,624 rows (8.41 GiB) for dataset taxi_trips in 38s 412ms.
 ```
 
 **Step 5.** In a new terminal window, use the Spice SQL REPL to query the dataset
@@ -94,28 +94,28 @@ spice sql
 ```
 
 ```bash
-SELECT number, size, gas_used from eth_recent_blocks LIMIT 10;
+SELECT tpep_pickup_datetime, passenger_count, trip_distance from taxi_trips LIMIT 10;
 ```
 
 The output displays the results of the query along with the query execution time:
 
 ```bash
-+----------+--------+----------+
-| number   | size   | gas_used |
-+----------+--------+----------+
-| 20462425 | 32466  | 6705045  |
-| 20462435 | 262114 | 29985196 |
-| 20462427 | 138376 | 29989452 |
-| 20462444 | 40541  | 9480363  |
-| 20462431 | 78505  | 16994166 |
-| 20462461 | 110372 | 21987571 |
-| 20462441 | 51089  | 11136440 |
-| 20462428 | 327660 | 29998593 |
-| 20462429 | 133518 | 20159194 |
-| 20462422 | 61461  | 13389415 |
-+----------+--------+----------+
++----------------------+-----------------+---------------+
+| tpep_pickup_datetime | passenger_count | trip_distance |
++----------------------+-----------------+---------------+
+| 2024-01-11T12:55:12  | 1               | 0.0           |
+| 2024-01-11T12:55:12  | 1               | 0.0           |
+| 2024-01-11T12:04:56  | 1               | 0.63          |
+| 2024-01-11T12:18:31  | 1               | 1.38          |
+| 2024-01-11T12:39:26  | 1               | 1.01          |
+| 2024-01-11T12:18:58  | 1               | 5.13          |
+| 2024-01-11T12:43:13  | 1               | 2.9           |
+| 2024-01-11T12:05:41  | 1               | 1.36          |
+| 2024-01-11T12:20:41  | 1               | 1.11          |
+| 2024-01-11T12:37:25  | 1               | 2.04          |
++----------------------+-----------------+---------------+
 
-Time: 0.008562625 seconds. 10 rows.
+Time: 0.00538925 seconds. 10 rows.
 ```
 
 You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.
@@ -123,18 +123,18 @@ You can experiment with the time it takes to generate queries when using non-acc
 ### Additional Example
 
 ```bash
-# Query to display the average gas used in recent Ethereum blocks
-SELECT AVG(gas_used) FROM eth_recent_blocks;
+# Query to display the average trip distance
+SELECT AVG(trip_distance) FROM taxi_trips;
 ```
 
 The output displays the average gas used:
 
 ```bash
-+------------------+
-| avg              |
-+------------------+
-| 15000000.1234567 |
-+------------------+
++-------------------------------+
+| avg(taxi_trips.trip_distance) |
++-------------------------------+
+| 3.652169178958276             |
++-------------------------------+
 
-Time: 0.005678123 seconds. 1 row.
+Time: 0.031145625 seconds. 1 rows.
 ```

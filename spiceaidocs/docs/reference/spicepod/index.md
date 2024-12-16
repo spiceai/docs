@@ -252,8 +252,8 @@ A dataset defined inline.
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       enabled: true
       refresh_mode: full

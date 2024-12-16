@@ -187,15 +187,15 @@ Example:
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_recent_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       enabled: true
       refresh_mode: full
       refresh_check_interval: 10s
 ```
 
-This configuration will refresh `eth.recent_blocks` data every 10 seconds.
+This configuration will refresh `taxi_trips` data every 10 seconds.
 
 ## Refresh On-Demand
 
@@ -242,8 +242,8 @@ Example: Disable rertries
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_recent_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       refresh_retry_enabled: false
       refresh_check_interval: 30s
@@ -253,8 +253,8 @@ Example: Limit retries to a maximum of 10 attempts
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_recent_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       refresh_retry_max_attempts: 10
       refresh_check_interval: 30s
@@ -278,8 +278,8 @@ Example:
 
 ```yaml
 datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth_recent_blocks
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       refresh_check_interval: 10s
       refresh_jitter_enabled: true
