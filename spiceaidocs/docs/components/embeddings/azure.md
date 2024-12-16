@@ -12,6 +12,9 @@ To use an embedding model hosted on Azure OpenAI, specify the `azure` path in th
 | `azure_api_version`     | The API version used for the Azure OpenAI service.                          | -                           |
 | `azure_deployment_name` | The name of the model deployment.                                           | Model name                  |
 | `endpoint`              | The Azure OpenAI resource endpoint, e.g., `https://resource-name.openai.azure.com`. | -                           |
+| `azure_entra_token`     | The Azure Entra token for authentication.                                   | -                           |
+
+Only one of `azure_api_key` or `azure_entra_token` can be provided for model configuration.
 
 Example:
 
