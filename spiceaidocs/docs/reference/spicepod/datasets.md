@@ -239,7 +239,6 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 :::warning[Limitations]
 
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
-- Selecting a subset of columns isn't supported - the refresh SQL needs to start with `SELECT * FROM {name}`.
 - Queries for data that have been filtered out will not fall back to querying against the federated table.
 
 :::
