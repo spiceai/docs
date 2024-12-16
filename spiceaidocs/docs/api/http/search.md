@@ -38,7 +38,7 @@ datasets:
 Request
 
 ```shell
-curl -XPOST http://localhost:3000/v1/search \
+curl -XPOST http://localhost:8090/v1/search \
   -d '{
     "datasets": ["app_messages"],
     "text": "Tokyo plane tickets",
