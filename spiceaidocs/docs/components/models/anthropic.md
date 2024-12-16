@@ -2,12 +2,12 @@
 title: 'Anthropic Models'
 description: 'Instructions for using language models hosted on Anthropic with Spice.'
 sidebar_label: 'Anthropic'
-sidebar_position: 5
+sidebar_position: 3
 ---
 
 To use a language model hosted on Anthropic, specify `anthropic` in the `from` field.
 
-To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `"claude-3-5-sonnet-latest"`.
+To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `claude-3-5-sonnet-latest`.
 
 The following parameters are specific to Anthropic models:
 

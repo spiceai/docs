@@ -2,12 +2,12 @@
 title: 'OpenAI (or Compatible) Language Models'
 description: 'Instructions for using language models hosted on OpenAI or compatible services with Spice.'
 sidebar_label: 'OpenAI'
-sidebar_position: 4
+sidebar_position: 1
 ---
 
 To use a language model hosted on OpenAI (or compatible), specify the `openai` path in the `from` field.
 
-For a specific model, include it as the model ID in the `from` field (see example below). The default model is `"gpt-3.5-turbo"`.
+For a specific model, include it as the model ID in the `from` field (see example below). The default model is `gpt-3.5-turbo`.
 
 These parameters are specific to OpenAI models:
 
@@ -23,7 +23,7 @@ Example:
 ```yaml
 models:
   - from: openai:gpt-4o
-    name: local_fs_model
+    name: openai_model
     params:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 ```
@@ -31,6 +31,10 @@ models:
 ## Supported OpenAI Compatible Providers
 
 Spice supports several OpenAI compatible providers. Specify the appropriate endpoint in the params section.
+
+### Azure OpenAI
+
+Follow [Azure AI Models](./azure) instructions.
 
 ### Groq
 

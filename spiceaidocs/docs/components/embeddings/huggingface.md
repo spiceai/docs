@@ -1,7 +1,7 @@
 ---
 title: 'HuggingFace Text Embedding Models'
 sidebar_label: 'HuggingFace'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 To use an embedding model from HuggingFace with Spice, specify the `huggingface` path in the `from` field of your configuration. The model and its related files will be automatically downloaded, loaded, and served locally by Spice.

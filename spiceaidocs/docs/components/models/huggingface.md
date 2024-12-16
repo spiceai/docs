@@ -2,7 +2,7 @@
 title: 'HuggingFace'
 description: 'Instructions for using machine learning models hosted on HuggingFace with Spice.'
 sidebar_label: 'HuggingFace'
-sidebar_position: 1
+sidebar_position: 4
 ---
 
 To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` field along with the files to include.

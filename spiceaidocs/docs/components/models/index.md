@@ -13,6 +13,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | `huggingface` | Models hosted on [HuggingFace](https://huggingface.co)                                          | ONNX         | GGUF, GGML, SafeTensor |
 | `spice.ai`    | Models hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models) | ONNX         | -                      |
 | `openai`      | OpenAI (or compatible) LLM endpoint                                                             | -            | Remote HTTP endpoint   |
+| `azure`       | Azure OpenAI                                                                                    | -            | Remote HTTP endpoint   |
 | `anthropic`   | Models hosted on [Anthropic](https://www.anthropic.com)                                         | -            | Remote HTTP endpoint   |
 | `grok`        | Coming soon                                                                                     | -            | Remote HTTP endpoint   |
 
