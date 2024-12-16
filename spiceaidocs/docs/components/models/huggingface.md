@@ -7,8 +7,7 @@ sidebar_position: 1
 
 To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` field along with the files to include.
 
-Example configuration:
-
+### Example: Load a ML model to predict taxi trips outcomes
 ```yaml
 models:
   - from: huggingface:huggingface.co/spiceai/darts:latest
@@ -18,6 +17,37 @@ models:
     datasets:
       - taxi_trips
 ```
+
+### Example: Load a LLM model to generate text
+```yaml
+models:
+  - from: huggingface:huggingface.co/microsoft/Phi-3.5-mini-instruct
+    name: phi
+```
+
+### Example: Load a private model
+```yaml
+models:
+  - name: llama_3.2_1B
+    from: huggingface:huggingface.co/meta-llama/Llama-3.2-1B
+    params:
+      hf_token: ${ secrets:HF_TOKEN }
+```
+For more details on authentication, see [below](#access-tokens).
+
+
+### Example: Load a GGUF model
+```yaml
+models:
+  - from: huggingface:huggingface.co/lmstudio-community/Qwen2.5-Coder-3B-Instruct-GGUF
+    name: sloth-gguf
+    files:
+      - path: Qwen2.5-Coder-3B-Instruct-Q3_K_L.gguf
+```
+
+:::note
+Only GGUF model formats require a specific file path, other varieties (e.g. `.safetensors`) are inferred.
+:::
 
 ## `from` Format
 
