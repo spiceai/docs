@@ -60,12 +60,16 @@ acceleration:
 
 ## `from`
 
-The `from` field is a string that represents the Uniform Resource Identifier (URI) for the dataset. This URI is composed of two parts: a prefix indicating the Data Connector to use to connect to the dataset, and the path to the dataset within the source.
+The `from` field is a string that represents the Uniform Resource Identifier (URI) for the dataset. This URI is composed of two parts: a prefix indicating the Data Connector to use to connect to the dataset, a delimiter, and the path to the dataset within the source.
 
 The syntax for the `from` field is as follows:
 
 ```yaml
 from: <data_connector>:<path>
+# OR
+from: <data_connector>/<path>
+# OR
+from: <data_connector>://<path>
 ```
 
 Where:
@@ -89,6 +93,8 @@ Where:
   - [`graphql`](/components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
+
+- `<delimiter>`: The delimiter between the Data Connector and the path. Currently supported delimiters are `:`, `/`, and `://`. Some connectors place additional restrictions on the allowed delimiters to better conform to the expected syntax of the underlying data source, i.e. `s3://` is the only supported delimiter for the `s3` connector.
 
 - `<path>`: The path to the dataset within the source.
 
