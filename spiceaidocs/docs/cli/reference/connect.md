@@ -20,7 +20,7 @@ spice connect [flags]
 ### Examples
 
 ```shell
-spice add spiceai/quickstart
+spice connect spiceai/quickstart
 ```
 
 ```shell
