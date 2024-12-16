@@ -30,6 +30,7 @@ The `from` field for the File connector takes the form `file://path` where `path
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: file://path/to/customer.parquet
@@ -84,7 +85,7 @@ In this example, `path` is an absolute path to the file on the filesystem.
 
 ```yaml
 datasets:
-  - from: file://path/to/customer.parquet
+  - from: file:///path/to/customer.parquet
     name: customer
     params:
       file_format: parquet
@@ -102,7 +103,7 @@ In this example, the path is relative to the directory where the `spicepod.yaml`
 
 ```yaml
 datasets:
-  - from: file:foo/yellow_tripdata_2024-01.parquet
+  - from: file://foo/yellow_tripdata_2024-01.parquet
     name: trip_data
     params:
       file_format: parquet
