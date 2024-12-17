@@ -52,6 +52,12 @@ Datasets configured with acceleration `refresh_mode: changes` requires a [Change
 
 ## Ready State
 
+|                             |           |
+| --------------------------- | --------- |
+| Supported in `refresh_mode` | Any       |
+| Required                    | No        |
+| Default Value               | `on_load` |
+
 By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/api/http/ready) is used in production deployments to control when queries are sent to the Spice runtime.
 
 The ready state for an accelerated dataset can be configured using the [`ready_state`](/reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
@@ -79,13 +85,13 @@ Typically only a working subset of an entire dataset is used in an application o
 
 ### Refresh SQL
 
-:::info
+|                             |           |
+| --------------------------- | --------- |
+| Supported in `refresh_mode` | Any       |
+| Required                    | No        |
+| Default Value               | Unset     |
 
-Supported for accelerators with any `refresh_mode`.
-
-:::
-
-Specify filters for data accelerated from the connected source using arbitrary SQL.
+Refresh SQL supports specifying filters for data accelerated from the connected source using arbitrary SQL.
 
 Filters will be pushed down to the remote source when possible, so only the requested data will be transferred over the network.
 
@@ -133,11 +139,11 @@ For the complete reference, view the `refresh_sql` section of [datasets](/refere
 
 ### Refresh Data Window
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                             |                  |
+| --------------------------- | ---------------- |
+| Supported in `refresh_mode` | `full`, `append` |
+| Required                    | No               |
+| Default Value               | Unset            |
 
 The `refresh_data_window` parameter supports refreshing data that falls within the specified time window. The `refresh_data_window` is applied cumulatively to any filters specified by the [`refresh_sql`](#refresh-sql), and applies a time filter based on `now() - refresh_data_window`. For example, the following configuration:
 
@@ -148,7 +154,7 @@ acceleration:
   refresh_data_window: 1d
 ```
 
-Is converted into an effective Refresh SQL of `SELECT * FROM my_dataset WHERE column_one = 'value' AND column_time > (now() - interval '1' day)`. The `time_column` column can be specified in the `refresh_sql` in conjunction with the `refresh_data_window`, and both filters are combined with `AND`.
+In this example, `refresh_data_window` is converted into an effective Refresh SQL of `SELECT * FROM my_dataset WHERE column_one = 'value' AND column_time > (now() - interval '1' day)`. The `time_column` column can be specified in the `refresh_sql` in conjunction with the `refresh_data_window`, and both filters are combined with `AND`.
 
 This parameter relies on the `time_column` dataset parameter specifying a column that is a timestamp type. Optionally, the `time_format` can be specified to instruct the Spice runtime on how to interpret timestamps in the `time_column`.
 
@@ -193,11 +199,11 @@ If a query against the accelerated data returns some results, the query will not
 
 ## Behavior on Zero Results
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                             |                  |
+| --------------------------- | ---------------- |
+| Supported in `refresh_mode` | `full`, `append` |
+| Required                    | No               |
+| Default Value               | `return_empty`   |
 
 By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
 
@@ -230,11 +236,11 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 
 ## Refresh Interval
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                             |                  |
+| --------------------------- | ---------------- |
+| Supported in `refresh_mode` | `full`, `append` |
+| Required                    | No               |
+| Default Value               | Unset            |
 
 The [`refresh_check_interval`](/reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
 
@@ -291,11 +297,12 @@ On-demand refresh always initiates a new refresh, terminating any in-progress re
 
 ## Refresh Retries
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                                      |                  |
+| ------------------------------------ | ---------------- |
+| Supported in `refresh_mode`          | `full`, `append` |
+| Required                             | No               |
+| Default `refresh_retry_enabled`      | `false`          |
+| Default `refresh_retry_max_attempts` | Unset            |
 
 By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using a [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.
 
@@ -325,23 +332,28 @@ datasets:
 
 ## Retention Policy
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                                    |                  |
+| ---------------------------------- | ---------------- |
+| Supported in `refresh_mode`        | `full`, `append` |
+| Required                           | No               |
+| Default `retention_check_enabled`  | `false`          |
+| Default `retention_period`         | Unset            |
+| Default `retention_check_interval` | Unset            |
 
 Accelerated datasets can be set to automatically evict time-series data exceeding a retention period by setting a retention policy based on the configured `time_column` and `acceleration.retention_period`.
 
 The policy is set using the [`acceleration.retention_check_enabled`](/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/reference/spicepod/datasets#time_column) and [`time_format`](/reference/spicepod/datasets#time_format) dataset parameters.
 
+When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+
 ## Refresh Jitter
 
-:::info
-
-Supported for accelerators with a `refresh_mode` of `full` or `append`.
-
-:::
+|                                  |                  |
+| -------------------------------- | ---------------- |
+| Supported in `refresh_mode`      | `full`, `append` |
+| Required                         | No               |
+| Default `refresh_jitter_enabled` | `false`          |
+| Default `refresh_jitter_max`     | Unset            |
 
 Accelerated datasets can include a random jitter in their refresh interval to prevent the [Thundering herd problem](https://en.wikipedia.org/wiki/Thundering_herd_problem), where multiple datasets refresh simultaneously. The jitter is a random value between 0 and `refresh_jitter_max`, which is added to or subtracted from the base `refresh_check_interval`. If `refresh_jitter_max` is not specified, it defaults to 10% of `refresh_check_interval`.
 
@@ -370,6 +382,21 @@ Refresh jitter configuration:
 - [`refresh_jitter_max`](/reference/spicepod/datasets#accelerationrefresh_jitter_max)
 
 ## Configuration Examples
+
+### Accelerating a full set of data that sometimes changes
+
+In this example, Spice connects with a dataset that changes infrequently and is not configured for CDC. For example, a list of product categories.
+
+```yaml
+datasets:
+  - from: mysql:product_categories
+    name: product_categories
+    acceleration:
+      refresh_mode: full
+      refresh_check_interval: 8h
+```
+
+In this scenario, Spice uses a simple acceleration configuration - full refreshes on an 8 hour schedule. No additional behaviors are enabled, so queries matching for new product codes will return no results until the next refresh cycle.
 
 ### Accelerating a subset of data that changes frequently
 
