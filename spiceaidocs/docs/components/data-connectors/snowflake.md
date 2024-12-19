@@ -45,7 +45,7 @@ The dataset name. This will be used as the table name within Spice.
 | `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key                                                           |
 | `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase                                                        |
 
-### Auth
+## Auth
 
 The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores](/components/secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
 
