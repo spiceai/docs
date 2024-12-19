@@ -15,7 +15,7 @@ Use the [`spiceai/spiceai` Docker image](https://hub.docker.com/r/spiceai/spicea
 FROM spiceai/spiceai:latest
 
 # Copy the Spicepod configuration file
-COPY spicepod.yml /app/spicepod.yml
+COPY spicepod.yaml /app/spicepod.yaml
 
 # Copy your local data
 COPY data /app/data
@@ -62,7 +62,7 @@ docker-compose up --build
  => [spiced 1/4] FROM docker.io/spiceai/spiceai:latest@sha256:96bedafa678343e8acb977001ddbde335d8d66476c2ed891f9b7873d277f2b84                                             0.0s
  => [spiced internal] load build context                                                                                                                                   0.0s
  => => transferring context: 262B                                                                                                                                          0.0s
- => CACHED [spiced 2/4] COPY spicepod.yml /app/spicepod.yml                                                                                                                0.0s
+ => CACHED [spiced 2/4] COPY spicepod.yaml /app/spicepod.yaml                                                                                                              0.0s
  => CACHED [spiced 3/4] COPY data /app/data                                                                                                                                0.0s
  => CACHED [spiced 4/4] COPY .env* /app/                                                                                                                                   0.0s
  => [spiced] exporting to image                                                                                                                                            0.0s
