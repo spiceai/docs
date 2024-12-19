@@ -24,13 +24,13 @@ Select the appropriate tab based on whether you are experimenting with this feat
 
 <Tabs>
   <TabItem value="experimenting" label="Experimenting" default>
-    The easiest way to connect Apache Superset and Spice is to follow the [`Sales BI` sample](https://github.com/spiceai/samples/tree/trunk/sales-bi). This sample builds a local Docker image based on Apache Superset that is pre-configured with the `flightsql-dbapi` library needed to connect to Spice.
+    The easiest way to connect Apache Superset and Spice is to follow the [`Sales BI` Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/sales-bi). This recipe builds a local Docker image based on Apache Superset that is pre-configured with the `flightsql-dbapi` library needed to connect to Spice.
 
-    Clone the Spice samples repository and navigate to the `sales-bi` directory:
+    Clone the Spice cookbook repository and navigate to the `sales-bi` directory:
 
     ```bash
-    git clone https://github.com/spiceai/samples.git
-    cd samples/sales-bi
+    git clone https://github.com/spiceai/cookbook.git
+    cd cookbook/sales-bi
     ```
 
     Start Apache Superset along with the Spice runtime in Docker Compose:

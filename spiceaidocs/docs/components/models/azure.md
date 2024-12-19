@@ -32,4 +32,4 @@ models:
 
 Refer to the [Azure OpenAI Service models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) for more details on available models and configurations.
 
-Follow [Quickstart: Using Azure OpenAI models](https://github.com/spiceai/quickstarts/tree/trunk/azure_openai) to try Azure OpenAI models for vector-based search and chat functionalities with structured (taxi trips) and unstructured (GitHub files) data.
+Follow the [Azure OpenAI Models Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/azure_openai) to try Azure OpenAI models for vector-based search and chat functionalities with structured (taxi trips) and unstructured (GitHub files) data.

@@ -181,5 +181,4 @@ Time: 0.045150667 seconds. 10 rows.
 
 import DocCardList from '@theme/DocCardList';
 
-<DocCardList items={[{type: 'link', label: 'Quickstarts', href: 'https://github.com/spiceai/quickstarts', description: 'Spice.ai Quickstart Tutorials.'},
-{type: 'link', label: 'Samples', href: 'https://github.com/spiceai/samples', description: 'Dive deeper with in-depth samples.'},]} />
+<DocCardList items={[{type: 'link', label: 'Cookbook', href: 'https://github.com/spiceai/cookbook', description: 'Spice.ai Cookbook Recipes.'}]} />

@@ -102,9 +102,9 @@ SELECT COUNT(*) FROM cool_dataset;
       hive_partitioning_enabled: false
 ```
 
-## Quickstarts and Samples
+## Cookbook
 
-Refer to the [FTP quickstart](https://github.com/spiceai/quickstarts/tree/trunk/ftp) to see an example of the FTP connector in use.
+Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.
 
 ## Secrets
 
