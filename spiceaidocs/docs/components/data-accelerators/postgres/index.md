@@ -110,3 +110,7 @@ The table below lists the supported [Apache Arrow data types](https://arrow.apac
 | `Duration`                             | `BigInteger`            | `bigint`                      |
 | `List` / `LargeList` / `FixedSizeList` | `Array`                 | `array`                       |
 | `Struct`                               | `N/A`                   | `Composite` (Custom type)     |
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure PostgreSQL as a data accelerator in Spice. [PostgreSQL Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/postgres/accelerator)

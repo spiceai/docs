@@ -5,7 +5,7 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
-The HTTP(s) Data Connector enables federated/accelerated SQL query across [supported file formats](/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint.
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint.
 
 ```yaml
 datasets:
@@ -26,12 +26,12 @@ The `from` field must contain a valid URI to the location of a [supported file](
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: http://static_username@localhost:3001/report.csv
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -60,6 +60,7 @@ The connector supports Basic HTTP authentication via `param` values.
 ## Examples
 
 ### Basic example
+
 ```yaml
 datasets:
   - from: https://github.com/LAION-AI/audio-dataset/raw/7fd6ae3cfd7cde619f6bed817da7aa2202a5bc28/metadata/freesound/parquet/freesound_parquet.parquet
@@ -67,6 +68,7 @@ datasets:
 ```
 
 ### Using Basic Authentication
+
 ```yaml
 datasets:
   - from: http://static_username@localhost:3001/report.csv

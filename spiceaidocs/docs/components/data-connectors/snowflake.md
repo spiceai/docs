@@ -23,11 +23,27 @@ datasets:
 Unquoted table identifiers should be UPPERCASED in the `from` field. See [Identifier resolution](https://docs.snowflake.com/en/sql-reference/identifiers-syntax#label-identifier-casing).
 :::
 
-### Parameters
+## Configuration
 
-- `from`: a Snowflake fully qualified table name (database.schema.table). For instance `snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM` or `snowflake:TAXI_DATA."2024".TAXI_TRIPS`
-- `snowflake_warehouse`: optional, specifies the [Snowflake Warehouse](https://docs.snowflake.com/en/user-guide/warehouses-tasks) to use
-- `snowflake_role`: optional, specifies the role to use for accessing Snowflake data
+### `from`
+
+A Snowflake fully qualified table name (database.schema.table). For instance `snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM` or `snowflake:TAXI_DATA."2024".TAXI_TRIPS`
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+### `params`
+
+| Parameter Name                     | Description                                                                                                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `snowflake_warehouse`              | Optional, specifies the [Snowflake Warehouse](https://docs.snowflake.com/en/user-guide/warehouses-tasks) to use |
+| `snowflake_role`                   | Optional, specifies the role to use for accessing Snowflake data                                                |
+| `snowflake_account`                | Required, specifies the Snowflake account-identifier                                                            |
+| `snowflake_username`               | Required, specifies the Snowflake username to use for accessing Snowflake data                                  |
+| `snowflake_password`               | Optional, specifies the Snowflake password to use for accessing Snowflake data                                  |
+| `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key                                                           |
+| `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase                                                        |
 
 ### Auth
 
@@ -193,3 +209,11 @@ datasets:
 1. The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication.
 
 :::
+
+## Secrets
+
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure Snowflake as a data connector in Spice. [Snowflake Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/snowflake)

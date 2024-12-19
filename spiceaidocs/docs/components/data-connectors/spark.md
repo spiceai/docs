@@ -118,3 +118,7 @@ Check [Secrets Stores](/components/secret-stores) for more details.
 
   </TabItem>
 </Tabs>
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure Spark as a data connector in Spice. [Spark Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/spark)

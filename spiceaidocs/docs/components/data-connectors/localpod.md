@@ -23,17 +23,20 @@ When synchronization is enabled, the following logs will be emitted:
 
 ```yaml
 datasets:
-- from: postgres:cleaned_sales_data
-  name: test
-  params:
-    ...
-  acceleration:
-    enabled: true # This dataset will be accelerated into a DuckDB file
-    engine: duckdb
-    mode: file
-    refresh_check_interval: 10s
-- from: localpod:test
-  name: test_local
-  acceleration:
-    enabled: true # This dataset accelerates the parent `test` dataset into in-memory Arrow records and is synchronized with the parent
+  - from: postgres:cleaned_sales_data
+    name: test
+    params: ...
+    acceleration:
+      enabled: true # This dataset will be accelerated into a DuckDB file
+      engine: duckdb
+      mode: file
+      refresh_check_interval: 10s
+  - from: localpod:test
+    name: test_local
+    acceleration:
+      enabled: true # This dataset accelerates the parent `test` dataset into in-memory Arrow records and is synchronized with the parent
 ```
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure Localpod as a data connector in Spice. [Localpod Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/localpod)

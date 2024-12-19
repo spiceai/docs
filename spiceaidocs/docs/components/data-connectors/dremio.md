@@ -4,9 +4,9 @@ sidebar_label: 'Dremio Data Connector'
 description: 'Dremio Data Connector Documentation'
 ---
 
-[Dremio](https://www.dremio.com/) is a data lake engine that enables high-performance SQL queries directly on data lake storage. It provides a unified interface for querying and analyzing data from various sources without the need for complex data movement or transformation. 
+[Dremio](https://www.dremio.com/) is a data lake engine that enables high-performance SQL queries directly on data lake storage. It provides a unified interface for querying and analyzing data from various sources without the need for complex data movement or transformation.
 
-This connector enables using Dremio as a data source for federated/accelerated SQL queries.
+This connector enables using Dremio as a data source for federated SQL queries.
 
 ```yaml
 - from: dremio:datasets.dremio_dataset
@@ -34,12 +34,12 @@ Currently, only up to three levels of nesting are supported for dataset names (e
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: dremio:datasets.dremio_dataset
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -56,11 +56,11 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-| Parameter Name    | Description                                                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                      |
-| `dremio_username` | The username to connect with.                                                                                                                           |
-| `dremio_password` | The password to connect with. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
+| Parameter Name    | Description                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                                             |
+| `dremio_username` | The username used to connect to the Dremio endpoint.                                                                                                                           |
+| `dremio_password` | The password used to connect to the Dremio endpoint. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
 
 ## Examples
 
@@ -78,3 +78,7 @@ SELECT COUNT(*) FROM cool_dataset;
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure Dremio as data connector in Spice. [Dremio Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/dremio)

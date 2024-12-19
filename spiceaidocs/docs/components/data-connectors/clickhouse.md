@@ -1,7 +1,7 @@
 ---
-title: 'Clickhouse Data Connector'
-sidebar_label: 'Clickhouse Data Connector'
-description: 'Clickhouse Data Connector Documentation'
+title: 'ClickHouse Data Connector'
+sidebar_label: 'ClickHouse Data Connector'
+description: 'ClickHouse Data Connector Documentation'
 ---
 
 ClickHouse is a fast, open-source columnar database management system designed for online analytical processing (OLAP) and real-time analytics. This connector enables federated SQL queries from a ClickHouse server.
@@ -46,16 +46,16 @@ SELECT COUNT(*) FROM cool_dataset;
 
 The ClickHouse data connector can be configured by providing the following `params`:
 
-| Parameter Name                 | Definition                                                                                                                                                                                                                                                                                                              |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `clickhouse_connection_string` | The connection string to use to connect to the ClickHouse server. This can be used instead of providing individual connection parameters.                                                                                                                                                                               |
-| `clickhouse_host`              | The hostname of the ClickHouse server.                                                                                                                                                                                                                                                                                  |
-| `clickhouse_tcp_port`          | The port of the ClickHouse server.                                                                                                                                                                                                                                                                                      |
-| `clickhouse_db`                | The name of the database to connect to.                                                                                                                                                                                                                                                                                 |
-| `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                           |
-| `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                           |
+| Parameter Name                 | Definition                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clickhouse_connection_string` | The connection string to use to connect to the ClickHouse server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                   |
+| `clickhouse_host`              | The hostname of the ClickHouse server.                                                                                                                                                                                                                                                                                                      |
+| `clickhouse_tcp_port`          | The port of the ClickHouse server.                                                                                                                                                                                                                                                                                                          |
+| `clickhouse_db`                | The name of the database to connect to.                                                                                                                                                                                                                                                                                                     |
+| `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                                               |
+| `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                               |
 | `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
-| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                             |
+| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                                                 |
 
 ## Examples
 
@@ -100,3 +100,7 @@ datasets:
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure ClickHouse as data connector in Spice. [ClickHouse Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/clickhouse)

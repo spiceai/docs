@@ -47,3 +47,7 @@ When accelerating a dataset using the In-Memory Arrow Data Accelerator, some or 
 In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
 
 :::
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure In-Memory Arrow as data accelerator in Spice. [Arrow Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/arrow)

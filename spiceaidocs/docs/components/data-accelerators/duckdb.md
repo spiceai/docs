@@ -57,3 +57,7 @@ When accelerating a dataset using `mode: memory` (the default), some or all of t
 In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
 
 :::
+
+## Quickstarts and Samples
+
+- A quickstart tutorial to configure DuckDB as a data accelerator in Spice. [DuckDB Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/duckdb/accelerator)
