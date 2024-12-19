@@ -37,7 +37,7 @@ Currently, the only supported data connector is [Debezium](/components/data-conn
 
 ## Example
 
-See an example of configuring a dataset to use CDC with Debezium by following the sample at [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
+See an example of configuring a dataset to use CDC with Debezium by following the recipe at [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium#readme).
 
 ```yaml
 version: v1beta1

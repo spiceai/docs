@@ -15,11 +15,11 @@ To start using federated queries in Spice, follow these steps:
 
 **Step 1.** Install Spice by following the [installation instructions](/getting-started/index.md).
 
-**Step 2.** Clone the Spice Quickstarts repository and navigate to the `federation` directory.
+**Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
 ```bash
-git clone https://github.com/spiceai/quickstarts.git
-cd quickstarts/federation
+git clone https://github.com/spiceai/cookbook.git
+cd cookbook/federation
 ```
 
 **Step 3.** Start PostgreSQL with Docker Compose & login to the demo Dremio.

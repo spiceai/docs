@@ -92,9 +92,9 @@ The following settings are required:
 
 ### Example
 
-See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
+See an example of configuring a dataset to use CDC with Debezium by following the Cookbook Recipe [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium#readme).
 
-An example of configuring [SASL authentication over SSL](https://github.com/spiceai/samples/tree/trunk/cdc-debezium/sasl-scram) is available as well.
+An recipe of configuring [SASL authentication over SSL](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium/sasl-scram#readme) is available as well.
 
 ## Secrets
 
