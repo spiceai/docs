@@ -38,7 +38,7 @@ See [Embedding components](/components/embeddings/) for more information on embe
 
 ## Embedding Methods
 
-### Pass-through Embeddings
+### Passthrough Embeddings
 
 Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, these table columns must adhere to the following constraints:
 
@@ -126,7 +126,7 @@ datasets:
 3. **Embeddings Column Data Type:**
    - The embeddings column must have the following [Arrow data type](reference/datatypes.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](#chunking-support), use `List[FixedSizeList[Float32 or Float64, N]]`.
+     2. If the column is [**chunked**](#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
 4. **Offset Column for Chunked Data:**
    - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
@@ -200,7 +200,7 @@ datasets:
               target_chunk_size: 512
 ```
 
-The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences). See the [API reference](/reference/spicepod/datasets.md#columns-embeddings-chunking) for full details.
+The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences). See the [API reference](/reference/spicepod/datasets#columns-embeddings-chunking) for full details.
 
 #### Row Identifiers
 

@@ -422,7 +422,7 @@ Optional. For datasets without a primary key, used to explicitly specify column(
 
 Specifying a `row_id` enables unique identifier lookups for datasets from external systems that may not have a primary key.
 
-## `columns[*].embeddings[*].chunking`
+## `columns[*].embeddings[*].chunking` {#columns-embeddings-chunking}
 
 Optional. The configuration to enable and define the chunking strategy for the embedding column.
 
@@ -501,7 +501,7 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
 Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
 
-## `metdata`
+## `metdata` {#metadata}
 
 Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
 
