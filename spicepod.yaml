@@ -36,40 +36,12 @@ datasets:
               overlap_size: 128
               trim_whitespace: true
 
-  - from: github:github.com/spiceai/samples/files/trunk
-    name: spiceai.samples
-    description: Spice.ai OSS samples
+  - from: github:github.com/spiceai/cookbook/files/trunk
+    name: spiceai.cookbook
+    description: Spice.ai OSS cookbook recipes
     metadata:
       instructions: Documents are stored in Markdown. Always provide citations.
-      reference_base_url: https://github.com/spiceai/samples/tree/trunk/<sample_path>
-    params:
-      github_client_id: ${secrets:GITHUB_CLIENT_ID}
-      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
-      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: "**/*.md"
-    acceleration:
-      enabled: true
-      refresh_check_interval: 4h
-      refresh_jitter_enabled: true
-      refresh_jitter_max: 30m
-    columns:
-      - name: content
-        embeddings:
-          - from: openai_embeddings
-            row_id:
-              - path
-            chunking:
-              enabled: true
-              target_chunk_size: 512
-              overlap_size: 128
-              trim_whitespace: true
-
-  - from: github:github.com/spiceai/quickstarts/files/trunk
-    name: spiceai.quickstarts
-    description: Spice.ai OSS quickstarts
-    metadata:
-      instructions: Documents are stored in Markdown. Always provide citations.
-      reference_base_url: https://github.com/spiceai/quickstarts/tree/trunk/<quickstart_path>
+      reference_base_url: https://github.com/spiceai/cookbook/tree/trunk/<recipe_path>
     params:
       file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
@@ -157,7 +129,7 @@ models:
 
         Prefer "docs" dataset for documentation and reference information questions.
 
-        Prefer "samples" and "quickstarts" datasets for use cases, sample code, and configuration questions. Always include links to relevant samples or quickstarts.
+        Prefer "cookbook" recipe datasets for use cases, sample code, and configuration questions. Always include links to relevant recipes.
 
         Use the SQL tool (sql_query) when:
           1. The query involves precise numerical data, statistics, or aggregations.

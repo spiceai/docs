@@ -109,6 +109,6 @@ datasets:
       file_format: parquet
 ```
 
-## Quickstarts and Samples
+## Cookbook
 
-Refer to the [File quickstart](https://github.com/spiceai/quickstarts/tree/trunk/file) to see an example of the File connector in use.
+Refer to the [File cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/file) to see an example of the File connector in use.

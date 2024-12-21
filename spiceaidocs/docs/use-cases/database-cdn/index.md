@@ -11,7 +11,7 @@ pagination_next: null
 
 Colocate a local working set of hot data with data applications and frontends to serve more concurrent requests and users with faster page loads and data updates.
 
-[Try the CQRS sample app](https://github.com/spiceai/samples/tree/trunk/acceleration#local-materialization-and-acceleration-cqrs-sample)
+[Try the CQRS Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/cqrs#readme)
 
 ## Increasing application resilience
 
@@ -21,4 +21,4 @@ Maintain local replicas of data with the application to significantly enhance ap
 
 Create a materialization layer for visualization tools like Power BI, Tableau, or Superset to achieve faster, more responsive dashboards without incurring massive compute costs.
 
-[Watch the Apache Superset demo](https://github.com/spiceai/samples/blob/trunk/sales-bi/README.md)
+[Watch the Apache Superset demo](https://github.com/spiceai/cookbook/blob/trunk/sales-bi/README.md)
