@@ -72,7 +72,7 @@ curl -XPOST http://localhost:8090/v1/search \
 
 For more details, see the [API reference for /v1/search](/api/http/search).
 
-Spice also supports vector search on datasets with preexisting embeddings. See [below](#preexisting-embeddings) for compatibility details.
+Spice also supports vector search on datasets with preexisting embeddings. See [below](/features/embeddings/index.md#passthrough-embeddings) for compatibility details.
 
 ### Document Retrieval
 
