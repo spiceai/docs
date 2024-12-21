@@ -107,6 +107,6 @@ datasets:
       file_format: parquet
 ```
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure File as a data connector in Spice. [File Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/file)
+Refer to the [File cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/file) to see an example of the File connector in use.

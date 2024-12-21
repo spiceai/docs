@@ -16,7 +16,7 @@ Locally accelerated datasets can also have [primary key constraints](./constrain
 
 ## Example Use Case
 
-Consider a high-volume e-trading frontend application backed by an AWS RDS database containing a table of trades. To retrieve all trades over the last 24 hours, the application would need to query the remote database and transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/quickstarts/tree/trunk/rds-aurora-mysql), the data is brought to the application, saving round trip time and data transfer time.
+Consider a high-volume e-trading frontend application backed by an AWS RDS database containing a table of trades. To retrieve all trades over the last 24 hours, the application would need to query the remote database and transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme), the data is brought to the application, saving round trip time and data transfer time.
 
 ## Considerations
 
