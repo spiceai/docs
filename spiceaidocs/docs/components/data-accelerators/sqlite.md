@@ -55,6 +55,6 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 
 :::
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure SQLite as a data accelerator in Spice. [SQLite Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/sqlite/accelerator)
+- A cookbook recipe to configure SQLite as a data accelerator in Spice. [SQLite Data Accelerator Recipe](https://github.com/spiceai/cookbook/tree/trunk/sqlite/accelerator#readme)

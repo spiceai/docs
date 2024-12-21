@@ -58,6 +58,6 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 
 :::
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure DuckDB as a data accelerator in Spice. [DuckDB Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/duckdb/accelerator)
+- A cookbook recipe to configure DuckDB as a data accelerator in Spice. [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/tree/trunk/duckdb/accelerator#readme)

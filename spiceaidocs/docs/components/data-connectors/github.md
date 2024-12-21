@@ -409,6 +409,6 @@ sql> select starred_at, login from spiceai.stargazers order by starred_at DESC l
 Time: 0.0088075 seconds. 10 rows.
 ```
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure Github as a data connector in Spice. [Github Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/github)
+- A cookbook recipe to configure Github as a data connector in Spice. [GitHub Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/github#readme)

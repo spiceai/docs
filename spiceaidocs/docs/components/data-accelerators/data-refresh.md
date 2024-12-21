@@ -451,8 +451,8 @@ This acceleration configuration applies a number of different behaviors:
 6. Running a query to retrieve logs within a range of now to longer than 1 day ago will only return logs from the last day. This is due to the `refresh_data_window` only accelerating the last day's worth of logs, which will return some results. Because results are returned, Spice will not fall back to the source even though `on_zero_results: use_source` is specified.
 7. Spice will retain newly appended log rows for 7 days before discarding them, as specified by the `retention_*` parameters.
 
-## Quickstarts and Samples
+## Cookbook
 
-- Configure accelerated dataset retention policy. [Accelerated Dataset Retention Policy Quickstart](https://github.com/spiceai/quickstarts/blob/trunk/retention/README.md)
-- Dynamically refresh specific data at runtime by programmatically updating refresh_sql and triggering data refreshes. [Advanced Data Refresh Quickstart](https://github.com/spiceai/quickstarts/blob/trunk/acceleration/data-refresh/README.md)
-- Configure `refresh_data_window` to filter refreshed data to recent data [Refresh Data Window Quickstart](https://github.com/spiceai/quickstarts/blob/trunk/refresh-data-window/README.md)
+- Configure accelerated dataset retention policy. [Accelerated Dataset Retention Policy Recipe](https://github.com/spiceai/cookbook/tree/trunk/retention#readme)
+- Dynamically refresh specific data at runtime by programmatically updating refresh_sql and triggering data refreshes. [Advanced Data Refresh Recipe](https://github.com/spiceai/cookbook/tree/trunk/acceleration/data-refresh#readme)
+- Configure `refresh_data_window` to filter refreshed data to recent data [Refresh Data Window Recipe](https://github.com/spiceai/cookbook/tree/trunk/refresh-data-window#readme)

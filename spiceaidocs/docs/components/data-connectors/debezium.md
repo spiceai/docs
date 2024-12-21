@@ -94,8 +94,8 @@ The following settings are required:
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
 
-## Quickstarts and Samples
+## Cookbook
 
-- See an example of configuring a dataset to use CDC with Debezium by following the sample [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/samples/tree/trunk/cdc-debezium).
+- See an example of configuring a dataset to use CDC with Debezium by following the sample [Recipe for Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium#readme).
 
-- An example of configuring [SASL authentication over SSL](https://github.com/spiceai/samples/tree/trunk/cdc-debezium/sasl-scram) is available as well.
+- An example of configuring [Recipe for Streaming changes in real-time with Debezium CDC and SASL/SCRAM authentication](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium/sasl-scram#readme) is available as well.

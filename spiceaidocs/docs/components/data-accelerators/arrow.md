@@ -48,6 +48,6 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 
 :::
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure In-Memory Arrow as data accelerator in Spice. [Arrow Accelerator quickstart](https://github.com/spiceai/quickstarts/tree/trunk/arrow)
+- A cookbook recipe to configure In-Memory Arrow as data accelerator in Spice. [In-Memory Arrow Data Accelerator Recipe](https://github.com/spiceai/cookbook/tree/trunk/arrow#readme)

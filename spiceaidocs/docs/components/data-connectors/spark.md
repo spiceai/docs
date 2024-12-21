@@ -119,6 +119,6 @@ Check [Secrets Stores](/components/secret-stores) for more details.
   </TabItem>
 </Tabs>
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure Spark as a data connector in Spice. [Spark Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/spark)
+- A cookbook recipe to configure Spark as a data connector in Spice. [Apache Spark Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/spark#readme)

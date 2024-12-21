@@ -177,8 +177,8 @@ datasets:
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure PostgreSQL as a data connector in Spice. [PostgreSQL Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/postgres)
-- A quickstart tutorial to configure AWS RDS for PostgreSQL as a data connector in Spice. [AWS RDS for PostgreSQL Data Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/rds-postgresql)
-- A quickstart tutorial to configure Supabase a data connector in Spice. [Supabase quickstart](https://github.com/spiceai/quickstarts/tree/trunk/supabase)
+- A cookbook recipe to configure PostgreSQL as a data connector in Spice. [PostgreSQL Data Accelerator Recipe](https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#readme)
+- A cookbook recipe to configure AWS RDS for PostgreSQL as a data connector in Spice. [AWS RDS for PostgreSQL Recipe](https://github.com/spiceai/cookbook/tree/trunk/postgres/rds#readme)
+- A cookbook recipe to configure Supabase a data connector in Spice. [Supabase (PostgreSQL Data Connector) Recipe](https://github.com/spiceai/cookbook/tree/trunk/postgres/supabase#readme)

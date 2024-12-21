@@ -186,8 +186,8 @@ datasets:
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure MySQL as a data connector in Spice. [MySQL Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/mysql)
-- A quickstart tutorial to configure AWS RDS Aurora (MySQL Compatible) as a data connector in Spice. [AWS RDS Aurora (MySQL Compatible) quickstart](https://github.com/spiceai/quickstarts/tree/trunk/rds-aurora-mysql)
-- A quickstart tutorial to configure Planetscale as a data connector in Spice. [Planetscale quickstart](https://github.com/spiceai/quickstarts/tree/trunk/planetscale)
+- A cookbook recipe to configure MySQL as a data connector in Spice. [MySQL Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/connector#readme)
+- A cookbook recipe to configure AWS RDS Aurora (MySQL Compatible) as a data connector in Spice. [AWS RDS Aurora (MySQL Data Connector) Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme)
+- A cookbook recipe to configure Planetscale as a data connector in Spice. [Planetscale (MySQL Data Connector) Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/planetscale#readme)

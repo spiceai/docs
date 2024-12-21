@@ -26,6 +26,6 @@ embeddings:
     from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 ```
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to provide persistent memory capabilities for language models in Spice. [LLM Memory Quickstarts](https://github.com/spiceai/quickstarts/tree/trunk/llm-memory)
+- A cookbook recipe to provide persistent memory capabilities for language models in Spice. [LLM Memory Recipe](https://github.com/spiceai/cookbook/tree/trunk/llm-memory#readme)

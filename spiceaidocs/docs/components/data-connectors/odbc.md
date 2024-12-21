@@ -331,6 +331,6 @@ See the [ODBC Cookbook Recipe](https://github.com/spiceai/cookbook/blob/trunk/od
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
 
-## Quickstarts and Samples
+## Cookbook
 
-- A quickstart tutorial to configure ODBC as a data connector in Spice. [ODBC Connector quickstart](https://github.com/spiceai/quickstarts/tree/trunk/odbc)
+- A cookbook recipe to configure ODBC as a data connector in Spice. [ODBC Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/odbc#readme)

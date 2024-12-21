@@ -103,10 +103,10 @@ SELECT COUNT(*) FROM cool_dataset;
     hive_partitioning_enabled: false
 ```
 
-## Cookbook
-
-Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.
-
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.
