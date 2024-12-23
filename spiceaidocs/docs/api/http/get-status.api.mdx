@@ -1,14 +1,15 @@
 ---
 id: get-status
-title: "Return the status of connections in the runtime."
-description: "Return the status of connections in the runtime."
-sidebar_label: "Return the status of connections in the runtime."
+title: "Check Runtime Status"
+description: "Return the status of all connections (http, flight, metrics, opentelemetry) in the runtime."
+sidebar_label: "Check Runtime Status"
 hide_title: true
 hide_table_of_contents: true
-api: eJytVlFP2zAQ/iuWn0AyaQubxvqGgCEkNE0F9kLQZJJLY5Y4wXYquir/fXdx0iZrENM08dD47vz5vu/ubDbcyaXl8wd+BRqMzPij4EWJX04V+jrmc74E98M66SrLBS+lkTk4MLRnwzUuMCQpTC4dupXG1UsFZo2LGGxkVElAaL1Lgfk4ViTM4cqALQttQTBQuDYs5M+20CFnBX1HdhXygF1AIqvMWeaKbUCA6AZeKmUAM3SmAsFtlEIu+XzD3bqkpKwzSi8xEnSVE0Pai0vEJZJOuYzCvvjc6/qRMH1GlmCOp1P6GbK4UbbJPyq0hoiMzGsDpA5aHWhH22RZZipqVJw0B6NtL0VpjCSllIPc9uzF0zOCD0g+eK2JTVwWSpO3rQomXhqqmVM+823IiBj7Remiu7L0qB1AsAwEu1/cUEmuvzEZx6iRPeS1aGv/NydQ5NvoIU+dK0NOX0mmlqnz39hmRkXWL5AeSpsBGdchbxJo6e/ViI70vt2hOdYVEbozFyDjtWDXWjklM/ULMxfsQln5lEEs2KUxhcG2dFFwiIzeaqj+djQ3oPjb4eBnA9S4EtQtpbhe6513ad16JnXd93U6XYCTKvNeeJV5Sf7d7JF4/bbwlvlkMjv+FEzxbzY/nZ5Od+0ybxOtxW5+G9nfQfk8nQ5QBux7YG3dhmhfJ2f9vVuJevsGJX4nlw8ns099PK9z/UgCwqub0IyPDVxbwr6SzfGiO0x4yFDTkWJUSdHIF2ov2n4M6ST64oS6lUSgCqKjHuoB4X0c4ihaYlT7j2P3UeOnoVrR+Osl3ZLnt9+Hd1EjSZlJNX4LjYnyFm7dpDLMYQGuMroZtN3Y7ebcMuWdptJO5UCXN1JOi/ZxaV4Vl+JisppNti+N0knRJNkORLt79IKxpYogZrsQvHoB73Ha33bXWSmR99FxQD2sYlRGJQrM0IPUkK/1wDOqw5GJghOyl4V1udQ9xH+gPch8q3+vPHhQZTLyeUke+Go2uOhTTIPMm82TtHBvsroms39y6VaIu8maJzLDt/XPM7dtwQ8W7eNyyP732zxK7Ces+/8qrGRWURCnh3cljaK0kQLNcIoTRrVBPn7XWRRB2d+197wSyrarri7vsFN/A3XR+Q4=
+api: eJy1VsFu2zgQ/RWCpwRgZDvdRVvfgqRbBAgWCyfdSxS0jDSy2VKUSlLeuob+fWdIyZbWCrqHFj5YIodv3ryZ4WjPvVw7vnzk78GAlZo/CZ6Dy6yqvaoMX/IV+MYa5jfAnJe+cawqmNSaZZUxkJGVY2cb72vBCq3WGy9YCd6qzAlW1WA8aKCF3TlTEcc2xqsSEi44GlhJGLc5+lqD/xid4FYtrcRzYInfnht8QZOisqX0uK2I3NcG7I7/l/ID+oh2xDV4BFcjTxAMFL5blvLPrjIpZxU9Z26b8oTdQCEb7R3z1cGASFr42igLyNDbBgR32QZKyZd77nc1kXIYrlmjJZimJDXpLL4iLgnqlddk9kfk3rZPhBkZOYK5nM/pbxzFnXKB/1HnLgFA6uCqR23pmKxrrbKg4iw4xrUTitJaSUopD6UbrFfPnxF8FORj1JqiyetKGdrtsoLEa0s58yoyP5hMiHGalN66T8sgtDNI1olgH1Z3lJLbv5jMc9TInfNWdLn/Px7I8mX0lFOdppyeYq3G565e48uoZlMeCHThn+ToYdQV0WmJeUWE3ucKZL4T7NYor6RW35G5YDfKyWcNuWDvrK0slqXPknOM6KWCGh7H5QCK/z0OPgagsFWgbhuyG5TedU/rPkbStsO9Xqcb8FLpuAvfZFnT/rH3SLxhWcSV5Wy2uHydzPG3WL6Zv5kfy2XZEW3FsX+D7D9AeTufj1BG0Q/AuryN0f6cXQ3PHiQanBul+Adcfnu1eD3Eizq3TyQgfPMz6vGphutSOFQyuBe9MxEhUxPuzkklRZAvNd29OqmTGIqTmv7qRRVEH3pqRgGf4lCMoguMcv/71H0U9qmpttT+Zk235PX93+O7KEhSa6mmb6EpUV7CbQMVZLyputkQhoLf4Mtsu5gdBoUDu+2nRGP1MYm6yqTeVM6jmG/nJ/fFHW2zHLagq7qklo1ICcOOKNS6scD+wXHBPl1cEOKnhNPN7SBrrPK74E/W6uMXoOcn2lOmqEK4XWt1k27yqnK1yiBnRxO8xAEnAp3v6vSqlqjgxWVC5FWOFFWhwI53UCQKPwIvKKMXNkte0XqNsZfSDBCvN5B9Yavok933Eo7Y7Y8J/cXTv6uKQdEg6ZDCfZfpR75djMYPpZOW9/tn6eCD1W1Ly/FDgDKS9/2+LKTGif9ybGerbuSds5/9xTAZWKiT4wfMVuqGjEJRbaVVRDsUEkaJfU95xnjiqassg3p46mToE8qhWd6/e8D++RdJ9VPm
 sidebar_class_name: "get api-method"
 info_path: api/http/runtime
 custom_edit_url: null
+proxy: http://localhost:8090
 ---
 
 import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
@@ -22,7 +23,7 @@ import Heading from "@theme/Heading";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Return the status of connections in the runtime."}
+  children={"Check Runtime Status"}
 >
 </Heading>
 
@@ -36,7 +37,7 @@ import Heading from "@theme/Heading";
 
 
 
-Return the status of connections in the runtime.
+Return the status of all connections (http, flight, metrics, opentelemetry) in the runtime.
 
 <Heading
   id={"request"}

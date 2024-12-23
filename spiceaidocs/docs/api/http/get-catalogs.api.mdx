@@ -1,14 +1,15 @@
 ---
 id: get-catalogs
-title: "Get a list of catalogs."
-description: "Get a list of catalogs."
-sidebar_label: "Get a list of catalogs."
+title: "List Catalogs"
+description: "List Catalogs"
+sidebar_label: "List Catalogs"
 hide_title: true
 hide_table_of_contents: true
-api: eJyVU8tu2zAQ/BWCl7SAItspevHNaNogQG9Ne4mNgqZWFluKZJaUakPQv3dXfslGiiInidzHzCxnO5nUJsr5s7xXSUVIUa4y6QOgSsa7x0LO5QbST01R6ykzk0GhqiEBclknHR0oqURfU9A4+n9pAHd0KCBqNIEb0e0XY7lIHFuJ9U5E36AG8Q7yTZ6JmxiMBmVu3udUjfDSGARiUCobIZNRV1ArOe9k2gVgzjGhcRvKdY21ctX3Ky6LwbsIkRPvplP+XBL5amISvjwTMU58+vZDlB5rlaib9i6BSwMSbNNEx5b/r/GP8H0mYavqYPlu6XgSGU9l6Q56ssN36WTfU/bH11g9EiY6ZUUEbAEFIHoUXusGaQjiT2UsiIBeQ4yEKkYvMuKrQrBGD283+RW58Yj3mGgnBwACXjjRONgG0Ilw/gebKjhD9/2g51LIAyShhL0aMr8ouabyB0cNRkoVHSbtbDISY1zphxmbNAwUG5cMWewa5omIDHMtxDmFtAO9PdcffLkIiuTf3uVT7l3QmExpAC8jpIFGHveNZ/k0n96izj/wffAx1cqNOv5b3wXBk0sGCwWraDWoX4OWY3vtz7Kd8fsd1ZN9K8LjQNetaR2/o+17vt6vFO9bYaJa29FaXKGezPDmhXuV72/Ynbe7VbbhFMmL1io0zIRYrSixAlXwXInivmahNYQ0qjrtElefvPDw+Yl89BeNU4uN
+api: eJydVE1v2zAM/SuCLt2AxEk6DFhzK7oPBOhp6E5p0CoyE6uTJVWS3QaG//tI2fkOMGwnWyL5+PhIseFRrAOfzvlXEUWAGPhiwK0DL6KyZpbzKV9DfJJo1RY9B9wJL0qI4Cms4QYP6LTytkSjMvj/WoHf4CGHIL1yBIS335WmILaFYssNC7byEtgHyNbZgF0FpyQIdfUxw2gPr5XygAxWQgcY8CALKAWfNjxuHBDnEL0ya/Q1ldZ80bYLCgvOmgCBHK/HY/ocE7lXITK7Ygc1SWsimEi+wjmtZKp+9BIooDnLzO3yBWQ8IjnfSpAEQSLOk4xRdUyScQ/QM29793MDWqKKmq7uOp4/+8JmEUoKhHdROnKYb9F5r9+WxP6iXRAevMeRDPXFivaEdrj80RDugLAeTQ816L+PBjmi9+dLCs9QTW+EZgF8DZ6B99YzK2XlUSv2VigNDPWREAJm/Z9OHBJteEqAiW8Nqwy8O2wO5vlb2ljAPnXbpnoujMrdnh3OfWH7N5GeQizwMKono4MSuqK711F5jQ5FjG46GmkrhS5siNMv45vx2QO5JzPLoQZtXYki9PJl7M6alVpXHtibigV7Hg4J8TnjNPABsD4VNymfcOrpN9D/gmzKrGxqcj9KvjJR4WScpn5AJVJjc7Z3QfEB543i+3G6dQL1H15nRF7lSFGtFPhjC4pI5XfAk2ycjYdeZp/o3mHtpTAHiKcCH9HaDWeaXKcFbhdESZo2vfhzXk9obLYQWDQpTIamWeJG++V129J1t5VIpFwFsdQHm+Uk624G/3lnXeSb+rHdDrXQFbmk1tXCK2KS2oXEQeSkJlLsYm6lBBcPos6eBKHshvLHtwcc4z+0SP9f
 sidebar_class_name: "get api-method"
 info_path: api/http/runtime
 custom_edit_url: null
+proxy: http://localhost:8090
 ---
 
 import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
@@ -22,7 +23,7 @@ import Heading from "@theme/Heading";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Get a list of catalogs."}
+  children={"List Catalogs"}
 >
 </Heading>
 
@@ -36,7 +37,7 @@ import Heading from "@theme/Heading";
 
 
 
-Get a list of catalogs.
+List Catalogs
 
 <Heading
   id={"request"}
@@ -62,7 +63,7 @@ Get a list of catalogs.
 <StatusCodes
   id={undefined}
   label={undefined}
-  responses={{"200":{"description":"List of catalogs in CSV format","content":{"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name\nspiceai,spiceai\n"}}},"500":{"description":"Internal server error occurred while processing catalogs","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred while processing the catalogs"}}}}}}
+  responses={{"200":{"description":"List of catalogs","content":{"application/json":{"schema":{"type":"object","required":["from","name"],"properties":{"from":{"type":"string"},"name":{"type":"string"}},"title":"CatalogResponseItem"},"example":[{"from":"spiceai","name":"spiceai"}]},"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name\nspiceai,spiceai\n"}}},"500":{"description":"Internal server error occurred while processing catalogs","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred while processing the catalogs"}}}}}}
 >
   
 </StatusCodes>

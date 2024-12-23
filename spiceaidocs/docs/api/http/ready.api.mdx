@@ -1,14 +1,15 @@
 ---
 id: ready
-title: "Check the runtime status of all the components of the runtime."
-description: "This endpoint returns the readiness status of the service. If the service is ready, it returns an HTTP 200 status with the message 'ready'. If not, it returns a 503 status with the message 'not ready'."
-sidebar_label: "Check the runtime status of all the components of the runtime."
+title: "Ready Check"
+description: "Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message 'ready'. If not, it returns a 503 status with the message 'not ready'."
+sidebar_label: "Ready Check"
 hide_title: true
 hide_table_of_contents: true
-api: eJzdVD1P5DAQ/SuW6yWbBV1DhxA66BC3Vy1bDM7s2iKxjT3JEUX574yd/T6J5rqrEj/Pe/P1kkESbKO8XckXhKqX65msMKpgPBln5a1cahMF2so7Y0kEpDbYKEgjv0NlLMYoIgG1UbhNxiOGzigsxNPZWbBOovQzYY5CYMXjcvksrstyL/PHkM7EhrVhi+JVZt6rzJLW0bmC+FHefMPleLHny5l0HgOk3p4q7i5fMBowemcj8iQGybWkx/kcfl10wSTlLKGlFEv4SXNfg7HpFJXGBjLee2RypGDsVo4ziZ/Q+BoPqceRQW7g24SHFv456VFpzJkbJO3SILZILO6BNB/m3WK+z2fsxmVRQ1PZrSXToPzbJ7xpzwVX4hhS85mnmvgWmkS/88B1Xl0XZdKuuBOzMRjOb7iwDkOchBdFWZRXQRU3CfcuUgP2RPFeo3qfDDnlPbEj1HW+Ua7h9XKyg0l3scVlH8NxwP+d9Xe+OLEND7QNdep62vxKdov8Nex+BZqnndBheIOIv0M9jgn+aDH0jPNrB8HAW3LGas1qmplpm6tBvmOftqoU+mStDur2Mvv6xIA/H5bsyS8+to1j
+api: eJztVlFvEzEM/itW9gJSe+1ASNA3BNOY4GFi42mtaHrn60XkkpDkClXV/47tu7VdkXjhdQ/TLnb8Of5sf+pOZb1OavagvqKutmoxUhWmMpqQjXdqpj40WP6A3CDEzmXTIqSsc5fA16CtFU/p2+AduizWk7sF3PTnhHFjSgSTIHKeEZhMX7mLLoF28On+/hZeTaeP4L9MbiSwxZT0GmGuJG6uBNL5/BQB3kxf/yOW7sNj/NzN3T15V9jojfERavr71aDjd+iyRItRZ6yg0lknzPzm0rtkKoxkFZjBVpt1F/XKImyMlpRLcX/nl+ASgo66xYyxgDtEePhIiARQR0zN4kWTc0izyaTyZSpSIHq0KXxcT450TvgN48OjfBwsA8aFZBtLtpdSR+sjQoVZG5uk0ouLC+DOGkdkwG30K5y7Gwch+qorucd0PVi/bTnfSIqYbC4nfZnoquCNy1ASNyuELhEDmvmOB8zAmJJcwx1XcQII2RNG6uhROeq6NqVMgO+YX/Jxtj7mcbi8s1vQNXEm0zX0IAH1ipIYZ1JDodZz9rVUePVbt4Fa8LlbYXTEdjp/3GzulsvlVrd27g6u28ED3IZrzPwJ1LHczI4E9DYf8wzeTt9NBUeNlA/cDeLupqINkZtkpY5Q2xLSNu0UzTL/e7pLd2dbQEE0RZmI4rsZf+dJsNo4PqWywVaLfRuQglOOVLLajxT2FR9S7/dkpAX4Z8LDCvx30iPSXjLThDeeiVhjJnCmkA4HDsnE24+RVWanumjJy6TT6Ftfatv4lGdMrzrXni/spnHaoPVB5qlHKuDDsHzYb/tyPGbEZaH2C05XdtHkreTTwXz/gfy9YJ9xtZf6TO4Z7Ofur9SsELKTFRyvWDpTgzne0WLTtfdBE2XjVwU/nhSCbtYG41MPccTl98CXxbSYjmNZvGZ7oNpb7U4QRYZBVPf8Ubtj455l+VmWn2X5TJYHzTqRNNow0ZvdoEoPanMpSj381GHpYetut6J6vkW737P5Z4dRFIMWV0fDoyT6QQEUyetNwiKiot7TEASWvY223Xn2xYk4Xl/dk17+AX5zUcY=
 sidebar_class_name: "get api-method"
 info_path: api/http/runtime
 custom_edit_url: null
+proxy: http://localhost:8090
 ---
 
 import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
@@ -22,7 +23,7 @@ import Heading from "@theme/Heading";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Check the runtime status of all the components of the runtime."}
+  children={"Ready Check"}
 >
 </Heading>
 
@@ -36,7 +37,20 @@ import Heading from "@theme/Heading";
 
 
 
-This endpoint returns the readiness status of the service. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
+Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
+
+The behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://docs.spiceai.org/components/data-accelerators/data-refresh#ready-state) for more details.
+
+### Readiness Probe
+In production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.
+
+Example Kubernetes readiness probe:
+```yaml
+readinessProbe:
+ httpGet:
+   path: /v1/ready
+   port: 8090
+```
 
 <ParamsDetails
   parameters={undefined}

@@ -1,14 +1,15 @@
 ---
 id: get-spicepods
-title: "Get a list of spicepods and their details."
-description: "This endpoint returns a list of all spicepods in the system. In CSV format, it will return a summarised form."
-sidebar_label: "Get a list of spicepods and their details."
+title: "List Spicepods"
+description: "Get a list of spicepods and their details. In CSV format, it will return a summarised form."
+sidebar_label: "List Spicepods"
 hide_title: true
 hide_table_of_contents: true
-api: eJy9VM1v0zAU/1csXwqSl3bpdultQjBN4oDE4DKmyUteV4Nje89OWVXlf+e9JDTpGjghTlHs5/f7eB97mfRTlKs7eQ0OUFt5r2QJsUATkvFOruTtxkQBrgzeuCQQUo0uCi2siUn4tdDWihhMAcGXURgn0gZE3MUEVSZunHj3+atYe6x0UsIk8dNQfJeFksS6qjSaCGUbk0klfSAejH1TEvoTpIdDdroNGnUFCZBJ76WjH4rq8tO1YcbPNeBOnuqAngezZpIIMXgXIROffIzm0YLYalsDqUMQs+/Ru5l4U8Ja1za9FR7FrIjbGZNEeK4NAjFcaxtByVhsoNJytZdpF5hSTGjcE4WCqys2mNPRL2Vgj5NJlsM+dMyb5p6Tdnwip8kXC/4ca/jYez52pPAugUscrEOwpmjNm7dwdHZCTCNqdsdQgRipaYjji64C8xks/Q1xTqFbsrsjsD3PFtmCvdVJR0jxofA1gy+VrHwJ9nCQs/+B+gZcYeBwfNmoE4j8GCL/A8TFa4jlNETe3JOkBC9pzmZPedAXZ6y8JaV6GuoYW41x1SnmN3dwS3UOqaXK1eVwnqtOlrrgGyo3QV9OVfiGiolO00gBEhkBiB6Pq9wqC1ab6fpOaZvO2rQ0aJo2vh+1dsDShn7m2/P5uMuMW/sWpO9bJNmGqjg1Ze27Ugwh1JRAfc3v+9JfBU28z/K20IbMTGZtAI9vmnFbtLaeYZEt+Tz4mCrtRhmvIY2W0rCQtCt52A2KEpI2NmavOe8Hc//7sutrNiopiavRMquuEnc0cxQ41IIWxYbU881+/0hd+gVt0/Bxt/d4hksTNa2zYT39RfA/3IqTan7Abryh21x0IHnjbckOJkqkeWY3oEtuAlLQvboqSPT41cmG4yyHDr5+f0tN/QtnalYP
+api: eJy1VM1P2zAU/1esXLpJblpSkLbeENoQEodJsF1YBSZ5abw5trGdAqryv+89J2tTGm7bqY2f/X4f72ObBLH2yfIuuQQNTqhkxZMCfO6kDdLoZImBwART0gdmSuatzMGawjOhCxYqkI4VEIRUPmVXml3c/GClcbUInMnAnqVSzEFonMYkvqlr4aSHIt5JE54Yi6iEdFUg1hrC/Q4Bo1Y4UUMARxS3icYPvNXlx7Akfk8NuNfkLevbCnoexBp5IgtvjfaQsm/Ge/mogG2EagCVOGCTX97oCftQQCkaFT4y49gk95sJkXTw1EgHyLAUygNPfF5BLZLlNgmvlij54KRe41XQTU12Ujr8xAzkaJBB0bWvHfO2XVHSjo+nNNl8Tj+HGq7fek4JjQ6gA10W1iqZR/NmEQ7PjogJ5wS5IwPUhNS2yPFF1Jb47C39C3GCVzdod0dgc5LO0zl5K4LwEPx9bhoCX/CkNgWo3UFG/lvQBehcwu74rOVHENkhRPYOxOlbiMU4RNauUFKAlzAjs8c86IszVB5J8Z4GP8TmQ1x+jPlT79zinUN8wTN+tj/PeCeLn1IEy43QZ2MVvsJiOi0U8+CQDAPnjDusclRmlZDj9R3TNp61jTRwmirTj1ocsFDhx2xzMht2WfewG7rGKbxRhWCXs5kyuVCV8WH5af55fjR11xTGfbABZWyNCnoKKbswupTrBiftWYaKPUynlPEhTWgUPOSNk+E14gkr738D/V9RTOrSRL39CDmsgMSGGhv4KKFg+ys4H4AjRu/7Ljy3Ai2cZrHnJNY1yFKCO4y0ww6NFZ66PF3QuUXttdCDjHFKbwbmHfDa7mv5nzdp3xCDfkG6sXjbvsx3ONBU3B1XtJdqSZHt9hFH4LtTbUvH3VKlchTSC9yV+933rrx/unJH1cS22K//mAsPYg9t0A4iGvsGdYEoqKyooHt1nqPo4auj9UlZduNx+eUWJ+YPN4Jutg==
 sidebar_class_name: "get api-method"
 info_path: api/http/runtime
 custom_edit_url: null
+proxy: http://localhost:8090
 ---
 
 import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
@@ -22,7 +23,7 @@ import Heading from "@theme/Heading";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Get a list of spicepods and their details."}
+  children={"List Spicepods"}
 >
 </Heading>
 
@@ -36,7 +37,7 @@ import Heading from "@theme/Heading";
 
 
 
-This endpoint returns a list of all spicepods in the system. In CSV format, it will return a summarised form.
+Get a list of spicepods and their details. In CSV format, it will return a summarised form.
 
 <Heading
   id={"request"}

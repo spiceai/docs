@@ -1,14 +1,15 @@
 ---
 id: post-sql
-title: "Execute a SQL query and return the results in either JSON or Arrow format."
-description: "This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body."
-sidebar_label: "Execute a SQL query and return the results in either JSON or Arrow format."
+title: "SQL Query"
+description: "Execute a SQL query and return the results."
+sidebar_label: "SQL Query"
 hide_title: true
 hide_table_of_contents: true
-api: eJzNV21v2zYQ/isEv8RFHUWvtuVvaZZ2GdI6S5wBQxMEjETH2iRSJSknhuf/vjtJjmVLTVb0wyIYtnV34j333El6uKKGPWg6/kqvfj+nt30acx2pJDeJFHRMp/NEEy7iXCbCEJam8lGTQnOliZGEP/GoMJzApeRbwVXCNYkTxSOTLslMyYwwQX6dTi+I4uDXxiLT+TZ8SWBxzXFhTfKUJYIY/mQI/kJYfQ25l/HSon0qc64Y4jqLAVkutbnT31Jw5EyxjBsABXWsqIATCDiOIp4bcCdYyJyzmCvaro+TmVQZM0TO6qw6l0LzPpGCo/GA5XmaRGXmo7+0FAekF/MZK1Lzrk8OEPFRpBcHRKr6rCzlACFjCcAH4DWq4H2qoznPGB2vqFnmCFIblYgHul7fVsFQ7wcoFyN2gW452/IOCSIpDBBYrvicGs++m6lP+RPL8hRtV6fnpydTwhYPPSMNS+9YJguBZZWmJN8aIvztOfAvZxp69sDVXWkjHy8nn0m2vDPsPuXk0+Xk+oJ8+LMVNrn85fSyy3F8dULOzz6fTYkHPOxzVhqqjmisxrXtl8ipmYmJLqD9Ws+KFEax99vV5Evd53e7rO03t5M7phRb4iQZniGKdZNFmLjjPz71NgxYDdro2LPsoesGYTh0vHAwDL3+XnCTdjp2A8tzhyNnEHqhHwwCN+jTk8n1l2nvTJiBD/zjmo4/CHDqd3ikY3vdfxmKN3TcgeuORv5gZNvB8BUsA8u1A9ezfT/wh34YDjqwuM5oNPTCDjTOa2iGDnBiu47juaE9CvxX0IRW4NoDYNKz4QOoOtD4duDYXgcYd30LLdvcqv/5/rj5bgE3tL/vbOIt3XvwStsesht6I9oj0jEFVc9tjG51saNRm7Y4eEGL6A4ua+ZcuqHpxx4kN4I0jveHLxw/5uyOfr+b7x/yUqO6/Lu9KgNa3SqtrX5huv+72tbE7Hjb09O8FOeoGW2T9vEGCtwf8p0CW/PedFaTvzU4b7PA/Ztyp8DW/dlwVndqM/otFAhvbngg+F0v5zOxYGkSN1QfCKWMpfg6hhd1IvLC/LSSOVUKVlUg8sBVpRnD0lXm6+nHwxEITTCLiFdQg26oICIFSyFWLbgiHFf9aWzXgj/loInLYjsSEBlFhULFsy6hgZSdy43ELeWtmcPZ0cI5qvRuImayzJmYMoGCJ1OS8U5xq/MkgsTbEFA7HMQUXr8RyjmDMg5dy8a1Yyg0mSWglXc8gAsA62phx7It+1BFlod2hJkx0VjxtN4XsEbTmQAU3BRqI+41CGiNWp8nYFCk1GjAxjFw8liLNWu/ptW2F29qb1K3vzEdQEyhUkRc9e8rXTgQiB0ErT/H1oJttbpnml+rdL1Gc5kZ7PB3wVSCLys8g7Xq/Quqzb85hNCTiofDKWbG8LRoIdjEPm+FNlEt1Yv7j+e5u5hcTSH4vt6IZDIup4w94o4GvscUJ/Vf2w0ddQ==
+api: eJzVV21z2kYQ/is398VkAkIvCBDfHNdJ3XGCY+POdILHOUuHuVY6KXcnbIby37srgRFIsZvJh7qMx6Dd1e6zzz6SVitq2L2moy/06vM5vWnTiOtQicyIVNIRPX3kYW44YQTc5FvO1ZIwGRHFTa4kMXMOP3UeG21N5VRO5kITLqMsFdIQFsfpgya55koTkxK+SbZNJbgmkVA8NPGSzFSaQGry62RyATnBr41FJnNeqQzJNcfEmmQxE1CfPxoitjiKc8hdGi0t2qZpxhXDNs4iaCRLtbnV32JwZEyxhBsABW2vqIQDCDgOQ54ZcAvse85ZxBU9pAPhzFKVMEPS2bb7LJWat0kqORqPWJbFIiwqd//UqTwirYjPGHD0pk2OEHE31IsjkqrNUdHKEULGFoAPwGtUzttUh3OeMDpaUbPMEKQ2Ssh7ul7flMHQ7ztoFyP2ge442/EOBcJUGiCwyPhUGo++W6lN+SNLshhtV6fnpycTwhb3LZMaFt+yJM0ltlWYRLYzhPjdcuBXxjTM7J6r28JG3l+OP5JkeWvYXczJh8vx9QV590ctbHz5y+llk+P46oScn308mxAPeDjkrDCUE9HYjWvbz5GzYSYiOofxaz3LY5Bi67er8afNnN/ss3Y43EbumFJsiUoyPEEU6yqLoLjj3z+0tgxYFdroyLPsgev6QTBwvKA/CLz2QXCVdjpyfctzB0OnH3hBz+/7rt+mJ+PrT5PWmTT9HvCPOZ1e30fV7/FIR/a6/TwUb+C4fdcdDnv9oW37gxew9C3X9l3P7vX83qAXBP0GLK4zHA68oAGN8xKagQOc2K7jeG5gD/3eC2gCy3ftPjDp2fAHqBrQ9Gzfsb0GMO76Bka2vVT/9fUx/W4DU9o+dFbxFu4DeIXtANmUTmVdIg0qKGduY3Rtig2D2o7FwRNqRDdwuWHOpVuafuxGMpWk8nnbeebzY87m6Lf79f4mzw2qyb8/qyKgNq3CWpsXlvuvu60pZs9bV0/1VNRRNdom9c8raPBQ5HsN1vRedZbK3xmc19ng4UW512Dt+qw4yyu1Gv0aGoQnN9wQek0P5zO5YLGIKlsfLEoJi/FxDA9qIbPc/PQmc6oUZFWw5IGrLDOC1GXl68n7zhAWTTDLkJdQ/WaosERKFkOsWnBFOGb9aWzXkj9msBMXzTYUIGkY5go3nnUBDVbZebpdcYv11szhqLtwuuW+W55cLru5inG7NSYbdbtxGrJ4DmeNhnZg15bdc3STiC94nGYJ7t1lJoucpHIm7nPFyYMwc/K108GMXy2Ke6mGlUoJsyzqsUzc/sXx9w36hJylRfvCFL0quEmKhDfu2ToTIXCwC4HFi8Neh+dvd/aMAaMd10LwIgKIYiZgbd/zAEXYfpnYsWzL7qjQ8tCOjCVMVjKi6j6jHA4hrXZT/T+/FG10V5El0FCIYrURzhe6cFA0IB0YGKoDbavVHdP8WsXrNZqLyjhU4JYpgU/JYsTt7YsTzr6YOz0paetMsDKGx3kNwTb26R1sG1Vbt1FET4K/GF9NIPhu8waUpFGhKfaAr1Lwf0TxEvkHEohZBA==
 sidebar_class_name: "post api-method"
 info_path: api/http/runtime
 custom_edit_url: null
+proxy: http://localhost:8090
 ---
 
 import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
@@ -22,7 +23,7 @@ import Heading from "@theme/Heading";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Execute a SQL query and return the results in either JSON or Arrow format."}
+  children={"SQL Query"}
 >
 </Heading>
 
@@ -35,6 +36,8 @@ import Heading from "@theme/Heading";
 </MethodEndpoint>
 
 
+
+Execute a SQL query and return the results.
 
 This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body.
 

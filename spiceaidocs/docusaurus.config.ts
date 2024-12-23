@@ -38,13 +38,12 @@ const config: Config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts',
           routeBasePath: '/',
           docItemComponent: "@theme/ApiItem",
           editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: ['./src/css/custom.css', './src/css/openapi.css'],
         },
         gtag: {
           trackingID: 'G-SST0X6NS37',
@@ -140,6 +139,13 @@ const config: Config = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Spice AI, Inc.`,
     },
+    languageTabs: [
+          {
+            highlight: "bash",
+            language: "curl",
+            logoClass: "curl",
+          }
+    ],
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
@@ -159,11 +165,15 @@ const config: Config = {
       {
         id: "api",
         docsPluginId: "classic",
-
         config: {
           spice: {
+            proxy: "http://localhost:8090",
+
             specPath: "public/openapi.json",
             outputDir: "docs/api/http",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+            },
           } satisfies OpenApiPlugin.Options,
         }
       },
