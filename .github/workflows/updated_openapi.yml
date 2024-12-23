@@ -1,0 +1,50 @@
+name: Generate API Docs
+
+on:
+  pull_request:
+    paths:
+      - "spiceaidocs/public/openapi.json"
+
+jobs:
+  generate-api-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Use the version of Node.js your project requires
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API docs
+        run: npm run docusaurus gen-api-docs all
+
+      - name: Check for new or modified .mdx files
+        run: |
+          if git diff --name-only | grep '\.mdx$'; then
+            echo "New or modified .mdx files detected. Committing changes."
+          else
+            echo "No changes to .mdx files. Skipping commit."
+            exit 0
+          fi
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name 'Spice Schema Bot'
+          git config --global user.email 'schema-bot@spice.ai'
+
+      - name: Commit changes
+        run: |
+          git add *.mdx
+          git commit -m "chore: update API docs"
+
+      - name: Push changes
+        run: |
+          git push origin "HEAD:refs/heads/${{ github.head_ref }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

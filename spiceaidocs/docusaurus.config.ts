@@ -1,6 +1,7 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type * as OpenApiPlugin from "docusaurus-plugin-openapi-docs";
 
 const config: Config = {
   title: 'Spice.ai OSS Docs',
@@ -39,6 +40,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
+          docItemComponent: "@theme/ApiItem",
           editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
         },
         theme: {
@@ -51,7 +53,7 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-
+  themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     // Replace with your project's social card
     // image: 'img/docusaurus-social-card.jpg',
@@ -153,6 +155,20 @@ const config: Config = {
 
   plugins: [
     [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: "api",
+        docsPluginId: "classic",
+
+        config: {
+          spice: {
+            specPath: "public/openapi.json",
+            outputDir: "docs/api/http",
+          } satisfies OpenApiPlugin.Options,
+        }
+      },
+    ],
+    [
       '@docusaurus/plugin-client-redirects',
       {
         redirects: [
@@ -171,6 +187,7 @@ const config: Config = {
         ],
       },
     ],
+
   ],
 };
 
