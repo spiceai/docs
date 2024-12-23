@@ -1,0 +1,63 @@
+---
+id: list
+title: "List all evals available to run in the Spice runtime."
+description: "List all evals available to run in the Spice runtime."
+sidebar_label: "List all evals available to run in the Spice runtime."
+hide_title: true
+hide_table_of_contents: true
+api: eJydVE1v2zAM/SuCzmk+ultuPQTDgF2GdacgCBiZidXKkkrJXg3D/32kEq9JEWDATrH58cj3+OJBZzglvd7qTQeuhWyDT3o30yEilbdvlV5rZ1PWM02YIueRGwb9uFzKT4XJkI1SyoVPzilkpKSgA+vg4FBZr3KN6me0BhW1PtsGGcwEn9FnwYAYnTVl3OIlCdCgk6mxAXnKfUSGBiLouc9mbNJVPBxe0Jy3e2stYSVsPJQZFWRIKMlkAiEVapGEXLZnGlPJB2DKZP1Jj7NbblN+OxXMtG+d0zsuLOPuIUxj/01j6hm5K9vsJPadZZe7bBw2IpXk8B2aKNntcBmrX334nfYN5Fp/2ln/aDGVm6ojhUYdLaWsegSaqdZXSCeCiq+OSrqVYKcr2dZawvsp/JfMVuJGprGWR0wp0N6FE5/Q7fmsiddGb3qWZjcWQrdLCS0Fd5ySg/jjrmHmPKzBXAex46mcNArhtV50q0UBElH9MRRNLwJ+uO12g2eGTwJfXRmSLYhsbum/CPsUgV348DhfCnbFJ7BHi3SbYXodq3IGXs2X8+UDmfkXiceQcgP+CvF/qd91os74nhfRgfUyrSUnubMsW92tuO8sDJu+5lUkOgwHPu0vcuMo4bcWqec4P3ZAVlaRN0arESqhyjZ7xV4oG4NRdJcPRXHy53/tuLu60dfNM/v1D/BmgNA=
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List all evals available to run in the Spice runtime."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/evals"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+List all evals available to run in the Spice runtime.
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"All evals available in the Spice runtime","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","required":["name","dataset","scorers"],"properties":{"dataset":{"type":"string"},"description":{"type":["string","null"]},"name":{"type":"string"},"scorers":{"type":"array","items":{"type":"string"}}},"title":"ListEvalElement"}},"example":[{"name":"knows_math","description":"Questions from first year, undergraduate math exams","dataset":"math_exams","scorers":["match","professor_logical_consistency"]}]}}}}}
+>
+  
+</StatusCodes>
+
+
+      

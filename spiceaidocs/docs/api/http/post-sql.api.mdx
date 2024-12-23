@@ -1,0 +1,71 @@
+---
+id: post-sql
+title: "Execute a SQL query and return the results in either JSON or Arrow format."
+description: "This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body."
+sidebar_label: "Execute a SQL query and return the results in either JSON or Arrow format."
+hide_title: true
+hide_table_of_contents: true
+api: eJzNV21v2zYQ/isEv8RFHUWvtuVvaZZ2GdI6S5wBQxMEjETH2iRSJSknhuf/vjtJjmVLTVb0wyIYtnV34j333El6uKKGPWg6/kqvfj+nt30acx2pJDeJFHRMp/NEEy7iXCbCEJam8lGTQnOliZGEP/GoMJzApeRbwVXCNYkTxSOTLslMyYwwQX6dTi+I4uDXxiLT+TZ8SWBxzXFhTfKUJYIY/mQI/kJYfQ25l/HSon0qc64Y4jqLAVkutbnT31Jw5EyxjBsABXWsqIATCDiOIp4bcCdYyJyzmCvaro+TmVQZM0TO6qw6l0LzPpGCo/GA5XmaRGXmo7+0FAekF/MZK1Lzrk8OEPFRpBcHRKr6rCzlACFjCcAH4DWq4H2qoznPGB2vqFnmCFIblYgHul7fVsFQ7wcoFyN2gW452/IOCSIpDBBYrvicGs++m6lP+RPL8hRtV6fnpydTwhYPPSMNS+9YJguBZZWmJN8aIvztOfAvZxp69sDVXWkjHy8nn0m2vDPsPuXk0+Xk+oJ8+LMVNrn85fSyy3F8dULOzz6fTYkHPOxzVhqqjmisxrXtl8ipmYmJLqD9Ws+KFEax99vV5Evd53e7rO03t5M7phRb4iQZniGKdZNFmLjjPz71NgxYDdro2LPsoesGYTh0vHAwDL3+XnCTdjp2A8tzhyNnEHqhHwwCN+jTk8n1l2nvTJiBD/zjmo4/CHDqd3ikY3vdfxmKN3TcgeuORv5gZNvB8BUsA8u1A9ezfT/wh34YDjqwuM5oNPTCDjTOa2iGDnBiu47juaE9CvxX0IRW4NoDYNKz4QOoOtD4duDYXgcYd30LLdvcqv/5/rj5bgE3tL/vbOIt3XvwStsesht6I9oj0jEFVc9tjG51saNRm7Y4eEGL6A4ua+ZcuqHpxx4kN4I0jveHLxw/5uyOfr+b7x/yUqO6/Lu9KgNa3SqtrX5huv+72tbE7Hjb09O8FOeoGW2T9vEGCtwf8p0CW/PedFaTvzU4b7PA/Ztyp8DW/dlwVndqM/otFAhvbngg+F0v5zOxYGkSN1QfCKWMpfg6hhd1IvLC/LSSOVUKVlUg8sBVpRnD0lXm6+nHwxEITTCLiFdQg26oICIFSyFWLbgiHFf9aWzXgj/loInLYjsSEBlFhULFsy6hgZSdy43ELeWtmcPZ0cI5qvRuImayzJmYMoGCJ1OS8U5xq/MkgsTbEFA7HMQUXr8RyjmDMg5dy8a1Yyg0mSWglXc8gAsA62phx7It+1BFlod2hJkx0VjxtN4XsEbTmQAU3BRqI+41CGiNWp8nYFCk1GjAxjFw8liLNWu/ptW2F29qb1K3vzEdQEyhUkRc9e8rXTgQiB0ErT/H1oJttbpnml+rdL1Gc5kZ7PB3wVSCLys8g7Xq/Quqzb85hNCTiofDKWbG8LRoIdjEPm+FNlEt1Yv7j+e5u5hcTSH4vt6IZDIup4w94o4GvscUJ/Vf2w0ddQ==
+sidebar_class_name: "post api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Execute a SQL query and return the results in either JSON or Arrow format."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/sql"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"Accept","in":"header","description":"The format of the response, one of 'application/json' (default), 'text/csv' or 'text/plain'.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"SQL query to execute","content":{"text/plain":{"schema":{"type":"string"},"example":"SELECT avg(total_amount), avg(tip_amount), count(1), passenger_count FROM my_table GROUP BY passenger_count ORDER BY passenger_count ASC LIMIT 3"}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"SQL query executed successfully (JSON format)","content":{"application/json":{"schema":{"type":"array","items":{}},"example":[{"AVG(my_table.tip_amount)":3.072259971396793,"AVG(my_table.total_amount)":25.327816939456525,"COUNT(Int64(1))":31465,"passenger_count":0},{"AVG(my_table.tip_amount)":3.3712622884680057,"AVG(my_table.total_amount)":26.205230445474996,"COUNT(Int64(1))":2188739,"passenger_count":1},{"AVG(my_table.tip_amount)":3.7171302113290854,"AVG(my_table.total_amount)":29.520659930930304,"COUNT(Int64(1))":405103,"passenger_count":2}]},"text/csv":{"schema":{"type":"string"},"example":"\"AVG(my_table.tip_amount)\",\"AVG(my_table.total_amount)\",\"COUNT(Int64(1))\",\"passenger_count\"\n3.072259971396793,25.327816939456525,31465,0\n3.3712622884680057,26.205230445474996,2188739,1\n3.7171302113290854,29.520659930930304,405103,2"},"text/plain":{"schema":{"type":"string"},"example":"\n            +----------------------------+----------------------------+----------------+---------------------+\n            | \"AVG(my_table.tip_amount)\"  | \"AVG(my_table.total_amount)\" | \"COUNT(Int64(1))\" | \"passenger_count\"   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.072259971396793           | 25.327816939456525         | 31465          | 0                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.3712622884680057          | 26.205230445474996         | 2188739        | 1                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.7171302113290854          | 29.520659930930304         | 405103         | 2                   |\n            +----------------------------+----------------------------+----------------+---------------------+"}}},"400":{"description":"Invalid SQL query or malformed input","content":{"text/plain":{"schema":{"type":"string"},"example":"Error reading query: invalid UTF-8 sequence"}}},"500":{"description":"Internal server error","content":{"text/plain":{"schema":{"type":"string"},"example":"Unexpected internal server error occurred"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

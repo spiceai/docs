@@ -1,0 +1,72 @@
+---
+id: get-datasets
+title: "Get a list of datasets."
+description: "This endpoint returns a list of configured datasets. The response can be formatted as **JSON** or **CSV**,"
+sidebar_label: "Get a list of datasets."
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVktv2zgQ/isEL2kNVXG62ItvQfpAFoumaLK7h9hwaWlkMZVIlaTceA3/952hKEu2lazR9tJLHJHz+OabB2fDnVhaPrnnb4QTFpzls4inYBMjKye14hN+l0vLQKWVlsoxA642yjLBCmkd0xlLtMrksjaQsjQYidldDihqK60ssEQotgCWaVMK51BOWDYa/XF782E0Ytrg/1e3f49G0VQJhZdpKsm1KFgmCwfGtgZEVRUS1Wsr1ZJ9rcGsWSWMKIGkYh5xXYERpHydIvIluHkLCS87UQx4wxV+oJB1wtV0LSlYbxQ/DHytJYbEJ5koLETcJjmUgk823K0r0ltoXYBQfLuNdraaCA9tHdLZMkHkuR5PMfuorZWLAthKFDUgyQbY2YPV6oy9SCETdeFeEmFniV2dxSfBtM4gWSgKqi4p0WQOP9ECpdpJV5DYuwZ5Pxira5PA88G8CwlqWWaLNWv02AuIl3HEPlfauiWGOBEyhVLPS7BWLMF+fnlSAPddBKouCj7bbmek1lBmSfD1eEw/+8j+DNXZyz8WqgPlSNZXUuIr5dwTgmdH1OnFAyRuD+Q9z4wuCQtxRDc7O3NQAlOX4qlIEihCIe6OEXVlqD6dbGAPSh3X1yHl/+SARWNYX535DvUWqLZ8VYXA+TZqMA+UxHFhhtx9QwfQt0IOCo2BIsRtiP4kgyTZ1nkP0T4Th3zvm7mqrdMl61SOQkTGdzPjY99y52n9AYHYY8xY8INJPD0PPe3/SUOYNGhaK7jJ/BAKTnxpU+/t+7ipwiBsVA+JjJ5s8muFdIhC/tscfwKRUvO+kbat0bfGaOOvMmymnOR64+BKl9hf2Cy3DebtjIhqb8Nb8Sk04bWDkuKDR1FWJIBxNSXHd81v1yqxbd9MeCpksZ4/YLVhdPNdKXtkg+kI02G4Z5ypgcgLTomehZHJFzvJ5Qpw4iBcpw3EYYbG7QzqALUnPxvLU9Ov87wEhUaK73LmLzE3mBp4dOc004cGWVvrvRTxqSKEEYGIBhxHQw6naj+f0ZNpjBrYRMZUnZ6PaCgNe7ae4jMKNAZh/3dKjzMG/fvQ+3CNb4HxrQVmhW0M1A9MJ0ltaJP5lkt8hnF4JOiAto3hd8TTXhVCDr8gQ8RfKlYreKxw1KGfk91ufShIXa7DauM3Gpfjx/nq4ryHT6pMexChXU2tnPTP1cDAr2SCfjsRLATAnib9UKCXlcC4Xr2Ox2Q7xchlJsHs3yA2ZNE2hi/icTx+ZZL4Nz/rMWWlUD2L7/FB6fbH3dJ4CHDTMf1LLaEh+b3aQBZqU1BETcbu+eqCou3t3DmyRBebzQLP/jLFdkvHzdpFEzVtZ3c7Er7Aur+++pURD5pn5FD4GWJ/4jo6GHmDc7cafyfOH940n8G223Q7bDP6MJLAIfs0YXN8Q6nqMRWN1iWOqKof0dFSSVZ2Hfv+7R028X+1rryS
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a list of datasets."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/datasets"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns a list of configured datasets. The response can be formatted as **JSON** or **CSV**,
+and additional filters can be applied using query parameters.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"status","in":"query","required":false,"schema":{"type":"boolean"}},{"name":"format","in":"query","description":"The format of the response. Possible values are 'json' (default) or 'csv'.","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}},{"name":"source","in":"query","description":"Filters datasets by source (e.g., `postgres:aidemo_messages`).","required":false,"schema":{"type":["string","null"]}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of datasets","content":{"application/json":{"schema":{"type":"object","required":["from","name","replication_enabled","acceleration_enabled"],"properties":{"acceleration_enabled":{"type":"boolean","description":"Whether acceleration is enabled for the dataset"},"from":{"type":"string","description":"The source where the dataset is located"},"name":{"type":"string","description":"The name of the dataset"},"properties":{"type":"object","description":"Custom properties for the dataset","additionalProperties":{},"propertyNames":{"type":"string"}},"replication_enabled":{"type":"boolean","description":"Whether replication is enabled for the dataset"},"status":{"oneOf":[{"type":"null"},{"description":"Optional status of the dataset","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing"],"title":"ComponentStatus"}]}},"title":"DatasetResponseItem"},"example":[{"from":"postgres:syncs","name":"daily_journal_accelerated","replication_enabled":false,"acceleration_enabled":true},{"from":"databricks:hive_metastore.default.messages","name":"messages_accelerated","replication_enabled":false,"acceleration_enabled":true},{"from":"postgres:aidemo_messages","name":"general","replication_enabled":false,"acceleration_enabled":false}]},"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name,replication_enabled,acceleration_enabled\npostgres:syncs,daily_journal_accelerated,false,true\ndatabricks:hive_metastore.default.messages,messages_accelerated,false,true\npostgres:aidemo_messages,general,false,false\n"}}},"500":{"description":"Internal server error occurred while processing datasets","content":{"text/plain":{"schema":{"type":"string"},"example":"An unexpected error occurred while processing datasets"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

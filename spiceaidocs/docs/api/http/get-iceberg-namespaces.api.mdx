@@ -1,0 +1,72 @@
+---
+id: get-iceberg-namespaces
+title: "Get a list of namespaces."
+description: "This endpoint retrieves namespaces available in the Iceberg catalog."
+sidebar_label: "Get a list of namespaces."
+hide_title: true
+hide_table_of_contents: true
+api: eJztV0tvGjEQ/iuWzwTI68ItbR7lUCIl5EQRMbuzrFOvvbG9JBHiv3dm34RVUqmVqkY5ATPj8ffNjO2PDfdi5fhoxscBLMGu+LzHQ3CBlamXRvMRn8bSMdBhaqT2zIK3EtbgmBYJuFQE+FWshVRiqYBJzXwMrEzGAuGFMqv+Dz2OmGD3qbCg/X2zlmHu1Jq1DCHsMenZk1SKKel8nieIpQrbO2U6BJu7XAqBjCSErEja5z1uUrCCYI9DBL4Cv5AFkEWTAsNwAf70YIn4hpMPw4s06JbE+jED+8L3awHldi0KkTUJe4plEDNv6gLtYSeAFh4zaQHRRUI56HEXxJAIPtpw/5ISCrN8gMDvhM4ImnfUGSwVUvQSaeCSwtysFdYKwiw9JG27Q0R6xbfbbY976RXZJhUuNM9pN5ca7Yq8R8MhfexSnzRNqCiGzGUBGlyUKUUbB0Z7qiEuFmmqZJA3Y/DgKMPmN8m2WrXHuOV7n/a/KGWX2d2UxeXohWeRpOTfJTOrIcx4eWgWgs+3vQ77kldzszjEkPk23/akq2lfRMiIPTj/t9oD1hq7X8DC/M5a5OvECtCaRxGiEPZz5dYmFV47sAKL4ZGxifCF6fgIDYnUMskSPhpiBars+90q99tzYDs0rZ7xibnNgrhu2cVzAEUNe1TDm6KEbesYQVkt1C3YNdiLqihV88sLMLdPac/2ZLSdXY5qXsqAnaGp61yzRShroWTrqmm1vOTbzaGoMw7OthqhkzfOPdPGs8jgDfw5Sh91lJpmV48yCw299dh6eJbtkXqDZjVXJ+VcnXZdTRVr5nLarEDzOVkfdLLqdhdYWL5sxM4vF7dfv118P1tMrqeLy+u7yXkzYl3wq+k6LW+tvKQ+NqXgy9Wdj/HHYH04KNXfYEf9SR2ZvMolH5tpLxPo1HouxRT4hNYhOI9AL/molo1nmDeGg6P+kHKHOLqkSu2uB1EiA1ckPuwP+8MDG/SPyZ4a5xOhWxmvwKNWzjWwiV4JyB2Im+aw/E8qveyuh2c/SJVAuY1lyKwqdBg1b8bXh1TN8i9J75UmjLFkFLTZLIWDO6u2WzIXkp2kVCgd8Wxk9htl+zNB38nlJ7y0/0/g65xRECehvRZWEjbEieqOxyBCGhYEXaw6C+j4tlbtXYKUpR75q4spHs5f0WLKWA==
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a list of namespaces."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/iceberg/namespaces"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint retrieves namespaces available in the Iceberg catalog.
+If a `parent` namespace is provided, it will list the child namespaces under the specified parent.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"parent","in":"query","description":"The parent namespace from which to retrieve child namespaces.","required":false,"schema":{"type":"object","required":["parts"],"properties":{"parts":{"type":"array","items":{"type":"string"}}},"title":"Namespace"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Namespaces retrieved successfully","content":{"application/json":{"schema":{"type":"object","required":["namespaces"],"properties":{"namespaces":{"type":"array","items":{"type":"object","required":["parts"],"properties":{"parts":{"type":"array","items":{"type":"string"}}},"title":"Namespace"}}},"title":"NamespacesResponse"},"example":{"namespaces":[{"parts":["catalog_a"]},{"parts":["catalog_b","schema_1"]}]}}}},"400":{"description":"Bad request","content":{"application/json":{"schema":{"type":"object","required":["error"],"properties":{"error":{"type":"object","required":["message","type","code"],"properties":{"code":{"type":"integer","format":"int32","minimum":0},"message":{"type":"string"},"type":{"type":"string","enum":["NoSuchNamespaceException","BadRequestException","InternalServerError"],"title":"IcebergErrorType"}},"title":"IcebergError"}},"title":"IcebergResponseError"},"example":{"error":{"message":"Invalid namespace request","type":"BadRequestException","code":400}}}}},"404":{"description":"Namespace not found","content":{"application/json":{"schema":{"type":"object","required":["error"],"properties":{"error":{"type":"object","required":["message","type","code"],"properties":{"code":{"type":"integer","format":"int32","minimum":0},"message":{"type":"string"},"type":{"type":"string","enum":["NoSuchNamespaceException","BadRequestException","InternalServerError"],"title":"IcebergErrorType"}},"title":"IcebergError"}},"title":"IcebergResponseError"},"example":{"error":{"message":"Namespace provided does not exist","type":"NoSuchNamespaceException","code":404}}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"type":"object","required":["error"],"properties":{"error":{"type":"object","required":["message","type","code"],"properties":{"code":{"type":"integer","format":"int32","minimum":0},"message":{"type":"string"},"type":{"type":"string","enum":["NoSuchNamespaceException","BadRequestException","InternalServerError"],"title":"IcebergErrorType"}},"title":"IcebergError"}},"title":"IcebergResponseError"},"example":{"error":{"message":"Internal Server Error: DF_SCHEMA_NOT_FOUND","type":"InternalServerError","code":500}}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

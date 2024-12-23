@@ -1,0 +1,74 @@
+---
+id: patch-dataset-acceleration
+title: "Update the refresh SQL for a dataset's acceleration."
+description: "This endpoint allows for updating the `refresh_sql` parameter for a dataset's acceleration at runtime."
+sidebar_label: "Update the refresh SQL for a dataset's acceleration."
+hide_title: true
+hide_table_of_contents: true
+api: eJzlVk2P2zYQ/SsEL20Nr+xNk4sPBbYbFymQoK3joAdn4dDSaMWEIhmSWscQ9N87Q31Y/sCiRW/tHrySOBw+vvdmyJoH8ej5YsNfiyA8BM8fpjwDnzppgzSaL/i6kJ6BzqyROjChlNl7lhvHKpuJIPUjCwWwTw5yB77Y+q/qE7PCiRICuBgoWNZm/84zkaagwAlKzkRgrtJBlpB81GvMkhZCPwLDBSeTAKU1TrjDZMKEztheKsUcPIELLJh2UW9lCtZkyaHEVTPIpZZ9ZgrQ8G1YAuf6IFzApT5qPuXGdjB+zXCXVoS02HY4t2OUGDpsh6iqucYXnBL/TbnU7fSCXzKHCDCImTyi6bIT+sgdJDjFwddKOkAMwVUw5T4toBR8UfNwsLSMDw5J5k3z0AbjLn422YEiLpdr82bs/R9vGe4WOQQUjUQYAUAZOrUIQGp0wCDKJ6xVMo27nn32lLS+xGN2nyENxIojCoMET6Mj/Y/Bmx79lOtKqUtzneKsPELvwfYQ2WvIRaWCH1Q/sZq3kMpc4kSp4/DgCaRsyoMMilDfjRRdtSxyHIZvorQUcLYB/n75dnm/ZhP2y+q3dwxCsXWQIsbtTpn0i2d/vlmuliy+bHVV7tDqP7Hb+RwXbc5FjR+8Ndq3VL3AsKvqdRCienvhBzV9hei9z5HCQ0KwX85fXs9wZKM3G+XRhjxQ6ezfyH3c04aXiEY8Aul56oJ+4MK+12qjC2btyK5vJUgByt0XjevFGon5rp246kg9E3LA0De1K/IdGWmiYK+uSXKn0VNY9Voo5sFh52HgHNrTpGnlkAq2L6SC00Y40vB/xnZXViwXSEqWsH9M34i6JOqCK2HbLczQoGMvxk674LOn21lncT+rqcs2s7OuTSSvjg1zOWBuqGnnJtLW7bE7I64SFxtKxo4hKCMQEYvhKLizApW8eZHM6UDIUHEqQnc6gssiB75NfJvMk/mNS5Mf6bs1PpRCjzJ+iKV/7qhnj9PkHH19tN9/9hTvfB8wZGaVwMMY6axcPINaq2z40y0x019wpnzRndwnfsHiKlAFiq/rHYZ+cKpp6DM6yOFxu8HHJ+Gk2JFj8BqQSU/PaM5cKA/PkP/9qqvmH9jfuhNc3VT3UegDJyCqojd8/AKH/jLSPGBcASIj6yHCdui+xXGzpgTHqRf9qJn2M+iwtOHZ2IdRaf5+t75/g9G77lpSmizWlNhTI8PfiNNEYtq7An2ruUKbVG3vaJPS319gnLYv
+sidebar_class_name: "patch api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update the refresh SQL for a dataset's acceleration."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"/v1/datasets/{name}/acceleration"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint allows for updating the `refresh_sql` parameter for a dataset's acceleration at runtime.
+The change is **temporary** and will revert to the `spicepod.yml` definition at the next runtime restart.
+
+
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"The name of the dataset to update.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"The updated SQL statement for the dataset's refresh.","content":{"application/json":{"schema":{"type":"object","properties":{"refresh_sql":{"type":["string","null"],"description":"SQL statement used for the refresh. Defaults to the `refresh_sql` specified in the spicepod."}},"title":"AccelerationRequest"},"example":{"refresh_sql":"SELECT * FROM eth_recent_blocks WHERE block_number > 100"}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"The refresh SQL was updated successfully."},"404":{"description":"The specified dataset was not found","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset eth_recent_blocks not found"}}}},"500":{"description":"An internal server error occurred while updating the refresh SQL","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Request failed. An internal server error occurred while updating refresh SQL."}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

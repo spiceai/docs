@@ -1,0 +1,71 @@
+---
+id: get-models
+title: "Get a list of models"
+description: "Get a list of models"
+sidebar_label: "Get a list of models"
+hide_title: true
+hide_table_of_contents: true
+api: eJylVk2PGzcM/SuCTgmgeL1b9OLbok0DB20D5ONkG2tZQ+8o0UgTSeONa/i/l5Tmc9cJFsnJI4l6fCQfKZ94lPeBL1b8dsk3grsavIza2WXBF/we4l3lCjCBC15LLyuI4Mn8xC0u0GTvfCUjHmuLq68N+CMuCgjK65qAcPdjCSzbMbdnEVceQu1sAPYCZvczwbafg7Nb5jzbqnDYvpwhhoevjfaAPPbSBBA8qBIqyRcnHo81+Q7Ra3uPpmCbimIgFFwiBMUSdTRk9lemeD6LnnWIMjbhx6yXSNU3IJi2yjR4lpjnmxQHSFWylB20mET1PPY75wxIi7w2ZJ6vBjK4mc/pZ0rnbx1S+nI9yOXbD+/+ZX3+lbMRbKSLsq6NVqmMVykluPfEvdt9BhUnTFc5PYLvvasog7UnPUSdaRUyygAxDCArLr2XlDrbGEM3dIQqPC3R+ZIkOjwmQ3BKywgFe9CxxFzqkOPE5O+ZtEcCSKQuFP8pcHCNVyg5vMAeSq3KVJ1cqgcZmHGyQF+d9jBGK/UWv0KtFeDnS/KXpfIcf2TZKTt5oeutxBDAWXi3Tz3TQqVkkRovUO/lNVDueHqQxZFoaqujlkb/h4RoDd47j6TFdxtjObqB2+8JCX//1EHuDJZe8NeEkY72qMWS7EYt9IerUJ4orw85qvMGu6k//Ydovm8VTLHDN1nVdDTMiXYrj5O7605kC56zT3nt5bXqvu/ksH+3I0JdVnlKBh+19NTBzeCgLerEA1VgBDZOKMWGocG3eEVz5FLrDKLuA+VrSzwE+RSdH5EdrO2j4EWOWaz5ar1eD8HSQrDx1o4WG9xN4T4GuhFtbEKMI1jTTEFyv18aI0ucEt5KwwL4A3iWtMOcUo331H+lNsCw7xWEgFisH//PnS/jrJx4gke3t3XNrIus54miO58TzSm/NxCZZGYy7NA7Pjyla5+k9BbFEhdXh+ur3kTbvUtFalXpGxt1GmcX2ozyVrDBBOMBEu+i19NtjfMdXt3M5oRdYOh6r8FPT5A+JjFk4OvZfDZ/5dXsN9qvXYiVtCPE74Q2YddrLAmwNhIfKARrvKGzHPaKH6h/WgBsihJd0fbptEPVfPLmfKbt/KxRDxZdn3eP0SOffW1/8qm+yPkLHMf/Dw7SNGSUB9+zCf3aK/wDYv1fgIHYhhZeEzNMG42BEtuOao45zLdulYJ6HM6TXiCUXq1vXn9Emf8P72M46A==
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a list of models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/models"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Get a list of models
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"format","in":"query","description":"The format of the response (e.g., `json` or `csv`).","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}},{"name":"status","in":"query","description":"If true, includes the status of each model in the response.","required":false,"schema":{"type":"boolean"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of models in JSON format","content":{"application/json":{"schema":{"type":"object","required":["name","from"],"properties":{"datasets":{"type":["array","null"],"items":{"type":"string"},"description":"The datasets associated with this model, if any"},"from":{"type":"string","description":"The source from which the model was loaded (e.g., `openai`, `spiceai`)"},"name":{"type":"string","description":"The name of the model"},"status":{"oneOf":[{"type":"null"},{"description":"The status of the model (e.g., `ready`, `initializing`, `error`)","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing"],"title":"ComponentStatus"}]}},"title":"ModelResponse"},"example":[{"name":"example_model_1","from":"openai","datasets":["dataset_a","dataset_b"],"status":"ready"},{"name":"example_model_2","from":"spiceai","datasets":null,"status":"initializing"}]},"text/csv":{"schema":{"type":"string"},"example":"\nname,from,datasets,status\nexample_model_1,openai,\"[\\\"dataset_a\\\", \\\"dataset_b\\\"]\",ready\nexample_model_2,spiceai,,initializing\n"}}},"500":{"description":"Internal server error occurred while processing models","content":{"application/json":{"schema":{},"example":{"error":"App not initialized"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      
