@@ -51,7 +51,7 @@ models:
 - `list_datasets`: List all available datasets in the runtime.
 - `sql`: Execute SQL queries on the runtime.
 - `table_schema`: Get the schema of a specific SQL table.
-- `document_similarity`: For datasets with an embedding column, retrieve documents based on an input query. It is equivalent to [/v1/search](/api/http/search).
+- `document_similarity`: For datasets with an embedding column, retrieve documents based on an input query. It is equivalent to [/v1/search](/api/http/post-search).
 - `sample_distinct_columns`: For a dataset, generate a synthetic sample of data whereby each column has at least a number of distinct values.
 - `random_sample`: Sample random rows from a table.
 - `top_n_sample`: Sample the top N rows from a table based on a specified ordering.

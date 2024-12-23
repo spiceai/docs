@@ -1,0 +1,63 @@
+---
+id: ready
+title: "Check the runtime status of all the components of the runtime."
+description: "This endpoint returns the readiness status of the service. If the service is ready, it returns an HTTP 200 status with the message 'ready'. If not, it returns a 503 status with the message 'not ready'."
+sidebar_label: "Check the runtime status of all the components of the runtime."
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVD1P5DAQ/SuW6yWbBV1DhxA66BC3Vy1bDM7s2iKxjT3JEUX574yd/T6J5rqrEj/Pe/P1kkESbKO8XckXhKqX65msMKpgPBln5a1cahMF2so7Y0kEpDbYKEgjv0NlLMYoIgG1UbhNxiOGzigsxNPZWbBOovQzYY5CYMXjcvksrstyL/PHkM7EhrVhi+JVZt6rzJLW0bmC+FHefMPleLHny5l0HgOk3p4q7i5fMBowemcj8iQGybWkx/kcfl10wSTlLKGlFEv4SXNfg7HpFJXGBjLee2RypGDsVo4ziZ/Q+BoPqceRQW7g24SHFv456VFpzJkbJO3SILZILO6BNB/m3WK+z2fsxmVRQ1PZrSXToPzbJ7xpzwVX4hhS85mnmvgWmkS/88B1Xl0XZdKuuBOzMRjOb7iwDkOchBdFWZRXQRU3CfcuUgP2RPFeo3qfDDnlPbEj1HW+Ua7h9XKyg0l3scVlH8NxwP+d9Xe+OLEND7QNdep62vxKdov8Nex+BZqnndBheIOIv0M9jgn+aDH0jPNrB8HAW3LGas1qmplpm6tBvmOftqoU+mStDur2Mvv6xIA/H5bsyS8+to1j
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check the runtime status of all the components of the runtime."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/ready"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns the readiness status of the service. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Service is ready","content":{"text/plain":{"schema":{"type":"string"},"example":"ready"}}},"503":{"description":"Service is not ready","content":{"text/plain":{"schema":{"type":"string"},"example":"not ready"}}}}}
+>
+  
+</StatusCodes>
+
+
+      
