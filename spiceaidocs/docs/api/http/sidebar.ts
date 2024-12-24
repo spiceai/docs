@@ -103,19 +103,19 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/http/get-config",
-          label: "Get Iceberg API config.",
+          label: "Get Iceberg API config",
           className: "api-method get",
         },
         {
           type: "doc",
           id: "api/http/get-iceberg-namespaces",
-          label: "List Iceberge namespaces.",
+          label: "List Iceberg namespaces",
           className: "api-method get",
         },
         {
           type: "doc",
           id: "api/http/head-namespace",
-          label: "Check Namespace exists.",
+          label: "Check Namespace exists",
           className: "api-method head",
         },
       ],
@@ -151,7 +151,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/http/generate-package",
-          label: "Zip Github source.",
+          label: "Zip Github source",
           className: "api-method post",
         },
         {
@@ -175,7 +175,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/http/ready",
-          label: "Ready Check",
+          label: "Check Readiness",
           className: "api-method get",
         },
       ],
@@ -193,7 +193,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/http/post",
-          label: "Run tool.",
+          label: "Run Tool",
           className: "api-method post",
         },
       ],

@@ -22,7 +22,10 @@ jobs:
         run: npm ci
 
       - name: Generate API docs
-        run: npm run docusaurus gen-api-docs all
+        working-directory: spiceaidocs
+        run: |
+          rm docs/api/http/*
+          npm run docusaurus gen-api-docs all
 
       - name: Check for new or modified .mdx files
         run: |
