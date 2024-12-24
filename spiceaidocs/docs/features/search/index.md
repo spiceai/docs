@@ -72,27 +72,7 @@ curl -XPOST http://localhost:8090/v1/search \
 
 For more details, see the [API reference for /v1/search](/api/http/search).
 
-Spice also supports vector search on datasets with preexisting embeddings. See [below](#preexisting-embeddings) for compatibility details.
-
-### Chunking Support
-
-Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
-
-```yaml
-datasets:
-  - from: github:github.com/spiceai/spiceai/issues
-    name: spiceai.issues
-    acceleration:
-      enabled: true
-    embeddings:
-      - column: body
-        from: local_embedding_model
-        chunking:
-          enabled: true
-          target_chunk_size: 512
-```
-
-The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences).
+Spice also supports vector search on datasets with preexisting embeddings. See [below](/features/embeddings#passthrough-embeddings) for compatibility details.
 
 ### Document Retrieval
 
@@ -156,7 +136,7 @@ Datasets that already include embeddings can utilize the same functionalities (e
 
    - The embeddings column must have the following [Arrow data type](reference/datatypes.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](#chunking-support), use `List[FixedSizeList[Float32 or Float64, N]]`.
+     2. If the column is [**chunked**](/features/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
 4. **Offset Column for Chunked Data:**
    - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
