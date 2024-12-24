@@ -39,4 +39,4 @@ datasets:
 
 ## Cookbook
 
-- A cookbook recipe to configure Localpod as a data connector in Spice. [Local dataset replication (Localpod) recipe](https://github.com/spiceai/cookbook/tree/trunk/localpod#readme)
+- A cookbook recipe to configure Localpod as a data connector in Spice. [Local dataset replication (Localpod)](https://github.com/spiceai/cookbook/tree/trunk/localpod#readme)
