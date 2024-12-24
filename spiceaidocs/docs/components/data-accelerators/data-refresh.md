@@ -85,11 +85,11 @@ Typically only a working subset of an entire dataset is used in an application o
 
 ### Refresh SQL
 
-|                             |           |
-| --------------------------- | --------- |
-| Supported in `refresh_mode` | Any       |
-| Required                    | No        |
-| Default Value               | Unset     |
+|                             |       |
+| --------------------------- | ----- |
+| Supported in `refresh_mode` | Any   |
+| Required                    | No    |
+| Default Value               | Unset |
 
 Refresh SQL supports specifying filters for data accelerated from the connected source using arbitrary SQL.
 
@@ -158,7 +158,7 @@ In this example, `refresh_data_window` is converted into an effective Refresh SQ
 
 This parameter relies on the `time_column` dataset parameter specifying a column that is a timestamp type. Optionally, the `time_format` can be specified to instruct the Spice runtime on how to interpret timestamps in the `time_column`.
 
-*Example with `refresh_sql`:*
+_Example with `refresh_sql`:_
 
 ```yaml
 datasets:
@@ -176,7 +176,7 @@ datasets:
 
 This example will only accelerate data from the federated source that matches the filter `city = 'Seattle'` and is less than 1 day old.
 
-*Example with `on_zero_results`:*
+_Example with `on_zero_results`:_
 
 ```yaml
 datasets:
@@ -446,7 +446,13 @@ This acceleration configuration applies a number of different behaviors:
 1. A `refresh_data_window` was specified. When Spice starts, it will apply this `refresh_data_window` to the `refresh_sql`, and retrieve only the last day's worth of logs with an `asset = 'asset_id'`.
 2. Because a `refresh_sql` is specified, every refresh (including initial load) will have the filter applied to the refresh query.
 3. 10 minutes after loading, as specified by the `refresh_check_interval`, the first refresh will occur - retrieving new rows where `asset = 'asset_id'`.
-4. Running a query to retrieve logs with an `asset` that is *not* `asset_id` will fall back to the source, because of the `on_zero_results: use_source` parameter.
+4. Running a query to retrieve logs with an `asset` that is _not_ `asset_id` will fall back to the source, because of the `on_zero_results: use_source` parameter.
 5. Running a query to retrieve a log longer than 1 day ago will fall back to the source, because of the `on_zero_results: use_source` parameter.
 6. Running a query to retrieve logs within a range of now to longer than 1 day ago will only return logs from the last day. This is due to the `refresh_data_window` only accelerating the last day's worth of logs, which will return some results. Because results are returned, Spice will not fall back to the source even though `on_zero_results: use_source` is specified.
 7. Spice will retain newly appended log rows for 7 days before discarding them, as specified by the `retention_*` parameters.
+
+## Cookbook
+
+- Configure accelerated dataset retention policy. [Accelerated Dataset Retention Policy](https://github.com/spiceai/cookbook/tree/trunk/retention#readme)
+- Dynamically refresh specific data at runtime by programmatically updating refresh_sql and triggering data refreshes. [Advanced Data Refresh](https://github.com/spiceai/cookbook/tree/trunk/acceleration/data-refresh#readme)
+- Configure `refresh_data_window` to filter refreshed data to recent data [Refresh Data Window](https://github.com/spiceai/cookbook/tree/trunk/refresh-data-window#readme)

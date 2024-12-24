@@ -5,7 +5,7 @@ description: 'Delta Lake Data Connector Documentation'
 pagination_prev: null
 ---
 
-Query/accelerate [Delta Lake](https://delta.io/) tables in Spice.
+Delta Lake data connector connector enables SQL queries from [Delta Lake](https://delta.io/) tables.
 
 ```yaml
 datasets:
@@ -27,12 +27,12 @@ The `from` field for the Delta Lake connector takes the form of `delta_lake:path
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: delta_lake:s3://my_bucket/path/to/s3/delta/table/
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -71,10 +71,10 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 :::info Note
 **One** of the following auth values must be provided for Azure Blob:
 
-- `delta_lake_azure_storage_account_key`, 
-- `delta_lake_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `delta_lake_azure_storage_account_key`,
+- `delta_lake_azure_storage_client_id` and `azure_storage_client_secret`, or
 - `delta_lake_azure_storage_sas_key`.
-:::
+  :::
 
 | Parameter Name                           | Description                                                            |
 | ---------------------------------------- | ---------------------------------------------------------------------- |
@@ -96,45 +96,45 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 ### Delta Lake + Local
 
 ```yaml
-  - from: delta_lake:/path/to/local/delta/table  # A local filesystem path to a Delta Lake table
-    name: my_delta_lake_table
+- from: delta_lake:/path/to/local/delta/table # A local filesystem path to a Delta Lake table
+  name: my_delta_lake_table
 ```
 
 ### Delta Lake + S3
 
 ```yaml
-  - from: delta_lake:s3://my_bucket/path/to/s3/delta/table/  # A reference to a table in S3
-    name: my_delta_lake_table
-    params:
-      delta_lake_aws_region: us-west-2 # Optional
-      delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
-      delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
-      delta_lake_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
+- from: delta_lake:s3://my_bucket/path/to/s3/delta/table/ # A reference to a table in S3
+  name: my_delta_lake_table
+  params:
+    delta_lake_aws_region: us-west-2 # Optional
+    delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
+    delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
+    delta_lake_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
 ```
 
 ### Delta Lake + Azure Blob
 
 ```yaml
-  - from: delta_lake:abfss://my_container@my_account.dfs.core.windows.net/path/to/azure/delta/table/  # A reference to a table in Azure Blob
-    name: my_delta_lake_table
-    params:
-      # Account Name + Key
-      delta_lake_azure_storage_account_name: my_account
-      delta_lake_azure_storage_account_key: ${secrets:my_key}
+- from: delta_lake:abfss://my_container@my_account.dfs.core.windows.net/path/to/azure/delta/table/ # A reference to a table in Azure Blob
+  name: my_delta_lake_table
+  params:
+    # Account Name + Key
+    delta_lake_azure_storage_account_name: my_account
+    delta_lake_azure_storage_account_key: ${secrets:my_key}
 
-      # OR Service Principal + Secret
-      delta_lake_azure_storage_client_id: my_client_id
-      delta_lake_azure_storage_client_secret: ${secrets:my_secret}
+    # OR Service Principal + Secret
+    delta_lake_azure_storage_client_id: my_client_id
+    delta_lake_azure_storage_client_secret: ${secrets:my_secret}
 
-      # OR SAS Key
-      delta_lake_azure_storage_sas_key: my_sas_key
+    # OR SAS Key
+    delta_lake_azure_storage_sas_key: my_sas_key
 ```
 
 ### Delta Lake + Google Storage
 
 ```yaml
-    params:
-      delta_lake_google_service_account_path: /path/to/service-account.json
+params:
+  delta_lake_google_service_account_path: /path/to/service-account.json
 ```
 
 ## Secrets

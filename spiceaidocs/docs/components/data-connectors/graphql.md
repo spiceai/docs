@@ -4,7 +4,6 @@ sidebar_label: 'GraphQL Data Connector'
 description: 'GraphQL Data Connector Documentation'
 ---
 
-
 The [GraphQL](https://graphql.org/) Data Connector enables federated SQL queries on any GraphQL endpoint by specifying `graphql` as the selector in the `from` value for the dataset.
 
 ```yaml
@@ -33,13 +32,28 @@ datasets:
 
 ## Configuration
 
+### `from`
+
+The `from` field takes the form of `graphql:your-graphql-endpoint`.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+### `params`
+
 The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
 
-- `unnest_depth`: Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.
-- `graphql_auth_token`: The authentication token to use to connect to the GraphQL server. Uses bearer authentication.
-- `graphql_auth_user`: The username to use for basic auth. E.g. `graphql_auth_user: my_user`
-- `graphql_auth_pass`: The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`
-- `graphql_query`: The GraphQL query to execute. E.g.
+| Parameter Name       | Description                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unnest_depth`       | Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.                                                                                     |
+| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication.                                                                                   |
+| `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           |
+| `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   |
+| `graphql_query`      | The username to use for basic auth. See [examples](#examples) for a sample GraphQL query                                                                                        |
+| `json_pointer`       | The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred. |
+
+#### GraphQL Query Example
 
 ```yaml
 query: |
@@ -52,8 +66,6 @@ query: |
     }
   }
 ```
-
-- `json_pointer`: The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred.
 
 ### Examples
 
@@ -83,7 +95,6 @@ params:
         }
       }
     }
-
 ```
 
 ## Pagination
@@ -308,3 +319,7 @@ params:
       }
     }
 ```
+
+## Cookbook
+
+- A cookbook recipe to configure GraphQL as a data connector in Spice. [GraphQL Data Connector](https://github.com/spiceai/cookbook/tree/trunk/graphql#readme)

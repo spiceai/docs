@@ -11,7 +11,7 @@ pagination_next: null
 
 ## Pre-requisites
 
-A valid TLS certificate and private key in [PEM](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) format are required. To generate certificates for testing, follow the [TLS Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/tls).
+A valid TLS certificate and private key in [PEM](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) format are required. To generate certificates for testing, follow the [TLS Cookbook](https://github.com/spiceai/cookbook/tree/trunk/tls).
 
 ## Enable TLS via command line arguments
 

@@ -32,12 +32,12 @@ If a folder is provided, all child files will be loaded.
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: sftp://remote-sftp-server.com/path/to/folder/
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -66,6 +66,7 @@ SELECT COUNT(*) FROM cool_dataset;
 | `hive_partitioning_enabled` | Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                          |
 
 #### SFTP
+
 | Parameter Name              | Description                                                                                                                                                                                         |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats). |
@@ -80,32 +81,32 @@ SELECT COUNT(*) FROM cool_dataset;
 ### Connecting to FTP
 
 ```yaml
-  - from: ftp://remote-ftp-server.com/path/to/folder/
-    name: my_dataset
-    params:
-      file_format: csv
-      ftp_user: my-ftp-user
-      ftp_pass: ${secrets:my_ftp_password}
-      hive_partitioning_enabled: false
+- from: ftp://remote-ftp-server.com/path/to/folder/
+  name: my_dataset
+  params:
+    file_format: csv
+    ftp_user: my-ftp-user
+    ftp_pass: ${secrets:my_ftp_password}
+    hive_partitioning_enabled: false
 ```
 
 ### Connecting to SFTP
 
 ```yaml
-  - from: sftp://remote-sftp-server.com/path/to/folder/
-    name: my_dataset
-    params:
-      file_format: csv
-      sftp_port: 22
-      sftp_user: my-sftp-user
-      sftp_pass: ${secrets:my_sftp_password}
-      hive_partitioning_enabled: false
+- from: sftp://remote-sftp-server.com/path/to/folder/
+  name: my_dataset
+  params:
+    file_format: csv
+    sftp_port: 22
+    sftp_user: my-sftp-user
+    sftp_pass: ${secrets:my_sftp_password}
+    hive_partitioning_enabled: false
 ```
-
-## Cookbook
-
-Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.
 
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.

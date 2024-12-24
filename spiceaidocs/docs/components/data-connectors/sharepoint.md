@@ -140,3 +140,11 @@ And set the `SPICE_SHAREPOINT_BEARER_TOKEN` secret via:
 ```shell
 spice login sharepoint --tenant-id $TENANT_ID --client-id f2b3116e-b4c4-464f-80ec-73cd9d9886b4
 ```
+
+## Secrets
+
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure Sharepoint as a data connector in Spice. [SharePoint Data Connector](https://github.com/spiceai/cookbook/tree/trunk/sharepoint#readme)
