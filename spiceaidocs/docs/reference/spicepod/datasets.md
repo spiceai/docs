@@ -501,7 +501,7 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
 Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
 
-## `metdata` {#metadata}
+## `metadata` {#metadata}
 
 Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
 

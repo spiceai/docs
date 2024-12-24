@@ -7,21 +7,21 @@ pagination_prev: null
 pagination_next: null
 ---
 
-# Embedding Datasets
-
 Learn how to define and augment datasets with embedding columns for advanced search capabilities.
 
 ## Overview
 
-Spice supports three methods for working with embedding columns within datasets:
+Spice provides three distinct methods for handling embedding columns in datasets:
 
-1. [**Just-in-Time (JIT) Embeddings**](#jit-embeddings): Computes embeddings for the dataset, on-demand, during query execution.
-2. [**Accelerated Embeddings**](#accelerated-embeddings): Precompute embeddings by accelerating the source dataset.
-3. [**Passthrough Embeddings**](#passthrough-embeddings): Uses the existing embeddings from the underlying source datasets.
+1. **[Just-in-Time (JIT) Embeddings](#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
+   
+2. **[Accelerated Embeddings](#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
+   
+3. **[Passthrough Embeddings](#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
 
-Before configuring dataset embeddings, you must define the embedding models in your `spicepod.yaml`, for example:
+Before configuring dataset embeddings define the embedding models in the `spicepod.yaml`, for example:
 
 ```yaml
 embeddings:
@@ -39,7 +39,7 @@ See [Embedding components](/components/embeddings/) for more information on embe
 ## Embedding Methods
 ### Just-in-Time (JIT) Embeddings {#jit-embeddings}
 
-JIT embeddings are computed during query execution. This is useful when you can't or don't want to pre-compute embeddings (e.g. if the dataset is large, infrequently queried, has heavy prefiltering). To add an embedding column, specify it within the dataset's column.
+JIT embeddings are computed during query execution. This is useful when pre-computing embeddings is infeasible (e.g. if the dataset is large, infrequently queried, has heavy prefiltering). To add an embedding column, specify it within the dataset's column.
 
 ```yaml
 datasets:
@@ -182,7 +182,7 @@ To ensure compatibility, these table columns must adhere to the following constr
      1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
      - _For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively._
 
-By following these guidelines, you can ensure that your dataset with pre-existing embeddings is fully compatible with embedding functionalities provided by Spice.
+Following these guidelines ensures that the dataset with pre-existing embeddings is fully compatible with embedding functionalities provided by Spice.
 
 ## Advanced Configuration
 ### Chunking
@@ -209,6 +209,7 @@ The `body` column will be divided into chunks of approximately 512 tokens, while
 #### Row Identifiers
 
 Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/api/http/search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
+
 ```yaml
 datasets:
   - from: github:github.com/spiceai/spiceai/issues
