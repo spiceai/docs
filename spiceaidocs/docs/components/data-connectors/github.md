@@ -159,7 +159,7 @@ datasets:
 #### Schema
 
 | Column Name     | Data Type    | Is Nullable |
-| --------------- | ------------ | ----------- |
+|-----------------|--------------|-------------|
 | assignees       | List(Utf8)   | YES         |
 | author          | Utf8         | YES         |
 | body            | Utf8         | YES         |
