@@ -1,7 +1,7 @@
 ---
 title: 'Spice as a CDN for Databases'
 sidebar_label: 'CDN for Databases'
-sidebar_position: 1
+sidebar_position: 2
 description: Use Spice as a CDN for Databases
 pagination_prev: null
 pagination_next: null
