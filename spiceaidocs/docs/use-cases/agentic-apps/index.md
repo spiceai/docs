@@ -1,13 +1,11 @@
 ---
-title: 'Agentic AI Applications'
+title: 'Using Spice.ai for Agentic AI Applications'
 sidebar_label: 'Agentic AI Apps'
 sidebar_position: 1
 description: 'Build intelligent autonomous agents that act contextually by grounding AI models in secure, full-knowledge datasets with fast, iterative feedback loops.'
 pagination_prev: null
 pagination_next: null
 ---
-
-## Using Spice.ai for Agentic AI Applications
 
 Spice.ai helps in building intelligent autonomous agents by leveraging several key features:
 
