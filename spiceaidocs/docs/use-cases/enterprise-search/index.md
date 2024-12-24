@@ -1,7 +1,7 @@
 ---
 title: 'Spice for Enterprise Search'
 sidebar_label: 'Enterprise Search'
-sidebar_position: 3
+sidebar_position: 4
 description: Use Spice for Enterprise Search
 pagination_prev: null
 pagination_next: null
