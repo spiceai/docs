@@ -141,4 +141,4 @@ SELECT * FROM read_json('todos.json');
 
 ## Cookbook
 
-- A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)
+- A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)

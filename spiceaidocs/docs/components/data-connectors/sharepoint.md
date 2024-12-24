@@ -147,4 +147,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure Sharepoint as a data connector in Spice. [SharePoint Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/sharepoint#readme)
+- A cookbook recipe to configure Sharepoint as a data connector in Spice. [SharePoint Data Connector](https://github.com/spiceai/cookbook/tree/trunk/sharepoint#readme)

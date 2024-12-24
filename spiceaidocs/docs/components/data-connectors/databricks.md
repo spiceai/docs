@@ -194,4 +194,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure Databricks as data connector in Spice under `delta_lake` mode. [Spice on Databricks (mode: delta_lake) Recipe](https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake#readme)
+- A cookbook recipe to configure Databricks as data connector in Spice under `delta_lake` mode. [Spice on Databricks (mode: delta_lake)](https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake#readme)

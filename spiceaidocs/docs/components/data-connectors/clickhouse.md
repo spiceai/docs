@@ -103,4 +103,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure ClickHouse as data connector in Spice. [Clickhouse Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/clickhouse#readme)
+- A cookbook recipe to configure ClickHouse as data connector in Spice. [Clickhouse Data Connector](https://github.com/spiceai/cookbook/tree/trunk/clickhouse#readme)

@@ -411,4 +411,4 @@ Time: 0.0088075 seconds. 10 rows.
 
 ## Cookbook
 
-- A cookbook recipe to configure Github as a data connector in Spice. [GitHub Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/github#readme)
+- A cookbook recipe to configure Github as a data connector in Spice. [GitHub Data Connector](https://github.com/spiceai/cookbook/tree/trunk/github#readme)

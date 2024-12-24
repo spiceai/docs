@@ -322,4 +322,4 @@ params:
 
 ## Cookbook
 
-- A cookbook recipe to configure GraphQL as a data connector in Spice. [GraphQL Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/graphql#readme)
+- A cookbook recipe to configure GraphQL as a data connector in Spice. [GraphQL Data Connector](https://github.com/spiceai/cookbook/tree/trunk/graphql#readme)

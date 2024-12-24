@@ -47,4 +47,4 @@ The Spice.ai Cloud Platform dataset URI. To query a dataset in a public Spice.ai
 
 ## Cookbook
 
-- A cookbook recipe to configure Spice.ai Cloud Platform as a data connector in Spice. [Spice.ai Cloud Platform Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme)
+- A cookbook recipe to configure Spice.ai Cloud Platform as a data connector in Spice. [Spice.ai Cloud Platform Data Connector](https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme)

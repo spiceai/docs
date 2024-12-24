@@ -188,6 +188,6 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure MySQL as a data connector in Spice. [MySQL Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/connector#readme)
-- A cookbook recipe to configure AWS RDS Aurora (MySQL Compatible) as a data connector in Spice. [AWS RDS Aurora (MySQL Data Connector) Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme)
-- A cookbook recipe to configure Planetscale as a data connector in Spice. [Planetscale (MySQL Data Connector) Recipe](https://github.com/spiceai/cookbook/tree/trunk/mysql/planetscale#readme)
+- A cookbook recipe to configure MySQL as a data connector in Spice. [MySQL Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mysql/connector#readme)
+- A cookbook recipe to configure AWS RDS Aurora (MySQL Compatible) as a data connector in Spice. [AWS RDS Aurora (MySQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme)
+- A cookbook recipe to configure Planetscale as a data connector in Spice. [Planetscale (MySQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/mysql/planetscale#readme)

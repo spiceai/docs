@@ -28,4 +28,4 @@ embeddings:
 
 ## Cookbook
 
-- A cookbook recipe to provide persistent memory capabilities for language models in Spice. [LLM Memory Recipe](https://github.com/spiceai/cookbook/tree/trunk/llm-memory#readme)
+- A cookbook recipe to provide persistent memory capabilities for language models in Spice. [LLM Memory](https://github.com/spiceai/cookbook/tree/trunk/llm-memory#readme)

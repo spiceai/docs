@@ -325,7 +325,7 @@ datasets:
       odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
 ```
 
-See the [ODBC Cookbook Recipe](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
+See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
 
 ## Secrets
 
@@ -333,4 +333,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure ODBC as a data connector in Spice. [ODBC Data Connector Recipe](https://github.com/spiceai/cookbook/tree/trunk/odbc#readme)
+- A cookbook recipe to configure ODBC as a data connector in Spice. [ODBC Data Connector](https://github.com/spiceai/cookbook/tree/trunk/odbc#readme)
