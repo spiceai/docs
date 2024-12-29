@@ -1,7 +1,7 @@
 ---
 title: 'Spice as a CDN for Databases'
 sidebar_label: 'CDN for Databases'
-sidebar_position: 1
+sidebar_position: 2
 description: Use Spice as a CDN for Databases
 pagination_prev: null
 pagination_next: null
@@ -11,7 +11,7 @@ pagination_next: null
 
 Colocate a local working set of hot data with data applications and frontends to serve more concurrent requests and users with faster page loads and data updates.
 
-[Try the CQRS Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/cqrs#readme)
+[Try the CQRS Cookbook](https://github.com/spiceai/cookbook/tree/trunk/cqrs#readme)
 
 ## Increasing application resilience
 

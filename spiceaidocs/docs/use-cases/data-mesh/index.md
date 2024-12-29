@@ -1,7 +1,7 @@
 ---
 title: 'Spice for SQL Query Mesh/Federation'
 sidebar_label: 'Data Mesh'
-sidebar_position: 2
+sidebar_position: 3
 description: Spice for SQL Query Mesh/Federation
 pagination_prev: null
 pagination_next: null

@@ -18,118 +18,24 @@ Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spic
     flightsql_password: ${secrets:my_flightsql_pass}
 ```
 
-## `params`
+## Configuration
 
-- `flightsql_endpoint`: The Apache Flight endpoint used to connect to the Flight SQL server.
-- `flightsql_username`: Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).
-- `flightsql_password` (optional): The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`.
+### `from`
 
-## Auth Example
+The `from` field takes the form `flightsql:dataset` where `dataset` is the fully qualified name of the dataset to read from.
 
-Check [Secrets Stores](/components/secret-stores) for more details.
+### `name`
 
-<Tabs>
-  <TabItem value="env" label="Env">
+The dataset name. This will be used as the table name within Spice.
 
-    ```bash
-    MY_USERNAME=<flight_username> \
-    MY_PASSWORD=<flight_password> \
-    spice run
-    ```
+### `params`
 
-    `.env`
-    ```bash
-    MY_USERNAME=<flight_username>
-    MY_PASSWORD=<flight_password>
-    ```
+| Parameter name       | Description                                                                                                                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                         |
+| `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                            |
+| `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
 
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
+## Secrets
 
-    secrets:
-      - from: env
-        name: env
-
-    datasets:
-      - from: flightsql:my_catalog.good_schemas.cool_dataset
-        name: cool_dataset
-        params:
-          flightsql_endpoint: http://1.2.3.4:50051
-          flightsql_username: ${env:MY_USERNAME}
-          flightsql_password: ${env:MY_PASSWORD}
-    ```
-
-    Learn more about [Env Secret Store](/components/secret-stores/env).
-
-  </TabItem>
-  <TabItem value="k8s" label="Kubernetes">
-
-    ```bash
-    kubectl create secret generic flightsql \
-      --from-literal=username='<flight_username>' \
-      --from-literal=password='<flight_password>'
-    ```
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: kubernetes:flightsql
-        name: flightsql
-
-    datasets:
-      - from: flightsql:my_catalog.good_schemas.cool_dataset
-        name: cool_dataset
-        params:
-          flightsql_endpoint: http://1.2.3.4:50051
-          flightsql_username: ${flightsql:username}
-          flightsql_password: ${flightsql:password}
-    ```
-
-    Learn more about [Kubernetes Secret Store](/components/secret-stores/kubernetes).
-
-  </TabItem>
-  <TabItem value="keyring" label="Keyring">
-    Add new keychain entries (macOS) for the user and password:
-
-    ```bash
-    # Add Username to keychain
-    security add-generic-password -l "FlightSQL Username" \
-    -a spiced -s spice_flightsql_username \
-    -w <flight_username>
-    # Add Password to keychain
-    security add-generic-password -l "FlightSQL Password" \
-    -a spiced -s spice_flightsql_password \
-    -w <flight_password>
-    ```
-
-
-    `spicepod.yaml`
-    ```yaml
-    version: v1beta1
-    kind: Spicepod
-    name: spice-app
-
-    secrets:
-      - from: keyring
-        name: keyring
-
-    datasets:
-      - from: flightsql:my_catalog.good_schemas.cool_dataset
-        name: cool_dataset
-        params:
-          flightsql_endpoint: http://1.2.3.4:50051
-          flightsql_username: ${keyring:spice_flightsql_username}
-          flightsql_password: ${keyring:spice_flightsql_password}
-    ```
-
-    Learn more about [Keyring Secret Store](/components/secret-stores/keyring).
-
-  </TabItem>
-</Tabs>
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).

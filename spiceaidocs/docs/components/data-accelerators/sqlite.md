@@ -42,7 +42,7 @@ datasets:
 - The SQLite accelerator only supports arrow `List` types of primitive data types; lists with structs are not supported.
 - The SQLite accelerator doesn't support advanced grouping features such as `ROLLUP` and `GROUPING`.
 - In SQLite, `CAST(value AS DECIMAL)` doesn't convert an integer to a floating-point value if the casted value is an integer. Operations like `CAST(1 AS DECIMAL) / CAST(2 AS DECIMAL)` will be treated as integer division, resulting in 0 instead of the expected 0.5.
-Use `FLOAT` to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)`.
+  Use `FLOAT` to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)`.
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
 :::
@@ -54,3 +54,7 @@ When accelerating a dataset using `mode: memory` (the default), some or all of t
 In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure SQLite as a data accelerator in Spice. [SQLite Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/sqlite/accelerator#readme)

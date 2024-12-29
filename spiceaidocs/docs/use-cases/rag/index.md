@@ -1,7 +1,7 @@
 ---
 title: 'Spice for Retrieval-Augmented-Generation (RAG)'
 sidebar_label: 'RAG'
-sidebar_position: 4
+sidebar_position: 5
 description: Use Spice for Retrieval-Augmented-Generation (RAG)
 pagination_prev: null
 pagination_next: null

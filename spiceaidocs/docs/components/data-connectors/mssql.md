@@ -34,12 +34,12 @@ The `from` field takes the form `mssql:database.schema.table` where `database.sc
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: mssql:path.to.my_dataset
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -63,7 +63,7 @@ The data connector supports the following `params`. Use the [secret replacement 
 | `mssql_connection_string`        | The ADO connection string to use to connect to the server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                                                          |
 | `mssql_host`                     | The hostname or IP address of the Microsoft SQL Server instance.                                                                                                                                                                                                                                                                                                            |
 | `mssql_port`                     | (Optional) The port of the Microsoft SQL Server instance. Default value is 1433.                                                                                                                                                                                                                                                                                            |
-| `mssql_database`                 | (Optional) The name of the database to connect to. The default database (`master`) will be used if not specified.                                                                                                                                                                                                                                                                      |
+| `mssql_database`                 | (Optional) The name of the database to connect to. The default database (`master`) will be used if not specified.                                                                                                                                                                                                                                                           |
 | `mssql_username`                 | The username for the SQL Server authentication.                                                                                                                                                                                                                                                                                                                             |
 | `mssql_password`                 | The password for the SQL Server authentication.                                                                                                                                                                                                                                                                                                                             |
 | `mssql_encrypt`                  | (Optional) Specifies whether encryption is required for the connection.<br /> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it. Only the login procedure is encrypted.</li></ul> |
@@ -87,3 +87,7 @@ datasets:
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure Microsoft SQL Server as a data connector in Spice. [MSSQL (Microsoft SQL Server) Connector](https://github.com/spiceai/cookbook/tree/trunk/mssql#readme)

@@ -12,8 +12,7 @@ The PostgreSQL Server Data Connector enables federated/accelerated SQL queries o
 datasets:
   - from: postgres:my_table
     name: my_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ## Configuration
@@ -28,8 +27,7 @@ The fully-qualified table name (`database.schema.table`) can also be used in the
 datasets:
   - from: postgres:my_database.my_schema.my_table
     name: my_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ### `name`
@@ -37,12 +35,12 @@ datasets:
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: postgres:my_database.my_schema.my_table
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -78,40 +76,40 @@ The connection to PostgreSQL can be configured by providing the following `param
 
 The table below shows the PostgreSQL data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| PostgreSQL Type   | Arrow Type                                      |
-| ----------------- | ----------------------------------------------- |
-| `int2`            | `Int16`                                         |
-| `int4`            | `Int32`                                         |
-| `int8`            | `Int64`                                         |
-| `money`           | `Int64`                                         |
-| `float4`          | `Float32`                                       |
-| `float8`          | `Float64`                                       |
-| `numeric`         | `Decimal128`                                    |
-| `text`            | `Utf8`                                          |
-| `varchar`         | `Utf8`                                          |
-| `bpchar`          | `Utf8`                                          |
-| `uuid`            | `Utf8`                                          |
-| `bytea`           | `Binary`                                        |
-| `bool`            | `Boolean`                                       |
-| `json`            | `LargeUtf8`                                     |
-| `timestamp`       | `Timestamp(Nanosecond, None)`                   |
-| `timestampz`      | `Timestamp(Nanosecond, TimeZone`                |
-| `date`            | `Date32`                                        |
-| `time`            | `Time64(Nanosecond)`                            |
-| `interval`        | `Interval(MonthDayNano)`                        |
-| `point`           | `FixedSizeList(Float64[2])`                     |
-| `int2[]`          | `List(Int16)`                                   |
-| `int4[]`          | `List(Int32)`                                   |
-| `int8[]`          | `List(Int64)`                                   |
-| `float4[]`        | `List(Float32)`                                 |
-| `float8[]`        | `List(Float64)`                                 |
-| `text[]`          | `List(Utf8)`                                    |
-| `bool[]`          | `List(Boolean)`                                 |
-| `bytea[]`         | `List(Binary)`                                  |
-| `geometry`        | `Binary`                                        |
-| `geography`       | `Binary`                                        |
-| `enum`            | `Dictionary(Int8, Utf8)`                        |
-| Composite Types   | `Struct`                                        |
+| PostgreSQL Type | Arrow Type                       |
+| --------------- | -------------------------------- |
+| `int2`          | `Int16`                          |
+| `int4`          | `Int32`                          |
+| `int8`          | `Int64`                          |
+| `money`         | `Int64`                          |
+| `float4`        | `Float32`                        |
+| `float8`        | `Float64`                        |
+| `numeric`       | `Decimal128`                     |
+| `text`          | `Utf8`                           |
+| `varchar`       | `Utf8`                           |
+| `bpchar`        | `Utf8`                           |
+| `uuid`          | `Utf8`                           |
+| `bytea`         | `Binary`                         |
+| `bool`          | `Boolean`                        |
+| `json`          | `LargeUtf8`                      |
+| `timestamp`     | `Timestamp(Nanosecond, None)`    |
+| `timestampz`    | `Timestamp(Nanosecond, TimeZone` |
+| `date`          | `Date32`                         |
+| `time`          | `Time64(Nanosecond)`             |
+| `interval`      | `Interval(MonthDayNano)`         |
+| `point`         | `FixedSizeList(Float64[2])`      |
+| `int2[]`        | `List(Int16)`                    |
+| `int4[]`        | `List(Int32)`                    |
+| `int8[]`        | `List(Int64)`                    |
+| `float4[]`      | `List(Float32)`                  |
+| `float8[]`      | `List(Float64)`                  |
+| `text[]`        | `List(Utf8)`                     |
+| `bool[]`        | `List(Boolean)`                  |
+| `bytea[]`       | `List(Binary)`                   |
+| `geometry`      | `Binary`                         |
+| `geography`     | `Binary`                         |
+| `enum`          | `Dictionary(Int8, Utf8)`         |
+| Composite Types | `Struct`                         |
 
 :::info
 
@@ -178,3 +176,9 @@ datasets:
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure PostgreSQL as a data connector in Spice. [PostgreSQL Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#readme)
+- A cookbook recipe to configure AWS RDS for PostgreSQL as a data connector in Spice. [AWS RDS for PostgreSQL](https://github.com/spiceai/cookbook/tree/trunk/postgres/rds#readme)
+- A cookbook recipe to configure Supabase a data connector in Spice. [Supabase (PostgreSQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/postgres/supabase#readme)

@@ -191,3 +191,7 @@ The table below shows the Databricks (mode: delta_lake) data types supported, al
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure Databricks as data connector in Spice under `delta_lake` mode. [Spice on Databricks (mode: delta_lake)](https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake#readme)

@@ -22,9 +22,9 @@ datasets:
 
 The `from` field supports one of two forms:
 
-| `from`                         | Description                                                                                                                                                                                          |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                                                              |
+| `from`                         | Description                                                                                                                                                                                         |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                                                             |
 | `duckdb:*`                     | Read data using any DuckDB function that produces a table. For example one of the [data import](https://duckdb.org/docs/data/overview) functions such as `read_json`, `read_parquet` or `read_csv`. |
 
 ### `name`
@@ -32,12 +32,12 @@ The `from` field supports one of two forms:
 The dataset name. This will be used as the table name within Spice.
 
 Example:
+
 ```yaml
 datasets:
   - from: duckdb:database.schema.table
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -56,8 +56,8 @@ SELECT COUNT(*) FROM cool_dataset;
 
 The DuckDB data connector can be configured by providing the following `params`:
 
-| Parameter Name | Description                                        |
-| -------------- | -------------------------------------------------- |
+| Parameter Name | Description                              |
+| -------------- | ---------------------------------------- |
 | `duckdb_open`  | The name of the DuckDB database to open. |
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
@@ -138,3 +138,7 @@ SELECT * FROM read_json('todos.json');
 - The DuckDB connector does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)

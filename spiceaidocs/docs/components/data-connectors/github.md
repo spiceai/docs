@@ -8,21 +8,33 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 ## Common Configuration
 
-The GitHub data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token from a secret store, e.g. `${secrets:GITHUB_TOKEN}`.
+## Configuration
 
-The GitHub data connector supports two authentication methods: using a personal access token or GitHub App Installation credentials. Use the [secret replacement syntax](../secret-stores/index.md) to load the access token or other secrets from a secret store.
+### `from`
 
-### Personal Access Token
+The `from` field takes the form of `github:github.com/<owner>/<repo>/<content>` where `content` could be `files`, `issues`, `pulls`, `commits`, `stargazers`. See [examples](#examples) for more configuration detail.
 
-- `github_token`: Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+### `name`
 
-### GitHub App Installation
+The dataset name. This will be used as the table name within Spice.
+
+### `params`
+
+#### Personal Access Token
+
+| Parameter Name | Description                                                                                                                                                                                                    |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `github_token` | Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). |
+
+#### GitHub App Installation
 
 GitHub Apps provide a secure and scalable way to integrate with GitHub's API. [Learn more](https://docs.github.com/en/apps).
 
-- `github_client_id`: Required. Specifies the client ID for GitHub App Installation auth mode.
-- `github_private_key`: Required. Specifies the private key for GitHub App Installation auth mode.
-- `github_installation_id`: Required. Specifies the installation ID for GitHub App Installation auth mode.
+| Parameter Name           | Description                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `github_client_id`       | Required. Specifies the client ID for GitHub App Installation auth mode.       |
+| `github_private_key`     | Required. Specifies the private key for GitHub App Installation auth mode.     |
+| `github_installation_id` | Required. Specifies the installation ID for GitHub App Installation auth mode. |
 
 :::note[Limitations]
 
@@ -30,13 +42,15 @@ With GitHub App Installation authentication, the connector's functionality depen
 
 :::
 
-### Common Parameters
+#### Common Parameters
 
-- `github_query_mode`: Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`.
-- `owner` - Required. Specifies the owner of the GitHub repository.
-- `repo` - Required. Specifies the name of the GitHub repository.
+| Parameter Name      | Description                                                                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
+| `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
+| `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
 
-### Filter Push Down
+## Filter Push Down
 
 GitHub queries support a `github_query_mode` parameter, which can be set to either `auto` or `search` for the following types:
 
@@ -60,6 +74,8 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 
 :::
 
+## Examples
+
 ### Querying GitHub Files
 
 :::warning[Limitations]
@@ -70,7 +86,7 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 
 :::
 
-- `ref` -  Required. Specifies the GitHub branch or tag to fetch files from.
+- `ref` - Required. Specifies the GitHub branch or tag to fetch files from.
 - `include` - Optional. Specifies a pattern to include specific files. Supports glob patterns. If not specified, all files are included by default.
 
 ```yaml
@@ -79,7 +95,7 @@ datasets:
     name: spiceai.files
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.json; **/*.yaml"
+      include: '**/*.json; **/*.yaml'
     acceleration:
       enabled: true
 ```
@@ -87,7 +103,7 @@ datasets:
 #### Schema
 
 | Column Name  | Data Type | Is Nullable |
-|--------------|-----------|-------------|
+| ------------ | --------- | ----------- |
 | name         | Utf8      | YES         |
 | path         | Utf8      | YES         |
 | size         | Int64     | YES         |
@@ -105,7 +121,7 @@ datasets:
     name: spiceai.files
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      include: "**/*.txt" # include txt files only
+      include: '**/*.txt' # include txt files only
     acceleration:
       enabled: true
 ```
@@ -204,27 +220,27 @@ datasets:
 
 #### Schema
 
-| Column Name     | Data Type  | Is Nullable |
-|-----------------|------------|-------------|
-| additions       | Int64      | YES         |
-| assignees       | List(Utf8) | YES         |
-| author          | Utf8       | YES         |
-| body            | Utf8       | YES         |
-| changed_files   | Int64      | YES         |
-| closed_at       | Timestamp  | YES         |
-| comments_count  | Int64      | YES         |
-| commits_count   | Int64      | YES         |
-| created_at      | Timestamp  | YES         |
-| deletions       | Int64      | YES         |
-| hashes          | List(Utf8) | YES         |
-| id              | Utf8       | YES         |
-| labels          | List(Utf8) | YES         |
-| merged_at       | Timestamp  | YES         |
-| number          | Int64      | YES         |
-| reviews_count   | Int64      | YES         |
-| state           | Utf8       | YES         |
-| title           | Utf8       | YES         |
-| url             | Utf8       | YES         |
+| Column Name    | Data Type  | Is Nullable |
+| -------------- | ---------- | ----------- |
+| additions      | Int64      | YES         |
+| assignees      | List(Utf8) | YES         |
+| author         | Utf8       | YES         |
+| body           | Utf8       | YES         |
+| changed_files  | Int64      | YES         |
+| closed_at      | Timestamp  | YES         |
+| comments_count | Int64      | YES         |
+| commits_count  | Int64      | YES         |
+| created_at     | Timestamp  | YES         |
+| deletions      | Int64      | YES         |
+| hashes         | List(Utf8) | YES         |
+| id             | Utf8       | YES         |
+| labels         | List(Utf8) | YES         |
+| merged_at      | Timestamp  | YES         |
+| number         | Int64      | YES         |
+| reviews_count  | Int64      | YES         |
+| state          | Utf8       | YES         |
+| title          | Utf8       | YES         |
+| url            | Utf8       | YES         |
 
 #### Example
 
@@ -253,17 +269,17 @@ Time: 0.034996667 seconds. 1 rows.
 
 ```yaml
 datasets:
-- from: github:github.com/spiceai/spiceai/pulls
-  name: spiceai.pulls
-  params:
-    github_token: ${secrets:GITHUB_TOKEN}
-    github_query_mode: search
-  time_column: created_at
-  acceleration:
-    enabled: true
-    refresh_mode: append
-    refresh_check_interval: 6h # check for new results every 6 hours
-    refresh_data_window: 90d # at initial load, load the last 90 days of pulls
+  - from: github:github.com/spiceai/spiceai/pulls
+    name: spiceai.pulls
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+      github_query_mode: search
+    time_column: created_at
+    acceleration:
+      enabled: true
+      refresh_mode: append
+      refresh_check_interval: 6h # check for new results every 6 hours
+      refresh_data_window: 90d # at initial load, load the last 90 days of pulls
 ```
 
 ### Querying GitHub Commits
@@ -286,7 +302,7 @@ datasets:
 #### Schema
 
 | Column Name       | Data Type | Is Nullable |
-|-------------------|-----------|-------------|
+| ----------------- | --------- | ----------- |
 | additions         | Int64     | YES         |
 | author_email      | Utf8      | YES         |
 | author_name       | Utf8      | YES         |
@@ -349,17 +365,17 @@ datasets:
 
 #### Schema
 
-| Column Name       | Data Type | Is Nullable |
-|-------------------|-----------|-------------|
-| starred_at        | Timestamp | YES         |
-| login             | Utf8      | YES         |
-| email             | Utf8      | YES         |
-| name              | Utf8      | YES         |
-| company           | Utf8      | YES         |
-| x_username        | Utf8      | YES         |
-| location          | Utf8      | YES         |
-| avatar_url        | Utf8      | YES         |
-| bio               | Utf8      | YES         |
+| Column Name | Data Type | Is Nullable |
+| ----------- | --------- | ----------- |
+| starred_at  | Timestamp | YES         |
+| login       | Utf8      | YES         |
+| email       | Utf8      | YES         |
+| name        | Utf8      | YES         |
+| company     | Utf8      | YES         |
+| x_username  | Utf8      | YES         |
+| location    | Utf8      | YES         |
+| avatar_url  | Utf8      | YES         |
+| bio         | Utf8      | YES         |
 
 #### Example
 
@@ -392,3 +408,7 @@ sql> select starred_at, login from spiceai.stargazers order by starred_at DESC l
 
 Time: 0.0088075 seconds. 10 rows.
 ```
+
+## Cookbook
+
+- A cookbook recipe to configure Github as a data connector in Spice. [GitHub Data Connector](https://github.com/spiceai/cookbook/tree/trunk/github#readme)

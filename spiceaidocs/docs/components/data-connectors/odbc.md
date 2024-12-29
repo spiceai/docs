@@ -97,8 +97,7 @@ Example:
 datasets:
   - from: odbc:my.cool.table
     name: cool_dataset
-    params:
-      ...
+    params: ...
 ```
 
 ```sql
@@ -115,14 +114,14 @@ SELECT COUNT(*) FROM cool_dataset;
 
 ### `params`
 
-| Parameter                     | Type           | Description                                                                                                                                                             |
-| ----------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sql_dialect`                 | string         | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values. Default is unset (auto-detected). |
-| `odbc_max_bytes_per_batch`    | number (bytes) | Maximum number of bytes transferred in each query record batch. A lower value may improve performance on low-memory systems. Default is `512_000_000`.                                                                                                    |
-| `odbc_max_num_rows_per_batch` | number (rows)  | Maximum number of rows transferred in each query record batch. A higher value may speed up query results, but requires more memory in conjunction with `odbc_max_bytes_per_batch`. Default is `65536`.                                                                                               |
-| `odbc_max_text_size`          | number (bytes) | A limit for the maximum size of text columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                          |
-| `odbc_max_binary_size`        | number (bytes) | A limit for the maximum size of binary columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                        |
-| `odbc_connection_string`      | string         | Connection string to use to connect to the ODBC server                                                                                                                  |
+| Parameter                     | Type           | Description                                                                                                                                                                                            |
+| ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sql_dialect`                 | string         | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values. Default is unset (auto-detected).                                |
+| `odbc_max_bytes_per_batch`    | number (bytes) | Maximum number of bytes transferred in each query record batch. A lower value may improve performance on low-memory systems. Default is `512_000_000`.                                                 |
+| `odbc_max_num_rows_per_batch` | number (rows)  | Maximum number of rows transferred in each query record batch. A higher value may speed up query results, but requires more memory in conjunction with `odbc_max_bytes_per_batch`. Default is `65536`. |
+| `odbc_max_text_size`          | number (bytes) | A limit for the maximum size of text columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                        |
+| `odbc_max_binary_size`        | number (bytes) | A limit for the maximum size of binary columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                      |
+| `odbc_connection_string`      | string         | Connection string to use to connect to the ODBC server                                                                                                                                                 |
 
 ```yaml
 datasets:
@@ -243,13 +242,13 @@ version: v1beta1
 kind: Spicepod
 name: sqlite
 datasets:
-- from: odbc:spice_test
-  name: spice_test
-  mode: read
-  acceleration:
-    enabled: false
-  params:
-    odbc_connection_string: DRIVER={SQLite3};SERVER=localhost;DATABASE=test.db;Trusted_connection=yes
+  - from: odbc:spice_test
+    name: spice_test
+    mode: read
+    acceleration:
+      enabled: false
+    params:
+      odbc_connection_string: DRIVER={SQLite3};SERVER=localhost;DATABASE=test.db;Trusted_connection=yes
 ```
 
 All together now:
@@ -290,13 +289,13 @@ version: v1beta1
 kind: Spicepod
 name: sqlite
 datasets:
-- from: odbc:spice_test
-  name: spice_test
-  mode: read
-  acceleration:
-    enabled: false
-  params:
-    odbc_connection_string: DRIVER={SQLite3};SERVER=localhost;DATABASE=test.db;Trusted_connection=yes
+  - from: odbc:spice_test
+    name: spice_test
+    mode: read
+    acceleration:
+      enabled: false
+    params:
+      odbc_connection_string: DRIVER={SQLite3};SERVER=localhost;DATABASE=test.db;Trusted_connection=yes
 ```
 
 ### Connecting to Postgres
@@ -320,14 +319,18 @@ version: v1beta1
 kind: Spicepod
 name: odbc-demo
 datasets:
-- from: odbc:taxi_trips
-  name: taxi_trips
-  params:
-    odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
+  - from: odbc:taxi_trips
+    name: taxi_trips
+    params:
+      odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
 ```
 
-See the [ODBC Cookbook Recipe](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
+See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
 
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure ODBC as a data connector in Spice. [ODBC Data Connector](https://github.com/spiceai/cookbook/tree/trunk/odbc#readme)
