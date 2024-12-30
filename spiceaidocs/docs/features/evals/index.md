@@ -9,15 +9,22 @@ pagination_next: null
 
 Language models can perform arbitrary and complex tasks. Evals help evaluate a particular model's ability to perform a specific task. Evals are defined as Spicepod components, and can be used to evaluate any Spicepod model's performance.
 
+Related [Cookbook](https://github.com/spiceai/cookbook/tree/trunk/evals).
+
+
 ## Overview
 An eval component looks like this
 ```yaml
 evals:
   - name: australia
     description: Make sure the model understands Aussies, and importantly Cricket.
-    dataset: cricket_logic
+    dataset: cricket_questions
     scorers:
       - match
+
+datasets:
+  - name: cricket_questions
+    from: https://github.com/openai/evals/raw/refs/heads/main/evals/registry/data/cricket_situations/samples.jsonl
 ```
 Where:
 - `name` is a unique identifier for this eval (like `models`, `datasets`, etc.).
