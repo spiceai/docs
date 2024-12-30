@@ -58,7 +58,7 @@ Datasets configured with acceleration `refresh_mode: changes` requires a [Change
 | Required                    | No        |
 | Default Value               | `on_load` |
 
-By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/api/http/ready) is used in production deployments to control when queries are sent to the Spice runtime.
+By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/api/HTTP/ready) is used in production deployments to control when queries are sent to the Spice runtime.
 
 The ready state for an accelerated dataset can be configured using the [`ready_state`](/reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
 

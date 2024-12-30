@@ -14,9 +14,9 @@ Learn how to define and augment datasets with embedding columns for advanced sea
 Spice provides three distinct methods for handling embedding columns in datasets:
 
 1. **[Just-in-Time (JIT) Embeddings](#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
-   
+
 2. **[Accelerated Embeddings](#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-   
+
 3. **[Passthrough Embeddings](#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
@@ -208,7 +208,7 @@ The `body` column will be divided into chunks of approximately 512 tokens, while
 
 #### Row Identifiers
 
-Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/api/http/search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
+Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/api/HTTP/search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
 
 ```yaml
 datasets:
