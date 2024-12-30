@@ -304,6 +304,20 @@ embeddings:
     from: huggingface:huggingface.co/BAAI/bge-small-en-v1.5
 ```
 
+## `evals`
+
+A Spicepod can contain one or more [evaluations](./evals.md) referenced by relative path.
+
+**Example**
+```yaml
+evals:
+  - name: australia
+    description: Make sure the model understands Aussies, and importantly Cricket.
+    dataset: cricket_logic
+    scorers:
+      - Match
+```
+
 ## `dependencies`
 
 A list of dependent Spicepods.
