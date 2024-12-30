@@ -62,9 +62,11 @@ Example: With this Iceberg catalog structure:
 
 A valid `from` value would be `iceberg:https://iceberg-catalog-host.com/v1/namespaces/spice`, and would load the following tables:
 
-- `spice.tpch.orders`
-- `spice.tpch.customers`
-- `spice.extra.tpch_orders_metadata`
+- `<name>.tpch.orders`
+- `<name>.tpch.customers`
+- `<name>.extra.tpch_orders_metadata`
+
+For loading a multi-part namespace, separate the namespace parts with the `%1F` character. For example, `/v1/namespaces/unity%1Fvery%1Fnested` would load the `foobar` table from the `unity/very/nested/namespace` namespace as `<name>.namespace.foobar`.
 
 ## `name`
 
