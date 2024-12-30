@@ -40,6 +40,8 @@ datasets:
 
 - The SQLite accelerator doesn't support arrow `Interval` types, as [SQLite](https://www.sqlite.org/lang_datefunc.html) doesn't have a native interval type.
 - The SQLite accelerator only supports arrow `List` types of primitive data types; lists with structs are not supported.
+- The SQLite accelerator doesn't support `Dictionary` or `Map` types.
+- SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](./duckdb.md) instead.
 - The SQLite accelerator doesn't support advanced grouping features such as `ROLLUP` and `GROUPING`.
 - In SQLite, `CAST(value AS DECIMAL)` doesn't convert an integer to a floating-point value if the casted value is an integer. Operations like `CAST(1 AS DECIMAL) / CAST(2 AS DECIMAL)` will be treated as integer division, resulting in 0 instead of the expected 0.5.
   Use `FLOAT` to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)`.
