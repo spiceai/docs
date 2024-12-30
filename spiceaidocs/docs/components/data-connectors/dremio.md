@@ -75,6 +75,28 @@ SELECT COUNT(*) FROM cool_dataset;
     dremio_password: ${secrets:my_dremio_pass}
 ```
 
+## Types
+
+The table below shows the Dremio data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| Dremio Type | Arrow Type                     |
+| ----------- | ------------------------------ |
+| `INT`       | `Int32`                        |
+| `BIGINT`    | `Int64`                        |
+| `FLOAT`     | `Float32`                      |
+| `DOUBLE`    | `Float64`                      |
+| `DECIMAL`   | `Decimal128`                   |
+| `VARCHAR`   | `Utf8`                         |
+| `VARBINARY` | `Binary`                       |
+| `BOOL`      | `Boolean`                      |
+| `DATE`      | `Date64`                       |
+| `TIME`      | `Time32`                       |
+| `TIMESTAMP` | `Timestamp(Millisecond, None)` |
+| `INTERVAL`  | `Interval`                     |
+| `LIST`      | `List`                         |
+| `STRUCT`    | `Struct`                       |
+| `MAP`       | `Map`                          |
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
