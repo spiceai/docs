@@ -31,11 +31,11 @@ Optional. A human-readable description explaining the purpose of this evaluation
 
 ## `dataset`
 
-The [dataset](reference/spicepod/datasets) to use for this evaluation. Must reference a valid dataset defined in the Spicepod configuration.
+The [dataset](/reference/spicepod/datasets) to use for this evaluation. Must reference a valid dataset defined in the Spicepod configuration.
 
 ## `scorers`
 
-A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](reference/spicepod/models) outputs will be measured against an expected result.
+A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](/reference/spicepod/models) outputs will be measured against an expected result.
 
 Currently scorers include the following builtin methods:
  - `match`: Checks for an exact match between the expected and actual outputs.
