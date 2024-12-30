@@ -1,0 +1,64 @@
+---
+id: get-config
+title: "Get Iceberg API config"
+description: "This endpoint returns the Iceberg Catalog API configuration, including details about overrides, defaults, and available endpoints."
+sidebar_label: "Get Iceberg API config"
+hide_title: true
+hide_table_of_contents: true
+api: eJzNVE1zmzAQ/SsanW3A6aX1zZNmUs/00IN7yngSGdagVkiqtNB4GP57d4FgJ54ccisXhHb37cd7SydRlVGuH+Q2hwOEUu4XsoCYB+1ROyvXclfpKMAW3mmLIgA2wUaBFYgpRNwqVMaVYvNjK3Jnj7psguLohdA2N02hbSkKQKVNFOrgGhSuhRA0JVqQ4agag3RSthCqJS91MDCnjIlcSOdhhNwWVFIJ+DgmIlOA6J2NQF108ibL+PW6g6u6uIugoYVCxCbPIcZjY8yJwMgNwSJjKO+Nzgf/9FdkoE7GvIJa0alfSHhWtTfA13M3o+Wlo8nvpQ+e8v3dTqTtKtXj6FKraipfUQmU/Nvd5us71rSbzz15vg9z6ZgiD/IDyFNA2g3vDyea4/Y9PwtZA1ZuIozAvMKKPi7xZhYjBBoiz6iTTTDkViH6dZoalytTuYjrz9mXTL5V53c2k4ZaMM7XRJ0YkRJxOzEO4q/GSjwtl4z4lMh+z+nyJmg8DfmU14+/gc97tml7dMwqamR6ZWgs6hquUu9oBaKnTgpxdiHJAImR43k+rD4aUQXLm4SLJ5GQ51FDeG2hYXH7I/AqyZJsGfLkE9976r1W9gLxHnDevbO239bXncX8f+wwnjxXj/CMqTdKW+5u4LqbpPEg2xUPafoVDevInREprAB26LqDivAzmL7n6z8NhIE4mp8KmpMONFIAqIKnTPwO3MoNLbpnGbbKNFzI1YIz+bNkSfmy7/8BYszI0g==
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get Iceberg API config"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/iceberg/config"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns the Iceberg Catalog API configuration, including details about overrides, defaults, and available endpoints.
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"API configuration retrieved successfully","content":{"application/json":{"schema":{},"example":{"overrides":{},"defaults":{},"endpoints":["GET /v1/iceberg/namespaces","HEAD /v1/iceberg/namespaces/{namespace}","GET /v1/iceberg/namespaces/{namespace}/tables","HEAD /v1/iceberg/namespaces/{namespace}/tables/{table}","GET /v1/iceberg/namespaces/{namespace}/tables/{table}"]}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

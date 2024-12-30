@@ -1,0 +1,72 @@
+---
+id: get-spicepods
+title: "List Spicepods"
+description: "Get a list of spicepods and their details. In CSV format, it will return a summarised form."
+sidebar_label: "List Spicepods"
+hide_title: true
+hide_table_of_contents: true
+api: eJy1VM1P2zAU/1esXLpJblpSkLbeENoQEodJsF1YBSZ5abw5trGdAqryv+89J2tTGm7bqY2f/X4f72ObBLH2yfIuuQQNTqhkxZMCfO6kDdLoZImBwART0gdmSuatzMGawjOhCxYqkI4VEIRUPmVXml3c/GClcbUInMnAnqVSzEFonMYkvqlr4aSHIt5JE54Yi6iEdFUg1hrC/Q4Bo1Y4UUMARxS3icYPvNXlx7Akfk8NuNfkLevbCnoexBp5IgtvjfaQsm/Ge/mogG2EagCVOGCTX97oCftQQCkaFT4y49gk95sJkXTw1EgHyLAUygNPfF5BLZLlNgmvlij54KRe41XQTU12Ujr8xAzkaJBB0bWvHfO2XVHSjo+nNNl8Tj+HGq7fek4JjQ6gA10W1iqZR/NmEQ7PjogJ5wS5IwPUhNS2yPFF1Jb47C39C3GCVzdod0dgc5LO0zl5K4LwEPx9bhoCX/CkNgWo3UFG/lvQBehcwu74rOVHENkhRPYOxOlbiMU4RNauUFKAlzAjs8c86IszVB5J8Z4GP8TmQ1x+jPlT79zinUN8wTN+tj/PeCeLn1IEy43QZ2MVvsJiOi0U8+CQDAPnjDusclRmlZDj9R3TNp61jTRwmirTj1ocsFDhx2xzMht2WfewG7rGKbxRhWCXs5kyuVCV8WH5af55fjR11xTGfbABZWyNCnoKKbswupTrBiftWYaKPUynlPEhTWgUPOSNk+E14gkr738D/V9RTOrSRL39CDmsgMSGGhv4KKFg+ys4H4AjRu/7Ljy3Ai2cZrHnJNY1yFKCO4y0ww6NFZ66PF3QuUXttdCDjHFKbwbmHfDa7mv5nzdp3xCDfkG6sXjbvsx3ONBU3B1XtJdqSZHt9hFH4LtTbUvH3VKlchTSC9yV+933rrx/unJH1cS22K//mAsPYg9t0A4iGvsGdYEoqKyooHt1nqPo4auj9UlZduNx+eUWJ+YPN4Jutg==
+sidebar_class_name: "get api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Spicepods"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/spicepods"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Get a list of spicepods and their details. In CSV format, it will return a summarised form.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"format","in":"query","description":"The format of the response. Possible values are 'json' (default) or 'csv'.","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of spicepods","content":{"application/json":{"schema":{"type":"array","items":{}},"example":[{"name":"spicepod1","version":"v1.0.0","datasets_count":3,"models_count":2,"dependencies_count":5},{"name":"spicepod2","version":"v2.0.0","datasets_count":4,"models_count":3,"dependencies_count":2}]},"text/csv":{"schema":{"type":"string"},"example":"name,version,datasets_count,models_count,dependencies_count\nspicepod1,v1.0.0,3,2,5\nspicepod2,v2.0.0,4,3,2"}}},"500":{"description":"Internal server error","content":{"text/plain":{"schema":{"type":"string"},"example":"Internal server error"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

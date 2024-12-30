@@ -1,0 +1,74 @@
+---
+id: post-sample-dataset
+title: "Sample Dataset"
+description: "This endpoint allows for sampling data from a dataset using different methods."
+sidebar_label: "Sample Dataset"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVktvGzcQ/isDXtwCejoPJLq5SYEGCFo3Vk+2IFO7Iy1TLsmQXNmCov/eGXKllSq1RVCgh+pg7+48v5lvhtyKKFdBTO7FexllwBjErCdKDIVXLiprxERMKxUATemsMhGk1vYpwNJ6CLJ2WpkVlGQLS29rkOmZ/EATkkQtl+iR7GqMlS3D4MFMK4S4cQh22bnIYiikgQVCcFiopcKydRPJ5JFtHuFLg34DTnpJJuh7D0aaMiksbLmBJ6U1e6BU0TtPKiXIorC+JD96MxA9YR16ydg+lITO2RDnKQ2ct7mTzsE/12YrDL2QLmdAQsVVSXmI81pdwBYtSOcoONzaENRCI6ylbjBM4KpUISpTxHlhdVObcNWDK0+IbN0mxR+idXOzf2cIHr80yiPlH32DPRGKCmspJtuc4kSE6Cmy2O1mWRlD/IHKwxrnCbcKuYAlOup1AGtSUc/ABNRYUFU5jcJSlU1krwxQFamsw8+BXW/Ps7KLz2R7kv+96IquVa34PzUL/XyxYSo6z+2KCkPKvdU9A3qpD3e/fjywkVqQy9dxdSB2+5CdO6bNCv1Ff6apF+i5GJ4moAcoi4r4FivYN7FtK1DGkPvZ6yJzwWplVN3UYjLaHcH8RzQ/2Sf2kwxSV7LHQESnOeQGkh2u95NCdIGfCR7FiCpqdjy17i7b3DKzA2PH5/TlpK5pHFaeqClVibWd1xiCXFH1j/MVGdxcHpo2GY9GOw54ysz0IThrQu7f9Wh0mYIZUJm7oww4LelvxOfIm6aW8U90Y8kwKV0k2p7+RyDFg/kK+7zh8LiAryToH37Hj2yROjoGIIvx9QtIv05wnQQvX70+CESqwstLOD8YslHlybh9wxCddgy9t/6vnO5SEq8uJ0FLzUhNc+zXxKbkB2xRNJ66Bk+V0ni0uSqEbj7/XaY3BhqDzy5tj2+Iu8to8gHRMjRt6FjR23A9HraaYZhZRMIMLu/uxmvSq2J0k+FQ20LqijxM3ozejs4G7SOLaQWuUVtX87GVPQ3gnTVLtWpo2NLEP/b77PGRpmzG4QiGipsUTzo1/x35ecYyrs6nbgP/eGnoDmPfDtPoZNg6MiuztInl7VT7xkRV48VtFZwqqLCdCvULaQ7Zvj3ObhxtMOxfD7gQNO6kSWeuP5VQWC5ldjwejAajvi8GL/g7d6KW5shj3jHw/kCZk7y2HYP+d5eKdvEc7SUqUKLetqXqvViPuSL7exbRJlOBSMKMZI3tdkHC37ze7fhzvmMwqeiEkXRvIP4vpQ74N4X97lO7gb+H/+gychF6moD9hSkFoNc0LGvpFWNJA0LQUZbMOQKZbd5lKP3pqe3Zxtn19hY3RYEuHukepzI7Wh23v9xNSW3R3oRqW6Ypkk98JaG/lCFfDzlGOq7St63Q0qwaOgRJniPz7w96uOjI
+sidebar_class_name: "post api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Sample Dataset"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/datasets/sample"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint allows for sampling data from a dataset using different methods.
+The type of sampling method can be specified using the `type` query parameter,
+and the body will be interpreted accordingly.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"type","in":"query","description":"The type of sampling to apply. Possible values: 'distinct_columns', 'random_sample', 'top_n_sample'.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"The request body depends on the type of sampling selected.","content":{"application/json":{"schema":{"type":"object","required":["dataset","limit","order_by"],"properties":{"dataset":{"type":"string","description":"The SQL dataset to sample data from."},"limit":{"type":"integer","description":"The number of rows, each with distinct values per column, to sample.","minimum":0},"order_by":{"type":"string","description":"How to order the samples before retrieving the top N."}},"title":"TopSamplesParams"},"example":{"dataset":"postgres:aidemo_messages","order_by":"column_a","limit":100}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"The sampled data in plain text format.","content":{"text/plain":{"schema":{"type":"string"},"example":"\n| column_a | column_b |\n|----------|----------|\n| value1   | 123      |\n| value2   | 456      |\n"}}},"400":{"description":"Invalid request body","content":{"application/json":{"schema":{},"example":{"error":"Invalid request body"}}}},"500":{"description":"Internal server error occurred while sampling the dataset","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred while sampling the dataset"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

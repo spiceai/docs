@@ -9,7 +9,7 @@ pagination_next: null
 
 ### Chat Completion Parameter Overrides
 
-[`v1/chat/completion`](/api/http/chat-completions) is an OpenAI-compatible endpoint. It supports all request body parameters defined in the [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice can configure different defaults for these request parameters.
+[`v1/chat/completion`](/api/http/post-chat-completions) is an OpenAI-compatible endpoint. It supports all request body parameters defined in the [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice can configure different defaults for these request parameters.
 
 ### Example: Setting Default Overrides
 
@@ -37,4 +37,4 @@ models:
         Write everything in Haiku like a pirate
 ```
 
-Any request to [HTTP `v1/chat/completion`](/api/http/chat-completions) will include the configured system prompt.
+Any request to [HTTP `v1/chat/completion`](/api/http/post-chat-completions) will include the configured system prompt.

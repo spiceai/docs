@@ -1,0 +1,75 @@
+---
+id: post-dataset-refresh
+title: "Refresh Dataset"
+description: "Trigger an on-demand refresh for an accelerated dataset."
+sidebar_label: "Refresh Dataset"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVk1vGzcQ/SsET0mhzzQFWh0CpLaKBnDgRlbQgyNoqV2ulilFMiRXtrDY/94ZktqVLccI2ltTH2SJHM4M33ucmYZ6tnV0dksvmWeOe0dXA1pwl1thvNCKzujSiu2WW8IU0WpY8B1TBbG8tNxVpNRhg+U5l9wyzwtSRE+jT+qTWlbCEa4Ko4XyxEdP7h+4Wla8M9RKHggzRgruiNckK2spM4K+MliGcFlnu9NwGfJCaU+yvGJqy10WFl+O6IBqg4Hgmu8KuKjRzq9TyHVyAEaGWbbjHvIGnBqq4AcYh38DKhAhwzwaPoINMkYjokvi4XtyjAkn35iB5V9qYTmE97bmA+ryClChs4b6g8E4DkBTW9q2q2jMnf9VFwe0eBjv+gzQZB6BJc7wXJQi70CF6LlWniuPzgKeeQBj/Nmhx+Y8Gb35zHOPmFiEzgMBuJsCrt0X2RvfHlMfUAX8nOvq5sMVcR543kEKpHbAN2bqe6ZH5JKXrJY+0Iwb2Umo7HglOChU2HZG5NzoYgR4DagXXmLWb4+KgriLiAmFbX7PdgYNHl2A3syv5hdL8gP5bXH9nnh2L9ZwE+PIn7/PF3PihVmzna4h6TdkOhlNIFj7mMmw4IxWLkL0ajI9pyy9uY6w9D7gPq6GnJ1DYR/+DU99Urd0Bw7ZliMRD+k7bpyJ7ilJJ2MSdzZglhhzwNNR6/aI8gkL7+PBRULlEQNdDs+AEtTRsYEco//Xk8k5sqeUE3z8XLGNPFFYegTfKbYnmi401EdEqGJ73hdfxC1h1uH8+usKRgclPInif0B7KCJuPz2lz3cAkVVMEsftHnortxaEqfO8tqj0u0pITuDiWAQw674bfU/oflT8Hkq8DwU+AfatSLURfWjclT4299DMoVXP6Hg/HacS4MYNtul2fKr9cQ94ZCj2/tpif6i8N7PxWOqcyQrczn6e/DI5Q+gKtwGbPZfahBYXPY3IhVal2NaWkzvhK5INh+gxg4K2wnBwM+EPIR4zYv0Xx+8r3EOSF/0MMO8wa3EQKXWgLWFsoT+JMKKcExfaJMwJnQnIiCMRs268eWsYKGn4aoQXEwWkj43WPtyBsAhNdDwdQSsc2nz0I64j3DCMnHhcpHp+2VXeB4k1vbL/yxNnelWe3/uxkQzGRwAryKpJ2ryl+ymCc5zHB3SWZs1TgYYHHSUKwkAV4smm2cChj1a2LS6DUmwQD/DErMBqHmRVCBcr+6xk0vFnmHixSFXjJfm2efbJ+6VFpnCW2TNZ4y/4GqQd9dGuwK7irECNQYpx6yImMlyig/7oWeFrB8cT2PiNf9Z2dVIV/ri+WYLxJk3USBO+HXaH+MJnSFMHYOKki2sNlUBrHWtU9Il/fwOEt69e
+sidebar_class_name: "post api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Refresh Dataset"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/datasets/{name}/acceleration/refresh"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Trigger an on-demand refresh for an accelerated dataset.
+
+This endpoint triggers an on-demand refresh for an accelerated dataset.
+The refresh only applies to `full` and `append` refresh modes (not `changes` mode).
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"The name of the dataset to refresh.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"On-demand refresh request for a specific dataset.","content":{"application/json":{"schema":{"type":"object","properties":{"refresh_sql":{"type":["string","null"],"description":"SQL statement used for the refresh. Defaults to the `refresh_sql` specified in the spicepod."}},"title":"AccelerationRequest"},"example":{"refresh_sql":"SELECT * FROM taxi_trips WHERE tip_amount > 10.0"}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Dataset refresh triggered successfully","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset refresh triggered for taxi_trips."}}}},"400":{"description":"Acceleration not enabled for the dataset","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset taxi_trips does not have acceleration enabled"}}}},"404":{"description":"Dataset not found","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset taxi_trips not found"}}}},"500":{"description":"Internal server error occurred while processing refresh","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Unexpected internal error occurred while processing refresh"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

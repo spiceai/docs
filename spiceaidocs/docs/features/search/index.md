@@ -70,7 +70,7 @@ curl -XPOST http://localhost:8090/v1/search \
   }'
 ```
 
-For more details, see the [API reference for /v1/search](/api/http/search).
+For more details, see the [API reference for /v1/search](/api/http/post-search).
 
 Spice also supports vector search on datasets with preexisting embeddings. See [below](/features/embeddings#passthrough-embeddings) for compatibility details.
 

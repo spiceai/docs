@@ -32,5 +32,5 @@ embeddings:
 
 Embedding models can be used either by:
 
-- An OpenAI-compatible [endpoint](/api/http/embeddings.md)
+- An OpenAI-compatible [endpoint](/api/http/post-embeddings)
 - By augmenting a dataset with column-level [embeddings](/reference/spicepod/datasets.md#embeddings), to provide vector-based [search functionality](/features/search/index.md#vector-search).

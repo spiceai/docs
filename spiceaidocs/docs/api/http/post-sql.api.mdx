@@ -1,0 +1,74 @@
+---
+id: post-sql
+title: "SQL Query"
+description: "Execute a SQL query and return the results."
+sidebar_label: "SQL Query"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVV21z2kYQ/is398VkAkIvCBDfHNdJ3XGCY+POdILHOUuHuVY6KXcnbIby37srgRFIsZvJh7qMx6Dd1e6zzz6SVitq2L2moy/06vM5vWnTiOtQicyIVNIRPX3kYW44YQTc5FvO1ZIwGRHFTa4kMXMOP3UeG21N5VRO5kITLqMsFdIQFsfpgya55koTkxK+SbZNJbgmkVA8NPGSzFSaQGry62RyATnBr41FJnNeqQzJNcfEmmQxE1CfPxoitjiKc8hdGi0t2qZpxhXDNs4iaCRLtbnV32JwZEyxhBsABW2vqIQDCDgOQ54ZcAvse85ZxBU9pAPhzFKVMEPS2bb7LJWat0kqORqPWJbFIiwqd//UqTwirYjPGHD0pk2OEHE31IsjkqrNUdHKEULGFoAPwGtUzttUh3OeMDpaUbPMEKQ2Ssh7ul7flMHQ7ztoFyP2ge442/EOBcJUGiCwyPhUGo++W6lN+SNLshhtV6fnpycTwhb3LZMaFt+yJM0ltlWYRLYzhPjdcuBXxjTM7J6r28JG3l+OP5JkeWvYXczJh8vx9QV590ctbHz5y+llk+P46oScn308mxAPeDjkrDCUE9HYjWvbz5GzYSYiOofxaz3LY5Bi67er8afNnN/ss3Y43EbumFJsiUoyPEEU6yqLoLjj3z+0tgxYFdroyLPsgev6QTBwvKA/CLz2QXCVdjpyfctzB0OnH3hBz+/7rt+mJ+PrT5PWmTT9HvCPOZ1e30fV7/FIR/a6/TwUb+C4fdcdDnv9oW37gxew9C3X9l3P7vX83qAXBP0GLK4zHA68oAGN8xKagQOc2K7jeG5gD/3eC2gCy3ftPjDp2fAHqBrQ9Gzfsb0GMO76Bka2vVT/9fUx/W4DU9o+dFbxFu4DeIXtANmUTmVdIg0qKGduY3Rtig2D2o7FwRNqRDdwuWHOpVuafuxGMpWk8nnbeebzY87m6Lf79f4mzw2qyb8/qyKgNq3CWpsXlvuvu60pZs9bV0/1VNRRNdom9c8raPBQ5HsN1vRedZbK3xmc19ng4UW512Dt+qw4yyu1Gv0aGoQnN9wQek0P5zO5YLGIKlsfLEoJi/FxDA9qIbPc/PQmc6oUZFWw5IGrLDOC1GXl68n7zhAWTTDLkJdQ/WaosERKFkOsWnBFOGb9aWzXkj9msBMXzTYUIGkY5go3nnUBDVbZebpdcYv11szhqLtwuuW+W55cLru5inG7NSYbdbtxGrJ4DmeNhnZg15bdc3STiC94nGYJ7t1lJoucpHIm7nPFyYMwc/K108GMXy2Ke6mGlUoJsyzqsUzc/sXx9w36hJylRfvCFL0quEmKhDfu2ToTIXCwC4HFi8Neh+dvd/aMAaMd10LwIgKIYiZgbd/zAEXYfpnYsWzL7qjQ8tCOjCVMVjKi6j6jHA4hrXZT/T+/FG10V5El0FCIYrURzhe6cFA0IB0YGKoDbavVHdP8WsXrNZqLyjhU4JYpgU/JYsTt7YsTzr6YOz0paetMsDKGx3kNwTb26R1sG1Vbt1FET4K/GF9NIPhu8waUpFGhKfaAr1Lwf0TxEvkHEohZBA==
+sidebar_class_name: "post api-method"
+info_path: api/http/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"SQL Query"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/sql"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Execute a SQL query and return the results.
+
+This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"Accept","in":"header","description":"The format of the response, one of 'application/json' (default), 'text/csv' or 'text/plain'.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"SQL query to execute","content":{"text/plain":{"schema":{"type":"string"},"example":"SELECT avg(total_amount), avg(tip_amount), count(1), passenger_count FROM my_table GROUP BY passenger_count ORDER BY passenger_count ASC LIMIT 3"}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"SQL query executed successfully (JSON format)","content":{"application/json":{"schema":{"type":"array","items":{}},"example":[{"AVG(my_table.tip_amount)":3.072259971396793,"AVG(my_table.total_amount)":25.327816939456525,"COUNT(Int64(1))":31465,"passenger_count":0},{"AVG(my_table.tip_amount)":3.3712622884680057,"AVG(my_table.total_amount)":26.205230445474996,"COUNT(Int64(1))":2188739,"passenger_count":1},{"AVG(my_table.tip_amount)":3.7171302113290854,"AVG(my_table.total_amount)":29.520659930930304,"COUNT(Int64(1))":405103,"passenger_count":2}]},"text/csv":{"schema":{"type":"string"},"example":"\"AVG(my_table.tip_amount)\",\"AVG(my_table.total_amount)\",\"COUNT(Int64(1))\",\"passenger_count\"\n3.072259971396793,25.327816939456525,31465,0\n3.3712622884680057,26.205230445474996,2188739,1\n3.7171302113290854,29.520659930930304,405103,2"},"text/plain":{"schema":{"type":"string"},"example":"\n            +----------------------------+----------------------------+----------------+---------------------+\n            | \"AVG(my_table.tip_amount)\"  | \"AVG(my_table.total_amount)\" | \"COUNT(Int64(1))\" | \"passenger_count\"   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.072259971396793           | 25.327816939456525         | 31465          | 0                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.3712622884680057          | 26.205230445474996         | 2188739        | 1                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.7171302113290854          | 29.520659930930304         | 405103         | 2                   |\n            +----------------------------+----------------------------+----------------+---------------------+"}}},"400":{"description":"Invalid SQL query or malformed input","content":{"text/plain":{"schema":{"type":"string"},"example":"Error reading query: invalid UTF-8 sequence"}}},"500":{"description":"Internal server error","content":{"text/plain":{"schema":{"type":"string"},"example":"Unexpected internal server error occurred"}}}}}
+>
+  
+</StatusCodes>
+
+
+      
