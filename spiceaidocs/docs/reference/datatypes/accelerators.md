@@ -1,6 +1,6 @@
 ---
-title: 'Data Types'
-sidebar_label: 'Data Types'
+title: 'Accelerator Data Types'
+sidebar_label: 'Accelerator Data Types'
 sidebar_position: 3
 pagination_prev: 'reference/index'
 pagination_next: null
