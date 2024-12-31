@@ -170,7 +170,7 @@ const config: Config = {
             proxy: 'http://localhost:8090',
 
             specPath: 'public/openapi.json',
-            outputDir: 'docs/api/http',
+            outputDir: 'docs/api/HTTP',
             sidebarOptions: {
               groupPathsBy: 'tag',
             },
