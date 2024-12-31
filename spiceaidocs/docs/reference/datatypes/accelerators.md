@@ -1,9 +1,6 @@
 ---
-title: 'Data Types'
-sidebar_label: 'Data Types'
-sidebar_position: 3
-pagination_prev: 'reference/index'
-pagination_next: null
+title: 'Accelerator Data Types'
+sidebar_label: 'Accelerator Data Types'
 ---
 
 Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/datatypes/index.html). Data accelerators do not support all Arrow data types. The table below outlines the data type compatibility for each accelerator, and datatype used within the accelerator.

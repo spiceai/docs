@@ -37,7 +37,7 @@ Supported Data Accelerators include:
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](/reference/datatypes.md).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators.md).
 
 :::warning[Memory Considerations]
 

@@ -75,6 +75,10 @@ datasets:
 
 When the file is modified, the acceleration will be refreshed and will include the latest data.
 
+## Types
+
+Refer to [Object Store Data Types](../../reference/datatypes/object_store.md) for data type mapping from object store files to arrow data type.
+
 ## Examples
 
 ### Absolute path
