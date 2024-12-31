@@ -24,7 +24,7 @@ jobs:
       - name: Generate API docs
         working-directory: spiceaidocs
         run: |
-          rm docs/api/http/*
+          rm docs/api/HTTP/*
           npm run docusaurus gen-api-docs all
 
       - name: Check for new or modified .mdx files
