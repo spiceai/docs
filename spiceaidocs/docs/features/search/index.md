@@ -126,7 +126,7 @@ Datasets that already include embeddings can utilize the same functionalities (e
 
 1. **Underlying Column Presence:**
 
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](reference/datatypes.md) .
+   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
 
 2. **Embeddings Column Naming Convention:**
 
@@ -134,7 +134,7 @@ Datasets that already include embeddings can utilize the same functionalities (e
 
 3. **Embeddings Column Data Type:**
 
-   - The embeddings column must have the following [Arrow data type](reference/datatypes.md) when loaded into Spice:
+   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
      2. If the column is [**chunked**](/features/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 

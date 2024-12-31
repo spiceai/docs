@@ -14,9 +14,7 @@ Learn how to define and augment datasets with embedding columns for advanced sea
 Spice provides three distinct methods for handling embedding columns in datasets:
 
 1. **[Just-in-Time (JIT) Embeddings](#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
-   
 2. **[Accelerated Embeddings](#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-   
 3. **[Passthrough Embeddings](#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
@@ -37,6 +35,7 @@ embeddings:
 See [Embedding components](/components/embeddings/) for more information on embedding models.
 
 ## Embedding Methods
+
 ### Just-in-Time (JIT) Embeddings {#jit-embeddings}
 
 JIT embeddings are computed during query execution. This is useful when pre-computing embeddings is infeasible (e.g. if the dataset is large, infrequently queried, has heavy prefiltering). To add an embedding column, specify it within the dataset's column.
@@ -59,14 +58,18 @@ embeddings:
 ```
 
 ### Accelerated Embeddings
+
 To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](/components/data-accelerators/index.md). The only change required for this it to set up the data accelerator. For example, just add
+
 ```yaml
 acceleration:
   enabled: true
 ```
+
 to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](/components/data-accelerators/index.md).
 
 **Full example:**
+
 ```yaml
 datasets:
   - name: invoices
@@ -149,6 +152,7 @@ sql> describe sales;
 ```
 
 Passthrough embedding columns must still be defined in the `spicepod.yaml` file. The spice instance must also have access to the same embedding model used to generate the embeddings.
+
 ```yaml
 datasets:
   - from: sftp://remote-sftp-server.com/sales/2024.csv
@@ -164,16 +168,20 @@ embeddings:
 ```
 
 #### Requirements
+
 To ensure compatibility, these table columns must adhere to the following constraints:
 
 1. **Underlying Column Presence:**
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](reference/datatypes.md) .
+
+   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
 
 2. **Embeddings Column Naming Convention:**
+
    - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
 
 3. **Embeddings Column Data Type:**
-   - The embeddings column must have the following [Arrow data type](reference/datatypes.md) when loaded into Spice:
+
+   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
      2. If the column is [**chunked**](#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
@@ -185,6 +193,7 @@ To ensure compatibility, these table columns must adhere to the following constr
 Following these guidelines ensures that the dataset with pre-existing embeddings is fully compatible with embedding functionalities provided by Spice.
 
 ## Advanced Configuration
+
 ### Chunking
 
 Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.

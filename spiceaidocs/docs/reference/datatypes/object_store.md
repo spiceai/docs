@@ -1,6 +1,6 @@
 ---
 title: 'Object Store Data Types'
-sidebar_label: 'Object Store  Data Types'
+sidebar_label: 'Object Store Data Types'
 ---
 
 Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/datatypes/index.html). The table below lists the types of supported file type from object stores and their corresponding Apache Arrow type mappings in Spice.
