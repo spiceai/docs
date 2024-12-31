@@ -1,7 +1,7 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import type * as OpenApiPlugin from "docusaurus-plugin-openapi-docs";
+import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 
 const config: Config = {
   title: 'Spice.ai OSS Docs',
@@ -39,7 +39,7 @@ const config: Config = {
       {
         docs: {
           routeBasePath: '/',
-          docItemComponent: "@theme/ApiItem",
+          docItemComponent: '@theme/ApiItem',
           editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
         },
         theme: {
@@ -58,7 +58,7 @@ const config: Config = {
     // image: 'img/docusaurus-social-card.jpg',
     announcementBar: {
       content:
-        '<a href="https://github.com/spiceai/spiceai/releases/tag/v1.0.0-rc.2">Spice.ai OSS v1.0.0-rc.2</a> is now available! 🚀',
+        '<a href="https://github.com/spiceai/spiceai/releases/tag/v1.0.0-rc.3">Spice.ai OSS v1.0.0-rc.3</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true,
@@ -140,11 +140,11 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} Spice AI, Inc.`,
     },
     languageTabs: [
-          {
-            highlight: "bash",
-            language: "curl",
-            logoClass: "curl",
-          }
+      {
+        highlight: 'bash',
+        language: 'curl',
+        logoClass: 'curl',
+      },
     ],
     prism: {
       theme: prismThemes.github,
@@ -163,19 +163,19 @@ const config: Config = {
     [
       'docusaurus-plugin-openapi-docs',
       {
-        id: "api",
-        docsPluginId: "classic",
+        id: 'api',
+        docsPluginId: 'classic',
         config: {
           spice: {
-            proxy: "http://localhost:8090",
+            proxy: 'http://localhost:8090',
 
-            specPath: "public/openapi.json",
-            outputDir: "docs/api/http",
+            specPath: 'public/openapi.json',
+            outputDir: 'docs/api/HTTP',
             sidebarOptions: {
-              groupPathsBy: "tag",
+              groupPathsBy: 'tag',
             },
           } satisfies OpenApiPlugin.Options,
-        }
+        },
       },
     ],
     [
@@ -197,7 +197,6 @@ const config: Config = {
         ],
       },
     ],
-
   ],
 };
 
