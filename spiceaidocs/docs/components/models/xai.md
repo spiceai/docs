@@ -22,3 +22,7 @@ models:
 ```
 
 Refer to the [xAI models documentation](https://docs.x.ai/docs/models) for more details on available models and configurations.
+
+:::note
+Although the xAI [documentation](https://docs.x.ai/docs/guides/structured-outputs) show that xAI models can returned structured outputs, this is not true.
+:::
