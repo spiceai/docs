@@ -116,7 +116,7 @@ acceleration:
 **ref used in spicepod.yaml**
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: duckdb
 datasets:

@@ -238,7 +238,7 @@ sqlite> insert into spice_test values ("Linus");
 Make sure that the `DRIVER` parameter matches the name of the driver section in `odbcinst.ini`.
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: sqlite
 datasets:
@@ -285,7 +285,7 @@ Query took: 1.8504053329999999 seconds. 3/3 rows displayed.
 ### Connecting to an SQLite database
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: sqlite
 datasets:
@@ -315,7 +315,7 @@ UsageCount=1
 Then, in your `spicepod.yaml` the `odbc_connection_string` parameter can be used for the ODBC connection string:
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: odbc-demo
 datasets:

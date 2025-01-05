@@ -13,7 +13,7 @@ Spicepod manifest files are stored in the root directory of your application cod
 
 ## `version`
 
-The version of the Spicepod manifest. The current version is `v1beta1`.
+The version of the Spicepod manifest. The current version is `v1`.
 
 ## `kind`
 

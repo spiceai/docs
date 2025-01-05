@@ -14,7 +14,7 @@ Results caching can help improve performance for bursts of requests and for non-
 Results caching employs a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) cache replacement policy with the ability to specify an item expiry duration, which defaults to 1-second.
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: app
 

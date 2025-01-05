@@ -23,8 +23,8 @@ spice pods [flags]
 >>> spice pods
 
 VERSION NAME        DATASETSCOUNT MODELSCOUNT DEPENDENCIESCOUNT
-v1beta1 demo        2             1           0
-v1beta1 another_pod 3             0           1
+v1 demo        2             1           0
+v1 another_pod 3             0           1
 ```
 
 ### Additional Example
@@ -33,6 +33,6 @@ v1beta1 another_pod 3             0           1
 >>> spice pods --tls-root-certificate-file /path/to/cert.pem
 
 VERSION NAME        DATASETSCOUNT MODELSCOUNT DEPENDENCIESCOUNT
-v1beta1 demo        2             1           0
-v1beta1 another_pod 3             0           1
+v1 demo        2             1           0
+v1 another_pod 3             0           1
 ```
