@@ -33,16 +33,6 @@ const config: Config = {
     locales: ['en'],
   },
 
-  headTags: [
-    {
-      tagName: 'img',
-      attributes: {
-        referrerPolicy: 'no-referrer-when-downgrade',
-        src: 'https://static.scarf.sh/a.png?x-pxid=d13c8a61-d145-479a-92dc-6a231eddbb3e',
-      },
-    },
-  ],
-
   presets: [
     [
       'classic',
