@@ -2,7 +2,7 @@
 title: 'Spice Cloud Platform'
 description: 'Instructions for using models hosted on the Spice Cloud Platform with Spice.'
 sidebar_label: 'Spice Cloud Platform'
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in the `from` field.

@@ -2,7 +2,6 @@
 title: 'Model Providers'
 sidebar_label: 'Model Providers'
 description: 'Overview of supported model providers for ML and LLMs in Spice.'
-sidebar_position: 5
 ---
 
 Spice supports various model providers for traditional machine learning (ML) models and large language models (LLMs).
@@ -15,7 +14,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | `openai`      | OpenAI (or compatible) LLM endpoint                                                             | -            | Remote HTTP endpoint   |
 | `azure`       | Azure OpenAI                                                                                    | -            | Remote HTTP endpoint   |
 | `anthropic`   | Models hosted on [Anthropic](https://www.anthropic.com)                                         | -            | Remote HTTP endpoint   |
-| `grok`        | Coming soon                                                                                     | -            | Remote HTTP endpoint   |
+| `grok`        | Models hosted on [xAI](https://x.ai/api).                                                       | -            | Remote HTTP endpoint   |
 
 - LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
 
