@@ -11,8 +11,14 @@ Language models can perform arbitrary and complex tasks. Evals help evaluate a p
 
 Related [Cookbook](https://github.com/spiceai/cookbook/tree/trunk/evals).
 
-
 ## Overview
+In Spice, an eval has the following core components:
+ - **Evals**: A defined task for a model to perform, and how to measure its performance.
+ - **Eval Run**: An evaluation of a specific model, against a single run.
+ - **Eval Result**: Within an eval run, the output from the model for a single task input.
+ - **Eval Scorer**: A method to score the model performance of an eval result.
+
+### Eval Components
 An eval component looks like this
 ```yaml
 evals:
