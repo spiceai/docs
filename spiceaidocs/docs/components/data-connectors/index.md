@@ -13,8 +13,8 @@ Currently supported Data Connectors include:
 
 | Name                               | Description               | Status            | Protocol/Format           | Refresh Modes               | Supports [Ingestion][ingestion] | Supports Documents |
 | ---------------------------------- | ------------------------- | ----------------- | ------------------------- | --------------------------- | ------------------------------- | ------------------ |
+| `github`                           | GitHub                    | Stable            | GraphQL, REST             | `append`, `full`            | ❌                              | ❌                 |
 | `duckdb`                           | DuckDB                    | Release Candidate |                           | `append`, `full`            | ❌                              | ❌                 |
-| `github`                           | GitHub                    | Release Candidate | GraphQL, REST             | `append`, `full`            | ❌                              | ❌                 |
 | `graphql`                          | GraphQL                   | Release Candidate | GraphQL                   | `append`, `full`            | ❌                              | ❌                 |
 | `mysql`                            | MySQL                     | Release Candidate |                           | `append`, `full`            | Roadmap                         | ❌                 |
 | `postgres`                         | PostgreSQL                | Release Candidate |                           | `append`, `full`            | Roadmap                         | ❌                 |

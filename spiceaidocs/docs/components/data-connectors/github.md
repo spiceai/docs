@@ -61,7 +61,7 @@ Commits only supports `auto` mode. Query with filter push down is only enabled f
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
-- `author` and `state`; supports exact matches, or NOT matches. For exmaple, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.
+- `author` and `state`; supports exact matches, or NOT matches. For example, `WHERE author = 'peasee'` or `WHERE author <> 'peasee'`.
 - `body` and `title`; supports exact matches, or LIKE matches. For example, `WHERE body LIKE '%duckdb%'`.
 - `updated_at`, `created_at`, `merged_at` and `closed_at`; supports exact matches, or greater/less than matches with dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format. For example, `WHERE created_at > '2024-09-24'`.
 
