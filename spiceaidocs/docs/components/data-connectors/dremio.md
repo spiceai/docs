@@ -101,6 +101,36 @@ The table below shows the Dremio data types supported, along with the type mappi
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
 
+## Limitations
+
+- Dremio connector does not support queries with the EXCEPT and INTERSECT keywords in Spice REPL. Use DISTINCT and IN/NOT IN instead. See the example below.
+
+```SQL
+# fail
+SELECT ws_item_sk FROM web_sales
+INTERSECT
+SELECT ss_item_sk FROM store_sales;
+
+# success
+SELECT DISTINCT ws_item_sk FROM web_sales
+WHERE ws_item_sk IN (
+    SELECT DISTINCT ss_item_sk FROM store_sales
+);
+
+# fail
+SELECT ws_item_sk FROM web_sales
+EXCEPT
+SELECT ss_item_sk FROM store_sales;
+
+# success
+SELECT DISTINCT ws_item_sk FROM web_sales
+WHERE ws_item_sk NOT IN (
+    SELECT DISTINCT ss_item_sk FROM store_sales
+);
+```
+
+:::
+
 ## Cookbook
 
 - A cookbook recipe to configure Dremio as data connector in Spice. [Dremio Data Connector](https://github.com/spiceai/cookbook/tree/trunk/dremio#readme)
