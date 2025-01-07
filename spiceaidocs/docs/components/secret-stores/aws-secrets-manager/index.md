@@ -24,7 +24,7 @@ The store reads keys from the secret named in the selector. In the above example
 A complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager.
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: taxi_trips
 secrets:

@@ -31,7 +31,7 @@ Add a custom Spicepod to be loaded by the Spice.ai runtime by overriding the `sp
 ```yaml
 spicepod:
   name: app
-  version: v1beta1
+  version: v1
   kind: Spicepod
 
   datasets:
@@ -148,7 +148,7 @@ monitoring:
     enabled: true
 spicepod:
   name: app
-  version: v1beta1
+  version: v1
   kind: Spicepod
 
   datasets:

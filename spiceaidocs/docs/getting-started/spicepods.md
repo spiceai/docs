@@ -25,7 +25,7 @@ A Spicepod is described by a YAML manifest file, typically named `spicepod.yaml`
 ## Example Manifest
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: my_spicepod
 
@@ -50,7 +50,7 @@ secrets:
 ### Additional Example
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: another_spicepod
 

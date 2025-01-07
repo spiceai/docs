@@ -44,7 +44,7 @@ Check [Secrets Stores](/components/secret-stores) for more details.
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 
@@ -70,7 +70,7 @@ Check [Secrets Stores](/components/secret-stores) for more details.
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 
@@ -99,7 +99,7 @@ Check [Secrets Stores](/components/secret-stores) for more details.
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 

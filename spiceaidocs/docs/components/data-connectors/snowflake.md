@@ -88,7 +88,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 
@@ -129,7 +129,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 
@@ -168,7 +168,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     `spicepod.yaml`
     ```yaml
-    version: v1beta1
+    version: v1
     kind: Spicepod
     name: spice-app
 
