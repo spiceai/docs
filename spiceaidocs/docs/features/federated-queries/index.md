@@ -74,23 +74,23 @@ Execute the queries:
 ```sql
 -- Query S3 (Parquet)
 SELECT *
-FROM s3_source LIMIT 10
+FROM s3_source LIMIT 10;
 
 -- Query S3 (Parquet) accelerated
 SELECT *
-FROM s3_source_accelerated LIMIT 10
+FROM s3_source_accelerated LIMIT 10;
 
 -- Query PostgreSQL
 SELECT *
-FROM pg_source LIMIT 10
+FROM pg_source LIMIT 10;
 
 -- Query Dremio
 SELECT *
-FROM dremio_source LIMIT 10
+FROM dremio_source LIMIT 10;
 
 -- Query Dremio accelerated
 SELECT *
-FROM dremio_source_accelerated LIMIT 10
+FROM dremio_source_accelerated LIMIT 10;
 ```
 
 **Step 8.** Join tables across remote sources and locally accelerated source
