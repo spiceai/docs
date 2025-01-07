@@ -22,10 +22,9 @@ git clone https://github.com/spiceai/cookbook.git
 cd cookbook/federation
 ```
 
-**Step 3.** Start PostgreSQL with Docker Compose & login to the demo Dremio.
+**Step 3.** Login to the demo Dremio.
 
 ```bash
-make
 spice login dremio -u demo -p demo1234
 ```
 
@@ -80,10 +79,6 @@ FROM s3_source LIMIT 10;
 SELECT *
 FROM s3_source_accelerated LIMIT 10;
 
--- Query PostgreSQL
-SELECT *
-FROM pg_source LIMIT 10;
-
 -- Query Dremio
 SELECT *
 FROM dremio_source LIMIT 10;
@@ -96,81 +91,49 @@ FROM dremio_source_accelerated LIMIT 10;
 **Step 8.** Join tables across remote sources and locally accelerated source
 
 ```sql
--- Query across S3, PostgreSQL, and Dremio
-WITH order_numbers AS (
-  SELECT DISTINCT order_number
-  FROM s3_source
-  WHERE order_number IN (
-    SELECT order_number
-    FROM pg_source
-  )
+-- Query across S3 and Dremio
+WITH all_sales AS (
+   SELECT sales FROM s3_source
+   UNION ALL
+   select fare_amount+tip_amount as sales from dremio_source
 )
-SELECT
-  AVG(total_amount),
-  passenger_count
-FROM dremio_source_accelerated
-WHERE passenger_count IN (
-  SELECT DISTINCT order_number % 10 AS num_of_passenger
-  FROM order_numbers
-)
-GROUP BY passenger_count;
+SELECT SUM(sales) as total_sales,
+       COUNT(*) AS total_transactions,
+       MAX(sales) AS max_sale,
+       AVG(sales) AS avg_sale
+FROM all_sales;
 
-+---------------------------------------------+-----------------+
-| avg(dremio_source_accelerated.total_amount) | passenger_count |
-+---------------------------------------------+-----------------+
-| 17.441359661495113                          | 3               |
-| 22.401176470588233                          | 6               |
-| 21.122631578947367                          | 5               |
-| 17.219515789473697                          | 4               |
-| 17.71422249944938                           | 2               |
-| 15.394881909237206                          | 1               |
-| 23.2                                        | 0               |
-+---------------------------------------------+-----------------+
++--------------------+--------------------+----------+--------------------+
+| total_sales        | total_transactions | max_sale | avg_sale           |
++--------------------+--------------------+----------+--------------------+
+| 11501140.079999998 | 102823             | 14082.8  | 111.85376890384445 |
++--------------------+--------------------+----------+--------------------+
 
-Time: 0.557610333 seconds. 7 rows.
+Time: 1.079320792 seconds. 1 rows.
 ```
 
 **Step 9.** Join tables across locally accelerated sources and query
 
 ```sql
--- Query across S3 accelerated, PostgreSQL, and Dremio accelerated
-WITH order_numbers AS (
-  SELECT DISTINCT order_number
-  FROM s3_source_accelerated
-  WHERE order_number IN (
-    SELECT order_number
-    FROM pg_source
-  )
+-- Query across S3 accelerated and Dremio accelerated
+WITH all_sales AS (
+   SELECT sales FROM s3_source_accelerated
+   UNION ALL
+   select fare_amount+tip_amount as sales from dremio_source_accelerated
 )
-SELECT
-  AVG(total_amount),
-  passenger_count
-FROM dremio_source_accelerated
-WHERE passenger_count IN (
-  SELECT DISTINCT order_number % 10 AS num_of_passenger
-  FROM order_numbers
-)
-GROUP BY passenger_count;
+SELECT SUM(sales) as total_sales,
+       COUNT(*) AS total_transactions,
+       MAX(sales) AS max_sale,
+       AVG(sales) AS avg_sale
+FROM all_sales;
 
-+---------------------------------------------+-----------------+
-| AVG(dremio_source_accelerated.total_amount) | passenger_count |
-+---------------------------------------------+-----------------+
-| 21.12263157894737                           | 5               |
-| 17.219515789473693                          | 4               |
-| 22.401176470588233                          | 6               |
-| 17.441359661495113                          | 3               |
-| 23.2                                        | 0               |
-| 17.714222499449434                          | 2               |
-| 15.394881909237196                          | 1               |
-+---------------------------------------------+-----------------+
++-------------+--------------------+----------+--------------------+
+| total_sales | total_transactions | max_sale | avg_sale           |
++-------------+--------------------+----------+--------------------+
+| 11501140.08 | 102823             | 14082.8  | 111.85376890384447 |
++-------------+--------------------+----------+--------------------+
 
-Time: 0.045805958 seconds. 7 rows.
-```
-
-**Step 10.** Clean up the Postgres container.
-
-```bash
-make clean
+Time: 0.011524375 seconds. 1 rows.
 ```
 
 ### Acceleration
