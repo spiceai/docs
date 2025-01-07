@@ -13,7 +13,7 @@ The [`v1/chat/completion`](/api/HTTP/post-chat-completions) endpoint is compatib
 
 ### Example: Setting Default Overrides
 
-To specify a default override for a parameter, use the `openai_` prefix followed by the parameter name. For example, to set the `temperature` parameter to `0.1`, use `openai_temperature: 0.1`.
+To specify a default override for a parameter, use the `openai_` prefix followed by the parameter name. For example, to set the `temperature` parameter to `0.1` for all requests with this model, use `openai_temperature: 0.1`. A `temperature` parameter in the request body will still override the default. 
 
 ```yaml
 models:
