@@ -16,7 +16,7 @@ Refer to the [Cookbook](https://github.com/spiceai/cookbook/tree/trunk/evals) fo
 In Spice, an eval consists of the following core components:
 
 - **Evals**: A defined task for a model to perform and a method to measure its performance.
-- **Eval Run**: An evaluation of a specific model against a single run.
+- **Eval Run**: An single evaluation of a specific model.
 - **Eval Result**: The output from the model for a single task input within an eval run.
 - **Eval Scorer**: A method to score the model's performance on an eval result.
 
