@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports loading and serving GGUF LLMs from various sources for embeddings and inference, including local filesystems and Hugging Face.
+Spice supports loading and serving LLMs from various sources for embeddings and inference, including local filesystems and Hugging Face.
 
 ### Example: Loading a LLM from Hugging Face
 
