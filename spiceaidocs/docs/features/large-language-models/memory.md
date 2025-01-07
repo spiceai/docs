@@ -1,15 +1,13 @@
 ---
-title: 'Language Model Memories'
+title: 'Language Model Memory'
 sidebar_label: 'Memory'
-description: 'Learn how LLMs can interact with the spice runtime.'
-sidebar_position: 3
+description: 'Learn how to provide LLMs with memory'
+sidebar_position: 2
 pagination_prev: null
 pagination_next: null
 ---
 
-# Memory Tools
-
-Spice provides memory persistence tools that allow language models to store and retrieve information across conversations. These tools are available through the `memory` tool group.
+Spice provides memory persistence tools that help language models store and retrieve information across conversations. These tools are available through the `memory` tool group.
 
 ## Enabling Memory Tools
 
