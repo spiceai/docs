@@ -38,6 +38,7 @@ Currently supported Data Connectors include:
 | `sharepoint`                       | SharePoint                | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
 | `snowflake`                        | Snowflake                 | Alpha             | Arrow                     | `append`, `full`            | Roadmap                         | ❌                 |
 | `spark`                            | Spark                     | Alpha             | Spark Connect             | `append`, `full`            | ❌                              | ❌                 |
+| `dynamodb`                         | DynamoDB                  | Alpha             |                           | `append`, `full`            | ❌                              | ❌                 |
 
 [ingestion]: https://docs.spiceai.org/features/data-ingestion
 
