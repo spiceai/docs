@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Query datasets hosted in the [Spice.ai Cloud Platform](https://spice.ai). Discover available public datasets in the [Spicerack](https://spicerack.org).
+Query datasets hosted in the [Spice.ai Cloud Platform](https://spice.ai). Discover available public datasets on [Spicerack](https://spicerack.org).
 
 ## Configuration
 
