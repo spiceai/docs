@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Query datasets provided by the [Spice.ai Cloud Platform](https://spice.ai).
+Query datasets hosted in the [Spice.ai Cloud Platform](https://spice.ai).
 
 ## Configuration
 
