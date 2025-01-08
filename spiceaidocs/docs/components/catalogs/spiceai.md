@@ -24,6 +24,19 @@ catalogs:
       - "tpch.supplier" # also include the "supplier" table
 ```
 
+This configuration would load the following tables:
+
+```shell
+sql> show tables;
++---------------+--------------+----------------+------------+
+| table_catalog | table_schema | table_name     | table_type |
++---------------+--------------+----------------+------------+
+| marketplace   | tpch         | part           | BASE TABLE |
+| marketplace   | tpch         | partsupp       | BASE TABLE |
+| marketplace   | tpch         | supplier       | BASE TABLE |
++---------------+--------------+----------------+------------+
+```
+
 ## `from`
 
 The `from` field specifies which organization and application to load tables from. The format is:
@@ -38,8 +51,65 @@ spice.ai/[organization]/[application][/catalog_name]
 
 For example:
 
-- `spice.ai/demo-org/tpch` - Load the default catalog from the "tpch" application in the "demo-org" organization
-- `spice.ai/demo-org/tpch/custom_catalog` - Load a specific catalog named "custom_catalog" from the application
+1. Load the default catalog from the "tpch" application in the "demo-org" organization
+
+```yaml
+catalogs:
+  - from: spice.ai/demo-org/tpch
+    name: marketplace
+```
+
+This will create tables like:
+
+```shell
+SHOW TABLES;
++---------------+--------------+----------------+------------+
+| table_catalog | table_schema | table_name     | table_type |
++---------------+--------------+----------------+------------+
+| marketplace   | tpch         | region         | BASE TABLE |
+| marketplace   | tpch         | orders         | BASE TABLE |
+| marketplace   | tpch         | part           | BASE TABLE |
+| marketplace   | tpch         | supplier       | BASE TABLE |
+| marketplace   | tpch         | customer       | BASE TABLE |
+| marketplace   | tpch         | partsupp       | BASE TABLE |
+| marketplace   | tpch         | lineitem       | BASE TABLE |
+| marketplace   | tpch         | nation         | BASE TABLE |
++---------------+--------------+----------------+------------+
+```
+
+2. Load a specific catalog named "custom_catalog" from an application
+
+```yaml
+catalogs:
+  - from: spice.ai/demo-org/tpch/custom_catalog
+    name: marketplace
+```
+
+If the remote application has tables in `custom_catalog` like:
+
+```shell
+SHOW TABLES;
++------------------+--------------+----------------+------------+
+| table_catalog    | table_schema | table_name     | table_type |
++------------------+--------------+----------------+------------+
+| custom_catalog   | ice_schema1  | table1         | BASE TABLE |
+| custom_catalog   | ice_schema1  | table2         | BASE TABLE |
+| custom_catalog   | ice_schema2  | table1         | BASE TABLE |
++------------------+--------------+----------------+------------+
+```
+
+They will be available locally as:
+
+```shell
+SHOW TABLES;
++------------------+--------------+----------------+------------+
+| table_catalog    | table_schema | table_name     | table_type |
++------------------+--------------+----------------+------------+
+| marketplace      | ice_schema1  | table1         | BASE TABLE |
+| marketplace      | ice_schema1  | table2         | BASE TABLE |
+| marketplace      | ice_schema2  | table1         | BASE TABLE |
++------------------+--------------+----------------+------------+
+```
 
 ## `name`
 
