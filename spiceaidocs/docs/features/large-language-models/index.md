@@ -1,15 +1,15 @@
 ---
-title: 'AI Gateway - Configuring LLMs'
-sidebar_label: 'AI Gateway'
-description: 'Learn how to configure language models and use Spice as an AI Gateway.'
+title: 'Large Language Models'
+sidebar_label: 'Large Language Models'
+description: 'Learn how to configure large language models (LLMs)'
 sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). Additionally, Spice offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/features/search)).
+Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It also offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/features/search)).
 
-Spice also supports **full OpenTelemetry observability**, enabling detailed tracking of data flows and requests for full transparency and easier debugging.
+Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
 
 ## Configuring Language Models
 

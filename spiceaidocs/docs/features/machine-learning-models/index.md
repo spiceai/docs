@@ -1,7 +1,7 @@
 ---
 title: 'Machine Learning Models'
 sidebar_label: 'Machine Learning Models'
-sidebar_position: 10
+sidebar_position: 6
 pagination_prev: null
 pagination_next: null
 ---

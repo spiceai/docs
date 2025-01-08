@@ -5,28 +5,20 @@ description: 'Models YAML reference'
 pagination_next: null
 ---
 
-:::warning[Early Preview]
+Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration helps specify either type from various sources. The model type is automatically determined based on the model source and files.
 
-The model specifications are in early preview and are subject to change.
-
-:::
-
-# Models
-
-Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration allows you to specify either type from a variety of sources. The model type is automatically determined based on the model source and files.
-
-| field         | Description                                                             |
-| ------------- | ----------------------------------------------------------------------- |
-| `name`        | Unique, readable name for the model within the Spicepod.                |
-| `from`        | Source-specific address to uniquely identify a model                    |
-| `description` | Additional details about the model, useful for displaying to users      |
-| `datasets`    | Datasets that the model depends on for inference                        |
-| `files`       | Specify additional files, or override default files needed by the model |
-| `params`      | Additional parameters to be passed to the model                         |
+| Field         | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `name`        | Unique, readable name for the model within the Spicepod.                 |
+| `from`        | Source-specific address to uniquely identify a model.                    |
+| `description` | Additional details about the model, useful for displaying to users.      |
+| `datasets`    | Datasets that the model depends on for inference.                        |
+| `files`       | Specify additional files, or override default files needed by the model. |
+| `params`      | Additional parameters to be passed to the model.                         |
 
 ## `models`
 
-The `models` section in your configuration allows you to specify one or more models to be used with your datasets.
+The `models` section in your configuration specifies one or more models to be used with your datasets.
 
 Example:
 
@@ -123,7 +115,7 @@ Optional. A map of key-value pairs for additional parameters specific to the mod
 Example uses include:
 
 - Setting default OpenAI request parameters for language models, see [parameter overrides](/features/large-language-models/parameter_overrides.md).
-- Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](/features/large-language-models/runtime_tools.md).
+- Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](/features/large-language-models/tools.md).
 
 ### `datasets`
 

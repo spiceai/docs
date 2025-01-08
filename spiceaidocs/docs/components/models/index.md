@@ -20,4 +20,4 @@ Spice supports various model providers for traditional machine learning (ML) mod
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/reference/spicepod/models.md).
 
-For details about augmenting language models (e.g. using [tools](/features/large-language-models/runtime_tools.md)), see the [LLM documentation](/features/large-language-models).
+For details about augmenting language models (e.g. using [tools](/features/large-language-models/tools.md)), see the [LLM documentation](/features/large-language-models).

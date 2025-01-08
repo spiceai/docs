@@ -1,13 +1,13 @@
 ---
-title: 'Giving Language Models Runtime Tools'
-sidebar_label: 'Runtime tools'
-description: 'Learn how LLMs can interact with the spice runtime.'
-sidebar_position: 2
+title: 'Language Models Tools'
+sidebar_label: 'Tools'
+description: 'Learn how LLMs interact with the Spice runtime.'
+sidebar_position: 1
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides tools that enable LLMs to interact with the runtime. To provide these tools to a Spice model, specify them in its `params.tools`.
+Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.
 
 ### Example: Specifying Tools for a Model
 
