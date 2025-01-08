@@ -7,24 +7,25 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Query all of the datasets provided by the [Spice.ai Cloud Platform](https://spice.ai).
+Query datasets provided by the [Spice.ai Cloud Platform](https://spice.ai).
 
 ## Configuration
 
 Create a [Spice.ai Cloud Platform](https://spice.ai) account and login with the CLI using `spice login`.
 
 Example:
+
 ```yaml
 catalogs:
-  - from: spice.ai
-    name: spicey # tables from the Spice.ai platform will be available in the "spicey" schema in Spice
+  - from: spice.ai:spiceai/tpch # load the default catalog from the `spiceai` org and `tpch` app.
+    name: sp # tables from the Spice.ai platform will be available in the "sp" catalog in Spice
     include:
       - "tpch.*" # include only the tables from the "tpch" schema
 ```
 
 ## `from`
 
-The `from` field is used to specify the catalog provider. For the Spice.ai catalog connector, use `spiceai`.
+The `from` field is used to specify the catalog provider. For the Spice.ai catalog connector, use the format `spice.ai:org/app[/catalog]`. If `catalog` is not specified, the default catalog for the app will be used.
 
 ## `name`
 
