@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports loading and serving ONNX models for inference, including local filesystems, Hugging Face, and the Spice Cloud platform.
+Spice supports loading and serving ONNX models for inference, from sources including local filesystems, Hugging Face, and the Spice.ai Cloud platform.
 
 Example `spicepod.yml` loading an ONNX model from HuggingFace:
 
