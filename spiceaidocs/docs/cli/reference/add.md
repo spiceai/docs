@@ -10,10 +10,10 @@ Adds a Spicepod to the project.
 ### Usage
 
 ```shell
-spice add [pod] [flags]
+spice add [spicerack slug] [flags]
 ```
 
-- `pod`: The Spicepod to add (e.g. `spiceai/quickstart`)
+- `spicerack slug`: The slug to the Spicepod on Spicerack.
 
 
 #### Flags
@@ -28,7 +28,7 @@ spice add [pod] [flags]
 > spice add spiceai/quickstart
 ```
 
-This adds the following Spicepod under `./spicepods` and links it as a dependency in the root `./spicepod.yml`:
+This adds the following Spicepod under `spicepods/spiceai/quickstart`:
 ```yaml
  version: v1beta1
  kind: Spicepod
@@ -43,3 +43,12 @@ This adds the following Spicepod under `./spicepods` and links it as a dependenc
      acceleration:
        enabled: true
  ```
+
+It also includes this Spicepod as a dependency in the root `spicepod.yaml`:
+```yaml
+version: v1
+kind: Spicepod
+name: Spice AI quickstart
+dependencies:
+    - spiceai/quickstart
+```
