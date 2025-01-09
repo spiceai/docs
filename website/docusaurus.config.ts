@@ -41,18 +41,18 @@ const config: Config = {
       'classic',
       {
         docs: {
-          routeBasePath: '/website',
+          routeBasePath: '/docs',
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
+          editUrl: 'https://github.com/spiceai/docs/tree/trunk/website/',
         },
         blog: {
           path: 'blog',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, blogDirPath, blogPath }) => {
-            return `https://github.com/spiceai/docs/edit/trunk/spiceaidocs/${blogDirPath}/${blogPath}`;
+            return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`;
           },
           remarkPlugins: [],
           postsPerPage: 5,
@@ -106,7 +106,7 @@ const config: Config = {
         {
           type: 'doc',
           position: 'left',
-          docId: 'getting-started/index',
+          docId: 'index',
           label: 'Docs',
         },
         {
