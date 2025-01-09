@@ -28,12 +28,16 @@ A choice of DuckDB, SQLite, or PostgreSQL engines can be used to materialize dat
 
 Supported Data Accelerators include:
 
-| Engine Name                       | Description             | Status            | Engine Modes     |
-| --------------------------------- | ----------------------- | ----------------- | ---------------- |
-| [`arrow`](./arrow.md)             | In-Memory Arrow Records | Release Candidate | `memory`         |
-| [`duckdb`](./duckdb.md)           | Embedded DuckDB         | Release Candidate | `memory`, `file` |
-| [`postgres`](./postgres/index.md) | Attached PostgreSQL     | Release Candidate |                  |
-| [`sqlite`](./sqlite.md)           | Embedded SQLite         | Release Candidate | `memory`, `file` |
+| Name       | Description                     | Status            | Engine Modes     |
+| ---------- | ------------------------------- | ----------------- | ---------------- |
+| `arrow`    | In-Memory Arrow Records         | Release Candidate | `memory`         |
+| `duckdb`   | Embedded [DuckDB][duckdb]       | Release Candidate | `memory`, `file` |
+| `postgres` | Attached [PostgreSQL][postgres] | Release Candidate | N/A              |
+| `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate | `memory`, `file` |
+
+[duckdb]: https://docs.spiceai.org/data-accelerators/duckdb
+[postgres]: https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#postgresql-data-accelerator
+[sqlite]: https://docs.spiceai.org/data-accelerators/sqlite
 
 ## Data Types
 

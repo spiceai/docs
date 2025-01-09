@@ -15,13 +15,14 @@ Creating schemas and tables within the `spice` catalog is configured by the `nam
 
 Catalog Connectors connect to external catalog providers and make their tables available for federated SQL query in Spice. Configuring accelerations for tables in external catalogs is not supported. The schema hierarchy of the external catalog is preserved in Spice.
 
-Currently supported Catalog Connectors include:
+Supported Catalog Connectors include:
 
-| Name            | Description | Status | Protocol/Format                     | 
-| --------------- | ----------- | ------ | ----------------------------------- |
-| `databricks`    | Databricks  | Alpha  | Spark Connect <br/> S3 / Delta Lake | 
-| `unity_catalog`    | Unity Catalog  | Alpha  | Delta Lake                          | 
-| `spice.ai`       | Spice.ai Cloud Platform    | Alpha  | Arrow Flight                        |
+| Name            | Description             | Status      | Protocol/Format              |
+| --------------- | ----------------------- | ----------- | ---------------------------- |
+| `databricks`    | Databricks              | Alpha       | Spark Connect, S3/Delta Lake |
+| `unity_catalog` | Unity Catalog           | Alpha       | Delta Lake                   |
+| `spice.ai`      | Spice.ai Cloud Platform | Alpha       | Arrow Flight                 |
+| `glue`          | AWS Glue                | Coming Soon | JSON, Parquet, Iceberg       |
 
 ## Catalog Connector Docs
 
@@ -38,7 +39,7 @@ catalogs:
   - from: spice.ai
     name: spiceai
     include:
-      - "tpch.*" # Include only the "tpch" tables.
+      - 'tpch.*' # Include only the "tpch" tables.
 ```
 
 import DocCardList from '@theme/DocCardList';
