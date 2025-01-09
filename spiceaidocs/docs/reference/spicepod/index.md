@@ -1,15 +1,17 @@
 ---
-title: 'Manifest syntax for Spicepods'
+title: 'YAML syntax for Spicepod manifests'
 sidebar_position: 1
 sidebar_label: 'Spicepod specification'
 description: 'Detailed documentation on the Spicepod manifest syntax (spicepod.yaml)'
 ---
 
-## About YAML syntax for Spicepod manifests (spicepod.yaml)
+Spicepod manifests use YAML syntax. They are stored in the root directory of the application and must be named `spicepod.yaml` or `spicepod.yml`.
 
-Spicepod manifests use YAML syntax and must be named `spicepod.yaml` or `spicepod.yml`. If you are new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+:::info[Tip]
 
-Spicepod manifest files are stored in the root directory of your application code.
+If you are new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+
+:::
 
 ## `version`
 
@@ -309,6 +311,7 @@ embeddings:
 A Spicepod can contain one or more [evaluations](./evals.md) referenced by relative path.
 
 **Example**
+
 ```yaml
 evals:
   - name: australia

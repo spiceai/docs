@@ -2,6 +2,7 @@
 title: 'Authentication'
 sidebar_label: 'Authentication'
 sidebar_position: 3
+desired_sidebar: api
 description: 'Authentication documentation'
 pagination_prev: null
 pagination_next: null

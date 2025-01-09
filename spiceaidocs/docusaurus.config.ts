@@ -4,9 +4,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 
 const config: Config = {
-  title: 'Spice.ai OSS Docs',
+  title: 'Spice.ai OSS',
   tagline:
-    'A unified SQL query interface and portable runtime to locally materialize, accelerate, and query data tables sourced from any database, data warehouse, or data lake.',
+    'A portable SQL query and AI compute engine, written in Rust, for data-grounded apps and agents.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -39,6 +39,7 @@ const config: Config = {
       {
         docs: {
           routeBasePath: '/',
+          sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
           editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
         },
@@ -64,7 +65,7 @@ const config: Config = {
       isCloseable: true,
     },
     navbar: {
-      title: 'Spice.ai OSS Docs',
+      title: 'Spice.ai OSS',
       logo: {
         alt: 'Spice.ai OSS logo',
         src: 'img/logo.svg',
@@ -73,9 +74,20 @@ const config: Config = {
       items: [
         {
           type: 'doc',
-          docId: 'getting-started/index',
           position: 'left',
-          label: 'Getting Started',
+          docId: 'getting-started/index',
+          label: 'Docs',
+        },
+        {
+          type: 'docSidebar',
+          position: 'left',
+          sidebarId: 'api',
+          label: 'API',
+        },
+        {
+          href: 'https://github.com/spiceai/cookbook#spiceai-oss-cookbook',
+          position: 'left',
+          label: 'Cookbook',
         },
         {
           label: 'Blog',
@@ -83,14 +95,15 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/spiceai/spiceai',
-          label: 'GitHub',
-          position: 'right',
-        },
-        {
           label: 'Discord',
           href: 'https://discord.gg/kZnTfneP5u',
           position: 'right',
+        },
+        {
+          href: 'https://github.com/spiceai/spiceai',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },
@@ -118,8 +131,8 @@ const config: Config = {
               href: 'https://discord.gg/kZnTfneP5u',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/spice_ai',
+              label: 'X',
+              href: 'https://x.com/spice_ai',
             },
           ],
         },
@@ -137,7 +150,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Spice AI, Inc.`,
+      copyright: `Copyright © 2025 Spice AI, Inc.`,
     },
     languageTabs: [
       {
