@@ -32,7 +32,7 @@ Adding a Spicepod from Spicerack (like `spiceai/quickstart`):
 **Directory Structure**: 
 The command makes two main modifications to the directory structure:
 1. It creates the `spicepods` directory in the project root if it does not exist.
-2. It adds a Spicepod in the `spicepods` directory relative to the path defined by the Spicerack Slug. For this example, the command would create the directories `spicepods/spiceai` and `spicepods/spiceai/quickstart`, instantiating a Spicepod under the latter. More generally, the Spicepod is placed under `spicepods/[slug]`, where `slug` is the Spicerack slug associated with that Spicepod.
+2. It adds the Spicepod defined by the Spicerack Slug in the relative path in the `spicepods` directory. For this example, the command would create the directories `spicepods/spiceai` and `spicepods/spiceai/quickstart`, instantiating a Spicepod under the latter. More generally, the Spicepod is placed under `spicepods/[slug]`, where `slug` is the Spicerack slug associated with that Spicepod.
 
 After running the command, the directory structure looks like this:
 ```
