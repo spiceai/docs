@@ -22,7 +22,7 @@ spice add [spicerack slug] [flags]
 
 ### Examples
 
-#### Adding a Spicepod from Spicerack (like `spiceai/quickstart`):
+Adding a Spicepod from Spicerack (like `spiceai/quickstart`):
 
 
 ```shell
