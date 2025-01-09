@@ -5,13 +5,16 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Add Spicepod - adds a Spicepod to the project
+Adds a Spicepod to the project from a given package.
 
 ### Usage
 
 ```shell
-spice add [flags]
+spice add [package] [flags]
 ```
+
+- `package`: The package to add (e.g. `spiceai/quickstart`)
+
 
 #### Flags
 
@@ -19,12 +22,24 @@ spice add [flags]
 
 ### Examples
 
-```shell
-spice add spiceai/quickstart
-```
-
-### Additional Example
+**Adding a package from Spicerack (like `spiceai/quickstart`):**
 
 ```shell
-spice add spiceai/samplepod
+> spice add spiceai/quickstart
 ```
+
+This adds the following Spicepod under `./spicepods`:
+```yaml
+ version: v1beta1
+ kind: Spicepod
+ name: quickstart
+
+ datasets:
+   - from: s3://spiceai-demo-datasets/taxi_trips/2024/
+     name: taxi_trips
+     description: taxi trips in s3
+     params:
+       file_format: parquet
+     acceleration:
+       enabled: true
+ ```
