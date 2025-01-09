@@ -100,6 +100,11 @@ const config: Config = {
           position: 'right',
         },
         {
+          label: 'YouTube',
+          href: 'https://www.youtube.com/@spiceai',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/spiceai/spiceai',
           position: 'right',
           className: 'header-github-link',
@@ -133,6 +138,10 @@ const config: Config = {
             {
               label: 'X',
               href: 'https://x.com/spice_ai',
+            },
+            {
+              label: 'YouTube',
+              href: 'https://www.youtube.com/@spiceai',
             },
           ],
         },
