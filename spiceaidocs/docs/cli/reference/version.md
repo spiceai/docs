@@ -16,7 +16,7 @@ spice version [flags]
 
 - `-h`, `--help`   help for version
 
-### Examples
+### Sample output
 
 
 **Upgrade available**: 
@@ -29,6 +29,9 @@ spice version [flags]
  CLI version v1.0.0-rc.2 is now available!
  To upgrade, run "spice upgrade".
  ```
+
+Learn more about upgrading the Spice CLI and runtime using `spice upgrade` [here.](/cli/reference/upgrade)
+
 
 **Latest Version**:
 ```shell
