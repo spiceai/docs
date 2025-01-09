@@ -10,10 +10,10 @@ Adds a Spicepod to the project.
 ### Usage
 
 ```shell
-spice add [package] [flags]
+spice add [pod] [flags]
 ```
 
-- `package`: The package to add (e.g. `spiceai/quickstart`)
+- `pod`: The Spicepod to add (e.g. `spiceai/quickstart`)
 
 
 #### Flags
@@ -22,7 +22,7 @@ spice add [package] [flags]
 
 ### Examples
 
-**Adding a package from Spicerack (like `spiceai/quickstart`):**
+**Adding a Spicepod from Spicerack (like `spiceai/quickstart`):**
 
 ```shell
 > spice add spiceai/quickstart
