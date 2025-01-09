@@ -21,6 +21,7 @@ Currently supported Data Connectors include:
 | `s3`                               | S3                        | Release Candidate | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `databricks (mode: delta_lake)`    | Databricks                | Release Candidate | S3 / Delta Lake           | `append`, `full`            | Roadmap                         | ❌                 |
 | `file`                             | File                      | Release Candidate | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
+| `dremio`                           | Dremio                    | Release Candidate | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
 | `databricks (mode: spark_connect)` | Databricks                | Beta              | Spark Connect             | `append`, `full`            | Roadmap                         | ❌                 |
 | `file`                             | File                      | Beta              | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `delta_lake`                       | Delta Lake                | Beta              | Delta Lake                | `append`, `full`            | Roadmap                         | ❌                 |
@@ -31,7 +32,6 @@ Currently supported Data Connectors include:
 | `abfs`                             | Azure BlobFS              | Alpha             | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
 | `clickhouse`                       | Clickhouse                | Alpha             |                           | `append`, `full`            | ❌                              | ❌                 |
 | `debezium`                         | Debezium                  | Alpha             | CDC, Kafka                | `append`, `full`, `changes` | ❌                              | ❌                 |
-| `dremio`                           | Dremio                    | Alpha             | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
 | `ftp`, `sftp`                      | FTP/SFTP                  | Alpha             | Parquet, CSV              | `append`, `full`            | ❌                              | ✅                 |
 | `http`, `https`                    | HTTP(s)                   | Alpha             | Parquet, CSV              | `append`, `full`            | ❌                              | ❌                 |
 | `localpod`                         | Local dataset replication | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
