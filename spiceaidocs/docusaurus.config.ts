@@ -122,6 +122,10 @@ const config: Config = {
               label: 'Getting Started',
               to: '/getting-started',
             },
+            {
+              label: 'API',
+              to: '/api',
+            },
           ],
         },
         {
