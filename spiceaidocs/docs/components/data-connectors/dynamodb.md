@@ -71,17 +71,30 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    - Config file: `~/.aws/config` (Linux/Mac) or `%UserProfile%\.aws\config` (Windows)
    - Credentials file: `~/.aws/credentials` (Linux/Mac) or `%UserProfile%\.aws\credentials` (Windows)
    - The `AWS_PROFILE` environment variable can be used to specify a named profile.
+   - Supports both static credentials and SSO sessions
    - Example credentials file:
 
      ```ini
+     # Static credentials
      [default]
      aws_access_key_id = YOUR_ACCESS_KEY
      aws_secret_access_key = YOUR_SECRET_KEY
 
-     [prod]
-     aws_access_key_id = PROD_ACCESS_KEY
-     aws_secret_access_key = PROD_SECRET_KEY
+     # SSO profile
+     [profile sso-profile]
+     sso_start_url = https://my-sso-portal.awsapps.com/start
+     sso_region = us-west-2
+     sso_account_id = 123456789012
+     sso_role_name = MyRole
+     region = us-west-2
      ```
+
+   :::tip
+   To set up SSO authentication:
+   1. Run `aws configure sso` to configure a new SSO profile
+   2. Use the profile by setting `AWS_PROFILE=sso-profile`
+   3. Run `aws sso login` to start a new SSO session
+   :::
 
 3. **Web Identity Token Credentials**:
    - Used primarily with OpenID Connect (OIDC) and OAuth
@@ -100,7 +113,7 @@ If AWS credentials are not explicitly provided in the configuration, the connect
 The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
 
 :::note[IAM Permissions]
-Regardless of the credential source, the IAM role or user must have appropriate DynamoDB permissions (e.g., `dynamodb:Scan`, `dynamodb:Query`) to access the table.
+Regardless of the credential source, the IAM role or user must have appropriate DynamoDB permissions (e.g., `dynamodb:Scan`, `dynamodb:DescribeTable`) to access the table.
 :::
 
 ## Required IAM Permissions
