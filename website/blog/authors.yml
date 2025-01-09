@@ -26,3 +26,12 @@ Corentin-pro:
   image_url: https://github.com/Corentin-pro.png
   socials:
     github: Corentin-pro
+
+peasee:
+  name: William Croxson
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/peasee
+  image_url: https://github.com/peasee.png
+  page: true
+  socials:
+    github: peasee
