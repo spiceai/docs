@@ -9,38 +9,46 @@ pagination_next: null
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.
 
-Currently supported Data Connectors include:
+Supported Data Connectors include:
 
-| Name                               | Description               | Status            | Protocol/Format           | Refresh Modes               | Supports [Ingestion][ingestion] | Supports Documents |
-| ---------------------------------- | ------------------------- | ----------------- | ------------------------- | --------------------------- | ------------------------------- | ------------------ |
-| `github`                           | GitHub                    | Stable            | GraphQL, REST             | `append`, `full`            | ❌                              | ❌                 |
-| `duckdb`                           | DuckDB                    | Release Candidate |                           | `append`, `full`            | ❌                              | ❌                 |
-| `graphql`                          | GraphQL                   | Release Candidate | GraphQL                   | `append`, `full`            | ❌                              | ❌                 |
-| `mysql`                            | MySQL                     | Release Candidate |                           | `append`, `full`            | Roadmap                         | ❌                 |
-| `postgres`                         | PostgreSQL                | Release Candidate |                           | `append`, `full`            | Roadmap                         | ❌                 |
-| `s3`                               | S3                        | Release Candidate | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
-| `databricks (mode: delta_lake)`    | Databricks                | Release Candidate | S3 / Delta Lake           | `append`, `full`            | Roadmap                         | ❌                 |
-| `file`                             | File                      | Release Candidate | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
-| `dremio`                           | Dremio                    | Release Candidate | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
-| `databricks (mode: spark_connect)` | Databricks                | Beta              | Spark Connect             | `append`, `full`            | Roadmap                         | ❌                 |
-| `file`                             | File                      | Beta              | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
-| `delta_lake`                       | Delta Lake                | Beta              | Delta Lake                | `append`, `full`            | Roadmap                         | ❌                 |
-| `flightsql`                        | FlightSQL                 | Beta              | Arrow Flight SQL          | `append`, `full`            | ❌                              | ❌                 |
-| `mssql`                            | MS SQL Server             | Beta              | Tabular Data Stream (TDS) | `append`, `full`            | ❌                              | ❌                 |
-| `odbc`                             | ODBC                      | Beta              |                           | `append`, `full`            | ❌                              | ❌                 |
-| `spiceai`                          | Spice.ai                  | Beta              | Arrow Flight              | `append`, `full`            | ✅                              | ❌                 |
-| `abfs`                             | Azure BlobFS              | Alpha             | Parquet, CSV              | `append`, `full`            | Roadmap                         | ✅                 |
-| `clickhouse`                       | Clickhouse                | Alpha             |                           | `append`, `full`            | ❌                              | ❌                 |
-| `debezium`                         | Debezium                  | Alpha             | CDC, Kafka                | `append`, `full`, `changes` | ❌                              | ❌                 |
-| `ftp`, `sftp`                      | FTP/SFTP                  | Alpha             | Parquet, CSV              | `append`, `full`            | ❌                              | ✅                 |
-| `http`, `https`                    | HTTP(s)                   | Alpha             | Parquet, CSV              | `append`, `full`            | ❌                              | ❌                 |
-| `localpod`                         | Local dataset replication | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
-| `sharepoint`                       | SharePoint                | Alpha             |                           | `append`, `full`            | ❌                              | ✅                 |
-| `snowflake`                        | Snowflake                 | Alpha             | Arrow                     | `append`, `full`            | Roadmap                         | ❌                 |
-| `spark`                            | Spark                     | Alpha             | Spark Connect             | `append`, `full`            | ❌                              | ❌                 |
-| `dynamodb`                         | DynamoDB                  | Alpha             |                           | `append`, `full`            | ❌                              | ❌                 |
+| Name                               | Description                           | Status            | Protocol/Format              |
+| ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
+| `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `s3`                               | [S3][s3]                              | Release Candidate | Parquet, CSV                 |
+| `postgres`                         | PostgreSQL                            | Release Candidate |                              |
+| `mysql`                            | MySQL                                 | Release Candidate |                              |
+| `duckdb`                           | DuckDB                                | Release Candidate | Embedded                     |
+| `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
+| `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Release Candidate | S3/Delta Lake                |
+| `file`                             | File                                  | Release Candidate | Parquet, CSV                 |
+| `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
+| `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
+| `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
+| `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
+| `spiceai`                          | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
+| `odbc`                             | ODBC                                  | Beta              | ODBC                         |
+| `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
+| `clickhouse`                       | Clickhouse                            | Alpha             |                              |
+| `snowflake`                        | Snowflake                             | Alpha             | Arrow                        |
+| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
+| `spark`                            | Spark                                 | Alpha             | [Spark Connect][spark]       |
+| `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
+| `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
+| `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
+| `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
+| `documentdb`                       | DocumentDB                            | Alpha             |                              |
+| `mongodb`                          | MongoDB                               | Coming Soon       |                              |
+| `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[ingestion]: https://docs.spiceai.org/features/data-ingestion
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
+[s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
+[spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
+[dremio]: https://github.com/spiceai/cookbook/tree/trunk/dremio#readme
+[localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
+[iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 
 ## Object Store File Formats
 
