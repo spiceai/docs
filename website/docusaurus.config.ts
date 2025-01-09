@@ -6,6 +6,8 @@ import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog';
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages';
 
+import tailwindPlugin from './plugins/tailwind-config.cjs';
+
 const config: Config = {
   title: 'Spice.ai OSS',
   tagline:
@@ -221,6 +223,7 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 
   plugins: [
+    tailwindPlugin,
     [
       'docusaurus-plugin-openapi-docs',
       {
