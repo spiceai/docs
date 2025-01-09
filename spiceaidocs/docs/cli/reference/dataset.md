@@ -21,7 +21,7 @@ spice dataset [command]
 
  - `-h`, `--help` Print this help message
 
- ### Examples
+ ### Example
 
  When running `spice dataset configure`, Spice will prompt for four inputs:
  1. The name of the dataset, labelled by `(1)` below.
