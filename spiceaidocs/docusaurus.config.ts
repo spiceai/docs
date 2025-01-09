@@ -126,6 +126,14 @@ const config: Config = {
               label: 'API',
               to: '/api',
             },
+            {
+              label: 'CLI',
+              to: '/cli',
+            },
+            {
+              label: 'SDKs',
+              to: '/sdks',
+            },
           ],
         },
         {
