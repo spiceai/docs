@@ -26,7 +26,7 @@ spice version [flags]
  2024/12/17 22:42:11 INFO CLI version:     v0.18.3-beta
  2024/12/17 22:42:13 INFO Runtime version: v0.20.0-beta+models
  2024/12/17 22:42:14 INFO
- CLI version v1.0.0-rc.2 is now available!
+ CLI version v1.0.0-rc.4 is now available!
  To upgrade, run "spice upgrade".
  ```
 
@@ -37,6 +37,6 @@ Learn more about upgrading the Spice CLI and runtime using `spice upgrade` [here
 ```shell
 > spice version
 
-CLI version:     v1.0.0-rc.2
-Runtime version: v1.0.0-rc.2+models
+CLI version:     v1.0.0-rc.4
+Runtime version: v1.0.0-rc.4+models
  ```
