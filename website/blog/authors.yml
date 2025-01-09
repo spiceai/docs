@@ -1,0 +1,28 @@
+lukekim:
+  name: Luke Kim
+  title: Founder and CEO of Spice AI
+  url: https://x.com/0xLukeKim
+  image_url: https://github.com/lukekim.png
+  page: true
+  socials:
+    x: 0xLukeKim
+    github: lukekim
+    linkedin: lukekim
+
+phillipleblanc:
+  name: Phillip LeBlanc
+  title: Co-Founder and CTO of Spice AI
+  url: https://x.com/zpao
+  image_url: https://github.com/phillipleblanc.png
+  page: true
+  socials:
+    x: leblancphill
+    github: phillipleblanc
+
+Corentin-pro:
+  name: Corentin Risselin
+  title: Software Engineer at Spice AI
+  url: https://github.com/Corentin-pro
+  image_url: https://github.com/Corentin-pro.png
+  socials:
+    github: Corentin-pro

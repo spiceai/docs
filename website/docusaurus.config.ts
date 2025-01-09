@@ -1,7 +1,10 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
+import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog';
+import type { Options as PageOptions } from '@docusaurus/plugin-content-pages';
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -38,11 +41,39 @@ const config: Config = {
       'classic',
       {
         docs: {
-          routeBasePath: '/',
+          routeBasePath: '/website',
+          path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
           editUrl: 'https://github.com/spiceai/docs/tree/trunk/spiceaidocs/',
         },
+        blog: {
+          path: 'blog',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+          editUrl: ({ locale, blogDirPath, blogPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/spiceaidocs/${blogDirPath}/${blogPath}`;
+          },
+          remarkPlugins: [],
+          postsPerPage: 5,
+          feedOptions: {
+            type: 'all',
+            description:
+              'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
+            copyright: `Copyright © 2025 Facebook, Inc.`,
+            xslt: true,
+          },
+          blogTitle: 'Spice.ai OSS blog',
+          blogDescription:
+            'Read blog posts about Spice.ai OSS from the team and community',
+          blogSidebarCount: 'ALL',
+          blogSidebarTitle: 'All Posts',
+        } satisfies BlogOptions,
+        pages: {
+          remarkPlugins: [],
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+        } satisfies PageOptions,
         theme: {
           customCss: ['./src/css/custom.css', './src/css/openapi.css'],
         },
@@ -84,15 +115,11 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API',
         },
+        { to: 'blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/spiceai/cookbook#spiceai-oss-cookbook',
           position: 'left',
           label: 'Cookbook',
-        },
-        {
-          label: 'Blog',
-          href: 'https://blog.spiceai.org',
-          position: 'right',
         },
         {
           label: 'Discord',

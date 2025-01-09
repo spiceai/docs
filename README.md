@@ -10,7 +10,7 @@ This repo contains the markdown files which generate the above website. See belo
 
 The Spice docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
 
-The [spiceaidocs](./spiceaidocs) directory contains the Docusaurus project, markdown files, and theme configurations.
+The [website](./website) directory contains the Docusaurus project, markdown files, and theme configurations.
 
 ## Pre-requisites
 
