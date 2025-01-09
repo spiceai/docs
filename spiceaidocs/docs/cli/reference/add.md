@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Adds a Spicepod to the project from a given package.
+Adds a Spicepod to the project.
 
 ### Usage
 
@@ -28,7 +28,7 @@ spice add [package] [flags]
 > spice add spiceai/quickstart
 ```
 
-This adds the following Spicepod under `./spicepods`:
+This adds the following Spicepod under `./spicepods` and links it as a dependency in the root `./spicepod.yml`:
 ```yaml
  version: v1beta1
  kind: Spicepod
