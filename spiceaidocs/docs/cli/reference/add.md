@@ -13,7 +13,7 @@ Add a Spicepod to the project.
 spice add [spicerack slug] [flags]
 ```
 
-- `spicerack slug`: The slug to the Spicepod on Spicerack.
+- `spicerack slug`: The slug to the Spicepod on [spicerack.org](https://spicerack.org).
 
 
 #### Flags
