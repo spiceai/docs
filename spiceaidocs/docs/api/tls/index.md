@@ -2,6 +2,7 @@
 title: 'TLS: Transport Layer Security'
 sidebar_label: 'TLS'
 sidebar_position: 2
+desired_sidebar: api
 description: 'Encryption in transit with TLS documentation'
 pagination_prev: null
 pagination_next: null

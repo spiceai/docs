@@ -2,6 +2,7 @@
 title: 'JDBC: Java Database Connectivity'
 sidebar_label: 'JDBC'
 sidebar_position: 2
+desired_sidebar: api
 description: 'JDBC API Documentation'
 pagination_prev: null
 pagination_next: null

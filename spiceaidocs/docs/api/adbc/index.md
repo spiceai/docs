@@ -2,6 +2,7 @@
 title: 'ADBC: Arrow Database Connectivity'
 sidebar_label: 'ADBC'
 sidebar_position: 2
+desired_sidebar: api
 description: 'ADBC API Documentation'
 pagination_prev: null
 pagination_next: null
