@@ -1,6 +1,11 @@
 import type { Config } from 'tailwindcss';
 
 const config = {
+  corePlugins: {
+    preflight: false,
+    container: false,
+  },
+  important: '.tailwind',
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   darkMode: ['class', '[data-mode="dark"]'],
   theme: {

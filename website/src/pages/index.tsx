@@ -24,6 +24,7 @@ export default function LandingPage() {
     <Layout
       title='Spice.ai OSS'
       description='Spice is an open-source SQL query and AI compute engine, built in Rust, for developers.'
+      wrapperClassName='tailwind'
     >
       <HeroPlayground />
 
