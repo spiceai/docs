@@ -30,7 +30,7 @@ Vector-based search requires configured data sources (connectors or accelerators
 
 Configuring embeddings is crucial for the effectiveness of vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](../components/embeddings).
 
-For performing vector-based search, see [Vector-Based Search](./vector-search).
+For performing vector-based search, see [Vector-Based Search](/features/search/vector-search).
 
 import DocCardList from '@theme/DocCardList';
 
