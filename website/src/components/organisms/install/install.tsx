@@ -31,7 +31,7 @@ export const Install = () => {
       </Button>
 
       <Button
-        href='https://docs.spiceai.org/'
+        href='/docs'
         target='_blank'
         rel='noopener noreferrer'
         variant='primary'
@@ -41,7 +41,7 @@ export const Install = () => {
       </Button>
 
       <Button
-        href='https://docs.spiceai.org/api'
+        href='/docs/api'
         target='_blank'
         rel='noopener noreferrer'
         variant='primary'
