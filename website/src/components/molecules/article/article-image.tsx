@@ -31,7 +31,7 @@ export const ArticleImage = ({ title }: ArticleImageProps) => {
   const match = title.match(versionRegex)
   const shortTitle = match ? 'Spice ' + match[0] : title
 
-  const imageUrl = `/api/generate-image?title=${encodeURIComponent(shortTitle)}`
+  const imageUrl = `https://spice-oss-website.vercel.app/api/generate-image?title=${encodeURIComponent(shortTitle)}`
 
   return (
     <img
