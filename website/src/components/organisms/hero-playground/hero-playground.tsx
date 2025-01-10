@@ -15,7 +15,7 @@ export const HeroPlayground = () => {
             variant={'large'}
             className='mx-auto mb-6 mt-7 md:mt-0 md:text-center xl:max-w-[1020px]'
           >
-            <span className='text-primary'>AI apps and agents</span>
+            Build <span className='text-primary'>AI apps and agents</span>
             <br /> that work.
           </Title>
 
