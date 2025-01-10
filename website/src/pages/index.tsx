@@ -26,24 +26,26 @@ export default function LandingPage() {
       description='Spice is an open-source SQL query and AI compute engine, built in Rust, for developers.'
       wrapperClassName='tailwind'
     >
-      <HeroPlayground />
+      <div className='bg-neutral-50'>
+        <HeroPlayground />
 
-      <Container>
-        <Features />
-      </Container>
+        <Container>
+          <Features />
+        </Container>
 
-      <BeforeAndAfter />
+        <BeforeAndAfter />
 
-      <Container>
-        <UseCases />
-      </Container>
+        <Container>
+          <UseCases />
+        </Container>
 
-      <Container>
-        <Install />
-        <Articles data={articles} />
-      </Container>
+        <Container>
+          <Install />
+          <Articles data={articles} />
+        </Container>
 
-      <Cta />
+        <Cta />
+      </div>
     </Layout>
   );
 }

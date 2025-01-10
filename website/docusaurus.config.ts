@@ -77,7 +77,7 @@ const config: Config = {
           showLastUpdateTime: true,
         } satisfies PageOptions,
         theme: {
-          customCss: ['./src/css/custom.css', './src/css/openapi.css'],
+          customCss: ['./src/css/custom.css', './src/css/openapi.css', './src/css/preflight.css'],
         },
         gtag: {
           trackingID: 'G-SST0X6NS37',
