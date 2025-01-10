@@ -11,13 +11,22 @@ Spice provides advanced search capabilities that go beyond standard SQL queries,
 
 ## SQL Search
 
-SQL-based search requires the integration of data connectors or data accelerators. Data connectors help integrate various data sources, enabling seamless access to diverse datasets. Data accelerators optimize query performance, ensuring efficient and fast search operations. For more information on setting up data connectors and accelerators, see [Data Connectors](../components/data-connectors) and [Data Accelerators](../components/data-accelerators).
+SQL-based search requires the integration of data connectors or data accelerators. For more information on setting up data connectors and accelerators, see [Data Connectors](../components/data-connectors) and [Data Accelerators](../components/data-accelerators).
 
-For performing SQL-based search, see [SQL-Based Search](./sql-search).
+Spice supports basic search patterns directly through SQL, leveraging its SQL query features. For example, you can perform a text search within a table using SQL's `LIKE` clause:
+
+```sql
+SELECT id, text_column
+FROM my_table
+WHERE
+    LOWER(text_column) LIKE '%search_term%'
+  AND
+    date_published > '2021-01-01'
+```
 
 ## Vector Search
 
-Vector-based search, requires configured data sources (connectors or accelerators) in addition to embeddings. These embeddings represent data in numerical representations that can be used by machine learning models, facilitating similarity comparisons for more advanced search capabilities.
+Vector-based search requires configured data sources (connectors or accelerators) in addition to embeddings. These embeddings convert data to numerical representations that can be used by machine learning models, facilitating similarity comparisons for more advanced search capabilities.
 
 Configuring embeddings is crucial for the effectiveness of vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](../components/embeddings).
 

@@ -32,12 +32,12 @@ The model type is inferred based on the model source and files. For more detail,
 
 Spice supports a variety of features for large language models (LLMs):
 
-- **Custom Tools**: Models can interact with the Spice runtime using custom tools. See [Tools](/features/large-language-models/tools.md).
-- **System Prompts**: Customize and override default system prompts. See [Parameter Overrides](/features/large-language-models/parameter_overrides.md).
-- **Memory**: Enable memory persistence tools for storing and retrieving information across conversations. See [Memory](/features/large-language-models/memory.md).
-- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/features/search/vector-search.md).
-- **Evals**: Evaluate and track language model performance for specific tasks. See [Evals](/features/large-language-models/evals.md).
-- **Local Models**: Load and serve models locally from various sources. See [Local Models](/features/large-language-models/serving.md).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/features/large-language-models/tools).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/HTTP/post-chat-completions). See [Parameter Overrides](/features/large-language-models/parameter_overrides).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/features/large-language-models/memory).
+- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/features/search/vector-search).
+- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/features/large-language-models/evals).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](/features/large-language-models/serving).
 
 For more details, refer to the [Large Language Models documentation](/features/large-language-models).
 

@@ -9,7 +9,7 @@ pagination_next: null
 
 Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings are typically used for vector-based search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index.md).
+Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index.md).
 
 Spice supports various model sources and formats to provide embedding components:
 
