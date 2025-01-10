@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import clsx from 'clsx'
-import { cn } from 'lib/utils'
-import { CarouselApi } from 'components/ui/carousel'
+import clsx from 'clsx';
+import { cn } from '../../../lib/utils';
+import { CarouselApi } from '../../ui/carousel';
 
 type DotsPaginationProps = {
-  api?: CarouselApi
-  current: number
-  handleCurrentIndexChange?: (index: number) => void
-  className?: string
-  dotsLength: number
-}
+  api?: CarouselApi;
+  current: number;
+  handleCurrentIndexChange?: (index: number) => void;
+  className?: string;
+  dotsLength: number;
+};
 
 export const DotsPagination = ({
   api,
   current,
   className,
   dotsLength,
-  handleCurrentIndexChange
+  handleCurrentIndexChange,
 }: DotsPaginationProps) => {
   return (
     <div
@@ -32,9 +32,9 @@ export const DotsPagination = ({
             type='button'
             onClick={() => {
               if (handleCurrentIndexChange) {
-                handleCurrentIndexChange(index)
+                handleCurrentIndexChange(index);
               } else {
-                api?.scrollTo(index)
+                api?.scrollTo(index);
               }
             }}
             className='p-2 md:p-3'
@@ -51,5 +51,5 @@ export const DotsPagination = ({
         ))}
       </div>
     </div>
-  )
-}
+  );
+};

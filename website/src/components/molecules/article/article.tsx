@@ -1,8 +1,8 @@
-import { Title } from 'components/atoms/title/title'
-import { Button } from 'components/atoms/button/button'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
+import { Title } from '../../atoms/title/title'
+import { Button } from '../../atoms/button/button'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
 
-import { ProcessedFile } from 'components/organisms/articles/utils'
+import { ProcessedFile } from '../../organisms/articles/utils'
 import { ArticleImage } from './article-image'
 
 export const Article = ({ article }: { article: ProcessedFile }) => {

@@ -1,113 +1,113 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
-import { cn } from 'lib/utils'
+import { cn } from '../../../lib/utils';
 
-import { heroPlaygroundData } from './data'
-import { Title } from 'components/atoms/title/title'
-import { PlaygroundTable } from './playground-table'
+import { heroPlaygroundData } from './data';
+import { Title } from '../../atoms/title/title';
+import { PlaygroundTable } from './playground-table';
 
-import { Button } from 'components/atoms/button/button'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { DotsPagination } from 'components/molecules/dots-pagination/dots-pagination'
-import { PlayIcon, TableCellsIcon } from '@heroicons/react/20/solid'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-import { Icon } from 'components/atoms/icon/icon'
+import { Button } from '../../atoms/button/button';
+import { Paragraph } from '../../atoms/paragraph/paragraph';
+import { DotsPagination } from '../../molecules/dots-pagination/dots-pagination';
+import { PlayIcon, TableCellsIcon } from '@heroicons/react/20/solid';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { Icon } from '../../atoms/icon/icon';
 
 export type ResponseData = {
-  rowCount: number
+  rowCount: number;
   schema: Array<{
-    name: string
+    name: string;
     type: {
-      name: string
-    }
-  }>
-  rows: Array<Record<string, any>>
-}
+      name: string;
+    };
+  }>;
+  rows: Array<Record<string, any>>;
+};
 
 export const HeroPlaygroundOptions = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const currentData = heroPlaygroundData[currentIndex]
-  const [requestDuration, setRequestDuration] = useState<number | null>(null)
-  const [responseData, setResponseData] = useState<ResponseData | null>(null)
-  const [isOpenTable, setIsOpenTable] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentData = heroPlaygroundData[currentIndex];
+  const [requestDuration, setRequestDuration] = useState<number | null>(null);
+  const [responseData, setResponseData] = useState<ResponseData | null>(null);
+  const [isOpenTable, setIsOpenTable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? heroPlaygroundData.length - 1 : prevIndex - 1
-    )
-    setRequestDuration(null)
-  }
+    );
+    setRequestDuration(null);
+  };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % heroPlaygroundData.length)
-    setRequestDuration(null)
-  }
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % heroPlaygroundData.length);
+    setRequestDuration(null);
+  };
 
   const handleCurrentIndexChange = (index: number) => {
-    setCurrentIndex(index)
-    setRequestDuration(null)
-  }
+    setCurrentIndex(index);
+    setRequestDuration(null);
+  };
 
   const handleRequest = async () => {
-    if (requestDuration || isLoading) return
+    if (requestDuration || isLoading) return;
 
-    setIsLoading(true)
-    const startTime = performance.now()
+    setIsLoading(true);
+    const startTime = performance.now();
 
     try {
       const response = await fetch(
         `https://data.spiceai.io/v0.1/sampler/${currentData.requestUrl}?api_key=313834%7C0666ecca421b4b33ba4d0dd2e90d6daa`
-      )
-      const data: ResponseData = await response.json()
+      );
+      const data: ResponseData = await response.json();
 
       if (data?.rows?.length > 0) {
-        setResponseData(data)
+        setResponseData(data);
       }
 
-      const endTime = performance.now()
-      const durationInSeconds = (endTime - startTime) / 1000
+      const endTime = performance.now();
+      const durationInSeconds = (endTime - startTime) / 1000;
 
-      setRequestDuration(durationInSeconds)
+      setRequestDuration(durationInSeconds);
     } catch (error) {
-      console.error('Error fetching data:', error)
-      setRequestDuration(null)
+      console.error('Error fetching data:', error);
+      setRequestDuration(null);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.defaultPrevented) {
-      return
+      return;
     }
 
     switch (event.code) {
       case 'ArrowLeft':
-        handlePrev()
-        break
+        handlePrev();
+        break;
       case 'ArrowRight':
-        handleNext()
-        break
+        handleNext();
+        break;
       case 'Enter':
-        handleRequest()
-        break
+        handleRequest();
+        break;
       default:
-        return
+        return;
     }
 
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown, true)
+    window.addEventListener('keydown', handleKeyDown, true);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown, true)
-    }
-  }, [handleKeyDown])
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [handleKeyDown]);
 
   return (
     <div className='rounded-lg border border-alpha-150 bg-neutral pb-0 md:pb-10'>
@@ -117,7 +117,9 @@ export const HeroPlaygroundOptions = () => {
           <Title as='h4' variant='small' className='mb-4 md:text-center'>
             {currentData.title}
           </Title>
-          <Paragraph className='md:text-center'>{currentData.description}</Paragraph>
+          <Paragraph className='md:text-center'>
+            {currentData.description}
+          </Paragraph>
         </div>
         <ArrowButton onClick={handleNext} isLeft={false} />
 
@@ -138,7 +140,11 @@ export const HeroPlaygroundOptions = () => {
 
           {currentData.code}
 
-          <Button variant={'primary'} className='flex items-center gap-2' onClick={handleRequest}>
+          <Button
+            variant={'primary'}
+            className='flex items-center gap-2'
+            onClick={handleRequest}
+          >
             {isLoading ? (
               <Icon iconName='spinner' className='h-5 w-5 animate-spin' />
             ) : (
@@ -155,8 +161,12 @@ export const HeroPlaygroundOptions = () => {
             <div>
               <div className='flex flex-col items-center justify-center gap-2'>
                 <p className='font-semibold text-neutral-600'>
-                  {responseData?.rowCount} of {responseData?.rowCount} total results in{' '}
-                  <span className='text-primary'>{requestDuration.toFixed(3)}</span> seconds.
+                  {responseData?.rowCount} of {responseData?.rowCount} total
+                  results in{' '}
+                  <span className='text-primary'>
+                    {requestDuration.toFixed(3)}
+                  </span>{' '}
+                  seconds.
                 </p>
 
                 {responseData?.schema && (
@@ -183,17 +193,17 @@ export const HeroPlaygroundOptions = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const ArrowButton = ({
   className,
   isLeft = true,
-  onClick
+  onClick,
 }: {
-  className?: string
-  isLeft?: boolean
-  onClick: () => void
+  className?: string;
+  isLeft?: boolean;
+  onClick: () => void;
 }) => {
   return (
     <button
@@ -210,21 +220,21 @@ const ArrowButton = ({
         <ChevronRightIcon className='relative left-px h-6 w-6' />
       )}
     </button>
-  )
-}
+  );
+};
 
 export const MobileNavigation = ({
   onPrev,
   onNext,
   currentIndex,
   handleCurrentIndexChange,
-  totalItems
+  totalItems,
 }: {
-  onPrev: () => void
-  onNext: () => void
-  currentIndex: number
-  handleCurrentIndexChange: (index: number) => void
-  totalItems: number
+  onPrev: () => void;
+  onNext: () => void;
+  currentIndex: number;
+  handleCurrentIndexChange: (index: number) => void;
+  totalItems: number;
 }) => {
   return (
     <div className='relative flex w-full items-center justify-between gap-2 md:hidden'>
@@ -253,5 +263,5 @@ export const MobileNavigation = ({
         <ChevronRightIcon className='relative right-px h-6 w-6' />
       </button>
     </div>
-  )
-}
+  );
+};

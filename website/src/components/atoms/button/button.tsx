@@ -83,7 +83,7 @@ const Button = ({
 
   if (href) {
     return (
-      <Link className={classes} {...(props as LinkProps)} href={href}>
+      <Link className={classes} {...props as any} href={href}>
         {props.children}
       </Link>
     );

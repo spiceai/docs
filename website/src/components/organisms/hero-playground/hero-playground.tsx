@@ -1,10 +1,9 @@
-import Image from 'next/image'
-
-import { Title } from 'components/atoms/title/title'
-import { Button } from 'components/atoms/button/button'
-import { Container } from 'components/atoms/container/container'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Breakdown } from 'components/atoms/breakdown/breakdown'
+import React from 'react'
+import { Title } from '../../atoms/title/title'
+import { Button } from '../../atoms/button/button'
+import { Container } from '../../atoms/container/container'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
+import { Breakdown } from '../../atoms/breakdown/breakdown'
 
 export const HeroPlayground = () => {
   return (
@@ -56,25 +55,19 @@ export const HeroPlayground = () => {
               Powered by
             </Paragraph>
             <div className='flex items-center justify-center gap-10'>
-              <Image
+              <img
                 src={'/apache-arrow.svg'}
-                alt='Spice Logo'
-                width={100}
-                height={100}
+                alt='Apache Arrow Logo'
                 className='h-20 w-auto object-contain'
               />
-              <Image
+              <img
                 src={'/apache-datafusion.svg'}
-                alt='Spice Logo'
-                width={100}
-                height={100}
+                alt='Apache DataFusion Logo'
                 className='h-10 w-auto object-contain'
               />
-              <Image
+              <img
                 src={'/duckdb.svg'}
-                alt='Spice Logo'
-                width={100}
-                height={100}
+                alt='DuckDB Logo'
                 className='h-20 w-auto object-contain'
               />
             </div>

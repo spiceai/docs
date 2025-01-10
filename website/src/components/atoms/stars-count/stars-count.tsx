@@ -1,4 +1,4 @@
-import { GITHUB_MAIN_REPO } from 'lib/constants'
+import { GITHUB_MAIN_REPO } from '../../../lib/constants'
 
 export const StarsCount = async () => {
   const res = await fetch(GITHUB_MAIN_REPO, { cache: 'force-cache' }).then((res) => res.json())

@@ -1,27 +1,26 @@
-'use client'
+'use client';
 
-import clsx from 'clsx'
-import Image from 'next/image'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import clsx from 'clsx';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
-import { SlideData } from './data'
-import { CarouselApi } from 'components/ui/carousel'
-import { Benefit } from 'components/molecules/benefit/benefit'
+import { SlideData } from './data';
+import { CarouselApi } from '../../ui/carousel';
+import { Benefit } from '../../molecules/benefit/benefit';
 
-import { cn } from 'lib/utils'
+import { cn } from '../../../lib/utils';
 
 type BeforeAndAfterSlideProps = {
-  slideData: SlideData
-  carouselApi?: CarouselApi
-  isCurrentSlide?: boolean
-  isBefore: boolean
-}
+  slideData: SlideData;
+  carouselApi?: CarouselApi;
+  isCurrentSlide?: boolean;
+  isBefore: boolean;
+};
 
 export const BeforeAndAfterSlide = ({
   slideData,
   carouselApi,
   isCurrentSlide,
-  isBefore
+  isBefore,
 }: BeforeAndAfterSlideProps) => {
   return (
     <div className={clsx(!carouselApi && 'px-4 sm:px-16 xl:px-20')}>
@@ -31,7 +30,7 @@ export const BeforeAndAfterSlide = ({
           !carouselApi && 'mx-auto max-w-screen-xl'
         )}
       >
-        <Image
+        <img
           src={isBefore ? slideData.imageBefore : slideData.imageAfter}
           alt='Before and After Slide'
           width={1600}
@@ -54,27 +53,33 @@ export const BeforeAndAfterSlide = ({
 
         {carouselApi && !isCurrentSlide && (
           <>
-            <ArrowButton className='right-1.5 xl:right-3' onClick={() => carouselApi?.scrollPrev()}>
+            <ArrowButton
+              className='right-1.5 xl:right-3'
+              onClick={() => carouselApi?.scrollPrev()}
+            >
               <ChevronLeftIcon className='relative right-px h-6 w-6' />
             </ArrowButton>
-            <ArrowButton className='left-1.5 xl:left-3' onClick={() => carouselApi?.scrollNext()}>
+            <ArrowButton
+              className='left-1.5 xl:left-3'
+              onClick={() => carouselApi?.scrollNext()}
+            >
               <ChevronRightIcon className='relative left-px h-6 w-6' />
             </ArrowButton>
           </>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const ArrowButton = ({
   className,
   onClick,
-  children
+  children,
 }: {
-  className?: string
-  onClick: () => void
-  children: React.ReactNode
+  className?: string;
+  onClick: () => void;
+  children: React.ReactNode;
 }) => {
   return (
     <button
@@ -88,5 +93,5 @@ const ArrowButton = ({
     >
       {children}
     </button>
-  )
-}
+  );
+};

@@ -1,20 +1,17 @@
-import Image from 'next/image';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
-import { Paragraph } from 'components/atoms/paragraph/paragraph';
-import { Container } from 'components/atoms/container/container';
+import { Paragraph } from '../../atoms/paragraph/paragraph';
+import { Container } from '../../atoms/container/container';
 
-import { Button } from 'components/atoms/button/button';
-import { Title } from 'components/atoms/title/title';
-import { Icon } from 'components/atoms/icon/icon';
-import { Logo } from 'components/atoms/logo/logo';
+import { Button } from '../../atoms/button/button';
+import { Title } from '../../atoms/title/title';
+import { Icon } from '../../atoms/icon/icon';
+import { Logo } from '../../atoms/logo/logo';
 
-import { cn } from 'lib/utils';
+import { cn } from '../../../lib/utils';
 
-import andy from 'public/andy.png';
-import barracuda from 'public/barracuda.png';
-import { StarsCount } from 'components/atoms/stars-count/stars-count';
-import { Link, LinkProps } from '../link/link';
+import { StarsCount } from '../../atoms/stars-count/stars-count';
+import { Link, LinkProps } from '../../atoms/link/link';
 
 export const Cta = ({ className }: { className?: string }) => {
   return (
@@ -79,16 +76,16 @@ export const Cta = ({ className }: { className?: string }) => {
               <Paragraph className='text-neutral'>
                 Chief Data Officer at Barracuda
               </Paragraph>
-              <Image
-                src={barracuda}
-                alt='EigenLayer'
+              <img
+                src='public/barracuda.png'
+                alt='Barracuda'
                 width={180}
                 height={44}
                 className='relative right-1.5 mt-2 h-auto w-40'
               />
             </div>
-            <Image
-              src={andy}
+            <img
+              src='img/andy.png'
               alt='Andy'
               width={70}
               height={70}

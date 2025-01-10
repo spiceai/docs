@@ -1,4 +1,4 @@
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
 
 import React from 'react'
 

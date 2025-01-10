@@ -1,10 +1,6 @@
-import { StaticImageData } from 'next/image'
-import ImageAfter from 'public/after-demo.webp'
-import ImageBefore from 'public/before-demo.webp'
-
 export type SlideData = {
-  imageBefore: StaticImageData
-  imageAfter: StaticImageData
+  imageBefore: string
+  imageAfter: string
   benefits: {
     textBefore: string
     textAfter: string
@@ -13,8 +9,8 @@ export type SlideData = {
 
 export const beforeAndAfterSlides: SlideData[] = [
   {
-    imageBefore: ImageBefore,
-    imageAfter: ImageAfter,
+    imageBefore: '/img/after-demo.webp',
+    imageAfter: '/img/before-demo.webp',
     benefits: [
       {
         textBefore: 'Slow 15 sec queries across 100B+ rows.',

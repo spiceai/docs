@@ -1,9 +1,10 @@
 import React from 'react'
-import Image from 'next/image'
 
-import LogoDark from 'public/spice-logo-dark.png'
-import LogoWhite from 'public/spice-logo-white.png'
-import Logotype from 'public/spice-logotype.png'
+const logoSources: Record<LogoVariant, string> = {
+  white: '/img/spice-logo-white.png',
+  dark: '/img/spice-logo-dark.png',
+  logotype: '/img/spice-logotype.png'
+}
 
 type LogoVariant = 'white' | 'dark' | 'logotype'
 
@@ -14,12 +15,6 @@ type LogoProps = {
   height?: number
 }
 
-const logoSources: Record<LogoVariant, any> = {
-  white: LogoWhite,
-  dark: LogoDark,
-  logotype: Logotype
-}
-
 export const Logo: React.FC<LogoProps> = ({
   variant = 'white',
   className,
@@ -27,7 +22,7 @@ export const Logo: React.FC<LogoProps> = ({
   height = 32
 }) => {
   return (
-    <Image
+    <img
       src={logoSources[variant]}
       alt='Spice.ai Logo'
       width={width}

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 
-import { Carousel, CarouselApi, CarouselContent, CarouselItem } from 'components/ui/carousel'
-import { Article } from 'components/molecules/article/article'
-import { DotsPagination } from 'components/molecules/dots-pagination/dots-pagination'
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '../../ui/carousel'
+import { Article } from '../../molecules/article/article'
+import { DotsPagination } from '../../molecules/dots-pagination/dots-pagination'
 
 import { ProcessedFile } from './utils'
 
