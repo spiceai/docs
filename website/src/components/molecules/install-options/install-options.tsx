@@ -4,8 +4,8 @@ import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 
 import { CopyCode } from '../copy-code/copy-code'
-import { Button } from 'components/atoms/button/button'
-import { Icon } from 'components/atoms/icon/icon'
+import { Button } from '../../atoms/button/button'
+import { Icon } from '../../atoms/icon/icon'
 
 let allTabs = [
   {

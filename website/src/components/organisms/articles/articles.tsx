@@ -1,12 +1,14 @@
-import { getFormattedData } from './utils';
 import { Title } from '../../atoms/title/title';
 import { ArticlesCarousel } from './articles-carousel';
 import { Button } from '../../atoms/button/button';
 import { QueueListIcon } from '@heroicons/react/24/outline';
+import { ProcessedFile } from '@site/src/lib/articles';
 
-export const Articles = async () => {
-  const data = await getFormattedData();
+export interface  ArticleProps {
+  data: ProcessedFile[];
+}
 
+export const Articles: React.FC<ArticleProps> = ({data }) => {
   if (data.length === 0) {
     // If something goes wrong with the API, we just don't show the articles section
     return null;

@@ -7,11 +7,11 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious
-} from 'components/ui/carousel'
+} from '../../ui/carousel'
 import { useEffect, useState } from 'react'
 import { dataUseCases } from './data'
-import { UseCase } from 'components/molecules/use-case/use-case'
-import { DotsPagination } from 'components/molecules/dots-pagination/dots-pagination'
+import { UseCase } from '../../molecules/use-case/use-case'
+import { DotsPagination } from '../../molecules/dots-pagination/dots-pagination'
 
 export const UseCasesMobile = () => {
   const [api, setApi] = useState<CarouselApi>()

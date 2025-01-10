@@ -4,7 +4,7 @@ import remarkParse from 'remark-parse'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkExtractFrontmatter from 'remark-extract-frontmatter'
 
-import { GITHUB_BLOG_REPO } from 'lib/constants'
+import { GITHUB_BLOG_REPO } from './constants'
 
 type FrontMatter = {
   date: string
@@ -63,7 +63,7 @@ function generateBlogLink(date: string, title: string) {
   return `https://blog.spiceai.org/posts/${formattedDate}/${formattedTitle}`
 }
 
-export async function getFormattedData(): Promise<ProcessedFile[]> {
+export async function getArticlesData(): Promise<ProcessedFile[]> {
   const releases = await fetchContents('content/posts/releases')
 
   const processedReleases = []

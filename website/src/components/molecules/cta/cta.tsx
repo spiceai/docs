@@ -10,7 +10,6 @@ import { Logo } from '../../atoms/logo/logo';
 
 import { cn } from '../../../lib/utils';
 
-import { StarsCount } from '../../atoms/stars-count/stars-count';
 import { Link, LinkProps } from '../../atoms/link/link';
 
 export const Cta = ({ className }: { className?: string }) => {
@@ -54,9 +53,6 @@ export const Cta = ({ className }: { className?: string }) => {
                 height='40px'
                 className='fill-neutral transition-colors group-hover:fill-primary'
               />
-              <Paragraph variant='large' className='font-medium text-neutral'>
-                <StarsCount />
-              </Paragraph>
             </Link>
           </div>
         </div>

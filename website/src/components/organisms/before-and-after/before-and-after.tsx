@@ -4,10 +4,10 @@ import clsx from 'clsx'
 import { useState } from 'react'
 
 import { beforeAndAfterSlides } from './data'
-import { Title } from 'components/atoms/title/title'
-import { Button } from 'components/atoms/button/button'
+import { Title } from '../../atoms/title/title'
+import { Button } from '../../atoms/button/button'
 import { BeforeAndAfterSlide } from './before-and-after-slide'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
 
 export const BeforeAndAfter = () => {
   const [isBefore, setIsBefore] = useState(true)

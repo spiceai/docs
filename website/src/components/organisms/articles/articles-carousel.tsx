@@ -6,7 +6,7 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '../../ui/c
 import { Article } from '../../molecules/article/article'
 import { DotsPagination } from '../../molecules/dots-pagination/dots-pagination'
 
-import { ProcessedFile } from './utils'
+import { ProcessedFile } from './articles'
 
 export const ArticlesCarousel = ({ data }: { data: ProcessedFile[] }) => {
   const [api, setApi] = useState<CarouselApi>()

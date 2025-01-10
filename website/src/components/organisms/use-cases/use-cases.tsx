@@ -1,6 +1,6 @@
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Title } from 'components/atoms/title/title'
-import { UseCase } from 'components/molecules/use-case/use-case'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
+import { Title } from '../../atoms/title/title'
+import { UseCase } from '../../molecules/use-case/use-case'
 import { dataUseCases } from './data'
 import { UseCasesMobile } from './use-cases-mobile'
 

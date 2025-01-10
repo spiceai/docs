@@ -1,7 +1,7 @@
-import { Button } from 'components/atoms/button/button'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Title } from 'components/atoms/title/title'
-import { UseCaseData } from 'components/organisms/use-cases/data'
+import { Button } from '../../atoms/button/button'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
+import { Title } from '../../atoms/title/title'
+import { UseCaseData } from '../../organisms/use-cases/data'
 
 export const UseCase = ({ useCaseData }: { useCaseData: UseCaseData }) => {
   return (

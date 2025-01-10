@@ -1,5 +1,5 @@
-import { Title } from 'components/atoms/title/title'
-import { Feature } from 'components/molecules/feature/feature'
+import { Title } from '../../atoms/title/title'
+import { Feature } from '../../molecules/feature/feature'
 
 export const Features = () => {
   return (

@@ -2,7 +2,7 @@ import { Title } from '../../atoms/title/title'
 import { Button } from '../../atoms/button/button'
 import { Paragraph } from '../../atoms/paragraph/paragraph'
 
-import { ProcessedFile } from '../../organisms/articles/utils'
+import { ProcessedFile } from '../../../lib/articles'
 import { ArticleImage } from './article-image'
 
 export const Article = ({ article }: { article: ProcessedFile }) => {

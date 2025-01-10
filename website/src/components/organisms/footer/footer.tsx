@@ -1,9 +1,9 @@
-import { Container } from 'components/atoms/container/container'
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Social } from 'components/molecules/social/social'
+import { Container } from '../../atoms/container/container'
+import { Paragraph } from '../../atoms/paragraph/paragraph'
+import { Social } from '../../molecules/social/social'
 
-import { Logo } from 'components/atoms/logo/logo'
-import { Link } from 'components/atoms/link/link'
+import { Logo } from '../../atoms/logo/logo'
+import { Link } from '../../atoms/link/link'
 
 export const Footer = () => {
   return (
