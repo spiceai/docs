@@ -33,4 +33,4 @@ const Link: React.FC<LinkProps> = ({
 
 Link.displayName = 'Link';
 
-export { Link };
+export { Link, LinkProps };

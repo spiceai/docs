@@ -1,20 +1,20 @@
-import Image from 'next/image'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image';
+import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Container } from 'components/atoms/container/container'
+import { Paragraph } from 'components/atoms/paragraph/paragraph';
+import { Container } from 'components/atoms/container/container';
 
-import { Button } from 'components/atoms/button/button'
-import { Title } from 'components/atoms/title/title'
-import { Icon } from 'components/atoms/icon/icon'
-import { Logo } from 'components/atoms/logo/logo'
+import { Button } from 'components/atoms/button/button';
+import { Title } from 'components/atoms/title/title';
+import { Icon } from 'components/atoms/icon/icon';
+import { Logo } from 'components/atoms/logo/logo';
 
-import { cn } from 'lib/utils'
+import { cn } from 'lib/utils';
 
-import andy from 'public/andy.png'
-import barracuda from 'public/barracuda.png'
-import { StarsCount } from 'components/atoms/stars-count/stars-count'
-import Link from 'next/link'
+import andy from 'public/andy.png';
+import barracuda from 'public/barracuda.png';
+import { StarsCount } from 'components/atoms/stars-count/stars-count';
+import { Link, LinkProps } from '../link/link';
 
 export const Cta = ({ className }: { className?: string }) => {
   return (
@@ -29,8 +29,8 @@ export const Cta = ({ className }: { className?: string }) => {
           <Logo variant='white' />
           <Title as='h2' variant='medium' className='my-14 text-neutral'>
             Secure, highly-available access to data.{' '}
-            <span className='text-primary'>Ridiculously easy setup.</span> Super fast data-grounded
-            AI.
+            <span className='text-primary'>Ridiculously easy setup.</span> Super
+            fast data-grounded AI.
           </Title>
 
           <div className='flex items-center gap-6'>
@@ -65,9 +65,10 @@ export const Cta = ({ className }: { className?: string }) => {
         </div>
         <div className='flex flex-col justify-between gap-6 bg-alpha-800 px-8 py-16 md:p-14 lg:w-5/12 xl:p-20'>
           <Paragraph variant='extralarge'>
-            “We have been looking for a way to accelerate queries from our Databricks workspaces.
-            Spice was the perfect solution, as it was super simple to setup and it was easy to
-            define and query accelerated datasets without a lot of overhead.”
+            “We have been looking for a way to accelerate queries from our
+            Databricks workspaces. Spice was the perfect solution, as it was
+            super simple to setup and it was easy to define and query
+            accelerated datasets without a lot of overhead.”
           </Paragraph>
 
           <div className='flex items-start justify-between gap-6'>
@@ -75,7 +76,9 @@ export const Cta = ({ className }: { className?: string }) => {
               <Title as='h5' variant='small' className='font-bold text-neutral'>
                 Andy Blyler
               </Title>
-              <Paragraph className='text-neutral'>Chief Data Officer at Barracuda</Paragraph>
+              <Paragraph className='text-neutral'>
+                Chief Data Officer at Barracuda
+              </Paragraph>
               <Image
                 src={barracuda}
                 alt='EigenLayer'
@@ -95,5 +98,5 @@ export const Cta = ({ className }: { className?: string }) => {
         </div>
       </section>
     </Container>
-  )
-}
+  );
+};

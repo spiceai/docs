@@ -1,15 +1,15 @@
-import { Paragraph } from 'components/atoms/paragraph/paragraph'
-import { Title } from 'components/atoms/title/title'
-import Link from 'next/link'
+import { Paragraph } from 'components/atoms/paragraph/paragraph';
+import { Title } from 'components/atoms/title/title';
+import { Link, LinkProps } from '../link/link';
 
 export const Feature = ({
   title,
   description,
-  docsLink
+  docsLink,
 }: {
-  title: string
-  description: string
-  docsLink?: string
+  title: string;
+  description: string;
+  docsLink?: string;
 }) => {
   return (
     <div className='flex flex-col items-start gap-4 rounded-sm border border-alpha-150 px-6 py-10 shadow-box md:gap-10 md:px-10'>
@@ -29,8 +29,8 @@ export const Feature = ({
         </Link>
       )}
     </div>
-  )
-}
+  );
+};
 
 const Squares = ({ width = 24, height = 24 }) => (
   <svg
@@ -48,4 +48,4 @@ const Squares = ({ width = 24, height = 24 }) => (
       strokeLinejoin='round'
     />
   </svg>
-)
+);
