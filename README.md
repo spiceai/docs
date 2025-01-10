@@ -26,10 +26,10 @@ The [website](./website) directory contains the Docusaurus project, markdown fil
 git clone https://github.com/spiceai/docs.git
 ```
 
-3. Change to spiceaidocs directory:
+3. Change to website directory:
 
 ```sh
-cd ./docs/spiceaidocs
+cd ./docs/website
 ```
 
 4. Install npm packages:
@@ -40,7 +40,7 @@ npm install
 
 ## Run local server
 
-1. Make sure you're still in the `spiceaidocs` directory
+1. Make sure you're still in the `website` directory
 2. Run
 
 ```sh
