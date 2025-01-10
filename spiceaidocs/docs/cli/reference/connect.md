@@ -11,6 +11,8 @@
 
  - Authenticated to the Spice.ai Cloud Platform via [`login`](/cli/reference/login)
 
+**Notes**: Instead of pulling from Spicerack and integrating those Spicepods locally like `spice add`, `spice connect` enables connection to an app on the Spice.ai Cloud Platform without any local modifications or updates necessary.
+
  ### Usage
 
  ```shell
