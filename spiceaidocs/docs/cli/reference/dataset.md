@@ -13,7 +13,7 @@ spice dataset [command]
 
  Available `command`s:
 
- - `configure`: Create/configure a dataset directly from the command-line, including customizing components such as Data Connector (`from` in a Spicepod) and acceleration along with other metadata.
+ - `configure`: Create/configure a dataset directly from the command-line, including customizing components such as whether to add acceleration to the connector.
 
  **Note**: In order to run `spice dataset configure`, there *must* be a `spicepod.yaml` file in the root of your project directory. To create this file, see [`spice init`](/cli/reference/init).
 
