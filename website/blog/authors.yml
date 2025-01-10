@@ -35,3 +35,14 @@ peasee:
   page: true
   socials:
     github: peasee
+
+jeadie:
+  name: Jack Eadie
+  title: Token Plumber at Spice AI
+  url: https://github.com/Jeadie
+  image_url: https://github.com/Jeadie.png
+  page: true
+  socials:
+    github: Jeadie
+    x: _jeadie
+    linkedin: jack-eadie
