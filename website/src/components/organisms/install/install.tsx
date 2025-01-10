@@ -18,7 +18,7 @@ export const Install = () => {
 
       <InstallOptions />
 
-      <video src='/spice-intro.mp4' className='mt-14 w-full rounded-lg object-contain' controls />
+      <video src='/img/spice-intro.mp4' className='mt-14 w-full rounded-lg object-contain' controls />
 
       <Button
         href='https://github.com/spiceai/cookbook#spiceai-oss-cookbook'

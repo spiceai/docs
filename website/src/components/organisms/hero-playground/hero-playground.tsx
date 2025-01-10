@@ -56,17 +56,17 @@ export const HeroPlayground = () => {
             </Paragraph>
             <div className='flex items-center justify-center gap-10'>
               <img
-                src={'/apache-arrow.svg'}
+                src={'/img/apache-arrow.svg'}
                 alt='Apache Arrow Logo'
                 className='h-20 w-auto object-contain'
               />
               <img
-                src={'/apache-datafusion.svg'}
+                src={'/img/apache-datafusion.svg'}
                 alt='Apache DataFusion Logo'
                 className='h-10 w-auto object-contain'
               />
               <img
-                src={'/duckdb.svg'}
+                src={'/img/duckdb.svg'}
                 alt='DuckDB Logo'
                 className='h-20 w-auto object-contain'
               />

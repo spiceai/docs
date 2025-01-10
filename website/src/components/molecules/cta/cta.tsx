@@ -73,7 +73,7 @@ export const Cta = ({ className }: { className?: string }) => {
                 Chief Data Officer at Barracuda
               </Paragraph>
               <img
-                src='public/barracuda.png'
+                src='img/barracuda.png'
                 alt='Barracuda'
                 width={180}
                 height={44}
