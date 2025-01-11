@@ -46,3 +46,14 @@ jeadie:
     github: Jeadie
     x: _jeadie
     linkedin: jack-eadie
+
+ewgenius:
+  name: Evgenii Khramkov
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/ewgenius
+  image_url: https://github.com/ewgenius.png
+  page: true
+  socials:
+    github: ewgenius
+    x: ewgeniux
+    linkedin: ewgenius
