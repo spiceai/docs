@@ -21,7 +21,7 @@ The DuckDB accelerator can be configured by providing the following `params`:
 
 - `duckdb_file`: The name for the file to back the DuckDB database. If the file does not exist, it will be created. Only applies if `mode` is `file`.
 
-Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](/reference/spicepod/datasets.md).
+Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](/docs/reference/spicepod/datasets.md).
 
 ```yaml
 datasets:

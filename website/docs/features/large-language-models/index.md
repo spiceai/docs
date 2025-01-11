@@ -7,20 +7,20 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It also offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/features/search)).
+Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It also offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/docs/features/search)).
 
 Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
 
 ## Configuring Language Models
 
-Spice supports a variety of LLMs (see [Model Components](/components/models/index.md)).
+Spice supports a variety of LLMs (see [Model Components](/docs/components/models/index.md)).
 
 ### Core Features
 
 - **Custom Tools**: Equip models with tools to interact with the Spice runtime.
-- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/HTTP/post-chat-completions).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions).
 
-For detailed configuration and API usage, refer to the [API Documentation](/api).
+For detailed configuration and API usage, refer to the [API Documentation](/docs/api).
 
 ### Example: Configuring an OpenAI Model
 
@@ -42,4 +42,4 @@ models:
       openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
 ```
 
-For details, see [OpenAI (or Compatible) Language Models](/components/models/openai.md).
+For details, see [OpenAI (or Compatible) Language Models](/docs/components/models/openai.md).

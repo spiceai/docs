@@ -78,19 +78,19 @@ Where:
 
   Currently supported data connectors:
 
-  - [`spiceai`](/components/data-connectors/spiceai.md)
-  - [`dremio`](/components/data-connectors/dremio.md)
-  - [`spark`](/components/data-connectors/spark.md)
-  - [`databricks`](/components/data-connectors/databricks.md)
-  - [`s3`](/components/data-connectors/s3.md)
-  - [`postgres`](/components/data-connectors/postgres/index.md)
-  - [`mysql`](/components/data-connectors/mysql.md)
-  - [`flightsql`](/components/data-connectors/flightsql.md)
-  - [`snowflake`](/components/data-connectors/snowflake.md)
-  - [`ftp`, `sftp`](/components/data-connectors/ftp.md)
-  - [`http`, `https`](/components/data-connectors/https.md)
-  - [`clickhouse`](/components/data-connectors/clickhouse.md)
-  - [`graphql`](/components/data-connectors/graphql.md)
+  - [`spiceai`](/docs/components/data-connectors/spiceai.md)
+  - [`dremio`](/docs/components/data-connectors/dremio.md)
+  - [`spark`](/docs/components/data-connectors/spark.md)
+  - [`databricks`](/docs/components/data-connectors/databricks.md)
+  - [`s3`](/docs/components/data-connectors/s3.md)
+  - [`postgres`](/docs/components/data-connectors/postgres/index.md)
+  - [`mysql`](/docs/components/data-connectors/mysql.md)
+  - [`flightsql`](/docs/components/data-connectors/flightsql.md)
+  - [`snowflake`](/docs/components/data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](/docs/components/data-connectors/ftp.md)
+  - [`http`, `https`](/docs/components/data-connectors/https.md)
+  - [`clickhouse`](/docs/components/data-connectors/clickhouse.md)
+  - [`graphql`](/docs/components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -129,7 +129,7 @@ The name of the dataset. Used to reference the dataset in the pod manifest, as w
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+The description of the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
 
 ## `time_column`
 
@@ -204,9 +204,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
+- [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`
 
@@ -406,7 +406,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -503,7 +503,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/features/semantic-model/index.md).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
 
 ```yaml
 datasets:

@@ -7,7 +7,7 @@ pagination_prev: 'clients/index'
 pagination_next: null
 ---
 
-1. Start the Spice runtime with a dataset loaded. Follow the [quickstart guide](/getting-started) to get started.
+1. Start the Spice runtime with a dataset loaded. Follow the [quickstart guide](/docs/getting-started) to get started.
 
 2. Download [DBeaver Community Edition](https://dbeaver.io).
 

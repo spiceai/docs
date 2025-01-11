@@ -59,7 +59,7 @@ spicepod:
 
 ## Adding extra environment variables
 
-Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/components/secret-stores/env/index.md).
+Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/docs/components/secret-stores/env/index.md).
 
 ```yaml
 additionalEnv:

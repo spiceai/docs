@@ -29,7 +29,7 @@ Flags that are passed to the `spiced` runtime directly.
 - `--tls-certificate-file`  Path to the TLS PEM-encoded certificate file
 - `--tls-key`   The TLS PEM-encoded key
 - `--tls-key-file`   Path to the TLS PEM-encoded key file
-- `--set-runtime`   Override [runtime configuration](/reference/spicepod/index.md#runtime) with a name/value pair specified as `name=value`. Multiple overrides can be specified by using the flag multiple times.
+- `--set-runtime`   Override [runtime configuration](/docs/reference/spicepod/index.md#runtime) with a name/value pair specified as `name=value`. Multiple overrides can be specified by using the flag multiple times.
 
 ### Examples
 

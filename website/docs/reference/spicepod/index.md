@@ -27,7 +27,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/docs/components/secret-stores).
 
 ### `secrets.from`
 
@@ -45,10 +45,10 @@ Where:
 
   Currently supported secret stores:
 
-  - [`env`](/components/secret-stores/env/index.md)
-  - [`kubernetes`](/components/secret-stores/kubernetes/index.md)
-  - [`keyring`](/components/secret-stores/keyring/index.md)
-  - [`aws-secrets-manager`](/components/secret-stores/aws-secrets-manager/index.md)
+  - [`env`](/docs/components/secret-stores/env/index.md)
+  - [`kubernetes`](/docs/components/secret-stores/kubernetes/index.md)
+  - [`keyring`](/docs/components/secret-stores/keyring/index.md)
+  - [`aws-secrets-manager`](/docs/components/secret-stores/aws-secrets-manager/index.md)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 
@@ -76,7 +76,7 @@ This configuration setting determines the maximum number of datasets that can be
 
 ### `runtime.results_cache`
 
-The results cache section specifies runtime cache configuration. [Learn more](/features/caching).
+The results cache section specifies runtime cache configuration. [Learn more](/docs/features/caching).
 
 ```yaml
 runtime:
@@ -94,7 +94,7 @@ runtime:
 
 ### `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/api/tls).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using with `--tls-enabled true` and `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file` flags.
 
@@ -111,7 +111,7 @@ runtime:
 
 #### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/components/secret-stores).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/docs/components/secret-stores).
 
 ```yaml
 runtime:
@@ -143,7 +143,7 @@ runtime:
 
 #### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/components/secret-stores).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/docs/components/secret-stores).
 
 ```yaml
 runtime:

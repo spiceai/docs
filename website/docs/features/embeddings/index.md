@@ -32,7 +32,7 @@ embeddings:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 ```
 
-See [Embedding components](/components/embeddings/) for more information on embedding models.
+See [Embedding components](/docs/components/embeddings/) for more information on embedding models.
 
 ## Embedding Methods
 
@@ -59,14 +59,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](/components/data-accelerators/index.md). The only change required for this it to set up the data accelerator. For example, just add
+To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](/docs/components/data-accelerators/index.md). The only change required for this it to set up the data accelerator. For example, just add
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](/components/data-accelerators/index.md).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](/docs/components/data-accelerators/index.md).
 
 **Full example:**
 
@@ -86,7 +86,7 @@ datasets:
 
 ### Passthrough Embeddings
 
-Datasets that already have embedding columns can utilize the same functionalities (e.g. vector search) as those augmented with Spice-generated embeddings. They should follow the same schema as Spice-generated embeddings (or be altered with a [view](/reference/spicepod#view).
+Datasets that already have embedding columns can utilize the same functionalities (e.g. vector search) as those augmented with Spice-generated embeddings. They should follow the same schema as Spice-generated embeddings (or be altered with a [view](/docs/reference/spicepod#view).
 
 #### Example
 
@@ -196,7 +196,7 @@ Following these guidelines ensures that the dataset with pre-existing embeddings
 
 ### Chunking
 
-Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
+Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/docs/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
 
 ```yaml
 datasets:
@@ -213,11 +213,11 @@ datasets:
               target_chunk_size: 512
 ```
 
-The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences). See the [API reference](/reference/spicepod/datasets#columns-embeddings-chunking) for full details.
+The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences). See the [API reference](/docs/reference/spicepod/datasets#columns-embeddings-chunking) for full details.
 
 #### Row Identifiers
 
-Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/api/HTTP/post-search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
+Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/docs/api/HTTP/post-search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
 
 ```yaml
 datasets:

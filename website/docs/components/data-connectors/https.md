@@ -5,7 +5,7 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
-The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint.
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint.
 
 ```yaml
 datasets:
@@ -19,7 +19,7 @@ datasets:
 
 ### `from`
 
-The `from` field must contain a valid URI to the location of a [supported file](/components/data-connectors/index.md#object-store-file-formats). For example, `http://static_username@localhost:3001/report.csv`.
+The `from` field must contain a valid URI to the location of a [supported file](/docs/components/data-connectors/index.md#object-store-file-formats). For example, `http://static_username@localhost:3001/report.csv`.
 
 ### `name`
 
@@ -79,4 +79,4 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).

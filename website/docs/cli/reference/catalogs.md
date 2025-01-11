@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Lists [catalogs](/components/catalogs) loaded by the Spice runtime
+Lists [catalogs](/docs/components/catalogs) loaded by the Spice runtime
 
 ### Usage
 

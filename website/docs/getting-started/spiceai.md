@@ -8,7 +8,7 @@ pagination_next: null
 
 The [Spice.ai Cloud Platform](https://docs.spice.ai) includes a comprehensive set of free, ready-to-query [sample and blockchain datasets](https://docs.spice.ai/building-blocks/datasets).
 
-The Spice runtime can query these datasets using the [Spice.ai Data Connector](/components/data-connectors/spiceai.md).
+The Spice runtime can query these datasets using the [Spice.ai Data Connector](/docs/components/data-connectors/spiceai.md).
 
 ## Quickstart
 

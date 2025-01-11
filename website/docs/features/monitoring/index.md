@@ -9,8 +9,8 @@ pagination_next: null
 
 Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info). Monitoring clients configuration:
 
-- [Grafana](/clients/grafana/)
-- [Datadog](/clients/Datadog/)
+- [Grafana](/docs/clients/grafana/)
+- [Datadog](/docs/clients/Datadog/)
 
 ## Spice Metrics Endpoint Configuration
 

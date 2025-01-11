@@ -6,11 +6,11 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/components/data-connectors) and storing it locally in a [Data Accelerator](/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
+Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
 
 ## Benefits
 
-Local data acceleration stores data alongside your application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
+Local data acceleration stores data alongside your application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/docs/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
 
 Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
 
@@ -57,4 +57,4 @@ spice sql
 select * from taxi_trips;
 ```
 
-[Learn more about Data Accelerators](/components/data-accelerators) for faster access.
+[Learn more about Data Accelerators](/docs/components/data-accelerators) for faster access.

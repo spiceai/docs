@@ -6,7 +6,7 @@ description: 'File Data Connector Documentation'
 
 The File Data Connector enables federated SQL queries on files stored by locally accessible filesystems. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
 
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats).
+File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats).
 
 Example `spicepod.yml`
 
@@ -53,14 +53,14 @@ SELECT COUNT(*) FROM cool_dataset;
 
 | Parameter name              | Description                                                                                                                                                                                                       |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [Object Store File Formats](/components/data-connectors/index.md#object-store-file-formats) for details. |
+| `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats) for details. |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                  |
 
-For CSV-specific parameters, see [CSV Parameters](/reference/file_format.md#csv).
+For CSV-specific parameters, see [CSV Parameters](/docs/reference/file_format.md#csv).
 
 ## Trigger data refresh on file change
 
-In addition to standard [Data Refresh](/components/data-accelerators/data-refresh), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
+In addition to standard [Data Refresh](/docs/components/data-accelerators/data-refresh), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
 
 ```yaml
 datasets:
