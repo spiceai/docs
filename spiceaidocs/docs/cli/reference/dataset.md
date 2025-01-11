@@ -26,21 +26,18 @@ spice dataset [command]
  When running `spice dataset configure`, Spice will prompt for four inputs:
  1. The name of the dataset, labelled by `(1)` below.
  2. The description of the dataset, labelled by `(2)` below.
- 3. The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](/components/data-connectors) to see possible values for this field. 
+ 3. The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](/components/data-connectors) to see possible values for this field. Note: Spice may prompt for a file format if necessary, as shown in the example below.
  4. Whether or not to enable acceleration for this dataset, labelled by `(4)`. The default value for this input is `y`, enabling acceleration for this dataset. Learn more about acceleration in the [dataset acceleration reference](/components/data-accelerators).
 
  ```shell
 > spice dataset configure
 
- 2024/12/18 01:06:32 INFO dataset name: sample-project
- taxi-trips # (1)
- 2024/12/18 01:06:59 WARN Dataset names with hyphens should be quoted in queries:
- i.e. SELECT * FROM "remote-source"
- description: Taxi trips in s3 # (2)
- from: s3://spiceai-demo-datasets/taxi_trips/2024/  # (3)
- 2024/12/18 01:075 INFO locally accelerate (y/n)? (y)
- n # (4)
- 2024/12/18 01:07:32 INFO Saved datasets/remote-source/dataset.yaml
+dataset name: (spiceai) taxi-trips # (1)
+description: Taxi Trips in S3 # (2)
+from: s3://spiceai-demo-datasets/taxi_trips/2024/ # (3)
+file_format (parquet/csv) (parquet) parquet
+locally accelerate (y/n)? (y) y # (4)
+2025/01/10 14:07:46 INFO Saved datasets/test/dataset.yaml
  ```
 
 After execution, the directory structure looks like this for the above example:
