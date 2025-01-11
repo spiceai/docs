@@ -26,6 +26,7 @@
  ```shell
  > spice catalogs
 
- FROM    NAME
- spiceai spiceai
+ FROM         NAME
+ spiceai      spiceai
+ databricks   us_census_data
  ```
