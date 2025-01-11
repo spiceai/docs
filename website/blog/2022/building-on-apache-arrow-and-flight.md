@@ -11,12 +11,8 @@ In February, we announced [Spice.ai OSS v0.6](https://blog.spiceai.org/posts/202
 
 In [Spice.ai OSS v0.6.1](https://blog.spiceai.org/posts/2022/04/21/announcing-the-release-of-spice.ai-v0.6.1-alpha/) we announced a new big data system integration… our own, [Spice.xyz](https://spice.xyz)!
 
-<div style="display: flex; justify-content: center; padding: 10px;">
-  <div style="display: flex; flex-direction: column; text-align: center;">
-    <img style="max-width: 600px; margin: auto" src="https://user-images.githubusercontent.com/80174/167584679-115c26ff-74ea-48b7-9c26-4bd4feae2afa.jpg" />
-	  <div style="font-size: 0.8rem; font-style: italic; text-align: center;">Figure 1. Spice.xyz - Data and AI infrastructure for web3</div>
-  </div>
-</div>
+![Spice.xyz - Data and AI infrastructure for web3](https://user-images.githubusercontent.com/80174/167584679-115c26ff-74ea-48b7-9c26-4bd4feae2afa.jpg)
+*Figure 1. Spice.xyz - Data and AI infrastructure for web3*
 
 ### Integration with Spice.xyz
 

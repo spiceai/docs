@@ -13,14 +13,9 @@ We faced the same AI development challenges many developers do, even though we h
 
 Today, we are making [Spice.ai](https://spiceai.org/) available on GitHub, a new open source project that helps developers use deep learning to create intelligent applications. We're looking for feedback on the direction. It's not finished, in fact, we only started this summer, and we invite you to try out the alpha.
 
-<div style="display: flex; justify-content: center;">
-<img style="max-width: 600px;" width="100%" src="https://res.craft.do/user/full/f6ea57b9-4723-ca7b-aa16-e2a916601d59/doc/E951CFE6-D24A-4C02-A796-FFFCFC5FD5A9/A1AAFFBD-0AE9-47B5-AC9C-D37A6932CE5B_2/screen.png" />
+![](https://res.craft.do/user/full/f6ea57b9-4723-ca7b-aa16-e2a916601d59/doc/E951CFE6-D24A-4C02-A796-FFFCFC5FD5A9/A1AAFFBD-0AE9-47B5-AC9C-D37A6932CE5B_2/screen.png)
 
-</div>
-
-<p style="text-align: center;">
-<i>Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands</i>
-</p>
+*Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands*
 
 Like many developer stories, it all started with a side-project. We were interested in [neurofeedback](https://en.wikipedia.org/wiki/Neurofeedback), a type of biofeedback therapy that reinforces healthy brain function but can cost up to $15,000. We wanted to make it accessible to more people, so we set out to build a system that leverages AI to deliver neurofeedback more cost-effectively. Using AI for the application was much more challenging than expected, and this sparked the inspiration for Spice.ai.
 
