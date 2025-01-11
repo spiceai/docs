@@ -57,7 +57,7 @@ x86_x64 and ARM binaries for linux, Windows, and macOS are available for downloa
 
   2. Install the Xcode Command Line tools
     ```shell
-      xcode-select --install
+    xcode-select --install
     ```
 
   3. Install dependencies

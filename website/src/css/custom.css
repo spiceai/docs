@@ -135,6 +135,15 @@ pre {
   border-color: var(--ifm-color-primary) !important;
 }
 
+:root {
+  --ifm-font-family-base: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --ifm-footer-background-color: hsla(0, 0%, 0%, 1);
+}
+
+.footer--dark {
+  --ifm-footer-background-color: hsla(0, 0%, 0%, 1);
+}
+
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
   --ifm-color-primary: #25c2a0;
