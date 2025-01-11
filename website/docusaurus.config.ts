@@ -149,19 +149,19 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/getting-started',
+              to: '/docs/getting-started',
             },
             {
               label: 'API',
-              to: '/api',
+              to: '/docs/api',
             },
             {
               label: 'CLI',
-              to: '/cli',
+              to: '/docs/cli',
             },
             {
               label: 'SDKs',
-              to: '/sdks',
+              to: '/docs/sdks',
             },
           ],
         },
@@ -248,15 +248,15 @@ const config: Config = {
         redirects: [
           {
             from: '/federated-queries',
-            to: '/features/federated-queries',
+            to: '/docs/features/federated-queries',
           },
           {
             from: '/data-ingestion',
-            to: '/features/data-ingestion',
+            to: '/docs/features/data-ingestion',
           },
           {
             from: '/data-acceleration',
-            to: '/features/data-acceleration',
+            to: '/docs/features/data-acceleration',
           },
         ],
       },
