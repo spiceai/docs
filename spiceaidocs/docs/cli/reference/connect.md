@@ -1,31 +1,31 @@
 ---
- title: "connect"
- sidebar_label: "connect"
- pagination_prev: null
- pagination_next: null
- ---
+title: "connect"
+sidebar_label: "connect"
+pagination_prev: null
+pagination_next: null
+---
 
- Connect to an app on the Spice.ai Cloud Platform.
+Connect to an app on the Spice.ai Cloud Platform.
 
- ### Requirements
+### Requirements
 
- - Authenticated to the Spice.ai Cloud Platform via [`login`](/cli/reference/login)
+- Authenticated to the Spice.ai Cloud Platform via [`login`](/cli/reference/login)
 
 **Notes**: Instead of pulling from Spicerack and integrating those Spicepods locally like `spice add`, `spice connect` enables connection to an app on the Spice.ai Cloud Platform without any local modifications or updates necessary.
 
- ### Usage
+### Usage
 
- ```shell
- spice connect [app] [flags]
- ```
+```shell
+spice connect [app] [flags]
+```
 
- - `app`: The app slug in the Spice.ai Cloud Platform (i.e. `spiceai/tpch`).
+- `app`: The app slug in the Spice.ai Cloud Platform (i.e. `spiceai/tpch`).
 
- #### Flags
+#### Flags
 
- - `-h`, `--help` Print this help message
+- `-h`, `--help` Print this help message
 
- ### Examples
+### Examples
 
 ```shell
 > spice connect spiceai/quickstart
