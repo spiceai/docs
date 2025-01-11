@@ -68,14 +68,16 @@ export interface ButtonProps
   ref?: React.Ref<HTMLButtonElement & HTMLAnchorElement>;
 }
 
-const Button = ({
+
+const Button = 
+React.forwardRef<HTMLButtonElement, ButtonProps>(
+({
   className,
   variant,
   size,
   href,
-  ref,
   ...props
-}: ButtonProps) => {
+}, ref) => {
   const classes = cn(
     'inline-block',
     buttonVariants({ variant, size, className })
@@ -90,7 +92,7 @@ const Button = ({
   }
 
   return <button className={classes} {...props} {...(ref ? { ref } : {})} />;
-};
+});
 
 Button.displayName = 'Button';
 

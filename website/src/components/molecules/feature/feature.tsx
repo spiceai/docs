@@ -1,6 +1,6 @@
 import { Paragraph } from '../../atoms/paragraph/paragraph';
 import { Title } from '../../atoms/title/title';
-import { Link, LinkProps } from '../../atoms/link/link';
+import { Link } from '../../atoms/link/link';
 
 export const Feature = ({
   title,

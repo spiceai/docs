@@ -1,7 +1,7 @@
 import { cva, VariantProps } from 'class-variance-authority'
 import { cn } from '../../../lib/utils'
 
-const titleVariants = cva('text-alpha-900', {
+const titleVariants = cva('text-alpha-900 font-sans', {
   variants: {
     variant: {
       small: 'text-lg font-semibold leading-7',

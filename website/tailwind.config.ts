@@ -76,8 +76,8 @@ const config = {
         },
       },
       fontFamily: {
-        sans: 'var(--font-sans, ui-sans-serif)',
-        mono: 'var(--font-mono, ui-monospace)',
+        sans: 'Manrope',
+        mono: 'Roboto Mono',
       },
       boxShadow: {
         'button-hover': '0px -4px 8px 0px rgba(246, 147, 65, 0.40)',

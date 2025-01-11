@@ -19,7 +19,7 @@ const Link: React.FC<LinkProps> = ({
     'rounded-xl font-semibold text-base transition-colors hover:text-primary active:text-red-700';
   const variantClasses =
     variant === 'small'
-      ? 'font-medium text-primary-foreground'
+      ? 'font-medium'
       : 'text-alpha-900 text-lg';
 
   const classes = cn(baseClasses, variantClasses, className);

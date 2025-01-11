@@ -26,7 +26,7 @@ export default function LandingPage() {
       description='Spice is an open-source SQL query and AI compute engine, built in Rust, for developers.'
       wrapperClassName='tailwind'
     >
-      <div className='bg-neutral-50'>
+      <div className='bg-neutral-50 font-sans'>
         <HeroPlayground />
 
         <Container>

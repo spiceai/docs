@@ -21,7 +21,7 @@ export const CopyCode = ({ code }: { code: string }) => {
       className='group relative mt-6 w-full rounded-lg border border-alpha-150 bg-neutral p-4 shadow-box transition-shadow hover:shadow-code md:w-11/12 md:p-10'
     >
       <div className='flex items-center gap-4 overflow-x-scroll text-left md:overflow-x-auto'>
-        <code className='text-base md:w-11/12 md:text-lg'>{code}</code>
+        <code className='bg-transparent text-base md:w-11/12 md:text-lg'>{code}</code>
 
         <div className='absolute right-3 top-2 md:right-7 md:top-1/2 md:-translate-y-1/2'>
           <ClipboardDocumentIcon className='h-6 w-6 transition-colors group-hover:text-primary' />
