@@ -1,6 +1,6 @@
 ---
-title: 'catalogs'
-sidebar_label: 'catalogs'
+title: "catalogs"
+sidebar_label: "catalogs"
 pagination_prev: null
 pagination_next: null
 ---
