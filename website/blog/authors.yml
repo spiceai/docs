@@ -57,3 +57,13 @@ ewgenius:
     github: ewgenius
     x: ewgeniux
     linkedin: ewgenius
+
+sgrebnov:
+  name: Sergei Grebnov
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/sgrebnov
+  image_url: https://github.com/sgrebnov.png
+  page: true
+  socials:
+    github: sgrebnov
+    linkedin: sgrebnov
