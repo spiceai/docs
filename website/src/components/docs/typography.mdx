@@ -1,0 +1,46 @@
+import { Meta, Typeset } from '@storybook/blocks'
+
+<Meta title='Docs/Typography' />
+
+export const typography = {
+  type: {
+    primary: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif'
+  },
+  weight: {
+    regular: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700'
+  },
+  size: {
+    s1: 12,
+    s2: 14,
+    s3: 16,
+    m1: 20,
+    m2: 24,
+    m3: 28,
+    l1: 32,
+    l2: 40,
+    l3: 48
+  }
+}
+
+export const SampleText = 'The quick brown fox jumps over the lazy dog'
+
+# Typography
+
+We use Manrope as our primary font.
+
+We use Roboto Mono as our monospace font.
+
+### CVA - Class Variance Authority
+
+We use CVA to create **variants** for our “Atoms”, which are our smallest components. Please refer to them later in the documentation.
+
+### Usage Guidelines
+
+- Use appropriate heading levels (H1, H2, H3, etc.) to maintain proper document structure.
+- Maintain consistency in font sizes and weights across the application.
+- Ensure sufficient contrast between text and background colors for readability.
+- Use bold and semibold weights sparingly to emphasize important information.
+- For body text, stick to regular weight and a comfortable reading size (typically 16px).

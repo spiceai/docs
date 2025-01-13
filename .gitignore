@@ -1,8 +1,8 @@
 .DS_Store
 node_modules
 
-spiceaidocs/resources
-spiceaidocs/public
+website/resources
+website/public
 
 .hugo_build.lock
 
