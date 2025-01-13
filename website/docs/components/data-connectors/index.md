@@ -29,11 +29,11 @@ Supported Data Connectors include:
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
+| `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `snowflake`                        | Snowflake                             | Alpha             | Arrow                        |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
-| `spark`                            | Spark                                 | Alpha             | [Spark Connect][spark]       |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
