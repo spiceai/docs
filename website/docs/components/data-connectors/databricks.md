@@ -194,7 +194,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Limitations
 
- :::warning[Performance Considerations]
+ :::warning[Memory Considerations]
 
  When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
