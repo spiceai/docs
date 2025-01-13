@@ -63,18 +63,12 @@ const recipes: RecipeData[] = [
   },
   {
     title: 'Text to SQL (NSQL)',
-    description: 'Ask natural language questions of your datasets.',
-    path: '/nsql/README.md',
-    tags: ['ai', 'text-to-sql', 'nsql'],
-  },
-  {
-    title: 'Text to SQL (Tools)',
-    description: 'Tools for text to SQL conversion.',
+    description: 'Ask natural language (NLP) questions of your datasets using the built-in text-to-SQL tool.',
     path: '/text-to-sql/README.md',
-    tags: ['ai', 'text-to-sql', 'tools'],
+    tags: ['ai', 'text-to-sql', 'nsql', 'tools'],
   },
   {
-    title: 'Nvidia NIM',
+    title: 'NVidia NIM',
     description: 'Deploy Nvidia NIM infrastructure, on Kubernetes, with GPUs connected to Spice.',
     path: '/nvidia-nim/README.md',
     tags: ['ai', 'nvidia', 'nim'],
