@@ -14,31 +14,31 @@ Supported Data Connectors include:
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `s3`                               | [S3][s3]                              | Release Candidate | Parquet, CSV                 |
 | `postgres`                         | PostgreSQL                            | Release Candidate |                              |
 | `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `duckdb`                           | DuckDB                                | Release Candidate | Embedded                     |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Release Candidate | S3/Delta Lake                |
-| `file`                             | File                                  | Release Candidate | Parquet, CSV                 |
 | `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
-| `spiceai`                          | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
+| `spice.ai`                         | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
+| `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
-| `spark`                            | Spark                                 | Alpha             | [Spark Connect][spark]       |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
-| `documentdb`                       | DocumentDB                            | Alpha             |                              |
+| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `mongodb`                          | MongoDB                               | Coming Soon       |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
@@ -61,7 +61,7 @@ File formats currently supported are:
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](/docs/reference/file_format.md#csv)          | `file_format: csv`     | ✅        | ❌                 |
+| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |

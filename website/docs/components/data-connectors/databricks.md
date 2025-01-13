@@ -192,6 +192,16 @@ The table below shows the Databricks (mode: delta_lake) data types supported, al
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
 
+## Limitations
+
+ :::warning[Memory Considerations]
+
+ When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+ Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+
+ :::
+
 ## Cookbook
 
 - A cookbook recipe to configure Databricks as data connector in Spice under `delta_lake` mode. [Spice on Databricks (mode: delta_lake)](https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake#readme)
