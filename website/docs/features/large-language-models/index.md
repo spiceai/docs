@@ -17,14 +17,14 @@ Spice supports a variety of LLMs (see [Model Providers](/docs/components/models/
 
 ### Core Features
 
-- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/docs/featureslarge-language-models/tools).
-- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/HTTP/post-chat-completions). See [Parameter Overrides](/docs/featureslarge-language-models/parameter_overrides).
-- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/docs/featureslarge-language-models/memory).
-- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/docs/featuressearch/vector-search).
-- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/docs/featureslarge-language-models/evals).
-- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](/docs/featureslarge-language-models/serving).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/docs/features/large-language-models/tools).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions). See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/docs/features/large-language-models/memory).
+- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/docs/features/search/vector-search).
+- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/docs/features/large-language-models/evals).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](/docs/features/large-language-models/serving).
 
-For API usage, refer to the [API Documentation](/api).
+For API usage, refer to the [API Documentation](/docs/api).
 
 import DocCardList from '@theme/DocCardList';
 
