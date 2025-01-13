@@ -14,13 +14,13 @@ Supported Data Connectors include:
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `s3`                               | [S3][s3]                              | Release Candidate | Parquet, CSV                 |
 | `postgres`                         | PostgreSQL                            | Release Candidate |                              |
 | `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `duckdb`                           | DuckDB                                | Release Candidate | Embedded                     |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Release Candidate | S3/Delta Lake                |
-| `file`                             | File                                  | Release Candidate | Parquet, CSV                 |
 | `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
@@ -61,7 +61,7 @@ File formats currently supported are:
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](/docs/reference/file_format.md#csv)          | `file_format: csv`     | ✅        | ❌                 |
+| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
