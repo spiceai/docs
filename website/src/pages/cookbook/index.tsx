@@ -27,12 +27,18 @@ const recipes: RecipeData[] = [
     path: '/federation/README.md',
     tags: ['core', 'federation', 'sql'],
   },
-  // Sample Applications
+  // Sample Applications and guides
   {
     title: 'Command Query Responsibility Segregation (CQRS)',
     description: 'Sample application implementing the CQRS pattern with Spice.',
     path: '/cqrs/README.md',
     tags: ['sample', 'cqrs', 'application'],
+  },
+  {
+    title: 'Intelligent Security Copilot',
+    description: 'Analyze real-time data access patterns with Spice.ai.',
+    path: '/guides/security-analyzer/README.md',
+    tags: ['guide', 'security', 'analyzer'],
   },
   // Models & AI
   {
@@ -492,9 +498,9 @@ export default function CookbookPage() {
 
         <Container className='mt-6 mb-20'>
             <Title className='mb-4 text-center'>
-                Sample Applications
+                Sample Applications and Guides
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Explore example applications built with Spice.ai that demonstrate real-world usage patterns and best practices.</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Explore example applications and guides built with Spice.ai that demonstrate real-world usage patterns and best practices.</Paragraph>
             
             <RecipeGroup recipes={filterByTag('sample')} />
         </Container>
