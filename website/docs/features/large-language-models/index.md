@@ -7,39 +7,25 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It also offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/docs/features/search)).
+Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/docs/features/search)).
 
 Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
 
 ## Configuring Language Models
 
-Spice supports a variety of LLMs (see [Model Components](/docs/components/models/index.md)).
+Spice supports a variety of LLMs (see [Model Providers](/docs/components/models/index.md)).
 
 ### Core Features
 
-- **Custom Tools**: Equip models with tools to interact with the Spice runtime.
-- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/docs/featureslarge-language-models/tools).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](/api/HTTP/post-chat-completions). See [Parameter Overrides](/docs/featureslarge-language-models/parameter_overrides).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/docs/featureslarge-language-models/memory).
+- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/docs/featuressearch/vector-search).
+- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/docs/featureslarge-language-models/evals).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](/docs/featureslarge-language-models/serving).
 
-For detailed configuration and API usage, refer to the [API Documentation](/docs/api).
+For API usage, refer to the [API Documentation](/api).
 
-### Example: Configuring an OpenAI Model
+import DocCardList from '@theme/DocCardList';
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`.
-
-Example `spicepod.yml`:
-
-```yaml
-models:
-  - from: openai:gpt-4o-mini
-    name: openai
-    params:
-      openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
-
-  - from: openai:llama3-groq-70b-8192-tool-use-preview
-    name: groq-llama
-    params:
-      endpoint: https://api.groq.com/openai/v1
-      openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
-```
-
-For details, see [OpenAI (or Compatible) Language Models](/docs/components/models/openai.md).
+<DocCardList />
