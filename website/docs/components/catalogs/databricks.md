@@ -16,7 +16,7 @@ catalogs:
   - from: databricks:my_uc_catalog
     name: uc_catalog # tables from this catalog will be available in the "uc_catalog" catalog in Spice
     include:
-      - "*.my_table_name" # include only the "my_table_name" tables
+      - '*.my_table_name' # include only the "my_table_name" tables
     params:
       mode: delta_lake # or spark_connect
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
@@ -68,18 +68,18 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 #### AWS S3
 
 - `databricks_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
-- `databricks_aws_access_key_id`: The access key ID for the S3 object store. 
+- `databricks_aws_access_key_id`: The access key ID for the S3 object store.
 - `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
 - `databricks_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
 Example:
-  
+
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
     name: uc_catalog
     include:
-      - "*.my_table_name"
+      - '*.my_table_name'
     params:
       mode: delta_lake
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
@@ -95,10 +95,10 @@ catalogs:
 :::info Note
 One of the following auth values must be provided for Azure Blob:
 
-- `databricks_azure_storage_account_key`, 
-- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `databricks_azure_storage_account_key`,
+- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or
 - `databricks_azure_storage_sas_key`.
-:::
+  :::
 
 - `databricks_azure_storage_account_name`: The Azure Storage account name.
 - `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
@@ -108,13 +108,13 @@ One of the following auth values must be provided for Azure Blob:
 - `databricks_azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
 
 Example:
-  
+
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
     name: uc_catalog
     include:
-      - "*.my_table_name"
+      - '*.my_table_name'
     params:
       mode: delta_lake
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
@@ -129,16 +129,26 @@ catalogs:
 - `google_service_account`: Filesystem path to the Google service account JSON key file.
 
 Example:
-  
+
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
     name: uc_catalog
     include:
-      - "*.my_table_name"
+      - '*.my_table_name'
     params:
       mode: delta_lake
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
     dataset_params:
       databricks_google_service_account: /path/to/service-account.json
 ```
+
+## Limitations
+
+- Databricks catalog doesn't support reading Delta table with V2Checkpoint feature. To use databricks catalog conenctor, drop V2Checkpoint features in catalogs with `ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY]` command. For details on dropping Delta table features, refer to: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
+
+:::warning[Memory Considerations]
+
+When using the Databricks (mode: delta_lake) Catalog connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+:::
