@@ -111,6 +111,14 @@ datasets:
       file_format: parquet
 ```
 
+:::warning[Performance Considerations]
+
+When using the File Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+
+:::
+
 ## Cookbook
 
 Refer to the [File cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/file) to see an example of the File connector in use.
