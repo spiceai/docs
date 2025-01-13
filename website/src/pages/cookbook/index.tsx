@@ -99,6 +99,7 @@ const recipes: RecipeData[] = [
     description: 'Accelerate data locally using DuckDB.',
     path: '/duckdb/accelerator/README.md',
     tags: ['core', 'acceleration', 'duckdb', 'data'],
+    videoUrl: 'https://youtu.be/hFvVz5NGpaw'
   },
   {
     title: 'PostgreSQL Data Accelerator',
@@ -482,6 +483,7 @@ export default function CookbookPage() {
                     title='Data Acceleration'
                     description='Accelerate queries with DuckDB.'
                     href={`${recipeBaseUrl}/duckdb/accelerator/README.md`}
+                    videoUrl='https://youtu.be/hFvVz5NGpaw'
                   />
                   <Recipe
                     title='LLM Memory'
