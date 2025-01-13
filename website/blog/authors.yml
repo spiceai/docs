@@ -1,0 +1,69 @@
+lukekim:
+  name: Luke Kim
+  title: Founder and CEO of Spice AI
+  url: https://x.com/0xLukeKim
+  image_url: https://github.com/lukekim.png
+  page: true
+  socials:
+    x: 0xLukeKim
+    github: lukekim
+    linkedin: lukekim
+
+phillipleblanc:
+  name: Phillip LeBlanc
+  title: Co-Founder and CTO of Spice AI
+  url: https://x.com/leblancphill
+  image_url: https://github.com/phillipleblanc.png
+  page: true
+  socials:
+    x: leblancphill
+    github: phillipleblanc
+
+Corentin-pro:
+  name: Corentin Risselin
+  title: Software Engineer at Spice AI
+  url: https://github.com/Corentin-pro
+  image_url: https://github.com/Corentin-pro.png
+  socials:
+    github: Corentin-pro
+
+peasee:
+  name: William Croxson
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/peasee
+  image_url: https://github.com/peasee.png
+  page: true
+  socials:
+    github: peasee
+
+jeadie:
+  name: Jack Eadie
+  title: Token Plumber at Spice AI
+  url: https://github.com/Jeadie
+  image_url: https://github.com/Jeadie.png
+  page: true
+  socials:
+    github: Jeadie
+    x: _jeadie
+    linkedin: jack-eadie
+
+ewgenius:
+  name: Evgenii Khramkov
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/ewgenius
+  image_url: https://github.com/ewgenius.png
+  page: true
+  socials:
+    github: ewgenius
+    x: ewgeniux
+    linkedin: ewgenius
+
+sgrebnov:
+  name: Sergei Grebnov
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/sgrebnov
+  image_url: https://github.com/sgrebnov.png
+  page: true
+  socials:
+    github: sgrebnov
+    linkedin: sgrebnov

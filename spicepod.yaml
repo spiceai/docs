@@ -10,7 +10,7 @@ datasets:
       instructions: |
         Documents are stored in Markdown. Always provide citations.
         When generating reference links for docs, use https://docs.spiceai.org/<docs_path> as a template
-        Exclude `spiceaidocs/docs` prefix from docs path and `.md` file extension.
+        Exclude `website/docs` prefix from docs path and `.md` file extension.
         Also replace `/index.md` with `/` in the path.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
@@ -18,7 +18,7 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: "spiceaidocs/docs/**/*.md"
+      include: "website/docs/**/*.md"
     acceleration:
       enabled: true
       refresh_check_interval: 4h

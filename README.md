@@ -10,7 +10,7 @@ This repo contains the markdown files which generate the above website. See belo
 
 The Spice docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
 
-The [spiceaidocs](./spiceaidocs) directory contains the Docusaurus project, markdown files, and theme configurations.
+The [website](./website) directory contains the Docusaurus project, markdown files, and theme configurations.
 
 ## Pre-requisites
 
@@ -26,10 +26,10 @@ The [spiceaidocs](./spiceaidocs) directory contains the Docusaurus project, mark
 git clone https://github.com/spiceai/docs.git
 ```
 
-3. Change to spiceaidocs directory:
+3. Change to website directory:
 
 ```sh
-cd ./docs/spiceaidocs
+cd ./docs/website
 ```
 
 4. Install npm packages:
@@ -40,7 +40,7 @@ npm install
 
 ## Run local server
 
-1. Make sure you're still in the `spiceaidocs` directory
+1. Make sure you're still in the `website` directory
 2. Run
 
 ```sh
