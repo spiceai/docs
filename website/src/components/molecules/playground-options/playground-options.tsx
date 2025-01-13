@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 import { heroPlaygroundData } from './data';
 import { Title } from '../../atoms/title/title';
@@ -209,7 +209,7 @@ const ArrowButton = ({
     <button
       type='button'
       onClick={onClick}
-      className={cn(
+      className={classNames(
         'z-10 hidden rounded-full p-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-primary md:block',
         className
       )}

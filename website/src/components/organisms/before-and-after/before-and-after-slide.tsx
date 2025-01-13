@@ -7,7 +7,7 @@ import { SlideData } from './data';
 import { CarouselApi } from '../../ui/carousel';
 import { Benefit } from '../../molecules/benefit/benefit';
 
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 type BeforeAndAfterSlideProps = {
   slideData: SlideData;
@@ -85,7 +85,7 @@ const ArrowButton = ({
     <button
       type='button'
       onClick={onClick}
-      className={cn(
+      className={classNames(
         'absolute bottom-[47%] z-10 hidden -translate-y-1/2 rounded-full p-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-primary md:block',
         className
       )}

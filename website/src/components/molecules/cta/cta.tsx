@@ -8,7 +8,7 @@ import { Title } from '../../atoms/title/title';
 import { Icon } from '../../atoms/icon/icon';
 import { Logo } from '../../atoms/logo/logo';
 
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 import { Link, LinkProps } from '../../atoms/link/link';
 
@@ -16,7 +16,7 @@ export const Cta = ({ className }: { className?: string }) => {
   return (
     <Container className='px-0'>
       <section
-        className={cn(
+        className={classNames(
           'my-20 flex flex-col overflow-hidden rounded-none sm:rounded-2xl lg:flex-row',
           className
         )}

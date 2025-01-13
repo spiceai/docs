@@ -6,7 +6,7 @@ import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from 'embla-carousel-react';
 
-import { cn } from '../../lib/utils';
+import { classNames } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
 
 type CarouselApi = UseEmblaCarouselType[1];
@@ -137,7 +137,7 @@ const Carousel = React.forwardRef<
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
-          className={cn('relative', className)}
+          className={classNames('relative', className)}
           role='region'
           aria-roledescription='carousel'
           {...props}
@@ -160,7 +160,7 @@ const CarouselContent = React.forwardRef<
     <div ref={carouselRef} className='overflow-hidden'>
       <div
         ref={ref}
-        className={cn(
+        className={classNames(
           'flex',
           orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col',
           className
@@ -183,7 +183,7 @@ const CarouselItem = React.forwardRef<
       ref={ref}
       role='group'
       aria-roledescription='slide'
-      className={cn(
+      className={classNames(
         'min-w-0 shrink-0 grow-0 basis-full',
         orientation === 'horizontal' ? 'pl-4' : 'pt-4',
         className
@@ -205,7 +205,7 @@ const CarouselPrevious = React.forwardRef<
       ref={ref}
       variant={variant}
       size={size}
-      className={cn(
+      className={classNames(
         'absolute h-8 w-8 rounded-full border-none bg-transparent hover:border hover:bg-neutral-200 md:h-12 md:w-12 md:p-3',
         orientation === 'horizontal'
           ? '-bottom-14 left-4 md:-left-16 md:top-1/2 md:-translate-y-1/2'
@@ -234,7 +234,7 @@ const CarouselNext = React.forwardRef<
       ref={ref}
       variant={variant}
       size={size}
-      className={cn(
+      className={classNames(
         'absolute h-8 w-8 rounded-full border-none bg-transparent hover:border hover:bg-neutral-200 md:h-12 md:w-12 md:p-3',
         orientation === 'horizontal'
           ? '-bottom-14 right-4 md:-right-16 md:top-1/2 md:-translate-y-1/2'

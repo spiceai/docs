@@ -1,6 +1,6 @@
 import { Icon } from '../../../components/atoms/icon/icon';
 import { Title } from '../../../components/atoms/title/title';
-import { Link, LinkProps } from '../../components/link/link';
+import { Link, LinkProps } from '../../../components/atoms/link/link';
 
 export const Social = () => {
   const iconClasses =
