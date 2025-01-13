@@ -3,7 +3,7 @@ name: Generate API Docs
 on:
   pull_request:
     paths:
-      - "spiceaidocs/public/openapi.json"
+      - "website/public/openapi.json"
 
 jobs:
   generate-api-docs:
@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Generate API docs
-        working-directory: spiceaidocs
+        working-directory: website
         run: |
           rm docs/api/HTTP/*
           npm run docusaurus gen-api-docs all
