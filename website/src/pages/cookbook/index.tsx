@@ -5,6 +5,7 @@ import { Paragraph } from '@site/src/components/atoms/paragraph/paragraph';
 import { Container } from '@site/src/components/atoms/container/container';
 import { Recipe } from '@site/src/components/molecules/recipe/recipe';
 import { Link } from '@site/src/components/atoms/link/link';
+import { Icon } from '@site/src/components/atoms/icon/icon';
 
 interface RecipeData {
     title: string;
@@ -49,7 +50,7 @@ const recipes: RecipeData[] = [
     title: 'OpenAI SDK',
     description: 'Use the OpenAI SDK to connect to models hosted on Spice.',
     path: '/openai_sdk/README.md',
-    tags: ['ai', 'openai', 'sdk'],
+    tags: ['ai', 'openai', 'sdk', 'core'],
   },
   {
     title: 'LLM Memory',
@@ -92,7 +93,7 @@ const recipes: RecipeData[] = [
     title: 'DuckDB Data Accelerator',
     description: 'Accelerate data locally using DuckDB.',
     path: '/duckdb/accelerator/README.md',
-    tags: ['acceleration', 'duckdb', 'data'],
+    tags: ['core', 'acceleration', 'duckdb', 'data'],
   },
   {
     title: 'PostgreSQL Data Accelerator',
@@ -438,6 +439,7 @@ export default function CookbookPage() {
   const accelerationRecipes = filterByTag(['acceleration']);
   const clientRecipes = filterByTag(['client']);
   const connectorRecipes = filterByTag(['connector']);
+  const searchRecipes = filterByTag(['search']);
   const catalogRecipes = filterByTag(['catalog']);
   const deploymentRecipes = filterByTag(['deployment']);
   const performanceRecipes = filterByTag(['performance']);
@@ -461,7 +463,7 @@ export default function CookbookPage() {
 
         <Paragraph className='mb-6 md:text-center mx-auto px-6 md:max-w-[843px]'>{description}</Paragraph>
 
-        <Paragraph className='mb-6 md:text-center mx-auto px-6 md:max-w-[843px] hover:underline'><Link target='_blank' href='https://github.com/spiceai/cookbook/blob/trunk/README.md'>📝 Contribute to the Cookbook on GitHub!</Link></Paragraph>
+        <Paragraph className='mb-6 md:text-center mx-auto px-6 md:max-w-[843px] hover:underline'><Link className='inline-flex gap-1.5' target='_blank' href='https://github.com/spiceai/cookbook/blob/trunk/README.md'><Icon iconName='github' /> Contribute to the Cookbook on GitHub!</Link></Paragraph>
 
         <Container className='mt-6 mb-20'>
             <Title className='mb-14 text-center'>
@@ -502,7 +504,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Sample Applications
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Example applications built with Spice.ai that demonstrate real-world usage patterns</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Explore example applications built with Spice.ai that demonstrate real-world usage patterns and best practices.</Paragraph>
             
             <RecipeGroup recipes={sampleApps} />
         </Container>
@@ -511,7 +513,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Core Scenarios
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Core capabilities like data federation, acceleration, search, and LLM inference</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Discover core capabilities like data federation, acceleration, search, and LLM inference to enhance your applications.</Paragraph>
             
             <RecipeGroup recipes={coreRecipes} />
         </Container>
@@ -520,7 +522,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Models, AI, and Agents
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Integration with popular AI models, LLMs, and building intelligent agents</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Integrate with popular AI models, LLMs, and build intelligent agents using Spice.ai.</Paragraph>
             
             <RecipeGroup recipes={aiRecipes} />
         </Container>
@@ -529,16 +531,25 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Data Acceleration, Materialization, and Federation
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Optimize query performance with local acceleration and data materialization</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Optimize query performance with local acceleration, data materialization, and federation techniques.</Paragraph>
             
             <RecipeGroup recipes={accelerationRecipes} />
         </Container>
 
         <Container className='mt-6 mb-20'>
             <Title className='mb-4 text-center'>
+                Search and Embeddings
+            </Title>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Implement advanced search capabilities and leverage embeddings for vector similarity search.</Paragraph>
+            
+            <RecipeGroup recipes={searchRecipes} />
+        </Container>
+
+        <Container className='mt-6 mb-20'>
+            <Title className='mb-4 text-center'>
                 Data Connectors
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to various data sources and systems to query and analyze your data</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to various data sources and systems to query, analyze, and manage your data efficiently.</Paragraph>
             
             <RecipeGroup recipes={connectorRecipes} />
         </Container>
@@ -547,7 +558,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Catalog Connectors
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to data catalogs to discover and manage your data assets</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to data catalogs to discover, manage, and utilize your data assets effectively.</Paragraph>
             
             <RecipeGroup recipes={catalogRecipes} />
         </Container>
@@ -556,7 +567,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Data Visualization with Client Integrations
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Visualize your data using popular BI and analytics tools</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Visualize your data using popular BI and analytics tools integrated with Spice.ai.</Paragraph>
             
             <RecipeGroup recipes={clientRecipes} />
         </Container>
@@ -565,7 +576,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Deployment
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Deploy Spice.ai in various environments and configurations</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Deploy Spice.ai in various environments and configurations to suit your needs.</Paragraph>
             
             <RecipeGroup recipes={deploymentRecipes} />
         </Container>
@@ -574,7 +585,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Performance and Benchmarking
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Measure and optimize performance with benchmarks and best practices</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Measure and optimize performance with benchmarks and best practices for your Spice.ai deployment.</Paragraph>
             
             <RecipeGroup recipes={performanceRecipes} />
         </Container>
@@ -583,7 +594,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Advanced Configuration
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Fine-tune your Spice.ai deployment with advanced configuration options</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Fine-tune your Spice.ai deployment with advanced configuration options for optimal performance.</Paragraph>
             
             <RecipeGroup recipes={configRecipes} />
         </Container>
@@ -592,7 +603,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 SDKs
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Development kits and libraries for building applications with Spice.ai</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Utilize development kits and libraries for building applications with Spice.ai across various programming languages.</Paragraph>
             
             <RecipeGroup recipes={sdkRecipes} />
         </Container>
@@ -601,7 +612,7 @@ export default function CookbookPage() {
             <Title className='mb-4 text-center'>
                 Security
             </Title>
-            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Secure your Spice.ai deployment and data access</Paragraph>
+            <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Secure your Spice.ai deployment and data access with robust security practices and configurations.</Paragraph>
             
             <RecipeGroup recipes={securityRecipes} />
         </Container>
