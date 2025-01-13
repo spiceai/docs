@@ -430,22 +430,8 @@ const RecipeGroup: React.FC<{ recipes: RecipeData[] }> = ({ recipes }) => {
 };
 
 export default function CookbookPage() {
-  const filterByTag = (tags: string[]) => 
+  const filterByTag = (...tags: string[]) => 
     recipes.filter(r => r.tags.some(t => tags.includes(t)));
-
-  const coreRecipes = filterByTag(['core']);
-  const sampleApps = filterByTag(['sample']);
-  const aiRecipes = filterByTag(['ai']);
-  const accelerationRecipes = filterByTag(['acceleration']);
-  const clientRecipes = filterByTag(['client']);
-  const connectorRecipes = filterByTag(['connector']);
-  const searchRecipes = filterByTag(['search']);
-  const catalogRecipes = filterByTag(['catalog']);
-  const deploymentRecipes = filterByTag(['deployment']);
-  const performanceRecipes = filterByTag(['performance']);
-  const configRecipes = filterByTag(['configuration']);
-  const sdkRecipes = filterByTag(['sdk']);
-  const securityRecipes = filterByTag(['security']);
 
   return (
     <Layout
@@ -506,7 +492,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Explore example applications built with Spice.ai that demonstrate real-world usage patterns and best practices.</Paragraph>
             
-            <RecipeGroup recipes={sampleApps} />
+            <RecipeGroup recipes={filterByTag('sample')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -515,7 +501,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Discover core capabilities like data federation, acceleration, search, and LLM inference to enhance your applications.</Paragraph>
             
-            <RecipeGroup recipes={coreRecipes} />
+            <RecipeGroup recipes={filterByTag('core')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -524,7 +510,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Integrate with popular AI models, LLMs, and build intelligent agents using Spice.ai.</Paragraph>
             
-            <RecipeGroup recipes={aiRecipes} />
+            <RecipeGroup recipes={filterByTag('ai')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -533,7 +519,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Optimize query performance with local acceleration, data materialization, and federation techniques.</Paragraph>
             
-            <RecipeGroup recipes={accelerationRecipes} />
+            <RecipeGroup recipes={filterByTag('acceleration')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -542,7 +528,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Implement advanced search capabilities and leverage embeddings for vector similarity search.</Paragraph>
             
-            <RecipeGroup recipes={searchRecipes} />
+            <RecipeGroup recipes={filterByTag('search')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -551,7 +537,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to various data sources and systems to query, analyze, and manage your data efficiently.</Paragraph>
             
-            <RecipeGroup recipes={connectorRecipes} />
+            <RecipeGroup recipes={filterByTag('connector')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -560,7 +546,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Connect to data catalogs to discover, manage, and utilize your data assets effectively.</Paragraph>
             
-            <RecipeGroup recipes={catalogRecipes} />
+            <RecipeGroup recipes={filterByTag('catalog')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -569,7 +555,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Visualize your data using popular BI and analytics tools integrated with Spice.ai.</Paragraph>
             
-            <RecipeGroup recipes={clientRecipes} />
+            <RecipeGroup recipes={filterByTag('client')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -578,7 +564,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Deploy Spice.ai in various environments and configurations to suit your needs.</Paragraph>
             
-            <RecipeGroup recipes={deploymentRecipes} />
+            <RecipeGroup recipes={filterByTag('deployment')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -587,7 +573,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Measure and optimize performance with benchmarks and best practices for your Spice.ai deployment.</Paragraph>
             
-            <RecipeGroup recipes={performanceRecipes} />
+            <RecipeGroup recipes={filterByTag('performance')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -596,7 +582,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Fine-tune your Spice.ai deployment with advanced configuration options for optimal performance.</Paragraph>
             
-            <RecipeGroup recipes={configRecipes} />
+            <RecipeGroup recipes={filterByTag('configuration')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -605,7 +591,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Utilize development kits and libraries for building applications with Spice.ai across various programming languages.</Paragraph>
             
-            <RecipeGroup recipes={sdkRecipes} />
+            <RecipeGroup recipes={filterByTag('sdk')} />
         </Container>
 
         <Container className='mt-6 mb-20'>
@@ -614,7 +600,7 @@ export default function CookbookPage() {
             </Title>
             <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>Secure your Spice.ai deployment and data access with robust security practices and configurations.</Paragraph>
             
-            <RecipeGroup recipes={securityRecipes} />
+            <RecipeGroup recipes={filterByTag('security')} />
         </Container>
     </Layout>
   );
