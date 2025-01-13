@@ -22,16 +22,16 @@ Supported Data Connectors include:
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Release Candidate | S3/Delta Lake                |
 | `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
-| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
+| `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
-| `snowflake`                        | Snowflake                             | Alpha             | Arrow                        |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
@@ -39,7 +39,7 @@ Supported Data Connectors include:
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
-| `mongodb`                          | MongoDB                               | Coming Soon       |                              |
+| `mongodb`                          | MongoDB                               | Roadmap           |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
