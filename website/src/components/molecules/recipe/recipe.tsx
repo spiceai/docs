@@ -8,11 +8,13 @@ export const Recipe = ({
   title,
   description,
   href,
+  videoUrl,
   className,
 }: {
   title: string;
   description: string;
   href: string;
+  videoUrl?: string;
   className?: string;
 }) => {
   return (
@@ -21,14 +23,26 @@ export const Recipe = ({
         {title}
       </Title>
       <Paragraph className='flex-1'>{description}</Paragraph>
-      <Link
-        className='hover:text-primary-500 underline inline-flex gap-2 mt-auto'
-        href={href}
-        target='_blank'
-        rel='noopener noreferrer'
-      >
-        <Icon iconName='github' /> Recipe
-      </Link>
+      <div className='inline-flex gap-4'>
+        <Link
+          className='hover:text-primary-500 hover:underline inline-flex gap-1.5 mt-auto items-center'
+          href={href}
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <Icon iconName='github' className='h-4' /> Recipe
+        </Link>
+        {videoUrl && (
+          <Link
+            className='hover:text-primary-500 hover:underline inline-flex gap-1.5 mt-auto items-center'
+            href={videoUrl}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <Icon iconName='youtube' className='h-4' /> Video
+          </Link>
+        )}
+      </div>
     </div>
   );
 };

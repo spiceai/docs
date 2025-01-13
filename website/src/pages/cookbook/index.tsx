@@ -12,6 +12,7 @@ interface RecipeData {
     description: string;
     path: string;
     tags: string[];
+    videoUrl?: string;
 }
 
 const description = 'A collection of guides and samples to help you build data-grounded AI apps and agents with Spice.ai Open-Source. Find ready-to-use examples for data acceleration, AI agents, LLM memory, and more.';
@@ -45,6 +46,7 @@ const recipes: RecipeData[] = [
     description: 'Use the Llama family of models locally from HuggingFace using Spice.',
     path: '/llama/README.md',
     tags: ['ai', 'llama', 'huggingface'],
+    videoUrl: 'https://youtu.be/I2i6uZKBbd4',
   },
   {
     title: 'OpenAI SDK',
@@ -57,6 +59,7 @@ const recipes: RecipeData[] = [
     description: 'Persistent memory for language models.',
     path: '/llm-memory/README.md',
     tags: ['ai', 'llm', 'memory'],
+    videoUrl: 'https://youtu.be/uc8TCAPu1IM'
   },
   {
     title: 'Text to SQL (NSQL)',
@@ -81,12 +84,14 @@ const recipes: RecipeData[] = [
     description: 'Search GitHub files with embeddings and vector similarity search.',
     path: '/search_github_files/README.md',
     tags: ['ai', 'github', 'search'],
+    videoUrl: 'https://youtu.be/5y26MveEJ8c'
   },
   {
     title: 'xAI Models',
     description: 'Use xAI models such as Grok.',
     path: '/models/xai/README.md',
     tags: ['ai', 'xai', 'models'],
+    videoUrl: 'https://youtu.be/-7RkAsqQLdk'
   },
   // Data Acceleration
   {
@@ -420,7 +425,8 @@ const RecipeGroup: React.FC<{ recipes: RecipeData[] }> = ({ recipes }) => {
               title={recipe.title}
               description={recipe.description}
               href={recipeBaseUrl + recipe.path}
-              className='h-full px-4 py-4 text-xs md:px-8 md:py-8'
+              videoUrl={recipe.videoUrl}
+              className='h-full px-4 py-4 text-xs gap-4 md:gap-8 md:px-8 md:py-8'
             />
           </div>
         ))}
@@ -468,6 +474,7 @@ export default function CookbookPage() {
                     title='Local Llama3'
                     description='Use the Llama family of models locally from HuggingFace using Spice.'
                     href={`${recipeBaseUrl}/llama/README.md`}
+                    videoUrl='https://youtu.be/I2i6uZKBbd4'
                   />
                 </div>
                 <div className='flex w-full flex-col gap-6 md:w-1/2 md:pt-20'>
@@ -480,6 +487,7 @@ export default function CookbookPage() {
                     title='LLM Memory'
                     description='Persistent memory for language models'
                     href={`${recipeBaseUrl}/llm-memory/README.md`}
+                    videoUrl='https://youtu.be/uc8TCAPu1IM'
                   />
                 </div>
               </div>
