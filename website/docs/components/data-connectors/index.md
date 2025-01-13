@@ -29,8 +29,8 @@ Supported Data Connectors include:
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
-| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
@@ -39,7 +39,7 @@ Supported Data Connectors include:
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
-| `mongodb`                          | MongoDB                               | Coming Soon       |                              |
+| `mongodb`                          | MongoDB                               | Roadmap           |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
