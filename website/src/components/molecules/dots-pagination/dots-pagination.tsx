@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 import { CarouselApi } from '../../ui/carousel';
 
 type DotsPaginationProps = {
@@ -21,7 +21,7 @@ export const DotsPagination = ({
 }: DotsPaginationProps) => {
   return (
     <div
-      className={cn(
+      className={classNames(
         'absolute -bottom-16 left-1/2 -translate-x-1/2 -translate-y-1/2 transform md:-bottom-20 md:hidden',
         className
       )}

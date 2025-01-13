@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
@@ -22,7 +22,7 @@ const Link: React.FC<LinkProps> = ({
       ? 'font-medium'
       : 'text-alpha-900 text-lg';
 
-  const classes = cn(baseClasses, variantClasses, className);
+  const classes = classNames(baseClasses, variantClasses, className);
 
   return (
     <a href={href} className={classes} {...props}>

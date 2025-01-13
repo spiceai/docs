@@ -1,5 +1,5 @@
 import { cva, VariantProps } from 'class-variance-authority'
-import { cn } from '../../../lib/utils'
+import { classNames } from '../../../lib/utils'
 
 const titleVariants = cva('text-alpha-900 font-sans', {
   variants: {
@@ -27,7 +27,7 @@ const Title: React.FC<TitleProps> = ({
   children,
   ...props
 }) => {
-  const classes = cn(titleVariants({ variant, className }))
+  const classes = classNames(titleVariants({ variant, className }))
 
   return (
     <Component className={classes} {...props}>

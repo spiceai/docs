@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link, LinkProps } from '../link/link';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 type ButtonAnchorProps = Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
@@ -78,7 +78,7 @@ React.forwardRef<HTMLButtonElement, ButtonProps>(
   href,
   ...props
 }, ref) => {
-  const classes = cn(
+  const classes = classNames(
     'inline-block',
     buttonVariants({ variant, size, className })
   );

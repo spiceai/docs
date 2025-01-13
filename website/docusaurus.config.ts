@@ -62,7 +62,7 @@ const config: Config = {
             type: 'all',
             description:
               'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
-            copyright: `Copyright © 2025 Facebook, Inc.`,
+            copyright: `Copyright © 2025 Spice AI, Inc.`,
             xslt: true,
           },
           blogTitle: 'Spice.ai OSS blog',
@@ -118,11 +118,7 @@ const config: Config = {
           label: 'API',
         },
         { to: 'blog', label: 'Blog', position: 'left' },
-        {
-          href: 'https://github.com/spiceai/cookbook#spiceai-oss-cookbook',
-          position: 'left',
-          label: 'Cookbook',
-        },
+        { to: 'cookbook', label: 'Cookbook', position: 'left' },
         {
           label: 'Discord',
           href: 'https://discord.gg/kZnTfneP5u',

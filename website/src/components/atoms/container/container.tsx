@@ -1,4 +1,4 @@
-import { cn } from '../../../lib/utils';
+import { classNames } from '../../../lib/utils';
 
 /**
  *
@@ -12,7 +12,7 @@ export const Container = ({
   className?: string;
 }) => {
   return (
-    <div className={cn('px-4 sm:px-16 xl:px-20', className)}>
+    <div className={classNames('px-4 sm:px-16 xl:px-20', className)}>
       <div className='container mx-auto max-w-screen-xl'>{children}</div>
     </div>
   );
