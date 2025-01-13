@@ -74,7 +74,7 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'text-to-sql', 'nsql', 'tools'],
   },
   {
-    title: 'NVidia NIM',
+    title: 'Nvidia NIM',
     description: 'Deploy Nvidia NIM infrastructure, on Kubernetes, with GPUs connected to Spice.',
     path: '/nvidia-nim/README.md',
     tags: ['ai', 'nvidia', 'nim'],
