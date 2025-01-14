@@ -66,10 +66,10 @@
 }
 
 @layer base {
-    * {
+    .tailwind * {
         @apply border-border;
     }
-    body {
+    .tailwind {
         @apply bg-background text-foreground;
     }
 }
