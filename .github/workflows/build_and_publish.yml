@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install dependencies
         working-directory: website
@@ -33,8 +33,17 @@ jobs:
 
       - name: Deploy
         if: ${{ github.event_name != 'pull_request' && startswith(github.ref, 'refs/tags/v') }}
-        uses: peaceiris/actions-gh-pages@v3
+        uses: cloudflare/wrangler-action@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./website/build
-          cname: spiceai.org
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./website/build --project-name=spiceai-org-website
+          # Optional: Enable this if you want to have GitHub Deployments triggered
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: print pages-deployment-alias-url
+        env:
+          DEPLOYMENT_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        run: echo $DEPLOYMENT_ALIAS_URL
+
+
