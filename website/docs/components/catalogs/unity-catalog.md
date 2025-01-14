@@ -68,3 +68,13 @@ One of the following auth values must be provided for Azure Blob:
 ### Google Storage (GCS)
 
 - `unity_catalog_google_service_account`: Filesystem path to the Google service account JSON key file.
+
+## Limitations
+
+- Unity Catalog does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Unity Catalog connector with such tables, drop the `V2Checkpoint` feature by executing the following command:
+
+  ```sql
+  ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY];
+  ```
+  
+  For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)

@@ -194,6 +194,14 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Limitations
 
+- Databricks connector (mode: delta_lake) does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Databricks connector (mode: delta_lake) with such tables, drop the `V2Checkpoint` feature by executing the following command:
+
+  ```sql
+  ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY];
+  ```
+
+  For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
+
  :::warning[Memory Considerations]
 
  When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
