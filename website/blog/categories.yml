@@ -1,0 +1,5 @@
+blog:
+release:
+  description: 'Blog posts about Spice.ai OSS new releases'
+announcement:
+  description: 'Announcements about Spice.ai OSS'
