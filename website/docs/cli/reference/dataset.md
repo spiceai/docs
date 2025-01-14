@@ -57,7 +57,7 @@ After execution, the directory structure looks like this for the above example:
 
 The datasets folder includes the datasets for your project configured by using `spice dataset configure` or added manually.
 
-The `dataset.yaml` file in `./datasets/taxi-trips` is configured as defined by the inputs provided to `spice dataset configure`. For this example, the `datatset.yaml` file looks as follows:
+The `dataset.yaml` file in `./datasets/taxi-trips` is configured as defined by the inputs provided to `spice dataset configure`. For this example, the `dataset.yaml` file looks as follows:
 
 ```yaml
 from: s3://spiceai-demo-datasets/taxi_trips/2024/
