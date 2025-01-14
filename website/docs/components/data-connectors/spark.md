@@ -119,6 +119,10 @@ Check [Secrets Stores](/docs/components/secret-stores) for more details.
   </TabItem>
 </Tabs>
 
+## Limitations
+
+Correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
+
 ## Cookbook
 
 - A cookbook recipe to configure Spark as a data connector in Spice. [Apache Spark Data Connector](https://github.com/spiceai/cookbook/tree/trunk/spark#readme)
