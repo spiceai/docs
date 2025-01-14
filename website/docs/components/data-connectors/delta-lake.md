@@ -139,7 +139,10 @@ params:
 
 ## Limitations
 
-- Delta Lake connector doesn't support reading Delta table with V2Checkpoint feature. To use delta Lake connector, drop V2Checkpoint features in catalogs with `ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY]` command. For details on dropping Delta table features, refer to: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)
+- Unity Catalog does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Unity Catalog connector with such tables, drop the `V2Checkpoint` feature by executing the following command:
+
+  ```sql
+  ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY];
 
 ## Secrets
 
