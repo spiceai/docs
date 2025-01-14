@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[18146],{29328:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/blog","page":1,"postsPerPage":5,"totalPages":13,"totalCount":63,"nextPage":"/blog/page/2","blogDescription":"Read blog posts about Spice.ai OSS from the team and community","blogTitle":"Spice.ai OSS blog"}}')}}]);
