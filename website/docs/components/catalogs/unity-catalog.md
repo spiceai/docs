@@ -75,3 +75,6 @@ One of the following auth values must be provided for Azure Blob:
 
   ```sql
   ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY];
+  ```
+  
+  For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)
