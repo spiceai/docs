@@ -1,0 +1,216 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks'
+
+<Meta title='Docs/Colors' />
+
+# Spice Colors
+
+This page showcases our color palette used throughout the application.
+
+We use an approach similar to Shadcn theming system, using mainly HSL colors with CSS variables.
+
+## Base Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Base Colors'
+    subtitle='Fundamental colors for various UI elements'
+    colors={{
+      Border: 'hsl(var(--border))',
+      Input: 'hsl(var(--input))',
+      Ring: 'hsl(var(--ring))',
+      Background: 'hsl(var(--background))',
+      Foreground: 'hsl(var(--foreground))'
+    }}
+  />
+</ColorPalette>
+
+## Primary Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Primary'
+    subtitle='Default and foreground'
+    colors={{
+      Default: 'hsl(var(--primary))',
+      Foreground: 'hsl(var(--primary-foreground))'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title='Primary'
+    colors={{
+      100: 'hsla(35, 95%, 92%, 1)',
+      200: 'hsla(35, 100%, 86%, 1)',
+      400: 'hsla(27, 91%, 61%, 1)'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title='Primary'
+    colors={{
+      500: 'hsla(25, 90%, 54%, 1)',
+      600: 'hsla(21, 85%, 48%, 1)',
+      700: 'hsla(17, 83%, 40%, 1)'
+    }}
+
+/>
+
+</ColorPalette>
+
+## Alpha Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Alpha'
+    subtitle='Default and foreground'
+    colors={{
+      Default: 'hsla(0, 0%, 0%, 0)',
+      Foreground: 'hsla(0, 0%, 0%, 1)'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title='Alpha'
+    colors={{
+      50: 'hsla(0, 0%, 0%, 0.04)',
+      100: 'hsla(0, 0%, 0%, 0.08)',
+      150: 'hsla(0, 0%, 0%, 0.12)',
+      300: 'hsla(0, 0%, 0%, 0.32)'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title='Alpha'
+    colors={{
+
+      700: 'hsla(0, 0%, 0%, 0.72)',
+      800: 'hsla(0, 0%, 0%, 0.8)',
+      900: 'hsla(0, 0%, 0%, 1)'
+    }}
+
+/>
+
+</ColorPalette>
+
+## Neutral Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Neutral'
+    subtitle='Default and foreground'
+    colors={{
+      Default: 'hsla(0, 0%, 100%, 1)',
+      Foreground: 'hsla(0, 0%, 0%, 1)'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title='Neutral'
+    subtitle='Grayscale colors for text and backgrounds'
+    colors={{
+      50: 'hsla(60, 5%, 96%, 1)',
+      400: 'hsla(0, 0%, 64%, 1)',
+      600: 'hsla(0, 0%, 32%, 1)'
+    }}
+  />
+</ColorPalette>
+
+## Accent Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Red'
+    subtitle='Used for errors and warnings'
+    colors={{ 400: 'hsla(0, 86%, 63%, 1)' }}
+  />
+  <ColorItem
+    title='Green'
+    subtitle='Used for success states'
+    colors={{ 400: ['hsla(85, 59%, 58%, 1)', ' -- ', '#9fd356'] }}
+  />
+</ColorPalette>
+
+# Shadcn Colors
+
+## Secondary Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Secondary'
+    subtitle='Used for secondary elements'
+    colors={{
+      Default: 'hsl(var(--secondary))',
+      Foreground: 'hsl(var(--secondary-foreground))'
+    }}
+  />
+</ColorPalette>
+
+## Semantic Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Destructive'
+    subtitle='Used for destructive actions'
+    colors={{
+      Default: 'hsl(var(--destructive))',
+      Foreground: 'hsl(var(--destructive-foreground))'
+    }}
+  />
+  <ColorItem
+    title='Muted'
+    subtitle='Used for muted or disabled elements'
+    colors={{
+      Default: 'hsl(var(--muted))',
+      Foreground: 'hsl(var(--muted-foreground))'
+    }}
+  />
+  <ColorItem
+    title='Accent'
+    subtitle='Used for accented elements'
+    colors={{
+      Default: 'hsl(var(--accent))',
+      Foreground: 'hsl(var(--accent-foreground))'
+    }}
+  />
+</ColorPalette>
+
+## Component-Specific Colors
+
+<ColorPalette>
+  <ColorItem
+    title='Popover'
+    subtitle='Used for popovers and dropdowns'
+    colors={{
+      Default: 'hsl(var(--popover))',
+      Foreground: 'hsl(var(--popover-foreground))'
+    }}
+  />
+  <ColorItem
+    title='Card'
+    subtitle='Used for card components'
+    colors={{
+      Default: 'hsl(var(--card))',
+      Foreground: 'hsl(var(--card-foreground))'
+    }}
+  />
+</ColorPalette>
+
+## Usage Guidelines
+
+- Use primary colors for main UI elements and branding.
+- Define a foreground for each new color to ensure accessibility.
+- Neutral colors are versatile and can be used for text, backgrounds, and subtle UI elements.
+- Use semantic colors consistently for their intended purposes (e.g., destructive for delete actions).
+- Component-specific colors should be used as defined to maintain consistency across the application.
+
+Remember to use colors consistently and consider accessibility when combining colors, especially for text using foreground colors and background combinations.
