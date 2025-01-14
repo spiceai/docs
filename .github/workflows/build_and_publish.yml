@@ -32,14 +32,24 @@ jobs:
         working-directory: website
         run: npm run build
 
-      - name: Deploy
+      - name: Deploy Preview
+        if: ${{ !startswith(github.ref, 'refs/tags/v') }}
         uses: cloudflare/wrangler-action@v3
         with:
+          environment: preview
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./website/build --project-name=spiceai-org-website
-          # Optional: Enable this if you want to have GitHub Deployments triggered
+          command: pages deploy ./website/build --project-name=spiceai-org-website --branch ${{ github.ref }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Production
+        if: ${{ github.event_name != 'pull_request' && startswith(github.ref, 'refs/tags/v') }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          environment: 
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./website/build --project-name=spiceai-org-website --branch ${{ github.ref }}
 
       - name: print pages-deployment-alias-url
         env:
