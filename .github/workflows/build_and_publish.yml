@@ -7,6 +7,7 @@ on:
     tags:
       - v*
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -21,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install dependencies
         working-directory: website
@@ -32,9 +33,9 @@ jobs:
         run: npm run build
 
       - name: Deploy
-        if: ${{ github.event_name != 'pull_request' && startswith(github.ref, 'refs/tags/v') }}
-        uses: peaceiris/actions-gh-pages@v3
+        uses: cloudflare/wrangler-action@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./website/build
-          cname: spiceai.org
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./website/build --project-name=spiceai-org-website --branch ${{ github.ref_name }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
