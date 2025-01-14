@@ -4,8 +4,8 @@
   <ShortName>Spice.ai OSS</ShortName>
   <Description>Search Spice.ai OSS</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://docs.spiceai.org/img/favicon.ico</Image>
-  <Url type="text/html" method="get" template="https://docs.spiceai.org/search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://docs.spiceai.org/opensearch.xml" />
-  <moz:SearchForm>https://docs.spiceai.org/</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://spiceai.org/img/favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://spiceai.org/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://spiceai.org/opensearch.xml" />
+  <moz:SearchForm>https://spiceai.org/</moz:SearchForm>
 </OpenSearchDescription>
