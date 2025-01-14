@@ -137,6 +137,10 @@ params:
   delta_lake_google_service_account_path: /path/to/service-account.json
 ```
 
+## Limitations
+
+- Delta Lake connector doesn't support reading Delta table with V2Checkpoint feature. To use delta Lake connector, drop V2Checkpoint features in catalogs with `ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY]` command. For details on dropping Delta table features, refer to: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
