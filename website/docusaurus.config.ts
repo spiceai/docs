@@ -220,6 +220,13 @@ const config: Config = {
 
   headTags: [
     {
+      tagName: 'meta',
+      attributes: {
+        name: '0SP8I8JTL8',
+        content: '72f66fe334ccd3c7db696a123d68735c',
+      },
+    },
+    {
       tagName: 'link',
       attributes: {
         rel: 'preconnect',
