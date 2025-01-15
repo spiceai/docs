@@ -258,10 +258,6 @@ authentication:
   label: 'Authentication'
   permalink: '/authentication'
   description: 'Documentation related to authentication mechanisms.'
-login:
-  label: 'Login'
-  permalink: '/login'
-  description: 'Documentation related to login procedures.'
 tracing:
   label: 'Tracing'
   permalink: '/tracing'
