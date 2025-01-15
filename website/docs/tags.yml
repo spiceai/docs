@@ -190,10 +190,6 @@ mysql:
   label: 'MySQL'
   permalink: '/mysql'
   description: 'Documentation related to MySQL integration.'
-odbc:
-  label: 'ODBC'
-  permalink: '/odbc'
-  description: 'Documentation related to Open Database Connectivity (ODBC).'
 s3:
   label: 'S3'
   permalink: '/s3'
@@ -274,10 +270,6 @@ data-connectors:
   label: 'Data Connectors'
   permalink: '/data-connectors'
   description: 'Documentation related to data connectors.'
-overview:
-  label: 'Overview'
-  permalink: '/overview'
-  description: 'Overview documentation for various topics.'
 blob-storage:
   label: 'Blob Storage'
   permalink: '/blob-storage'
@@ -298,14 +290,6 @@ in-memory:
   label: 'In-Memory'
   permalink: '/in-memory'
   description: 'Documentation related to in-memory data services.'
-relational:
-  label: 'Relational'
-  permalink: '/relational'
-  description: 'Documentation related to relational databases.'
-getting-started:
-  label: 'Getting Started'
-  permalink: '/getting-started'
-  description: 'Documentation to help you get started with Spice including installation and quickstart guides.'
 spicepods:
   label: 'Spicepods'
   permalink: '/spicepods'
