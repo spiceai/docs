@@ -5,6 +5,10 @@ sidebar_position: 1
 description: 'Deploy Spice.ai in Kubernetes using Helm.'
 pagination_prev: 'deployment/index'
 pagination_next: null
+tags:
+  - deployment
+  - kubernetes
+  - spiceai
 ---
 
 ## TL;DR

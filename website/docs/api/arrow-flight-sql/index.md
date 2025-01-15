@@ -4,6 +4,12 @@ sidebar_label: 'Arrow Flight SQL'
 sidebar_position: 4
 desired_sidebar: api
 description: 'Query Spice using JDBC/ODBC/ADBC'
+tags:
+  - api
+  - arrow-flight-sql
+  - sql
+  - jdbc
+  - odbc
 ---
 
 [Arrow Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) is a protocol for interacting with SQL databases using the Arrow in-memory format and the Flight RPC framework.

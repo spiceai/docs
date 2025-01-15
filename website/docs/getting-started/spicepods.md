@@ -4,6 +4,11 @@ sidebar_label: 'Spicepods'
 sidebar_position: 1
 description: 'An introduction to Spicepods'
 pagination_next: null
+tags:
+  - getting-started
+  - spicepods
+  - datasets
+  - models
 ---
 
 ## Overview

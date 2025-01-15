@@ -2,6 +2,10 @@
 title: 'Datasets'
 sidebar_label: 'Datasets'
 description: 'Datasets YAML reference'
+tags:
+  - reference
+  - datasets
+  - spicepod
 ---
 
 A Spicepod can contain one or more `datasets` referenced by relative path or defined inline.

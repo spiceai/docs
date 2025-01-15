@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 tags:
   - search
+  - features
+  - models
 ---
 
 import DocCardList from '@theme/DocCardList';

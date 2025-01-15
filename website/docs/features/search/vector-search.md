@@ -5,6 +5,8 @@ description: 'Learn how Spice can perform searches using vector-based methods.'
 sidebar_position: 1
 tags:
   - search
+  - models
+  - embeddings
 ---
 
 Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches. The runtime supports both:

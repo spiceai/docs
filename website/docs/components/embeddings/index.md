@@ -5,6 +5,11 @@ description: ''
 sidebar_position: 6
 pagination_prev: null
 pagination_next: null
+tags:
+  - components
+  - embeddings
+  - models
+  - search
 ---
 
 Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
@@ -200,8 +205,12 @@ sql> describe sales;
 |                   |   data_type: FixedSizeList(             |             |
 |                   |     Field {                             |             |
 |                   |       name: "item",                     |             |
-|                   |       data_type: Int32,                 |             |
-|                   |     },                                  |             |
+|                   |     data_type: Int32,                   |             |
+|                   |     nullable: false,                    |             |
+|                   |     dict_id: 0,                         |             |
+|                   |     dict_is_ordered: false,             |             |
+|                   |     metadata: {}                        |             |
+|                   |   },                                    |             |
 |                   |     2                                   |             |
 |                   |   ),                                    |             |
 |                   | })                                      |             |

@@ -5,6 +5,11 @@ description: 'Learn how to use Data Connector to query external data.'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
+tags:
+  - databases
+  - data-lakes
+  - data-warehouses
+  - sql
 ---
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.

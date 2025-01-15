@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 tags:
   - models
+  - evaluation
+  - performance
 ---
 
 Language models can perform complex tasks. Evals help measure a model's ability to perform a specific task. Evals are defined as Spicepod components and can evaluate any Spicepod model's performance.

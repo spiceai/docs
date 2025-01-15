@@ -7,6 +7,9 @@ pagination_prev: null
 pagination_next: null
 tags:
   - models
+  - memory
+  - tools
+  - persistence
 ---
 
 Spice provides memory persistence tools that help language models store and retrieve information across conversations. These tools are available through the `memory` tool group.
