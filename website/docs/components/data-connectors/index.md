@@ -15,12 +15,12 @@ Supported Data Connectors include:
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `file`                             | File                                  | Stable            | Parquet, CSV                 |
+| `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Stable            | S3/Delta Lake                |
 | `s3`                               | [S3][s3]                              | Release Candidate | Parquet, CSV                 |
 | `postgres`                         | PostgreSQL                            | Release Candidate |                              |
 | `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `duckdb`                           | DuckDB                                | Release Candidate | Embedded                     |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
-| `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Release Candidate | S3/Delta Lake                |
 | `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
