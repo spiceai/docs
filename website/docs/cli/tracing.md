@@ -3,6 +3,10 @@ title: 'Configuring Trace Levels'
 sidebar_label: 'Trace Levels'
 description: 'Configuring Spice.ai OSS trace output verbosity levels'
 pagination_prev: null
+tags:
+  - cli
+  - tracing
+  - logging
 ---
 
 Output trace verbosity is controlled by the `SPICED_LOG` environment variable and verbosity flags (`-v`, `-vv`).

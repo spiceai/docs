@@ -2,7 +2,10 @@
 title: 'MySQL Data Connector'
 sidebar_label: 'MySQL Data Connector'
 description: 'MySQL Data Connector Documentation'
-tags: [mysql, data-connector, sql]
+tags:
+  - data-connectors
+  - mysql
+  - relational
 ---
 
 MySQL is an open-source relational database management system that uses structured query language (SQL) for managing and manipulating databases.

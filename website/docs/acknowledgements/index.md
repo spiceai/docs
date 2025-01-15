@@ -5,6 +5,10 @@ sidebar_position: 100
 description: 'Spice AI acknowledges the following open source projects for making this project possible:'
 pagination_prev: null
 pagination_next: null
+tags:
+  - acknowledgements
+  - open-source
+  - dependencies
 ---
 
 Spice AI acknowledges the following open source projects for making this project possible:

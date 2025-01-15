@@ -246,3 +246,79 @@ views:
   label: 'Views'
   permalink: '/views'
   description: 'Documentation related to views in Spice.'
+aws:
+  label: 'AWS'
+  permalink: '/aws'
+  description: 'Documentation related to Amazon Web Services (AWS).'
+llm:
+  label: 'LLM'
+  permalink: '/llm'
+  description: 'Documentation related to Large Language Models (LLMs).'
+authentication:
+  label: 'Authentication'
+  permalink: '/authentication'
+  description: 'Documentation related to authentication mechanisms.'
+login:
+  label: 'Login'
+  permalink: '/login'
+  description: 'Documentation related to login procedures.'
+tracing:
+  label: 'Tracing'
+  permalink: '/tracing'
+  description: 'Documentation related to tracing mechanisms.'
+logging:
+  label: 'Logging'
+  permalink: '/logging'
+  description: 'Documentation related to logging mechanisms.'
+catalogs:
+  label: 'Catalogs'
+  permalink: '/catalogs'
+  description: 'Documentation related to catalogs and catalog connectors.'
+data-connectors:
+  label: 'Data Connectors'
+  permalink: '/data-connectors'
+  description: 'Documentation related to data connectors.'
+overview:
+  label: 'Overview'
+  permalink: '/overview'
+  description: 'Overview documentation for various topics.'
+blob-storage:
+  label: 'Blob Storage'
+  permalink: '/blob-storage'
+  description: 'Documentation related to blob storage services.'
+data-lake:
+  label: 'Data Lake'
+  permalink: '/data-lake'
+  description: 'Documentation related to data lake services.'
+nosql:
+  label: 'NoSQL'
+  permalink: '/nosql'
+  description: 'Documentation related to NoSQL databases.'
+federation:
+  label: 'Federation'
+  permalink: '/federation'
+  description: 'Documentation related to data federation.'
+in-memory:
+  label: 'In-Memory'
+  permalink: '/in-memory'
+  description: 'Documentation related to in-memory data services.'
+relational:
+  label: 'Relational'
+  permalink: '/relational'
+  description: 'Documentation related to relational databases.'
+getting-started:
+  label: 'Getting Started'
+  permalink: '/getting-started'
+  description: 'Documentation to help you get started with Spice including installation and quickstart guides.'
+spicepods:
+  label: 'Spicepods'
+  permalink: '/spicepods'
+  description: 'Documentation related to Spicepods.'
+introduction:
+  label: 'Introduction'
+  permalink: '/introduction'
+  description: 'Introduction documentation for various topics.'
+home:
+  label: 'Home'
+  permalink: '/home'
+  description: 'Home page documentation.'

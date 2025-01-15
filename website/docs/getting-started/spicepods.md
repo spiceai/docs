@@ -7,8 +7,7 @@ pagination_next: null
 tags:
   - getting-started
   - spicepods
-  - datasets
-  - models
+  - introduction
 ---
 
 ## Overview

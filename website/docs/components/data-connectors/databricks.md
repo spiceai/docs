@@ -4,11 +4,9 @@ sidebar_label: 'Databricks Data Connector'
 description: 'Databricks Data Connector Documentation'
 pagination_prev: null
 tags:
+  - data-connectors
   - databricks
   - delta-lake
-  - azure
-  - aws
-  - components
 ---
 
 Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.

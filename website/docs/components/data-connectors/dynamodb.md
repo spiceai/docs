@@ -3,8 +3,8 @@ title: 'DynamoDB Data Connector'
 sidebar_label: 'DynamoDB Data Connector'
 description: 'DynamoDB Data Connector Documentation'
 tags:
-  - aws
   - data-connectors
+  - dynamodb
   - nosql
 ---
 

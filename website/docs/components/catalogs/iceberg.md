@@ -5,6 +5,10 @@ description: 'Connect to an Iceberg catalog provider.'
 sidebar_position: 4
 pagination_prev: null
 pagination_next: null
+tags:
+  - catalogs
+  - iceberg
+  - data-connectors
 ---
 
 Connect to an [Iceberg](https://iceberg.apache.org/) catalog provider and query Iceberg tables.

@@ -6,10 +6,9 @@ sidebar_position: 1
 pagination_prev: null
 pagination_next: null
 tags:
-  - databases
-  - data-lakes
-  - data-warehouses
-  - sql
+  - data-connectors
+  - overview
+  - federation
 ---
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.
