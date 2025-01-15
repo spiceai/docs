@@ -1,0 +1,8 @@
+search:
+  label: 'Search'
+  permalink: '/search'
+  description: 'Documentation related to Search including Vector Search, Ranking, etc.'
+models:
+  label: 'Models'
+  permalink: '/models'
+  description: 'Documentation related to Models including machine learning, LLMs, etc.'
