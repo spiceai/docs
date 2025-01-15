@@ -202,7 +202,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
   For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
 
-- In Databricks connector (mode: spark_connect) Correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
+- When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
  :::warning[Memory Considerations]
 
