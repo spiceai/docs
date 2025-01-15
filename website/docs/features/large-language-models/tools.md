@@ -5,6 +5,8 @@ description: 'Learn how LLMs interact with the Spice runtime.'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
+tags:
+  - models
 ---
 
 Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.

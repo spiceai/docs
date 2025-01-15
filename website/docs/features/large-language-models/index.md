@@ -5,6 +5,8 @@ description: 'Learn how to configure large language models (LLMs)'
 sidebar_position: 5
 pagination_prev: null
 pagination_next: null
+tags:
+  - models
 ---
 
 Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/docs/features/search)).

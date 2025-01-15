@@ -5,6 +5,8 @@ description: 'Learn how to override default LLM hyperparameters in Spice.'
 sidebar_position: 4
 pagination_prev: null
 pagination_next: null
+tags:
+  - models
 ---
 
 ### Chat Completion Parameter Overrides
