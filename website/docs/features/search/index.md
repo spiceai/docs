@@ -5,6 +5,8 @@ description: 'Learn how Spice can search across datasets using database-native a
 sidebar_position: 7
 pagination_prev: null
 pagination_next: null
+tags:
+  - search
 ---
 
 import DocCardList from '@theme/DocCardList';
