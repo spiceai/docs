@@ -214,7 +214,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
  Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
 
-- Databricks connector (mode: spark_connect) does not support streaming data when reading / performing queries from the connector.
+- The Databricks Catalog Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 
  :::
 
