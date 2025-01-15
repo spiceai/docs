@@ -4,6 +4,10 @@ sidebar_label: 'Task History'
 pagination_prev: 'reference/sql/select'
 pagination_next: null
 sidebar_position: 2
+tags:
+  - reference
+  - sql
+  - task-history
 ---
 
 The Spice runtime stores information about completed tasks in the `spice.runtime.task_history` table. Each task represents a single unit of execution within the runtime, such as a SQL query or an AI chat completion, and is represented by a unique span. 

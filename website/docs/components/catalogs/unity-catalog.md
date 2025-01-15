@@ -5,6 +5,10 @@ description: 'Connect to a Unity Catalog provider.'
 sidebar_position: 2
 pagination_prev: null
 pagination_next: null
+tags:
+  - catalogs
+  - unity-catalog
+  - data-connectors
 ---
 
 Connect to a [Unity Catalog](https://www.unitycatalog.io/) as a catalog provider for federated SQL query against [Delta Lake](https://delta.io/) tables.

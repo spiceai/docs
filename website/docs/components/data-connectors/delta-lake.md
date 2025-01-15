@@ -3,6 +3,10 @@ title: 'Delta Lake Data Connector'
 sidebar_label: 'Delta Lake Data Connector'
 description: 'Delta Lake Data Connector Documentation'
 pagination_prev: null
+tags:
+  - data-connectors
+  - delta-lake
+  - data-lake
 ---
 
 Delta Lake data connector connector enables SQL queries from [Delta Lake](https://delta.io/) tables.

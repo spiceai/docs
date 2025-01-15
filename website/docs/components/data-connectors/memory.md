@@ -3,6 +3,10 @@ title: 'Memory Data Connector'
 sidebar_label: 'Memory Data Connector'
 description: 'Memory Data Connector Documentation'
 pagination_prev: null
+tags:
+  - data-connectors
+  - memory
+  - in-memory
 ---
 
 The Memory Data Connector enables configuring an in-memory dataset for tables used, or produced by the Spice runtime. Only certain tables, with predefined schemas, can be defined by the connector. These are:

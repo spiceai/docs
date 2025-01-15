@@ -2,6 +2,10 @@
 title: 'Azure OpenAI Embedding Models'
 sidebar_label: 'Azure OpenAI'
 sidebar_position: 2
+tags:
+  - embeddings
+  - azure
+  - openai
 ---
 
 To use an embedding model hosted on Azure OpenAI, specify the `azure` path in the `from` field and the following parameters from the [Azure OpenAI Model Deployment](https://ai.azure.com/resource/deployments) page:

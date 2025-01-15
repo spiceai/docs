@@ -6,6 +6,10 @@ desired_sidebar: api
 description: 'Authentication documentation'
 pagination_prev: null
 pagination_next: null
+tags:
+  - api
+  - auth
+  - security
 ---
 
 Spice supports adding optional authentication to its API endpoints via configurable API keys.

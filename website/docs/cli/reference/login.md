@@ -3,6 +3,10 @@ title: 'login'
 sidebar_label: 'login'
 pagination_prev: null
 pagination_next: null
+tags:
+  - cli
+  - authentication
+  - login
 ---
 
 Login to the Spice.ai Platform, or other services with sub-commands.

@@ -5,6 +5,10 @@ description: ''
 sidebar_position: 4
 pagination_prev: null
 pagination_next: null
+tags:
+  - catalogs
+  - data-connectors
+  - overview
 ---
 
 In Spice, datasets are organized hierarchically with catalogs, schemas, and tables. A catalog, at the top level, contains multiple schemas. Each schema, in turn, contains multiple tables where the actual data is stored. By default a catalog named `spice` is created with all of the datasets defined in the `datasets` section of the Spicepod.

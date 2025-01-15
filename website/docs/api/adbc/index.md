@@ -6,6 +6,10 @@ desired_sidebar: api
 description: 'ADBC API Documentation'
 pagination_prev: null
 pagination_next: null
+tags:
+  - api
+  - adbc
+  - arrow
 ---
 
 [ADBC](https://arrow.apache.org/adbc) is a set of APIs and libraries for Arrow-native access to databases.

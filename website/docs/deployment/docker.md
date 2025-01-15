@@ -3,6 +3,11 @@ title: 'Docker - Kubernetes'
 description: 'Running Spice.ai as Docker container'
 sidebar_label: 'Docker'
 sidebar_position: 2
+tags:
+  - deployment
+  - docker
+  - kubernetes
+  - spiceai
 ---
 
 ## Running Spice.ai as a Docker Container

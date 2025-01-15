@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 tags:
   - models
+  - tools
+  - runtime
 ---
 
 Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.

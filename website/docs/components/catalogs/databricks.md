@@ -5,6 +5,10 @@ description: 'Connect to a Databricks Unity Catalog provider.'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
+tags:
+  - catalogs
+  - databricks
+  - data-connectors
 ---
 
 Connect to a [Databricks Unity Catalog](https://www.databricks.com/product/unity-catalog) as a catalog provider for federated SQL query using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.
