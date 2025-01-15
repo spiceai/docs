@@ -4,6 +4,8 @@ sidebar_label: 'Machine Learning Models'
 sidebar_position: 6
 pagination_prev: null
 pagination_next: null
+tags:
+  - models
 ---
 
 Spice supports loading and serving ONNX models for inference, from sources including local filesystems, Hugging Face, and the Spice.ai Cloud platform.

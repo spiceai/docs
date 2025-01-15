@@ -5,6 +5,8 @@ description: 'Learn how to load and serve large learning models.'
 sidebar_position: 6
 pagination_prev: null
 pagination_next: null
+tags:
+  - models
 ---
 
 Spice supports loading and serving LLMs from various sources for embeddings and inference, including local filesystems and Hugging Face.
