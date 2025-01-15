@@ -310,11 +310,3 @@ spicepods:
   label: 'Spicepods'
   permalink: '/spicepods'
   description: 'Documentation related to Spicepods.'
-introduction:
-  label: 'Introduction'
-  permalink: '/introduction'
-  description: 'Introduction documentation for various topics.'
-home:
-  label: 'Home'
-  permalink: '/home'
-  description: 'Home page documentation.'
