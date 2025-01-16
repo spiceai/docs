@@ -40,6 +40,7 @@ datasets:
   - Unsupported:
     - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
 - The DuckDB accelerator does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
+- Using the DuckDB accelerator with `on_zero_results: use_source` does not support using filters on binary columns when the query results in using the source connection, like `WHERE col_blob <> ''`. Cast the binary to another data type instead, like `WHERE CAST(col_blob AS TEXT) <> ''`.
 - Updating a dataset with DuckDB acceleration while the Spice Runtime is running (hot-reload) will cause the DuckDB accelerator query federation to disable until the Runtime is restarted.
 
 :::
