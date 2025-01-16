@@ -69,12 +69,12 @@ SELECT COUNT(*) FROM cool_dataset;
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                                                                                    |
 | `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                                                                            |
 | `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                                                                            |
-| `abfs_allow_http`           | Allow insecure HTTP connections                                                                                                                                                                                 |
 | `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                                                                                        |
 | `abfs_proxy_url`            | Proxy URL                                                                                                                                                                                                       |
 | `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                                                                                    |
 | `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                                                                               |
 | `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                                                                    |
+| `allow_http`                | Allow insecure HTTP connections                                                                                                                                                                                 |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                |
 
 #### Authentication parameters
