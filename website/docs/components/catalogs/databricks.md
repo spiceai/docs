@@ -157,6 +157,8 @@ catalogs:
 
   For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
 
+- The Databricks Catalog Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
+
 :::warning[Memory Considerations]
 
 When using the Databricks (mode: delta_lake) Catalog connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.

@@ -121,7 +121,9 @@ Check [Secrets Stores](/docs/components/secret-stores) for more details.
 
 ## Limitations
 
-Correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
+- Correlated scalar subqueries are only supported in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
+
+- The Spark connector does not yet support streaming query results from Spark.
 
 ## Cookbook
 
