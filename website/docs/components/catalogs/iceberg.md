@@ -98,3 +98,7 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_arn` | ARN of the IAM role to assume when accessing the S3-compatible endpoint. |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role. |
 | `iceberg_s3_connect_timeout` | Connection timeout in seconds for the S3-compatible endpoint. Default: `60` |
+
+## Cookbook
+
+- A cookbook recipe to configure Iceberg as a catalog connector in Spice. [Iceberg Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme)
