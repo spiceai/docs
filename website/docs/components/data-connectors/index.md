@@ -21,11 +21,11 @@ Supported Data Connectors include:
 | `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
 | `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
 | `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `postgres`                         | PostgreSQL                            | Release Candidate |                              |
-| `s3`                               | [S3][s3]                              | Release Candidate | Parquet, CSV                 |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
