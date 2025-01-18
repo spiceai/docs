@@ -141,6 +141,29 @@ params:
   delta_lake_google_service_account_path: /path/to/service-account.json
 ```
 
+## Types
+
+ The table below shows the Delta Lake data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| Delta Lake Type | Arrow Type                            |
+| --------------- | ------------------------------------- |
+| `String`        | `Utf8`                                |
+| `Long`          | `Int64`                               |
+| `Integer`       | `Int32`                               |
+| `Short`         | `Int16`                               |
+| `Byte`          | `Int8`                                |
+| `Float`         | `Float32`                             |
+| `Double`        | `Float64`                             |
+| `Boolean`       | `Boolean`                             |
+| `Binary`        | `Binary`                              |
+| `Date`          | `Date32`                              |
+| `Timestamp`     | `Timestamp(Microsecond, Some("UTC"))` |
+| `TimestampNtz`  | `Timestamp(Microsecond, None)`        |
+| `Decimal`       | `Decimal128`                          |
+| `Array`         | `List`                                |
+| `Struct`        | `Struct`                              |
+| `Map`           | `Map`                                 |
+
 ## Limitations
 
 - Delta Lake connector does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Delta Lake connector with such tables, drop the `V2Checkpoint` feature by executing the following command:
