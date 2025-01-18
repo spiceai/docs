@@ -5,7 +5,7 @@ sidebar_label: 'HuggingFace'
 sidebar_position: 4
 ---
 
-To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` field along with the files to include.
+To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `from` field and, when needed, the files to include.
 
 ### Example: Load a ML model to predict taxi trips outcomes
 ```yaml
@@ -88,5 +88,5 @@ models:
 :::warning[Limitations]
 
 - ML models currently only support ONNX file format.
-
+- LLM models do not support [tool use](/docs/features/large-language-models/tools.md) when ['stream=true'](https://spiceai.org/docs/api/HTTP/post-chat-completions).
 :::

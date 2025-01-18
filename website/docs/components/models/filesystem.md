@@ -25,6 +25,16 @@ models:
     name: local_ggml_model
 ```
 
+### Example: Loading from a directory
+
+```yaml
+models:
+  - name: hello
+    from: file:models/llms/llama3.2-1b-instruct/
+```
+
+Note: The folder provided should contain all the expected files (see examples above) to load a model in the base level.
+
 ### Example: Loading a GGML Model
 
 ```yaml
@@ -49,15 +59,6 @@ models:
       - path: models/llms/llama3.2-1b-instruct/config.json
 ```
 
-### Example: Loading from a directory
-
-```yaml
-models:
-  - name: hello
-    from: file:models/llms/llama3.2-1b-instruct/
-```
-
-Note: The folder provided should contain all the expected files (see examples above) to load a model in the base level.
 
 ### Example: Overriding the Chat Template
 
@@ -87,3 +88,9 @@ models:
 - `messages`: List of chat messages, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages).
 - `add_generation_prompt`: Boolean flag whether to add a [generation prompt](https://huggingface.co/docs/transformers/main/chat_templating#what-are-generation-prompts).
 - `tools`: List of callable tools, in the OpenAI [format](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools).
+
+
+:::warning[Limitations]
+
+- LLM models do not support [tool use](/docs/features/large-language-models/tools.md) when ['stream=true'](https://spiceai.org/docs/api/HTTP/post-chat-completions).
+:::
