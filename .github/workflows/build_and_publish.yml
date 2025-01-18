@@ -11,10 +11,9 @@ on:
 
 permissions:
   contents: write
+  deployments: write
 
 jobs:
-  permissions:
-    deployments: write
   deploy:
     runs-on: ubuntu-latest
     steps:
