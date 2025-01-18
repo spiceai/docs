@@ -78,16 +78,16 @@
     font-size: 16px;
 }
 
+.markdown h1:first-child {
+  --ifm-h1-font-size: 1.75rem;
+}
+
 .markdown h1 {
   --ifm-h1-font-size: 1.5rem;
 }
 
 .markdown h2 {
   --ifm-h2-font-size: 1.2rem;
-}
-
-.markdown h1:first-child {
-  --ifm-h1-font-size: 1.5rem;
 }
 
 nav.menu.thin-scrollbar {
