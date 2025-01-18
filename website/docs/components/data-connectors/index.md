@@ -22,7 +22,7 @@ Supported Data Connectors include:
 | `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
-| `dremio`                           | [Dremio][dremio]                      | Release Candidate | Arrow Flight                 |
+| `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `postgres`                         | PostgreSQL                            | Release Candidate |                              |
