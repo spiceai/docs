@@ -143,7 +143,7 @@ params:
 
 ## Types
 
- The table below shows the Delta Lake data types supported, along with the type mapping to Apache Arrow types in Spice.
+The table below shows the Delta Lake data types supported, along with the type mapping to Apache Arrow types in Spice.
 
 | Delta Lake Type | Arrow Type                            |
 | --------------- | ------------------------------------- |
