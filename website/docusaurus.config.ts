@@ -206,8 +206,8 @@ const config: Config = {
       },
     ],
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: prismThemes.gruvboxMaterialDark,
+      darkTheme: prismThemes.gruvboxMaterialDark,
       additionalLanguages: ['bash', 'json', 'csharp'],
     },
     algolia: {
@@ -240,6 +240,24 @@ const config: Config = {
         href:
           'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap',
         rel: 'stylesheet',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/favicon-32x32.png',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/favicon-16x16.png',
       },
     },
   ],
