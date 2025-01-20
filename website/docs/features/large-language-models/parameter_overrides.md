@@ -186,3 +186,5 @@ Example response:
   ]
 }
 ```
+
+Visit [OpenAI Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) for more information on how to use structured output formats.
