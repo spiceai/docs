@@ -23,9 +23,9 @@ Supported Catalog Connectors include:
 
 | Name            | Description             | Status      | Protocol/Format              |
 | --------------- | ----------------------- | ----------- | ---------------------------- |
-| `iceberg`       | Apache Iceberg          | Beta        | Parquet                      |
+| `unity_catalog` | Unity Catalog           | Stable      | Delta Lake                   |
 | `databricks`    | Databricks              | Beta        | Spark Connect, S3/Delta Lake |
-| `unity_catalog` | Unity Catalog           | Alpha       | Delta Lake                   |
+| `iceberg`       | Apache Iceberg          | Beta        | Parquet                      |
 | `spice.ai`      | Spice.ai Cloud Platform | Alpha       | Arrow Flight                 |
 | `glue`          | AWS Glue                | Coming Soon | JSON, Parquet, Iceberg       |
 
