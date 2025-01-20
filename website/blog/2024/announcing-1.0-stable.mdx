@@ -29,9 +29,9 @@ Developers need a platform at the intersection of data and AI—one specifically
 
 In March of 2024, [we introduced Spice.ai Open Source](https://spiceai.org/blog/2024/adding-spice), a SQL query engine to materialize and accelerate data from any database, data warehouse, or data lake so that data can be accessed wherever it lives across the enterprise — consistently fast. But that was only the start.
 
-Building on this foundation, Spice.ai OSS unifies data, retrieval, and AI, to mitigate AI “hallucinations” head-on, by providing current, relevant context that significantly reduces incorrect outputs.
+Building on this foundation, Spice.ai OSS unifies data, retrieval, and AI, to mitigate AI “hallucinations” head-on by providing current, relevant context that significantly reduces incorrect outputs.
 
-Spice is a portable, single-node, compute engine, built in Rust. It [embeds the fastest single-node SQL query engine](https://datafusion.apache.org/blog/2024/11/18/datafusion-fastest-single-node-parquet-clickbench/), DataFusion, to serve secure, virtualized data views to data-intensive apps, AI, and agents. Sub-second data query is accelerated locally using Apache Arrow, DuckDB, or SQLite.
+Spice is a portable, single-node, compute engine built in Rust. It [embeds the fastest single-node SQL query engine](https://datafusion.apache.org/blog/2024/11/18/datafusion-fastest-single-node-parquet-clickbench/), DataFusion, to serve secure, virtualized data views to data-intensive apps, AI, and agents. Sub-second data query is accelerated locally using Apache Arrow, DuckDB, or SQLite.
 
 Now at version 1.0-stable, Spice is ready for production. It’s already deployed in enterprise use at Twilio, Barracuda Networks, and NRC Health, and can be deployed anywhere—cloud-hosted, BYOC, edge, on-prem.
 
@@ -49,9 +49,9 @@ With Spice, models always have access to projections of low-latency, real-time d
 
 ![Secure Compute Engine for Data-grounded AI](/img/blog/2024/announcing-1.0-stable/secure-compute-engine.png)
 
-Spice includes an advanced suite of LLM tools including vector and hybrid search, text-to-SQL, SQL query and retrieval, data sampling, and context formatting, all purpose-built for accurate outputs.
+Spice includes an advanced suite of LLM tools including vector and hybrid search, text-to-SQL, SQL query and retrieval, data sampling, and context formatting—all purpose-built for accurate outputs.
 
-The latest research is continually incorporated so that teams can focus on business objectives rather than trying to keep up with the incredibly fast-moving, often overwhelming space of AI.
+The latest research is continually incorporated so that teams can focus on business objectives rather than trying to keep up with the incredibly fast-moving and often overwhelming space of AI.
 
 ## Spice.ai OSS: The engine that makes AI work
 
@@ -111,7 +111,7 @@ Barracuda uses Spice.ai OSS to modernize data access for their email archiving a
 
 With Spice, Barracuda has achieved:
 
-- **100x Query Performance Improvement**: Accelerated email archive queries from a P99 time of 2 minutes to 100-200ms.
+- **100x Query Performance Improvement**: Accelerated email archive queries from a P99 time of 2 minutes to 100-200 milliseconds.
 
 - **Efficient Audit Logs**: Offloaded audit logs to Parquet files in S3, queried directly by Spice.
 
