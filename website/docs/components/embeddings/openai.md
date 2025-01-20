@@ -4,7 +4,9 @@ sidebar_label: 'OpenAI'
 sidebar_position: 1
 ---
 
-To use a hosted OpenAI (or compatible) embedding model, specify the `openai` path in the `from` field of your configuration. If you want to use a specific model, include its model ID in the `from` field. If no model ID is specified, it defaults to `"text-embedding-3-small"`.
+To use a hosted OpenAI (or compatible) embedding model, specify the `openai` path in the `from` field of your configuration.
+
+For a specific model, include its model ID in the `from` field. If no model ID is specified, it defaults to `"text-embedding-3-small"`.
 
 The following parameters are specific to OpenAI models:
 
@@ -30,3 +32,5 @@ models:
       endpoint: https://api.mistral.ai/v1
       api_key: ${ secrets:SPICE_MISTRAL_API_KEY }
 ```
+
+For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](/docs/features/search/vector-search.md).
