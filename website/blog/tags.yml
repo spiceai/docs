@@ -1,3 +1,11 @@
+announcement:
+  label: 'announcement'
+  permalink: '/announcements'
+  description: 'Announcements from Spice.ai Open Source'
+release:
+  label: 'release'
+  permalink: '/releases'
+  description: 'Releases of Spice.ai Open Source'
 duckdb:
 postgres:
 sqlite:
