@@ -24,8 +24,8 @@ Supported Data Connectors include:
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `postgres`                         | PostgreSQL                            | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
+| `mysql`                            | MySQL                                 | Stable            |                              |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
-| `mysql`                            | MySQL                                 | Release Candidate |                              |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `delta_lake`                       | Delta Lake                            | Beta              | Delta Lake                   |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
@@ -34,13 +34,13 @@ Supported Data Connectors include:
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
-| `iceberg`                          | [Apache Iceberg][iceberg]             | Alpha             | Parquet                      |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
