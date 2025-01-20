@@ -238,7 +238,7 @@ const config: Config = {
       tagName: 'link',
       attributes: {
         href:
-          'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap',
+          'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Manrope:wght@200..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap',
         rel: 'stylesheet',
       },
     },
