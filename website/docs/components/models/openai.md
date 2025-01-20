@@ -71,6 +71,9 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_temperature`     | Set the default temperature to use on chat completions.  | -                           |
 | `openai_response_format` | An object specifying the format that the model must output, see [structured outputs].  | -                           |
 
+[tools]: ../../features/large-language-models/tools.md
+[structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
+
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
 - [Tools](../../features/large-language-models/tools.md)
