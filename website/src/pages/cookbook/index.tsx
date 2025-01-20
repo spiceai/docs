@@ -164,7 +164,7 @@ const recipes: RecipeData[] = [
   },
   {
     title: 'Databricks Connector',
-    description: 'Connect to and query Databricks instances.',
+    description: 'Connect to and query Databricks instances using Delta Lake or Spark Connect.',
     path: '/databricks/README.md',
     tags: ['connector', 'databricks', 'delta', 'lake', 'spark', 'connect'],
   },
