@@ -6,14 +6,20 @@ description: 'Get started with Spice in 5 minutes'
 pagination_next: null
 ---
 
+import ReactPlayer from 'react-player';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<div className="video-container">
-  <iframe width="560" height="420" src="https://www.youtube.com/embed/AZyrecVWnEs?si=2s_2jLTJlUdgItyC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<div style={{display: 'flex', justifyContent: 'center', marginBottom: '15px'}}>
+  <ReactPlayer
+    controls
+    url='https://www.youtube.com/watch?v=RvUvmCzuqYI'
+  />
 </div>
 
 ### Follow these steps to get started with Spice.
+
+Download the latest version of Spice, connect to a dataset in S3, and ask questions about the data using AI, in less than 5 minutes.
 
 **Step 1.** Install the Spice CLI:
 
@@ -49,26 +55,15 @@ A `spicepod.yaml` file is created in the `spice_qs` directory. Change to that di
 cd spice_qs
 ```
 
-**Step 3.** Start the Spice runtime:
+**Step 3.** Download the Spice runtime:
+
+Install the Spice runtime with support for AI features with:
 
 ```bash
-spice run
+spice install ai
 ```
 
-Example output will be shown as follows:
-
-```bash
-Spice.ai runtime starting...
-2024-08-05T13:02:40.247484Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
-2024-08-05T13:02:40.247490Z  INFO runtime::metrics_server: Spice Runtime Metrics listening on 127.0.0.1:9090
-2024-08-05T13:02:40.247949Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
-2024-08-05T13:02:40.248611Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
-2024-08-05T13:02:40.252356Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
-```
-
-The runtime is now started and ready for queries.
-
-**Step 4.** In a new terminal window, add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
+**Step 4.** Add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
 
 ```bash
 spice add spiceai/quickstart
@@ -84,13 +79,52 @@ dependencies:
     - spiceai/quickstart
 ```
 
-The `spiceai/quickstart` Spicepod will add a `taxi_trips` data table to the runtime which is now available to query by SQL.
+**Step 6.** Add an [OpenAI] model to the Spicepod, with tools enabled to enable the model to access the data:
+
+[OpenAI]: /docs/components/models/openai
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: openai_model
+    params:
+      openai_api_key: ${ env:OPENAI_API_KEY }
+      tools: auto
+```
+
+Add your OpenAI API key to a `.env` file that will be automatically loaded:
 
 ```bash
-2024-08-05T13:04:56.742779Z  INFO runtime: Dataset taxi_trips registered (s3://spiceai-demo-datasets/taxi_trips/2024/), acceleration (arrow, 10s refresh), results cache enabled.
-2024-08-05T13:04:56.744062Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset taxi_trips
-2024-08-05T13:05:03.556169Z  INFO runtime::accelerated_table::refresh_task: Loaded 2,964,624 rows (421.71 MiB) for dataset taxi_trips in 6s 812ms.
+echo "OPENAI_API_KEY=sk-..." > .env
 ```
+
+Start the Spice runtime:
+
+```bash
+spice run
+```
+
+Example output:
+
+```bash
+Spice.ai runtime starting...
+2024-08-05T13:02:40.247484Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
+2024-08-05T13:02:40.247490Z  INFO runtime::metrics_server: Spice Runtime Metrics listening on 127.0.0.1:9090
+2024-08-05T13:02:40.247949Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
+2024-08-05T13:02:40.248611Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
+2024-08-05T13:02:40.252356Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
+```
+
+**Step N.** Start the Spice Chat REPL and ask a question:
+
+```bash
+$ spice chat
+Using model: openai_model
+chat> How many taxi trips were taken?
+A total of 2,964,624 trips were taken according to the dataset.
+```
+
+The OpenAI model was automatically provided with the `taxi_trips` dataset and was able to answer the question.
 
 **Step 5.** Start the Spice SQL REPL:
 
@@ -144,34 +178,6 @@ Output:
 | 58298.51      | 18.63        |
 | 51619.36      | 24.2         |
 | 44018.64      | 52.43        |
-+---------------+--------------+
-
-Time: 0.045150667 seconds. 10 rows.
-```
-
-### Additional Example
-
-```shell
-# Query to display the shortest taxi trips
-sql> SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance ASC LIMIT 10;
-```
-
-Output:
-
-```
-+---------------+--------------+
-| trip_distance | total_amount |
-+---------------+--------------+
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
-| 0.0           | 2.5          |
 +---------------+--------------+
 
 Time: 0.045150667 seconds. 10 rows.

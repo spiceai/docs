@@ -13,7 +13,7 @@ Spice supports federated queries, enabling you to join and combine data from mul
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index.md).
+**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index.mdx).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
