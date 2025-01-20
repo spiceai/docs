@@ -45,7 +45,7 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 The `params` field is used to configure the connection to the Unity Catalog. The following parameters are supported:
 
-- `unity_catalog_token`: The personal access token used to authenticate against the Unity Catalog API.
+- `unity_catalog_token`: The [personal access token](https://docs.unitycatalog.io/server/auth/#use-admin-token-to-verify-admin-user-is-in-local-database) used to authenticate against the Unity Catalog API.
 
 ## `dataset_params`
 
