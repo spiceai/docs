@@ -6,12 +6,14 @@ description: 'Get started with Spice in 5 minutes'
 pagination_next: null
 ---
 
+import ReactPlayer from 'react-player';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<div className="video-container">
-  <iframe width="560" height="420" src="https://www.youtube.com/embed/RvUvmCzuqYI?si=Lzc5wAGO5FeuR4fa" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
+<ReactPlayer
+  controls
+  url='https://www.youtube.com/watch?v=RvUvmCzuqYI'
+/>
 
 ### Follow these steps to get started with Spice.
 
