@@ -1,7 +1,7 @@
 ---
 date: 2025-01-22
 title: 'Announcing Spice.ai Open Source 1.0-stable'
-description: 'Announcing Spice.ai Open Source 1.0-stable: A portable compute engine for data-grounded AI — now ready for production'
+description: 'Announcing Spice.ai Open Source 1.0-stable: A Portable Compute Engine for Data-Grounded AI — Now Ready for Production'
 image: /img/blog/2024/announcing-1.0-stable/spice.ai-open-source.png
 slug: announcing-1.0-stable
 type: blog
@@ -15,55 +15,55 @@ import ReactPlayer from 'react-player';
 
 🎉 Today marks the 1.0-stable release of Spice.ai Open Source—designed to help enterprises ground AI in data.
 
-Enterprise AI systems are only as good as the context they’re provided. When data is inaccessible, incomplete, or outdated, even the most advanced models can generate outputs that are inaccurate, misleading, or at worst, potentially harmful. In one example, [a chatbot was tricked into selling a 2024 Chevy Tahoe for $1](https://hothardware.com/news/car-dealerships-chatgpt-goes-awry-when-internet-gets-to-it) due to a lack of contextual safeguards. For enterprises, errors like these are unacceptable—it’s the difference between success and failure.
+Enterprise AI systems are only as good as the context they’re provided. When data is inaccessible, incomplete, or outdated, even the most advanced models can generate outputs that are inaccurate, misleading, or worse, potentially harmful. In one example, [a chatbot was tricked into selling a 2024 Chevy Tahoe for $1](https://hothardware.com/news/car-dealerships-chatgpt-goes-awry-when-internet-gets-to-it) due to a lack of contextual safeguards. For enterprises, errors like these are unacceptable—it’s the difference between success and failure.
 
-Retrieval-Augmented Generation (RAG) is part of the answer - but traditional RAG is only as robust as the data it has access to. If data is locked away in disparate, often legacy data systems, or cannot be stitched together for accurate retrieval, you get, as Benioff puts it, "Clippy 2.0".
+Retrieval-Augmented Generation (RAG) is part of the answer — but traditional RAG is only as good as the data it has access to. If data is locked away in disparate, often legacy data systems, or cannot be stitched together for accurate retrieval, you get, as Benioff puts it, "Clippy 2.0".
 
-<blockquote className="twitter-tweet"><p lang="en" dir="ltr">When you look at how Copilot has been delivered to customers, it’s disappointing. It just doesn’t work, and it doesn’t deliver any level of accuracy. Gartner says it’s spilling data everywhere, and customers are left cleaning up the mess. To add insult to injury, customers are…</p>&mdash; Marc Benioff (@Benioff) <a href="https://twitter.com/Benioff/status/1846714894407578068?ref_src=twsrc%5Etfw">October 17, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<blockquote className="twitter-tweet text-center"><p lang="en" dir="ltr">When you look at how Copilot has been delivered to customers, it’s disappointing. It just doesn’t work, and it doesn’t deliver any level of accuracy. Gartner says it’s spilling data everywhere, and customers are left cleaning up the mess. To add insult to injury, customers are…</p>&mdash; Marc Benioff (@Benioff) <a href="https://twitter.com/Benioff/status/1846714894407578068?ref_src=twsrc%5Etfw">October 17, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-And often, after initial Python-scripted pilots, you’re left with a new set of problems: How do you deploy AI that meets enterprise requirements for performance, security, and compliance while being cost efficient? Directly querying large datasets for retrieval is slow and expensive. Building and maintaining complex ETL pipelines requires expensive data teams that most organizations don’t have. And because enterprise data is highly sensitive, you need secure access and auditable observability—which many RAG setups don’t even consider.
+And often, after initial Python-scripted pilots, you’re left with a new set of problems: How do you deploy AI that meets enterprise requirements for performance, security, and compliance while being cost efficient? Directly querying large datasets for retrieval is slow and expensive. Building and maintaining complex ETL pipelines requires expensive data teams that most organizations don’t have. And because enterprise data is highly sensitive, you need secure access and auditable observability—something many RAG setups don’t even consider.
 
-Developers need a platform at the intersection of data and AI—one specifically designed to ground AI in data. A solution that unifies data-query, search, retrieval, and model inference—ensuring performance, security, and accuracy so you can build AI that you and your customers can trust.
+Developers need a platform at the intersection of data and AI—one specifically designed to ground AI in data. A solution that unifies data query, search, retrieval, and model inference—ensuring performance, security, and accuracy so you can build AI that you and your customers can trust.
 
 ## Spice.ai OSS: A Portable Data, AI, and Retrieval Engine
 
-In March 2024, [we introduced Spice.ai Open Source](https://spiceai.org/blog/2024/adding-spice), a SQL query engine to materialize and accelerate data from any database, data warehouse, or data lake so that data can be accessed wherever it lives across the enterprise — consistently fast. But that was only the start.
+In March of 2024, [we introduced Spice.ai Open Source](https://spiceai.org/blog/2024/adding-spice), a SQL query engine to materialize and accelerate data from any database, data warehouse, or data lake so that data can be accessed wherever it lives across the enterprise — consistently fast. But that was only the start.
 
 Building on this foundation, Spice.ai OSS unifies data, retrieval, and AI, to mitigate AI “hallucinations” head-on, by providing current, relevant context that significantly reduces incorrect outputs.
 
-Spice is a portable, single-node, compute engine, built in Rust. It [leverages the fastest single-node SQL query engine](https://datafusion.apache.org/blog/2024/11/18/datafusion-fastest-single-node-parquet-clickbench/), DataFusion, to serve secure, virtualized data views to data-intensive apps, AI, and agents. Sub-second data query is accelerated locally using Apache Arrow, DuckDB, or SQLite.
+Spice is a portable, single-node, compute engine, built in Rust. It [embeds the fastest single-node SQL query engine](https://datafusion.apache.org/blog/2024/11/18/datafusion-fastest-single-node-parquet-clickbench/), DataFusion, to serve secure, virtualized data views to data-intensive apps, AI, and agents. Sub-second data query is accelerated locally using Apache Arrow, DuckDB, or SQLite.
 
-Now at version 1.0-stable, Spice is ready for production. It’s already deployed in the enterprise such as at Twilio, Barracuda Networks, and NRC Health, and can be deployed anywhere—cloud-hosted, BYOC, edge, on-prem.
+Now at version 1.0-stable, Spice is ready for production. It’s already deployed in enterprise use at Twilio, Barracuda Networks, and NRC Health, and can be deployed anywhere—cloud-hosted, BYOC, edge, on-prem.
 
 ![A diagram of the Spice.ai OSS compute-engine](/img/blog/2024/announcing-1.0-stable/spice.ai-compute-engine.png)
 
 ## Data-grounded AI
 
-Data-grounded AI anchors models in accurate, current, and domain-specific data, rather than relying solely on pre-trained knowledge. By unifying enterprise data—across databases, data lakes, and APIs—and applying advanced ingestion and retrieval techniques, these systems dynamically incorporate real-world context at inference time without leaking sensitive information. This approach helps developers minimize hallucinations, reduce operational risks, and build trust in AI by delivering reliable, relevant outputs.
+Data-grounded AI anchors models in accurate, current, and domain-specific data, rather than relying solely on pre-trained knowledge. By unifying enterprise data—across databases, data lakes, and APIs—and applying advanced ingestion and retrieval techniques, these systems dynamically incorporate real-world context at inference time without leaking sensitive information. This approach helps developers minimize hallucinations, reduce operational risk, and build trust in AI by delivering reliable, relevant outputs.
 
 ![Comparison of AI without contextual data and with data-grounded AI](/img/blog/2024/announcing-1.0-stable/data-grounded-ai.png)
 
 **How does Spice.ai OSS solve data-grounding?**
 
-With Spice, models always have access to projections of low-latency, real-time data for near-instant retrieval that minimizes data movement while enabling AI-feedback so apps and agents can learn and adapt over time. For example, you can join customer records from PostgreSQL with sales data in Snowflake and logs stored in S3—all with a single SQL query or LLM function call.
+With Spice, models always have access to projections of low-latency, real-time data for near-instant retrieval, minimizing data movement while enabling AI feedback so apps and agents can learn and adapt over time. For example, you can join customer records from PostgreSQL with sales data in Snowflake and logs stored in S3—all with a single SQL query or LLM function call.
 
 ![Secure Compute Engine for Data-grounded AI](/img/blog/2024/announcing-1.0-stable/secure-compute-engine.png)
 
-Spice includes an advanced suite of LLM tools including vector and hybrid-search, text-to-SQL, SQL query and retrieval, data sampling, and context formatting, all purpose-built for accurate outputs.
+Spice includes an advanced suite of LLM tools including vector and hybrid search, text-to-SQL, SQL query and retrieval, data sampling, and context formatting, all purpose-built for accurate outputs.
 
-The latest research is continually incorporated, so teams can focus on business objectives rather than trying to keep up with the incredibly fast moving, often overwhelming space of AI.
+The latest research is continually incorporated so that teams can focus on business objectives rather than trying to keep up with the incredibly fast-moving, often overwhelming space of AI.
 
 ## Spice.ai OSS: The engine that makes AI work
 
-Spice.ai OSS is a lightweight, portable runtime (single ~140 MB binary) that has the capabilities of a high-speed cloud data warehouse built into a self-hostable AI inference engine, all in a single, run-anywhere package.
+Spice.ai OSS is a lightweight, portable runtime (single ~140 MB binary) with the capabilities of a high-speed cloud data warehouse built into a self-hostable AI inference engine, all in a single, run-anywhere package.
 
-It's designed to be distributed, integrating at the application level rather than being a bulky, centralized system to manage, and is often deployed as a sidecar. Whether you're running one Spice instance per service, or one per customer, Spice is flexible enough to match your application architecture.
+It's designed to be distributed and integrated at the application level, rather than being a bulky, centralized system to manage, and is often deployed as a sidecar. Whether running one Spice instance per service or one for each customer, Spice is flexible enough to fit your application architecture.
 
-Apps and agents integrate with Spice.ai OSS via three industry-standard APIs, so it can be incrementally adopted with minimal changes to applications.
+Apps and agents integrate with Spice.ai OSS via three industry-standard APIs, so that it can be adopted incrementally with minimal changes to applications.
 
 1. **SQL Query APIs**: HTTP, Arrow Flight, Arrow Flight SQL, ODBC, JDBC, and ADBC.
 
-2. **OpenAI-Compatible APIs**: HTTP APIs compatible with the OpenAI SDK, AI SDK with local model serving (CUDA/Metal accelerated) and gateway to hosted models.
+2. **OpenAI-Compatible APIs**: HTTP APIs compatible with the OpenAI SDK, AI SDK with local model serving (CUDA/Metal accelerated), and gateway to hosted models.
 
 3. **Iceberg Catalog REST APIs**: A unified Iceberg Catalog REST API.
 
@@ -71,45 +71,45 @@ Apps and agents integrate with Spice.ai OSS via three industry-standard APIs, so
 
 ## Key features of Spice.ai OSS include:
 
-- **Federated SQL Query Across Data Sources**: Perform SQL queries across disparate data sources with over 25 open-source data connectors including catalogs (Unity Catalog, Iceberg Catalog, etc), databases (PostgreSQL, MySQL, etc.), data warehouses (Snowflake, Databricks, etc.), and data lakes (e.g., S3, ABFS, MinIO, etc.).
+- **Federated SQL Query Across Data Sources**: Perform SQL queries across disparate data sources with over 25 open-source data connectors, including catalogs (Unity Catalog, Iceberg Catalog, etc), databases (PostgreSQL, MySQL, etc.), data warehouses (Snowflake, Databricks, etc.), and data lakes (e.g., S3, ABFS, MinIO, etc.).
 
-- **Data Materialization and Acceleration**: Locally materialize and accelerate data using Arrow, DuckDB, SQLite, and PostgreSQL, enabling low-latency and high-speed transactional and analytical queries. Data can be updated by Change-Data-Capture (CDC) using Debezium, Catalog integrations, on an interval, or by trigger.
+- **Data Materialization and Acceleration**: Locally materialize and accelerate data using Arrow, DuckDB, SQLite, and PostgreSQL, enabling low-latency and high-speed transactional and analytical queries. Data can be ingested via Change-Data-Capture (CDC) using Debezium, Catalog integrations, on an interval, or by trigger.
 
 - **AI Inference, Gateway, and LLM toolset**: Load and serve models like Llama3 locally, or use Spice as a gateway to hosted AI platforms including OpenAI, Anthropic, xAI, and NVidia NIM. Automatically use a purpose-built LLM toolset for data-grounded AI.
 
 - **Enterprise Search and Retrieval**: Advanced search capabilities for LLM applications, including vector-based similarity search and hybrid search across structured and unstructured data. Real-time retrieval grounds AI applications in dynamic, contextually relevant information, enabling state-of-the-art RAG.
 
-- **LLM Memory**: Enable long-term memory for LLMs by efficiently storing, retrieving, and updating context across interactions. Support real-time contextual continuity and grounding for applications requiring persistent and evolving understanding.
+- **LLM Memory**: Enable long-term memory for LLMs by efficiently storing, retrieving, and updating context across interactions. Support real-time contextual continuity and grounding for applications that require persistent and evolving understanding.
 
 - **LLM Evaluations**: Test and boost model reliability and accuracy with integrated LLM-powered evaluation tools to assess and refine AI outputs against business objectives and user expectations.
 
-- **Monitoring and Observability**: Ensure operational excellence with telemetry, distributed tracing, query/task history, and metrics, providing end-to-end visibility into data flows and model performance in production.
+- **Monitoring and Observability**: Ensure operational excellence with telemetry, distributed tracing, query/task history, and metrics, that provide end-to-end visibility into data flows and model performance in production.
 
-- **Deploy Anywhere; Edge-to-Cloud Flexibility**: Deploy Spice as a standalone instance, Kubernetes sidecar, microservice, or scalable cluster, with the flexibility to run across edge, on-premises, or any cloud environment. Spice AI provides managed, cloud-hosted deployments of Spice.ai OSS through the Spice Cloud Platform (SCP).
+- **Deploy Anywhere; Edge-to-Cloud Flexibility**: Deploy Spice as a standalone instance, Kubernetes sidecar, microservice, or scalable cluster, with the flexibility to run distributed across edge, on-premises, or any cloud environment. Spice AI offers managed, cloud-hosted deployments of Spice.ai OSS through the Spice Cloud Platform (SCP).
 
 ## Real-world use-cases
 
 Spice delivers data readiness for teams like Twilio and Barracuda, and accelerates time-to-market of data-grounded AI, such as with developers on GitHub and at NRC Health.
 
-Here are a few examples of how Spice.ai OSS is solving real problems for these teams.
+Here are some examples of how Spice.ai OSS solves real problems for these teams.
 
-### CDN for Databases - Twilio
+### CDN for Databases — Twilio
 
-A core requirement for many applications is consistently fast data access; with or without AI. Twilio uses Spice.ai OSS as a [“CDN for databases”](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-store, accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
+A core requirement for many applications is consistently fast data access, with or without AI. Twilio uses Spice.ai OSS as a [Database CDN](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-storage that's accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
 
-With Spice, Twilio achieved:
+With Spice, Twilio has achieved:
 
 - **Significantly Improved Query Performance**: Using Spice to co-locate control-plane data in the messaging runtime, accelerated with DuckDB, to send messages with a P99 query time of < 5ms.
 
-- **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to directly query data on S3, ensuring uninterrupted service even during database downtime.
+- **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to query data directly from S3 for uninterrupted service even during database downtime.
 
 By adopting Spice.ai OSS, Twilio strengthened its infrastructure, ensuring reliable services for customers and scalable data access across its growing platform.
 
-### Datalake Accelerator - Barracuda
+### Datalake Accelerator — Barracuda
 
 Barracuda uses Spice.ai OSS to modernize data access for their email archiving and audit log systems, solving two big problems: slow query performance and costly queries. Before Spice, customers experienced frustrating delays of up to two minutes when searching email archives, due to the data volume being queried.
 
-With Spice, Barracuda achieved:
+With Spice, Barracuda has achieved:
 
 - **100x Query Performance Improvement**: Accelerated email archive queries from a P99 time of 2 minutes to 100-200ms.
 
@@ -119,17 +119,17 @@ With Spice, Barracuda achieved:
 
 - **Significant Cost Reduction**: Replaced expensive Databricks Spark queries, significantly cutting expenses while improving performance.
 
-### Data-Grounded AI apps and agents - NRC Health
+### Data-Grounded AI apps and agents — NRC Health
 
 NRC Health uses Spice.ai OSS to simplify and accelerate the development of data-grounded AI features, unifying data from multiple platforms including MySQL, SharePoint, and Salesforce, into secure, AI-ready data. Before Spice, scaling AI expertise across the organization to build complex RAG-based scenarios was a challenge.
 
-With Spice OSS, NRC Health achieved:
+With Spice OSS, NRC Health has achieved:
 
-- **Developer Productivity**: Partnered with Spice across three company wide AI hackathons to build complete end-to-end data-grounded AI features in hours instead of weeks or months.
+- **Developer Productivity**: Partnered with Spice in three company-wide AI hackathons to build complete end-to-end data-grounded AI features in hours instead of weeks or months.
 
-- **Accelerated Time-to-Market**: Centralized data integration and AI model serving an enterprise-ready service, accelerating time-to-market.
+- **Accelerated Time-to-Market**: Centralized data integration and AI model serving an enterprise-ready service, accelerating time to market.
 
-### Spice.ai GitHub Copilot Extension
+###  Data-Grounded AI Software Development — Spice.ai GitHub Copilot Extension
 
 When using tools like GitHub Copilot, developers often face the hassle of switching between multiple environments to get the data they need.
 
@@ -144,11 +144,11 @@ Developers can simply type **`@spiceai`** to interact with connected data, with 
 
 ## Why choose Spice.ai OSS?
 
-Adopting Spice.ai OSS addresses real challenges of modern AI development: it grounds models in accurate, domain-specific, real-time data. With Spice, engineering teams can focus on what really matters—delivering innovative, accurate, AI-powered applications and agents that truly work. Additionally, Spice.ai OSS is open-source under Apache 2.0, ensuring transparency and extensibility so your organization remains free to innovate without vendor lock-in.
+Adopting Spice.ai OSS addresses real challenges in modern AI development: it grounds models in accurate, domain-specific, real-time data. With Spice, engineering teams can focus on what matters—delivering innovative, accurate, AI-powered applications and agents that work. Additionally, Spice.ai OSS is open-source under Apache 2.0, ensuring transparency and extensibility so your organization remains free to innovate without vendor lock-in.
 
 ## Get started in 30 seconds
 
-You can install Spice.ai OSS in less than a minute, across macOS, Linux, and Windows:
+You can install Spice.ai OSS in less than a minute, on macOS, Linux, and Windows:
 
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>
@@ -174,9 +174,9 @@ Once installed, follow the [Getting Started with Spice.ai guide](/docs/getting-s
 
 ## Looking ahead
 
-The 1.0-stable release of Spice.ai OSS marks a major step toward accurate, data-grounded AI for developers. By combining data, AI, and retrieval into a unified runtime, Spice ensures your AI is always grounded in relevant, real-time data—helping you build apps and agents that truly work.
+The 1.0-stable release of Spice.ai OSS marks a major step toward accurate AI for developers. By combining data, AI, and retrieval into a unified runtime, Spice anchors AI in relevant, real-time data—helping you build apps and agents that work.
 
-A cloud-hosted, fully managed Spice.ai OSS service is available in the Spice Cloud Platform. It’s SOC 2 Type II compliant and makes using and deploying Spice easy.
+A cloud-hosted, fully managed Spice.ai OSS service is available in the Spice Cloud Platform. It’s SOC 2 Type II compliant and makes it easy to operate Spice deployments.
 
 Beyond apps and agents, the vision for Spice is to be the best digital labor platform for building autonomous AI employees and teams. These are exciting times! Stay tuned for some upcoming announcements later in 2025!
 
@@ -184,8 +184,8 @@ The Spice AI Team
 
 ## Learn more
 
-- **[Cookbook](/cookbook)** - 47+ samples and examples using Spice.ai OSS
-- **[Documentation](/docs)** - Learn about features, use-cases, and advanced configurations
-- **[@spice_ai](https://x.com/spice_ai)** - Follow X for news and updates
-- **[Discord](https://discord.gg/kZnTfneP5u)** - Connect with the team and community
-- **[GitHub](https://github.com/spiceai/spiceai)** - Star the repo, contribute, and raise issues
+- **[Cookbook](/cookbook)**: 47+ samples and examples using Spice.ai OSS
+- **[Documentation](/docs)**: Learn about features, use cases, and advanced configurations
+- **[@spice_ai](https://x.com/spice_ai)**: Follow X for news and updates
+- **[Discord](https://discord.gg/kZnTfneP5u)**: Connect with the team and the community
+- **[GitHub](https://github.com/spiceai/spiceai)**: Star the repo, contribute, and raise issues
