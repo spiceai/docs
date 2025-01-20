@@ -9,8 +9,8 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | Name                | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
 | ------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
 | [`openai`][openai]  | OpenAI (or compatible) LLM endpoint          | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
-| [`file`][file]      | Local filesystem                             | Alpha             | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf] | Models hosted on HuggingFace                 | Alpha             | ONNX         | GGUF, GGML, SafeTensor          |
+| [`file`][file]      | Local filesystem                             | Beta              | ONNX         | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf] | Models hosted on HuggingFace                 | Beta              | ONNX         | GGUF, GGML, SafeTensor          |
 | [`spice.ai`][spice] | Models hosted on the Spice.ai Cloud Platform | Alpha             | ONNX         | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]    | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]  | Models hosted on Anthropic                   | Alpha             | -            | OpenAI-compatible HTTP endpoint |
