@@ -68,7 +68,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_api_key`    | The OpenAI API key.           | -                           |
 | `openai_org_id`     | The OpenAI organization ID.   | -                           |
 | `openai_project_id` | The OpenAI project ID.        | -                           |
-| `openai_temperature` | Set the default temperature to use on chat completions.  | 0.0                         |
+| `openai_temperature` | Set the default temperature to use on chat completions.  | -                           |
 | `openai_response_format` | An object specifying the format that the model must output, see [structured outputs].  | -                           |
 
 [tools]: ../../features/large-language-models/tools.md
