@@ -9,6 +9,12 @@ pagination_next: null
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+<div className="video-container">
+  <iframe width="560" height="420" src="https://www.youtube.com/embed/RvUvmCzuqYI?si=Lzc5wAGO5FeuR4fa" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
+### Follow these steps to get started with Spice.
+
 Download the latest version of Spice, connect to a dataset in S3, and ask questions about the data using AI, in less than 5 minutes.
 
 **Step 1.** Install the Spice CLI:
