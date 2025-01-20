@@ -41,18 +41,26 @@ The `name` field is used to specify the name of the catalog in Spice. The schema
 
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
+## `params`
+
+The `params` field is used to configure the connection to the Unity Catalog. The following parameters are supported:
+
+- `unity_catalog_token`: The [personal access token](https://docs.unitycatalog.io/server/auth/#use-admin-token-to-verify-admin-user-is-in-local-database) used to authenticate against the Unity Catalog API.
+
 ## `dataset_params`
 
 The `dataset_params` field is used to configure the dataset-specific parameters for the catalog.
 
-### AWS S3
+### Unity catalog object store parameters
+
+#### AWS S3
 
 - `unity_catalog_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
 - `unity_catalog_aws_access_key_id`: The access key ID for the S3 object store.
 - `unity_catalog_aws_secret_access_key`: The secret access key for the S3 object store.
 - `unity_catalog_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 
-### Azure Blob
+#### Azure Blob
 
 :::info Note
 One of the following auth values must be provided for Azure Blob:
@@ -69,7 +77,7 @@ One of the following auth values must be provided for Azure Blob:
 - `unity_catalog_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
 - `unity_catalog_azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
 
-### Google Storage (GCS)
+#### Google Storage (GCS)
 
 - `unity_catalog_google_service_account`: Filesystem path to the Google service account JSON key file.
 

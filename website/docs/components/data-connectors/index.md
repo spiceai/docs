@@ -26,6 +26,7 @@ Supported Data Connectors include:
 | `postgres`                         | PostgreSQL                            | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
 | `mysql`                            | MySQL                                 | Stable            |                              |
+| `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
