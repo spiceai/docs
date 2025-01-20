@@ -10,7 +10,7 @@ Spice collects anonymous telemetry data, which is used to help understand how to
 
 Data collected includes:
 
-- The version of Spice being used (i.e. `v0.17.2-beta`)
+- The version of Spice being used (i.e. `v1.0.0`)
 - An anonymous identifier for the Spice instance, computed as `sha256(hostname + spicepod.name)`.
 - An anonymous identifier for the Spicepod, computed as `sha256(spicepod.name)`.
   - The code to calculate these identifiers is here: [https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/anonymous.rs#L65](https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/anonymous.rs#L65)
