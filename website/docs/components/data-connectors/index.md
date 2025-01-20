@@ -18,6 +18,7 @@ Supported Data Connectors include:
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Stable            | S3/Delta Lake                |
+| `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
 | `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
 | `file`                             | File                                  | Stable            | Parquet, CSV                 |
