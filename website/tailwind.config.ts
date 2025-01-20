@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import * as defaultTheme from 'tailwindcss/defaultTheme';
 
 const config = {
   corePlugins: {
@@ -76,8 +77,8 @@ const config = {
         },
       },
       fontFamily: {
-        sans: 'Manrope',
-        mono: 'Roboto Mono',
+        sans: ['Manrope', ...defaultTheme.fontFamily.sans],
+        mono: ['Roboto Mono', ...defaultTheme.fontFamily.mono],
       },
       boxShadow: {
         'button-hover': '0px -4px 8px 0px rgba(246, 147, 65, 0.40)',
