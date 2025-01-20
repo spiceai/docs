@@ -62,7 +62,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 | Param               | Description                   | Default                     |
 | ------------------- | ----------------------------- | --------------------------- |
-| `endpoint`          | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. NVidia NIM). | `https://api.openai.com/v1` |
+| `endpoint`          | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. Nvidia NIM). | `https://api.openai.com/v1` |
 | `tools`             | Which [tools] should be made available to the model. Set to `auto` to use all available tools. | -    |
 | `system_prompt`     | An additional system prompt used for all chat completions to this model. | -    |
 | `openai_api_key`    | The OpenAI API key.           | -                           |
