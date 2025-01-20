@@ -163,10 +163,10 @@ const recipes: RecipeData[] = [
     tags: ['connector', 'clickhouse', 'query'],
   },
   {
-    title: 'Databricks Delta Lake',
-    description: 'Connect to Databricks Delta Lake.',
-    path: '/databricks/delta_lake/README.md',
-    tags: ['connector', 'databricks', 'delta', 'lake'],
+    title: 'Databricks Connector',
+    description: 'Connect to and query Databricks instances.',
+    path: '/databricks/README.md',
+    tags: ['connector', 'databricks', 'delta', 'lake', 'spark', 'connect'],
   },
   {
     title: 'Debezium CDC from Postgres',
