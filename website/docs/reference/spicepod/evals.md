@@ -42,3 +42,6 @@ Currently scorers include the following builtin methods:
  - `json_match`: Checks for an equivalent JSON between expected and actual outputs.
  - `includes`: Checks for the actual output to include the expected output.
  - `fuzzy_match`: Checks whether a normalised version (ignoring casing, punctuation, articles (e.g. a, the), excess whitespace) of either the expected and actual outputs are a subset of the other.
+
+
+To learn about Evals, including what they are and how to run them in Spice, refer to the [Evals documentation](/docs/features/large-language-models/evals).
