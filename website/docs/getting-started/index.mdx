@@ -57,15 +57,7 @@ A `spicepod.yaml` file is created in the `spice_qs` directory. Change to that di
 cd spice_qs
 ```
 
-**Step 3.** Download the Spice runtime:
-
-Install the Spice runtime with support for AI features with:
-
-```bash
-spice install ai
-```
-
-**Step 4.** Add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
+**Step 3.** Add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
 
 ```bash
 spice add spiceai/quickstart
@@ -81,7 +73,7 @@ dependencies:
     - spiceai/quickstart
 ```
 
-**Step 6.** Add an [OpenAI] model to the Spicepod, with tools enabled to enable the model to access the data:
+**Step 4.** Add an [OpenAI] model to the Spicepod, with tools enabled to enable the model to access the data:
 
 [OpenAI]: /docs/components/models/openai
 
@@ -117,7 +109,7 @@ Spice.ai runtime starting...
 2024-08-05T13:02:40.252356Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
 ```
 
-**Step N.** Start the Spice Chat REPL and ask a question:
+**Step 5.** Start the Spice Chat REPL and ask a question:
 
 ```bash
 $ spice chat
@@ -128,7 +120,7 @@ A total of 2,964,624 trips were taken according to the dataset.
 
 The OpenAI model was automatically provided with the `taxi_trips` dataset and was able to answer the question.
 
-**Step 5.** Start the Spice SQL REPL:
+**Step 6.** Start the Spice SQL REPL:
 
 ```bash
 spice sql
