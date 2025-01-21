@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice supports in-memory caching of query results, which is enabled by default for both the HTTP (`/v1/sql`) and Arrow Flight APIs.
 
-Results caching can help improve performance for bursts of requests and for non-accelerated results such as refresh data returned [on zero results](/docs/components/data-accelerators/data-refresh.md#behavior-on-zero-results).
+Results caching can help improve performance for bursts of requests and for non-accelerated results such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh.md#behavior-on-zero-results).
 
 Results caching employs a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) cache replacement policy with the ability to specify an item expiry duration, which defaults to 1-second.
 
