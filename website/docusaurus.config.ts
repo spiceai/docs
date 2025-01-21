@@ -120,6 +120,11 @@ const config: Config = {
         { to: 'blog', label: 'Blog', position: 'left' },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         {
+          label: 'X',
+          href: 'https://x.com/spice_ai',
+          position: 'right',
+        },
+        {
           label: 'Discord',
           href: 'https://discord.gg/kZnTfneP5u',
           position: 'right',
