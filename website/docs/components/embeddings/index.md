@@ -148,7 +148,7 @@ datasets:
 
 ### Passthrough Embeddings
 
-Datasets that already have embedding columns can utilize the same functionalities (e.g. vector search) as those augmented with Spice-generated embeddings. They should follow the same schema as Spice-generated embeddings (or be altered with a [view](/docs/reference/spicepod#view).
+Datasets that already have embedding columns can utilize the same functionalities (e.g. vector search) as those augmented with Spice-generated embeddings. They should follow the same schema as Spice-generated embeddings (or be altered with a [view](/docs/reference/spicepod#views).
 
 #### Example
 
