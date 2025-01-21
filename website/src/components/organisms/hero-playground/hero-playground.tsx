@@ -20,12 +20,11 @@ export const HeroPlayground = () => {
           </Title>
 
           <Paragraph className='mb-6 md:text-center'>
-            Build with confidence, knowing your AI is not hallucinating, but is accurate and
-            grounded in data.
+            Build with confidence, knowing your AI  is accurate and grounded in fast, relevant data.
           </Paragraph>
 
           <Paragraph className='mb-6 md:text-center'>
-            Spice is an open-source SQL query and AI compute engine, built in Rust, for developers.
+            Spice is an open-source SQL query and AI-inference engine, built in Rust, for developers.
           </Paragraph>
 
           <div className='mb-14 grid grid-cols-2 items-center justify-center gap-3 md:flex'>

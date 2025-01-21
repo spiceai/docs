@@ -11,7 +11,7 @@ Spice.ai helps in building intelligent autonomous agents by leveraging several k
 
 ### Federated SQL Query
 
-Spice.ai enables federated querying across databases, data warehouses, and lakes. With advanced query push-down optimizations, it ensures efficient retrieval and processing of data across disparate sources, reducing latency and operational complexity. [Learn more about Federated SQL Query](../../features/federated-queries/index.md). For practical implementation, refer to the [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+Spice.ai enables federated querying across databases, data warehouses, and lakes. With advanced query push-down optimizations, it ensures efficient retrieval and processing of data across disparate sources, reducing latency and operational complexity. [Learn more about Federated SQL Query](/features/query-federation/index.md). For practical implementation, refer to the [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
 
 ### Data Acceleration & Materialization with Change Data Capture (CDC)
 
@@ -31,4 +31,4 @@ Built-in semantic models allow Spice.ai to align AI operations with enterprise d
 
 ### Monitoring and Observability
 
-Spice.ai includes robust monitoring and observability tools tailored for AI applications. These tools provide end-to-end visibility into data flows and AI workflows, LLM-specific observability to monitor model performance, track usage, and manage drift, and security and compliance auditing for data and model interactions. [Learn more about Monitoring and Observability](../../features/monitoring/index.md).
+Spice.ai includes robust monitoring and observability tools tailored for AI applications. These tools provide end-to-end visibility into data flows and AI workflows, LLM-specific observability to monitor model performance, track usage, and manage drift, and security and compliance auditing for data and model interactions. [Learn more about Monitoring and Observability](/features/observability/index.md).

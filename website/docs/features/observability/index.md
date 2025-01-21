@@ -1,13 +1,17 @@
 ---
-title: 'Monitoring'
-sidebar_label: 'Monitoring'
+title: 'Observability & Monitoring'
+sidebar_label: 'Observability'
 description: 'Learn how to use Spice telemetry.'
-sidebar_position: 9
+sidebar_position: 10
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info). Monitoring clients configuration:
+Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info).
+
+![Spice.ai Open Source Monitoring & Observability](/img/features/observability.png)
+
+Monitoring clients configuration:
 
 - [Grafana](/docs/clients/grafana/)
 - [Datadog](/docs/clients/Datadog/)

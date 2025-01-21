@@ -1,15 +1,19 @@
 ---
-title: 'Federated Queries'
-sidebar_label: 'Federated Queries'
-description: 'Learn how to use federated queries in Spice.'
+title: 'Query Federation'
+sidebar_label: 'Query Federation'
+description: 'Learn how to use federated SQL queries in Spice.ai Open Source'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice supports federated queries, enabling you to join and combine data from multiple sources, including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO). For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
+Spice supports query federation, enabling you to join, combine, and query data using SQL from multiple sources, including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO).
 
-### Getting Started
+![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
+
+For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
+
+## Getting Started
 
 To start using federated queries in Spice, follow these steps:
 
