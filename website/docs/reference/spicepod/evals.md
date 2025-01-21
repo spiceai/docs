@@ -44,4 +44,4 @@ Currently scorers include the following builtin methods:
  - `fuzzy_match`: Checks whether a normalised version (ignoring casing, punctuation, articles (e.g. a, the), excess whitespace) of either the expected and actual outputs are a subset of the other.
 
 
-For an overview of what Evals are, and how to run them in Spice, see the [Evals](/docs/features/large-language-models/evals) documentation.
+To learn about Evals, including what they are and how to run them in Spice, refer to the [Evals documentation](/docs/features/large-language-models/evals).
