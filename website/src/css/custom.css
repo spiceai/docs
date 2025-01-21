@@ -189,8 +189,8 @@ html[data-theme='dark'] {
 
   --ifm-color-emphasis-200: #292524;
   --ifm-color-emphasis-300: #44403c;
-  --ifm-background-color: #ffffff;
-  --ifm-background-surface-color: #ffffff;
+  --ifm-background-color: #1c1917;
+  --ifm-background-surface-color: #1c1917;
 
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 
