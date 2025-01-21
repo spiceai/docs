@@ -206,7 +206,7 @@ const config: Config = {
       },
     ],
     prism: {
-      theme: prismThemes.gruvboxMaterialDark,
+      theme: prismThemes.oneLight,
       darkTheme: prismThemes.gruvboxMaterialDark,
       additionalLanguages: ['bash', 'json', 'csharp'],
     },
