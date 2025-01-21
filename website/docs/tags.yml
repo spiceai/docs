@@ -246,91 +246,15 @@ spark:
   label: 'Spark'
   permalink: '/spark'
   description: 'Documentation related to Apache Spark integration.'
-azure:
-  label: 'Azure'
-  permalink: '/azure'
-  description: 'Documentation related to Microsoft Azure services.'
-huggingface:
-  label: 'Hugging Face'
-  permalink: '/huggingface'
-  description: 'Documentation related to Hugging Face models and services.'
-openai:
-  label: 'OpenAI'
-  permalink: '/openai'
-  description: 'Documentation related to OpenAI models and services.'
-local:
-  label: 'Local'
-  permalink: '/local'
-  description: 'Documentation related to local models and services.'
-aws-secrets-manager:
-  label: 'AWS Secrets Manager'
-  permalink: '/aws-secrets-manager'
-  description: 'Documentation related to AWS Secrets Manager.'
-env:
-  label: 'Environment Variables'
-  permalink: '/env'
-  description: 'Documentation related to environment variables for secret management.'
-keyring:
-  label: 'Keyring'
-  permalink: '/keyring'
-  description: 'Documentation related to keyring for secret management.'
-kubernetes:
-  label: 'Kubernetes'
-  permalink: '/kubernetes'
-  description: 'Documentation related to Kubernetes secret management.'
-views:
-  label: 'Views'
-  permalink: '/views'
-  description: 'Documentation related to views in Spice.'
-aws:
-  label: 'AWS'
-  permalink: '/aws'
-  description: 'Documentation related to Amazon Web Services (AWS).'
-llm:
-  label: 'LLM'
-  permalink: '/llm'
-  description: 'Documentation related to Large Language Models (LLMs).'
-authentication:
-  label: 'Authentication'
-  permalink: '/authentication'
-  description: 'Documentation related to authentication mechanisms.'
-tracing:
-  label: 'Tracing'
-  permalink: '/tracing'
-  description: 'Documentation related to tracing mechanisms.'
-logging:
-  label: 'Logging'
-  permalink: '/logging'
-  description: 'Documentation related to logging mechanisms.'
-catalogs:
-  label: 'Catalogs'
-  permalink: '/catalogs'
-  description: 'Documentation related to catalogs and catalog connectors.'
-data-connectors:
-  label: 'Data Connectors'
-  permalink: '/data-connectors'
-  description: 'Documentation related to data connectors.'
-blob-storage:
-  label: 'Blob Storage'
-  permalink: '/blob-storage'
-  description: 'Documentation related to blob storage services.'
-data-lake:
-  label: 'Data Lake'
-  permalink: '/data-lake'
-  description: 'Documentation related to data lake services.'
-nosql:
-  label: 'NoSQL'
-  permalink: '/nosql'
-  description: 'Documentation related to NoSQL databases.'
-federation:
-  label: 'Federation'
-  permalink: '/federation'
-  description: 'Documentation related to data federation.'
-in-memory:
-  label: 'In-Memory'
-  permalink: '/in-memory'
-  description: 'Documentation related to in-memory data services.'
 spicepods:
   label: 'Spicepods'
   permalink: '/spicepods'
   description: 'Documentation related to Spicepods.'
+tracing:
+  label: 'Tracing'
+  permalink: '/tracing'
+  description: 'Documentation related to tracing mechanisms.'
+views:
+  label: 'Views'
+  permalink: '/views'
+  description: 'Documentation related to views in Spice.'
