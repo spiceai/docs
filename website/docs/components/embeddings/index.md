@@ -21,8 +21,8 @@ Spice supports various model sources and formats to provide embedding components
 | Name                | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
 | ------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
 | [`openai`][openai]  | OpenAI (or compatible) LLM endpoint          | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
-| [`file`][file]      | Local filesystem                             | Beta              | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf] | Models hosted on HuggingFace                 | Beta              | ONNX         | GGUF, GGML, SafeTensor          |
+| [`file`][file]      | Local filesystem                             | RC                | ONNX         | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf] | Models hosted on HuggingFace                 | RC                | ONNX         | GGUF, GGML, SafeTensor          |
 | [`azure`][azure]    | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
 [file]: /components/embeddings/local.md
