@@ -4,7 +4,7 @@ sidebar_label: "upgrade"
 pagination_prev: null
 pagination_next: null
 ---
-Upgrades the Spice CLI to the latest release
+Upgrades the Spice CLI & Runtime to the latest release
 
 ### Usage
 
@@ -20,10 +20,4 @@ spice upgrade [flags]
 
 ```shell
 spice upgrade
-```
-
-### Additional Example
-
-```shell
-spice upgrade --version latest
 ```
