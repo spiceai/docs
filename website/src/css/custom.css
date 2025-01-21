@@ -163,9 +163,9 @@ pre {
 }
 
 :root, [data-theme='light'] {
-  --ifm-color-primary: #c25e00;        /* base orange */
-  --ifm-color-primary-dark: #a85000;   /* darker orange */
-  --ifm-color-primary-darker: #9c4a00; /* even darker */
+  --ifm-color-primary: #EF5F00;        /* base orange */
+  --ifm-color-primary-dark: #CC4E00;   /* darker orange */
+  --ifm-color-primary-darker: #582D1D; /* even darker */
   --ifm-color-primary-darkest: #7d3d00;/* darkest orange */
   --ifm-color-primary-light: #cc6500;  /* light orange */
   --ifm-color-primary-lighter: #d66f00;/* lighter orange */
