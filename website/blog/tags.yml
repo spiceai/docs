@@ -1,11 +1,144 @@
+abfs:
+  label: 'abfs'
+  permalink: '/abfs'
+  description: 'Azure Blob File System related topics and usage'
+acceleration:
+  label: 'acceleration'
+  permalink: '/acceleration'
+  description: 'Topics related to acceleration techniques and tools'
+ai:
+  label: 'ai'
+  permalink: '/ai'
+  description: 'Artificial Intelligence related topics and discussions'
 announcement:
   label: 'announcement'
   permalink: '/announcements'
-  description: 'Announcements from Spice.ai Open Source'
+  description: 'Announcements about Spice.ai OSS'
+arrow:
+  label: 'arrow'
+  permalink: '/arrow'
+  description: 'Apache Arrow topics and usage'
+aws:
+  label: 'aws'
+  permalink: '/aws'
+  description: 'Amazon Web Services related topics and usage'
+azure:
+  label: 'azure'
+  permalink: '/azure'
+  description: 'Microsoft Azure related topics and usage'
+configuration:
+  label: 'configuration'
+  permalink: '/configuration'
+  description: 'Configuration settings and guides'
+csv:
+  label: 'csv'
+  permalink: '/csv'
+  description: 'CSV file handling and processing'
+data-connector:
+  label: 'data-connector'
+  permalink: '/data-connectors'
+  description: 'Data connector tools and integrations'
+databricks:
+  label: 'databricks'
+  permalink: '/databricks'
+  description: 'Databricks platform related topics and usage'
+delta-lake:
+  label: 'delta-lake'
+  permalink: '/delta-lake'
+  description: 'Delta Lake storage layer topics and usage'
+dependency:
+  label: 'dependency'
+  permalink: '/dependencies'
+  description: 'Dependency management and tools'
+docker:
+  label: 'docker'
+  permalink: '/docker'
+  description: 'Docker-related topics and guides'
+dremio:
+  label: 'dremio'
+  permalink: '/dremio'
+  description: 'Dremio data lake engine topics and usage'
+duckdb:
+  label: 'duckdb'
+  permalink: '/duckdb'
+  description: 'DuckDB database topics and usage'
+embedding:
+  label: 'embedding'
+  permalink: '/embeddings'
+  description: 'Embedding techniques and tools'
+evaluation:
+  label: 'evaluation'
+  permalink: '/evaluations'
+  description: 'Evaluation methods and metrics'
+gcp:
+  label: 'gcp'
+  permalink: '/gcp'
+  description: 'Google Cloud Platform related topics and usage'
+json:
+  label: 'json'
+  permalink: '/json'
+  description: 'JSON data handling and processing'
+language-models:
+  label: 'language-model'
+  permalink: '/language-models'
+  description: 'Language models and their applications'
+llm-tools:
+  label: 'llm-tool'
+  permalink: '/llm-tools'
+  description: 'Tools for working with large language models'
+machine-learning:
+  label: 'machine-learning'
+  permalink: '/machine-learning'
+  description: 'Machine learning techniques and tools'
+monitoring:
+  label: 'monitoring'
+  permalink: '/monitoring'
+  description: 'Monitoring tools and practices'
+mysql:
+  label: 'mysql'
+  permalink: '/mysql'
+  description: 'MySQL database topics and usage'
+on-prem:
+  label: 'on-prem'
+  permalink: '/on-prem'
+  description: 'On-premises infrastructure and usage'
+performance:
+  label: 'performance'
+  permalink: '/performance'
+  description: 'Performance optimization and analysis'
+postgres:
+  label: 'postgres'
+  permalink: '/postgres'
+  description: 'PostgreSQL database topics and usage'
 release:
   label: 'release'
   permalink: '/releases'
-  description: 'Releases of Spice.ai Open Source'
-duckdb:
-postgres:
+  description: 'Release notes and updates'
+runtime:
+  label: 'runtime'
+  permalink: '/runtime'
+  description: 'Runtime environments and configurations'
+s3:
+  label: 's3'
+  permalink: '/s3'
+  description: 'Amazon S3 storage service topics and usage'
+security:
+  label: 'security'
+  permalink: '/security'
+  description: 'Security practices and tools'
+spicepod:
+  label: 'spicepod'
+  permalink: '/spicepod'
+  description: 'Spicepod related topics and usage'
 sqlite:
+  label: 'sqlite'
+  permalink: '/sqlite'
+  description: 'SQLite database topics and usage'
+sql:
+  label: 'sql'
+  permalink: '/sql'
+  description: 'SQL queries and database management'
+task-history:
+  label: 'task-history'
+  permalink: '/task-history'
+  description: 'Task history tracking and management'
