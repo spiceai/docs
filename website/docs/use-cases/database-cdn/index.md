@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 ---
 
+![Spice.ai Open Source CDN for Databases](/img/use-cases/database-cdn.png)
+
 ## Enhancing data application performance
 
 Colocate a local working set of hot data with data applications and frontends to serve more concurrent requests and users with faster page loads and data updates.

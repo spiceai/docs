@@ -2,7 +2,7 @@
 title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
 description: 'Learn how to ingest data in Spice.'
-sidebar_position: 8
+sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---
@@ -46,7 +46,7 @@ datasets:
 
 Start telegraf with the following config:
 
-```
+```toml
 [[inputs.smart]]
   attributes = true
 [[outputs.opentelemetry]]
