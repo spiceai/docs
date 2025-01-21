@@ -62,7 +62,6 @@ datasets:
 
 ## Limitations
 
-- **Not supported for in-memory Arrow:** The default in-memory Arrow acceleration engine does not support constraints. Use [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/duckdb.md), or [PostgreSQL](/docs/components/data-accelerators/postgres/index.md) as the acceleration engine to enable constraint checking.
 - **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop.
 
   - <details>

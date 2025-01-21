@@ -16,7 +16,7 @@ import ThemeBasedImage from '@site/src/components/ThemeBasedImage';
 
 Spice provides three industry standard APIs in a lightweight, portable runtime (single ~140 MB binary):
 
-1. **SQL Query APIs**: Arrow Flight, Arrow Flight SQL, ODBC, JDBC, and ADBC.
+1. **SQL Query APIs**: HTTP, Arrow Flight, Arrow Flight SQL, ODBC, JDBC, and ADBC.
 2. **OpenAI-Compatible APIs**: HTTP APIs compatible the OpenAI SDK, AI SDK with local model serving (CUDA/Metal accelerated) and gateway to hosted models.
 3. **Iceberg Catalog REST APIs**: A unified Iceberg Catalog API.
 
@@ -36,23 +36,27 @@ Spice is primarily used for:
 
 Spice is built-on industry leading technologies including [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Arrow Flight, SQLite, and DuckDB. If you want to build with DataFusion or using DuckDB, Spice provides a simple, flexible, and production-ready engine you can just use.
 
-<ThemeBasedImage
-  width='600'
-  alt='OGP'
-  lightSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
-  darkSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
-/>
+<div style={{display: 'flex', justifyContent: 'center'}}>
+  <ThemeBasedImage
+    width='600'
+    alt='OGP'
+    lightSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
+    darkSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
+  />
+</div>
 
 ## Why Spice?
 
 Spice makes it fast and easy to query data from one or more sources using SQL. You can co-locate a managed dataset with your application or machine learning model, and accelerate it with Arrow in-memory, SQLite/DuckDB, or with attached PostgreSQL for fast, high-concurrency, low-latency queries. Accelerated engines give you flexibility and control over query cost and performance.
 
-<ThemeBasedImage
-  width='800'
-  alt='Before Spice'
-  lightSrc='https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b'
-  darkSrc='https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b'
-/>
+<div style={{display: 'flex', justifyContent: 'center'}}>
+  <ThemeBasedImage
+    width='800'
+    alt='Before Spice'
+    lightSrc='https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b'
+    darkSrc='https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b'
+  />
+</div>
 
 Spice simplifies building data-driven AI applications and agents by making it fast and easy to query, federate, and accelerate data from one or more sources using SQL, while grounding AI in real-time, reliable data. Co-locate datasets with apps and AI models to power AI feedback loops, enable RAG and search, and deliver fast, low-latency data-query and AI-inference with full control over cost and performance.
 
@@ -132,7 +136,7 @@ Limited = Partial or restricted support
 
 - **Is Spice a CDN for databases?** Yes, a common use-case for Spice is as a CDN for different data sources. Using CDN concepts, Spice enables you to ship (load) a working set of your database (or data lake, or data warehouse) where it's most frequently accessed, like from a data-intensive application or for AI context.
 
-### Watch a 30-sec BI dashboard acceleration demo
+### Watch a quick BI dashboard acceleration demo
 
 <div style={{display: 'flex', justifyContent: 'center', marginBottom: '15px'}}>
   <ReactPlayer
