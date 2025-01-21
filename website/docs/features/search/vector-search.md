@@ -57,7 +57,7 @@ curl -XPOST http://localhost:8090/v1/search \
 
 For more details, see the [API reference for /v1/search](/docs/api/HTTP/post-search).
 
-Spice also supports vector search on datasets with preexisting embeddings. See [below](/docs/features/embeddings#passthrough-embeddings) for compatibility details.
+Spice also supports vector search on datasets with preexisting embeddings. See [below](/docs/components/embeddings#passthrough-embeddings) for compatibility details.
 
 ### Document Retrieval
 
@@ -121,7 +121,7 @@ Datasets that already include embeddings can utilize the same functionalities (e
 
    - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](/docs/features/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
+     2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
 4. **Offset Column for Chunked Data:**
    - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
