@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Quote({children, name, title, company, imageUrl}) {
   return (
-    <blockquote>
+    <blockquote className='mb-1'>
       <p className="italic font-semibold" dir="ltr">{children}</p>
       <div className='avatar'>
         <div className="avatar__photo">
