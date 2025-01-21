@@ -7,6 +7,18 @@ pagination_prev: null
 pagination_next: null
 ---
 
+Acceleration data can be refreshed (updated) by:
+
+- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api.mdx).
+
+- **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
+
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/features/cdc/index.md).
+
+- **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
+
+![Spice.ai Open Source Acceleration Refresh](/img/features/acceleration-refresh.png).
+
 ## Refresh Modes
 
 Spice supports three modes to refresh/update local data from a connected data source. `full` is the default mode.

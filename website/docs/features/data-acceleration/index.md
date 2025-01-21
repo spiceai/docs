@@ -8,6 +8,8 @@ pagination_prev: null
 
 Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
 
+![Spice.ai Open Source Query Federation with Acceleration](/img/features/data-acceleration.png)
+
 ## Benefits
 
 Local data acceleration stores data alongside your application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/docs/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
