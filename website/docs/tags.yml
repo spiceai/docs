@@ -1,15 +1,55 @@
-search:
-  label: 'Search'
-  permalink: '/search'
-  description: 'Documentation related to Search including Vector Search, Ranking, etc.'
-models:
-  label: 'Models'
-  permalink: '/models'
-  description: 'Documentation related to Models including machine learning, LLMs, etc.'
+abfs:
+  label: 'ABFS'
+  permalink: '/abfs'
+  description: 'Documentation related to Azure Blob File System (ABFS).'
+adbc:
+  label: 'ADBC'
+  permalink: '/adbc'
+  description: 'Documentation related to Arrow Database Connectivity (ADBC).'
 api:
   label: 'API'
   permalink: '/api'
   description: 'Documentation related to API including HTTP, Arrow Flight SQL, ODBC, JDBC, and ADBC.'
+arrow:
+  label: 'Arrow'
+  permalink: '/arrow'
+  description: 'Documentation related to Apache Arrow.'
+arrow-flight-sql:
+  label: 'Arrow Flight SQL'
+  permalink: '/arrow-flight-sql'
+  description: 'Documentation related to Arrow Flight SQL.'
+authentication:
+  label: 'Authentication'
+  permalink: '/authentication'
+  description: 'Documentation related to authentication mechanisms.'
+auth:
+  label: 'Auth'
+  permalink: '/auth'
+  description: 'Documentation related to authentication and authorization.'
+aws:
+  label: 'AWS'
+  permalink: '/aws'
+  description: 'Documentation related to Amazon Web Services (AWS).'
+aws-secrets-manager:
+  label: 'AWS Secrets Manager'
+  permalink: '/aws-secrets-manager'
+  description: 'Documentation related to AWS Secrets Manager.'
+azure:
+  label: 'Azure'
+  permalink: '/azure'
+  description: 'Documentation related to Microsoft Azure services.'
+blob-storage:
+  label: 'Blob Storage'
+  permalink: '/blob-storage'
+  description: 'Documentation related to blob storage services.'
+catalogs:
+  label: 'Catalogs'
+  permalink: '/catalogs'
+  description: 'Documentation related to catalogs and catalog connectors.'
+clickhouse:
+  label: 'ClickHouse'
+  permalink: '/clickhouse'
+  description: 'Documentation related to ClickHouse integration.'
 cli:
   label: 'CLI'
   permalink: '/cli'
@@ -18,54 +58,22 @@ components:
   label: 'Components'
   permalink: '/components'
   description: 'Documentation related to runtime components including catalogs, data connectors, and models.'
-deployment:
-  label: 'Deployment'
-  permalink: '/deployment'
-  description: 'Documentation related to deploying Spice including Docker and Kubernetes.'
-features:
-  label: 'Features'
-  permalink: '/features'
-  description: 'Documentation related to features including data acceleration, caching, and search.'
-getting-started:
-  label: 'Getting Started'
-  permalink: '/getting-started'
-  description: 'Documentation to help you get started with Spice including installation and quickstart guides.'
-reference:
-  label: 'Reference'
-  permalink: '/reference'
-  description: 'Reference documentation for Spice including API, CLI, and Spicepod manifest syntax.'
-use-cases:
-  label: 'Use Cases'
-  permalink: '/use-cases'
-  description: 'Examples and use cases for Spice including data mesh, database CDN, and RAG.'
-acknowledgements:
-  label: 'Acknowledgements'
-  permalink: '/acknowledgements'
-  description: 'Documentation related to acknowledgements and credits for contributions.'
-adbc:
-  label: 'ADBC'
-  permalink: '/adbc'
-  description: 'Documentation related to Arrow Database Connectivity (ADBC).'
-arrow-flight-sql:
-  label: 'Arrow Flight SQL'
-  permalink: '/arrow-flight-sql'
-  description: 'Documentation related to Arrow Flight SQL.'
-auth:
-  label: 'Auth'
-  permalink: '/auth'
-  description: 'Documentation related to authentication and authorization.'
-jdbc:
-  label: 'JDBC'
-  permalink: '/jdbc'
-  description: 'Documentation related to Java Database Connectivity (JDBC).'
-odbc:
-  label: 'ODBC'
-  permalink: '/odbc'
-  description: 'Documentation related to Open Database Connectivity (ODBC).'
-tls:
-  label: 'TLS'
-  permalink: '/tls'
-  description: 'Documentation related to Transport Layer Security (TLS).'
+data-connectors:
+  label: 'Data Connectors'
+  permalink: '/data-connectors'
+  description: 'Documentation related to data connectors.'
+data-lake:
+  label: 'Data Lake'
+  permalink: '/data-lake'
+  description: 'Documentation related to data lake services.'
+data-refresh:
+  label: 'Data Refresh'
+  permalink: '/data-refresh'
+  description: 'Documentation related to data refresh mechanisms.'
+databricks:
+  label: 'Databricks'
+  permalink: '/databricks'
+  description: 'Documentation related to Databricks integration.'
 datadog:
   label: 'Datadog'
   permalink: '/datadog'
@@ -74,66 +82,6 @@ dbeaver:
   label: 'DBeaver'
   permalink: '/dbeaver'
   description: 'Documentation related to DBeaver integration.'
-grafana:
-  label: 'Grafana'
-  permalink: '/grafana'
-  description: 'Documentation related to Grafana integration.'
-jetbrains-datagrip:
-  label: 'JetBrains DataGrip'
-  permalink: '/jetbrains-datagrip'
-  description: 'Documentation related to JetBrains DataGrip integration.'
-superset:
-  label: 'Superset'
-  permalink: '/superset'
-  description: 'Documentation related to Apache Superset integration.'
-tableau:
-  label: 'Tableau'
-  permalink: '/tableau'
-  description: 'Documentation related to Tableau integration.'
-databricks:
-  label: 'Databricks'
-  permalink: '/databricks'
-  description: 'Documentation related to Databricks integration.'
-iceberg:
-  label: 'Iceberg'
-  permalink: '/iceberg'
-  description: 'Documentation related to Apache Iceberg.'
-spiceai:
-  label: 'Spice.ai'
-  permalink: '/spiceai'
-  description: 'Documentation related to Spice.ai components and usage.'
-unity-catalog:
-  label: 'Unity Catalog'
-  permalink: '/unity-catalog'
-  description: 'Documentation related to Databricks Unity Catalog.'
-arrow:
-  label: 'Arrow'
-  permalink: '/arrow'
-  description: 'Documentation related to Apache Arrow.'
-data-refresh:
-  label: 'Data Refresh'
-  permalink: '/data-refresh'
-  description: 'Documentation related to data refresh mechanisms.'
-duckdb:
-  label: 'DuckDB'
-  permalink: '/duckdb'
-  description: 'Documentation related to DuckDB integration.'
-postgres:
-  label: 'Postgres'
-  permalink: '/postgres'
-  description: 'Documentation related to PostgreSQL integration.'
-sqlite:
-  label: 'SQLite'
-  permalink: '/sqlite'
-  description: 'Documentation related to SQLite integration.'
-abfs:
-  label: 'ABFS'
-  permalink: '/abfs'
-  description: 'Documentation related to Azure Blob File System (ABFS).'
-clickhouse:
-  label: 'ClickHouse'
-  permalink: '/clickhouse'
-  description: 'Documentation related to ClickHouse integration.'
 debezium:
   label: 'Debezium'
   permalink: '/debezium'
@@ -142,14 +90,30 @@ delta-lake:
   label: 'Delta Lake'
   permalink: '/delta-lake'
   description: 'Documentation related to Delta Lake.'
+deployment:
+  label: 'Deployment'
+  permalink: '/deployment'
+  description: 'Documentation related to deploying Spice including Docker and Kubernetes.'
 dremio:
   label: 'Dremio'
   permalink: '/dremio'
   description: 'Documentation related to Dremio integration.'
+duckdb:
+  label: 'DuckDB'
+  permalink: '/duckdb'
+  description: 'Documentation related to DuckDB integration.'
 dynamodb:
   label: 'DynamoDB'
   permalink: '/dynamodb'
   description: 'Documentation related to Amazon DynamoDB integration.'
+env:
+  label: 'Environment Variables'
+  permalink: '/env'
+  description: 'Documentation related to environment variables for secret management.'
+features:
+  label: 'Features'
+  permalink: '/features'
+  description: 'Documentation related to features including data acceleration, caching, and search.'
 file:
   label: 'File'
   permalink: '/file'
@@ -158,30 +122,82 @@ flightsql:
   label: 'FlightSQL'
   permalink: '/flightsql'
   description: 'Documentation related to Apache Arrow FlightSQL.'
+federation:
+  label: 'Federation'
+  permalink: '/federation'
+  description: 'Documentation related to data federation.'
 ftp:
   label: 'FTP'
   permalink: '/ftp'
   description: 'Documentation related to FTP and SFTP data connectors.'
+getting-started:
+  label: 'Getting Started'
+  permalink: '/getting-started'
+  description: 'Documentation to help you get started with Spice including installation and quickstart guides.'
 github:
   label: 'GitHub'
   permalink: '/github'
   description: 'Documentation related to GitHub integration.'
+grafana:
+  label: 'Grafana'
+  permalink: '/grafana'
+  description: 'Documentation related to Grafana integration.'
 graphql:
   label: 'GraphQL'
   permalink: '/graphql'
   description: 'Documentation related to GraphQL data connectors.'
+huggingface:
+  label: 'Hugging Face'
+  permalink: '/huggingface'
+  description: 'Documentation related to Hugging Face models and services.'
 https:
   label: 'HTTPS'
   permalink: '/https'
   description: 'Documentation related to HTTPS data connectors.'
+iceberg:
+  label: 'Iceberg'
+  permalink: '/iceberg'
+  description: 'Documentation related to Apache Iceberg.'
+jdbc:
+  label: 'JDBC'
+  permalink: '/jdbc'
+  description: 'Documentation related to Java Database Connectivity (JDBC).'
+jetbrains-datagrip:
+  label: 'JetBrains DataGrip'
+  permalink: '/jetbrains-datagrip'
+  description: 'Documentation related to JetBrains DataGrip integration.'
+keyring:
+  label: 'Keyring'
+  permalink: '/keyring'
+  description: 'Documentation related to keyring for secret management.'
+kubernetes:
+  label: 'Kubernetes'
+  permalink: '/kubernetes'
+  description: 'Documentation related to Kubernetes secret management.'
+llm:
+  label: 'LLM'
+  permalink: '/llm'
+  description: 'Documentation related to Large Language Models (LLMs).'
+local:
+  label: 'Local'
+  permalink: '/local'
+  description: 'Documentation related to local models and services.'
 localpod:
   label: 'LocalPod'
   permalink: '/localpod'
   description: 'Documentation related to LocalPod data connectors.'
+logging:
+  label: 'Logging'
+  permalink: '/logging'
+  description: 'Documentation related to logging mechanisms.'
 memory:
   label: 'Memory'
   permalink: '/memory'
   description: 'Documentation related to in-memory data connectors.'
+models:
+  label: 'Models'
+  permalink: '/models'
+  description: 'Documentation related to Models including machine learning, LLMs, etc.'
 mssql:
   label: 'MSSQL'
   permalink: '/mssql'
@@ -190,10 +206,34 @@ mysql:
   label: 'MySQL'
   permalink: '/mysql'
   description: 'Documentation related to MySQL integration.'
+nosql:
+  label: 'NoSQL'
+  permalink: '/nosql'
+  description: 'Documentation related to NoSQL databases.'
+odbc:
+  label: 'ODBC'
+  permalink: '/odbc'
+  description: 'Documentation related to Open Database Connectivity (ODBC).'
+openai:
+  label: 'OpenAI'
+  permalink: '/openai'
+  description: 'Documentation related to OpenAI models and services.'
+postgres:
+  label: 'Postgres'
+  permalink: '/postgres'
+  description: 'Documentation related to PostgreSQL integration.'
+reference:
+  label: 'Reference'
+  permalink: '/reference'
+  description: 'Reference documentation for Spice including API, CLI, and Spicepod manifest syntax.'
 s3:
   label: 'S3'
   permalink: '/s3'
   description: 'Documentation related to Amazon S3 integration.'
+search:
+  label: 'Search'
+  permalink: '/search'
+  description: 'Documentation related to Search including Vector Search, Ranking, etc.'
 sharepoint:
   label: 'SharePoint'
   permalink: '/sharepoint'
@@ -206,91 +246,15 @@ spark:
   label: 'Spark'
   permalink: '/spark'
   description: 'Documentation related to Apache Spark integration.'
-azure:
-  label: 'Azure'
-  permalink: '/azure'
-  description: 'Documentation related to Microsoft Azure services.'
-huggingface:
-  label: 'Hugging Face'
-  permalink: '/huggingface'
-  description: 'Documentation related to Hugging Face models and services.'
-openai:
-  label: 'OpenAI'
-  permalink: '/openai'
-  description: 'Documentation related to OpenAI models and services.'
-local:
-  label: 'Local'
-  permalink: '/local'
-  description: 'Documentation related to local models and services.'
-aws-secrets-manager:
-  label: 'AWS Secrets Manager'
-  permalink: '/aws-secrets-manager'
-  description: 'Documentation related to AWS Secrets Manager.'
-env:
-  label: 'Environment Variables'
-  permalink: '/env'
-  description: 'Documentation related to environment variables for secret management.'
-keyring:
-  label: 'Keyring'
-  permalink: '/keyring'
-  description: 'Documentation related to keyring for secret management.'
-kubernetes:
-  label: 'Kubernetes'
-  permalink: '/kubernetes'
-  description: 'Documentation related to Kubernetes secret management.'
-views:
-  label: 'Views'
-  permalink: '/views'
-  description: 'Documentation related to views in Spice.'
-aws:
-  label: 'AWS'
-  permalink: '/aws'
-  description: 'Documentation related to Amazon Web Services (AWS).'
-llm:
-  label: 'LLM'
-  permalink: '/llm'
-  description: 'Documentation related to Large Language Models (LLMs).'
-authentication:
-  label: 'Authentication'
-  permalink: '/authentication'
-  description: 'Documentation related to authentication mechanisms.'
-tracing:
-  label: 'Tracing'
-  permalink: '/tracing'
-  description: 'Documentation related to tracing mechanisms.'
-logging:
-  label: 'Logging'
-  permalink: '/logging'
-  description: 'Documentation related to logging mechanisms.'
-catalogs:
-  label: 'Catalogs'
-  permalink: '/catalogs'
-  description: 'Documentation related to catalogs and catalog connectors.'
-data-connectors:
-  label: 'Data Connectors'
-  permalink: '/data-connectors'
-  description: 'Documentation related to data connectors.'
-blob-storage:
-  label: 'Blob Storage'
-  permalink: '/blob-storage'
-  description: 'Documentation related to blob storage services.'
-data-lake:
-  label: 'Data Lake'
-  permalink: '/data-lake'
-  description: 'Documentation related to data lake services.'
-nosql:
-  label: 'NoSQL'
-  permalink: '/nosql'
-  description: 'Documentation related to NoSQL databases.'
-federation:
-  label: 'Federation'
-  permalink: '/federation'
-  description: 'Documentation related to data federation.'
-in-memory:
-  label: 'In-Memory'
-  permalink: '/in-memory'
-  description: 'Documentation related to in-memory data services.'
 spicepods:
   label: 'Spicepods'
   permalink: '/spicepods'
   description: 'Documentation related to Spicepods.'
+tracing:
+  label: 'Tracing'
+  permalink: '/tracing'
+  description: 'Documentation related to tracing mechanisms.'
+views:
+  label: 'Views'
+  permalink: '/views'
+  description: 'Documentation related to views in Spice.'

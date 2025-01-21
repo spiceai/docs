@@ -293,8 +293,12 @@ const config: Config = {
       {
         redirects: [
           {
+            from: '/query-federation',
+            to: '/docs/features/query-federation',
+          },
+          {
             from: '/federated-queries',
-            to: '/docs/features/federated-queries',
+            to: '/docs/features/query-federation',
           },
           {
             from: '/data-ingestion',
@@ -303,6 +307,10 @@ const config: Config = {
           {
             from: '/data-acceleration',
             to: '/docs/features/data-acceleration',
+          },
+          {
+            from: '/monitoring',
+            to: '/docs/features/observability',
           },
         ],
       },

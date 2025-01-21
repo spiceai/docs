@@ -12,7 +12,7 @@ export const Feature = ({
   docsLink?: string;
 }) => {
   return (
-    <div className='flex flex-col items-start gap-4 rounded-sm border border-alpha-150 px-6 py-10 shadow-box md:gap-10 md:px-10'>
+    <div className='flex flex-col items-start gap-4 rounded-sm border border-alpha-150 px-6 py-10 md:gap-10 md:px-10 bg-neutral shadow-box'>
       <Squares />
       <Title as='h3' variant={'small'} className='line-clamp-2'>
         {title}
