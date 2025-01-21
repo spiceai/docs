@@ -92,6 +92,5 @@ models:
 
 :::warning[Limitations]
 
-- LLM models do not support [tool use](/docs/features/large-language-models/tools.md) when ['stream=true'](https://spiceai.org/docs/api/HTTP/post-chat-completions).
-- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size.
+- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](/installation.md#metal-support) and [CUDA](/installation.md#cuda-support) for accelerated inference.
 :::
