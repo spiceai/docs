@@ -116,9 +116,9 @@ With Spice, Twilio has achieved:
 
 - **Significantly Improved Query Performance**: Using Spice to co-locate control-plane data in the messaging runtime, accelerated with DuckDB, to send messages with a P99 query time of < 5ms.
 
-- **Low-Latency Multi-Tenancy Controls**: Reduced control-plane data propagation time from 10+ minutes with manual triggers to < 60 seconds with an automated, resilient framework focused on data availability.
+- **Low-Latency Multi-Tenancy Controls**: Spice is integrated into the message-sending runtime to manage multi-tenancy data controls. Before, data changes required manual triggers and took hours to propagate. Now, they update automatically and reach the messaging front door within five minutes via a resilient data-availability framework.
 
-- **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to query data directly from S3 for uninterrupted service even during database downtime.
+- **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to accelerate data in-memory locally, with automatic failover to query data directly from S3, ensuring uninterrupted service even during database downtime.
 
 <Quote name="David Blum" title="Principal Software Engineer" company="Twilio" imageUrl="https://media.licdn.com/dms/image/v2/C4E03AQFwYGa02RBgSQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1604159257728?e=1743033600&v=beta&t=ts80CKZlcSuBaTUaKkWvjNIFr1FwbewxUVFzynM5HVY">
   "With a simple drop in container, we are able to double our data redundancy by using Spice."
