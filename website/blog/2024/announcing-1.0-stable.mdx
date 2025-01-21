@@ -16,7 +16,7 @@ import ReactPlayer from 'react-player';
 
 import Quote from '@site/src/components/molecules/quote/quote';
 
-🎉 Today marks the 1.0-stable release of Spice.ai Open Source—designed to help enterprises ground AI in data.
+🎉 Today marks the 1.0-stable release of Spice.ai Open Source—purpose-built to help enterprises ground AI in data. By unifying federated data query, retrieval, and AI inference into a single engine, Spice mitigates AI hallucinations, accelerates data access for mission-critical workloads, and makes it simple and easy for developers to build fast and accurate data-intensive applications across cloud, edge, or on-prem.
 
 Enterprise AI systems are only as good as the context they’re provided. When data is inaccessible, incomplete, or outdated, even the most advanced models can generate outputs that are inaccurate, misleading, or worse, potentially harmful. In one example, [a chatbot was tricked into selling a 2024 Chevy Tahoe for $1](https://hothardware.com/news/car-dealerships-chatgpt-goes-awry-when-internet-gets-to-it) due to a lack of contextual safeguards. For enterprises, errors like these are unacceptable—it’s the difference between success and failure.
 
@@ -32,7 +32,7 @@ Developers need a platform at the intersection of data and AI—one specifically
 
 In March of 2024, [we introduced Spice.ai Open Source](https://spiceai.org/blog/2024/adding-spice), a SQL query engine to materialize and accelerate data from any database, data warehouse, or data lake so that data can be accessed wherever it lives across the enterprise — consistently fast. But that was only the start.
 
-Building on this foundation, Spice.ai OSS unifies data, retrieval, and AI, to mitigate AI “hallucinations” head-on by providing current, relevant context that significantly reduces incorrect outputs.
+Building on this foundation, Spice.ai OSS unifies data, retrieval, and AI, to provide current, relevant context to mitigate AI “hallucinations” and significantly reduce incorrect outputs-just one of the many mission-critical use cases Spice.ai addresses.
 
 Spice is a portable, single-node, compute engine built in Rust. It [embeds the fastest single-node SQL query engine](https://datafusion.apache.org/blog/2024/11/18/datafusion-fastest-single-node-parquet-clickbench/), DataFusion, to serve secure, virtualized data views to data-intensive apps, AI, and agents. Sub-second data query is accelerated locally using Apache Arrow, DuckDB, or SQLite.
 
@@ -104,7 +104,7 @@ Here are some examples of how Spice.ai OSS solves real problems for these teams.
 
 ![Twilio datalake and database acceleration using Spice.ai Open Source](/img/blog/2024/announcing-1.0-stable/use-case-twilio.png)
 
-A core requirement for many applications is consistently fast data access, with or without AI. Twilio uses Spice.ai OSS as a [Database CDN](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-storage that's accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
+A core requirement for many applications is consistently fast data access, with or without AI. Twilio uses Spice.ai OSS as a data acceleration framework or [Database CDN](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-storage that's accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
 
 <Quote name="Peter Janovsky" title="Software Architect" company="Twilio" imageUrl="https://media.licdn.com/dms/image/v2/C5103AQG98xiwbBAhsQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516324453569?e=1743033600&v=beta&t=_puGOlzBB9eqM0_iWj86S6AWa5or1mBNIUgp9Dnx_gk">
   "Spice opened up the door to take these critical control-plane datasets and move them into the runtime path."
@@ -114,7 +114,7 @@ With Spice, Twilio has achieved:
 
 - **Significantly Improved Query Performance**: Using Spice to co-locate control-plane data in the messaging runtime, accelerated with DuckDB, to send messages with a P99 query time of < 5ms.
 
-- **Low-Latency Multi-Tenancy Controls**: Reduced data propagation time from 10+ minutes with manual triggers to < 60 seconds with an automated, resilient framework focused on data availability.
+- **Low-Latency Multi-Tenancy Controls**: Reduced control-plane data propagation time from 10+ minutes with manual triggers to < 60 seconds with an automated, resilient framework focused on data availability.
 
 - **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to query data directly from S3 for uninterrupted service even during database downtime.
 
