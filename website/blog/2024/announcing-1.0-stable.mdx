@@ -14,13 +14,15 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ReactPlayer from 'react-player';
 
+import Quote from '@site/src/components/molecules/quote/Quote';
+
 🎉 Today marks the 1.0-stable release of Spice.ai Open Source—designed to help enterprises ground AI in data.
 
 Enterprise AI systems are only as good as the context they’re provided. When data is inaccessible, incomplete, or outdated, even the most advanced models can generate outputs that are inaccurate, misleading, or worse, potentially harmful. In one example, [a chatbot was tricked into selling a 2024 Chevy Tahoe for $1](https://hothardware.com/news/car-dealerships-chatgpt-goes-awry-when-internet-gets-to-it) due to a lack of contextual safeguards. For enterprises, errors like these are unacceptable—it’s the difference between success and failure.
 
 Retrieval-Augmented Generation (RAG) is part of the answer — but traditional RAG is only as good as the data it has access to. If data is locked away in disparate, often legacy data systems, or cannot be stitched together for accurate retrieval, you get, as Benioff puts it, "Clippy 2.0".
 
-<blockquote className="twitter-tweet text-center"><p lang="en" dir="ltr">When you look at how Copilot has been delivered to customers, it’s disappointing. It just doesn’t work, and it doesn’t deliver any level of accuracy. Gartner says it’s spilling data everywhere, and customers are left cleaning up the mess. To add insult to injury, customers are…</p>&mdash; Marc Benioff (@Benioff) <a href="https://twitter.com/Benioff/status/1846714894407578068?ref_src=twsrc%5Etfw">October 17, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+![Benioff Post](/img/blog/2024/announcing-1.0-stable/benioff-clippy-2.0.png)
 
 And often, after initial Python-scripted pilots, you’re left with a new set of problems: How do you deploy AI that meets enterprise requirements for performance, security, and compliance while being cost efficient? Directly querying large datasets for retrieval is slow and expensive. Building and maintaining complex ETL pipelines requires expensive data teams that most organizations don’t have. And because enterprise data is highly sensitive, you need secure access and auditable observability—something many RAG setups don’t even consider.
 
@@ -104,10 +106,9 @@ Here are some examples of how Spice.ai OSS solves real problems for these teams.
 
 A core requirement for many applications is consistently fast data access, with or without AI. Twilio uses Spice.ai OSS as a [Database CDN](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-storage that's accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"Spice opened up the door to take these critical control-plane datasets and move them into the runtime path."</p>
-    &mdash;Peter Janovsky, Software Architect at Twilio
-</blockquote>
+<Quote name="Peter Janovsky" title="Software Architect" company="Twilio" imageUrl="https://media.licdn.com/dms/image/v2/C5103AQG98xiwbBAhsQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516324453569?e=1743033600&v=beta&t=_puGOlzBB9eqM0_iWj86S6AWa5or1mBNIUgp9Dnx_gk">
+  "Spice opened up the door to take these critical control-plane datasets and move them into the runtime path."
+</Quote>
 
 With Spice, Twilio has achieved:
 
@@ -117,10 +118,9 @@ With Spice, Twilio has achieved:
 
 - **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to query data directly from S3 for uninterrupted service even during database downtime.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"With a simple drop in container, we are able to double our data redundancy by using Spice."</p>
-    &mdash;David Blum, Principal Software Engineer at Twilio
-</blockquote>
+<Quote name="David Blum" title="Principal Software Engineer" company="Twilio" imageUrl="https://media.licdn.com/dms/image/v2/C4E03AQFwYGa02RBgSQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1604159257728?e=1743033600&v=beta&t=ts80CKZlcSuBaTUaKkWvjNIFr1FwbewxUVFzynM5HVY">
+  "With a simple drop in container, we are able to double our data redundancy by using Spice."
+</Quote>
 
 By adopting Spice.ai OSS, Twilio strengthened its infrastructure, ensuring reliable services for customers and scalable data access across its growing platform.
 
@@ -134,10 +134,9 @@ By adopting Spice.ai OSS, Twilio strengthened its infrastructure, ensuring relia
 
 Barracuda uses Spice.ai OSS to modernize data access for their email archiving and audit log systems, solving two big problems: slow query performance and costly queries. Before Spice, customers experienced frustrating delays of up to two minutes when searching email archives, due to the data volume being queried.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"It's just a huge gain in responsiveness for the customer."</p>
-    &mdash;David Stancu, Senior Principal Software Engineer at Barracuda
-</blockquote>
+<Quote name="David Stancu" title="Senior Principal Software Engineer" company="Barracuda" imageUrl="https://media.licdn.com/dms/image/v2/C4D03AQHaYpFkb8Ef7g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1544111921005?e=1743033600&v=beta&t=9SNh2gijp_uK1Yslo3VwVo1PZzG8GAR_IQC6EOrEYLM">
+  "It's just a huge gain in responsiveness for the customer."
+</Quote>
 
 With Spice, Barracuda has achieved:
 
@@ -149,10 +148,9 @@ With Spice, Barracuda has achieved:
 
 - **Significant Cost Reduction**: Replaced expensive Databricks Spark queries, significantly cutting expenses while improving performance.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"It just kinda spins up and it just kinda works, which is really nice."</p>
-    &mdash;Darin Douglass, Principal Software Engineer at Barracuda
-</blockquote>
+<Quote name="Darin Douglass" title="Principal Software Engineer" company="Barracuda" imageUrl="https://media.licdn.com/dms/image/v2/D5603AQHHeajJta0mRQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1670162582353?e=1743033600&v=beta&t=EobdjhLyYk7hetWXEtAEghE1qjccYlUmgysvgy8kdiw">
+  It just kinda spins up and it just works, which is really nice.
+</Quote>
 
 ---
 
@@ -164,10 +162,9 @@ With Spice, Barracuda has achieved:
 
 NRC Health uses Spice.ai OSS to simplify and accelerate the development of data-grounded AI features, unifying data from multiple platforms including MySQL, SharePoint, and Salesforce, into secure, AI-ready data. Before Spice, scaling AI expertise across the organization to build complex RAG-based scenarios was a challenge.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"What I like the most about Spice, it's very easy to collect data from different data sources and I am able to chat with this data and do every everything in one place."</p>
-  &mdash;Dustin Warner, Director of Software Engineering at NRC Health
-</blockquote>
+<Quote name="Dustin Warner" title="Director of Software Engineering" company="NRC Health" imageUrl="https://media.licdn.com/dms/image/v2/D5603AQHWZwH7esT5IQ/profile-displayphoto-shrink_400_400/B56ZQZBMHgHQAg-/0/1735586530652?e=1743033600&v=beta&t=u1KHvUE_B-WJrpQp9VCDScXZ_faK9-FVruz1a06_OeU">
+  "What I like the most about Spice, it's very easy to collect data from different data sources and I am able to chat with this data and do everything in one place."
+</Quote>
 
 With Spice OSS, NRC Health has achieved:
 
@@ -175,10 +172,9 @@ With Spice OSS, NRC Health has achieved:
 
 - **Accelerated Time-to-Market**: Centralized data integration and AI model serving an enterprise-ready service, accelerating time to market.
 
-<blockquote>
-  <p className="text-italics" dir="ltr">"I explored AI, embeddings, search algorithms, and features with our own database. I read a lot about this, but it was so much easier to use Spice than doing it from scratch."</p>
-  &mdash;Taher Ahmed, Software Engineering Manager at NRC Health
-</blockquote>
+<Quote name="Taher Ahmed" title="Software Engineering Manager" company="NRC Health" imageUrl="https://media.licdn.com/dms/image/v2/C5603AQEc2C1-eknKQA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1653330557976?e=1743033600&v=beta&t=maGgXxLXrGp9VSErAQoxvVcwoMBK0-0neNoIIhOhUf0">
+  "I explored AI, embeddings, search algorithms, and features with our own database. I read a lot about this, but it was so much easier to use Spice than doing it from scratch."
+</Quote>
 
 ---
 
