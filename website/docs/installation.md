@@ -40,7 +40,7 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/i
 
 ## Direct Download
 
-x86_x64 and ARM binaries for linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
+Binaries for Linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
 
 ## Building Spice from Source
 
@@ -123,9 +123,10 @@ export PATH="$PATH:$HOME/.spice/bin"
 ```
 
 ### Build with Hardware Acceleration
+
 Spice OSS supports running both local language models and embedding models on dedicated hardware. This is for models from either Huggingface or models located locally.
 
-Currently, neither CUDA nor metal have dedicated Dockerfiles or release binaries.
+The Spice CLI will automatically detect and download the appropriate runtime binary with hardware acceleration if available.
 
 #### CUDA Support
 
