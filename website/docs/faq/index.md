@@ -9,11 +9,21 @@ sidebar_position: 2
 
 ## 1. What is Spice?
 
-Spice is a portable runtime written in Rust that provides a unified SQL interface for developers to materialize, accelerate, and query data from various sources, including databases, data warehouses, and data lakes. It acts as an application-specific, tier-optimized Database CDN, bringing data closer to applications for faster and more efficient access.
+Spice is an open-source SQL query and AI compute engine, written in Rust, for data-driven apps and agents.
+
+Spice provides three industry standard APIs in a lightweight, portable runtime (single ~140 MB binary):
+
+1. **SQL Query APIs**: HTTP, Arrow Flight, Arrow Flight SQL, ODBC, JDBC, and ADBC.
+2. **OpenAI-Compatible APIs**: HTTP APIs compatible the OpenAI SDK, AI SDK with local model serving (CUDA/Metal accelerated) and gateway to hosted models.
+3. **Iceberg Catalog REST APIs**: A unified Iceberg Catalog API.
 
 ## 2. Why should I use Spice?
 
-Spice simplifies querying data from one or more sources by enabling developers to co-locate datasets with their applications or machine learning models. With support for in-memory Arrow records, SQLite/DuckDB, and PostgreSQL, Spice accelerates queries with high concurrency and low latency. This makes it ideal for use cases requiring fast, reliable, and cost-efficient data access.
+Spice is primarily used for:
+
+- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](https://docs.spiceai.org/features/federated-queries).
+- **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
+- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
 
 ## 3. How is Spice different?
 
@@ -67,4 +77,4 @@ Spice is highly flexible and supports multiple deployment configurations:
 
 ## 12. How can I get started?
 
-Visit the [Spice.ai Quickstart Guide](https://docs.spiceai.org/quickstart/) to set up the runtime, connect to data sources, and start querying in minutes. Comprehensive examples and step-by-step instructions are available to help you get the most out of Spice.
+Visit the [Spice.ai Getting Started Guide](https://spiceai.org/docs/getting-started/) to set up the runtime, connect to data sources, and start querying in minutes. Comprehensive examples and step-by-step instructions are available to help you get the most out of Spice.

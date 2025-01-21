@@ -23,7 +23,7 @@ A Spicepod is described by a YAML manifest file, typically named `spicepod.yaml`
 - **Metadata:** Basic information about the Spicepod, such as its name and version.
 - **Datasets:** Definitions of datasets that are used or produced within the Spicepod.
 - **Catalogs:** Definitions of catalogs that are used within the Spicepod.
-- **Models:** Definitions of ML models that the Spicepod manages, including their sources and associated datasets.
+- **Models:** Definitions of language or traditional ML models that the Spicepod manages, including their sources and associated datasets.
 - **Secrets:** Configuration for any secret stores used within the Spicepod.
 
 ## Example Manifest
@@ -34,17 +34,17 @@ kind: Spicepod
 name: my_spicepod
 
 datasets:
-  - from: spice.ai/spiceai/quickstart
-    name: qs
+  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
+    name: taxi_trips
     acceleration:
       enabled: true
-      refresh_mode: append
 
 models:
-  - from: file://model_path.onnx
-    name: my_model
-    datasets:
-      - qs
+  - from: openai:gpt-4o-mini
+    name: openai_model
+    params:
+      openai_api_key: ${ env:OPENAI_API_KEY }
+      tools: auto
 
 secrets:
   - from: env
@@ -59,17 +59,21 @@ kind: Spicepod
 name: another_spicepod
 
 datasets:
-  - from: spice.ai/spiceai/sample
+  - from: databricks:spiceai_demo.public.dataset
     name: sample_ds
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
     acceleration:
       enabled: true
       refresh_mode: full
 
 models:
-  - from: file://another_model_path.onnx
-    name: another_model
-    datasets:
-      - sample_ds
+  - from: huggingface.co/microsoft/Phi-3.5-mini-instruct
+    name: phi
 
 secrets:
   - from: env
