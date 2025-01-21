@@ -27,7 +27,7 @@ type GitHubContent = {
 
 async function fetchContents(path: string): Promise<GitHubContent[]> {
   try {
-    const response = await fetch(`${GITHUB_BLOG_REPO}/contents/${path}`, { cache: 'force-cache' })
+    const response = await fetch(`${GITHUB_BLOG_REPO}/contents${path}`, { cache: 'force-cache' })
 
     if (!response.ok) {
       throw new Error('Failed to fetch releases')
@@ -64,7 +64,7 @@ function generateBlogLink(date: string, title: string) {
 }
 
 export async function getArticlesData(): Promise<ProcessedFile[]> {
-  const releases = await fetchContents('content/posts/releases')
+  const releases = await fetchContents('/website/blog/releases')
 
   const processedReleases = []
 
