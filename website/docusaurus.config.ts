@@ -1,12 +1,12 @@
-import { themes as prismThemes } from 'prism-react-renderer';
-import type { Config } from '@docusaurus/types';
-import type * as Preset from '@docusaurus/preset-classic';
+import { themes as prismThemes } from 'prism-react-renderer'
+import type { Config } from '@docusaurus/types'
+import type * as Preset from '@docusaurus/preset-classic'
 
-import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
-import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog';
-import type { Options as PageOptions } from '@docusaurus/plugin-content-pages';
+import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs'
+import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
+import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
-import tailwindPlugin from './plugins/tailwind-config.cjs';
+import tailwindPlugin from './plugins/tailwind-config.cjs'
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -36,7 +36,7 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en']
   },
 
   presets: [
@@ -48,14 +48,14 @@ const config: Config = {
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: 'https://github.com/spiceai/docs/tree/trunk/website/',
+          editUrl: 'https://github.com/spiceai/docs/tree/trunk/website/'
         },
         blog: {
           path: 'blog',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, blogDirPath, blogPath }) => {
-            return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`;
+            return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
           },
           remarkPlugins: [],
           postsPerPage: 5,
@@ -64,45 +64,44 @@ const config: Config = {
             description:
               'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
             copyright: `Copyright © 2025 Spice AI, Inc.`,
-            xslt: true,
+            xslt: true
           },
           blogTitle: 'Spice.ai OSS blog',
-          blogDescription:
-            'Read blog posts about Spice.ai OSS from the team and community',
+          blogDescription: 'Read blog posts about Spice.ai OSS from the team and community',
           blogSidebarCount: 'ALL',
-          blogSidebarTitle: 'All Posts',
+          blogSidebarTitle: 'All Posts'
         } satisfies BlogOptions,
         pages: {
           remarkPlugins: [],
           showLastUpdateAuthor: true,
-          showLastUpdateTime: true,
+          showLastUpdateTime: true
         } satisfies PageOptions,
         theme: {
-          customCss: ['./src/css/custom.css', './src/css/openapi.css', './src/css/preflight.css'],
+          customCss: ['./src/css/custom.css', './src/css/openapi.css', './src/css/preflight.css']
         },
         gtag: {
           trackingID: 'G-SST0X6NS37',
-          anonymizeIP: true,
-        },
-      } satisfies Preset.Options,
-    ],
+          anonymizeIP: true
+        }
+      } satisfies Preset.Options
+    ]
   ],
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     // Replace with your project's social card
-    // image: 'img/docusaurus-social-card.jpg',
+    image: 'img/og/spiceai.png',
     announcementBar: {
       content:
         '<a href="https://github.com/spiceai/spiceai/releases/tag/v1.0.0">Spice.ai OSS v1.0-stable</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
-      isCloseable: true,
+      isCloseable: true
     },
     navbar: {
       title: 'Spice.ai OSS',
       logo: {
         alt: 'Spice.ai OSS logo',
-        src: 'img/logo.svg',
+        src: 'img/logo.svg'
       },
       hideOnScroll: true,
       items: [
@@ -110,38 +109,38 @@ const config: Config = {
           type: 'doc',
           position: 'left',
           docId: 'index',
-          label: 'Docs',
+          label: 'Docs'
         },
         {
           type: 'docSidebar',
           position: 'left',
           sidebarId: 'api',
-          label: 'API',
+          label: 'API'
         },
         { to: 'blog', label: 'Blog', position: 'left' },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         {
           label: 'X',
           href: 'https://x.com/spice_ai',
-          position: 'right',
+          position: 'right'
         },
         {
           label: 'Discord',
           href: 'https://discord.gg/kZnTfneP5u',
-          position: 'right',
+          position: 'right'
         },
         {
           label: 'YouTube',
           href: 'https://www.youtube.com/@spiceai',
-          position: 'right',
+          position: 'right'
         },
         {
           href: 'https://github.com/spiceai/spiceai',
           position: 'right',
           className: 'header-github-link',
-          'aria-label': 'GitHub repository',
-        },
-      ],
+          'aria-label': 'GitHub repository'
+        }
+      ]
     },
     footer: {
       style: 'dark',
@@ -151,77 +150,77 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/getting-started',
+              to: '/docs/getting-started'
             },
             {
               label: 'API',
-              to: '/docs/api',
+              to: '/docs/api'
             },
             {
               label: 'CLI',
-              to: '/docs/cli',
+              to: '/docs/cli'
             },
             {
               label: 'SDKs',
-              to: '/docs/sdks',
-            },
-          ],
+              to: '/docs/sdks'
+            }
+          ]
         },
         {
           title: 'Community',
           items: [
             {
               label: 'Reddit',
-              href: 'https://reddit.com/r/spiceai',
+              href: 'https://reddit.com/r/spiceai'
             },
             {
               label: 'Discord',
-              href: 'https://discord.gg/kZnTfneP5u',
+              href: 'https://discord.gg/kZnTfneP5u'
             },
             {
               label: 'X',
-              href: 'https://x.com/spice_ai',
+              href: 'https://x.com/spice_ai'
             },
             {
               label: 'YouTube',
-              href: 'https://www.youtube.com/@spiceai',
-            },
-          ],
+              href: 'https://www.youtube.com/@spiceai'
+            }
+          ]
         },
         {
           title: 'More',
           items: [
             {
               label: 'Blog',
-              href: 'https://blog.spiceai.org',
+              href: 'https://blog.spiceai.org'
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/spiceai/spiceai',
-            },
-          ],
-        },
+              href: 'https://github.com/spiceai/spiceai'
+            }
+          ]
+        }
       ],
-      copyright: `Copyright © 2025 Spice AI, Inc.`,
+      copyright: `Copyright © 2025 Spice AI, Inc.`
     },
     languageTabs: [
       {
         highlight: 'bash',
         language: 'curl',
-        logoClass: 'curl',
-      },
+        logoClass: 'curl'
+      }
     ],
     prism: {
       theme: prismThemes.oneLight,
       darkTheme: prismThemes.gruvboxMaterialDark,
-      additionalLanguages: ['bash', 'json', 'csharp'],
+      additionalLanguages: ['bash', 'json', 'csharp']
     },
     algolia: {
       appId: '0SP8I8JTL8',
       apiKey: '72f66fe334ccd3c7db696a123d68735c',
       indexName: 'spiceai',
-      contextualSearch: false,
-    },
+      contextualSearch: false
+    }
   } satisfies Preset.ThemeConfig,
 
   headTags: [
@@ -229,24 +228,23 @@ const config: Config = {
       tagName: 'link',
       attributes: {
         rel: 'preconnect',
-        href: 'https://fonts.googleapis.com',
-      },
+        href: 'https://fonts.googleapis.com'
+      }
     },
     {
       tagName: 'link',
       attributes: {
         rel: 'preconnect',
         href: 'https://fonts.gstatic.com',
-        crossorigin: "true",
-      },
+        crossorigin: 'true'
+      }
     },
     {
       tagName: 'link',
       attributes: {
-        href:
-          'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap',
-        rel: 'stylesheet',
-      },
+        href: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap',
+        rel: 'stylesheet'
+      }
     },
     {
       tagName: 'link',
@@ -254,8 +252,8 @@ const config: Config = {
         rel: 'icon',
         type: 'image/png',
         sizes: '32x32',
-        href: '/favicon-32x32.png',
-      },
+        href: '/favicon-32x32.png'
+      }
     },
     {
       tagName: 'link',
@@ -263,9 +261,9 @@ const config: Config = {
         rel: 'icon',
         type: 'image/png',
         sizes: '16x16',
-        href: '/favicon-16x16.png',
-      },
-    },
+        href: '/favicon-16x16.png'
+      }
+    }
   ],
 
   plugins: [
@@ -282,11 +280,11 @@ const config: Config = {
             specPath: 'public/openapi.json',
             outputDir: 'docs/api/HTTP',
             sidebarOptions: {
-              groupPathsBy: 'tag',
-            },
-          } satisfies OpenApiPlugin.Options,
-        },
-      },
+              groupPathsBy: 'tag'
+            }
+          } satisfies OpenApiPlugin.Options
+        }
+      }
     ],
     [
       '@docusaurus/plugin-client-redirects',
@@ -294,28 +292,28 @@ const config: Config = {
         redirects: [
           {
             from: '/query-federation',
-            to: '/docs/features/query-federation',
+            to: '/docs/features/query-federation'
           },
           {
             from: '/federated-queries',
-            to: '/docs/features/query-federation',
+            to: '/docs/features/query-federation'
           },
           {
             from: '/data-ingestion',
-            to: '/docs/features/data-ingestion',
+            to: '/docs/features/data-ingestion'
           },
           {
             from: '/data-acceleration',
-            to: '/docs/features/data-acceleration',
+            to: '/docs/features/data-acceleration'
           },
           {
             from: '/monitoring',
-            to: '/docs/features/observability',
-          },
-        ],
-      },
-    ],
-  ],
-};
+            to: '/docs/features/observability'
+          }
+        ]
+      }
+    ]
+  ]
+}
 
-export default config;
+export default config
