@@ -209,6 +209,11 @@ curl -XPOST "http://localhost:8090/v1/nsql" \
 
 ## (Optional) Use a Local Model
 
+### Prerequisites
+
+- Get access to the [Llama-3.2-3B-Instruct model](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct).
+- Populate `.env`: update `SPICE_HF_TOKEN` with your [HuggingFace User Access Token](https://huggingface.co/settings/tokens).
+
 **Step 1.** In the `spicepod.yaml`, uncomment the model `local`.
 
 **Step 2.** Restart the `spiced` server.
