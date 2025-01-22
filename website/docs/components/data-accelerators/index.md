@@ -2,6 +2,7 @@
 title: 'Data Accelerators'
 sidebar_label: 'Data Accelerators'
 description: ''
+image: /img/og/data-accelerators.png
 sidebar_position: 2
 pagination_prev: null
 pagination_next: null
