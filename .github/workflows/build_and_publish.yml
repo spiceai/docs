@@ -19,8 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     permissions:
-      contents: read
+      contents: write
       deployments: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
