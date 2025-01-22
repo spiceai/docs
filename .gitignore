@@ -2,6 +2,7 @@
 node_modules
 
 website/resources
+website/public
 
 .hugo_build.lock
 .wrangler
