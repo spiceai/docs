@@ -22,8 +22,10 @@ export async function onRequest(context) {
     `
 
     return new ImageResponse(html, {
-      width: 800,
-      height: 418,
+      // 3200 x 1800 - bg dimensions (16 x 9)
+      // 1200 x 675 - recommended OG dimensions (16 x 9)
+      width: 1200,
+      height: 675,
       fonts: [
         {
           name: 'Open Sans',
