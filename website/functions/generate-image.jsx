@@ -1,6 +1,6 @@
 import { ImageResponse } from 'workers-og'
 
-export function onRequest(context) {
+export async function onRequest(context) {
   try {
     const url = new URL(context.request.url);
 
@@ -25,11 +25,33 @@ export function onRequest(context) {
       html,
       {
         width: 800,
-        height: 418
+        height: 418,
+        fonts: [
+          {
+            name: 'Open Sans',
+            data: await loadGoogleFont('Open Sans', title),
+            style: 'normal',
+          },
+        ],
       }
     )
   } catch (error) {
     console.error('Error generating image:', error)
     return new Response('Error generating image', { status: 500 })
   }
+}
+
+async function loadGoogleFont(font, text) {
+  const url = `https://fonts.googleapis.com/css2?family=${font}&text=${encodeURIComponent(text)}`
+  const css = await (await fetch(url)).text()
+  const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype)'\)/)
+ 
+  if (resource) {
+    const response = await fetch(resource[1])
+    if (response.status == 200) {
+      return await response.arrayBuffer()
+    }
+  }
+ 
+  throw new Error('failed to load font data')
 }
