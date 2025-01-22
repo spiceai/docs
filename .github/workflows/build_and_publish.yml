@@ -16,6 +16,10 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: Deploy
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +40,8 @@ jobs:
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
+          workingDirectory: website
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./website/build --project-name=spiceai-org-website --branch ${{ github.ref_name }}
+          command: pages deploy build --project-name=spiceai-org-website --branch ${{ github.ref_name }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
