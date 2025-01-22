@@ -11,7 +11,7 @@ export async function onRequest(context) {
         <div style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; justify-content: center;">
         <div style="display: flex; width: 100%;">
           <div style="display: flex; flex-direction: column; width: 100%; justify-content: space-between;">
-          <h2 style="font-family: 'Open Sans', sans-serif; font-size: 48px; font-weight: bold; letter-spacing: -0.05em; color: white; text-align: left; margin-left: 12%; width: 50%; margin-top: 5%;">
+          <h2 style="font-family: 'Open Sans', sans-serif; font-size: 48px; font-weight: bold; letter-spacing: -0.05em; color: white; text-align: left; margin-left: 12%; width: 70%;">
             ${title}
           </h2>
           </div>
