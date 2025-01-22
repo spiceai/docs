@@ -9,6 +9,8 @@ categories: [applications, learn-and-adapt]
 
 In my previous post, [Teaching Apps how to Learn with Spicepods](https://blog.spiceai.org/posts/2021/11/15/teaching-apps-how-to-learn-with-spicepods/), I introduced Spicepods as packages of configuration that describe an application's data-driven goals and how it should learn from data. To leverage Spice.ai in your application, you can author a Spicepod from scratch or build upon one fetched from the spicerack.org registry. In this post, we'll walk through the creation and authoring of a Spicepod step-by-step from scratch.
 
+<!-- truncate -->
+
 As a refresher, a Spicepod consists of:
 
 - A required YAML manifest that describes how the pod should learn from data

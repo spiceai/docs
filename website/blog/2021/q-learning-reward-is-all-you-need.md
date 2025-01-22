@@ -18,6 +18,8 @@ Reinforcement learning's reward is often provided from a simple function that ca
 
 Those questions are already mostly answered, and many algorithms deal with those topics. Our journey here will be to understand how we tackle those questions and end up with a beautiful formula that is at the core of modern approaches of RL:
 
+<!-- truncate -->
+
 <!-- Equation 1 -->
 ![](/svg/q_learning/q_formula.svg)
 *Equation 1. Q estimation at the heart of many RL algorithm, also known as the Bellman equation.*

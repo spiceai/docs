@@ -13,6 +13,8 @@ This data handling is often challenging! For example, to learn from Bitcoin pric
 
 As a developer, if you are new to AI and machine learning, a great talk that explains the basics is [Machine Learning Zero to Hero](https://www.youtube.com/watch?v=VwVg9jCtqaU). Spice.ai makes the process of getting the data into an AI-ready format easy by doing it for you!
 
+<!-- truncate -->
+
 ## What is AI-ready data?
 
 You write code with if statements and functions, but your machine only understands 1s and 0s. When you write code, you leverage tools, like a compiler, to translate that human-readable code into a machine-readable format.

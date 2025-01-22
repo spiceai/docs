@@ -9,6 +9,8 @@ categories: [applications, learn-and-adapt]
 
 The last post in this series, [Making Apps that Learn and Adapt](https://blog.spiceai.org/posts/2021/11/05/making-apps-that-learn-and-adapt/), described the shift from building AI/ML solutions to building apps that learn and adapt. But, how does the app learn? And as a developer, how do I teach it what it should learn?
 
+<!-- truncate -->
+
 With [Spice.ai](https://spiceai.org), we teach the app how to learn using a Spicepod.
 
 Imagine you own a restaurant. You created a menu, hired staff, constructed the kitchen and dining room, and got off to a great start when it first opened. However, over the years, your customers' tastes changed, you've had to make compromises on ingredients, and there's a hot new place down the street... business is stagnating, and you know that you need to make some changes to stay competitive.

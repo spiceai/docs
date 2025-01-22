@@ -11,6 +11,8 @@ The Spice.ai project strives to help developers build applications that leverage
 
 This post will discuss some of the challenges and directions for the technology we are developing.
 
+<!-- truncate -->
+
 ### Time Series
 
 ![Time Series processing visualization: a time window is usually chosen to process part of the data stream](https://user-images.githubusercontent.com/19952490/142404970-de910848-cdb4-451b-a0d5-302c90215216.png)

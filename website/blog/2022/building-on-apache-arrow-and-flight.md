@@ -14,6 +14,8 @@ In [Spice.ai OSS v0.6.1](https://blog.spiceai.org/posts/2022/04/21/announcing-th
 ![Spice.xyz - Data and AI infrastructure for web3](https://user-images.githubusercontent.com/80174/167584679-115c26ff-74ea-48b7-9c26-4bd4feae2afa.jpg)
 *Figure 1. Spice.xyz - Data and AI infrastructure for web3*
 
+<!-- truncate -->
+
 ### Integration with Spice.xyz
 
 [Spice.xyz](https://spice.xyz) is data and AI infrastructure for web3.

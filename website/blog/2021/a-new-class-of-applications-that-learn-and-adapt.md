@@ -9,6 +9,8 @@ categories: [applications, learn-and-adapt]
 
 A new class of applications that learn and adapt is becoming possible through machine learning (ML). These applications learn from data and make decisions to achieve the application's goals. In the post [Making apps that learn and adapt](https://blog.spiceai.org/posts/2021/11/05/making-apps-that-learn-and-adapt/), Luke described how developers integrate this ability to learn and adapt as a core part of the application's logic. You can think of the component that does this as a "decision engine." This post will explore a brief history of decision engines and use-cases for this application class.
 
+<!-- truncate -->
+
 ## History of decision engines
 
 The idea to make intelligent decision-making applications is not new. Developers first created these applications around the 1970s[^1], and they are some of the earliest examples of using artificial intelligence to solve real-world problems.

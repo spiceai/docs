@@ -11,6 +11,8 @@ Last month in the v0.5-alpha version, a new learning algorithm was added to Spic
 
 The previous article [Understanding Q-learning: How a Reward Is All You Need](../2021/q-learning-reward-is-all-you-need.md) is not necessary but can be helpful to understand this article.
 
+<!-- truncate -->
+
 ## What is Soft Actor-Critic
 
 ### Actor-Critic

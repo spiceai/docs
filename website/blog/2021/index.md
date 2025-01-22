@@ -17,6 +17,8 @@ Today, we are making [Spice.ai](https://spiceai.org/) available on GitHub, a new
 
 *Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands*
 
+<!-- truncate -->
+
 Like many developer stories, it all started with a side-project. We were interested in [neurofeedback](https://en.wikipedia.org/wiki/Neurofeedback), a type of biofeedback therapy that reinforces healthy brain function but can cost up to $15,000. We wanted to make it accessible to more people, so we set out to build a system that leverages AI to deliver neurofeedback more cost-effectively. Using AI for the application was much more challenging than expected, and this sparked the inspiration for Spice.ai.
 
 In the neurofeedback project, we worked with brain activity [EEG](https://en.wikipedia.org/wiki/Electroencephalographyhttps://en.wikipedia.org/wiki/Electroencephalography) data - time series data. We realized that time series data applies to many domains, from health and biometrics to finance, sales, logistics, security, IoT, and application monitoring. The amount of time series data in these fields is growing exponentially, and extracting insights from this data to make more intelligent software will determine the success of the next generation of applications.

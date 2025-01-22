@@ -11,6 +11,8 @@ AI unlocks a new generation of intelligent [applications that learn and adapt](h
 
 While ML has many different applications, one way to think about ML in a real-time application that can adapt is as a decision engine. Phillip discussed decision engines and their potential uses in [A New Class of Applications That Learn and Adapt](https://blog.spiceai.org/posts/2021/12/30/a-new-class-of-applications-that-learn-and-adapt/). This decision engine learns and informs the application how to operate. Of course, applications can and do make decisions without ML, but a developer normally has to code that logic. And the intelligence of that code is fixed, whereas ML enables a machine to constantly find the appropriate logic and evolve the code as it learns. For ML to do this, it needs three classes of data.
 
+<!-- truncate -->
+
 ### The three classes of data for informed decision making
 
 We don't want any decision, though. We want high-quality, informed decisions. If you consider making higher quality, informed decisions over time, you need three classes of information. These classes are historical information, real-time or present information, and the results of your decisions.
