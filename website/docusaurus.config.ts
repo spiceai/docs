@@ -92,7 +92,7 @@ const config: Config = {
     image: 'img/og/spiceai.png',
     announcementBar: {
       content:
-        '<a href="https://github.com/spiceai/spiceai/releases/tag/v1.0.0">Spice.ai OSS v1.0-stable</a> is now available! 🚀',
+        '<a href="/blog/releases/v1.0-stable">Spice.ai OSS v1.0-stable</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
