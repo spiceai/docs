@@ -98,7 +98,7 @@ const recipes: RecipeData[] = [
   {
     title: 'DeepSeek Model',
     description: 'Use DeepSeek model through Spice.',
-    path: '/models/deepseek/README.md',
+    path: '/deepseek/README.md',
     tags: ['ai', 'deepseek', 'models']
   },
   // Data Acceleration
