@@ -2,6 +2,7 @@
 title: 'Secret Stores'
 sidebar_label: 'Secret Stores'
 description: ''
+image: /img/og/secret-stores.png
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null

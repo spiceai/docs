@@ -2,6 +2,7 @@
 title: 'Data Connectors'
 sidebar_label: 'Data Connectors'
 description: 'Learn how to use Data Connector to query external data.'
+image: /img/og/data-connectors.png
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null

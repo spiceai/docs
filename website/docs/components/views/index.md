@@ -2,6 +2,7 @@
 title: 'Views'
 sidebar_label: 'Views'
 description: 'Documentation for defining Views in Spice'
+image: /img/og/views.png
 sidebar_position: 7
 ---
 

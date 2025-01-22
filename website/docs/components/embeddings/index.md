@@ -2,6 +2,7 @@
 title: 'Embedding Models'
 sidebar_label: 'Embeddings'
 description: ''
+image: /img/og/embeddings.png
 sidebar_position: 6
 pagination_prev: null
 pagination_next: null
