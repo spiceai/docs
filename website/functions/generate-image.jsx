@@ -1,80 +1,25 @@
 import { ImageResponse } from 'workers-og'
 
-function template({ title }) {
-  return (
-    <div
-      style={{
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'black',
-        fontFamily: 'Manrope, Arial, sans-serif',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          width: '100%',
-          backgroundImage: `url('${url.protocol}//${url.host}/img/bg-articles.png')`,
-          backgroundSize: '100% 100%'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            height: '100%',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <div style={{ display: 'flex', width: '100%' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                justifyContent: 'space-between',
-                padding: '32px'
-              }}
-            >
-              <h2
-                style={{
-                  fontFamily: 'Open Sans, sans-serif',
-                  fontSize: '48px',
-                  fontWeight: 'bold',
-                  letterSpacing: '-0.05em',
-                  color: 'white',
-                  textAlign: 'left',
-                  marginLeft: '80px',
-                  width: '384px',
-                  marginTop: '40px'
-                }}
-              >
-                {title}
-              </h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export async function onRequest(context) {
   try {
     const url = new URL(context.request.url)
 
     const title = url.searchParams.get('title') || 'Default Title'
-    const html = template({ title })
+    const html = `
+      <div style="height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: black; font-family: \"Open Sans\", sans-serif; background-repeat: no-repeat; background-size: cover;">
+      <div style="display: flex; flex-direction: column; height: 100%; width: 100%; background-image: url('${url.protocol}//${url.host}/img/bg-articles.png'); background-size: 100% 100%;">
+        <div style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; justify-content: center;">
+        <div style="display: flex; width: 100%;">
+          <div style="display: flex; flex-direction: column; width: 100%; justify-content: space-between; padding: 32px;">
+          <h2 style="font-family: \"Open Sans\", sans-serif; font-size: 48px; font-weight: bold; letter-spacing: -0.05em; color: white; text-align: left; margin-left: 80px; width: 384px; margin-top: 40px;">
+            ${title}
+          </h2>
+          </div>
+        </div>
+        </div>
+      </div>
+      </div>
+    `
 
     return new ImageResponse(html, {
       width: 800,
