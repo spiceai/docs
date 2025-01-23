@@ -2,6 +2,7 @@
 title: 'Catalog Connectors'
 sidebar_label: 'Catalog Connectors'
 description: ''
+image: /img/og/catalog-connectors.png
 sidebar_position: 4
 pagination_prev: null
 pagination_next: null

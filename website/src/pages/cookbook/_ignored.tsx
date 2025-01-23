@@ -1,5 +1,4 @@
 import React from 'react'
-import Layout from '@theme/Layout'
 import { Title } from '@site/src/components/atoms/title/title'
 import { Paragraph } from '@site/src/components/atoms/paragraph/paragraph'
 import { Container } from '@site/src/components/atoms/container/container'
@@ -95,12 +94,6 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'xai', 'models'],
     videoUrl: 'https://youtu.be/-7RkAsqQLdk'
   },
-  {
-    title: 'DeepSeek Model',
-    description: 'Use DeepSeek model through Spice.',
-    path: '/deepseek/README.md',
-    tags: ['ai', 'deepseek', 'models']
-  },
   // Data Acceleration
   {
     title: 'DuckDB Data Accelerator',
@@ -187,12 +180,6 @@ const recipes: RecipeData[] = [
     description: 'Stream MySQL changes using Debezium with SASL/SCRAM authentication.',
     path: '/cdc-debezium/sasl-scram/README.md',
     tags: ['connector', 'debezium', 'cdc', 'sasl', 'scram', 'mysql']
-  },
-  {
-    title: 'Delta Lake Connector',
-    description: 'Query data from Delta Lake tables.',
-    path: '/delta-lake/README.md',
-    tags: ['connector', 'delta', 'lake']
   },
   {
     title: 'Dremio Connector',
@@ -450,16 +437,12 @@ const RecipeGroup: React.FC<{ recipes: RecipeData[] }> = ({ recipes }) => {
   )
 }
 
-export default function CookbookPage() {
+export function CookbookPage() {
   const filterByTag = (...tags: string[]) =>
     recipes.filter((r) => r.tags.some((t) => tags.includes(t)))
 
   return (
-    <Layout
-      title='Spice.ai OSS Cookbook'
-      description={description}
-      wrapperClassName='tailwind font-sans'
-    >
+    <div className='tailwind font-sans'>
       <Title as='h1' variant='large' className='mx-auto mb-7 mt-8 md:text-center xl:max-w-[1020px]'>
         🧑‍🍳 Spice.ai OSS <span className='text-primary'>Cookbook</span>
       </Title>
@@ -641,6 +624,6 @@ export default function CookbookPage() {
 
         <RecipeGroup recipes={filterByTag('security')} />
       </Container>
-    </Layout>
+    </div>
   )
 }
