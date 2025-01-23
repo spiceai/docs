@@ -94,6 +94,12 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'xai', 'models'],
     videoUrl: 'https://youtu.be/-7RkAsqQLdk'
   },
+  {
+    title: 'DeepSeek Model',
+    description: 'Use DeepSeek model through Spice.',
+    path: '/deepseek/README.md',
+    tags: ['ai', 'deepseek', 'models']
+  },
   // Data Acceleration
   {
     title: 'DuckDB Data Accelerator',
@@ -168,6 +174,12 @@ const recipes: RecipeData[] = [
     description: 'Connect to and query Databricks instances using Delta Lake or Spark Connect.',
     path: '/databricks/README.md',
     tags: ['connector', 'databricks', 'delta', 'lake', 'spark', 'connect']
+  },
+  {
+    title: 'Delta Lake Connector',
+    description: 'Query data from Delta Lake tables.',
+    path: '/delta-lake/README.md',
+    tags: ['connector', 'delta', 'lake']
   },
   {
     title: 'Debezium CDC from Postgres',
