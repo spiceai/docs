@@ -53,11 +53,11 @@ The sharepoint connector does not yet support creating a dataset from a single f
 
 ### Parameters
 
-| Name                       | Required? | Description                                                                                                                                 |
-| -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sharepoint_client_id`     | **Yes**   | The client ID of the Azure AD (Entra) application                                                                                           |
-| `sharepoint_tenant_id`     | **Yes**   | The tenant ID of the Azure AD (Entra) application.                                                                                          |
-| `sharepoint_client_secret` | Optional  | For service principal authentication. The client secret of the Azure AD (Entra) application.                                                |
+| Name                       | Required? | Description                                                                                                                                      |
+| -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sharepoint_client_id`     | **Yes**   | The client ID of the Azure AD (Entra) application                                                                                                |
+| `sharepoint_tenant_id`     | **Yes**   | The tenant ID of the Azure AD (Entra) application.                                                                                               |
+| `sharepoint_client_secret` | Optional  | For service principal authentication. The client secret of the Azure AD (Entra) application.                                                     |
 | `sharepoint_bearer_token`  | Optional  | For user authentication. The bearer access token obtained from the OAuth2 flow (see `spice login sharepoint` [docs](/docs/cli/reference/login)). |
 
 :::note
@@ -79,9 +79,9 @@ from: 'sharepoint:<drive_type>:<drive_id>/<subpath_type>:<subpath_value>'
 | Drive Type | Description                 | Example                                               |
 | ---------- | --------------------------- | ----------------------------------------------------- |
 | `drive`    | The SharePoint drive's name | `from: sharepoint:drive:Documents/...`                |
-| `driveID`  | The SharePoint drive's ID   | `from: sharepoint:driveId:b!Mh8opUGD80ec7zGXgX9r/...` |
+| `driveId`  | The SharePoint drive's ID   | `from: sharepoint:driveId:b!Mh8opUGD80ec7zGXgX9r/...` |
 | `site`     | A SharePoint site's name    | `from: sharepoint:site:MySite/...`                    |
-| `siteID`   | A SharePoint site's ID      | `from: sharepoint:siteId:b!Mh8opUGD80ec7zGXgX9r/...`  |
+| `siteId`   | A SharePoint site's ID      | `from: sharepoint:siteId:b!Mh8opUGD80ec7zGXgX9r/...`  |
 | `group`    | A SharePoint group's name   | `from: sharepoint:group:MyGroup/...`                  |
 | `groupId`  | A SharePoint group's ID     | `from: sharepoint:groupId:b!Mh8opUGD80ec7zGXgX9r/...` |
 | `me`       | A user's OneDrive           | `from: sharepoint:me/...`                             |
