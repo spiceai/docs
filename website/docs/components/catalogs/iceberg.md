@@ -34,6 +34,12 @@ catalogs:
       iceberg_s3_role_arn: arn:aws:iam::123456789012:role/my-role # Optional. ARN of the IAM role to assume when accessing the S3-compatible endpoint.
       iceberg_s3_role_session_name: my-session # Optional. Session name to use when assuming the IAM role.
       iceberg_s3_connect_timeout: 60 # Optional. Connection timeout for the S3-compatible endpoint (default: 60).
+
+  # AWS Glue Catalog
+  - from: iceberg:https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/123456789012/namespaces
+    name: glue
+    params:
+      iceberg_sigv4_enabled: true
 ```
 
 ## `from`
@@ -98,6 +104,9 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_arn` | ARN of the IAM role to assume when accessing the S3-compatible endpoint. |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role. |
 | `iceberg_s3_connect_timeout` | Connection timeout in seconds for the S3-compatible endpoint. Default: `60` |
+| `iceberg_sigv4_enabled` | Enable SigV4 (AWS Signature Version 4) authentication when connecting to the catalog. Automatically enabled if the URL in `from` is an AWS Glue catalog. Default: `false` |
+| `iceberg_signing_region` | Region to use for SigV4 authentication. Extracted from the URL in `from` if not specified. |
+| `iceberg_signing_name` | Service name to use for SigV4 authentication. Default: `glue`. |
 
 ## Cookbook
 
