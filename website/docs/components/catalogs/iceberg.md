@@ -46,6 +46,8 @@ catalogs:
 
 The `from` field is used to specify the catalog provider. For Iceberg, use `iceberg:<namespace_path>`. The `namespace_path` is the URL to the Iceberg namespace in the catalog provider to load the tables from. It is formatted as `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>`.
 
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is your AWS account ID.
+
 The selected namespace must have sub-namespaces where the tables are stored.
 
 Example: With this Iceberg catalog structure:
