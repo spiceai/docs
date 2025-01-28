@@ -74,6 +74,14 @@ gcp:
   label: 'gcp'
   permalink: '/gcp'
   description: 'Google Cloud Platform related topics and usage'
+gpu:
+  label: 'gpu'
+  permalink: '/gpu'
+  description: 'Graphics Processing Unit related topics and usage'
+iceberg:
+  label: 'iceberg'
+  permalink: '/iceberg'
+  description: 'Iceberg Catalong Connector related topics and usage'
 json:
   label: 'json'
   permalink: '/json'
@@ -110,6 +118,10 @@ postgres:
   label: 'postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database topics and usage'
+python:
+  label: 'python'
+  permalink: '/python'
+  description: 'Python Software related topics and usage'
 release:
   label: 'release'
   permalink: '/releases'
@@ -122,6 +134,10 @@ s3:
   label: 's3'
   permalink: '/s3'
   description: 'Amazon S3 storage service topics and usage'
+sdk:
+  label: 'sdk'
+  permalink: '/sdk'
+  description: 'Software Development Kit related topics and usage'
 security:
   label: 'security'
   permalink: '/security'
