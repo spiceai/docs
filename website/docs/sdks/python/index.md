@@ -12,7 +12,7 @@ pagination_next: null
 ### Install
 
 ```shell
-pip install git+https://github.com/spiceai/spicepy@v2.0.0
+pip install git+https://github.com/spiceai/spicepy@v3.0.0
 ```
 
 ### Connect to a local Spice Runtime
