@@ -28,6 +28,8 @@ cd cookbook/spark
 
   ```shell
   docker compose logs -f spark
+  ```
+  ```shell
   spark  | 25/01/14 14:11:12 INFO CodeGenerator: Code generated in 14.890809 ms
   spark  | +--------+--------------------+---------------------+---------------+-------------+----------+------------------+------------+------------+------------+-----------+-----+-------+----------+------------+---------------------+------------+--------------------+-----------+
   spark  | |VendorID|tpep_pickup_datetime|tpep_dropoff_datetime|passenger_count|trip_distance|RatecodeID|store_and_fwd_flag|PULocationID|DOLocationID|payment_type|fare_amount|extra|mta_tax|tip_amount|tolls_amount|improvement_surcharge|total_amount|congestion_surcharge|airport_fee|
@@ -72,7 +74,9 @@ cd cookbook/spark
 3. Start the Spice runtime
 
   ```shell
-  >>> spice run
+  spice run
+  ```
+  ```shell
   2025/01/14 02:52:58 INFO Checking for latest Spice runtime release...
   2025/01/14 02:52:59 INFO Spice.ai runtime starting...
   2025-01-13T17:53:00.171638Z  INFO runtime::init::dataset: No datasets were configured. If this is unexpected, check the Spicepod configuration.
@@ -106,10 +110,14 @@ cd cookbook/spark
 6. Check the table exists from the Spice REPL
 
   ```shell
-  >>> spice sql
+  spice sql
+  ```
+  ```
   Welcome to the Spice.ai SQL REPL! Type 'help' for help.
 
   show tables; -- list available tables
+  ```
+  ```shell
   sql> show tables;
   +---------------+--------------+--------------+------------+
   | table_catalog | table_schema | table_name   | table_type |
@@ -122,8 +130,11 @@ cd cookbook/spark
   Time: 0.031211 seconds. 3 rows.
   ```
 
+7. Check the table structure of `nyc_taxis`.
+  ```sql
+  describe nyc_taxis;
+  ```
   ```shell
-  sql> describe nyc_taxis;
   +-----------------------+-----------------------------------------+-------------+
   | column_name           | data_type                               | is_nullable |
   +-----------------------+-----------------------------------------+-------------+
@@ -151,10 +162,12 @@ cd cookbook/spark
   Time: 0.006024208 seconds. 19 rows.
   ```
 
-7. Query against the Spark table. The spice runtime will make a network call to the Spark instance.
+8. Query against the Spark table. The spice runtime will make a network call to the Spark instance.
 
+  ```sql
+  SELECT * FROM nyc_taxis LIMIT 10;
+  ```
   ```shell
-  sql> SELECT * FROM nyc_taxis LIMIT 10;
   +----------+----------------------+-----------------------+-----------------+---------------+------------+--------------------+--------------+--------------+--------------+-------------+-------+---------+------------+--------------+-----------------------+--------------+----------------------+-------------+
   | VendorID | tpep_pickup_datetime | tpep_dropoff_datetime | passenger_count | trip_distance | RatecodeID | store_and_fwd_flag | PULocationID | DOLocationID | payment_type | fare_amount | extra | mta_tax | tip_amount | tolls_amount | improvement_surcharge | total_amount | congestion_surcharge | airport_fee |
   +----------+----------------------+-----------------------+-----------------+---------------+------------+--------------------+--------------+--------------+--------------+-------------+-------+---------+------------+--------------+-----------------------+--------------+----------------------+-------------+
@@ -173,7 +186,7 @@ cd cookbook/spark
   Time: 1.139626792 seconds. 10 rows.
   ```
 
-8. Stop the Spark instance and cleanup
+9. Stop the Spark instance and cleanup
 
   ```shell
   docker compose down --volumes --rmi local
