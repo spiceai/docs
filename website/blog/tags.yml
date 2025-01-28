@@ -26,6 +26,10 @@ azure:
   label: 'azure'
   permalink: '/azure'
   description: 'Microsoft Azure related topics and usage'
+cli:
+  label: 'cli'
+  permalink: '/cli'
+  description: 'Command Line Interface related topics and usage'
 configuration:
   label: 'configuration'
   permalink: '/configuration'
@@ -34,6 +38,10 @@ csv:
   label: 'csv'
   permalink: '/csv'
   description: 'CSV file handling and processing'
+cuda:
+  label: 'cuda'
+  permalink: '/cuda'
+  description: 'Compute Unified Device Architecture related topics and usage'
 data-connector:
   label: 'data-connector'
   permalink: '/data-connectors'
@@ -98,6 +106,10 @@ machine-learning:
   label: 'machine-learning'
   permalink: '/machine-learning'
   description: 'Machine learning techniques and tools'
+metal:
+  label: 'metal'
+  permalink: '/metal'
+  description: 'Graphics and compute API created by Apple for M-Series on macOS'
 monitoring:
   label: 'monitoring'
   permalink: '/monitoring'
