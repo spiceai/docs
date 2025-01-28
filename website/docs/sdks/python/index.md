@@ -65,8 +65,8 @@ Example code:
 from spicepy import Client
 
 client = Client(
-  flight_url="grpc://your-remote-spice-runtime:50051",
-  http_url="http://your-remote-spice-runtime:8090"
+  flight_url="grpc://your-remote-spice-runtime-host:50051",
+  http_url="http://your-remote-spice-runtime-host:8090"
 )
 
 data = client.query(
