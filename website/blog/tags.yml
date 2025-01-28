@@ -26,6 +26,10 @@ azure:
   label: 'azure'
   permalink: '/azure'
   description: 'Microsoft Azure related topics and usage'
+cli:
+  label: 'cli'
+  permalink: '/cli'
+  description: 'Command Line Interface related topics and usage'
 configuration:
   label: 'configuration'
   permalink: '/configuration'
@@ -34,6 +38,10 @@ csv:
   label: 'csv'
   permalink: '/csv'
   description: 'CSV file handling and processing'
+cuda:
+  label: 'cuda'
+  permalink: '/cuda'
+  description: 'Compute Unified Device Architecture related topics and usage'
 data-connector:
   label: 'data-connector'
   permalink: '/data-connectors'
@@ -74,6 +82,14 @@ gcp:
   label: 'gcp'
   permalink: '/gcp'
   description: 'Google Cloud Platform related topics and usage'
+gpu:
+  label: 'gpu'
+  permalink: '/gpu'
+  description: 'Graphics Processing Unit related topics and usage'
+iceberg:
+  label: 'iceberg'
+  permalink: '/iceberg'
+  description: 'Iceberg Catalong Connector related topics and usage'
 json:
   label: 'json'
   permalink: '/json'
@@ -90,6 +106,10 @@ machine-learning:
   label: 'machine-learning'
   permalink: '/machine-learning'
   description: 'Machine learning techniques and tools'
+metal:
+  label: 'metal'
+  permalink: '/metal'
+  description: 'Graphics and compute API created by Apple for M-Series on macOS'
 monitoring:
   label: 'monitoring'
   permalink: '/monitoring'
@@ -110,6 +130,10 @@ postgres:
   label: 'postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database topics and usage'
+python:
+  label: 'python'
+  permalink: '/python'
+  description: 'Python Software related topics and usage'
 release:
   label: 'release'
   permalink: '/releases'
@@ -122,6 +146,10 @@ s3:
   label: 's3'
   permalink: '/s3'
   description: 'Amazon S3 storage service topics and usage'
+sdk:
+  label: 'sdk'
+  permalink: '/sdk'
+  description: 'Software Development Kit related topics and usage'
 security:
   label: 'security'
   permalink: '/security'
