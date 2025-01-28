@@ -7,7 +7,7 @@ pagination_next: null
 
 ## Python SDK for Spice.ai
 
-<https://github.com/spiceai/spicepy>
+https://github.com/spiceai/spicepy
 
 ### Install
 
