@@ -21,8 +21,7 @@ let allTabs = [
   {
     id: 'windows',
     name: 'Windows',
-    command: `# PowerShell Install Script
-iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))`
+    command: 'iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))'
   }
 ]
 
