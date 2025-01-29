@@ -32,7 +32,7 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/i
     ### PowerShell Install Script
 
     ```bash
-    curl -L "https://install.spiceai.org/Install.ps1" -o Install.ps1 && PowerShell -ExecutionPolicy Bypass -File ./Install.ps1
+    iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))
     ```
 
   </TabItem>
@@ -68,6 +68,7 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
     brew install protobuf
     ```
   </TabItem>
+
   <TabItem value="linux" label="Linux (Ubuntu)">
   1. Install system dependencies
     ```shell
@@ -96,6 +97,7 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
       source $HOME/.cargo/env
     ```
   </TabItem>
+
 </Tabs>
 
 ### Build Spice OSS
@@ -131,13 +133,17 @@ The Spice CLI will automatically detect and download the appropriate runtime bin
 #### CUDA Support
 
 **Steps**:
+
 1. GPUs with Cuda compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series, ...).
 1. Ensure both Cuda and associated Nvidia drivers are installed. Requires CUDA version 12.2 or higher
 1. Ensure Nvidia binaries are in your path:
+
 ```shell
 export PATH=$PATH:/usr/local/cuda/bin
 ```
+
 1. Build Spice OSS with CUDA support:
+
 ```shell
 make install-with-models-cuda
 ```
@@ -147,12 +153,15 @@ This ensures CUDA devices are selected on model load, and CUDA-specifiy kernels 
 #### Metal Support
 
 **Steps**:
+
 1. Ensure you have Xcode installed.
+
 ```shell
 xcode-select --install
 ```
 
 1. Build Spice OSS with Metal support:
+
 ```shell
 make install-with-models-metal
 ```
