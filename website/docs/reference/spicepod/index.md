@@ -75,9 +75,11 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-### `runtime.num_of_parallel_loading_at_start_up`
+### `runtime.dataset_load_parallelism`
 
-This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup. This parallel loading capability accelerates Spice's startup process when multiple datasets are configured.
+This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup.
+
+By default, the maximum number of parallel datasets is effectively unlimited.
 
 ### `runtime.results_cache`
 
