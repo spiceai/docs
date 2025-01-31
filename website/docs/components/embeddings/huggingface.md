@@ -8,10 +8,10 @@ To use an embedding model from HuggingFace with Spice, specify the `huggingface`
 
 The following parameters are specific to HuggingFace models:
 
-| Parameter  | Description                                                                                         | Default |
-| ---------- | --------------------------------------------------------------------------------------------------- | ------- |
-| `hf_token` | The Huggingface access token.                                                                       | -       |
-| `pooling`  | The pooling method for embedding models. Supported values are `cls`, `mean`, `splade`, `last_token` | -       |
+| Parameter  | Description                                                                                                                                                                   | Default |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `hf_token` | The Huggingface access token.                                                                                                                                                 | -       |
+| `pooling`  | The [pooling method](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) for embedding models. Supported values are `cls`, `mean`, `splade`, `last_token` | -       |
 
 Here is an example configuration in `spicepod.yaml`:
 
