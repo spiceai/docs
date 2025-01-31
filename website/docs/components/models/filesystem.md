@@ -1,5 +1,5 @@
 ---
-title: 'Filesystem Models'
+title: 'Filesystem Hosted Models'
 description: 'Instructions for using models hosted on a filesystem with Spice.'
 sidebar_label: 'Filesystem'
 sidebar_position: 5
