@@ -20,28 +20,23 @@ Supported formats include GGUF, GGML, and SafeTensor for large language models (
 
 ## Configuration
 
-### `name`
-
-The model name. This will be used as the model ID within Spice and Spice's endpoints (i.e. `http://localhost:8090/v1/models`).
-
 ### `from`
 
-An absolute or relate path to the model file or folder:
+An absolute or relative path to the model file or folder:
 
 ```yaml
-from: file:models/llms/llama3.2-1b-instruct/
-
 from: file://absolute/path/models/llms/llama3.2-1b-instruct/
+from: file:models/llms/llama3.2-1b-instruct/
 ```
 
 ### `params` (optional)
 
-| Param           | Description                                                                                                                                                                               | Default |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
-| `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
-| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
-| `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template). | -       |
+| Param           | Description                                                                                                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseek` |
+| `tools`         | Which [tools](../../features/large-language-models/tools.md) should be made available to the model. Set to `auto` to use all available tools.                                        |
+| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                            |
+| `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template).                      |
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
@@ -49,6 +44,19 @@ See [Large Language Models](../../features/large-language-models) for additional
 - [Memory](../../features/large-language-models/memory.md)
 - [Evals](../../features/large-language-models/evals.md)
 - [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
+
+### `files` (optional)
+
+The `files` field specifies additional files required by the model, such as tokenizer, configuration, and other files.
+
+```yaml
+- name: local-model
+  from: file://models/llms/llama3.2-1b-instruct/model.safetensors
+  files:
+    - path: //models/llms/llama3.2-1b-instruct/tokenizer.json
+    - path: //models/llms/llama3.2-1b-instruct/tokenizer_config.json
+    - path: //models/llms/llama3.2-1b-instruct/config.json
+```
 
 ## Examples
 
