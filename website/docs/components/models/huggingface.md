@@ -11,7 +11,12 @@ To use a model hosted on HuggingFace, specify the `huggingface.co` path in the `
 
 ### `from`
 
-The `from` key takes the form of `huggingface:model_path`, which follows the following regex format.
+The `from` key takes the form of `huggingface:model_path`. Below shows 2 common example of `from` key configuration.
+
+- `huggingface:username/modelname`: Implies the latest version of `modelname` hosted by `username`.
+- `huggingface:huggingface.co/username/modelname:revision`: Specifies a particular `revision` of `modelname` by `username`, including the optional domain.
+
+The `from` key follows the following regex format.
 
 ```regex
 \A(huggingface:)(huggingface\.co\/)?(?<org>[\w\-]+)\/(?<model>[\w\-]+)(:(?<revision>[\w\d\-\.]+))?\z
@@ -24,11 +29,6 @@ The `from` key consists of five components:
 3. **Organization/User:** The HuggingFace organization (`org`).
 4. **Model Name:** After a `/`, the model name (`model`).
 5. **Revision (Optional):** A colon (`:`) followed by the git-like revision identifier (`revision`).
-
-#### Example
-
-- `huggingface:username/modelname`: Implies the latest version of `modelname` hosted by `username`.
-- `huggingface:huggingface.co/username/modelname:revision`: Specifies a particular `revision` of `modelname` by `username`, including the optional domain.
 
 ### `name`
 
