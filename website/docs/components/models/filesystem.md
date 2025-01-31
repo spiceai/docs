@@ -9,7 +9,7 @@ To use a model hosted on a filesystem, specify the path to the model file or fol
 
 ```yaml
 models:
-  - from: file:models/llms/llama3.2-1b-instruct/
+  - from: file://models/llms/llama3.2-1b-instruct/
     name: llama3
     params:
       model_type: llama
