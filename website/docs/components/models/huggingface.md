@@ -36,14 +36,16 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 ### `params`
 
-| Param        | Description                                                                                                                                                                            | Default |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `hf_token`   | The Huggingface access token.                                                                                                                                                          | -       |
-| `model_type` | The Huggingface model architecture. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
+| Param           | Description                                                                                                                                                                            | Default |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `hf_token`      | The Huggingface access token.                                                                                                                                                          | -       |
+| `model_type`    | The Huggingface model architecture. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
+| `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                         | -       |
+| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                               | -       |
 
 ### `files`
 
-The specific file path for Huggingface model. Only GGUF model formats require a specific file path, other varieties (e.g. `.safetensors`) are inferred.
+The specific file path for Huggingface model. For example, GGUF model formats require a specific file path, other varieties (e.g. `.safetensors`) are inferred.
 
 #### Example
 
@@ -102,7 +104,7 @@ models:
       hf_token: ${ secrets:HF_TOKEN }
 ```
 
-For more details on authentication, see [below](#access-tokens).
+For more details on authentication, see [access tokens](#access-tokens).
 
 :::warning[Limitations]
 
