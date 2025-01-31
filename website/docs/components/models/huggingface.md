@@ -111,3 +111,7 @@ For more details on authentication, see [access tokens](#access-tokens).
 - The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](../../installation.md#metal-support) and [CUDA](../../installation.md#cuda-support) for accelerated inference.
 - ML models currently only support ONNX file format.
   :::
+
+## Cookbook
+
+- Use the Llama family of models locally from HuggingFace using Spice. [Running Llama3 Locally](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md)
