@@ -36,12 +36,12 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 ### `params`
 
-| Param           | Description                                                                                                                                                                            | Default |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `hf_token`      | The Huggingface access token.                                                                                                                                                          | -       |
-| `model_type`    | The Huggingface model architecture. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
-| `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                         | -       |
-| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                               | -       |
+| Param           | Description                                                                                                                                                                               | Default |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `hf_token`      | The Huggingface access token.                                                                                                                                                             | -       |
+| `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
+| `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
+| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
 
 ### `files`
 
