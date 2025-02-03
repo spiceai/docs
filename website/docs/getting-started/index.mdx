@@ -26,20 +26,23 @@ Download the latest version of Spice, connect to a dataset in S3, and ask questi
 
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>
+    ### Install Script
+
     ```bash
     curl https://install.spiceai.org | /bin/bash
     ```
 
-    Or using `brew`:
+    ### Homebrew
 
     ```bash
     brew install spiceai/spiceai/spice
     ```
-
   </TabItem>
   <TabItem value="windows" label="Windows" default>
+    ### PowerShell Install Script
+
     ```bash
-    curl -L "https://install.spiceai.org/Install.ps1" -o Install.ps1 && PowerShell -ExecutionPolicy Bypass -File ./Install.ps1
+    iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))
     ```
   </TabItem>
 </Tabs>
