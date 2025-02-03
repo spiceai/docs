@@ -19,6 +19,8 @@ Example:
 catalogs:
   - from: spice.ai:demo-org/tpch # Load tables from the `demo-org` organization's `tpch` app
     name: marketplace # Tables will be available in the "marketplace" catalog
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY} # Spice.ai API key to login to the organization and app
     include:
       - "tpch.part*" # include only the tables from the "tpch" schema and that start with "part"
       - "tpch.supplier" # also include the "supplier" table
@@ -156,3 +158,15 @@ include:
   - "tpch.part*" # Include all tables from the "tpch" schema that start with "part"
   - "tpch.supplier" # Include the "supplier" table from the "tpch" schema
 ```
+
+## `params`
+
+The following parameters are supported for configuring the connection to the Spice Cloud catalog/tables:
+
+| Parameter Name | Definition |
+|---------------|------------|
+| `spiceai_api_key` | Authorization API key from the Spice.ai Cloud Platform, used to login to the specified organization and app. |
+
+## Cookbook
+
+- A cookbook recipe to configure Spice Cloud as a catalog connector in Spice. [Spice Cloud Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/spiceai#readme)
