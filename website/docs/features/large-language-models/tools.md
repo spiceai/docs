@@ -25,17 +25,17 @@ models:
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      tools: auto # Use all available tools
+      tools: auto # Use all default tools
 ```
 
-To use all builtin tools with additional tools, use the `builtin` tool group.
+Additional tools can be appended:
 
 ```yaml
 models:
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      tools: builtin, memory
+      tools: auto, memory
 ```
 
 ### Tool Recursion Limit
