@@ -12,3 +12,4 @@ pagination_next: null
 - [Tiered Deployment](tiered.md)
 - [Cloud-Hosted in the Spice Cloud Platform](hosted.md)
 - [Sharded Deployment](sharded.md)
+- [Cluster Deployment (Spice.ai Enterprise)](cluster.md)
