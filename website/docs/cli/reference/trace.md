@@ -35,6 +35,8 @@ These tasks are from the `task` column in the Spice SQL `runtime.task_history` t
 - `--id`  Retrieve the trace with the given `id` label (i.e. the task has a valid `id` within the `labels` column of `runtime.task_history`).
 - `--api-key`  Specify the API key for authentication.
 
+The latest trace for the task will be used if neither `--trace-id` nor `--id` is specified.
+
 ### Examples
 
 #### Retrieve the trace for the last text-to-SQL operation
