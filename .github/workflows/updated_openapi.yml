@@ -46,6 +46,7 @@ jobs:
 
       - name: Commit and push changes
         if: env.CHANGES_FOUND == 'true'
+        working-directory: website
         run: |
           git add docs/api/HTTP/*.mdx
           git commit -m "chore: update API docs" || exit 0 # Prevent failure if no changes
