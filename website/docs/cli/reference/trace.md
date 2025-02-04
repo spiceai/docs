@@ -49,6 +49,11 @@ spice trace nsql
 spice trace ai_chat --id chatcmpl-At6ZmDE8iAYRPeuQLA0FLlWxGKNnM
 ```
 
+#### Retrieve a trace by `trace-id`
+```shell
+spice trace sql_query --trace-id d5c6f1eed9f27257
+```
+
 ### Output Example
 
 ```shell
@@ -60,8 +65,3 @@ spice trace ai_chat --id chatcmpl-At6ZmDE8iAYRPeuQLA0FLlWxGKNnM
 ```
 
 This output represents a structured trace of executed tasks.
-
-#### Retrieve a trace by `trace-id`
-```shell
-spice trace sql_query --trace-id d5c6f1eed9f27257
-```
