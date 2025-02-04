@@ -48,7 +48,7 @@ jobs:
         if: env.CHANGES_FOUND == 'true'
         working-directory: website
         run: |
-          git add docs/api/HTTP/*.mdx
+          git add docs/api/HTTP/
           git commit -m "chore: update API docs" || exit 0 # Prevent failure if no changes
           git pull --rebase origin "${{ github.head_ref }}" # Pull latest changes and rebase
           git push origin "HEAD:refs/heads/${{ github.head_ref }}"
