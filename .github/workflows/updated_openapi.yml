@@ -3,7 +3,7 @@ name: Generate API Docs
 on:
   pull_request:
     paths:
-      - "website/public/openapi.json"
+      - 'website/public/openapi.json'
 
 jobs:
   generate-api-docs:
@@ -16,9 +16,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16" # Use the version of Node.js your project requires
+          node-version: '16' # Use the version of Node.js your project requires
 
       - name: Install dependencies
+        working-directory: website
         run: npm ci
 
       - name: Generate API docs
