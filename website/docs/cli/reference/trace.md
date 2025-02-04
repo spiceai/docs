@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Provides a user-friendly trace stack into an operation that occurred in Spice. This command retrieves and displays task execution traces from the runtime history.
+Provides a user-friendly trace stack into an operation that occurred in Spice. This command retrieves and displays task execution traces from the `runtime.task_history` table.
 
 ### Usage
 
