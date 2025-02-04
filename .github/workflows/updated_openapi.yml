@@ -3,7 +3,7 @@ name: Generate API Docs
 on:
   pull_request:
     paths:
-      - 'website/public/openapi.json'
+      - "website/public/openapi.json"
 
 jobs:
   generate-api-docs:
