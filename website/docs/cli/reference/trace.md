@@ -27,7 +27,7 @@ spice trace [task] [flags]
 - `tool_use::sql_query`
 - `tool_use::memory`
 
-These tasks are the same from the spice SQL table `runtime.task_history`.
+These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
 
 #### Flags
 
