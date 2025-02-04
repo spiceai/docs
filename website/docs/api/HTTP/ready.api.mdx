@@ -5,9 +5,9 @@ description: "Check the runtime status of all the components of the runtime. If 
 sidebar_label: "Check Readiness"
 hide_title: true
 hide_table_of_contents: true
-api: eJztVlFvEzEM/itW9gJSe+1ASNA3BNOY4GFi42mtaHrn60XkkpD4ClXV/46du7VdkXjhdQ/TLnb8Of5sf+pOkV4nNXtQX1FXW7UYqQpTGU0g452aqQ8Nlj+AGoTYOTItQiJNXQJfg7Y2e0rfBu/QUbae3C3gpj8njBtTIpgEUfKMwBB/URddAu3g0/39LbyaTh/BfxlqcmCLKek1wlzluLnKkM7TUwR4M339j1i+D4/xczd39+xdYaM3xkeo+e9Xg07eocsSLUZNWEGlSSckeXPpXTIVRrZmmMFWm3UX9coibIzOKZfZ/V1egksIOuoWCWMBd4jw8JERGaCOmJrFi4YopNlkUvkyFSkwPdoUPq4nRzon8obx4VE+DpYB4yJnG+dsL3MdrY8IFZI2NuVKLy4uQDprHJMBt9GvcO5uHIToq66UHvP1YP22lXyjXMRkcznpy0RXBW8cQcncrBC6xAxo4TseMINg5uQa7qSKE0Agzxip40dR1HVtyjwBvhN+2SfZ+pjH4fLObkHXzFmerqEHCbhXnMQ4kxoOtV6yr3OFV791G7gFn7sVRsdsp/PHzeZuuVxudWvn7uC6HTwgbbhGkk/gjlEzOxLQ23ykGbydvptmHDVSPkg3mLubijck32Qrd4TblpC3aad4luXf0126O9sCDuIpIiZK7hL+pkmw2jg5pbLBVmf7NiAHJ4pcstqPFPYVH1Lv92zkBfhnwsMK/HfSI9I+Z+YJb7wQsUZicKGQDwcO2STbj1FUZqe6aNkrpPPoW19q2/hEM6FXnWvPF3HzOG3Q+pDnqUcq4MOwfNhv+3I8FsRlofYLSVd20dA259PBfP+B8r0Qn3G1z/UZ6hns5+6v1KIQeScrOF6xfOYGS7zjxeZr74NmysavCnk8KwTfrA3Gpx7mSMrvgS+LaTEdx7J4LfbAtbfanSD2entY2fOH7Y7Ne5bmZ2l+luYzaR5060TWeMuy5uwGZXpQm8us1sPPHZEfse52K67nW7T7vZh/dhizavDy6mhklLKGcABHyoqzuGRhUe95CIJI30bb7jz74kQgr6/uWTP/ALXSU28=
+api: eJztVk1v20YQ/SuD8aUFKFF2EKDlLUiD1GgPRu2eLCEaLYfiIuTudneoRBD434tZypKsArn06pPIGc578/mgAwptE1bP+BdTvcdVgTUnE20Q6x1W+LFl8xWkZYiDE9szJCEZEvgGqOuyx/g+eMdOsvXi2zncT++J484aBpsgKk8BViCyDNElIAe/Pz09wN1i8QL+zUqbA3tOibYMS8xxS8yQzstrBHi/ePeDWOcFXuKXbumeWoYNt7SzPkLjI3xr2WkeZAx3HEm4hpqEEovmbLxLtubI9QRztDV2O0TadAw7S5lynd1fNBNeQ6BIPQvHOTwyw/NvJASRm8ipXf3UioRUlWUK1jDZuY/bsvYmled2lprD7JSUj0fLEeMms80y28+5jt5HhpqFbJdypTc3N6CTtY5TgofoN7x09w5C9PVgdMZQc+j8vle+IhdR7m7LqUx2dfDWCRhysGEYEtdA2u94wgyKmckJHrWUC0AQD+zSEBkkUtNYkzfAD9pf8ZltinlZLu+6PVAjHPN2HWeQoKUdQ2OdTS3X0Hll3+YKP32nPnQMfwwbjo6F03Vy1dKt1+s99d3SnVwPRw/oGD6z6CNAIGmrcwMmm49SwS+LXxcZBwv0QadhvbuvsZoWEwuMnIJ3iRNWB7xbLPTn9S09Xl0BFmi8E3ai3wp/lzJ0ZJ2+JdNyT9m+D4wVJonWbXEskKeKT9TjOBb4fvHuh4SnE/jfpGekMTP3LK3XRmxZsEBtIVZ46iEWqNfPUVXmgEPssEJtelWWnTfUtT5Jpe3Fa+35U91Q8447H/I+TUhz+Hg8Pp6ufT2bKeJ6juNK6cwQrewzHwX75Svr80p91jU+12dl6uC0d/+hVoXIh1nD+ZPOGnaJNd5Rr+EfApmWZ3dzTd7W7MQ2luNrz1iglj8B385vJ1PwSXpyF2CT1J6u9Tqnw3lub6r8pspvqnylykfJulC0sZjk5nAUpWfc3WahPv7TUeVR6+GwocR/x24c1fzPwDELRoE7ilZXKctHgS1Trdf9fMCsKfjBGA6qejvqhmv21YU2fv70hOP4L6w3Ug8=
 sidebar_class_name: "get api-method"
-info_path: api/http/runtime
+info_path: docs/api/HTTP/runtime
 custom_edit_url: null
 proxy: http://localhost:8090
 ---
@@ -39,7 +39,7 @@ import Heading from "@theme/Heading";
 
 Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
 
-The behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://docs.spiceai.org/components/data-accelerators/data-refresh#ready-state) for more details.
+The behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://spiceai.org/docs/components/data-accelerators/data-refresh#ready-state) for more details.
 
 ### Readiness Probe
 In production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.
