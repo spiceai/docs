@@ -2,7 +2,7 @@
 title: 'Docker - Kubernetes'
 description: 'Running Spice.ai as Docker container'
 sidebar_label: 'Docker'
-sidebar_position: 2
+sidebar_position: 3
 tags:
   - deployment
   - docker
@@ -42,15 +42,15 @@ Example Docker Compose configuration to build and start the container:
 
 ```yaml
 services:
-    spiced:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: spiced-container
-        ports:
-            - "50051:50051"
-            - "8090:8090"
-            - "9090:9090"
+  spiced:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spiced-container
+    ports:
+      - '50051:50051'
+      - '8090:8090'
+      - '9090:9090'
 ```
 
 ```bash
@@ -76,7 +76,7 @@ docker-compose up --build
  => => naming to docker.io/library/accounts-spiced                                                                                                                         0.0s
  => [spiced] resolving provenance for metadata file                                                                                                                        0.0s
 [+] Running 1/0
- ✔ Container spiced-container  Recreated                                                                                                                                   0.0s 
+ ✔ Container spiced-container  Recreated                                                                                                                                   0.0s
 Attaching to spiced-container
 spiced-container  | 2024-12-19T00:43:13.844091Z  INFO runtime::init::dataset: No datasets were configured. If this is unexpected, check the Spicepod configuration.
 spiced-container  | 2024-12-19T00:43:13.844615Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052

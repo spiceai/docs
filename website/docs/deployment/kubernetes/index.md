@@ -1,7 +1,7 @@
 ---
 title: 'Helm - Kubernetes'
 sidebar_label: 'Helm - Kubernetes'
-sidebar_position: 1
+sidebar_position: 2
 description: 'Deploy Spice.ai in Kubernetes using Helm.'
 pagination_prev: 'deployment/index'
 pagination_next: null
@@ -118,7 +118,7 @@ livenessProbe:
     port: 8090
 ```
 
-In Kubernetes, this pod will not be marked as *Healthy* until the `/health` endpoint returns `200`.
+In Kubernetes, this pod will not be marked as _Healthy_ until the `/health` endpoint returns `200`.
 
 #### Readiness probe
 
