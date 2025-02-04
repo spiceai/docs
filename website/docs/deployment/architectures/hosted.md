@@ -2,7 +2,7 @@
 title: 'Cloud Hosted'
 sidebar_label: 'Hosted'
 description: 'Deploying Spice cloud hosted in the Spice Cloud Platform'
-sidebar_position: 1
+sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---
