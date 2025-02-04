@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ensure the full history is available
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -25,30 +27,29 @@ jobs:
       - name: Generate API docs
         working-directory: website
         run: |
-          rm docs/api/HTTP/*
+          rm -rf docs/api/HTTP/*
           npm run docusaurus gen-api-docs all
 
       - name: Check for new or modified .mdx files
         run: |
           if git diff --name-only | grep '\.mdx$'; then
-            echo "New or modified .mdx files detected. Committing changes."
+            echo "CHANGES_FOUND=true" >> $GITHUB_ENV
           else
-            echo "No changes to .mdx files. Skipping commit."
-            exit 0
+            echo "CHANGES_FOUND=false" >> $GITHUB_ENV
           fi
 
       - name: Configure Git user
+        if: env.CHANGES_FOUND == 'true'
         run: |
           git config --global user.name 'Spice Schema Bot'
           git config --global user.email 'schema-bot@spice.ai'
 
-      - name: Commit changes
+      - name: Commit and push changes
+        if: env.CHANGES_FOUND == 'true'
         run: |
-          git add *.mdx
-          git commit -m "chore: update API docs"
-
-      - name: Push changes
-        run: |
+          git add docs/api/HTTP/*.mdx
+          git commit -m "chore: update API docs" || exit 0 # Prevent failure if no changes
+          git pull --rebase origin "${{ github.head_ref }}" # Pull latest changes and rebase
           git push origin "HEAD:refs/heads/${{ github.head_ref }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
