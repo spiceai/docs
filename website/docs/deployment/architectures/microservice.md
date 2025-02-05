@@ -9,6 +9,9 @@ pagination_next: null
 
 The Spice Runtime operates as an independent microservice. Multiple replicas may be deployed behind a load balancer to achieve high availability and handle spikes in demand.
 
+![microservice](https://github.com/user-attachments/assets/906e417d-24eb-4e81-ba2a-ff0413ea30fb)
+
+
 **Benefits**
 
 - Loose coupling between the application and the Spice Runtime.
