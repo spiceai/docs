@@ -9,6 +9,9 @@ pagination_next: null
 
 Run the Spice Runtime in a separate container or process on the same machine as the main application. For example, in Kubernetes as a [Sidecar Container](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/). This approach minimizes communication overhead as requests to the Spice Runtime are transported over local loopback.
 
+![sidecar](https://github.com/user-attachments/assets/73cf2ac6-0199-43e2-b892-f93465c3c887)
+
+
 **Benefits**
 
 - Low-latency communication between the application and the Spice Runtime.
