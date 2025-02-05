@@ -9,6 +9,8 @@ pagination_next: null
 
 A full cluster-based deployment leveraging **Spice.ai Enterprise**, which includes advanced services and integrations for Kubernetes. This method is ideal for organizations requiring large-scale or complex deployments, including specialized clustering capabilities.
 
+<img width="740" alt="cluster" src="https://github.com/user-attachments/assets/643e0a5c-6745-40c0-8695-0955c795179b" />
+
 **Benefits**
 
 - Provides **enterprise-grade features**: advanced security, monitoring, and support.

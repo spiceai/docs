@@ -9,6 +9,8 @@ pagination_next: null
 
 The Spice Runtime instances can be sharded based on specific criteria, such as by customer, state, or other logical partitions. Each shard operates independently, with a 1:N Application to Spice instances ratio.
 
+<img width="740" alt="sharded" src="https://github.com/user-attachments/assets/5730d108-6d22-4ea4-8c14-8e87ad6d0079" />
+
 **Benefits**
 
 - Helps distribute load across multiple instances, improving performance and scalability.

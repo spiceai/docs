@@ -9,6 +9,8 @@ pagination_next: null
 
 A hybrid approach combining sidecar deployments for performance-critical tasks and a shared microservice for batch processing or less time-sensitive workloads.
 
+<img width="740" alt="tiered" src="https://github.com/user-attachments/assets/e602bad4-bd0d-4069-bc91-5b5678a10710" />
+
 **Benefits**
 
 - Real-time responsiveness where needed (sidecar).

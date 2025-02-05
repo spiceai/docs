@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info).
 
-![Spice.ai Open Source Monitoring & Observability](/img/features/observability.png)
+<img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
 
 Monitoring clients configuration:
 
