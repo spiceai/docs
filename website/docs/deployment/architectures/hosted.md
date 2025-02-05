@@ -9,6 +9,8 @@ pagination_next: null
 
 The Spice Runtime is deployed on a fully managed service within the Spice Cloud Platform, minimizing the operational burden of managing clusters, upgrades, and infrastructure.
 
+<img width="740" alt="hosted" src="https://github.com/user-attachments/assets/a985527b-3481-40f4-a689-f784c893b314" />
+
 **Benefits**
 
 - Reduced overhead for deployment, scaling, and maintenance.
