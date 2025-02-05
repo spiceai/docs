@@ -263,6 +263,16 @@ const config: Config = {
         sizes: '16x16',
         href: '/favicon-16x16.png'
       }
+    },
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'text/javascript',
+        id: 'hs-script-loader',
+        async: 'true',
+        defer: 'true',
+        src: '//js.hs-scripts.com/46107967.js'
+      }
     }
   ],
 
