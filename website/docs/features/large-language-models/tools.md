@@ -13,6 +13,8 @@ tags:
 
 Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.
 
+For a list of available tools, or how to define additional tools, see [Tool Components](/docs/components/tools).
+
 ### Example: Specifying Tools for a Model
 
 ```yaml
@@ -21,21 +23,26 @@ models:
     from: openai:gpt-4o
     params:
       tools: list_datasets, sql, table_schema
+```
 
+### Example: Specifying tools via a Tool Group
+```yaml
   - name: full-runtime
     from: openai:gpt-4o
     params:
       tools: auto # Use all default tools
 ```
 
-Additional tools can be appended:
+For details on tool groups, see [Tool Components](/docs/components/tools#tool-groups).
+
+### Example: Specifying tools and tool groups
 
 ```yaml
 models:
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      tools: auto, memory
+      tools: memory, sql
 ```
 
 ### Tool Recursion Limit
@@ -49,13 +56,3 @@ models:
     params:
       tool_recursion_limit: 3
 ```
-
-## Available tools
-
-- `list_datasets`: List all available datasets in the runtime.
-- `sql`: Execute SQL queries on the runtime.
-- `table_schema`: Get the schema of a specific SQL table.
-- `document_similarity`: For datasets with an embedding column, retrieve documents based on an input query. It is equivalent to [/v1/search](/docs/api/HTTP/post-search).
-- `sample_distinct_columns`: For a dataset, generate a synthetic sample of data whereby each column has at least a number of distinct values.
-- `random_sample`: Sample random rows from a table.
-- `top_n_sample`: Sample the top N rows from a table based on a specified ordering.
