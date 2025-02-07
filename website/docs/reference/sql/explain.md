@@ -6,6 +6,10 @@ pagination_next: 'reference/sql/'
 sidebar_position: 1
 ---
 
+:::info
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+:::
+
 # EXPLAIN
 
 The `EXPLAIN` command shows the logical and physical execution plan of a SQL statement. For more interpretation techniques, refer to the [Reading Explain Plans](../explain-usage.md) page.
