@@ -2,7 +2,6 @@
 title: 'Operators'
 sidebar_label: 'Operators'
 pagination_prev: 'reference/sql/information_schema'
-pagination_next: 'reference/sql/'
 sidebar_position: 1
 ---
 
@@ -100,10 +99,10 @@ Modulo (remainder)
 - [= (equal)](#op_eq)
 - [!= (not equal)](#op_neq)
 - [< (less than)](#op_lt)
-- [<= (less than or equal to)](#op_le)
+- [&lt;= (less than or equal to)](#op_le)
 - [> (greater than)](#op_gt)
-- [>= (greater than or equal to)](#op_ge)
-- [<=> (three-way comparison, alias for IS NOT DISTINCT FROM)](#op_spaceship)
+- [&gt;= (greater than or equal to)](#op_ge)
+- [&lt;=&gt; (three-way comparison, alias for IS NOT DISTINCT FROM)](#op_spaceship)
 - [IS DISTINCT FROM](#is-distinct-from)
 - [IS NOT DISTINCT FROM](#is-not-distinct-from)
 - [~ (regex match)](#op_re_match)
@@ -417,8 +416,8 @@ Logical Or
 - [& (bitwise and)](#op_bit_and)
 - [| (bitwise or)](#op_bit_or)
 - [# (bitwise xor)](#op_bit_xor)
-- [>> (bitwise shift right)](#op_shift_r)
-- [<< (bitwise shift left)](#op_shift_l)
+- [&gt;&gt; (bitwise shift right)](#op_shift_r)
+- [&lt;&lt; (bitwise shift left)](#op_shift_l)
 
 (op_bit_and)=
 
@@ -498,8 +497,8 @@ Bitwise Shift Left
 ## Other Operators
 
 - [|| (string concatenation)](#op_str_cat)
-- [@> (array contains)](#op_arr_contains)
-- [<@ (array is contained by)](#op_arr_contained_by)
+- [\`@>\` (array contains)](#op_arr_contains)
+- [`<@` (array is contained by)](#op_arr_contained_by)
 
 (op_str_cat)=
 
