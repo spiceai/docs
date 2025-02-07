@@ -12,7 +12,7 @@ Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses t
 
 # EXPLAIN
 
-The `EXPLAIN` command shows the logical and physical execution plan of a SQL statement. For more interpretation techniques, refer to the [Reading Explain Plans](../explain-usage.md) page.
+The `EXPLAIN` command shows the logical and physical execution plan of a SQL statement.
 
 <pre>
 EXPLAIN [ANALYZE] [VERBOSE] statement
