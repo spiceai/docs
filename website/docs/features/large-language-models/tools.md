@@ -23,21 +23,26 @@ models:
     from: openai:gpt-4o
     params:
       tools: list_datasets, sql, table_schema
+```
 
+### Example: Specifying tools via a Tool Group
+```yaml
   - name: full-runtime
     from: openai:gpt-4o
     params:
       tools: auto # Use all default tools
 ```
 
-Additional tools can be appended:
+For details on tool groups, see [Tool Components](/docs/components/tools#tool-groups).
+
+### Example: Specifying tools and tool groups
 
 ```yaml
 models:
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      tools: auto, memory
+      tools: memory, sql
 ```
 
 ### Tool Recursion Limit

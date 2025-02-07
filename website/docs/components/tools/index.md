@@ -4,9 +4,9 @@ sidebar_label: 'Tools (Function calling)'
 description: 'Overview of supported runtime tools & how to define new tools'
 ---
 
-A tool is a function or operation that can be called directly or by a [language model](/docs/features/large-language-models) (LLMs). The Spice runtime has several tools available by default, allowing LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
+A tool is a function or operation that can be called directly or by a [language model](/docs/features/large-language-models) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
 
-For details about how to provide LLMs access to tools, see [Language Model Tools](/docs/features/large-language-models/tools).
+For details about providing LLMs tool access, see [Language Model Tools](/docs/features/large-language-models/tools).
 
 **Example**
 ```yaml
@@ -20,7 +20,7 @@ tools:
 
 ```
 
-For detailed specification on defining tools, see the [Tools Spicepod Reference](/docs/reference/spicepod/tools).
+For details on tool  specifications, see the [Tools Spicepod Reference](/docs/reference/spicepod/tools).
 
 ### Available Tools
 
@@ -39,5 +39,16 @@ For detailed specification on defining tools, see the [Tools Spicepod Reference]
 
 [websearch]: /docs/components/tools/websearch
 
-### Tool Group
-TBD here or in LLM using tool.
+### Tool Groups
+Tool groups are predefined sets of tools that can be provided to LLMs in a single tool name. For example, the `auto` tool group provides all default tools to the LLM (see above table).
+```yaml
+models:
+  - name: full-runtime
+    from: openai:gpt-4o
+    params:
+      tools: auto # Use all default tools
+```
+
+Available tool groups:
+ - `auto`: All default tools (see above table).
+ - `memory`: Memory tools for storing and retrieving information across conversations.
