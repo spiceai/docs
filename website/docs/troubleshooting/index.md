@@ -142,7 +142,7 @@ Spice supports generating `EXPLAIN` plans, which can be used to debug SQL that m
 Generate an explain plan by adding the `EXPLAIN` keyword before the query:
 
 ```sql
-explain select * from
+explain select * from taxi_trips
 ```
 
 ```console
