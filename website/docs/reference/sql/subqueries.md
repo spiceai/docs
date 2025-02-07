@@ -2,7 +2,7 @@
 title: 'Subqueries'
 sidebar_label: 'Subqueries'
 pagination_prev: 'reference/sql/select'
-pagination_next: 'reference/sql/'
+pagination_next: 'reference/sql/explain'
 sidebar_position: 1
 ---
 
