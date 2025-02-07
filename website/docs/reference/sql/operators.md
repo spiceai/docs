@@ -1,7 +1,6 @@
 ---
 title: 'Operators'
 sidebar_label: 'Operators'
-pagination_prev: 'reference/sql/information_schema'
 sidebar_position: 1
 ---
 
