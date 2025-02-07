@@ -55,9 +55,17 @@ Example `--very-verbose` output:
 2025-02-07T00:26:21.426981Z TRACE runtime::accelerated_table::refresh_task: [refresh] Received 10 rows for dataset: emails
 ```
 
-## Debug Chat Completions
+For more information, view the [tracing documentation](../cli/tracing.md)
 
-Use the `spice trace chat` command to inspect processes involved in generating AI chat responses. This step is helpful for reviewing any tool usage or tasks invoked during AI completions, providing more information on the steps an AI took to arrive at a result.
+## Use `spice trace` for task tracing
+
+Use the `spice trace ai_chat` command to inspect processes involved in generating AI chat responses. The `spice trace` command supports tracing any task type, like `spice trace sql_query`:
+
+```console
+[d06e1fb508e009eb] (    1.84ms) sql_query
+```
+
+This step is helpful for reviewing any tool usage or tasks invoked during AI completions, providing more information on the steps an AI took to arrive at a result.
 
 For example, running a chat using the `taxi_trips` dataset:
 
@@ -69,7 +77,7 @@ The last taxi trip was completed on January 12, 2024, at 12:49:45 PM.
 Time: 4.24s (first token 3.85s). Tokens: 826. Prompt: 793. Completion: 33 (85.50/s).
 ```
 
-To inspect the last chat, run `spice trace chat --last`, producing an AI chat trace output:
+To inspect the last chat, run `spice trace ai_chat`, producing an AI chat trace output:
 
 ```console
 [8153c6563c7f9d88] ( 4234.38ms) ai_chat 
@@ -86,6 +94,8 @@ To inspect the last chat, run `spice trace chat --last`, producing an AI chat tr
 ```
 
 In this example, the trace logs show that the model attempted an SQL query twice - getting the first query incorrect, due to a syntax issue in the SQL the model generated. Before running the second query, it retrieved the table schema - which it used for the second query to successfully retrieve the last taxi trip time.
+
+For more information, view the [`spice trace` documentation](../cli/reference/trace.md).
 
 ## Reviewing the Task History
 
@@ -108,6 +118,8 @@ The `task_history` table also includes start and end times, including execution 
 | 2025-02-07T00:29:19.313382657 | 2025-02-07T00:29:19.313648021 | sql_query           |                 | Error during planning: table 'spice.public.not_a_table' not found |
 +-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
 ```
+
+For more information, view the [task history documentation](../reference/task_history.md)
 
 ## Logging Additional Captured Output
 
