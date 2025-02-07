@@ -19,9 +19,7 @@ Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses t
 - [/ (divide)](#op_divide)
 - [% (modulo)](#op_modulo)
 
-(op_plus)=
-
-### `+`
+### `+` {#op_plus}
 
 Addition
 
@@ -34,9 +32,7 @@ Addition
 +---------------------+
 ```
 
-(op_minus)=
-
-### `-`
+### `-` {#op_minus}
 
 Subtraction
 
@@ -49,9 +45,7 @@ Subtraction
 +---------------------+
 ```
 
-(op_multiply)=
-
-### `*`
+### `*` {#op_multiply}
 
 Multiplication
 
@@ -64,9 +58,7 @@ Multiplication
 +---------------------+
 ```
 
-(op_divide)=
-
-### `/`
+### `/` {#op_divide}
 
 Division (integer division truncates toward zero)
 
@@ -79,9 +71,7 @@ Division (integer division truncates toward zero)
 +---------------------+
 ```
 
-(op_modulo)=
-
-### `%`
+### `%` {#op_modulo}
 
 Modulo (remainder)
 
@@ -110,9 +100,7 @@ Modulo (remainder)
 - [!~ (not regex match)](#op_re_not_match)
 - [!~\* (not regex case-insensitive match)](#op_re_not_match_i)
 
-(op_eq)=
-
-### `=`
+### `=` {#op_eq}
 
 Equal
 
@@ -125,9 +113,7 @@ Equal
 +---------------------+
 ```
 
-(op_neq)=
-
-### `!=`
+### `!=` {#op_neq}
 
 Not Equal
 
@@ -140,9 +126,7 @@ Not Equal
 +----------------------+
 ```
 
-(op_lt)=
-
-### `<`
+### `<` {#op_lt}
 
 Less Than
 
@@ -155,9 +139,7 @@ Less Than
 +---------------------+
 ```
 
-(op_le)=
-
-### `<=`
+### `<=` {#op_le}
 
 Less Than or Equal To
 
@@ -170,9 +152,7 @@ Less Than or Equal To
 +----------------------+
 ```
 
-(op_gt)=
-
-### `>`
+### `>` {#op_gt}
 
 Greater Than
 
@@ -185,9 +165,7 @@ Greater Than
 +---------------------+
 ```
 
-(op_ge)=
-
-### `>=`
+### `>=` {#op_ge}
 
 Greater Than or Equal To
 
@@ -200,9 +178,7 @@ Greater Than or Equal To
 +----------------------+
 ```
 
-(op_spaceship)=
-
-### `<=>`
+### `<=>` {#op_spaceship}
 
 Three-way comparison operator. A NULL-safe operator that returns true if both operands are equal or both are NULL, false otherwise.
 
@@ -268,9 +244,7 @@ The negation of `IS DISTINCT FROM`
 +--------------------------------+
 ```
 
-(op_re_match)=
-
-### `~`
+### `~` {#op_re_match}
 
 Regex Match
 
@@ -283,9 +257,7 @@ Regex Match
 +-----------------------------------+
 ```
 
-(op_re_match_i)=
-
-### `~*`
+### `~*` {#op_re_match_i}
 
 Regex Case-Insensitive Match
 
@@ -298,9 +270,7 @@ Regex Case-Insensitive Match
 +------------------------------------+
 ```
 
-(op_re_not_match)=
-
-### `!~`
+### `!~` {#op_re_not_match}
 
 Not Regex Match
 
@@ -313,9 +283,7 @@ Not Regex Match
 +------------------------------------+
 ```
 
-(op_re_not_match_i)=
-
-### `!~*`
+### `!~*` {#op_re_not_match_i}
 
 Not Regex Case-Insensitive Match
 
@@ -419,9 +387,7 @@ Logical Or
 - [&gt;&gt; (bitwise shift right)](#op_shift_r)
 - [&lt;&lt; (bitwise shift left)](#op_shift_l)
 
-(op_bit_and)=
-
-### `&`
+### `&` {#op_bit_and}
 
 Bitwise And
 
@@ -434,9 +400,7 @@ Bitwise And
 +---------------------+
 ```
 
-(op_bit_or)=
-
-### `|`
+### `|` {#op_bit_or}
 
 Bitwise Or
 
@@ -449,9 +413,7 @@ Bitwise Or
 +---------------------+
 ```
 
-(op_bit_xor)=
-
-### `#`
+### `#` {#op_bit_xor}
 
 Bitwise Xor (interchangeable with `^`)
 
@@ -464,9 +426,7 @@ Bitwise Xor (interchangeable with `^`)
 +---------------------+
 ```
 
-(op_shift_r)=
-
-### `>>`
+### `>>` {#op_shift_r}
 
 Bitwise Shift Right
 
@@ -479,9 +439,7 @@ Bitwise Shift Right
 +----------------------+
 ```
 
-(op_shift_l)=
-
-### `<<`
+### `<<` {#op_shift_l}
 
 Bitwise Shift Left
 
@@ -500,9 +458,7 @@ Bitwise Shift Left
 - [\`@>\` (array contains)](#op_arr_contains)
 - [`<@` (array is contained by)](#op_arr_contained_by)
 
-(op_str_cat)=
-
-### `||`
+### `||` {#op_str_cat}
 
 String Concatenation
 
@@ -515,9 +471,7 @@ String Concatenation
 +-----------------------------------+
 ```
 
-(op_arr_contains)=
-
-### `@>`
+### `@>` {#op_arr_contains}
 
 Array Contains
 
@@ -530,9 +484,7 @@ Array Contains
 +-------------------------------------------------------------------------+
 ```
 
-(op_arr_contained_by)=
-
-### `<@`
+### `<@` {#op_arr_contained_by}
 
 Array Is Contained By
 
