@@ -1,6 +1,6 @@
 ---
-title: 'Tools'
-sidebar_label: 'Tools (Function calling)'
+title: 'Tools (Function Calling)'
+sidebar_label: 'Tools'
 description: 'Tools YAML reference'
 ---
 

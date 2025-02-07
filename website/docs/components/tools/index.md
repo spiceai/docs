@@ -1,7 +1,7 @@
 ---
-title: 'Tools'
-sidebar_label: 'Tools (Function calling)'
-description: 'Overview of supported runtime tools & how to define new tools'
+title: 'LLM Tools (Function Calling)'
+sidebar_label: 'LLM Tools'
+description: 'Overview of supported LLM tools (function calling) and how to define new tools'
 ---
 
 A tool is a function or operation that can be called directly or by a [language model](/docs/features/large-language-models) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
@@ -24,18 +24,18 @@ For details on tool  specifications, see the [Tools Spicepod Reference](/docs/re
 
 ### Available Tools
 
-| Name                      | Description                                                       | Within `auto`     |
+| Name                      | Description                                                       | Default Group     |
 | ------------------------- | ----------------------------------------------------------------- | ----------------- |
-| `list_datasets`           | List all available datasets in the runtime.                       | Yes               |
-| `sql`                     | Execute SQL queries on the runtime.                               | Yes               |
-| `table_schema`            | Get the schema of a specific SQL table.                           | Yes               |
-| `document_similarity`     | Retrieve documents based on an input query.                       | Yes               |
-| `sample_distinct_columns` | Generate a synthetic sample of data with distinct values.         | Yes               |
-| `random_sample`           | Sample random rows from a table.                                  | Yes               |
-| `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | Yes               |
-| `memory:load`             | Retrieve all stored memories from the last time period.           | No                |
-| `memory:store`            | Store information from LLM interaction(s) for future reference.   | No                |
-| [`websearch`][websearch]  | Search the web for information.                                   | No                |
+| `list_datasets`           | List all available datasets in the runtime.                       | `auto`               |
+| `sql`                     | Execute SQL queries on the runtime.                               | `auto`               |
+| `table_schema`            | Get the schema of a specific SQL table.                           | `auto`               |
+| `document_similarity`     | Retrieve documents based on an input query.                       | `auto`               |
+| `sample_distinct_columns` | Generate a synthetic sample of data with distinct values.         | `auto`               |
+| `random_sample`           | Sample random rows from a table.                                  | `auto`               |
+| `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`               |
+| `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`                |
+| `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`                |
+| [`websearch`][websearch]  | Search the web for information.                                   | -                |
 
 [websearch]: /docs/components/tools/websearch
 
