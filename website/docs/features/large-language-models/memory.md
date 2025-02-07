@@ -33,7 +33,4 @@ models:
       tools: memory, sql # Can be combined with other tool groups
 ```
 
-## Available Tools
-
-- `store_memory`: Store important information for future reference
-- `load_memory`: Retrieve previously stored memories from the last time period.
+For more information on tools, see [Tool components](/docs/components/tools).
