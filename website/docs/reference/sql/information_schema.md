@@ -1,8 +1,8 @@
 ---
-title: 'Subqueries'
-sidebar_label: 'Subqueries'
+title: 'Information Schema'
+sidebar_label: 'Information Schema'
 pagination_prev: 'reference/sql/explain'
-pagination_next: 'reference/sql/explain'
+pagination_next: 'reference/sql/operators'
 sidebar_position: 1
 ---
 
