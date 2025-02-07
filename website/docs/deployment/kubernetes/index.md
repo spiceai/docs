@@ -25,7 +25,7 @@ For a quick start with Helm, refer to the [Helm Quickstart Guide](https://helm.s
 
 ## Values
 
-The following table lists the configurable parameters of the Spice.ai chart and their [default values](https://github.com/spiceai/spiceai/blob/trunk/deploy/chart/values.yaml). Override the default values by creating a `values.yaml` file.
+The following table lists the configurable parameters of the Spice.ai chart and their [default values](https://github.com/spiceai/spiceai/blob/trunk/deploy/chart/values.yaml). Override the default values by creating a `values.yaml` file ([example](#example-valuesyaml)).
 
 ```bash
 helm upgrade --install spiceai spiceai/spiceai -f values.yaml
