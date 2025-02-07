@@ -64,7 +64,7 @@ spicepod:
 | `resources`                          | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).        | `{}`       |
 | `additionalEnv`                      | Additional environment variables to set in the Spice.ai container.                                                                                                                             | `[]`       |
 
-## Adding extra environment variables
+## Environment Variables and Secrets
 
 Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/docs/components/secret-stores/env/index.md).
 
@@ -185,3 +185,7 @@ spicepod:
         # refresh_check_interval: 1h
         # refresh_mode: full
 ```
+
+## Cookbook
+
+- [Running Spice.ai in Kubernetes](hhttps://github.com/spiceai/cookbook/tree/trunk/kubernetes)
