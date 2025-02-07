@@ -59,6 +59,34 @@ Example `--very-verbose` output:
 
 Use the `spice trace chat` command to inspect processes involved in generating AI chat responses. This step is helpful for reviewing any tool usage or tasks invoked during AI completions, providing more information on the steps an AI took to arrive at a result.
 
+For example, running a chat using the `taxi_trips` dataset:
+
+```console
+Using model: openai
+chat> When was the last taxi trip completed?
+The last taxi trip was completed on January 12, 2024, at 12:49:45 PM.
+
+Time: 4.24s (first token 3.85s). Tokens: 826. Prompt: 793. Completion: 33 (85.50/s).
+```
+
+To inspect the last chat, run `spice trace chat --last`, producing an AI chat trace output:
+
+```console
+[8153c6563c7f9d88] ( 4234.38ms) ai_chat 
+  ├── [8656eaacb6c7a57d] (    0.13ms) tool_use::list_datasets 
+  ├── [3873d8257d8ea30c] ( 4233.47ms) ai_completion 
+  ├── [02f2def1712f1473] (    1.11ms) tool_use::sql 
+  │ └── [1e4e5f4e79e74e5e] (    0.91ms) sql_query 
+  ├── [8d1db4d4db80c021] ( 3185.46ms) ai_completion 
+  ├── [0c7b421812ca8180] (    0.17ms) tool_use::table_schema 
+  ├── [a49553aca9f19384] ( 2166.24ms) ai_completion 
+  ├── [ec69ce81b3d71b1a] (    3.38ms) tool_use::sql 
+  │ └── [24769e9b068656ed] (    3.33ms) sql_query 
+  └── [6ff16c04ecf6f6ff] (  961.39ms) ai_completion
+```
+
+In this example, the trace logs show that the model attempted an SQL query twice - getting the first query incorrect, due to a syntax issue in the SQL the model generated. Before running the second query, it retrieved the table schema - which it used for the second query to successfully retrieve the last taxi trip time.
+
 ## Reviewing the Task History
 
 Query the `task_history` table to review completed tasks handled by the Runtime. Results in this table can include tasks for accelerator refresh, SQL queries, text embedding, AI calls, and more. Reviewing this table can provide information on SQL query issues or other processes that may produce errors.
