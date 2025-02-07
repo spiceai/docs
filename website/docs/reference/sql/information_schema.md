@@ -20,14 +20,12 @@ Use `SHOW TABLES` or query `information_schema.tables` to list the tables in the
 > show tables;
 or
 > select * from information_schema.tables;
-+---------------+--------------------+------------+------------+
-| table_catalog | table_schema       | table_name | table_type |
-+---------------+--------------------+------------+------------+
-| datafusion    | public             | t          | BASE TABLE |
-| datafusion    | information_schema | tables     | VIEW       |
-| datafusion    | information_schema | views      | VIEW       |
-| datafusion    | information_schema | columns    | VIEW       |
-+---------------+--------------------+------------+------------+
++---------------+--------------+--------------+------------+
+| table_catalog | table_schema | table_name   | table_type |
++---------------+--------------+--------------+------------+
+| spice         | runtime      | task_history | BASE TABLE |
+| spice         | runtime      | metrics      | BASE TABLE |
++---------------+--------------+--------------+------------+
 
 ```
 
@@ -39,11 +37,21 @@ Use `SHOW COLUMNS` or query `information_schema.columns` to see a table’s colu
 > show columns from t;
 or
 > select table_catalog, table_schema, table_name, column_name, data_type, is_nullable from information_schema.columns;
-+---------------+--------------+------------+-------------+-----------+-------------+
-| table_catalog | table_schema | table_name | column_name | data_type | is_nullable |
-+---------------+--------------+------------+-------------+-----------+-------------+
-| datafusion    | public       | t          | Int64(1)    | Int64     | NO          |
-+---------------+--------------+------------+-------------+-----------+-------------+
++---------------+--------------+--------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
+| table_catalog | table_schema | table_name   | column_name           | data_type                                                                                                                                                                                                                                                                                                                                               | is_nullable |
++---------------+--------------+--------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
+| spice         | runtime      | task_history | trace_id              | Utf8                                                                                                                                                                                                                                                                                                                                                    | NO          |
+| spice         | runtime      | task_history | span_id               | Utf8                                                                                                                                                                                                                                                                                                                                                    | NO          |
+| spice         | runtime      | task_history | parent_span_id        | Utf8                                                                                                                                                                                                                                                                                                                                                    | YES         |
+| spice         | runtime      | task_history | task                  | Utf8                                                                                                                                                                                                                                                                                                                                                    | NO          |
+| spice         | runtime      | task_history | input                 | Utf8                                                                                                                                                                                                                                                                                                                                                    | NO          |
+| spice         | runtime      | task_history | captured_output       | Utf8                                                                                                                                                                                                                                                                                                                                                    | YES         |
+| spice         | runtime      | task_history | start_time            | Timestamp(Nanosecond, None)                                                                                                                                                                                                                                                                                                                             | NO          |
+| spice         | runtime      | task_history | end_time              | Timestamp(Nanosecond, None)                                                                                                                                                                                                                                                                                                                             | NO          |
+| spice         | runtime      | task_history | execution_duration_ms | Float64                                                                                                                                                                                                                                                                                                                                                 | NO          |
+| spice         | runtime      | task_history | error_message         | Utf8                                                                                                                                                                                                                                                                                                                                                    | YES         |
+| spice         | runtime      | task_history | labels                | Map(Field { name: "entries", data_type: Struct([Field { name: "keys", data_type: Utf8, nullable: false, dict_id: 0, dict_is_ordered: false, metadata: {} }, Field { name: "values", data_type: Utf8, nullable: false, dict_id: 0, dict_is_ordered: false, metadata: {} }]), nullable: false, dict_id: 0, dict_is_ordered: false, metadata: {} }, false) | NO          |
++---------------+--------------+--------------+-----------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
 ```
 
 ## `SHOW ALL` (configuration options)
@@ -53,16 +61,20 @@ Use `SHOW ALL` or query `information_schema.df_settings` to view current session
 ```sql
 select * from information_schema.df_settings;
 
-+-------------------------------------------------+---------+
-| name                                            | setting |
-+-------------------------------------------------+---------+
-| datafusion.execution.batch_size                 | 8192    |
-| datafusion.execution.coalesce_batches           | true    |
-| datafusion.execution.time_zone                  | UTC     |
-| datafusion.explain.logical_plan_only            | false   |
-| datafusion.explain.physical_plan_only           | false   |
++-------------------------------------------------------------------------+---------------------------+
+| name                                                                    | value                     |
++-------------------------------------------------------------------------+---------------------------+
+| datafusion.catalog.create_default_catalog_and_schema                    | false                     |
+| datafusion.catalog.default_catalog                                      | spice                     |
+| datafusion.catalog.default_schema                                       | public                    |
+| datafusion.catalog.format                                               |                           |
+| datafusion.catalog.has_header                                           | true                      |
+| datafusion.catalog.information_schema                                   | true                      |
+| datafusion.catalog.location                                             |                           |
+| datafusion.catalog.newlines_in_values                                   | false                     |
+| datafusion.execution.batch_size                                         | 8192                      |
 ...
-| datafusion.optimizer.filter_null_join_keys      | false   |
-| datafusion.optimizer.skip_failed_rules          | true    |
-+-------------------------------------------------+---------+
+| datafusion.sql_parser.parse_float_as_decimal                            | false                     |
+| datafusion.sql_parser.support_varchar_with_length                       | true                      |
++-------------------------------------------------------------------------+---------------------------+
 ```
