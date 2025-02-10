@@ -25,7 +25,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [ant]: ./anthropic.md
 [xai]: ./xai.md
 
-Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](./report.md).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](/docs/reference/models.md).
 
 \*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
