@@ -13,7 +13,7 @@ We faced the same AI development challenges many developers do, even though we h
 
 Today, we are making [Spice.ai](https://spiceai.org/) available on GitHub, a new open source project that helps developers use deep learning to create intelligent applications. We're looking for feedback on the direction. It's not finished, in fact, we only started this summer, and we invite you to try out the alpha.
 
-![](https://res.craft.do/user/full/f6ea57b9-4723-ca7b-aa16-e2a916601d59/doc/E951CFE6-D24A-4C02-A796-FFFCFC5FD5A9/A1AAFFBD-0AE9-47B5-AC9C-D37A6932CE5B_2/screen.png)
+![](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/7616136d-c018-494a-dfc8-402493ef0800/public)
 
 *Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands*
 
