@@ -21,9 +21,11 @@ helm upgrade --install spiceai spiceai/spiceai
 
 Deploy Spice using Helm in Kubernetes.
 
+For a quick start with Helm, refer to the [Helm Quickstart Guide](https://helm.sh/docs/intro/quickstart/#initialize-a-helm-chart-repository).
+
 ## Values
 
-The following table lists the configurable parameters of the Spice.ai chart and their default values. Override the default values by creating a `values.yaml` file.
+The following table lists the configurable parameters of the Spice.ai chart and their [default values](https://github.com/spiceai/spiceai/blob/trunk/deploy/chart/values.yaml). Override the default values by creating a `values.yaml` file ([example](#example-valuesyaml)).
 
 ```bash
 helm upgrade --install spiceai spiceai/spiceai -f values.yaml
@@ -31,7 +33,7 @@ helm upgrade --install spiceai spiceai/spiceai -f values.yaml
 
 ## Spicepod
 
-Add a custom Spicepod to be loaded by the Spice.ai runtime by overriding the `spicepod` value in the `values.yaml` file.
+Define a [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime by overriding the `spicepod` value in the `values.yaml` file.
 
 ```yaml
 spicepod:
@@ -51,29 +53,42 @@ spicepod:
 
 ## Common Parameters
 
-| Name                               | Description                                                                                                                                                                               | Value     |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| `image.repository`                 | The repository of the Docker image .                                                                                                                                                      | `spiceai` |
-| `image.tag`                        | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `latest`  |
-| `monitoring.podMonitoring.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`   |
-| `replicaCount`                     | Number of Spice.ai replicas to run                                                                                                                                                        | `1`       |
-| `image.pullSecrets`                | Specify docker-registry secret names as an array                                                                                                                                          | `[]`      |
-| `tolerations`                      | List of node taints to tolerate                                                                                                                                                           | `[]`      |
-| `resources`                        | Resource requests and limits for the Spice.ai container                                                                                                                                   | `{}`      |
-| `additionalEnv`                    | Additional environment variables to set in the Spice.ai container                                                                                                                         | `[]`      |
+| **Name**                            | **Description**                                                                                                                                                                               | **Value**  |
+|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `image.repository`                   | The repository of the Docker image.                                                                                                                                                            | `spiceai`  |
+| `image.tag`                          | Replace with a specific version of Spice.ai to run.                                                                                                                                            | `latest`   |
+| `monitoring.podMonitoring.enabled`   | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs.     | `false`    |
+| `replicaCount`                       | Number of Spice.ai replicas to run.                                                                                                                                                            | `1`        |
+| `image.pullSecrets`                  | Specify Docker registry secret names as an array.                                                                                                                                              | `[]`       |
+| `tolerations`                        | List of node taints to tolerate.                                                                                                                                                               | `[]`       |
+| `resources`                          | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).        | `{}`       |
+| `additionalEnv`                      | Additional environment variables to set in the Spice.ai container.                                                                                                                             | `[]`       |
 
-## Adding extra environment variables
+## Environment Variables and Secrets
 
 Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/docs/components/secret-stores/env/index.md).
 
 ```yaml
 additionalEnv:
+  - name: SPICED_LOG
+    value: "DEBUG"
   - name: SPICE_SECRET_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
         name: spice-secrets
         key: spiceai-key
 ```
+
+To create a test secret:
+
+```bash
+kubectl create secret generic spice-secrets --from-literal=spiceai-key="secret-value"
+```
+
+Furthe reading:
+
+- [Kubernets Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
+- [Good practices for Kubernetes Secrets](https://kubernetes.io/docs/concepts/security/secrets-good-practices/)
 
 ## Monitoring
 
@@ -105,11 +120,11 @@ Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clien
 
 ### Health and Readiness
 
-Spice provides two HTTP endpoints to help monitor the state of the Spice runtime: `/health` and `/ready`:
+Spice provides two HTTP endpoints for monitoring the runtime state: `/health` and `/v1/ready`. These endpoints are used for Kubernetes health and readiness probes in the Spice deployment.
 
-#### Health probe
+#### Health Probe
 
-The `/health` endpoint indicates whether or not the Spice process is up and running and ready to receive requests. You can add a probe to query this endpoint like so:
+The `/health` endpoint indicates whether the Spice process is up and running, ready to receive requests. A probe can be configured for custom deployment as follows:
 
 ```yaml
 livenessProbe:
@@ -118,11 +133,11 @@ livenessProbe:
     port: 8090
 ```
 
-In Kubernetes, this pod will not be marked as _Healthy_ until the `/health` endpoint returns `200`.
+In Kubernetes, the pod will not be marked as healthy until the `/health` endpoint returns a `200` status.
 
-#### Readiness probe
+#### Readiness Probe
 
-The `/ready` endpoint indicates **whether or not the Spice datasets are ready**. This means that while `/health` might indicate that Spice is up and running, until `/ready` reports a status of `200`, your queries may return 0 results
+The `/ready` endpoint indicates **whether the Spice components (datasets, models, etc) are ready**. While the `/health` endpoint might show that Spice is up and running, the `/ready` endpoint must return a `200` status to ensure that queries will return results.
 
 ```yaml
 readinessProbe:
@@ -140,9 +155,11 @@ For more information on how Kubernetes uses probes to determine the health of a 
 ```yaml
 image:
   repository: spiceai/spiceai
-  tag: 0.10.0-alpha
+  tag: 1.0.2
 replicaCount: 1
 additionalEnv:
+  - name: SPICED_LOG
+    value: "INFO"
   - name: SPICE_SECRET_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
@@ -168,3 +185,7 @@ spicepod:
         # refresh_check_interval: 1h
         # refresh_mode: full
 ```
+
+## Cookbook
+
+- [Running Spice.ai in Kubernetes](hhttps://github.com/spiceai/cookbook/tree/trunk/kubernetes)
