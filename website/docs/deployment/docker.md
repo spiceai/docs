@@ -17,6 +17,7 @@ For information on using Helm deployment, refer to the [Deploy Spice.ai in Kuber
 Use the [`spiceai/spiceai` Docker image](https://hub.docker.com/r/spiceai/spiceai/tags) to run Spice.ai as a Docker container:
 
 ```yaml
+# To use AI features including embeddings, models, and search use the spiceai/spiceai:latest-models tag. See supported tags at https://hub.docker.com/r/spiceai/spiceai/tags
 FROM spiceai/spiceai:latest
 
 # Copy the Spicepod configuration file
