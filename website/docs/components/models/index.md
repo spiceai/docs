@@ -25,7 +25,9 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [ant]: ./anthropic.md
 [xai]: ./xai.md
 
-- LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](/docs/reference/models.md).
+
+\*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/docs/reference/spicepod/models.md).
 
@@ -44,7 +46,7 @@ For more details, refer to the [Large Language Models documentation](/docs/featu
 
 ## Model Examples
 
-The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help you understand the configuration options available.
+The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help understand the configuration options available.
 
 ### Example: Configuring an OpenAI Model
 
