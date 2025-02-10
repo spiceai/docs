@@ -1,7 +1,7 @@
 ---
 title: 'Information Schema'
 sidebar_label: 'Information Schema'
-sidebar_position: 1
+sidebar_position: 4
 ---
 
 :::info
