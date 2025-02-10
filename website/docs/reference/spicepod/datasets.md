@@ -159,7 +159,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 :::
 
-## `invalid_type_action`
+## `unsupported_type_action`
 
 Optional. Specifies the action to take when a data type that is not supported by the data connector is encountered.
 
@@ -168,10 +168,11 @@ The following values are supported:
 - `error` - Default. Return an error when an unsupported data type is encountered.
 - `warn` - Log a warning and ignore the column containing the unsupported data type.
 - `ignore` - Log nothing and ignore the column containing the unsupported data type.
+- `string` - Attempt to convert the unsupported data type to a string. Currently only supports converting the PostgreSQL JSONB type.
 
 :::warning[Limitations]
 
-Not all connectors support specifying an `invalid_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `invalid_type_action`:
+Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb.md)
 - [PostgreSQL](../../components/data-connectors/postgres/index.md)
