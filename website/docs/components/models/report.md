@@ -1,0 +1,24 @@
+---
+title: 'Models Grade Report'
+description: 'Spice AI graded Large-Language-Model (LLM) evaluation report'
+sidebar_label: 'Report'
+sidebar_position: 4
+---
+
+This document presents the evaluation report for various Large-Language-Models (LLMs) graded by Spice AI. The models are assessed based on their basic capabilities, quality of tool calls, and accuracy of output when integrated with Spice.
+
+For more details on how model grades are evaluated in Spice, refer to the [model grading criteria](https://github.com/spiceai/spiceai/blob/f6039123028209e20469b342791fa85d52b7771e/docs/criteria/models/grading.md).
+
+| Model                                           | Spice Grade | Model Provider | Context Window | Max Output Tokens | Chat Completion | Response Format | Tools | Recursive Tool Call | Reasoning | Streaming Response | Evaluation Date | Spice Version |
+| ----------------------------------------------- | ----------- | -------------- | -------------- | ----------------- | --------------- | --------------- | ----- | ------------------- | --------- | ------------------ | --------------- | ------------- |
+| `o3-mini-2025-01-31 (Reasoning effort: high)`   | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2025-01-31      | v1.0.2        |
+| `o3-mini-2025-01-31 (Reasoning effort: medium)` | B           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2025-01-31      | v1.0.2        |
+| `o3-mini-2025-01-31 (Reasoning effort: low)`    | C           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2025-01-31      | v1.0.2        |
+| `o1-2024-12-17 (Reasoning effort: high)`        | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2024-12-17      | v1.0.2        |
+| `o1-2024-12-17 (Reasoning effort: medium)`      | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2024-12-17      | v1.0.2        |
+| `o1-2024-12-17 (Reasoning effort: low)`         | C           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2024-12-17      | v1.0.2        |
+| `gpt-4o-2024-08-06`                             | B           | openai         | 128k tokens    | 16384 tokens      | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 | 2024-08-06      | v1.0.2        |
+| `claude-3-5-sonnet-20241022`                    | C           | anthropic      | 200k tokens    | 8192 tokens       | ✅              | ❌              | ✅    | ✅                  | ✅        | ✅                 | 2024-10-22      | v1.0.2        |
+| `grok-2-1212`                                   | Ungraded    | xai            | 128k tokens    | Not Available     | ✅              | ❌              | ❌    | ❌                  | ✅        | ✅                 | Not Available   | v1.0.2        |
+| `deepseek-ai/DeepSeek-R1-Distill-Llama-8B`      | Ungraded    | huggingface    | 128k tokens    | Not Available     | ✅              | ❌              | ❌    | ❌                  | ✅        | ✅                 | Not Available   | v1.0.2        |
+| `meta-llama/Llama-3.2-3B-Instruct`              | Ungraded    | huggingface    | 128k tokens    | Not Available     | ✅              | ❌              | ✅    | ✅                  | ✅        | ✅                 | Not Available   | v1.0.2        |

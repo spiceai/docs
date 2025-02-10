@@ -25,7 +25,9 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [ant]: ./anthropic.md
 [xai]: ./xai.md
 
-- LLM Format(s) may require additional files (e.g. `tokenizer_config.json`).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](./report.md).
+
+\*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/docs/reference/spicepod/models.md).
 
@@ -44,7 +46,7 @@ For more details, refer to the [Large Language Models documentation](/docs/featu
 
 ## Model Examples
 
-The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help you understand the configuration options available.
+The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help understand the configuration options available.
 
 ### Example: Configuring an OpenAI Model
 
@@ -212,28 +214,6 @@ curl -X POST http://localhost:8090/v1/chat/completions \
 ```
 
 Refer to the [Create Chat Completion API documentation](/docs/api/HTTP/post-chat-completions.api.mdx) for more details on making chat completion requests.
-
-## Model Grading
-
-Individual models are graded in terms of model's basic capabilities, as well as the quality of tool calls, and ability to provide accurate output when integrated with Spice.
-
-The following table lists the models' grade and basic capabilities in Spice.
-
-For more details on how model grades are evaluated in Spice, refer to the [Spice model grading criteria](https://github.com/spiceai/spiceai/blob/f6039123028209e20469b342791fa85d52b7771e/docs/criteria/models/grading.md)
-
-| Model                                           | Spice Grade | Model Provider | Context Window | Max Output Tokens | Chat Completion | Response Format | Tools | Recursive Tool Call | Reasoning | Streaming Response |
-| ----------------------------------------------- | ----------- | -------------- | -------------- | ----------------- | --------------- | --------------- | ----- | ------------------- | --------- | ------------------ |
-| `o3-mini-2025-01-31 (Reasoning effort: high)`   | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `o3-mini-2025-01-31 (Reasoning effort: medium)` | B           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `o3-mini-2025-01-31 (Reasoning effort: low)`    | C           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `o1-2024-12-17 (Reasoning effort: high)`        | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `o1-2024-12-17 (Reasoning effort: medium)`      | A           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `o1-2024-12-17 (Reasoning effort: low)`         | C           | openai         | 200k tokens    | 100k tokens       | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `gpt-4o-2024-08-06`                             | B           | openai         | 128k tokens    | 16384 tokens      | ✅              | ✅              | ✅    | ✅                  | ✅        | ✅                 |
-| `claude-3-5-sonnet-20241022`                    | C           | anthropic      | 200k tokens    | 8192 tokens       | ✅              | ❌              | ✅    | ✅                  | ✅        | ✅                 |
-| `grok-2-1212`                                   | Ungraded    | xai            | 128k tokens    | Not Available     | ✅              | ❌              | ❌    | ❌                  | ✅        | ✅                 |
-| `deepseek-ai/DeepSeek-R1-Distill-Llama-8B`      | Ungraded    | huggingface    | 128k tokens    | Not Available     | ✅              | ❌              | ❌    | ❌                  | ✅        | ✅                 |
-| `meta-llama/Llama-3.2-3B-Instruct`              | Ungraded    | huggingface    | 128k tokens    | Not Available     | ✅              | ❌              | ✅    | ✅                  | ✅        | ✅                 |
 
 import DocCardList from '@theme/DocCardList';
 
