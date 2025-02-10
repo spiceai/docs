@@ -15,6 +15,7 @@ spice trace [task] [flags]
 
 `task` - The name of the task whose trace is requested. Supported tasks include:
 
+- `accelerated_refresh`
 - `ai_chat`
 - `ai_completion`
 - `sql_query`
