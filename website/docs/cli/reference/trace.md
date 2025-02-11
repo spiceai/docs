@@ -35,6 +35,8 @@ These tasks are from the `task` column in the Spice SQL `runtime.task_history` t
 - `--trace-id`  Retrieve the trace with the given trace ID (the column `trace_id` from `runtime.task_history`).
 - `--id`  Retrieve the trace with the given `id` label (i.e. the task has a valid `id` within the `labels` column of `runtime.task_history`).
 - `--api-key`  Specify the API key for authentication.
+- `--include-output`: Include, as an additional column, the captured output to each span (i.e. the `captured_output` column from `runtime.task_history`). Note: If captured outputs are not being stored, this will return an empty row.
+- `--include-input`: Include, as an additional column, the input to each span (i.e. the `input` column from `runtime.task_history`).
 
 The latest trace for the task will be used if neither `--trace-id` nor `--id` is specified.
 
@@ -58,11 +60,18 @@ spice trace sql_query --trace-id d5c6f1eed9f27257
 ### Output Example
 
 ```shell
-[d5c6f1eed9f27257] ( 3077.45ms) ai_chat
-  ├── [16eb97d757e4ea47] (    0.85ms) tool_use::list_datasets
-  ├── [ece97973668bd54a] ( 1651.14ms) ai_completion
-  ├── [96fe526b54330e95] (    0.62ms) tool_use::get_readiness
-  └── [8aa2bf4c94f42ba2] ( 1420.09ms) ai_completion
+TREE                   STATUS DURATION   TASK
+a97f52ccd7687e64       ✅       673.14ms ai_chat
+  ├── 4eebde7b04321803 ✅         0.04ms tool_use::list_datasets
+  └── 4c9049e1bf1c3500 ✅       671.91ms ai_completion
 ```
 
 This output represents a structured trace of executed tasks.
+
+### Output Example (with `--include-output`)
+```shell
+TREE                   STATUS DURATION   TASK                    OUTPUT
+a97f52ccd7687e64       ✅       673.14ms ai_chat                 The capital of New York is Albany.
+  ├── 4eebde7b04321803 ✅         0.04ms tool_use::list_datasets []
+  └── 4c9049e1bf1c3500 ✅       671.91ms ai_completion           [{"content":"The capital of New York is Albany.","refusal":null,"tool_calls":null,"role":"assistant","function_call":null,"audio":null}] 
+```
