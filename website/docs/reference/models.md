@@ -9,7 +9,7 @@ This document presents the evaluation report for various Large-Language-Models (
 
 For more details on how model grades are evaluated in Spice, refer to the [model grading criteria](https://github.com/spiceai/spiceai/blob/f6039123028209e20469b342791fa85d52b7771e/docs/criteria/models/grading.md).
 
-| Model                                           | Spice Grade | Model Provider | Context Window<br/ >Max Output Tokens | Chat Completion | Response Format<br />(Structued Outputs) | Tools | Recursive<br />Tool Calling | Reasoning | Streaming | Evaluation Date | Spice Version |
+| Model                                           | Spice Grade | Model Provider | Context Window<br/ >Max Output Tokens | Chat Completion | Response Format<br />(Structued Outputs) | Tools | Recursive<br />Tool Calling | Reasoning | Streaming | Model Release Date | Spice Version |
 | ----------------------------------------------- | ----------- | -------------- | ------------------------------------- | --------------- | ---------------------------------------- | ----- | --------------------------- | --------- | --------- | --------------- | ------------- |
 | `o3-mini-2025-01-31 (Reasoning effort: high)`   | **A**       | `openai`       | 200k tokens<br/ >100k tokens          | ✅              | ✅                                       | ✅    | ✅                          | ✅        | ✅        | 2025-01-31      | v1.0.2        |
 | `o3-mini-2025-01-31 (Reasoning effort: medium)` | **B**       | `openai`       | 200k tokens<br/ >100k tokens          | ✅              | ✅                                       | ✅    | ✅                          | ✅        | ✅        | 2025-01-31      | v1.0.2        |
