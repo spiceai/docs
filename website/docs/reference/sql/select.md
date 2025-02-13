@@ -1,6 +1,6 @@
 ---
-title: 'select'
-sidebar_label: 'select'
+title: 'Select'
+sidebar_label: 'Select'
 pagination_prev: 'reference/sql/operators'
 pagination_next: 'reference/sql/subqueries'
 sidebar_position: 4
