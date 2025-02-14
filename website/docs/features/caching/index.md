@@ -39,13 +39,14 @@ runtime:
 
 ## Cached responses
 
-The response includes an `x-cache` header indicating the cache status of the query:
+The response includes a `Results-Cache-Status` header indicating the cache status of the query:
 
 | Header value | Description |
 | ----------- | ----------- |
-| `Hit from spiceai` | The query result was served from cache |
-| `Miss from spiceai` | The cache was checked but the result was not found |
-| _header not present_ | The cache was not used for this query <br/> (e.g., when `cache-control: no-cache` is specified or results cache is disabled) |
+| `HIT` | The query result was served from cache |
+| `MISS` | The cache was checked but the result was not found |
+| `BYPASS` | The cache was bypassed for this query. (e.g., when `cache-control: no-cache` is specified) |
+| _header not present_ | Results cache did not apply to this query. (e.g. when results cache is disabled or querying a system table) |
 
 Example cached response:
 
@@ -53,7 +54,7 @@ Example cached response:
 $ curl -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit 1;'
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
-x-cache: Hit from spiceai
+results-cache-status: HIT
 vary: origin, access-control-request-method, access-control-request-headers
 content-length: 416
 date: Thu, 13 Feb 2025 03:05:39 GMT
@@ -65,7 +66,7 @@ Example uncached response:
 $ curl -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit 1;'
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
-x-cache: Miss from spiceai
+results-cache-status: MISS
 vary: origin, access-control-request-method, access-control-request-headers
 content-length: 416
 date: Thu, 13 Feb 2025 03:13:19 GMT
@@ -77,6 +78,7 @@ Example uncached response with `cache-control: no-cache`:
 $ curl -H "cache-control: no-cache" -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit 1;'
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
+results-cache-status: BYPASS
 vary: origin, access-control-request-method, access-control-request-headers
 content-length: 416
 date: Thu, 13 Feb 2025 03:14:00 GMT
