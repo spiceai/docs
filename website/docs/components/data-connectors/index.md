@@ -29,13 +29,13 @@ Supported Data Connectors include:
 | `mysql`                            | MySQL                                 | Stable            |                              |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
+| `spice.ai`                         | [Spice.ai][spiceai]                   | Release Candidate | Arrow Flight                 |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
-| `spice.ai`                         | [Spice.ai][spiceai]                   | Beta              | Arrow Flight                 |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
