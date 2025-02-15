@@ -1,7 +1,9 @@
 ---
 title: 'Information Schema'
 sidebar_label: 'Information Schema'
-sidebar_position: 4
+pagination_prev: 'reference/sql/explain'
+pagination_next: 'reference/sql/operators'
+sidebar_position: 2
 ---
 
 :::info
