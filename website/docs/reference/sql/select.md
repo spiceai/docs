@@ -1,9 +1,9 @@
 ---
 title: 'SELECT'
 sidebar_label: 'SELECT'
-pagination_prev: 'reference/sql/index'
+pagination_prev: 'reference/sql/operators'
 pagination_next: 'reference/sql/subqueries'
-sidebar_position: 1
+sidebar_position: 4
 ---
 
 :::info
