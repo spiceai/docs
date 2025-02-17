@@ -27,6 +27,7 @@ spice trace [task] [flags]
 - `tool_use::sample_data`
 - `tool_use::sql_query`
 - `tool_use::memory`
+- `vector_search`
 
 These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
 
@@ -43,16 +44,19 @@ The latest trace for the task will be used if neither `--trace-id` nor `--id` is
 ### Examples
 
 #### Retrieve the trace for the last text-to-SQL operation
+
 ```shell
 spice trace nsql
 ```
 
 #### Retrieve the trace for a specific task by ID
+
 ```shell
 spice trace ai_chat --id chatcmpl-At6ZmDE8iAYRPeuQLA0FLlWxGKNnM
 ```
 
 #### Retrieve a trace by `trace-id`
+
 ```shell
 spice trace sql_query --trace-id d5c6f1eed9f27257
 ```

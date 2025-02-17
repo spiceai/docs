@@ -60,16 +60,17 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 ### `params`
 
-| Param                    | Description                   | Default                     |
-| ------------------------ | ----------------------------- | --------------------------- |
-| `endpoint`               | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. Nvidia NIM). | `https://api.openai.com/v1` |
-| `tools`                  | Which [tools] should be made available to the model. Set to `auto` to use all available tools. | -    |
-| `system_prompt`          | An additional system prompt used for all chat completions to this model. | -    |
-| `openai_api_key`         | The OpenAI API key.           | -                           |
-| `openai_org_id`          | The OpenAI organization ID.   | -                           |
-| `openai_project_id`      | The OpenAI project ID.        | -                           |
-| `openai_temperature`     | Set the default temperature to use on chat completions.  | -                           |
-| `openai_response_format` | An object specifying the format that the model must output, see [structured outputs].  | -                           |
+| Param                     | Description                                                                                        | Default                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------- |
+| `endpoint`                | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. Nvidia NIM).    | `https://api.openai.com/v1` |
+| `tools`                   | Which [tools] should be made available to the model. Set to `auto` to use all available tools.     | -                           |
+| `system_prompt`           | An additional system prompt used for all chat completions to this model.                           | -                           |
+| `openai_api_key`          | The OpenAI API key.                                                                                | -                           |
+| `openai_org_id`           | The OpenAI organization ID.                                                                        | -                           |
+| `openai_project_id`       | The OpenAI project ID.                                                                             | -                           |
+| `openai_temperature`      | Set the default temperature to use on chat completions.                                            | -                           |
+| `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].              | -                           |
+| `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model. | -                           |
 
 [tools]: ../../features/large-language-models/tools.md
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
