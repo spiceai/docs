@@ -162,13 +162,11 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## `time_partition_column`
 
-Optional. The name of the column that represents the time-based partitioning of the dataset. Requires `time_column` to be set.
-
-This parameter is used when the dataset is partitioned by a less-granular time-column (e.g. day, month, year), but the data source has a more granular time-column available (e.g. timestamp). This can ensure that queries for a specific time range are optimized by the data source to use the appropriate partitions.
+(Optional) Specify the column that represents the physical partitioning of the dataset when using append-based acceleration. When the defined `time_column` is a fine-grained timestamp and the dataset is physically partitioned by a coarser granularity (for example, by date), setting `time_partition_column` to the partition column (e.g. date_col) improves partition pruning, excludes irrelevant partitions during refreshes, and optimizes scan efficiency.
 
 ## `time_partition_format`
 
-Optional. The format of the `time_partition_column`. The same format options as `time_format` are supported.
+(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
 
 ## `unsupported_type_action`
 
