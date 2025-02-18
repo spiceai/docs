@@ -58,6 +58,20 @@ datasets:
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/docs/reference/spicepod/datasets#accelerationrefresh_append_overlap).
 
+Datasets that are partitioned by a less-granular time-column (e.g. day, month, year) can also use the `time_partition_column` parameter in addition to the `time_column` parameter to specify the time-column to use for efficient partition pruning.
+
+Example:
+
+```yaml
+datasets:
+  - from: databricks:my_dataset
+    name: accelerated_dataset
+    time_column: created_at
+    time_format: iso8601
+    time_partition_column: created_at_day
+    time_partition_format: date
+```
+
 ### Changes (CDC)
 
 Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](/docs/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/docs/components/data-connectors/debezium.md).
