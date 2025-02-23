@@ -150,6 +150,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
 - `unix_millis` - Unix timestamp in milliseconds. E.g. `1718756687000`.
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+- `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
 Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
 
@@ -158,6 +159,14 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 - String-based columns are assumed to be ISO8601 format.
 
 :::
+
+## `time_partition_column`
+
+(Optional) Specify the column that represents the physical partitioning of the dataset when using append-based acceleration. When the defined `time_column` is a fine-grained timestamp and the dataset is physically partitioned by a coarser granularity (for example, by date), setting `time_partition_column` to the partition column (e.g. date_col) improves partition pruning, excludes irrelevant partitions during refreshes, and optimizes scan efficiency.
+
+## `time_partition_format`
+
+(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
 
 ## `unsupported_type_action`
 
