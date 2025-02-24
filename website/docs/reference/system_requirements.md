@@ -14,6 +14,7 @@ This document outlines the system requirements for running Spice.ai Open Source.
 Spice.ai supports the following operating systems and architectures:
 
 - **Linux (x86_64)**: Linux 2.6.32 or later, Intel 64-bit processor
+- **Linux (ARM64)**: Linux 2.6.32 or later, ARM 64-bit processor
 - **Apple macOS (ARM64)**: macOS 14 "Sonoma" or later, Apple 64-bit processor (M-series)
 - **Microsoft Windows (x64)**: Windows 11 or later, Intel 64-bit processor
 
