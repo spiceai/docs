@@ -169,6 +169,9 @@ make install-with-models-metal
 Similarily, this ensures Metal devices are selected on model load, and Metal-specific kernels used when possible.
 
 ### Supported OS Architectures
-- linux-x86_64
-- linux-aarch64
-- darwin-aarch64
+| OS      | Architecture    |
+|---------|-----------------|
+| Linux   | linux-x86_64    |
+| Linux   | linux-aarch64   |
+| MacOS   | darwin-aarch64  |
+| Windows | windows-x86_64  |
