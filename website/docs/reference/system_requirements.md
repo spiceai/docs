@@ -1,6 +1,6 @@
 ---
 title: 'Spice.ai Open Source System Requirements'
-sidebar_label: 'Reference'
+sidebar_label: 'System Requirements'
 sidebar_position: 30
 description: 'System requirements for running Spice.ai Open Source'
 pagination_prev: null
