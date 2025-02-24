@@ -15,7 +15,7 @@ Spice.ai supports the following operating systems and architectures:
 
 - **Linux**: Distributions as noted (x86_64, ARM)
 - **macOS**: macOS 12.0 (Monterey) or later (ARM/M-series only)
-- **Windows**: Windows 11 or later (x86_64)
+- **Windows**: Windows 11 or later (x86, x64)
 
 ## Linux Distribution Support
 
