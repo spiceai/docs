@@ -13,15 +13,17 @@ This document outlines the system requirements for running Spice.ai Open Source.
 
 Spice.ai supports the following operating systems and architectures:
 
-- **Linux**: Distributions as noted (x86_64, ARM)
-- **macOS**: macOS 12.0 (Monterey) or later (ARM/M-series only)
-- **Windows**: Windows 11 or later (x86, x64)
+- **Linux (x86_64)**: Linux 5.10 or later, Intel 64-bit processor
+- **Linux (ARM64)**: Linux 5.10 or later, ARM 64-bit processor
+- **Apple macOS (ARM64)**: macOS 14 "Sonoma" or later, Apple 64-bit processor (M-series)
+- **Microsoft Windows (x64)**: Windows 11 or later, Intel 64-bit processor
 
 ## Linux Distribution Support
 
 Spice.ai supports the following Linux distributions:
 
-- **Ubuntu Server LTS**: 22.04 or later
+- **Ubuntu Server LTS**: 22.04 "Jammy Jellyfish" or later
+- **Debian**: 12 "Bookworm" or later
 - **Amazon Linux**: 2 or later
 
 ## Server or Instance Hardware Requirements
@@ -62,11 +64,11 @@ metadata:
 spec:
   containers:
     - name: spice-ai-container
-      image: spiceai/spiceai:latest
+      image: spiceai/spiceai:latest-models
       resources:
         requests:
           memory: '8Gi'
-          cpu: '2'
+          cpu: '4'
 ```
 
 ## Resource Requirements Based on Workload and Data
