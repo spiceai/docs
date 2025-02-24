@@ -173,5 +173,5 @@ Similarily, this ensures Metal devices are selected on model load, and Metal-spe
 |---------|-----------------|
 | Linux   | linux-x86_64    |
 | Linux   | linux-aarch64   |
-| MacOS   | darwin-aarch64  |
+| macOS   | darwin-aarch64  |
 | Windows | windows-x86_64  |
