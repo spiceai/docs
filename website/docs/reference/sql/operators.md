@@ -1,9 +1,9 @@
 ---
 title: 'Operators'
 sidebar_label: 'Operators'
-pagination_prev: 'reference/sql/information_schema'
-pagination_next: 'reference/sql/select'
-sidebar_position: 3
+pagination_prev: 'reference/sql/select'
+pagination_next: 'reference/sql/subqueries'
+sidebar_position: 2
 ---
 
 :::info

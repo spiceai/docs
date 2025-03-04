@@ -1,9 +1,9 @@
 ---
 title: 'Subqueries'
 sidebar_label: 'Subqueries'
-pagination_prev: 'reference/sql/select'
-pagination_next: null
-sidebar_position: 5
+pagination_prev: 'reference/sql/operators'
+pagination_next: 'reference/sql/explain'
+sidebar_position: 3
 ---
 
 :::info
