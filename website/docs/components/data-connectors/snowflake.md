@@ -41,13 +41,24 @@ The dataset name. This will be used as the table name within Spice.
 | `snowflake_role`                   | Optional, specifies the role to use for accessing Snowflake data                                                |
 | `snowflake_account`                | Required, specifies the Snowflake account-identifier                                                            |
 | `snowflake_username`               | Required, specifies the Snowflake username to use for accessing Snowflake data                                  |
+| `snowflake_auth_type`              | Optional, specifies the authentication type to use for accessing Snowflake data. Values: `snowflake`, `keypair`. Default is `snowflake` (password-based). |
 | `snowflake_password`               | Optional, specifies the Snowflake password to use for accessing Snowflake data                                  |
 | `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key                                                           |
 | `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase                                                        |
 
 ## Auth
 
-The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores](/docs/components/secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
+The connector supports password-based and [keypair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores](/docs/components/secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
+
+Specify the key pair authentication type using the `snowflake_auth_type: keypair` parameter.
+
+```yaml
+datasets:
+  - from: snowflake:DATABASE.SCHEMA.TABLE
+    name: table
+    params:
+      snowflake_auth_type: keypair
+```
 
 <img width="800" src="/img/snowflake/ui-snowsight-account-identifier.png" />
 
@@ -103,6 +114,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
           snowflake_username: ${env:SPICE_SNOWFLAKE_USERNAME}
+          snowflake_auth_type: snowflake
           snowflake_password: ${env:SPICE_SNOWFLAKE_PASSWORD}
           snowflake_account: ${env:SPICE_SNOWFLAKE_ACCOUNT}
     ```
@@ -144,6 +156,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
           snowflake_username: ${snowflake.username}
+          snowflake_auth_type: snowflake
           snowflake_password: ${snowflake.password}
           snowflake_account: ${snowflake.account}
     ```
@@ -183,6 +196,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
           snowflake_username: user_name
+          snowflake_auth_type: snowflake
           snowflake_password: ${keyring:spice_snowflake_password}
           snowflake_account: account_identifier
     ```
