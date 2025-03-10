@@ -1,7 +1,9 @@
 ---
 title: 'Operators'
 sidebar_label: 'Operators'
-sidebar_position: 3
+pagination_prev: 'reference/sql/select'
+pagination_next: 'reference/sql/subqueries'
+sidebar_position: 2
 ---
 
 :::info

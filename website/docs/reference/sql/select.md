@@ -2,7 +2,7 @@
 title: 'SELECT'
 sidebar_label: 'SELECT'
 pagination_prev: 'reference/sql/index'
-pagination_next: 'reference/sql/subqueries'
+pagination_next: 'reference/sql/operators'
 sidebar_position: 1
 ---
 
