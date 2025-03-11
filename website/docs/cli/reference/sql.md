@@ -17,7 +17,8 @@ spice sql [flags]
 
 - `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
 - `-h`, `--help`   Print this help message
-
+- `--flight-endpoint` Configure runtime Flight endpoint. Defaults to http://127.0.0.1:50051
+- `--http-endpoint`  Configure runtime HTTP endpoint. Defaults to http://127.0.0.1:8090
 
 ### Examples
 
