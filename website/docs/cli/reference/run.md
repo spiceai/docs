@@ -16,6 +16,9 @@ spice run [flags] -- [spiced flags]
 #### Flags
 
 - `-h`, `--help`   Print this help message
+- `--flight-endpoint` Configure runtime Flight endpoint. Defaults to http://127.0.0.1:50051
+- `--http-endpoint`  Configure runtime HTTP endpoint. Defaults to http://127.0.0.1:8090
+- `--metrics-endpoint` Configure runtime Prometheus metrics endpoint. Defaults to http://127.0.0.1:9090
 
 #### Spiced Flags
 
