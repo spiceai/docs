@@ -55,14 +55,21 @@ spicepod:
 
 | **Name**                            | **Description**                                                                                                                                                                               | **Value**  |
 |---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `additionalLabels`                   | Additional labels to add to all resources.                                                                                                                                                     | `{}`       |
 | `image.repository`                   | The repository of the Docker image.                                                                                                                                                            | `spiceai`  |
-| `image.tag`                          | Replace with a specific version of Spice.ai to run.                                                                                                                                            | `latest`   |
-| `monitoring.podMonitoring.enabled`   | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs.     | `false`    |
+| `image.tag`                          | Replace with a specific version of Spice.ai to run.                                                                                                                                            | `1.0.5`    |
 | `replicaCount`                       | Number of Spice.ai replicas to run.                                                                                                                                                            | `1`        |
+| `service.type`                       | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                                    | `null`     |
+| `monitoring.podMonitor.enabled`      | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs.     | `false`    |
 | `image.pullSecrets`                  | Specify Docker registry secret names as an array.                                                                                                                                              | `[]`       |
 | `tolerations`                        | List of node taints to tolerate.                                                                                                                                                               | `[]`       |
 | `resources`                          | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).        | `{}`       |
 | `additionalEnv`                      | Additional environment variables to set in the Spice.ai container.                                                                                                                             | `[]`       |
+| `stateful.enabled`                   | Use a StatefulSet with a PVC for the data volume.                                                                                                                                              | `false`    |
+| `stateful.storageClass`              | Storage class for the volume claim template in the StatefulSet.                                                                                                                                | `standard` |
+| `stateful.size`                      | Size of each PV in the StatefulSet.                                                                                                                                                            | `1Gi`      |
+| `stateful.mountPath`                 | Mount path in container for the persistent volume.                                                                                                                                             | `/data`    |
+| `serviceAccount.create`              | Specifies whether a ServiceAccount should be created.                                                                                                                                          | `false`    |
 
 ## Environment Variables and Secrets
 
@@ -85,14 +92,14 @@ To create a test secret:
 kubectl create secret generic spice-secrets --from-literal=spiceai-key="secret-value"
 ```
 
-Furthe reading:
+Further reading:
 
-- [Kubernets Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
+- [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
 - [Good practices for Kubernetes Secrets](https://kubernetes.io/docs/concepts/security/secrets-good-practices/)
 
 ## Monitoring
 
-The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../clients/grafana/index.md). To enable this feature, set the `monitoring.podMonitoring.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
+The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../clients/grafana/index.md). To enable this feature, set the `monitoring.podMonitor.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
 
 <details>
   <summary>Install the Prometheus Operator</summary>
@@ -113,7 +120,7 @@ The Spice Helm chart includes compatibility with the [Prometheus Operator](https
 Deploy the Spice.ai Helm chart with monitoring enabled:
 
 ```bash
-helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitoring.enabled=true
+helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitor.enabled=true
 ```
 
 Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clients/grafana/index.md) to visualize the Spice.ai metrics.
@@ -150,13 +157,102 @@ readinessProbe:
 For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes)
 :::
 
+## Service Configuration
+
+Configure the Kubernetes service for Spice.ai:
+
+```yaml
+service:
+  # type can be null, ClusterIP, NodePort, or LoadBalancer
+  type: LoadBalancer
+  additionalAnnotations: {}
+  # If service type is LoadBalancer, specify the source IP ranges to whitelist
+  loadBalancerSourceRanges:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+  # The selector to use for the service
+  selector:
+    custom-selector: value
+```
+
+## Service Account
+
+Configure a Kubernetes ServiceAccount for Spice.ai:
+
+```yaml
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: spice-service-account
+```
+
+## Volumes and Volume Mounts
+
+Define custom volumes and volume mounts for the Spice.ai container:
+
+```yaml
+# Define volumes to be mounted to the container
+volumes:
+  - name: custom-data
+    persistentVolumeClaim:
+      claimName: my-custom-pvc
+  - name: config-volume
+    configMap:
+      name: custom-config
+
+# Define volume mounts for the container
+volumeMounts:
+  - name: custom-data
+    mountPath: /data
+  - name: config-volume
+    mountPath: /config
+```
+
+## Stateful Configuration
+
+Configure Spice.ai to use a StatefulSet with persistent storage:
+
+```yaml
+# Use a StatefulSet with a PVC for the data volume
+stateful:
+  enabled: true
+  # Storage class for the volume claim template
+  storageClass: "standard"
+  # Size of each PV in the StatefulSet
+  size: 1Gi
+  # Mount path in container
+  mountPath: /data
+```
+
+This is particularly useful when you need to persist data between pod restarts, such as when using file-based acceleration for datasets.
+
 ## Example values.yaml
 
 ```yaml
+additionalLabels:
+  environment: production
+  app: spice
+
 image:
   repository: spiceai/spiceai
-  tag: 1.0.2
+  tag: 1.0.5
 replicaCount: 1
+
+service:
+  type: ClusterIP
+  additionalAnnotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
 additionalEnv:
   - name: SPICED_LOG
     value: "INFO"
@@ -165,9 +261,19 @@ additionalEnv:
       secretKeyRef:
         name: spice-secrets
         key: spiceai-key
+
+stateful:
+  enabled: true
+  storageClass: "standard"
+  size: 5Gi
+  mountPath: /data
+
 monitoring:
   podMonitor:
     enabled: true
+    additionalLabels:
+      release: prometheus
+
 spicepod:
   name: app
   version: v1
@@ -181,6 +287,10 @@ spicepod:
         file_format: parquet
       acceleration:
         enabled: true
+        engine: duckdb
+        mode: file
+        params:
+          duckdb_file: /data/taxi_trips.db
         # Uncomment to refresh the acceleration on a schedule
         # refresh_check_interval: 1h
         # refresh_mode: full
@@ -188,4 +298,4 @@ spicepod:
 
 ## Cookbook
 
-- [Running Spice.ai in Kubernetes](hhttps://github.com/spiceai/cookbook/tree/trunk/kubernetes)
+- [Running Spice.ai in Kubernetes](https://github.com/spiceai/cookbook/tree/trunk/kubernetes)
