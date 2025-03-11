@@ -20,6 +20,7 @@ datasets:
 The DuckDB accelerator can be configured by providing the following `params`:
 
 - `duckdb_file`: The name for the file to back the DuckDB database. If the file does not exist, it will be created. Only applies if `mode` is `file`.
+- `duckdb_memory_limit`: The [DuckDB memory limit](https://duckdb.org/docs/stable/configuration/overview), e.g. '2GB', '512MiB' (expected: KB, MB, GB, TB for 1000^i units or KiB, MiB, GiB, TiB for 1024^i units).
 
 Configuration `params` are provided in the `acceleration` section for a data store. Other common `acceleration` fields can be configured for DuckDB, see see [datasets](/docs/reference/spicepod/datasets.md).
 
@@ -32,13 +33,12 @@ datasets:
       mode: file
       params:
         duckdb_file: /my/chosen/location/duckdb.db
+        duckdb_memory_limit: '2GB'
 ```
 
 :::warning[Limitations]
 
-- The DuckDB accelerator does not support enum, dictionary, or map [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
-  - Unsupported:
-    - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
+- The DuckDB accelerator does not support enum and dictionary [field types](https://duckdb.org/docs/sql/data_types/overview).
 - The DuckDB accelerator does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
 - Using the DuckDB accelerator with `on_zero_results: use_source` does not support using filters on binary columns when the query results in using the source connection, like `WHERE col_blob <> ''`. Cast the binary to another data type instead, like `WHERE CAST(col_blob AS TEXT) <> ''`.
 - Updating a dataset with DuckDB acceleration while the Spice Runtime is running (hot-reload) will cause the DuckDB accelerator query federation to disable until the Runtime is restarted.
