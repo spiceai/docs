@@ -23,6 +23,10 @@ Deploy Spice using Helm in Kubernetes.
 
 For a quick start with Helm, refer to the [Helm Quickstart Guide](https://helm.sh/docs/intro/quickstart/#initialize-a-helm-chart-repository).
 
+:::info Deployment Architecture
+The Spice.ai Helm chart deploys the application as a stateless Kubernetes Deployment by default. This configuration does not persist data between pod restarts. For workloads requiring data persistence, such as file-based acceleration, the chart supports deploying Spice.ai as a StatefulSet with persistent volume claims by enabling and configuring the `stateful` section in the values file.
+:::
+
 ## Values
 
 The following table lists the configurable parameters of the Spice.ai chart and their [default values](https://github.com/spiceai/spiceai/blob/trunk/deploy/chart/values.yaml). Override the default values by creating a `values.yaml` file ([example](#example-valuesyaml)).
@@ -212,7 +216,11 @@ volumeMounts:
 
 ## Stateful Configuration
 
-Configure Spice.ai to use a StatefulSet with persistent storage:
+The Spice.ai Helm chart provides two deployment architectures to accommodate different persistence requirements. The default architecture deploys Spice.ai as a stateless Kubernetes Deployment, suitable for workloads that do not require data persistence between pod restarts.
+
+For workloads requiring data persistence, the chart supports deploying Spice.ai as a StatefulSet with persistent storage. This architecture becomes essential when implementing file-based acceleration for datasets or when maintaining state between pod restarts is critical.
+
+Enabling the StatefulSet architecture requires configuration of the `stateful` section:
 
 ```yaml
 # Use a StatefulSet with a PVC for the data volume
@@ -226,7 +234,7 @@ stateful:
   mountPath: /data
 ```
 
-This is particularly useful when you need to persist data between pod restarts, such as when using file-based acceleration for datasets.
+When `stateful.enabled` is set to `true`, the Helm chart creates a StatefulSet instead of a Deployment and provisions a PersistentVolumeClaim for each replica. The persistent volume is mounted at the specified path, allowing data to persist across pod restarts and rescheduling events.
 
 ## Example values.yaml
 
