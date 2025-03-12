@@ -9,8 +9,8 @@ export type SlideData = {
 
 export const beforeAndAfterSlides: SlideData[] = [
   {
-    imageBefore: '/img/after-demo.webp',
-    imageAfter: '/img/before-demo.webp',
+    imageBefore: '/img/before-demo.webp',
+    imageAfter: '/img/after-demo.webp',
     benefits: [
       {
         textBefore: 'Slow 15 sec queries across 100B+ rows.',
