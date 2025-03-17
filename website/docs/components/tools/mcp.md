@@ -1,6 +1,6 @@
 ---
 title: 'Model Context Protocol Tools'
-sidebar_label: 'MCP tools'
+sidebar_label: 'MCP Tools'
 ---
 
 Spice can find and use tools from [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers. This includes both:
