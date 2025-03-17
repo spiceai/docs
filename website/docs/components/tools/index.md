@@ -49,6 +49,11 @@ models:
       tools: auto # Use all default tools
 ```
 
-Available tool groups:
- - `auto`: All default tools (see above table).
- - `memory`: Memory tools for storing and retrieving information across conversations.
+#### Available tool groups
+| Name         | Description                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| `auto`       | All default tools (see above table)                                                          |
+| `memory`     | Memory tools for storing and retrieving information across conversations.                    |
+| [`MCP`][mcp] | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
+
+[mcp]: /docs/components/tools/mcp
