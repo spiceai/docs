@@ -285,6 +285,15 @@ Retries utilize a [Fibonacci backoff strategy](https://en.wikipedia.org/wiki/Fib
 
 Optional. Defines the maximum number of retry attempts when refresh retries are enabled. The default is undefined, allowing for unlimited attempts.
 
+## `acceleration.refresh_on_startup`
+
+Optional. Controls whether Spice refreshes the dataset when the service starts. Defaults to `auto`.
+
+Supported values:
+
+- `auto` - Skips refresh on startup if the dataset is already accelerated and either the refresh interval hasn't elapsed or no refresh interval is defined.
+- `always` - Performs dataset refresh on every startup, regardless of existing acceleration state.
+
 ## `acceleration.params`
 
 Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
