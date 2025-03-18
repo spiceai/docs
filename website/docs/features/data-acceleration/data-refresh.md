@@ -271,6 +271,7 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 Controls whether Spice refreshes the dataset when the service starts.
 
 `refresh_on_startup` Options:
+
 - `auto` (Default) – Skips the refresh on startup if the dataset is already accelerated and:
   - The refresh interval hasn't elapsed, or  
   - No refresh interval is defined.  
