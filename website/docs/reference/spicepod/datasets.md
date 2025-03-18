@@ -289,10 +289,14 @@ Optional. Defines the maximum number of retry attempts when refresh retries are 
 
 Optional. Controls whether Spice refreshes the dataset when the service starts. Defaults to `auto`.
 
-Supported values:
+### Supported Values
 
-- `auto` - Skips refresh on startup if the dataset is already accelerated and either the refresh interval hasn't elapsed or no refresh interval is defined.
-- `always` - Performs dataset refresh on every startup, regardless of existing acceleration state.
+- **`auto` (Default)** – Skips the refresh on startup if the dataset is already accelerated and:
+  - The refresh interval hasn't elapsed, or  
+  - No refresh interval is defined.  
+- **`always`** – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+
+Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.
 
 ## `acceleration.params`
 
