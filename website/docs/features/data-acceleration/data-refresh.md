@@ -58,6 +58,8 @@ datasets:
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/docs/reference/spicepod/datasets#accelerationrefresh_append_overlap).
 
+#### `time_partition_column`
+
 Datasets that are partitioned by a less-granular time-column (e.g. day, month, year) can also use the `time_partition_column` parameter in addition to the `time_column` parameter to specify the time-column to use for efficient partition pruning.
 
 Example:
@@ -71,6 +73,49 @@ datasets:
     time_partition_column: created_at_day
     time_partition_format: date
 ```
+
+#### Append only modified files
+
+Spice can automatically detect and append only newly created or updated files from object-store data sources. This is useful for append-only datasets where only new files are added to the source and existing files are not modified or deleted.
+
+Enable this feature by setting either `time_column` or `time_partition_column` to the special value `last_modified`. When configured this way with `refresh_mode: append`, Spice will use the file/object's metadata to determine which files are new or have been updated.
+
+This approach can drastically speed up incremental updates for large datasets, as Spice only needs to process the new files rather than scanning the entire dataset for changes to a column. This optimization is particularly valuable for datasets with many files or large file sizes.
+
+If `last_modified` already exists as a column in the parquet data, that column will take precedence over the metadata value from the file itself.
+
+Example using `time_column`:
+
+```yaml
+datasets:
+  - from: s3://my_bucket/my_dataset
+    name: accelerated_dataset
+    time_column: last_modified
+    params:
+      file_format: parquet
+    acceleration:
+      refresh_mode: append
+      refresh_check_interval: 10m
+```
+
+Example using `time_partition_column`:
+
+```yaml
+datasets:
+  - from: s3://my_bucket/my_dataset
+    name: accelerated_dataset
+    time_column: created_at
+    time_partition_column: last_modified
+    params:
+      file_format: parquet
+    acceleration:
+      refresh_mode: append
+      refresh_check_interval: 10m
+```
+
+:::info
+Appending modified files is only supported for datasets that support setting the [file format parameter](/docs/reference/file_format.md), such as `s3://`, `abfs://`, `file://`, etc.
+:::
 
 ### Changes (CDC)
 
