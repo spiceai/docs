@@ -2,7 +2,7 @@
 title: 'SELECT'
 sidebar_label: 'SELECT'
 pagination_prev: 'reference/sql/index'
-pagination_next: 'reference/sql/task_history'
+pagination_next: 'reference/sql/operators'
 sidebar_position: 1
 ---
 
@@ -24,7 +24,7 @@ Spice supports the following syntax for queries:
 [ [WHERE](#where-clause) condition ]  
 [ [GROUP BY](#group-by-clause) grouping_element [, ...] ]  
 [ [HAVING](#having-clause) condition]  
-[ [UNION](#union-clause) [ ALL | select ]  
+[ [UNION](#union-clause) [ ALL | select ] ]
 [ [ORDER BY](#order-by-clause) expression \[ ASC | DESC \][, ...] ]  
 [ [LIMIT](#limit-clause) count ]  
 [ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]

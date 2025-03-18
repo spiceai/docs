@@ -50,6 +50,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add deploy comment to PR
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -59,3 +60,9 @@ jobs:
               repo: context.repo.repo,
               body: '🚀 deployed to <${{ steps.deploy.outputs.deployment-url }}>'
             })
+
+      - name: Trigger search reindex after deployment
+        if: ${{ github.ref == 'refs/heads/trunk' }}
+        run: |
+          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
+            --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"

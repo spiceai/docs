@@ -150,6 +150,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
 - `unix_millis` - Unix timestamp in milliseconds. E.g. `1718756687000`.
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+- `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
 Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
 
@@ -159,7 +160,15 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 :::
 
-## `invalid_type_action`
+## `time_partition_column`
+
+(Optional) Specify the column that represents the physical partitioning of the dataset when using append-based acceleration. When the defined `time_column` is a fine-grained timestamp and the dataset is physically partitioned by a coarser granularity (for example, by date), setting `time_partition_column` to the partition column (e.g. date_col) improves partition pruning, excludes irrelevant partitions during refreshes, and optimizes scan efficiency.
+
+## `time_partition_format`
+
+(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
+
+## `unsupported_type_action`
 
 Optional. Specifies the action to take when a data type that is not supported by the data connector is encountered.
 
@@ -168,10 +177,11 @@ The following values are supported:
 - `error` - Default. Return an error when an unsupported data type is encountered.
 - `warn` - Log a warning and ignore the column containing the unsupported data type.
 - `ignore` - Log nothing and ignore the column containing the unsupported data type.
+- `string` - Attempt to convert the unsupported data type to a string. Currently only supports converting the PostgreSQL JSONB type.
 
 :::warning[Limitations]
 
-Not all connectors support specifying an `invalid_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `invalid_type_action`:
+Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb.md)
 - [PostgreSQL](../../components/data-connectors/postgres/index.md)
@@ -274,6 +284,19 @@ Retries utilize a [Fibonacci backoff strategy](https://en.wikipedia.org/wiki/Fib
 ## `acceleration.refresh_retry_max_attempts`
 
 Optional. Defines the maximum number of retry attempts when refresh retries are enabled. The default is undefined, allowing for unlimited attempts.
+
+## `acceleration.refresh_on_startup`
+
+Optional. Controls whether Spice refreshes the dataset when the service starts. Defaults to `auto`.
+
+### Supported Values
+
+- **`auto` (Default)** – Skips the refresh on startup if the dataset is already accelerated and:
+  - The refresh interval hasn't elapsed, or  
+  - No refresh interval is defined.  
+- **`always`** – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+
+Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.
 
 ## `acceleration.params`
 

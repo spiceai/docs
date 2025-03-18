@@ -107,8 +107,22 @@ Response:
 
 ### Pre-Existing Embeddings
 
-Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, these table columns must adhere to the following constraints:
+Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, the dataset must:
+  1. Adhere to naming and type constraints for the underlying and embeddings columns.
+  2. Define the embedding model to use for the column in the `spicepod.yaml` file. This isn't used to compute embedding on data in the table, but to embed the query text for similarity search operations. Like above, this can be done in the dataset component:
+  ```yaml
+  datasets:
+  - from: github:github.com/spiceai/spiceai/issues
+    name: spiceai.issues
+    acceleration:
+      enabled: true
+    columns:
+      - name: body
+        embeddings:
+          - from: local_embedding_model # defined in `embeddings` section
+  ```
 
+#### Constraints
 1. **Underlying Column Presence:**
 
    - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .

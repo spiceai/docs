@@ -57,10 +57,13 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - anyhow 1.0.95, Apache-2.0 OR MIT 
   <br/>https://github.com/dtolnay/anyhow
 
-- arrow 53.3.0, Apache-2.0 
+- arrow 53.4.0, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-buffer 53.3.0, Apache-2.0 
+  <br/>https://github.com/apache/arrow-rs
+
+- arrow-cast 53.4.0, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-csv 53.3.0, Apache-2.0 
@@ -72,10 +75,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - arrow-ipc 53.3.0, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-json 53.1.0, Apache-2.0 
-  <br/>https://github.com/apache/arrow-rs
-
-- arrow-json 53.3.0, Apache-2.0 
+- arrow-json 53.4.0, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-odbc 11.2.0, MIT 
@@ -204,7 +204,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - dotenvy 0.15.7, MIT 
   <br/>https://github.com/allan2/dotenvy
 
-- duckdb 1.1.3, MIT 
+- duckdb 1.2.0, MIT 
   <br/>https://github.com/duckdb/duckdb-rs
 
 - dyn-clone 1.0.17, Apache-2.0 OR MIT 

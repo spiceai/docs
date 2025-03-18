@@ -11,7 +11,7 @@ tags:
 
 Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](/docs/features/search)).
 
-![Spice.ai Large-Language-Model (LLM) AI-Gateway](/img/features/ai-gateway.png).
+<img width="740" alt="ai-gateway" src="https://github.com/user-attachments/assets/4a45cd62-ebfc-4a73-956d-661f1ab44cd8" />
 
 Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
 

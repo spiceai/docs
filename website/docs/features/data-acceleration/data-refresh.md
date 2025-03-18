@@ -58,6 +58,20 @@ datasets:
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/docs/reference/spicepod/datasets#accelerationrefresh_append_overlap).
 
+Datasets that are partitioned by a less-granular time-column (e.g. day, month, year) can also use the `time_partition_column` parameter in addition to the `time_column` parameter to specify the time-column to use for efficient partition pruning.
+
+Example:
+
+```yaml
+datasets:
+  - from: databricks:my_dataset
+    name: accelerated_dataset
+    time_column: created_at
+    time_format: iso8601
+    time_partition_column: created_at_day
+    time_partition_format: date
+```
+
 ### Changes (CDC)
 
 Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](/docs/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/docs/components/data-connectors/debezium.md).
@@ -245,6 +259,38 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
 
 :::
+
+## Refresh on Startup
+
+| Parameter                   | Value  |
+| --------------------------- | ------ |
+| Supported in `refresh_mode` | Any    |
+| Required                    | No     |
+| Default Value               | `auto` |
+
+Controls whether Spice refreshes the dataset when the service starts.
+
+`refresh_on_startup` Options:
+
+- `auto` (Default) – Skips the refresh on startup if the dataset is already accelerated and:
+  - The refresh interval hasn't elapsed, or  
+  - No refresh interval is defined.  
+- `always` – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+
+Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.  
+
+Example Configuration:
+
+```yaml
+datasets:
+  - from: databricks:my_dataset
+    name: accelerated_dataset
+    acceleration:
+      enabled: true
+      refresh_on_startup: always
+```
+
+For the complete reference, view the `refresh_on_startup` section of [datasets](/docs/reference/spicepod/datasets.md#accelerationrefresh_on_startup).
 
 ## Refresh Interval
 
