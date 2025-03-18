@@ -279,13 +279,6 @@ Controls whether Spice refreshes the dataset when the service starts.
 Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.  
 
 Example Configuration:
-```yaml
-datasets:
-  - from: databricks:my_dataset
-    name: accelerated_dataset
-    acceleration:
-      enabled: true
-      refresh_on_startup: always
 
 ```yaml
 datasets:
