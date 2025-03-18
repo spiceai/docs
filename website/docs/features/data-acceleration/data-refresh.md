@@ -260,6 +260,38 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 
 :::
 
+## Refresh on Startup
+
+| Parameter                   | Value  |
+| --------------------------- | ------ |
+| Supported in `refresh_mode` | Any    |
+| Required                    | No     |
+| Default Value               | `auto` |
+
+Controls whether Spice refreshes the dataset when the service starts.
+
+`refresh_on_startup` Options:
+
+- `auto` (Default) – Skips the refresh on startup if the dataset is already accelerated and:
+  - The refresh interval hasn't elapsed, or  
+  - No refresh interval is defined.  
+- `always` – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+
+Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.  
+
+Example Configuration:
+
+```yaml
+datasets:
+  - from: databricks:my_dataset
+    name: accelerated_dataset
+    acceleration:
+      enabled: true
+      refresh_on_startup: always
+```
+
+For the complete reference, view the `refresh_on_startup` section of [datasets](/docs/reference/spicepod/datasets.md#accelerationrefresh_on_startup).
+
 ## Refresh Interval
 
 |                             |                  |
