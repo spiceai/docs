@@ -14,12 +14,12 @@ Example:
 
 ```yaml
 tools:
-  - name: arpanet
-    from: websearch
-    description: "Search the web for information."
+  - name: maps
+    from: mcp:npx
     params:
-      engine: perplexity
-      perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
+      mcp_args: -y @modelcontextprotocol/server-google-maps
+    env:
+        GOOGLE_MAPS_API_KEY: ${ secrets:SPICE_GOOGLE_MAPS_API_KEY }
 ```
 
 ### `name`
@@ -37,6 +37,11 @@ Optional. A textual description of the tool's function.
 ### `params`
 
 Optional. A map of key-value pairs for additional parameters specific to the tool.
+
+### `env`
+
+Optional. A map of key-value pairs of arbitrary environment variables to set when running the tool. Only useable if the tool requires a subprocess to run (e.g. MCP over stdio) .
+
 
 ### `dependsOn`
 

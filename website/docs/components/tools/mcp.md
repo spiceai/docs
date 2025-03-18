@@ -49,3 +49,7 @@ The following parameters are supported for configuring the connection to the MCP
 | Parameter Name | Definition |
 |---------------|------------|
 | `mcp_args`    | Only for stdio MCP servers. Specify the additional arguments to instantiate the MCP server. e.g. `-y @modelcontextprotocol/server-google-maps` (for `from: mcp:npx`). |
+
+## `env`
+
+Only for stdio MCP servers. Environment variables configured are provided to the processing running the MCP server.
