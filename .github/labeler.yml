@@ -1,0 +1,11 @@
+"area/docs":
+- changed-files:
+  - any-glob-to-any-file: ['website/docs/*']
+
+"area/blog":
+- changed-files:
+  - any-glob-to-any-file: ['website/blog/*']
+
+release:
+- changed-files:
+  - any-glob-to-any-file: ['website/blog/releases/*.md']

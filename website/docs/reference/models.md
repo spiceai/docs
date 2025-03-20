@@ -3,6 +3,7 @@ title: 'Models Grade Report'
 description: 'Spice AI graded Large-Language-Model (LLM) evaluation report'
 sidebar_label: 'Models Grade Report'
 sidebar_position: 4
+hide_table_of_contents: true
 ---
 
 This document presents the evaluation report for various Large-Language-Models (LLMs) graded by Spice AI. The models are assessed based on their basic capabilities, quality of tool calls, and accuracy of output when integrated with Spice.
