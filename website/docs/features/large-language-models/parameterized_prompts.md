@@ -44,7 +44,7 @@ More than this, system prompts can use Jinja syntax to allow system prompts to b
       -d '{
         "model": "advice",
         "messages": [
-          {"role": "user", "content": "What are the general themes of new issues in the last 14 days?"}
+          {"role": "user", "content": "Where should I visit in San Francisco?"}
         ],
         "metadata": {
           "form": "haiku",
