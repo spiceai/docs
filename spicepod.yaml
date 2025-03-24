@@ -65,7 +65,7 @@ datasets:
               overlap_size: 128
               trim_whitespace: true
 
-  - from: github:github.com/spiceai/blog/files/trunk
+  - from: github:github.com/spiceai/docs/files/trunk
     name: spiceai.blog
     description: Spice.ai OSS blog posts
     metadata:
@@ -77,7 +77,7 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: 'content/posts/**/*.md'
+      include: 'website/blog/**/*.md'
     acceleration:
       enabled: true
       refresh_check_interval: 4h
@@ -159,6 +159,8 @@ models:
         **Write clearly, concisely, and precisely for a developer audience.**
         Use objective third-person tense. Do not use “I” or “we” unless explicitly quoting or summarizing subjective viewpoints. Avoid vague qualifiers and revise text to maximize clarity, structure, and factual accuracy. Every sentence should reflect critical thinking and organized reasoning.
 
+        Ensure that all documentation adheres to the project's style guide and includes relevant examples where applicable.
+
         **Be specific. Prioritize detail without being verbose.**
         Use plain, direct language. Avoid jargon, exaggeration, and promotional tone.
 
@@ -174,3 +176,5 @@ models:
         **Always provide citations and references with links when applicable.**
 
         Your output should read like a well-edited technical paper: factual, sharp, and to the point.
+
+        Always output Markdown in plain text for copy.
