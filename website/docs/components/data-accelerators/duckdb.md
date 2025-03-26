@@ -89,7 +89,7 @@ Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, no
 
 DuckDB indexes currently do not support spilling to disk. While index memory usage is registered through the buffer manager, index buffers are not managed by the buffer eviction mechanism. As a result, indexes may consume significant memory, impacting memory-intensive query performance.
 
-Indexes are serialized to disk and loaded lazily upon database reopening, ensuring they do not affect database opening performance.
+Indexes are serialized to disk and loaded lazily upon database reopening, ensuring they do not affect database opening performance. Also consider index serialization when allocating disk storage.
 
 For more details, see DuckDB's [Indexes and Memory documentation](https://duckdb.org/docs/stable/guides/performance/indexing.html#indexes-and-memory).
 
@@ -105,7 +105,7 @@ Ensure adequate disk space for temporary files, swap files, WAL files, and inter
 
 The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
 
-Set the `runtime.temp_directory` parameter to specify a custom temporary directory. This helps distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set the `runtime.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
 
 Example configuration:
 
