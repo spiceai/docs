@@ -9,60 +9,45 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Effective memory management is critical for optimal performance and stability in Spice.ai Open Source deployments. This guide provides clear recommendations and best practices for managing memory usage.
+Effective memory management is essential for maintaining optimal performance and stability in Spice.ai Open Source deployments. This guide outlines recommendations and best practices for managing memory usage.
 
 ## General Memory Recommendations
 
-Memory requirements depend on workload characteristics, dataset sizes, query complexity, and refresh modes. Recommended allocations:
+Memory requirements vary based on workload characteristics, dataset sizes, query complexity, and refresh modes. Recommended allocations include:
 
-- Typical workloads: at least 8 GB RAM.
-- Larger datasets:
+- **Typical workloads**: At least 8 GB RAM.
+- **Larger datasets**:
   - `refresh_mode: full`: 2.5x dataset size.
   - `refresh_mode: append`: 1.5x dataset size.
   - `refresh_mode: changes`: Primarily influenced by CDC event volume and frequency; 1.5x dataset size is a reasonable estimate.
 
+When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](/website/docs/components/data-accelerators/duckdb.md).
+
 ## Refresh Modes and Memory Implications
 
-Refresh modes directly impact memory usage:
+Refresh modes affect memory usage as follows:
 
-- **Full Refresh**: Loads data into a temporary table, then atomically swaps it with the existing table. Requires memory for both tables simultaneously, resulting in higher usage.
-- **Append Refresh**: Incrementally inserts or upserts data, using memory only for incremental data, significantly reducing memory usage.
-- **Changes Refresh**: Applies CDC events incrementally, with memory usage primarily influenced by incoming event volume and frequency, typically resulting in lower and predictable usage.
+- **Full Refresh**: Temporarily loads data into a new table before replacing the existing table so that it can be atomically swapped and maintain consistency. This requires memory for both tables simultaneously, resulting in higher usage.
+- **Append Refresh**: Incrementally inserts or upserts data, using memory only for the incremental data, which reduces usage.
+- **Changes Refresh**: Applies CDC events incrementally. Memory usage depends on event volume and frequency, typically resulting in lower and predictable usage.
 
 ## DataFusion Memory Management
 
-Spice.ai uses DataFusion as its query execution engine. DataFusion does not enforce strict memory limits by default, potentially causing unbounded memory usage. Spice.ai mitigates this through:
+Spice.ai uses DataFusion as its query execution engine. By default, DataFusion does not enforce strict memory limits, which can lead to unbounded usage. Spice.ai addresses this through:
 
-- **Memory Budgeting**: Limits memory per query execution. Queries exceeding this budget return an error. See [Spicepod Configuration](spicepod/index.md).
+- **Memory Budgeting**: Limits memory per query execution. Queries exceeding the limit return an error. See [Spicepod Configuration](spicepod/index.md) for details.
 - **Spill-to-Disk**: Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors.
 
 ## Embedded Data Accelerators
 
-Spice.ai supports embedded accelerators like [SQLite](/website/docs/components/data-accelerators/sqlite.md) and [DuckDB](/website/docs/components/data-accelerators/duckdb.md), each with distinct memory considerations:
+Spice.ai integrates with embedded accelerators like [SQLite](/website/docs/components/data-accelerators/sqlite.md) and [DuckDB](/website/docs/components/data-accelerators/duckdb.md), each with unique memory considerations:
 
-- **SQLite**: Lightweight and memory-efficient, suitable for smaller datasets. Does not support intermediate spilling; datasets should fit comfortably in memory or use application-level paging.
-- **DuckDB**: Optimized for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. By default, DuckDB instances use up to 80% of available system memory. Consolidate multiple datasets into a single DuckDB instance to avoid excessive cumulative memory usage:
-
-```yaml
-acceleration:
-  engine: duckdb
-  params:
-    duckdb_file: '/data/shared_duckdb_instance.db'
-    duckdb_memory_limit: '4G'
-```
-
-Configure DuckDB temporary directories and limits as follows:
-
-```sql
-SET temp_directory = '/tmp/duckdb_swap';
-SET max_temp_directory_size = '100GB';
-```
-
-For detailed DuckDB memory management, refer to the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
+- **SQLite**: Lightweight and efficient for smaller datasets. Does not support intermediate spilling; datasets must fit in memory or use application-level paging.
+- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](/website/docs/components/data-accelerators/duckdb.md) for more details.
 
 ## Kubernetes Memory Configuration
 
-Set appropriate memory requests and limits in Kubernetes pod specifications:
+Configure appropriate memory requests and limits in Kubernetes pod specifications to ensure resource availability:
 
 ```yaml
 apiVersion: v1
@@ -81,6 +66,6 @@ spec:
 
 ## Monitoring and Profiling
 
-Regularly monitor and profile memory usage with observability tools to identify and address potential memory bottlenecks promptly.
+Use observability tools to monitor and profile memory usage regularly. This helps identify and resolve potential bottlenecks promptly.
 
-Following these recommendations helps developers effectively manage memory resources, ensuring Spice.ai deployments remain performant, stable, and reliable.
+By following these guidelines, developers can manage memory resources effectively, ensuring Spice.ai deployments remain performant, stable, and reliable.
