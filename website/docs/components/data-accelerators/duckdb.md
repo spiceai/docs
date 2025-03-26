@@ -35,7 +35,7 @@ When using `mode: file`, datasets are stored in a DuckDB file on disk in the `.s
 DuckDB acceleration supports the following optional parameters under `acceleration.params`:
 
 - `duckdb_file` (string, default: none): Path to the DuckDB database file. Required if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
-- `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
+- `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
 
 Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets.md#acceleration) for additional supported fields.
 
@@ -83,7 +83,9 @@ datasets:
         duckdb_memory_limit: '4GB'
 ```
 
-Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as index creation and some insert operations. Allocate at least 30% more memory for the runtime process.
+Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duck_memory_limit` so ensure adequate memory is provisioned.
+
+Allocate at least 30% more container/machine memory for the runtime process.
 
 ### Indexes and Memory
 
