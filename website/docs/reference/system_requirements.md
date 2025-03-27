@@ -80,9 +80,7 @@ Spice resource requirements, particularly memory, are highly dependent on worklo
 | `refresh_mode: full`   | 2.5x the dataset size |
 | `refresh_mode: append` | 1.5x the dataset size |
 
-### DuckDB Memory Usage
-
-When using DuckDB (as an accelerator or connector), it by default uses 80% of available memory. For more details, refer to the [DuckDB operations manual limits](https://duckdb.org/docs/operations_manual/limits.html).
+See [Memory Management and Best Pratices](memory.md) for a detailed guide on memory considerations.
 
 ## Additional Considerations
 
