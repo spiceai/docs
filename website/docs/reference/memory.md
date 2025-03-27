@@ -21,7 +21,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
   - `refresh_mode: append`: 1.5x dataset size.
   - `refresh_mode: changes`: Primarily influenced by CDC event volume and frequency; 1.5x dataset size is a reasonable estimate.
 
-When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md).
+When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](/website/docs/components/data-accelerators/duckdb.md).
 
 ## Refresh Modes and Memory Implications
 
@@ -40,10 +40,10 @@ Spice.ai uses DataFusion as its query execution engine. By default, DataFusion d
 
 ## Embedded Data Accelerators
 
-Spice.ai integrates with embedded accelerators like [SQLite](/docs/components/data-accelerators/sqlite.md) and [DuckDB](/docs/components/data-accelerators/duckdb.md), each with unique memory considerations:
+Spice.ai integrates with embedded accelerators like [SQLite](/website/docs/components/data-accelerators/sqlite.md) and [DuckDB](/website/docs/components/data-accelerators/duckdb.md), each with unique memory considerations:
 
 - **SQLite**: Lightweight and efficient for smaller datasets. Does not support intermediate spilling; datasets must fit in memory or use application-level paging.
-- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md) for more details.
+- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](/website/docs/components/data-accelerators/duckdb.md) for more details.
 
 ## Kubernetes Memory Configuration
 
