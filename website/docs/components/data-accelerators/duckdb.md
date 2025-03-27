@@ -28,7 +28,7 @@ By default, DuckDB acceleration uses `mode: memory`, loading datasets into memor
 
 ### File Mode
 
-When using `mode: file`, datasets are stored in a DuckDB file on disk in the `.spice/data` directory. For datasets intended to be joined, set the same `duckdb_file` path for all related datasets.
+When using `mode: file`, datasets are stored by default in a DuckDB file on disk in the `.spice/data` directory relative to the spicepod.yaml. Specify the `duckdb_file` parameter to store the DuckDB file in a different location. For datasets intended to be joined, set the same `duckdb_file` path for all related datasets.
 
 ## Configuration Parameters
 
