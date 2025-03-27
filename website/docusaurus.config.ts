@@ -54,6 +54,7 @@ const config: Config = {
           path: 'blog',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
+          onUntruncatedBlogPosts: 'ignore',
           editUrl: ({ locale, blogDirPath, blogPath }) => {
             return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
           },
@@ -91,8 +92,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/og/spiceai.png',
     announcementBar: {
-      content:
-        '<a href="/blog/releases/v1.0.7">Spice.ai OSS v1.0.7</a> is now available! 🚀',
+      content: '<a href="/blog/releases/v1.0.7">Spice.ai OSS v1.0.7</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
