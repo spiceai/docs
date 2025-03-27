@@ -34,7 +34,7 @@ When using `mode: file`, datasets are stored by default in a DuckDB file on disk
 
 DuckDB acceleration supports the following optional parameters under `acceleration.params`:
 
-- `duckdb_file` (string, default: none): Path to the DuckDB database file. Required if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
+- `duckdb_file` (string, default:`.spice/data/accelerated_duckdb.db`): Path to the DuckDB database file. Applies if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
 - `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
 
 Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets.md#acceleration) for additional supported fields.
