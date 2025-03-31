@@ -10,6 +10,18 @@ Tools define functions that can be invoked within the Spice runtime, either dire
 
 The `tools` section in your configuration specifies one or more tools available for use in the runtime.
 
+Example:
+
+```yaml
+tools:
+  - name: arpanet
+    from: websearch
+    description: "Search the web for information."
+    params:
+      engine: perplexity
+      perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
+```
+
 ### `name`
 
 A unique identifier for this tool.

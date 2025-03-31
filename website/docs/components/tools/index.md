@@ -8,6 +8,18 @@ A tool is a function or operation that can be called directly or by a [language 
 
 For details about providing LLMs tool access, see [Language Model Tools](/docs/features/large-language-models/tools).
 
+**Example**
+
+```yaml
+tools:
+  - name: arpanet
+    from: websearch
+    description: 'Search the web for information.'
+    params:
+      engine: perplexity
+      perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
+```
+
 For details on tool specifications, see the [Tools Spicepod Reference](/docs/reference/spicepod/tools).
 
 ### Available Tools
@@ -23,6 +35,9 @@ For details on tool specifications, see the [Tools Spicepod Reference](/docs/ref
 | `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`        |
 | `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`      |
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
+| [`websearch`][websearch]  | Search the web for information.                                   | -             |
+
+[websearch]: /docs/components/tools/websearch
 
 ### Tool Groups
 
