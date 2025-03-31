@@ -313,16 +313,16 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 | Required                    | No     |
 | Default Value               | `auto` |
 
-Controls whether Spice refreshes the dataset when the service starts.
+Controls the refresh behavior of a dataset across restarts.
 
 `refresh_on_startup` Options:
 
-- `auto` (Default) – Skips the refresh on startup if the dataset is already accelerated and:
-  - The refresh interval hasn't elapsed, or  
-  - No refresh interval is defined.  
-- `always` – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+- `auto` (Default) – Maintains refresh state across restarts:
+  - With `refresh_check_interval`: Schedules next refresh based on last successful refresh time, triggering immediately if interval has already elapsed
+  - Without `refresh_check_interval`: No refresh (on-demand only)
+- `always` – Forces a dataset refresh on every startup, regardless of the existing acceleration state.
 
-Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.  
+Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.
 
 Example Configuration:
 
