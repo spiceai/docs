@@ -313,7 +313,7 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 | Required                    | No     |
 | Default Value               | `auto` |
 
-Controls the refresh behavior of a dataset across restarts.
+Controls the refresh behavior of an accelerated dataset across restarts.
 
 `refresh_on_startup` Options:
 
