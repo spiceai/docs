@@ -121,7 +121,7 @@ Use this parameter when:
 - Handling workloads that frequently spill to disk.
 - Distributing swap and data I/O operations across multiple storage volumes.
 
-For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/index.md#runtimetemp_directory).
+For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/runtime.md#runtimetemp_directory).
 
 For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
 
