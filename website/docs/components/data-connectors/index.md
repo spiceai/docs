@@ -43,6 +43,7 @@ Supported Data Connectors include:
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
+| `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
