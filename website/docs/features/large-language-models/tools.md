@@ -47,8 +47,7 @@ models:
 
 ### Tool Recursion Limit
 
-When a model requests to call a runtime tool, Spice runs the tool internally and feeds it back to the model. The `tool_recursion_limit` parameter limits the depth of internal recursion Spice will undertake. By default, Spice can infinitely recurse if the model requests to do so.
-
+When a model requests to call a runtime tool, Spice runs the tool internally and feeds it back to the model. The `tool_recursion_limit` parameter limits the depth of internal recursion Spice will undertake. By default, this limit is set to 10.
 ```yaml
 models:
   - name: my-model
