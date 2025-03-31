@@ -2,7 +2,7 @@
 title: 'Evaluating Language Models'
 sidebar_label: 'Evals'
 description: 'Learn how Spice evaluates, tracks, compares, and improves language model performance for specific tasks'
-sidebar_position: 3
+sidebar_position: 4
 pagination_prev: null
 pagination_next: null
 tags:
@@ -95,3 +95,69 @@ views:
       FROM runtime.task_history
       WHERE task='ai_completion'
 ```
+
+## Eval Scorers
+
+An eval scorer is a method to score the model's performance on a single eval case. A scorer is given the input given to the model, the models output and the expected output and produces an associated score. Spice has several out of the box scorers:
+ - `match`: Checks for an exact match between the expected and actual outputs.
+ - `json_match`: Checks for an equivalent JSON between expected and actual outputs.
+ - `includes`: Checks for the actual output to include the expected output.
+ - `fuzzy_match`: Checks whether a normalised version (ignoring casing, punctuation, articles (e.g. a, the), excess whitespace) of either the expected and actual outputs are a subset of the other.
+ - `levenshtein`: Computes the Levenshtein distance between the two output strings, normalised to the string length. The Levenshtein distance between two words is the minimum number of single-character edits (insertions, deletions or substitutions) required to change one word into the other.
+
+Spice has two other methods to define new scorers based on other spicepod components:
+ - Embedding models can be used to compute the similarity between the expected and actual output from the model being evaluated. Any `embeddings` model defined in the `spicepod.yaml` is automatically available as a scorer.
+ - Other language models can be used to judge the model being evaluated. This is often called an LLM-as-a-judge. Any `models` model defined in the `spicepod.yaml` is automatically available as a scorer. Note, however, that these models should generally be configured purposefully to be a judge. There are also constraints the model must satisfy, see [below](#llm-judge).
+
+Below is an example of an eval that uses all three: a builtin scorer, an embedding model scorer and an LLM judge.
+```yaml
+evals:
+  - name: australia
+    description: Make sure the model understands Aussies, and importantly Cricket.
+    dataset: cricket_questions
+    scorers:
+      - hf_minilm
+      - judge
+      - match
+
+embeddings:
+  - name: hf_minilm
+    from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+
+models:
+  - name: judge
+    from: openai:gpt-4o
+    params:
+      openai_api_key: ${ secrets:OPENAI_API_KEY }
+      parameterized_prompt: enabled
+      system_prompt: |
+        Score these two stories between 0.0 and 1.0 based on how similar their moral lesson is.
+
+        Story A: {{ .actual }}
+        Story B: {{ .ideal }}
+      openai_response_format:
+        type: json_schema
+        json_schema:
+          name: judge
+          schema:
+            type: object
+            properties:
+              score:
+                type: number
+                format: float
+            additionalProperties: true
+            required:
+              - score
+        strict: false
+```
+
+### LLM-as-a-Judge {#llm-judge}
+Spicepod models can be used to provide eval scores for other models. To do so in Spice, the LLM must:
+1. Return a valid JSON as the response. The JSON must have at least a single number field `.score`. e.g.
+  ```json
+  {
+    "score": 0.42,
+    "rationale": "It was a good story, they both are about love."
+  }
+  ```
+2. Use [Parameterized prompts](docs/features/large-language-models/parameterized_prompts) to provide details about the eval step. When used as an eval scorer, the model will be provided with the following variables: `input`, 'actual` & `ideal`. The type of these variables will depend on the dataset, as per the [dataset format](#dataset-formats).

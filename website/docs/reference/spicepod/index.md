@@ -229,6 +229,15 @@ runtime:
 
 This configuration allows requests from the `https://example.com` origin only.
 
+### `runtime.temp_directory`
+
+The path to a temporary directory that Spice will use for query/acceleration operations that spill to disk.
+
+```yaml
+runtime:
+  temp_directory: /tmp/spice
+```
+
 ## `metadata`
 
 An optional `map` of metadata.
