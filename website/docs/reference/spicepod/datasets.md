@@ -294,7 +294,7 @@ Optional. Controls the refresh behavior of an accelerated dataset across restart
 - **`auto` (Default)** – Maintains refresh state across restarts:
   - With `refresh_check_interval`: Schedules next refresh based on last successful refresh time, triggering immediately if interval has already elapsed
   - Without `refresh_check_interval`: No refresh (on-demand only)
-- **`always`** – Forces a dataset refresh on every startup, regardless of the existing acceleration state.  
+- **`always`** – Forces a dataset refresh on every startup, regardless of the existing acceleration state.
 
 Setting `refresh_on_startup: always` ensures that accelerated data is always refreshed to match the source when the service restarts. This is useful in **development environments** or when **data consistency is critical** after deployment.
 
