@@ -1,0 +1,72 @@
+---
+id: mcp-event
+title: "Send message to MCP server"
+description: "Send message to the MCP endoint, for a given session."
+sidebar_label: "Send message to MCP server"
+hide_title: true
+hide_table_of_contents: true
+api: eJydU01v2zAM/SuEThvgOh/rgDW3rtihwLIVTXcqgpS1mViYLKmS7DYz8t9H2i7WptgOO9nixyP5HtmphLuoFreqLrxaZ6qkWATtk3ZWLdSKbAk1xYg7guQgVQTLiytgs9M2ZbB1ARB2uiULkeM4LVeZcp4CCsZlySgMvSGOSOzxGLCmREGKdsrygyPGVI7OlJbCDw2FPT8CPTQ6EKOk0FCmYlFRjWrRqbT3fWYK2u7U4bCW4OidZSzxz6dz+byeZzmOgkVBPlGZw/WYA4/aGGA0whpajbBafcnVIVOn09O3OKuhX7AuMQWNZaBvjlETE/HMQ8+NEDawczeaN7q8G4BnH94CX+HeOCyZawcGw45yWOKTrpsa0Bj3SCVE/YtARzhdfu5xPk6nb3EuLVNskSei0FIACsGFHM4tNJaePBU8PIPEhsAVRROYYgZjNNamciKad3HQK1X8mrSzCcs4eZZxgB00bILhiColv5hMjCvQVJy7+DQ9m6rjhfoqbigZxjhfM9bYYA4Xzm71rgmiRKrg7uREEIWqtZTjHnXa9/XQ681Pkv+1+LTdun4hdDKyEaGxSfNWHZe+YSmi1wUP/ifE8JvVl/xxFc898o6dzHNpXpfcot5qCq89TJSMPwDP8tlgEspqtC/Aju9HbmcY+Li9ThWONWNy///qxpNI9JQm3iAfEjfVq9ONOt6qdsaBcuuZGrRkBkUu8XXdPUb6EczhIObhBoXxUke8N3KFWzSR/tH6u+vxYN/D3xrqpXt18S2aRuJ6qVsMWor18r7Yx6vvqxve0N/ytpfv
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Send message to MCP server"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/mcp/event"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Send message to the MCP endoint, for a given session.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"sessionId","in":"query","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"202":{"description":"Message accepted. Response will stream via SSE."},"404":{"description":"Session not found. No active session for the given `session_id`."},"413":{"description":"Payload too large. Maximum allowed size is 4MB."},"500":{"description":"Internal server error. An unexpected issue occurred."}}}
+>
+  
+</StatusCodes>
+
+
+      
