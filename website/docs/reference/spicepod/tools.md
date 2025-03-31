@@ -26,6 +26,10 @@ Optional. A textual description of the tool's function.
 
 Optional. A map of key-value pairs for additional parameters specific to the tool.
 
+### `env`
+
+Optional. A map of key-value pairs of arbitrary environment variables to set when running the tool. Only useable if the tool requires a subprocess to run (e.g. MCP over stdio) .
+
 ### `dependsOn`
 
 Optional. A list of dependencies that must be available before this tool can be used.
