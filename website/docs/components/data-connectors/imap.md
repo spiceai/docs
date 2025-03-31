@@ -27,7 +27,7 @@ datasets:
 | `bcc`        | `List<Utf8>` | Yes      | The blind carbon copy recipient(s) of the email.                                 |
 | `reply_to`   | `List<Utf8>` | Yes      | The email address(es) to which replies should be sent.                           |
 | `message_id` | `Utf8`       | Yes      | A unique identifier for the email message.                                       |
-| `in_reply_to`| `Utf8`       | Yes      | The `Message-ID` of the email this message is replying to, if applicable.        |
+| `in_reply_to`| `Utf8`       | Yes      | The `message_id` of the email this message is replying to, if applicable.        |
 | `content`    | `Utf8`       | Yes      | The raw email body of this message. Not retrieved when acceleration is disabled. |
 
 If a MIME-encoded value is retrieved for a field, it is not decoded and the MIME-encoded value is returned in SQL queries.
