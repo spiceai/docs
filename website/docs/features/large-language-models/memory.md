@@ -2,7 +2,7 @@
 title: 'Language Model Memory'
 sidebar_label: 'Memory'
 description: 'Learn how to provide LLMs with memory'
-sidebar_position: 2
+sidebar_position: 3
 pagination_prev: null
 pagination_next: null
 tags:

@@ -2,7 +2,7 @@
 title: 'Evaluating Language Models'
 sidebar_label: 'Evals'
 description: 'Learn how Spice evaluates, tracks, compares, and improves language model performance for specific tasks'
-sidebar_position: 3
+sidebar_position: 4
 pagination_prev: null
 pagination_next: null
 tags:
