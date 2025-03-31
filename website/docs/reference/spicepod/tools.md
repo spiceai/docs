@@ -10,18 +10,6 @@ Tools define functions that can be invoked within the Spice runtime, either dire
 
 The `tools` section in your configuration specifies one or more tools available for use in the runtime.
 
-Example:
-
-```yaml
-tools:
-  - name: maps
-    from: mcp:npx
-    params:
-      mcp_args: -y @modelcontextprotocol/server-google-maps
-    env:
-        GOOGLE_MAPS_API_KEY: ${ secrets:SPICE_GOOGLE_MAPS_API_KEY }
-```
-
 ### `name`
 
 A unique identifier for this tool.
@@ -41,7 +29,6 @@ Optional. A map of key-value pairs for additional parameters specific to the too
 ### `env`
 
 Optional. A map of key-value pairs of arbitrary environment variables to set when running the tool. Only useable if the tool requires a subprocess to run (e.g. MCP over stdio) .
-
 
 ### `dependsOn`
 
