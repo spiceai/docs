@@ -26,11 +26,12 @@ models:
 ```
 
 ### Example: Specifying tools via a Tool Group
+
 ```yaml
-  - name: full-runtime
-    from: openai:gpt-4o
-    params:
-      tools: auto # Use all default tools
+- name: full-runtime
+  from: openai:gpt-4o
+  params:
+    tools: auto # Use all default tools
 ```
 
 For details on tool groups, see [Tool Components](/docs/components/tools#tool-groups).
