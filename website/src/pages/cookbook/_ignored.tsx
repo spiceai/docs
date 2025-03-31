@@ -14,9 +14,6 @@ interface RecipeData {
   videoUrl?: string
 }
 
-const description =
-  'A collection of guides and samples to help you build data-grounded AI apps and agents with Spice.ai Open-Source. Find ready-to-use examples for data acceleration, AI agents, LLM memory, and more.'
-
 const recipeBaseUrl = 'https://github.com/spiceai/cookbook/blob/trunk'
 
 const recipes: RecipeData[] = [
@@ -99,6 +96,12 @@ const recipes: RecipeData[] = [
     description: 'Use DeepSeek model through Spice.',
     path: '/deepseek/README.md',
     tags: ['ai', 'deepseek', 'models']
+  },
+  {
+    title: 'Model-Context-Protocol (MCP)',
+    description: 'Use Spice to connect to or host MCP servers.',
+    path: '/mcp/README.md',
+    tags: ['ai', 'mcp', 'tools']
   },
   // Data Acceleration
   {
@@ -307,6 +310,12 @@ const recipes: RecipeData[] = [
     path: '/grafana-datasource/README.md',
     tags: ['client', 'grafana', 'datasource']
   },
+  {
+    title: 'IMAP Emails',
+    description: 'Federated SQL query of mail across IMAP email servers',
+    path: '/imap/README.md',
+    tags: ['connector', 'imap', 'datasource']
+  },
   // Deployment
   {
     title: 'Deploying to Kubernetes',
@@ -452,6 +461,8 @@ const RecipeGroup: React.FC<{ recipes: RecipeData[] }> = ({ recipes }) => {
 export function CookbookPage() {
   const filterByTag = (...tags: string[]) =>
     recipes.filter((r) => r.tags.some((t) => tags.includes(t)))
+
+  const description = `${recipes.length} guides and samples to help you build data-grounded AI apps and agents with Spice.ai Open-Source. Find ready-to-use examples for data acceleration, AI agents, LLM memory, and more.`
 
   return (
     <div className='tailwind font-sans'>
