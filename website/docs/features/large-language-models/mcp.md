@@ -13,6 +13,8 @@ tags:
 
 The Model Context Protocol (MCP) helps integrate external tools and services into the Spice runtime. MCP tools can be run internally or connected over HTTP using the Server-Sent Events (SSE) protocol.
 
+![Spice.ai Open Source Model-Context-Protocol (MCP) support](/img/features/mcp.png)
+
 ## Overview
 
 MCP enables Spice to:
