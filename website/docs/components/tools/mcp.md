@@ -3,11 +3,23 @@ title: 'Model Context Protocol Tools'
 sidebar_label: 'MCP Tools'
 ---
 
-Spice can find and use tools from [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers. This includes both:
-1. Running stdio-based MCP servers internally
-2. Connecting to MCP servers over SSE protocol.
+Spice integrates with tools and services using the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). MCP tools can be configured to run internally or connect to external servers over HTTP using the Server-Sent Events (SSE) protocol.
 
-## Usage
+## Overview
+
+MCP helps extend the capabilities of the Spice runtime by enabling integration with external tools and services. This includes:
+
+1. Running stdio-based MCP servers internally.
+2. Connecting to external MCP servers over SSE.
+
+## Configuring MCP Tools
+
+To configure MCP tools, define them in the `tools` section of your `spicepod.yaml` file. The `from` field specifies the transport mechanism, such as `mcp:npx` for stdio-based tools or an HTTP URL for SSE-based tools.
+
+### Example: Adding an MCP Tool (Stdio)
+
+The following example demonstrates how to configure an MCP tool using `npx` to run a Google Maps MCP server:
+
 ```yaml
 tools:
   - name: google_maps
@@ -16,40 +28,82 @@ tools:
       mcp_args: -y @modelcontextprotocol/server-google-maps
 ```
 
-## Spice as an MCP server
-The tools available, or loaded into, Spice can be connected to over the MCP protocol. Spice exposes the necessary SSE endpoints. For example, connecting to the tools of another Spice instance can be configured like any other MCP server.
+### Example: Connecting to an External MCP Server (SSE)
+
+This example shows how to connect to an external MCP server over SSE:
+
 ```yaml
 tools:
-  - name: another_spice_instance
+  - name: external_mcp_server
+    from: mcp:http://example.com/v1/mcp/sse
+```
+
+## Using MCP Tools with Models
+
+Once configured, MCP tools can be assigned to models via the `tools` parameter. For example:
+
+```yaml
+models:
+  - name: model_with_mcp
+    from: openai:gpt-4o
+    params:
+      tools: google_maps
+```
+
+## Spice as an MCP Server
+
+Spice can also act as an MCP server, exposing its tools over SSE. This enables other Spice instances or external systems to connect and use the tools.
+
+### Example: Connecting to Another Spice Instance via MCP
+
+```yaml
+tools:
+  - name: spice_instance
     from: mcp:http://localhost:8090/v1/mcp/sse
 ```
 
-# Configuration
-## `from`
+## Configuration Options
 
-The `from` field is used to specify the tool to use. The value to use is based on the transport mechanism:
- - SSE: Specify the HTTP URL where to connect over, including the `/sse` path, e.g. `http://localhost::8090/v1/mcp/sse`.
- - stdio: Specify the command to run to initialise the MCP server. E.g. `from: mcp:docker`, `from: mcp:npx`. Additional arguments to the command are specified in [params](#params) (specifically `params.mcp_args`).
+### `from`
 
-## `name`
+The `from` field specifies the transport mechanism for the MCP tool:
 
-The `name` field is used to specify the name of tool group. This name is used:
- - To reference the tool in the model's `params.tools` field
- - To make HTTP requests to the tool via the [API](/docs/api/HTTP/post), i.e. `v1/tools/{name}/{tool_name}`. where `tool_name` is the name of the tool from within the MCP server. e.g `v1/tools/google_maps/maps_geocode`.
- - Provided to any language model that uses the tool.
+- **SSE**: Use an HTTP URL ending with `/sse` (e.g., `http://localhost:8090/v1/mcp/sse`).
+- **Stdio**: Use commands like `mcp:npx` or `mcp:docker`. Additional arguments can be passed via `params.mcp_args`.
 
-## `description`
+### `params`
 
-The `description` field is used to provide a description of the tool. This description is provided to any language model that uses the tool.
+The `params` field provides additional configuration for MCP tools. For stdio-based tools, use `mcp_args` to specify command-line arguments.
 
-## `params`
+```yaml
+tools:
+  - name: custom_tool
+    from: mcp:npx
+    params:
+      mcp_args: -y @custom/tool
+```
 
-The following parameters are supported for configuring the connection to the MCP server:
+### `env`
 
-| Parameter Name | Definition |
-|---------------|------------|
-| `mcp_args`    | Only for stdio MCP servers. Specify the additional arguments to instantiate the MCP server. e.g. `-y @modelcontextprotocol/server-google-maps` (for `from: mcp:npx`). |
+For stdio-based MCP tools, environment variables can be set using the `env` field.
 
-## `env`
+```yaml
+tools:
+  - name: tool_with_env
+    from: mcp:docker
+    env:
+      API_KEY: your_api_key
+```
 
-Only for stdio MCP servers. Environment variables configured are provided to the processing running the MCP server.
+### `description`
+
+The `description` field provides a textual description of the tool. This description is passed to any language model that uses the tool.
+
+```yaml
+tools:
+  - name: google_maps
+    from: mcp:npx
+    description: Provides geocoding and mapping capabilities.
+```
+
+For more details, see the [MCP Tools Reference](/docs/reference/spicepod/tools).
