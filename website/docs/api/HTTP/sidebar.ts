@@ -116,6 +116,24 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "mcp",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/mcp-event",
+          label: "Send message to MCP server",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/operation-id",
+          label: "Establish an MCP SSE Connection",
+          className: "api-method get",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "SQL",
       items: [
         {
