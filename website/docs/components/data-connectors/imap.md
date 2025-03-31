@@ -15,7 +15,7 @@ datasets:
       imap_access_token: ${secrets:IMAP_ACCESS_TOKEN}
 ```
 
-By default, the IMAP Data Connector will retrieve the following fields:
+## Schema
 
 | Field Name   | Data Type    | Nullable | Description                                                                      |
 | ------------ | ------------ | -------- | -------------------------------------------------------------------------------- |
