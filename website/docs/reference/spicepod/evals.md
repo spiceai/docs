@@ -6,6 +6,9 @@ description: 'Evaluations YAML reference'
 
 A Spicepod can contain one or more evaluations (evals) referenced by relative path.
 
+To learn about evals, including what they are and how to run them in Spice, refer to the [Evals documentation](/docs/features/large-language-models/evals).
+
+
 # `evals`
 
 Example:
@@ -37,11 +40,4 @@ The [dataset](/docs/reference/spicepod/datasets) to use for this evaluation. Mus
 
 A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](/docs/reference/spicepod/models) outputs will be measured against an expected result.
 
-Currently scorers include the following builtin methods:
- - `match`: Checks for an exact match between the expected and actual outputs.
- - `json_match`: Checks for an equivalent JSON between expected and actual outputs.
- - `includes`: Checks for the actual output to include the expected output.
- - `fuzzy_match`: Checks whether a normalised version (ignoring casing, punctuation, articles (e.g. a, the), excess whitespace) of either the expected and actual outputs are a subset of the other.
-
-
-To learn about Evals, including what they are and how to run them in Spice, refer to the [Evals documentation](/docs/features/large-language-models/evals).
+A full list of scorers can be found [here](/docs/features/large-language-models/evals#eval_scorers).
