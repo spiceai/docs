@@ -76,6 +76,7 @@ SELECT COUNT(*) FROM cool_dataset;
 | `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                                                                    |
 | `allow_http`                | Allow insecure HTTP connections                                                                                                                                                                                 |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                |
+| `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                                                                               |
 
 #### Authentication parameters
 

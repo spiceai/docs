@@ -55,6 +55,7 @@ SELECT COUNT(*) FROM cool_dataset;
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats) for details. |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                  |
+| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                                                                                     |
 
 For CSV-specific parameters, see [CSV Parameters](/docs/reference/file_format.md#csv).
 
