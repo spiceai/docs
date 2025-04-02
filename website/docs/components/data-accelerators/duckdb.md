@@ -52,7 +52,6 @@ datasets:
       params:
         duckdb_file: /my/chosen/location/duckdb.db
         duckdb_memory_limit: '2GB'
-        preserve_insertion_order: true
 ```
 
 ## Limitations
