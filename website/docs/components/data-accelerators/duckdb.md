@@ -36,6 +36,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 
 - `duckdb_file` (string, default:`.spice/data/accelerated_duckdb.db`): Path to the DuckDB database file. Applies if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
 - `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
+- `preserve_insertion_order` (boolean, default: `false`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
 
 Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets.md#acceleration) for additional supported fields.
 
@@ -51,6 +52,7 @@ datasets:
       params:
         duckdb_file: /my/chosen/location/duckdb.db
         duckdb_memory_limit: '2GB'
+        preserve_insertion_order: true
 ```
 
 ## Limitations
