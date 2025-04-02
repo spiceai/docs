@@ -133,8 +133,8 @@ models:
       system_prompt: |
         Score these two stories between 0.0 and 1.0 based on how similar their moral lesson is.
 
-        Story A: {{ .actual }}
-        Story B: {{ .ideal }}
+        Story A: {{ actual }}
+        Story B: {{ ideal }}
       openai_response_format:
         type: json_schema
         json_schema:
