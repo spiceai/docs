@@ -36,6 +36,14 @@ runtime:
 | `cache_max_size`  | Yes      | Maximum cache size. Default is `128MiB`                                                                                         |
 | `eviction_policy` | Yes      | Cache replacement policy when the cached data reaches the `cache_max_size`. Default and only currently supported value is `lru` |
 | `item_ttl`        | Yes      | Cache entry expiration duration (Time to Live), 1 second by default.                                                            |
+| `cache_key_type`  | Yes      | Determines how cache keys are generated. `plan` (default) uses the query's logical plan. `sql` uses the raw SQL query string. |
+
+### Choosing a `cache_key_type`
+
+- **`plan` (Default):** Uses query's logical plan as cache key. Matches semantically equivalent queries. Requires query parsing first.
+- **`sql`:** Uses raw SQL string as cache key. Faster lookups but requires exact string matches. May return stale results for parameterized queries.
+
+Choose `sql` for lowest latency with identical queries, `plan` for more flexibility.
 
 ## Cached responses
 
@@ -126,15 +134,4 @@ request
 
 ### `spice sql` CLI
 
-The `spice sql` command accepts a `--cache-control` flag that follows the same behavior as the HTTP header:
-
-```bash
-# Default behavior (use cache if available)
-spice sql
-
-# Same as above
-spice sql --cache-control cache
-
-# Skip cache for this query, but cache the results for future queries
-spice sql --cache-control no-cache
-```
+The `spice sql`
