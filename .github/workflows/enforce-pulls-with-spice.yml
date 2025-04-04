@@ -1,0 +1,19 @@
+name: Enforce Pulls with Spice
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, opened, edited, synchronize, assigned, unassigned]
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  enforce-pull-with-spice:
+    runs-on: spiceai-macos
+    steps:
+      - uses: spiceai/pulls-with-spice-action@v1.0.3
+        if: github.event_name == 'pull_request'
+        with:
+          require_title_min_length: '5'
+          required_labels_any: 'area/blog,area/docs,area/cookbook'
+          banned_labels: 'invalid,wontfix,nomerge,duplicate'
+          require_assignee: 'true'
