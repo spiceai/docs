@@ -9,6 +9,9 @@ on:
 jobs:
   enforce-pull-with-spice:
     runs-on: spiceai-macos
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: spiceai/pulls-with-spice-action@v1.0.3
         if: github.event_name == 'pull_request'
