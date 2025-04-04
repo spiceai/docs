@@ -135,4 +135,13 @@ request
 
 ### `spice sql` CLI
 
-The `spice sql`
+The `spice sql` command accepts a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
+
+```bash
+# Default behavior (use cache if available)
+spice sql
+# Same as above
+spice sql --cache-control cache
+# Skip cache for this query, but cache the results for future queries
+spice sql --cache-control no-cache
+```
