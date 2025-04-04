@@ -23,12 +23,22 @@ runtime:
     cache_max_size: 128MiB
     eviction_policy: lru
     item_ttl: 1s
+    cache_key_type: plan
 ```
 
 - `enabled` - optional, `true` by default
 - `cache_max_size` - optional, maximum cache size. Default is `128MiB`
 - `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
 - `item_ttl` - optional, cache entry expiration time, 1 second by default.
+- `cache_key_type` - optional, determines how cache keys are generated. Default is `plan`.
+
+### Choosing a `cache_key_type`
+
+- **`plan` (Default):** Uses query's logical plan as cache key. Matches semantically equivalent queries despite syntax differences. Requires query parsing first.
+
+- **`sql`:** Uses raw SQL string as cache key. Faster lookups but requires exact string matches. May return stale results for parameterized queries.
+
+Choose `sql` for lowest latency with identical queries, `plan` for more flexibility.
 
 ## `runtime.tls`
 

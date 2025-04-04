@@ -28,6 +28,7 @@ runtime:
     cache_max_size: 128MiB
     eviction_policy: lru
     item_ttl: 1s
+    cache_key_type: plan
 ```
 
 | Parameter name    | Optional | Description                                                                                                                     |
