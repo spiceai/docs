@@ -8,9 +8,7 @@ The `runtime` section specifies configuration settings for the Spice runtime.
 
 ## `runtime.dataset_load_parallelism`
 
-This configuration setting determines the maximum number of datasets that can be loaded in parallel during startup.
-
-By default, the maximum number of parallel datasets is effectively unlimited.
+This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
 
 ## `runtime.results_cache`
 
@@ -21,30 +19,29 @@ runtime:
   results_cache:
     enabled: true
     cache_max_size: 128MiB
-    eviction_policy: lru
     item_ttl: 1s
-    cache_key_type: plan
 ```
 
-- `enabled` - optional, `true` by default
-- `cache_max_size` - optional, maximum cache size. Default is `128MiB`
-- `eviction_policy` - optional, cache replacement policy when the cached data reaches the `cache_max_size`. Default is `lru` - [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
-- `item_ttl` - optional, cache entry expiration time, 1 second by default.
-- `cache_key_type` - optional, determines how cache keys are generated. Default is `plan`.
+| Parameter name    | Optional | Description                                                                                                                                   |
+| ----------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`         | Yes      | Defaults to `true`.                                                                                                                           |
+| `cache_max_size`  | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                     |
+| `eviction_policy` | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.             |
+| `item_ttl`        | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                         |
+| `cache_key_type`  | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 
 ### Choosing a `cache_key_type`
 
-- **`plan` (Default):** Uses query's logical plan as cache key. Matches semantically equivalent queries despite syntax differences. Requires query parsing first.
+- **`plan` (Default):** Uses the query's logical plan as the cache key. Matches semantically equivalent queries but requires query parsing.
+- **`sql`:** Uses the raw SQL string as the cache key. Provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results. Use `sql` only when results are predictable.
 
-- **`sql`:** Uses raw SQL string as cache key. Faster lookups but requires exact string matches. May return stale results for parameterized queries.
-
-Choose `sql` for lowest latency with identical queries, `plan` for more flexibility.
+Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
 ## `runtime.tls`
 
 The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls/index.md).
 
-In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using with `--tls-enabled true` and `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file` flags.
+In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
 ### `runtime.tls.enabled`
 
@@ -134,10 +131,12 @@ runtime:
     retention_check_interval: 15m
 ```
 
-- `enabled` - optional, `true` by default.
-- `captured_output` - optional, what level of output is captured by the task history table. `none` by default. Possible values are `truncated`, or `none`.
-- `retention_period` - optional, how long records in the task history table should be retained. Default is `8h`, or 8 hours.
-- `retention_check_interval` - optional, how often should old records be checked for removal. Default is `15m`, or 15 minutes.
+| Parameter name             | Optional | Description                                                                                    |
+| -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `enabled`                  | Yes      | Defaults to `true`.                                                                            |
+| `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.          |
+| `retention_period`         | Yes      | Specifies how long records in the task history table are retained. Defaults to `8h` (8 hours). |
+| `retention_check_interval` | Yes      | Specifies how often old records are checked for removal. Defaults to `15m` (15 minutes).       |
 
 ## `runtime.cors`
 
@@ -153,11 +152,11 @@ runtime:
 
 ### `runtime.cors.enabled`
 
-Enables or disables CORS for the HTTP endpoint. `false` by default.
+Enables or disables CORS for the HTTP endpoint. Defaults to `false`.
 
 ### `runtime.cors.allowed_origins`
 
-A list of allowed origins for CORS requests. `["*"]` by default, which allows all origins.
+A list of allowed origins for CORS requests. Defaults to `["*"]`, which permits all origins.
 
 Example:
 
@@ -168,11 +167,11 @@ runtime:
     allowed_origins: ['https://example.com']
 ```
 
-This configuration allows requests from the `https://example.com` origin only.
+This configuration permits requests only from the `https://example.com` origin.
 
 ## `runtime.temp_directory`
 
-The path to a temporary directory that Spice will use for query/acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml
 runtime:
