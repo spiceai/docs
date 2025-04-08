@@ -189,7 +189,7 @@ security:
 spice.js:
   label: 'spice.js'
   permalink: '/spice.js'
-  description: 'spice.js related topics and usage'
+  description: 'spice.js (Node.js SDK) related topics and usage'
 spicepod:
   label: 'spicepod'
   permalink: '/spicepod'
