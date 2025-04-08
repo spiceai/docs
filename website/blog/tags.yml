@@ -26,6 +26,10 @@ azure:
   label: 'azure'
   permalink: '/azure'
   description: 'Microsoft Azure related topics and usage'
+caching:
+  label: 'caching'
+  permalink: '/caching'
+  description: 'Caching related topics and usage'
 cli:
   label: 'cli'
   permalink: '/cli'
@@ -126,6 +130,10 @@ machine-learning:
   label: 'machine-learning'
   permalink: '/machine-learning'
   description: 'Machine learning techniques and tools'
+mcp:
+  label: 'mcp'
+  permalink: '/mcp'
+  description: 'Model-Context-Protocol related topics and usage'
 metal:
   label: 'metal'
   permalink: '/metal'
@@ -138,6 +146,10 @@ mysql:
   label: 'mysql'
   permalink: '/mysql'
   description: 'MySQL database topics and usage'
+node.js:
+  label: 'node.js'
+  permalink: '/node.js'
+  description: 'node.js related topics and usage'
 on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
@@ -174,6 +186,10 @@ security:
   label: 'security'
   permalink: '/security'
   description: 'Security practices and tools'
+spice.js:
+  label: 'spice.js'
+  permalink: '/spice.js'
+  description: 'spice.js related topics and usage'
 spicepod:
   label: 'spicepod'
   permalink: '/spicepod'
