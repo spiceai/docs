@@ -34,6 +34,10 @@ cloud:
   label: 'cloud'
   permalink: '/cloud'
   description: 'Cloud computing, cloud storage, or cloud-based services related topics and usage'
+cms:
+  label: 'cms'
+  permalink: '/cms'
+  description: 'Component Metrics System related topics and usage'
 configuration:
   label: 'configuration'
   permalink: '/configuration'
@@ -58,6 +62,10 @@ deepseek:
   label: 'deepseek'
   permalink: '/deepseek'
   description: 'Deepseek AI firm related topics and usage' 
+delta:
+  label: 'delta'
+  permalink: '/delta'
+  description: 'Delta Data Connector related topics and usage'
 delta-lake:
   label: 'delta-lake'
   permalink: '/delta-lake'
