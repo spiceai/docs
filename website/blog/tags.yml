@@ -65,7 +65,7 @@ deepseek:
 delta:
   label: 'delta'
   permalink: '/delta'
-  description: 'Delta Data Connector related topics and usage'
+  description: 'Delta Lake Data Connector related topics and usage'
 delta-lake:
   label: 'delta-lake'
   permalink: '/delta-lake'
