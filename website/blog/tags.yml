@@ -133,7 +133,7 @@ machine-learning:
 mcp:
   label: 'mcp'
   permalink: '/mcp'
-  description: 'Model-Context-Protocol related topics and usage'
+  description: 'Model-Context-Protocol (MCP) related topics and usage'
 metal:
   label: 'metal'
   permalink: '/metal'
