@@ -110,3 +110,9 @@ dataset_active_count{engine="duckdb"} 1
 | `tool_load_state`<br/>*(gauge)*                    | Status of the LLM tools. 1=Initializing, 2=Ready, 3=Disabled, 4=Error, 5=Refreshing.             |
 | `view_load_errors`<br/>*(count)*                   | Number of errors loading the view.                                                              |
 | `view_load_state`<br/>*(gauge)*                    | Status of the views. 1=Initializing, 2=Ready, 3=Disabled, 4=Error, 5=Refreshing.                 |
+
+:::note Component Metrics
+
+In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](/docs/components/data-connectors/mysql/#metrics). See [Component Metrics](/docs/features/observability/component_metrics) for more information.
+
+:::
