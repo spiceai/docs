@@ -34,10 +34,6 @@ cloud:
   label: 'cloud'
   permalink: '/cloud'
   description: 'Cloud computing, cloud storage, or cloud-based services related topics and usage'
-cms:
-  label: 'cms'
-  permalink: '/cms'
-  description: 'Component Metrics System related topics and usage'
 configuration:
   label: 'configuration'
   permalink: '/configuration'
