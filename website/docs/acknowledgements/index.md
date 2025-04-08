@@ -333,7 +333,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - moka 0.12.10, Apache-2.0 OR MIT
   <br/>https://github.com/moka-rs/moka
 
-- mysql_async 0.34.2, Apache-2.0 OR MIT
+- mysql_async 0.35.1, Apache-2.0 OR MIT
   <br/>https://github.com/blackbeam/mysql_async
 
 - ndarray 0.15.6, Apache-2.0 OR MIT
@@ -386,6 +386,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - path-clean 1.0.1, Apache-2.0 OR MIT
   <br/>https://github.com/danreeves/path-clean
+
+- pdf-extract 0.9.0, MIT
+  <br/>https://github.com/jrmuizel/pdf-extract
 
 - percent-encoding 2.3.1, Apache-2.0 OR MIT
   <br/>https://github.com/servo/rust-url/
