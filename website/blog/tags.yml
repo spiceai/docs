@@ -29,7 +29,7 @@ azure:
 caching:
   label: 'caching'
   permalink: '/caching'
-  description: 'Caching related topics and usage'
+  description: 'Results Cache related topics and usage'
 cli:
   label: 'cli'
   permalink: '/cli'
