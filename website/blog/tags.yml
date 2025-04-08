@@ -149,7 +149,7 @@ mysql:
 node.js:
   label: 'node.js'
   permalink: '/node.js'
-  description: 'node.js related topics and usage'
+  description: 'Node.js related topics and usage'
 on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
