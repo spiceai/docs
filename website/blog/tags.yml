@@ -150,6 +150,10 @@ node.js:
   label: 'node.js'
   permalink: '/node.js'
   description: 'Node.js related topics and usage'
+nsql:
+  label: 'nsql'
+  permalink: '/nsql'
+  description: 'NSQL queries and database management'
 on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
