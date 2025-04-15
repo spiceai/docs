@@ -57,7 +57,7 @@ spice dataset configure
 
 Enter a dataset name that will be used to reference the dataset in queries. This name does not need to match the name in the dataset source.
 
-```bash
+```yaml
 dataset name: (spice_app) taxi_trips
 ```
 
@@ -69,7 +69,7 @@ description: Taxi trips dataset
 
 Enter the location of the dataset:
 
-```bash
+```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 ```
 
@@ -89,11 +89,11 @@ You should see the following output from your runtime terminal:
 
 **Step 5.** In a new terminal window, use the Spice SQL REPL to query the dataset
 
-```bash
+```sql
 spice sql
 ```
 
-```bash
+```sql
 SELECT tpep_pickup_datetime, passenger_count, trip_distance from taxi_trips LIMIT 10;
 ```
 
@@ -122,8 +122,8 @@ You can experiment with the time it takes to generate queries when using non-acc
 
 ### Additional Example
 
-```bash
-# Query to display the average trip distance
+```sql
+-- Query to display the average trip distance
 SELECT AVG(trip_distance) FROM taxi_trips;
 ```
 
