@@ -186,6 +186,10 @@ security:
   label: 'security'
   permalink: '/security'
   description: 'Security practices and tools'
+snowflake:
+  label: 'snowflake'
+  permalink: '/snowflake'
+  description: 'Snowflake Data Connector related topics and usage'
 spice.js:
   label: 'spice.js'
   permalink: '/spice.js'
@@ -206,3 +210,7 @@ task-history:
   label: 'task-history'
   permalink: '/task-history'
   description: 'Task history tracking and management'
+tableau:
+  label: 'tableau'
+  permalink: '/tableau'
+  description: 'Tableau Connector related topics and usage'
