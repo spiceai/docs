@@ -164,11 +164,11 @@ From this, you can see that `spice` runs the following [tools](https://spiceai.o
 
 ### Return the SQL Query
 
-The `v1/nsql` endpoint can return early if you only want the SQL query. To do this, specify the header `Accept: application/sql` in the text to SQL request.
+The `v1/nsql` endpoint can return the SQL query it used in addition to the results. To do this, specify the `Accept: application/vnd.spiceai.sql.v1+json` header.
 
 ```shell
 curl -XPOST "http://localhost:8090/v1/nsql" \
-  -H "Accept: application/sql" \
+  -H "Accept: application/vnd.spiceai.sql.v1+json" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "What’s the highest tip any passenger gave?"
@@ -177,8 +177,29 @@ curl -XPOST "http://localhost:8090/v1/nsql" \
 
 Returns:
 
-```sql
-SELECT MAX(tip_amount) AS highest_tip_amount FROM taxi_trips
+```json
+{
+  "row_count": 1,
+  "schema": {
+    "fields": [
+      {
+        "name": "highest_tip",
+        "data_type": "Float64",
+        "nullable": true,
+        "dict_id": 0,
+        "dict_is_ordered": false,
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "data": [
+    {
+      "highest_tip": 428.0
+    }
+  ],
+  "sql": "SELECT MAX(\"tip_amount\") AS \"highest_tip\"\nFROM \"spice\".\"public\".\"taxi_trips\""
+}
 ```
 
 ### Disable Sampling
