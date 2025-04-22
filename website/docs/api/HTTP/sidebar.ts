@@ -139,7 +139,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/HTTP/post-nsql",
-          label: "Text to SQL",
+          label: "Text-to-SQL (NSQL)",
           className: "api-method post",
         },
         {
