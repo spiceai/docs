@@ -100,7 +100,7 @@ Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and mate
 
 ## 18. Can Spice integrate with existing BI tools?
 
-Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting.
+Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau/index.md) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
 ## 19. How does Spice handle data privacy and compliance?
 
