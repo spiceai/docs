@@ -9,10 +9,10 @@ To use a language model deployed to [Databricks Mosaic AI Model Serving](https:/
 
 ### Parameters
 
-| Parameter             | Description                                                                                                                                                                                        | Default |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `databricks_endpoint` | The Databricks workspace endpoint, e.g., `dbc-a12cd3e4-56f7.cloud.databricks.com`.                                                                                                                 | -       |
-| `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g., `${secrets:my_databricks_token}`. | -       |
+| Parameter             | Description                                                                                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `databricks_endpoint` | The Databricks workspace endpoint, e.g., `dbc-a12cd3e4-56f7.cloud.databricks.com`.                                                                                                                 |
+| `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g., `${secrets:my_databricks_token}`. |
 
 ### Example `spicepod.yaml` Configuration
 
