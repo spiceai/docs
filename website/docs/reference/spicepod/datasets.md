@@ -334,6 +334,34 @@ Optional. Enable or disable refresh jitter, defaults to `false`. The refresh jit
 
 Optional. The maximum amount of jitter to add to the refresh interval. The jitter is a random value between 0 and `refresh_jitter_max`. Defaults to 10% of `refresh_check_interval`.
 
+## `metrics`
+
+Optional. Enable component-specific metrics for the dataset. Each component can expose its own set of metrics that can be enabled selectively to monitor specific aspects of its operation.
+
+Component metrics are disabled by default and can be enabled by adding a `metrics` section to the dataset configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+
+### Example Configuration
+
+```yaml
+datasets:
+  - from: mysql:my_table
+    name: my_dataset
+    metrics:
+      - name: connection_count
+        enabled: true
+      - name: connections_in_pool
+        enabled: true
+      - name: active_wait_requests
+        enabled: true
+    params:
+      mysql_host: localhost
+      mysql_tcp_port: 3306
+      mysql_user: root
+      mysql_pass: ${secrets:MYSQL_PASS}
+```
+
+For detailed information about metrics available for specific components, see the [component metrics documentation](/docs/features/observability/component_metrics).
+
 ## `acceleration.indexes`
 
 Optional. Specify which indexes should be applied to the locally accelerated table. Not supported for in-memory Arrow acceleration engine.

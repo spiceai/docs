@@ -13,10 +13,10 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: spiceai/pulls-with-spice-action@v1.0.3
+      - uses: spiceai/pulls-with-spice-action@v1.0.6
         if: github.event_name == 'pull_request'
         with:
-          require_title_min_length: '5'
+          require_title_min_length: '10'
           required_labels_any: 'area/blog,area/docs,area/cookbook'
           banned_labels: 'invalid,wontfix,nomerge,duplicate'
           require_assignee: 'true'

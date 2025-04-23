@@ -9,10 +9,10 @@ The IMAP Data Connector enables federated SQL query across emails stored in an I
 
 ```yaml
 datasets:
-  - from: imap:myawesomeemail@outlook.com
+  - from: imap:myawesomeemail@example.com
     name: emails
     params:
-      imap_access_token: ${secrets:IMAP_ACCESS_TOKEN}
+      imap_password: ${secrets:IMAP_PASSWORD}
 ```
 
 ## Schema
@@ -42,10 +42,10 @@ When the IMAP Data Connector is used without acceleration, the email body will n
 
 ```yaml
 datasets:
-  - from: imap:myawesomeemail@outlook.com
+  - from: imap:myawesomeemail@example.com
     name: emails
     params:
-      imap_access_token: ${secrets:IMAP_ACCESS_TOKEN}
+      imap_password: ${secrets:IMAP_PASSWORD}
     acceleration:
       enabled: true
 ```
@@ -96,7 +96,6 @@ The IMAP connector supports the following connection and authentication paramete
 | Parameter Name      | Description                                                                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------ |
 | `imap_username`     | Optional. The username to use for the IMAP connection. Defaults to the value of the `from:` mailbox field. |
-| `imap_access_token` | Optional. The OAuth access token to use for the IMAP connection, to connect to OAuth-enabled IMAP servers (like Outlook, or Gmail). |
 | `imap_password`     | Optional. The password to use for the IMAP connection, in plaintext authentication mode. |
 | `imap_host`         | Optional. The host or IP address of the IMAP server to connect to. Not required for known connections like Outlook or Gmail. |
 | `imap_port`         | Optional. The port of the IMAP server to connect to. |
@@ -114,16 +113,6 @@ datasets:
     params:
       imap_host: mail.example.com
       imap_password: ${ secrets:IMAP_PASSWORD }
-```
-
-### Using OAuth authentication
-
-```yaml
-datasets:
-  - from: imap:jsmith@outlook.com
-    name: emails
-    params:
-      imap_access_token: ${ secrets:IMAP_ACCESS_TOKEN }
 ```
 
 ## Secrets
