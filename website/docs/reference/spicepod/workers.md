@@ -48,7 +48,7 @@ A unique identifier for this worker component.
 
 Additional details about the worker, useful for displaying to users
 
-### `models`
+### `models` {#models}
 
 A list of model configurations that define how the model worker behaves.
 
