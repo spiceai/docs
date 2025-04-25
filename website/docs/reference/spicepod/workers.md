@@ -4,7 +4,7 @@ sidebar_label: 'Workers'
 description: 'Workers YAML reference'
 ---
 
-Workers define a pattern of usage for one or more other spicepod components. Currently, workers define how one or more [llms](../models.md) can be combined into a logically single model.
+Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Currently, workers define how one or more [llms](../models.md) can be combined into a logically single model.
 
 ## `workers`
 
@@ -16,13 +16,13 @@ Example:
 workers:
   - name: round-robin
     description: |
-      Call models 'foo' & 'bar' in round robin.
+      Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
     models:
       - from: foo
       - from: bar
   - name: fallback
     description: |
-      Call 'bar'. On error, call 'foo'. Failing that 'baz'.
+      Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
     models:
       - from: foo
         order: 2
@@ -46,7 +46,7 @@ A unique identifier for this worker component.
 
 ### `description`
 
-Additional details about the worker, useful for displaying to users
+Additional details about the worker, useful for displaying to users and providing to LLM context.
 
 ### `models` {#models}
 
@@ -54,8 +54,15 @@ A list of model configurations that define how the model worker behaves.
 
 The elements' structure uniquely determine the model worker algorithm. List elements should be of consistent type.
 
-#### Round-Robin model worker
+| Key name | Key type          | Description                                                                                                                                               |
+| -------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| from     | String            | The `model.name` of a defined `model` spicepod component.                                                                                                 |
+| order    | Integer, positive | The priority of the model in order. The lowest value is used first, followed by increasing order. The ordering of models with equal `order` is undefined. |
+
+#### Worker with round-robin routing across models
+
 Example
+
 ```yaml
 workers:
   - name: round-robin
@@ -66,15 +73,12 @@ workers:
       - from: bar
 ```
 
-The worker will select each model in turn for subsequent requests.
+The worker selects each model in turn for subsequent requests.
 
-| Key name | Key type | Description                                              |
-|----------|----------|----------------------------------------------------------|
-| from     | String   | The `model.name` of a defined `model` spicepod component.|
+#### Worker with fallback model routing
 
-
-#### Fallback model worker
 Example
+
 ```yaml
 workers:
   - name: fallback
@@ -89,30 +93,4 @@ workers:
         order: 3
 ```
 
-The worker will use the models in increasing order, returning the first result that is not an error.
-
-| Key name |     Key type      | Description                                              |
-|----------|-------------------|----------------------------------------------------------|
-| from     | String            | The `model.name` of a defined `model` spicepod component.|
-| order    | Integer, positive | The priority of the model in the fallback order. The lowest value is used first, followed by increasing order. The ordering of models with equal `order` is undefined. |
-
-
-#### Weighted-likelihood model worker
-Example
-```yaml
-workers:
-  - name: weighted
-    description: |
-      Routes 80% of traffic to 'foo'.
-    models:
-      - from: foo
-        weight: 4
-      - from: bar
-        weight: 1
-```
-
-The worker will, on each request, select a single model to use based on their proportion of weighted capacity.
-
-| Key name | Key type | Description                                              |
-|----------|----------|----------------------------------------------------------|
-| from     | String   | The `model.name` of a defined `model` spicepod component.|
+The worker uses the models in increasing order, returning the first result that is not an error.
