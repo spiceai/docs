@@ -180,7 +180,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](/website/docs/reference/memory.md).
+For detailed memory information, see [Memory](/docs/reference/memory.md).
 
 ## `runtime.temp_directory`
 
