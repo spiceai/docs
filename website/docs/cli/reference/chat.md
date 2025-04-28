@@ -8,26 +8,26 @@ description: 'spice chat CLI documentation'
 
 Start an interactive or one-shot chat with a [model](/docs/components/models/index.md) registered in the Spice runtime.
 
-### Requirements
+## Requirements
 
 - Spice runtime must be running
 - At least one model defined in `spicepod.yaml` and the model is ready
 
-### Usage
+## Usage
 
-#### Interative Chat: Invoke the command without arguments to open a REPL
+### Interative Chat: Invoke the command without arguments to open a REPL
 
 ```shell
 spice chat [flags]
 ```
 
-#### One-shot Chat: Pass a single message as the argument to send a one-shot chat request and print the response
+### One-shot Chat: Pass a single message as the argument to send a one-shot chat request and print the response
 
 ```shell
 spice chat [flags] <message>
 ```
 
-#### Flags
+## Flags
 
 - `--cloud` Send requests to a Spice Cloud instance instead of the local instance. Default: `false`.
 - `--http-endpoint <string>` Runtime HTTP endpoint. Default: `http://localhost:8090`.
@@ -35,7 +35,7 @@ spice chat [flags] <message>
 - `--temperature <float32>` Model temperature used for chat request. Default: `1`.
 - `--user-agent <string>` Custom `User-Agent` header sent with every request.
 
-### Example
+## Examples
 
 When exactly one model is **ready**, `spice chat` opens a REPL that uses that model automatically:
 
