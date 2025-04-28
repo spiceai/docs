@@ -28,15 +28,26 @@ spice chat [flags] <message>
 
 #### Flags
 
-- `--cloud` Use cloud instance for chat (default: false)
-- `--http-endpoint` HTTP endpoint for chat (default: `http://localhost:8090`)
-- `--model` Model to chat with
-- `--temperature` Model temperature for chat request (default 1)
-- `--user-agent` User agent to use in all requests
+- `--cloud` Send requests to a Spice Cloud instance instead of the local instance. Default: `false`.
+- `--http-endpoint <string>` Runtime HTTP endpoint. Default: `http://localhost:8090`.
+- `--model <string>` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
+- `--temperature <float32>` Model temperature used for chat request. Default: `1`.
+- `--user-agent <string>` Custom `User-Agent` header sent with every request.
 
 ### Example
 
-Interactive session:
+When exactly one model is **ready**, `spice chat` opens a REPL that uses that model automatically:
+
+```shell
+> spice chat
+Using model: openai
+chat> hello
+Hello! How can I assist you today?
+
+Time: 0.57s (first token 0.53s). Tokens: 18. Prompt: 8. Completion: 10 (325.04/s).
+```
+
+When multiple models are **ready**, the command prompts for a selection before starting the REPL:
 
 ```shell
 > spice chat
@@ -51,11 +62,23 @@ Hello! How can I assist you today?
 Time: 0.55s (first token 0.43s). Tokens: 18. Prompt: 8. Completion: 10 (80.09/s).
 ```
 
+Passing `--model` skips the prompt and directs the request to the specified model. The flag works both in REPL mode and in one‑shot mode:
+
+```shell
+# REPL
+spice chat --model openai
+chat> hello
+Hello! How can I assist you today?
+
+Time: 0.61s (first token 0.58s). Tokens: 18. Prompt: 8. Completion: 10 (285.90/s).
+```
+
 Single prompt:
 
 ```shell
-> spice chat --model openai "hello"
+# One‑shot
+spice chat --model openai "hello"
 Hello! How can I assist you today?
 
-Time: 0.59s (first token 0.41s). Tokens: 18. Prompt: 8. Completion: 10 (53.39/s).
+Time: 1.10s (first token 0.80s). Tokens: 18. Prompt: 8. Completion: 10 (33.74/s).
 ```
