@@ -36,3 +36,8 @@ with adbc_driver_flightsql.dbapi.connect("grpc://localhost:50051") as conn:
         result = cur.fetchall()
         print(result)
 ```
+:::warning[Limitations]
+
+* Positional arguments are not supported with the `date` keyword to construct a date value, like `date $1`. Specify the date value in the query instead: `l_shipdate > date '1995-01-01'`.
+
+:::
