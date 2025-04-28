@@ -37,6 +37,15 @@ runtime:
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
+## `runtime.shutdown_timeout`
+
+Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds. 
+
+```yaml
+runtime:
+  shutdown_timeout: 1m
+```
+
 ## `runtime.tls`
 
 The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls/index.md).
@@ -176,13 +185,4 @@ The path to a temporary directory that Spice uses for query and acceleration ope
 ```yaml
 runtime:
   temp_directory: /tmp/spice
-```
-
-## `runtime.shutdown_timeout`
-
-Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds. 
-
-```yaml
-runtime:
-  shutdown_timeout: 1m
 ```
