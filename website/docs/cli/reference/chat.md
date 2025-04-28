@@ -14,13 +14,13 @@ Chat with a runtime [model](/docs/components/models/index.md) currently loaded b
 
 ### Usage
 
-#### Start an interactive chat REPL
+#### Invoke the command without arguments to open a REPL
 
 ```shell
 spice chat [flags]
 ```
 
-#### Send a single prompt and receive a response
+#### Pass a message as the final argument to send a single prompt and print the response
 
 ```shell
 spice chat [flags] <message>
@@ -36,6 +36,8 @@ spice chat [flags] <message>
 
 ### Example
 
+Interactive session:
+
 ```shell
 > spice chat
 Use the arrow keys to navigate: ↓ ↑ → ←
@@ -48,6 +50,8 @@ Hello! How can I assist you today?
 
 Time: 0.55s (first token 0.43s). Tokens: 18. Prompt: 8. Completion: 10 (80.09/s).
 ```
+
+Single prompt:
 
 ```shell
 > spice chat --model openai "hello"
