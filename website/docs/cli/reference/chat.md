@@ -5,12 +5,12 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Chat with a runtime [model](/docs/components/models/index.md) currently loaded by the Spice runtime.
+Start an interactive or one-shot chat with any [model](/docs/components/models/index.md) currently ready in the Spice runtime.
 
 ### Requirements
 
 - Spice runtime must be running
-- At least one model configured in spicepod.yaml the model is ready
+- At least one model defined in `spicepod.yaml` and the model is ready
 
 ### Usage
 
