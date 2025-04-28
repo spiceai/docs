@@ -302,13 +302,13 @@ const recipes: RecipeData[] = [
     title: 'Sales BI with Apache Superset',
     description: 'Visualize data in Spice with Apache Superset.',
     path: '/sales-bi/README.md',
-    tags: ['client', 'bi', 'superset']
+    tags: ['visualization', 'bi', 'superset']
   },
   {
     title: 'Grafana Datasource',
     description: 'Add Spice as a Grafana datasource.',
     path: '/grafana-datasource/README.md',
-    tags: ['client', 'grafana', 'datasource']
+    tags: ['visualization', 'grafana', 'datasource']
   },
   {
     title: 'IMAP Emails',
@@ -407,7 +407,13 @@ const recipes: RecipeData[] = [
     path: '/client-sdk/spice-java-sdk-sample/README.md',
     tags: ['sdk', 'java']
   },
-
+  // Clients
+  {
+    title: 'Python ADBC Client',
+    description: 'Query Spice using ADBC and Parameterized Queries with Python.',
+    path: '/clients/adbc/README.md',
+    tags: ['client', 'python', 'adbc', 'parameterized queries']
+  },
   // Security
   {
     title: 'TLS Encryption',
@@ -491,21 +497,21 @@ export function CookbookPage() {
           <div className='flex flex-col gap-6 md:flex-row'>
             <div className='flex w-full flex-col gap-6 md:w-1/2'>
               <Recipe
-                title='Federated Data Access'
-                description='Use SQL to join data across S3, PostgreSQL, and Dremio in a single query.'
+                title='Federated SQL Query'
+                description='Join S3, PostgreSQL, and Dremio data in one SQL query.'
                 href={`${recipeBaseUrl}/federation/README.md`}
               />
               <Recipe
-                title='Local Llama3'
-                description='Use the Llama family of models locally from HuggingFace using Spice.'
+                title='Run Llama3 Locally'
+                description='Use Llama models from HuggingFace with Spice.'
                 href={`${recipeBaseUrl}/llama/README.md`}
                 videoUrl='https://youtu.be/I2i6uZKBbd4'
               />
             </div>
             <div className='flex w-full flex-col gap-6 md:w-1/2 md:pt-20'>
               <Recipe
-                title='Data Acceleration'
-                description='Accelerate queries with DuckDB.'
+                title='Data Acceleration with DuckDB'
+                description='Speed up queries using DuckDB.'
                 href={`${recipeBaseUrl}/duckdb/accelerator/README.md`}
                 videoUrl='https://youtu.be/hFvVz5NGpaw'
               />
@@ -523,15 +529,14 @@ export function CookbookPage() {
       <Container className='mt-6 mb-20'>
         <Title className='mb-4 text-center'>Sample Applications and Guides</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
-          Explore example applications and guides built with Spice.ai that demonstrate real-world
-          usage patterns and best practices.
+          Example apps and guides for real-world Spice.ai usage and best practices.
         </Paragraph>
 
         <RecipeGroup recipes={filterByTag('sample')} />
       </Container>
 
       <Container className='mt-6 mb-20'>
-        <Title className='mb-4 text-center'>Core Scenarios</Title>
+        <Title className='mb-4 text-center'>Core Features</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
           Discover core capabilities like data federation, acceleration, search, and LLM inference
           to enhance your applications.
@@ -562,7 +567,7 @@ export function CookbookPage() {
       </Container>
 
       <Container className='mt-6 mb-20'>
-        <Title className='mb-4 text-center'>Search and Embeddings</Title>
+        <Title className='mb-4 text-center'>Search & Embeddings</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
           Implement advanced search capabilities and leverage embeddings for vector similarity
           search.
@@ -591,9 +596,18 @@ export function CookbookPage() {
       </Container>
 
       <Container className='mt-6 mb-20'>
-        <Title className='mb-4 text-center'>Data Visualization with Client Integrations</Title>
+        <Title className='mb-4 text-center'>Visualization</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
-          Visualize your data using popular BI and analytics tools integrated with Spice.ai.
+          Visualize data with BI and analytics tools.
+        </Paragraph>
+
+        <RecipeGroup recipes={filterByTag('visualization')} />
+      </Container>
+
+      <Container className='mt-6 mb-20'>
+        <Title className='mb-4 text-center'>API Clients</Title>
+        <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
+          Use API clients for data access and integration.
         </Paragraph>
 
         <RecipeGroup recipes={filterByTag('client')} />
@@ -602,7 +616,7 @@ export function CookbookPage() {
       <Container className='mt-6 mb-20'>
         <Title className='mb-4 text-center'>Deployment</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
-          Deploy Spice.ai in various environments and configurations to suit your needs.
+          Deploy Spice.ai in different environments.
         </Paragraph>
 
         <RecipeGroup recipes={filterByTag('deployment')} />
@@ -619,7 +633,7 @@ export function CookbookPage() {
       </Container>
 
       <Container className='mt-6 mb-20'>
-        <Title className='mb-4 text-center'>Advanced Configuration</Title>
+        <Title className='mb-4 text-center'>Configuration</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
           Fine-tune your Spice.ai deployment with advanced configuration options for optimal
           performance.
@@ -631,8 +645,7 @@ export function CookbookPage() {
       <Container className='mt-6 mb-20'>
         <Title className='mb-4 text-center'>SDKs</Title>
         <Paragraph className='mb-14 md:text-center mx-auto px-6 md:max-w-[843px]'>
-          Utilize development kits and libraries for building applications with Spice.ai across
-          various programming languages.
+          Use SDKs for different programming languages.
         </Paragraph>
 
         <RecipeGroup recipes={filterByTag('sdk')} />

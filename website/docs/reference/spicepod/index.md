@@ -208,3 +208,31 @@ views:
       ORDER BY count DESC
       LIMIT 5
 ```
+
+## `workers`
+
+A Spicepod can contain one or more [workers](./workers.md) defining configurable units of compute.
+
+**Example**
+
+```yaml
+workers:
+  - name: round-robin
+    description: |
+      Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
+    models:
+      - from: foo
+      - from: bar
+  - name: fallback
+    description: |
+      Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
+    models:
+      - from: foo
+        order: 2
+      - from: bar
+        order: 1
+      - from: baz
+        order: 3
+```
+
+For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers.md).
