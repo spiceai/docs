@@ -24,7 +24,7 @@ spice chat [flags]
 ### One-shot Chat: Pass a single message as the argument to send a one-shot chat request and print the response
 
 ```shell
-spice chat [flags] <message>
+spice chat [flags] [<message>]
 ```
 
 ## Flags
