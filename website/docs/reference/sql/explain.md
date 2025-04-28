@@ -3,7 +3,7 @@ title: 'Explain'
 sidebar_label: 'Explain'
 pagination_prev: 'reference/sql/subqueries'
 pagination_next: 'reference/sql/information_schema'
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 :::info
