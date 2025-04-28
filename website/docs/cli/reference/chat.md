@@ -20,7 +20,7 @@ Start an interactive or one-shot chat with any [model](/docs/components/models/i
 spice chat [flags]
 ```
 
-#### Pass a message as the final argument to send a single prompt and print the response
+#### Pass a single message as the argument to send a one-shot chat request and print the response
 
 ```shell
 spice chat [flags] <message>
