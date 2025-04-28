@@ -126,3 +126,7 @@ SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC L
 ```
 
 <img width="800" alt="Example Query Results" src="/img/odbc/spice-odbc-example-query.png" />
+
+## Parameterized Queries
+
+Spice supports parameterized queries with ODBC. Parameterized queries help prevent SQL injection and improve code clarity by separating query logic from data values.
