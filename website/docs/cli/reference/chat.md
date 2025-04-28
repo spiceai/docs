@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Chat with a runtime [model](/docs/website/docs/components/models/index.md) currently loaded by the Spice runtime.
+Chat with a runtime [model](/docs/components/models/index.md) currently loaded by the Spice runtime.
 
 ### Requirements
 
