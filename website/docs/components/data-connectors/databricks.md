@@ -72,12 +72,13 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 ### AWS S3
 
-| Parameter Name                     | Description                                                                        |
-| ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                |
-| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                         |
-| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                     |
-| `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
+| Parameter Name                     | Description                                                                                    |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
+| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
+| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
+| `databricks_aws_allow_http`        | Optional. Enables insecure HTTP connections to `databricks_aws_endpoint`. Defaults to `false`. |
 
 ### Azure Blob
 
@@ -208,15 +209,15 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 - When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
- :::warning[Memory Considerations]
+:::warning[Memory Considerations]
 
- When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
- Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
 
 - The Databricks Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 
- :::
+:::
 
 ## Cookbook
 
