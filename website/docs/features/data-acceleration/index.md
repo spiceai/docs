@@ -6,7 +6,7 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
+Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
 
 ![Spice.ai Open Source Query Federation with Acceleration](/img/features/data-acceleration.png)
 

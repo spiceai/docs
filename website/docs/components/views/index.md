@@ -37,10 +37,10 @@ views:
 
 - `name`: The view's identifier, used for referencing in queries.
 - `sql`: The SQL query defining the view, supporting joins, subqueries, and aggregations.
+- `acceleration`: Views can be [locally accelerated](/docs/features/data-acceleration).
 
 ## Limitations and Considerations
 
-- Views do not support acceleration; instead accelerate the underlying dataset(s).
 - Views are read-only; insert, update, and delete operations are not supported.
 - Performance depends on SQL complexity and underlying data.
 - Ensure queries are optimized to prevent slow execution.
