@@ -63,12 +63,13 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 ### AWS S3
 
-| Parameter Name                     | Description                                                                        |
-| ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `delta_lake_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                |
-| `delta_lake_aws_access_key_id`     | The access key ID for the S3 object store.                                         |
-| `delta_lake_aws_secret_access_key` | The secret access key for the S3 object store.                                     |
-| `delta_lake_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
+| Parameter Name                     | Description                                                                                    |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `delta_lake_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
+| `delta_lake_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
+| `delta_lake_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `delta_lake_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
+| `delta_lake_aws_allow_http`        | Optional. Enables insecure HTTP connections to `delta_lake_aws_endpoint`. Defaults to `false`. |
 
 ### Azure Blob
 
@@ -114,6 +115,19 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
     delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
     delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
     delta_lake_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
+```
+
+### Delta Lake + MinIO
+
+```yaml
+- from: delta_lake:s3://my_bucket/path/to/s3/delta/table/ # A reference to a table in MinIO
+  name: my_delta_lake_table
+  params:
+    delta_lake_aws_region: us-east-1 # Best practice for MinIO
+    delta_lake_aws_access_key_id: ${secrets:aws_access_key_id}
+    delta_lake_aws_secret_access_key: ${secrets:aws_secret_access_key}
+    delta_lake_aws_endpoint: http://localhost:9000 # MinIO Endpoint
+    delta_lake_aws_allow_http: true
 ```
 
 ### Delta Lake + Azure Blob
