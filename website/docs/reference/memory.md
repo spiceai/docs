@@ -35,8 +35,15 @@ Refresh modes affect memory usage as follows:
 
 Spice.ai uses DataFusion as its query execution engine. By default, DataFusion does not enforce strict memory limits, which can lead to unbounded usage. Spice.ai addresses this through:
 
+- **Memory Limit**: The `runtime.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk, helping prevent out-of-memory errors and maintain query stability. See [Spicepod Configuration](spicepod/index.md#memory-limit) for details.
 - **Memory Budgeting**: Limits memory per query execution. Queries exceeding the limit return an error. See [Spicepod Configuration](spicepod/index.md) for details.
 - **Spill-to-Disk**: Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors.
+
+DataFusion supports spilling for several operators, but not all operations are currently supported. Notably, the following operations do not support spilling:
+
+- HashJoin ([tracking issue](https://github.com/apache/arrow-datafusion/issues/1047))
+- ExternalSorterMerge (no current tracking issue; previously discussed in the context of SortMergeJoin)
+- RepartitionMerge (spilling is suggested to be supported, but may depend on HashJoin support; see [issue](https://github.com/apache/arrow-datafusion/issues/1047))
 
 ## Embedded Data Accelerators
 
