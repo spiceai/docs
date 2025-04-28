@@ -177,3 +177,12 @@ The path to a temporary directory that Spice uses for query and acceleration ope
 runtime:
   temp_directory: /tmp/spice
 ```
+
+## `runtime.shutdown_timeout`
+
+Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds. 
+
+```yaml
+runtime:
+  shutdown_timeout: 1m
+```
