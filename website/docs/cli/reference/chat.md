@@ -14,13 +14,13 @@ Start an interactive or one-shot chat with any [model](/docs/components/models/i
 
 ### Usage
 
-#### Invoke the command without arguments to open a REPL
+#### Interative Chat: Invoke the command without arguments to open a REPL
 
 ```shell
 spice chat [flags]
 ```
 
-#### Pass a single message as the argument to send a one-shot chat request and print the response
+#### One-shot Chat: Pass a single message as the argument to send a one-shot chat request and print the response
 
 ```shell
 spice chat [flags] <message>
