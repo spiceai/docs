@@ -58,6 +58,10 @@ databricks:
   label: 'databricks'
   permalink: '/databricks'
   description: 'Databricks platform related topics and usage'
+datafusion:
+  label: 'datafusion'
+  permalink: '/datafusion'
+  description: 'DataFusion query engine related topics and usage'
 deepseek:
   label: 'deepseek'
   permalink: '/deepseek'
