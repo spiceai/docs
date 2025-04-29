@@ -237,4 +237,4 @@ tableau:
 workers:
   label: 'workers'
   permalink: '/workers'
-  description: 'Topics and usage related to workers'
+  description: 'Topics and usage related to Spice workers'
