@@ -79,3 +79,7 @@ Replace `<enter-api-key-here>` with the API key value. The `user` and `password`
 In the configured application, run a sample query, such as `SELECT * FROM taxi_trips;`
 
 ![Query Results](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/0e9f3c0f-2e03-47f9-8d5e-65e078d7e900/public 'Query Results')
+
+## Parameterized Queries
+
+Spice supports parameterized queries with JDBC. Parameterized queries help prevent SQL injection and improve code clarity by separating query logic from data values.
