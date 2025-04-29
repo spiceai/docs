@@ -145,7 +145,7 @@ mcp:
 memory:
   label: 'memory'
   permalink: '/memory'
-  description: 'Memory related topics and usage'
+  description: 'LLM memory related topics and usage'
 metal:
   label: 'metal'
   permalink: '/metal'
