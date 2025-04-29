@@ -9,7 +9,7 @@ acceleration:
 adbc:
   label: 'adbc'
   permalink: '/adbc'
-  description: 'AI, Data, and Blockchain related topics and discussions'
+  description: 'Arrow Database Connectivity (ADBC) related topics and discussions'
 ai:
   label: 'ai'
   permalink: '/ai'
