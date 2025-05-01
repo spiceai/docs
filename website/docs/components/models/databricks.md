@@ -27,4 +27,4 @@ models:
 
 ### Additional Information
 
-Refer to the [Moasic AI Model Serving documentation](https://docs.databricks.com/aws/en/machine-learning/model-serving/) for more details on available models and configurations.
+Refer to the [Mosaic AI Model Serving documentation](https://docs.databricks.com/aws/en/machine-learning/model-serving/) for more details on available models and configurations.
