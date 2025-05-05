@@ -80,7 +80,7 @@ Spice supports the M2M OAuth flow with service principal credentials by utilizin
 
 Ensure that you grant your service principal the "Data Reader" privilege preset for the catalog and "Can Attach" cluster permissions when using Spark Connect mode.
 
-To Learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
+To learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
 
 ```yaml
 catalogs:
