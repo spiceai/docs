@@ -34,7 +34,7 @@ datasets:
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
     params:
-      github_token: ${secrets:GH_TOKEN}
+      github_token: ${ secrets:GITHUB_TOKEN }
     acceleration:
       enabled: true
     columns:
