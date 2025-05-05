@@ -57,6 +57,44 @@ The `params` field is used to configure the connection to the Databricks Unity C
 - `databricks_token`: The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_databricks_token}`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
 
+## Authentication
+
+### Personal access token
+
+To Learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - '*.my_table_name'
+    params:
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+      databricks_token: ${secrets:DATABRICKS_TOKEN} # PAT
+```
+
+### Databricks service principal
+
+Spice supports the M2M OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
+
+Ensure that you grant your service principal the "Data Reader" privilege preset for the catalog and "Can Attach" cluster permissions when using Spark Connect mode.
+
+To Learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
+
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - '*.my_table_name'
+    params:
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+      databricks_token: ${secrets:DATABRICKS_TOKEN} # PAT
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
+      databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
+```
+
 ## `dataset_params`
 
 The `dataset_params` field is used to configure the dataset-specific parameters for the catalog. The following parameters are supported:
