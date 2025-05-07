@@ -90,7 +90,6 @@ catalogs:
       - '*.my_table_name'
     params:
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
-      databricks_token: ${secrets:DATABRICKS_TOKEN} # PAT
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
 ```
