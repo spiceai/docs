@@ -10,8 +10,6 @@ sidebar_position: 2
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
 :::
 
-# Operators
-
 ## Numerical Operators
 
 - [+ (plus)](#op_plus)

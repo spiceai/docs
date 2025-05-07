@@ -90,7 +90,7 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.2.1">Spice.ai OSS v1.2.1</a> is now available! 🚀',
+      content: '<a href="/blog/releases/v1.2.0">Spice.ai OSS v1.2.0</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -117,29 +117,7 @@ const config: Config = {
         },
         { to: 'blog', label: 'Blog', position: 'left' },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
-        {
-          type: 'dropdown',
-          label: 'Community',
-          position: 'left',
-          items: [
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/kZnTfneP5u'
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/spice_ai'
-            },
-            {
-              label: 'Reddit',
-              href: 'https://reddit.com/r/spiceai'
-            },
-            {
-              label: 'YouTube',
-              href: 'https://www.youtube.com/@spiceai'
-            }
-          ]
-        },
+        { to: '/docs/sql/reference/index.md', label: 'SQL Reference', position: 'left' },
         {
           label: 'X',
           href: 'https://x.com/spice_ai',
