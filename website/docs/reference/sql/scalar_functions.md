@@ -10,22 +10,22 @@ sidebar_position: 6
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
 :::
 
-Scalar functions in Spice.ai SQL help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The implementation is based on [Apache DataFusion](https://datafusion.apache.org/docs/user-guide/sql/functions/), and the function set closely follows the PostgreSQL dialect.
+Scalar functions help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The function set closely follows the PostgreSQL dialect.
 
 ## Function Categories
 
-- Math Functions
-- Conditional Functions
-- String Functions
-- Binary String Functions
-- Regular Expression Functions
-- Time and Date Functions
-- Array Functions
-- Struct Functions
-- Map Functions
-- Hashing Functions
-- Union Functions
-- Other Functions
+- [Math Functions](#math-functions)
+- [Conditional Functions](#conditional-functions)
+- [String Functions](#string-functions)
+- [Binary String Functions](#binary-string-functions)
+- [Regular Expression Functions](#regular-expression-functions)
+- [Time and Date Functions](#time-and-date-functions)
+- [Array Functions](#array-functions)
+- [Struct Functions](#struct-functions)
+- [Map Functions](#map-functions)
+- [Hashing Functions](#hashing-functions)
+- [Union Functions](#union-functions)
+- [Other Functions](#other-functions)
 
 ---
 
@@ -504,15 +504,13 @@ trunc(numeric_expression[, decimal_places])
 
 ---
 
-For more information and examples, see the [DataFusion math functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#mathematical-functions).
-
 ## Conditional Functions
 
-Conditional functions help handle null values, select among alternatives, and compare multiple expressions. Functions such as `coalesce`, `greatest`, `least`, and `nullif` are supported. These are useful for data cleaning and conditional logic in queries. See the [DataFusion conditional functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#conditional-functions) for more information.
+Conditional functions help handle null values, select among alternatives, and compare multiple expressions. Functions such as `coalesce`, `greatest`, `least`, and `nullif` are supported. These are useful for data cleaning and conditional logic in queries.
 
 ## String Functions
 
-String functions in Spice.ai SQL help manipulate, analyze, and transform text data. These functions operate on string expressions, which can be constants, columns, or results of other functions. The implementation is based on [Apache DataFusion](https://datafusion.apache.org/docs/user-guide/sql/functions/#string-functions) and closely follows the PostgreSQL dialect. The following string functions are supported:
+String functions in Spice.ai SQL help manipulate, analyze, and transform text data. These functions operate on string expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following string functions are supported:
 
 ### `ascii`
 
@@ -1415,23 +1413,21 @@ uuid()
 
 ---
 
-For more information and examples, see the [DataFusion string functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#string-functions).
-
 ## Binary String Functions
 
-Binary string functions help encode and decode binary data, such as base64 and hexadecimal conversions. These are useful for working with encoded data or binary blobs. See the [DataFusion binary string functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#binary-string-functions).
+Binary string functions help encode and decode binary data, such as base64 and hexadecimal conversions. These are useful for working with encoded data or binary blobs.
 
 ## Regular Expression Functions
 
-Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Functions such as `regexp_like`, `regexp_match`, and `regexp_replace` are available. For syntax and examples, refer to the [DataFusion regular expression functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#regular-expression-functions).
+Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Functions such as `regexp_like`, `regexp_match`, and `regexp_replace` are available.
 
 ## Time and Date Functions
 
-Time and date functions help extract, format, and manipulate temporal data. Functions include `current_date`, `now`, `date_part`, `date_trunc`, and various conversion functions. These are essential for time series analysis and working with timestamps. See the [DataFusion time and date functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#date-and-time-functions).
+Time and date functions help extract, format, and manipulate temporal data. Functions include `current_date`, `now`, `date_part`, `date_trunc`, and various conversion functions. These are essential for time series analysis and working with timestamps.
 
 ## Array Functions
 
-Array functions in Spice.ai SQL help construct, transform, and query array data types. These functions operate on array expressions, which can be constants, columns, or results of other functions. The implementation is based on [Apache DataFusion](https://datafusion.apache.org/docs/user-guide/sql/functions/#array-functions) and closely follows the PostgreSQL dialect. The following array functions are supported:
+Array functions in Spice.ai SQL help construct, transform, and query array data types. These functions operate on array expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following array functions are supported:
 
 ### `array_any_value`
 
@@ -1642,28 +1638,26 @@ array_element(array, index)
 
 ---
 
-For more information and examples, see the [DataFusion array functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#array-functions).
-
 ## Struct Functions
 
-Struct functions help construct and access structured data types (Arrow structs). Functions such as `struct`, `named_struct`, and `get_field` are supported. These are useful for working with nested or composite data. See the [DataFusion struct functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#struct-functions).
+Struct functions help construct and access structured data types (Arrow structs). Functions such as `struct`, `named_struct`, and `get_field` are supported. These are useful for working with nested or composite data.
 
 ## Map Functions
 
-Map functions help construct and query key-value data structures. Functions include `map`, `map_extract`, `map_keys`, and `map_values`. These are useful for semi-structured or JSON-like data. For more information, see the [DataFusion map functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#map-functions).
+Map functions help construct and query key-value data structures. Functions include `map`, `map_extract`, `map_keys`, and `map_values`. These are useful for semi-structured or JSON-like data.
 
 ## Hashing Functions
 
-Hashing functions help compute cryptographic hashes and checksums, such as `md5`, `sha256`, and `digest`. These are useful for data integrity, fingerprinting, and security applications. See the [DataFusion hashing functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#hashing-functions).
+Hashing functions help compute cryptographic hashes and checksums, such as `md5`, `sha256`, and `digest`. These are useful for data integrity, fingerprinting, and security applications.
 
 ## Union Functions
 
-Union functions help work with union (variant) data types, such as extracting the value or tag from a union. Functions include `union_extract` and `union_tag`. See the [DataFusion union functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#union-functions).
+Union functions help work with union (variant) data types, such as extracting the value or tag from a union. Functions include `union_extract` and `union_tag`.
 
 ## Other Functions
 
-Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available. See the [DataFusion other functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/#other-functions).
+Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
 
 ---
 
-For detailed syntax, argument descriptions, and examples for each function, refer to the [DataFusion SQL functions documentation](https://datafusion.apache.org/docs/user-guide/sql/functions/). Spice.ai aims for compatibility with DataFusion and PostgreSQL, but some functions or behaviors may differ depending on the underlying engine version. Always consult the linked documentation for authoritative details.
+Spice.ai aims for compatibility with PostgreSQL, but some functions or behaviors may differ depending on the underlying engine version.
