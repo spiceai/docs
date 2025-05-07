@@ -98,4 +98,4 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
   - [Inferred Types](/docs/reference/sql/prepared_statements#inferred-types)
   - [Positional Arguments](/docs/reference/sql/prepared_statements#positional-arguments)
 
-Refer to each section for detailed syntax, supported features, and examples. For authoritative details, see the [Apache DataFusion SQL documentation](https://datafusion.apache.org/docs/user-guide/sql/) and [PostgreSQL documentation](https://www.postgresql.org/docs/current/sql.html).
+Refer to each section for detailed syntax, supported features, and examples.
