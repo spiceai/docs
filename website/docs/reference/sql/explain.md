@@ -12,14 +12,12 @@ Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses t
 
 The `EXPLAIN` command shows the logical and physical execution plan of a SQL statement.
 
-<pre>
-EXPLAIN [ANALYZE] [VERBOSE] statement
-</pre>
+`EXPLAIN [ANALYZE] [VERBOSE] statement`
 
 Shows the execution plan of a statement.
 Use `EXPLAIN VERBOSE` if more detailed output is needed.
 
-```
+```sql
 EXPLAIN SELECT SUM(x) FROM table GROUP BY b;
 +---------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type     | plan                                                                                                                                                           |
@@ -43,7 +41,7 @@ EXPLAIN SELECT SUM(x) FROM table GROUP BY b;
 Shows the execution plan of a statement.
 Use `EXPLAIN ANALYZE VERBOSE` if more detailed output is needed.
 
-```
+```sql
 EXPLAIN ANALYZE SELECT SUM(x) FROM table GROUP BY b;
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------+
 | plan_type         | plan                                                                                                                                                      |
