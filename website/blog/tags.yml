@@ -134,10 +134,6 @@ llm-tools:
   label: 'llm-tool'
   permalink: '/llm-tools'
   description: 'Tools for working with large language models'
-m2m:
-  label: 'm2m'
-  permalink: '/m2m'
-  description: 'Machine-to-Machine related topics and usage'
 machine-learning:
   label: 'machine-learning'
   permalink: '/machine-learning'
