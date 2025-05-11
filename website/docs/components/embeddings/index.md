@@ -19,17 +19,19 @@ Embeddings are used for vector-based and similarity search, like document retrie
 
 Spice supports various model sources and formats to provide embedding components:
 
-| Name                | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
-| ------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
-| [`file`][file]      | Local filesystem                             | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf] | Models hosted on HuggingFace                 | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`openai`][openai]  | OpenAI (or compatible) LLM endpoint          | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
-| [`azure`][azure]    | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| Name                       | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
+| -------------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
+| [`file`][file]             | Local filesystem                             | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf]        | Models hosted on HuggingFace                 | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
+| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint          | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
+| [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
 [file]: /components/embeddings/local.md
 [hf]:  /components/embeddings/huggingface.md
 [openai]: /components/embeddings/openai.md
 [azure]: /components/embeddings/azure.md
+[databricks]: /components/embeddings/databricks.md
 
 ## Overview
 
