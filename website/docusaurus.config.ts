@@ -117,7 +117,7 @@ const config: Config = {
         },
         { to: 'blog', label: 'Blog', position: 'left' },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
-        { to: '/docs/reference/sql/index.md', label: 'SQL Reference', position: 'left' },
+        { to: 'docs/reference/sql/index.md', label: 'SQL Reference', position: 'left' },
         {
           label: 'X',
           href: 'https://x.com/spice_ai',
