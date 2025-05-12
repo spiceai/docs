@@ -18,7 +18,7 @@ To use a language model deployed to [Databricks Mosaic AI Model Serving](https:/
 
 ### Example `spicepod.yaml` configuration, using personal access token
 
-To Learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+To learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
 
 ```yaml
 models:
@@ -35,7 +35,7 @@ Spice supports the M2M OAuth flow with service principal credentials by utilizin
 
 Ensure that you grant your service principal the "Can Query" permission for model serving.
 
-To Learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
+To learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
 
 ```yaml
 models:
