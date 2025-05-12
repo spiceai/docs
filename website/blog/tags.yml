@@ -6,6 +6,10 @@ acceleration:
   label: 'acceleration'
   permalink: '/acceleration'
   description: 'Topics related to acceleration techniques and tools'
+adbc:
+  label: 'adbc'
+  permalink: '/adbc'
+  description: 'Arrow Database Connectivity (ADBC) related topics and discussions'
 ai:
   label: 'ai'
   permalink: '/ai'
@@ -58,6 +62,10 @@ databricks:
   label: 'databricks'
   permalink: '/databricks'
   description: 'Databricks platform related topics and usage'
+datafusion:
+  label: 'datafusion'
+  permalink: '/datafusion'
+  description: 'DataFusion query engine related topics and usage'
 deepseek:
   label: 'deepseek'
   permalink: '/deepseek'
@@ -134,6 +142,10 @@ mcp:
   label: 'mcp'
   permalink: '/mcp'
   description: 'Model-Context-Protocol (MCP) related topics and usage'
+memory:
+  label: 'memory'
+  permalink: '/memory'
+  description: 'LLM memory related topics and usage'
 metal:
   label: 'metal'
   permalink: '/metal'
@@ -158,6 +170,10 @@ on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
   description: 'On-premises infrastructure and usage'
+parameterized queries:
+  label: 'parameterized queries'
+  permalink: '/parameterized queries'
+  description: 'Topics and usage related to parameterized queries'
 performance:
   label: 'performance'
   permalink: '/performance'
@@ -218,3 +234,7 @@ tableau:
   label: 'tableau'
   permalink: '/tableau'
   description: 'Tableau Connector related topics and usage'
+workers:
+  label: 'workers'
+  permalink: '/workers'
+  description: 'Topics and usage related to Spice workers'

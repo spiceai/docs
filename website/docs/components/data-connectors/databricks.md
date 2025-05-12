@@ -58,13 +58,51 @@ SELECT COUNT(*) FROM cool_dataset;
 
 Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
 
-| Parameter Name          | Description                                                                                                                                                                                                                                                                                                                                          |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                  | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
-| `databricks_endpoint`   | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
-| `databricks_cluster_id` | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
-| `databricks_use_ssl`    | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
-| `client_timeout`        | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
+| Parameter Name             | Description                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                     | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
+| `databricks_endpoint`      | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
+| `databricks_cluster_id`    | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
+| `databricks_use_ssl`       | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
+| `client_timeout`           | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
+| `databricks_token`         | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
+| `databricks_client_id`     | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
+| `databricks_client_secret` | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
+
+## Authentication
+
+### Personal access token
+
+To Learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_cluster_id: 1234-567890-abcde123
+      databricks_token: ${secrets:DATABRICKS_TOKEN} # PAT
+```
+
+### Databricks service principal
+
+Spice supports the M2M OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
+
+Ensure that you grant your service principal the "Data Reader" privilege preset for the catalog and "Can Attach" cluster permissions when using Spark Connect mode.
+
+To Learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_cluster_id: 1234-567890-abcde123
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
+      databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
+```
 
 ## Delta Lake object store parameters
 
@@ -72,12 +110,13 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 ### AWS S3
 
-| Parameter Name                     | Description                                                                        |
-| ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                |
-| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                         |
-| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                     |
-| `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
+| Parameter Name                     | Description                                                                                    |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
+| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
+| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
+| `databricks_aws_allow_http`        | Optional. Enables insecure HTTP connections to `databricks_aws_endpoint`. Defaults to `false`. |
 
 ### Azure Blob
 
@@ -208,15 +247,15 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 - When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
- :::warning[Memory Considerations]
+:::warning[Memory Considerations]
 
- When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
- Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
 
 - The Databricks Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 
- :::
+:::
 
 ## Cookbook
 

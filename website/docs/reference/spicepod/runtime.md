@@ -37,6 +37,15 @@ runtime:
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
+## `runtime.shutdown_timeout`
+
+Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds. 
+
+```yaml
+runtime:
+  shutdown_timeout: 1m
+```
+
 ## `runtime.tls`
 
 The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls/index.md).
@@ -168,6 +177,19 @@ runtime:
 ```
 
 This configuration permits requests only from the `https://example.com` origin.
+
+## `runtime.memory_limit`
+
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
+
+```yaml
+runtime:
+  memory_limit: 4GiB
+```
+
+Specify the value as a size, for example `4GiB` or `1024MiB`.
+
+For detailed memory information, see [Memory](/docs/reference/memory.md).
 
 ## `runtime.temp_directory`
 
