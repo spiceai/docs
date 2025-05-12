@@ -18,7 +18,7 @@ To use an embedding model deployed to [Databricks Mosaic AI Model Serving](https
 
 ### Example `spicepod.yaml` configuration, using personal access token
 
-To Learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+To learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
 
 ```yaml
 embeddings:
