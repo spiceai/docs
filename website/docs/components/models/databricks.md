@@ -33,7 +33,7 @@ models:
 
 Spice supports the M2M OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
 
-Ensure that you grant your service principal the "Can Query" permission for model serving.
+The service principal must be granted the "Can Query" permission for model serving.
 
 To learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
 
