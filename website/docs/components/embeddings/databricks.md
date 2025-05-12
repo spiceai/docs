@@ -42,7 +42,7 @@ embeddings:
   - from: databricks:databricks-gte-large-en
     name: gte-large-en
     params:
-      databricks_endpoint: dbc-46470731-42e5.cloud.databricks.com
+      databricks_endpoint: dbc-42424242-4242.cloud.databricks.com
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID}
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET}
 ```
