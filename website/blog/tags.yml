@@ -114,6 +114,10 @@ gpu:
   label: 'gpu'
   permalink: '/gpu'
   description: 'Graphics Processing Unit related topics and usage'
+helm:
+  label: 'helm'
+  permalink: '/helm'
+  description: 'Helm Chart related topics and usage'
 huggingface:
   label: 'huggingface'
   permalink: '/huggingface'
