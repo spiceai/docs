@@ -154,10 +154,6 @@ monitoring:
   label: 'monitoring'
   permalink: '/monitoring'
   description: 'Monitoring tools and practices'
-mosaic:
-  label: 'mosaic'
-  permalink: '/mosaic'
-  description: 'Databricks Mosaic AI Model related topics and usage'
 mysql:
   label: 'mysql'
   permalink: '/mysql'
