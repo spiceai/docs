@@ -94,10 +94,10 @@ duckdb:
   label: 'duckdb'
   permalink: '/duckdb'
   description: 'DuckDB database topics and usage'
-embedding:
-  label: 'embedding'
+embeddings:
+  label: 'embeddings'
   permalink: '/embeddings'
-  description: 'Embedding techniques and tools'
+  description: 'Embeddings techniques and tools'
 evaluation:
   label: 'evaluation'
   permalink: '/evaluations'
