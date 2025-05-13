@@ -33,6 +33,8 @@ Datasets can be augmented with embeddings targeting specific columns, to enable 
 datasets:
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
+    params:
+      github_token: ${ secrets:GITHUB_TOKEN }
     acceleration:
       enabled: true
     columns:
