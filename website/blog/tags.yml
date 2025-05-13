@@ -97,7 +97,7 @@ duckdb:
 embeddings:
   label: 'embeddings'
   permalink: '/embeddings'
-  description: 'Embeddings techniques and tools'
+  description: 'Embeddings related topics and usage'
 evaluation:
   label: 'evaluation'
   permalink: '/evaluations'
