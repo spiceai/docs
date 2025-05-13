@@ -5,7 +5,7 @@ sidebar_label: 'Databricks'
 sidebar_position: 8
 ---
 
-To use a language model deployed to [Databricks Mosaic AI Model Serving](https://docs.databricks.com/aws/en/machine-learning/model-serving/), specify the model endpoint name prefixed with `databricks:` in the `from` field and include the required parameters in the `params` section.
+To use an embedding model deployed to [Databricks Mosaic AI Model Serving](https://docs.databricks.com/aws/en/machine-learning/model-serving/), specify the model endpoint name prefixed with `databricks:` in the `from` field and include the required parameters in the `params` section.
 
 ### Parameters
 
@@ -21,9 +21,9 @@ To use a language model deployed to [Databricks Mosaic AI Model Serving](https:/
 To learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
 
 ```yaml
-models:
-  - from: databricks:databricks-llama-4-maverick
-    name: llama-4-maverick
+embeddings:
+  - from: databricks:databricks-gte-large-en
+    name: gte-large-en
     params:
       databricks_endpoint: dbc-46470731-42e5.cloud.databricks.com
       databricks_token: ${ secrets:SPICE_DATABRICKS_TOKEN }
@@ -38,11 +38,11 @@ The service principal must be granted the "Can Query" permission for model servi
 To learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
 
 ```yaml
-models:
-  - from: databricks:databricks-llama-4-maverick
-    name: llama-4-maverick
+embeddings:
+  - from: databricks:databricks-gte-large-en
+    name: gte-large-en
     params:
-      databricks_endpoint: dbc-46470731-42e5.cloud.databricks.com
+      databricks_endpoint: dbc-42424242-4242.cloud.databricks.com
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID}
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET}
 ```
