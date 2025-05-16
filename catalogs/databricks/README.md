@@ -28,13 +28,13 @@ catalogs:
   - from: databricks:<CATALOG_NAME>
     name: db_uc
     params:
-      mode: spark_connect # or delta_lake
+      mode: spark_connect # or delta_lake or sql_warehouse
       databricks_token: ${env:DATABRICKS_TOKEN}
       databricks_endpoint: <instance-id>.cloud.databricks.com
       databricks_cluster_id: <cluster-id>
 ```
 
-For `mode` you can choose between `spark_connect` or `delta_lake`. `spark_connect` is the default mode and requires an [All-Purpose Compute Cluster](https://docs.databricks.com/en/compute/index.html) to be available. `delta_lake` mode queries directly against Delta Lake tables in object storage, and requires Spice to have the necessary permissions to access the object storage directly.
+For `mode` you can choose between `spark_connect`, `delta_lake`, or `sql_warehouse`. `spark_connect` is the default mode and requires an [All-Purpose Compute Cluster](https://docs.databricks.com/en/compute/index.html) to be available. `delta_lake` mode queries directly against Delta Lake tables in object storage, and requires Spice to have the necessary permissions to access the object storage directly. `sql_warehouse` uses the SQL Statement Execution API.
 
 Set the `DATABRICKS_TOKEN` environment variable to the Databricks personal access token created in Step 1. A `.env` file created in the same directory as `spicepod.yaml` can be used to set the variable, i.e.:
 
