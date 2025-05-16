@@ -9,7 +9,7 @@ tags:
   - delta-lake
 ---
 
-Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html), directly from [Delta Lake](https://delta.io/) tables, or using the [SQL Statement Execution API](https://docs.databricks.com/aws/en/dev-tools/sql-execution-tutorial).
 
 ```yaml
 datasets:
@@ -62,6 +62,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mode`                     | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
 | `databricks_endpoint`      | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
+| `databricks_sql_warehouse_id`    | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                         |
 | `databricks_cluster_id`    | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
 | `databricks_use_ssl`       | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
 | `client_timeout`           | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
@@ -154,6 +155,18 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
     mode: spark_connect
     databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
     databricks_cluster_id: 1234-567890-abcde123
+    databricks_token: ${secrets:my_token}
+```
+
+### SQL Warehouse
+
+```yaml
+- from: databricks:spiceai.datasets.my_table # A reference to a table in the Databricks unity catalog
+  name: my_table
+  params:
+    mode: sql_warehouse
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_sql_warehouse_id: 1234-567890-abcde123
     databricks_token: ${secrets:my_token}
 ```
 
@@ -259,4 +272,4 @@ Memory limitations can be mitigated by storing acceleration data on disk, which 
 
 ## Cookbook
 
-- A cookbook recipe to configure Databricks as data connector in Spice under `delta_lake` mode. [Spice on Databricks (mode: delta_lake)](https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake#readme)
+- A cookbook recipe to configure Databricks as a data connector in Spice. [Spice on Databricks](https://github.com/spiceai/cookbook/tree/trunk/databricks)
