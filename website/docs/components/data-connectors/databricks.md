@@ -166,7 +166,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
   params:
     mode: sql_warehouse
     databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
-    databricks_sql_warehouse_id: 1234-567890-abcde123
+    databricks_sql_warehouse_id: 2b4e24cff378fb24
     databricks_token: ${secrets:my_token}
 ```
 

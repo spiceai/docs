@@ -33,7 +33,7 @@ catalogs:
       # spark_connect parameters
       databricks_cluster_id: 1234-567890-abcde123
       # sql_warehouse parameters
-      databricks_sql_warehouse_id: 1234-567890-abcde123
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
 ```
 
 ## `from`
@@ -59,6 +59,15 @@ The `params` field is used to configure the connection to the Databricks Unity C
 - `databricks_endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
 - `databricks_token`: The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_databricks_token}`.
 - `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
+
+To locate the Databricks endpoint, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click Compute.
+3. In the list of available clusters, click the target cluster's name.
+4. On the Configuration tab, expand Advanced options.
+5. Click the JDBC/ODBC tab.
+6. The endpoint is the Server Hostname.
 
 ## Authentication
 
@@ -103,7 +112,16 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 
 ### Spark Connect parameters
 
-- `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. e.g. `1234-567890-abcde123`.
+- `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. e.g. `dbc-26270713-4e25`.
+
+To locate the cluster ID, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click Compute.
+3. In the list of available clusters, click the target cluster's name.
+4. On the Configuration tab, expand Advanced options.
+5. Click the JDBC/ODBC tab.
+6. The cluster ID is the prefix of the Server Hostname.
 
 ### Delta Lake object store parameters
 
@@ -111,7 +129,14 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 ### SQL Warehouse parameters
 
-- `databricks_sql_warehouse_id`: The ID of the SQL Warehouse in Databricks to use for the query. e.g. `1234-567890-abcde123`.
+- `databricks_sql_warehouse_id`: The ID of the SQL Warehouse in Databricks to use for the query. e.g. `2b4e24cff378fb24`.
+
+To locate your SQL Warehouse ID, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click SQL -> SQL Warehouses.
+3. In the list of available warehouses, click the target warehouse's name.
+4. Next to the **Name** field, the ID follows the name in parentheses. For example: `My Serverless Warehouse (ID: 2b4e24cff378fb24)`
 
 #### AWS S3
 
