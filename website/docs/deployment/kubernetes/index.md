@@ -20,14 +20,13 @@ helm upgrade --install spiceai spiceai/spiceai
 ```
 
 :::info Deployment Architecture
-By default, the Spice.ai Helm chart deploys the application as a stateless Kubernetes Deployment.
-To keep data between restarts (for example, for file-based acceleration), enable and configure the `stateful` section in the values file.
+By default, the Spice.ai Helm chart deploys the application as a stateless Kubernetes Deployment. To persist data between restarts (e.g., for file-based acceleration), enable and configure the `stateful` section in the values file. Refer to the [Stateful Configuration](#stateful-configuration) section for details.
 :::
 
 ## What are Kubernetes and Helm?
 
 **Kubernetes** is an open-source platform for automating deployment, scaling, and management of containerized applications.  
-**Helm** is a package manager for Kubernetes that streamlines the installation and configuration of applications using reusable templates called charts.  
+**Helm** is a package manager for Kubernetes that simplifies the installation and configuration of applications using reusable templates called charts.
 
 Spice publishes a Helm chart that simplifies the deployment of Spice.ai OSS on Kubernetes.
 
@@ -36,14 +35,13 @@ Spice publishes a Helm chart that simplifies the deployment of Spice.ai OSS on K
 ### Prerequisites
 
 - Access to a Kubernetes cluster.
-  - Run a local Kubernetes cluster using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
+  - For local testing, try running a local Kubernetes cluster using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/).
 - `kubectl` CLI installed and configured to interact with the target Kubernetes cluster. Visit the [Kubernetes docs](https://kubernetes.io/docs/tasks/tools/#kubectl) for installation instructions.
 - Helm CLI installed. Visit the [Helm docs](https://helm.sh/docs/intro/install/) for installation instructions.
 
 ### Add the Spice Helm repository
 
-A Helm repository (Helm repo) is a storage location where Helm charts are hosted and can be accessed for deployment in Kubernetes clusters.
-Add the Spice Helm repository to your local Helm client and update the index to get the latest charts:
+A Helm repository (Helm repo) is a storage location where Helm charts are hosted and can be accessed for deployment in Kubernetes clusters. Add the Spice Helm repository to your local Helm client and update the index to get the latest charts:
 
 ```bash
 helm repo add {repository-name} https://helm.spiceai.org
@@ -74,10 +72,10 @@ helm install spiceai spiceai/spiceai --namespace default
 
 Spice can be installed multiple times in the same cluster by specifying a different release name for each installation.
 
-Let's break down the command:
+#### Command Breakdown
 
-- `helm install`: Install a new Helm chart. To upgrade an existing release, use `helm upgrade`. Combine both upgrade and install by specifying `helm upgrade --install`.
-- `spiceai`: The name of the release. This name is customizable and can be set to any preferred value. i.e. `spiceai-my-app-1` and `spiceai-my-app-2` are valid release names. Each Helm release is a distinct installation of the same chart.
+- `helm install`: Installs a new Helm chart. To upgrade an existing release, use `helm upgrade`. Combine both upgrade and install by specifying `helm upgrade --install`.
+- `spiceai`: The name of the release. This name is customizable and can be set to any preferred value, e.g., `spiceai-my-app-v1` and `spiceai-my-app-v2` are valid release names. Each Helm release is a distinct installation of the same chart.
 - `spiceai/spiceai`: The chart to install. The first `spiceai` is the repository name added earlier, and the second `spiceai` is the name of the chart to install. While the repository name is customizable, the chart name is not.
 - `--namespace default`: The Kubernetes namespace to install the chart into. This is optional and defaults to `default`.
 
@@ -89,7 +87,7 @@ helm upgrade --install spiceai-my-app-1 my-spiceai-repo/spiceai
 
 ### Upgrade the Spice Helm chart
 
-To upgrade an existing release, use the `helm upgrade` command.
+To upgrade an existing release, use the `helm upgrade` command:
 
 ```bash
 helm upgrade {release-name} {repository-name}/{chart-name}
@@ -103,7 +101,7 @@ helm upgrade spiceai-my-app-1 my-spiceai-repo/spiceai
 
 ### Rollback a Helm release
 
-On occasion, you may need to roll back a Spice Helm release to a previous version. To do so, use the `helm rollback` command. This will notify Kubernetes to redeploy Spice back to a previous version of the Helm release.
+On occasion, you may need to roll back a Spice Helm release to a previous version. To do so, use the `helm rollback` command. This will notify Kubernetes to redeploy Spice back to a previous version of the Helm release:
 
 ```bash
 helm rollback {release-name} --namespace {namespace}
@@ -117,8 +115,7 @@ helm rollback spiceai-my-app-1 --namespace default
 
 ### Uninstall a Helm release
 
-To uninstall a Helm release, use the `helm uninstall` command. This will cause Kubernetes to remove the Spice deployment entirely.
-Note that any data stored in volumes created by configuring the `stateful` parameter will be preserved and must be manually deleted if desired.
+To uninstall a Helm release, use the `helm uninstall` command. This will cause Kubernetes to remove the Spice deployment entirely. Note that any data stored in volumes created by configuring the `stateful` parameter will be preserved and must be manually deleted if desired:
 
 ```bash
 helm uninstall {release-name} --namespace {namespace}
@@ -171,24 +168,24 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 
 ## Common Parameters
 
-| **Name**                            | **Description**                                                                                                                                                                               | **Value**  |
-|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `additionalEnv`                     | Additional environment variables to set in the Spice.ai container.                                                                                                                            | `[]`       |
-| `additionalLabels`                  | Additional labels to add to all resources.                                                                                                                                                    | `{}`       |
-| `image.pullSecrets`                 | Specify Docker registry secret names as an array.                                                                                                                                             | `[]`       |
-| `image.repository`                  | The repository of the Docker image.                                                                                                                                                           | `spiceai`  |
-| `image.tag`                         | Replace with a specific version of Spice.ai to run.                                                                                                                                           | `1.3.0`    |
-| `monitoring.podMonitor.enabled`     | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs.     | `false`    |
-| `replicaCount`                      | Number of Spice.ai replicas to run.                                                                                                                                                           | `1`        |
-| `resources`                         | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).         | `{}`       |
-| `service.type`                      | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                                   | `null`     |
-| `serviceAccount.create`             | Specifies whether a ServiceAccount should be created.                                                                                                                                         | `false`    |
-| `spicepod`                          | Define the [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime.                                                                               | `{}`       |
-| `stateful.enabled`                  | Use a StatefulSet with a PVC (Persistent Volume Claim) for the data volume.                                                                                                                   | `false`    |
-| `stateful.mountPath`                | Mount path in container for the persistent volume.                                                                                                                                            | `/data`    |
-| `stateful.size`                     | Size of each PV in the StatefulSet.                                                                                                                                                           | `1Gi`      |
-| `stateful.storageClass`             | Storage class for the volume claim template in the StatefulSet.                                                                                                                               | `standard` |
-| `tolerations`                       | List of node taints to tolerate.                                                                                                                                                              | `[]`       |
+| **Name**                        | **Description**                                                                                                                                                                           | **Value**  |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `additionalEnv`                 | Additional environment variables to set in the Spice.ai container.                                                                                                                        | `[]`       |
+| `additionalLabels`              | Additional labels to add to all resources.                                                                                                                                                | `{}`       |
+| `image.pullSecrets`             | Specify Docker registry secret names as an array.                                                                                                                                         | `[]`       |
+| `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai`  |
+| `image.tag`                     | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `1.3.0`    |
+| `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`    |
+| `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`        |
+| `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | `{}`       |
+| `service.type`                  | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                               | `null`     |
+| `serviceAccount.create`         | Specifies whether a ServiceAccount should be created.                                                                                                                                     | `false`    |
+| `spicepod`                      | Define the [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime.                                                                           | `{}`       |
+| `stateful.enabled`              | Use a StatefulSet with a PVC (Persistent Volume Claim) for the data volume.                                                                                                               | `false`    |
+| `stateful.mountPath`            | Mount path in container for the persistent volume.                                                                                                                                        | `/data`    |
+| `stateful.size`                 | Size of each PV in the StatefulSet.                                                                                                                                                       | `1Gi`      |
+| `stateful.storageClass`         | Storage class for the volume claim template in the StatefulSet.                                                                                                                           | `standard` |
+| `tolerations`                   | List of node taints to tolerate.                                                                                                                                                          | `[]`       |
 
 ## Environment Variables and Secrets
 
@@ -197,7 +194,7 @@ Add extra environment variables using the `additionalEnv` property. This can be 
 ```yaml
 additionalEnv:
   - name: SPICED_LOG
-    value: "DEBUG"
+    value: 'DEBUG'
   - name: SPICE_SECRET_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
@@ -342,7 +339,7 @@ Enabling the StatefulSet architecture requires configuration of the `stateful` s
 stateful:
   enabled: true
   # Storage class for the volume claim template
-  storageClass: "standard"
+  storageClass: 'standard'
   # Size of each PV in the StatefulSet
   size: 1Gi
   # Mount path in container
@@ -366,7 +363,7 @@ replicaCount: 1
 service:
   type: ClusterIP
   additionalAnnotations:
-    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-internal: 'true'
 
 resources:
   limits:
@@ -378,7 +375,7 @@ resources:
 
 additionalEnv:
   - name: SPICED_LOG
-    value: "INFO"
+    value: 'INFO'
   - name: SPICE_SECRET_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
@@ -387,7 +384,7 @@ additionalEnv:
 
 stateful:
   enabled: true
-  storageClass: "standard"
+  storageClass: 'standard'
   size: 5Gi
   mountPath: /data
 
