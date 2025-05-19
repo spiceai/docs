@@ -73,7 +73,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 ### Personal access token
 
-To Learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+To learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
 
 ```yaml
 datasets:

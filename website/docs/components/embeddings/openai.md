@@ -20,7 +20,7 @@ The following parameters are specific to OpenAI models:
 Below is an example configuration in `spicepod.yaml`:
 
 ```yaml
-models:
+embeddings:
   - from: openai:text-embedding-3-large
     name: xl_embed
     params:
