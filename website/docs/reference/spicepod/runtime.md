@@ -22,13 +22,14 @@ runtime:
     item_ttl: 1s
 ```
 
-| Parameter name    | Optional | Description                                                                                                                                   |
-| ----------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`         | Yes      | Defaults to `true`.                                                                                                                           |
-| `cache_max_size`  | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                     |
-| `eviction_policy` | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.             |
-| `item_ttl`        | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                         |
-| `cache_key_type`  | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| Parameter name      | Optional | Description                                                                                                                                    |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
+| `cache_max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+| `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
 ### Choosing a `cache_key_type`
 
@@ -37,9 +38,16 @@ runtime:
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
+### Choosing a `hashing_algorithm`
+
+- **`siphash` (Default):** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
+- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with a `plan` `cache_key_type`.
+
+Consider using `ahash` if maximum performance is most important, or where hashing DoS attacks are unlikely or a low risk. More information on the security mechanisms of AHash are available [in the AHash documentation](https://github.com/tkaitchuck/aHash/wiki/How-aHash-is-resists-DOS-attacks).
+
 ## `runtime.shutdown_timeout`
 
-Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds. 
+Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds.
 
 ```yaml
 runtime:
