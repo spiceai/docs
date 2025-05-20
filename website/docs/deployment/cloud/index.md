@@ -22,7 +22,7 @@ The Spice.ai Cloud Platform prioritizes security and compliance to ensure the pr
 
 ## Deployment Overview
 
-1. **Sign Up**: Register for an account on the [Spice.ai Cloud Platform](https://docs.spice.ai/).
+1. **Sign Up**: Register for an account on the [Spice.ai Cloud Platform](https://spice.ai/login).
 2. **Configure Your Application**: Organize datasets, models, and workflows using the platform's cloud portal.
 3. **Deploy**: Launch your AI applications and agents with minimal configuration.
 4. **Monitor and Scale**: Leverage built-in monitoring and observability tools to track performance and scale resources as required.
