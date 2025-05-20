@@ -18,6 +18,10 @@ announcement:
   label: 'announcement'
   permalink: '/announcements'
   description: 'Announcements about Spice.ai OSS'
+api:
+  label: 'api'
+  permalink: '/api'
+  description: 'Application Programming Interface related topics and discussions'
 arrow:
   label: 'arrow'
   permalink: '/arrow'
@@ -114,6 +118,10 @@ gpu:
   label: 'gpu'
   permalink: '/gpu'
   description: 'Graphics Processing Unit related topics and usage'
+hashing:
+  label: 'hashing'
+  permalink: '/hashing'
+  description: 'Hashing related topics and usage'
 helm:
   label: 'helm'
   permalink: '/helm'
