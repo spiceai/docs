@@ -129,6 +129,12 @@ const recipes: RecipeData[] = [
     path: '/arrow/README.md',
     tags: ['acceleration', 'apache', 'arrow']
   },
+  {
+    title: 'Accelerated Views',
+    description: 'Use view materialization for improved performance.',
+    path: '/views/README.md',
+    tags: ['acceleration', 'views']
+  },
   // Data Connectors
   {
     title: 'PostgreSQL Connector',
