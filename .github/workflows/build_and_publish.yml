@@ -52,7 +52,7 @@ jobs:
       - name: Deploy
         id: deploy
         if: ${{ steps.can_deploy.outputs.can_deploy == 'true' }}
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v3.14.1
         with:
           workingDirectory: website
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
