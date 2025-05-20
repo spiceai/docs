@@ -9,6 +9,6 @@ pagination_next: null
 
 Learn how to deploy Spice.ai in your environment.
 
-import DocCardList from '@theme/DocCardList';
-
-<DocCardList />
+- [Kubernetes (Helm)](/docs/deployment/kubernetes)
+- [Docker](/docs/deployment/docker)
+- [Spice Cloud](/docs/deployment/cloud)
