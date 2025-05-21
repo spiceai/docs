@@ -1,7 +1,7 @@
 ---
 title: 'Helm - Kubernetes'
 sidebar_label: 'Helm - Kubernetes'
-sidebar_position: 2
+sidebar_position: 4
 description: 'Deploy Spice.ai in Kubernetes using Helm.'
 tags:
   - deployment

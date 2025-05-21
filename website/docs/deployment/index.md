@@ -22,3 +22,4 @@ Learn how to deploy Spice.ai in your environment.
 - [Kubernetes (Helm)](kubernetes/index.md)
 - [Docker](docker.md)
 - [Spice Cloud](cloud/index.md)
+- [AWS](aws/index.md)
