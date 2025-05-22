@@ -171,3 +171,42 @@ explain select * from taxi_trips
 |               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 +---------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
+
+## Debugging Sandbox Container
+
+The Spice sandbox container is a minimal container that doesn't include standard Linux tools like `bash`. This can make it difficult to debug issues in the container itself.
+
+### SQL REPL
+
+It's possible to run the SQL REPL from the container to debug SQL queries:
+
+```console
+docker exec -it <container_id> spiced --repl
+```
+
+Or from `kubectl`:
+
+```console
+kubectl exec -it <pod_name> -- spiced --repl
+```
+
+### Debugging with a shell
+
+To debug issues using a shell, mount a volume that has a statically compiled `busybox` binary, and exec into the container using the `busybox sh` command. Here is an example in Docker:
+
+```bash
+# Create a volume for the busybox binary
+docker volume create busybox
+
+# Copy the busybox binary to the volume
+docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
+
+# Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
+docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:1.3.0
+
+# Exec into the container
+docker exec -it spiceai-debug /busy/busybox sh
+
+# At this point, a shell with standard Linux tools is available via the busybox binary. 
+# However, commands must be prefixed with `/busy/busybox`, for example: `/busy/busybox ls -l /app`.
+```
