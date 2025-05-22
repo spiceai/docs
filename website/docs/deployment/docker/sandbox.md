@@ -77,3 +77,7 @@ securityContext:
   runAsGroup: 65534
   fsGroup: 65534
 ```
+
+### Debugging sandbox container
+
+To debug issues with the sandbox container, see the [Debugging Sandbox Container](/docs/troubleshooting/index.md#debugging-sandbox-container) section of the troubleshooting guide.
