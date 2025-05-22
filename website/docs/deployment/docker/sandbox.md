@@ -66,3 +66,14 @@ securityContext:
 The `fsGroup` directive does not work for all Kubernetes storage types. For example, it does not work for `hostPath` volumes. In this case, an init container can be used to set the group of the files in the volume.
 
 :::
+
+### Custom Kubernetes deployments
+
+Kubernetes deployments that do not use the v1.3.0 Helm chart will need to add the following `securityContext` to their pod spec:
+
+```yaml
+securityContext:
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
+```
