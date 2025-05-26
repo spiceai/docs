@@ -11,7 +11,7 @@ tags:
   - data-connectors
 ---
 
-Connect to a [Databricks Unity Catalog](https://www.databricks.com/product/unity-catalog) as a catalog provider for federated SQL query using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html) or directly from [Delta Lake](https://delta.io/) tables.
+Connect to a [Databricks Unity Catalog](https://www.databricks.com/product/unity-catalog) as a catalog provider for federated SQL query using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html), directly from [Delta Lake](https://delta.io/) tables, or using the [SQL Statement Execution API](https://docs.databricks.com/aws/en/dev-tools/sql-execution-tutorial).
 
 ## Configuration
 
@@ -22,7 +22,7 @@ catalogs:
     include:
       - '*.my_table_name' # include only the "my_table_name" tables
     params:
-      mode: delta_lake # or spark_connect
+      mode: delta_lake # or spark_connect or sql_warehouse
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
     dataset_params:
       # delta_lake S3 parameters
@@ -32,6 +32,8 @@ catalogs:
       databricks_aws_endpoint: s3.us-west-2.amazonaws.com
       # spark_connect parameters
       databricks_cluster_id: 1234-567890-abcde123
+      # sql_warehouse parameters
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
 ```
 
 ## `from`
@@ -48,14 +50,23 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 ## `params`
 
-The `params` field is used to configure the connection to the Databricks Unity Catalog. The following parameters are supported:
+The following parameters are supported for configuring the connection to the Databricks Unity Catalog:
 
-- `mode`: The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:
-  - `spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.
-  - `delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.
-- `databricks_endpoint`: The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`.
-- `databricks_token`: The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_databricks_token}`.
-- `databricks_use_ssl`: If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.
+| Parameter Name        | Definition                                                                                                                                                                                                                                                                                         |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                | The execution mode for querying against Databricks. `spark_connect` uses Spark Connect to query against Databricks requires a Spark cluster to be available. `delta_lake` queries directly from Delta Tables and requires the object store credentials to be provided. Default is `spark_connect`. |
+| `databricks_endpoint` | The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`                                                                                                                                                                                                                   |
+| `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_databricks_token}`.                                                                                                  |
+| `databricks_use_ssl`  | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                            |
+
+To locate the Databricks endpoint, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click Compute.
+3. In the list of available clusters, click the target cluster's name.
+4. On the Configuration tab, expand Advanced options.
+5. Click the JDBC/ODBC tab.
+6. The endpoint is the Server Hostname.
 
 ## Authentication
 
@@ -100,18 +111,42 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 
 ### Spark Connect parameters
 
-- `databricks_cluster_id`: The ID of the compute cluster in Databricks to use for the query. e.g. `1234-567890-abcde123`.
+| Dataset Parameter Name  | Definition                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
+| `databricks_cluster_id` | The ID of the compute cluster in Databricks to use for the query. e.g. `1234-567890-abcde123`. |
+
+To locate the cluster ID, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click Compute.
+3. In the list of available clusters, click the target cluster's name.
+4. On the Configuration tab, expand Advanced options.
+5. Click the JDBC/ODBC tab.
+6. The cluster ID is the prefix of the Server Hostname.
 
 ### Delta Lake object store parameters
 
 Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
+### SQL Warehouse parameters
+
+- `databricks_sql_warehouse_id`: The ID of the SQL Warehouse in Databricks to use for the query. e.g. `2b4e24cff378fb24`.
+
+To locate your SQL Warehouse ID, do the following:
+
+1. Log in to your Databricks workspace.
+2. In the sidebar, click SQL -> SQL Warehouses.
+3. In the list of available warehouses, click the target warehouse's name.
+4. Next to the **Name** field, the ID follows the name in parentheses. For example: `My Serverless Warehouse (ID: 2b4e24cff378fb24)`
+
 #### AWS S3
 
-- `databricks_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
-- `databricks_aws_access_key_id`: The access key ID for the S3 object store.
-- `databricks_aws_secret_access_key`: The secret access key for the S3 object store.
-- `databricks_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
+| Dataset Parameter Name             | Definition                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------ |
+| `databricks_aws_region`            | The AWS region for the S3 object store. E.g. `us-west-2`.                |
+| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                               |
+| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                           |
+| `databricks_aws_endpoint`          | The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
 
 Example:
 
@@ -141,12 +176,14 @@ One of the following auth values must be provided for Azure Blob:
 - `databricks_azure_storage_sas_key`.
   :::
 
-- `databricks_azure_storage_account_name`: The Azure Storage account name.
-- `databricks_azure_storage_account_key`: The Azure Storage master key for accessing the storage account.
-- `databricks_azure_storage_client_id`: The service principal client id for accessing the storage account.
-- `databricks_azure_storage_client_secret`: The service principal client secret for accessing the storage account.
-- `databricks_azure_storage_sas_key`: The shared access signature key for accessing the storage account.
-- `databricks_azure_storage_endpoint`: The endpoint for the Azure Blob storage account.
+| Dataset Parameter Name                   | Definition                                                             |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `databricks_azure_storage_account_name`  | The Azure Storage account name.                                        |
+| `databricks_azure_storage_account_key`   | The Azure Storage master key for accessing the storage account.        |
+| `databricks_azure_storage_client_id`     | The service principal client id for accessing the storage account.     |
+| `databricks_azure_storage_client_secret` | The service principal client secret for accessing the storage account. |
+| `databricks_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
+| `databricks_azure_storage_endpoint`      | The endpoint for the Azure Blob storage account.                       |
 
 Example:
 
@@ -167,7 +204,9 @@ catalogs:
 
 #### Google Storage (GCS)
 
-- `google_service_account`: Filesystem path to the Google service account JSON key file.
+| Dataset Parameter Name   | Definition                                                   |
+| ------------------------ | ------------------------------------------------------------ |
+| `google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 Example:
 

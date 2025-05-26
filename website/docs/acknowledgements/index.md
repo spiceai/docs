@@ -51,31 +51,37 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 ## Rust Crates
 
+- ahash 0.7.8, Apache-2.0 OR MIT 
+  <br/>https://github.com/tkaitchuck/ahash
+
+- ahash 0.8.12, Apache-2.0 OR MIT 
+  <br/>https://github.com/tkaitchuck/ahash
+
 - ansi_term 0.12.1, MIT 
   <br/>https://github.com/ogham/rust-ansi-term
 
 - anyhow 1.0.95, Apache-2.0 OR MIT 
   <br/>https://github.com/dtolnay/anyhow
 
-- arrow 54.2.1, Apache-2.0 
+- arrow 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-buffer 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-cast 54.2.1, Apache-2.0 
+- arrow-cast 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-csv 54.2.1, Apache-2.0 
+- arrow-csv 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-flight 54.2.1, Apache-2.0 
+- arrow-flight 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-ipc 54.2.1, Apache-2.0 
+- arrow-ipc 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- arrow-json 54.2.1, Apache-2.0 
+- arrow-json 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-odbc 16.0.0, MIT 
@@ -84,10 +90,10 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - arrow-schema 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
-- async-graphql 7.0.15, Apache-2.0 OR MIT 
+- async-graphql 7.0.16, Apache-2.0 OR MIT 
   <br/>https://github.com/async-graphql/async-graphql
 
-- async-graphql-axum 7.0.13, Apache-2.0 OR MIT 
+- async-graphql-axum 7.0.16, Apache-2.0 OR MIT 
   <br/>https://github.com/async-graphql/async-graphql
 
 - async-openai 0.28.0, MIT 
@@ -114,7 +120,10 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - axum 0.7.9, MIT 
   <br/>https://github.com/tokio-rs/axum
 
-- axum-extra 0.9.6, MIT 
+- axum 0.8.3, MIT 
+  <br/>https://github.com/tokio-rs/axum
+
+- axum-extra 0.10.1, MIT 
   <br/>https://github.com/tokio-rs/axum
 
 - azure_core 0.21.0, MIT 
@@ -159,7 +168,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - charset 0.1.5, Apache-2.0 OR MIT 
   <br/>https://github.com/hsivonen/charset
 
-- chrono 0.4.39, Apache-2.0 OR MIT 
+- chrono 0.4.41, Apache-2.0 OR MIT 
   <br/>https://github.com/chronotope/chrono
 
 - chrono-tz 0.8.6, Apache-2.0 OR MIT 
@@ -192,7 +201,10 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - dashmap 6.1.0, MIT 
   <br/>https://github.com/xacrimon/dashmap
 
-- datafusion 45.0.0, Apache-2.0 
+- datafusion 46.0.1, Apache-2.0 
+  <br/>https://github.com/apache/datafusion
+
+- datafusion-datasource 46.0.1, Apache-2.0 
   <br/>https://github.com/apache/datafusion
 
 - datafusion-federation 0.1.6, Apache-2.0 
@@ -201,13 +213,13 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - datafusion-federation-sql 0.1.6, Apache-2.0 
   <br/>
 
-- datafusion-functions-json 0.45.0, Apache-2.0 
+- datafusion-functions-json 0.46.0, Apache-2.0 
   <br/>https://github.com/datafusion-contrib/datafusion-functions-json/
 
 - datafusion-table-providers 0.1.0,  
   <br/>https://github.com/datafusion-contrib/datafusion-table-providers
 
-- delta_kernel 0.9.0, Apache-2.0 
+- delta_kernel 0.10.0, Apache-2.0 
   <br/>https://github.com/delta-io/delta-kernel-rs
 
 - dirs 5.0.1, Apache-2.0 OR MIT 
@@ -348,15 +360,6 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - mailparse 0.15.0, 0BSD 
   <br/>https://github.com/staktrace/mailparse
 
-- mcp-client 1.0.7, MIT 
-  <br/>https://github.com/modelcontextprotocol/rust-sdk/
-
-- mcp-core 1.0.7, MIT 
-  <br/>https://github.com/modelcontextprotocol/rust-sdk/
-
-- mcp-server 1.0.7, MIT 
-  <br/>https://github.com/modelcontextprotocol/rust-sdk/
-
 - mediatype 0.19.18, MIT 
   <br/>https://github.com/picoHz/mediatype
 
@@ -423,7 +426,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - opentelemetry_sdk 0.29.0, Apache-2.0 
   <br/>https://github.com/open-telemetry/opentelemetry-rust/tree/main/opentelemetry-sdk
 
-- parquet 54.2.1, Apache-2.0 
+- parquet 54.3.1, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - paste 1.0.15, Apache-2.0 OR MIT 
@@ -486,11 +489,14 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - reqwest 0.11.27, Apache-2.0 OR MIT 
   <br/>https://github.com/seanmonstar/reqwest
 
-- reqwest 0.12.12, Apache-2.0 OR MIT 
+- reqwest 0.12.15, Apache-2.0 OR MIT 
   <br/>https://github.com/seanmonstar/reqwest
 
 - reqwest-eventsource 0.6.0, Apache-2.0 OR MIT 
   <br/>https://github.com/jpopesculian/reqwest-eventsource
+
+- rmcp 0.1.5, Apache-2.0 OR MIT 
+  <br/>https://github.com/modelcontextprotocol/rust-sdk/
 
 - rstest 0.25.0, Apache-2.0 OR MIT 
   <br/>https://github.com/la10736/rstest
@@ -606,7 +612,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - tokenizers 0.21.0, Apache-2.0 
   <br/>https://github.com/huggingface/tokenizers
 
-- tokio 1.43.0, MIT 
+- tokio 1.45.0, MIT 
   <br/>https://github.com/tokio-rs/tokio
 
 - tokio-postgres 0.7.13, Apache-2.0 OR MIT 
@@ -669,13 +675,13 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - utoipa 5.3.1, Apache-2.0 OR MIT 
   <br/>https://github.com/juhaku/utoipa
 
-- utoipa-swagger-ui 8.1.0, Apache-2.0 OR MIT 
+- utoipa-swagger-ui 9.0.1, Apache-2.0 OR MIT 
   <br/>https://github.com/juhaku/utoipa
 
 - uuid 0.8.2, Apache-2.0 OR MIT 
   <br/>https://github.com/uuid-rs/uuid
 
-- uuid 1.13.1, Apache-2.0 OR MIT 
+- uuid 1.16.0, Apache-2.0 OR MIT 
   <br/>https://github.com/uuid-rs/uuid
 
 - winver 1.0.0, MIT 
@@ -690,5 +696,5 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - zip 1.1.4, MIT 
   <br/>https://github.com/zip-rs/zip2.git
 
-- zip 2.3.0, MIT 
+- zip 2.6.1, MIT 
   <br/>https://github.com/zip-rs/zip2.git
