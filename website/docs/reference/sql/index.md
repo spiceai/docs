@@ -35,7 +35,6 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 
 ### [EXPLAIN](/docs/reference/sql/explain)
 
-- [Syntax](/docs/reference/sql/explain#explain)
 - [EXPLAIN](/docs/reference/sql/explain#explain)
 - [EXPLAIN ANALYZE](/docs/reference/sql/explain#explain-analyze)
 

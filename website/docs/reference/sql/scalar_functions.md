@@ -1522,7 +1522,29 @@ array_concat(array[, ..., array_n])
 
 ### `array_contains`
 
-Alias of [`array_has`](#array_has).
+Returns true if the array contains the specified element.
+
+```sql
+array_contains(array, element)
+```
+
+#### Arguments
+
+- **array**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+- **element**: Element to search for in the array.
+
+#### Example
+
+```sql
+> select array_contains([1, 2, 3], 2);
++----------------------------------------+
+| array_contains(List([1,2,3]),Int64(2)) |
++----------------------------------------+
+| true                                   |
++----------------------------------------+
+```
+
+**Note**: For array-to-array containment operations, use the [`@>` operator](/docs/reference/sql/operators#op_arr_contains).
 
 ### `array_dims`
 
