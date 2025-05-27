@@ -15,29 +15,35 @@ Example:
 ```yaml
 workers:
   - name: round-robin
+    type: load_balance
     description: |
       Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
-    models:
-      - from: foo
-      - from: bar
+    load_balance:
+      routing:
+        - from: foo
+        - from: bar
   - name: fallback
+    type: load_balance
     description: |
       Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
-    models:
-      - from: foo
-        order: 2
-      - from: bar
-        order: 1
-      - from: baz
-        order: 3
+    load_balance:
+      routing:
+        - from: foo
+          order: 2
+        - from: bar
+          order: 1
+        - from: baz
+          order: 3
   - name: weighted
+    type: load_balance
     description: |
       Routes 80% of traffic to 'foo'.
-    models:
-      - from: foo
-        order: 4
-      - from: bar
-        order: 1
+    load_balance:
+      routing:
+        - from: foo
+          weight: 4
+        - from: bar
+          weight: 1
 ```
 
 ### `name`
@@ -48,9 +54,17 @@ A unique identifier for this worker component.
 
 Additional details about the worker, useful for displaying to users and providing to LLM context.
 
-### `models` {#models}
+### `type`
 
-A list of model configurations that define how the model worker behaves.
+Determines how the worker can be configured, and what subset of compute traits are applicable.
+
+### `load_balance` 
+
+Applicable only for `.type: load_balance`. 
+
+### `load_balance.routing` 
+
+A list of model configurations that define how the load balancing behaves.
 
 The elements' structure uniquely determine the model worker algorithm. List elements should be of consistent type.
 
@@ -68,9 +82,10 @@ workers:
   - name: round-robin
     description: |
       Call models 'foo' & 'bar' in round robin.
-    models:
-      - from: foo
-      - from: bar
+    load_balance:
+      routing:
+        - from: foo
+        - from: bar
 ```
 
 The worker selects each model in turn for subsequent requests.
@@ -84,13 +99,35 @@ workers:
   - name: fallback
     description: |
       Call 'bar'. On error, call 'foo'. Failing that 'baz'.
-    models:
-      - from: foo
-        order: 2
-      - from: bar
-        order: 1
-      - from: baz
-        order: 3
+    load_balance:
+      routing:
+        - from: foo
+          order: 2
+        - from: bar
+          order: 1
+        - from: baz
+          order: 3
 ```
 
 The worker uses the models in increasing order, returning the first result that is not an error.
+
+
+#### Worker with weighted model routing
+
+Example
+
+```yaml
+workers:
+  - name: weighted
+    type: load_balance
+    description: |
+      Routes 80% of traffic to 'foo'.
+    load_balance:
+      routing:
+        - from: foo
+          weight: 4
+        - from: bar
+          weight: 1
+```
+
+The worker routes traffic to the models in accordance to the weighting (i.e. 80% to `foo`, 20% to `bar`).
