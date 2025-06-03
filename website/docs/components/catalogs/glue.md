@@ -42,7 +42,7 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 ### `params`
 
-The following parameters are supported for configuring the connection to the Databricks Unity Catalog:
+The following parameters are supported for configuring the connection to the Glue Data Catalog:
 
 | Parameter Name       | Definition                                                                  |
 | -------------------- | --------------------------------------------------------------------------- |
