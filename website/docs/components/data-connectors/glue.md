@@ -53,7 +53,31 @@ The following parameters are supported for configuring the connection to the Glu
 
 ## Authentication
 
-Uses the same authentication as the [S3 Data Connector](https://spiceai.org/docs/components/data-connectors/s3#authentication).
+The minimum IAM policy for Glue access is:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetTable",
+                "glue:GetTables",
+                "s3:GetBucketLocation",
+                "s3:ListBucket",
+                "s3:ListAllMyBuckets",
+                "s3:GetBucketAcl"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+```
 
 ## Limitations
 
