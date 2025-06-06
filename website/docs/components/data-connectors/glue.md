@@ -65,11 +65,7 @@ The minimum IAM policy for Glue access is:
                 "glue:GetDatabase",
                 "glue:GetDatabases",
                 "glue:GetTable",
-                "glue:GetTables",
-                "s3:GetBucketLocation",
-                "s3:ListBucket",
-                "s3:ListAllMyBuckets",
-                "s3:GetBucketAcl"
+                "glue:GetTables"
             ],
             "Resource": [
                 "*"
