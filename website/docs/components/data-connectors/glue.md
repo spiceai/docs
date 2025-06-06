@@ -77,9 +77,13 @@ The minimum IAM policy for Glue access is:
 
 ## Limitations
 
-:::warning[Performance Considerations]
+:::warning[Data Source/Data Format Restrictions]
 
 This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported. Additionally, this catalog connector is currently limited to Iceberg tables, tables with parquet or CSV data format only.
+
+:::
+
+:::warning[Performance Considerations]
 
 When using the Glue Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
