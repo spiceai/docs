@@ -22,7 +22,6 @@ catalogs:
     include:
       - '*.my_table_name' # include only the "my_table_name" tables
     params:
-      glue_auth: key # Authentication method to use
       glue_region: us-east-1 # Region of the AWS Glue Data Catalog.
       glue_key: ${secrets:aws_access_key_id} # Access key ID for the AWS Glue Data Catalog.
       glue_secret: ${secrets:aws_secret_access_key} # Secret access key for the AWS Glue Data Catalog.
@@ -50,18 +49,17 @@ The following parameters are supported for configuring the connection to the Glu
 | `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS)                                 |
 | `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS)                             |
 | `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials    |
-| `glue_auth`          | Authentication type. Options: public, key and iam_role. Defaults to public. |
 
 ## Authentication
 
-Uses the same authentication as the [S3 Data Connector](https://spiceai.org/docs/components/data-connectors/s3#authentication).
+Uses the same authentication as the [Glue Data Connector](https://spiceai.org/docs/components/data-connectors/glue#authentication).
 
 ## Limitations
 
 :::warning
 
 - This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported.
-- This catalog connector is currently limited to Iceberg tables or tables with parquet data format only.
+- This catalog connector is currently limited to Iceberg tables, tables with parquet or CSV data format only.
 
 :::
 
