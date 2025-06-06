@@ -71,4 +71,4 @@ Each query retrieves data from the S3 source, which might result in significant 
 
 ## Cookbook
 
-- A cookbook recipe to configure S3 as a data connector in Spice. [S3 Data Connector](https://github.com/spiceai/cookbook/tree/trunk/s3#readme)
+- A cookbook recipe to configure Glue as a data connector in Spice. [Glue Data Connector](https://github.com/spiceai/cookbook/tree/trunk/glue/README.md)
