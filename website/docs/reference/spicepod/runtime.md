@@ -15,8 +15,34 @@ This setting specifies the maximum number of datasets that can be loaded in para
 This setting specifies cache settings for supported Runtime components:
 
 * `sql_results`: Specifies cache settings for results from SQL queries.
+* `search_results`: Specifies cache settings for results from vector searches.
 
-## `runtime.caching.sql_results`
+Runtime caches support common configuration parameters:
+
+| Parameter name      | Optional | Description                                                                                                                                    |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
+| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+
+### `runtime.caching.search_results`
+
+The search results cache section specifies runtime vector search cache configuration. [Learn more](/docs/features/caching/index.md).
+
+```yaml
+runtime:
+  caching:
+    search_results:
+      enabled: true
+      max_size: 128MiB
+      item_ttl: 1s
+```
+
+The search results cache supports the common cache configuration parameters.
+
+### `runtime.caching.sql_results`
 
 The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
 
@@ -29,14 +55,11 @@ runtime:
       item_ttl: 1s
 ```
 
+In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
+
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
-| `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
 | `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
-| `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
 :::info
 
@@ -44,7 +67,7 @@ runtime:
 
 :::
 
-### Choosing a `cache_key_type`
+#### Choosing a `cache_key_type`
 
 - **`plan` (Default):** Uses the query's logical plan as the cache key. Matches semantically equivalent queries but requires query parsing.
 - **`sql`:** Uses the raw SQL string as the cache key. Provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results. Use `sql` only when results are predictable.
