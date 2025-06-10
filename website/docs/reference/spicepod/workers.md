@@ -15,6 +15,7 @@ Example:
 ```yaml
 workers:
   - name: round-robin
+    type: load_balance
     description: |
       Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
     load_balance:
@@ -22,6 +23,7 @@ workers:
         - from: foo
         - from: bar
   - name: fallback
+    type: load_balance
     description: |
       Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
     load_balance:
@@ -33,6 +35,7 @@ workers:
         - from: baz
           order: 3
   - name: weighted
+    type: load_balance
     description: |
       Routes 80% of traffic to 'foo'.
     load_balance:
