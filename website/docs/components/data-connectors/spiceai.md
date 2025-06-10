@@ -26,11 +26,9 @@ The Spice.ai Cloud Platform dataset URI. To query a dataset in a public Spice.ai
 
 The Spice.ai Cloud Platform data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:SPICEAI_API_KEY}`.
 
-| Parameter Name    | Description                                                    |
-| ----------------- | -------------------------------------------------------------- |
-| `spiceai_api_key` | The Spice.ai Cloud Platform API key to connect with.           |
-| `endpoint`        | The Flight endpoint for Spice.ai Cloud Platform to connect to. |
-| `http_endpoint`   | The HTTP endpoint for Spice.ai Cloud Platform to connect to.   |
+| Parameter Name    | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `spiceai_api_key` | The Spice.ai Cloud Platform API key to connect with. |
 
 ## Example
 
