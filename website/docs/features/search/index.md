@@ -13,7 +13,7 @@ tags:
 
 import DocCardList from '@theme/DocCardList';
 
-Spice provides advanced search capabilities that go beyond standard SQL queries, offering both traditional SQL search patterns and vector-based search functionality.
+Spice provides advanced search capabilities that go beyond standard SQL queries, offering both traditional SQL search patterns, semantic (vector-based) search, and full text search functionality.
 
 ## SQL Search
 
@@ -37,5 +37,18 @@ Vector-based search requires configured data sources (connectors or accelerators
 Configuring embeddings is crucial for the effectiveness of vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](/docs/components/embeddings).
 
 For performing vector-based search, see [Vector-Based Search](/docs/features/search/vector-search).
+
+## Full Text Search
+
+Full text search provide keyword based retrieval for a dataset. Search specific indexes are required to be added to the underlying columns of importance. This provides an efficient lookup and counting of words within rows and the table more broadly.
+
+For performing full text search, see [Full text Search](/docs/features/search/vector-search).
+
+## Hybrid Search
+
+Spice can handle a hybrid search solution based on the above mentioned [full-text](#full-text-search) and [vector](#vector-search) functionality.
+
+The `v1/search` endpoint will automatically use hybrid search when configured with both full-text & vector search.
+
 
 <DocCardList />
