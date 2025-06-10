@@ -420,7 +420,7 @@ datasets:
       refresh_cron: "0 12 * * 1-5"
 ```
 
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see to the [cron schedule reference](/docs/reference/cron.md).
+This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron.md).
 
 ## Refresh Retries
 
