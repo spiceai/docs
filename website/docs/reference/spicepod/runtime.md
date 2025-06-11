@@ -10,26 +10,39 @@ The `runtime` section specifies configuration settings for the Spice runtime.
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
 
-## `runtime.results_cache`
+## `runtime.caching`
 
-The results cache section specifies runtime cache configuration. [Learn more](/docs/features/caching/index.md).
+This setting specifies cache settings for supported Runtime components:
+
+* `sql_results`: Specifies cache settings for results from SQL queries.
+
+## `runtime.caching.sql_results`
+
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
 
 ```yaml
 runtime:
-  results_cache:
-    enabled: true
-    cache_max_size: 128MiB
-    item_ttl: 1s
+  caching:
+    sql_results:
+      enabled: true
+      max_size: 128MiB
+      item_ttl: 1s
 ```
 
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `cache_max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
 | `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+
+:::info
+
+`runtime.results_cache` has been deprecated and will be removed in a future release. If `runtime.results_cache` is specifed in the spicepod it will override the `runtime.caching.sql_results` settings if it is not defined.
+
+:::
 
 ### Choosing a `cache_key_type`
 

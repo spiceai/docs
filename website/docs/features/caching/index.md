@@ -23,17 +23,26 @@ kind: Spicepod
 name: app
 
 runtime:
-  results_cache:
-    enabled: true
-    cache_max_size: 1GiB # Default 128 MiB
-    item_ttl: 1m # Default 1s
+  caching:
+    sql_results:
+      enabled: true
+      max_size: 1GiB # Default 128 MiB
+      item_ttl: 1m # Default 1s
 ```
+
+## `caching` Parameters
+
+| Parameter name | Optional | Description                                                |
+| -------------- | -------- | ---------------------------------------------------------- |
+| `sql_results`  | Yes      | Configures the Runtime cache for results from SQL queries. |
+
+## `caching.sql_results` Parameters
 
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `cache_max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
 | `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
