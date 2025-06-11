@@ -54,13 +54,46 @@ A unique identifier for this worker component.
 
 Additional details about the worker, useful for displaying to users and providing to LLM context.
 
-### `type`
+### `cron`
 
-Determines how the worker can be configured, and what subset of compute traits are applicable.
+Specifies a cron schedule to automatically run the worker at the specified times. The worker action controls the behavior of the schedule. See the [cron schedule reference](/docs/reference/cron.md) for more information on cron schedules.
+
+#### `cron` with a `load_balance` action
+
+When a `load_balance` action is specified with a cron schedule, the `params.prompt` parameter is used to automatically request a chat completion. When no `params.prompt` parameter is specified, the cron schedule is not activated.
+
+##### Worker with a round-robin balancer, that is automatically prompted on a schedule
+
+```yaml
+workers:
+  - name: round-robin
+    description: |
+      Call models 'foo' & 'bar' in round robin.
+    load_balance:
+      routing:
+        - from: foo
+        - from: bar
+    cron: "* * * * *" # every minute
+    params:
+      prompt: "What's the date today?"
+```
+
+#### `cron` with a `sql` action
+
+When a `sql` action is specified with a cron schedule, the worker runs the SQL at the specified scheduled times.
+
+##### Worker with a SQL action, that automatically executes on a schedule
+
+```yaml
+workers:
+  - name: sql-worker
+    cron: "* * * * *" # every minute
+    sql: "SELECT COUNT(*) FROM orders"
+```
 
 ### `load_balance` 
 
-Applicable only for `.type: load_balance`. 
+Specifies the configuration for a `load_balance` worker. When a `load_balance` section is present, other worker actions cannot be specified (e.g. `sql`).
 
 ### `load_balance.routing` 
 
@@ -131,3 +164,17 @@ workers:
 ```
 
 The worker routes traffic to the models in accordance to the weighting (i.e. 80% to `foo`, 20% to `bar`).
+
+### `sql`
+
+Specifies an SQL query action to run for this worker. When specified without a `cron` parameter, the worker does nothing.
+
+When this parameter is present, other worker actions cannot be specified (e.g. `load_balance`)
+
+### `params`
+
+Optional, additional parameters for the specified worker action.
+
+#### `params.prompt`
+
+Valid only when the `load_balance` worker action is specified with a `cron` schedule, otherwise ignored. The value specified by this parameter is used as the input to a new chat completion request on the specified `cron` schedule for the worker.

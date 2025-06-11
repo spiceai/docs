@@ -36,7 +36,6 @@ workers:
         - from: baz
           order: 3
   - name: weighted
-    type: load_balance
     description: |
       Routes 80% of traffic to 'foo'.
     load_balance:
