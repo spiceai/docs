@@ -11,7 +11,7 @@ tags:
   - cache control
 ---
 
-Spice supports in-memory caching for query results and vector search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
+Spice supports in-memory caching for SQL query results and vector search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
 
 Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh.md#behavior-on-zero-results).
 
