@@ -37,6 +37,7 @@ Supported Data Connectors include:
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
+| `glue`                             | [Glue][glue]                          | Beta              | Iceberg, Parquet, CSV        |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
@@ -56,6 +57,7 @@ Supported Data Connectors include:
 [dremio]: https://github.com/spiceai/cookbook/tree/trunk/dremio#readme
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
+[glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
 
 ## Object Store File Formats
 
