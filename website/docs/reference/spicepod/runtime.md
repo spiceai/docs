@@ -15,7 +15,7 @@ This setting specifies the maximum number of datasets that can be loaded in para
 This setting specifies cache settings for supported Runtime components:
 
 * `sql_results`: Specifies cache settings for results from SQL queries.
-* `search_results`: Specifies cache settings for results from vector searches.
+* `search_results`: Specifies cache settings for results from searches.
 
 Runtime caches support common configuration parameters:
 
@@ -29,7 +29,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime vector search cache configuration. [Learn more](/docs/features/caching/index.md).
+The search results cache section specifies runtime search cache configuration. [Learn more](/docs/features/caching/index.md).
 
 ```yaml
 runtime:
