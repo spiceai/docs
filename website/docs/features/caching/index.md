@@ -1,7 +1,7 @@
 ---
-title: 'Results Caching'
-sidebar_label: 'Results Caching'
-description: 'Learn how to use Spice in-memory caching of query results'
+title: 'Caching'
+sidebar_label: 'Caching'
+description: 'Learn how to use Spice in-memory caching'
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
@@ -11,7 +11,7 @@ tags:
   - cache control
 ---
 
-Spice uses in-memory caching for query results, which is enabled by default for both the HTTP (`/v1/sql`) and Arrow Flight APIs.
+Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
 
 Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh.md#behavior-on-zero-results).
 
@@ -28,15 +28,22 @@ runtime:
       enabled: true
       max_size: 1GiB # Default 128 MiB
       item_ttl: 1m # Default 1s
+    search_results:
+      enabled: true
+      max_size: 1GiB # Default 128 MiB
+      item_ttl: 1m # Default 1s
 ```
 
 ## `caching` Parameters
 
-| Parameter name | Optional | Description                                                |
-| -------------- | -------- | ---------------------------------------------------------- |
-| `sql_results`  | Yes      | Configures the Runtime cache for results from SQL queries. |
+| Parameter name    | Optional | Description                                                    |
+| ----------------- | -------- | -------------------------------------------------------------- |
+| `sql_results`     | Yes      | Configures the Runtime cache for results from SQL queries.     |
+| `search_results`  | Yes      | Configures the Runtime cache for results from searches. |
 
-## `caching.sql_results` Parameters
+## Common Caching Parameters
+
+Every cache type (`sql_results`, `search_results`) supports the following parameters:
 
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -44,17 +51,9 @@ runtime:
 | `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
 | `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
-### Choosing a `cache_key_type`
-
-- **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
-- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
-
-Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
-
-### Choosing a `hashing_algorithm`
+## Choosing a `hashing_algorithm`
 
 The hashing algorithm determines how cache keys are hashed before being stored, impacting both lookup speed and protection against potential DOS attacks.
 
@@ -63,9 +62,31 @@ The hashing algorithm determines how cache keys are hashed before being stored, 
 
 Consider using `ahash` if maximum performance is most important, or where hashing DoS attacks are unlikely or a low risk. More information on the security mechanisms of AHash are available [in the AHash documentation](https://github.com/tkaitchuck/aHash/wiki/How-aHash-is-resists-DOS-attacks).
 
+## `caching.sql_results` Parameters
+
+In addition to the common caching parameters, `sql_results` also supports additional parameters:
+
+| Parameter name      | Optional | Description                                                                                                                                    |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+
+### Choosing a `cache_key_type`
+
+- **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
+- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
+
+Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
+
 ## Cached Responses
 
-The response includes a `Results-Cache-Status` header that indicates the cache status of the query:
+Responses from HTTP APIs include a header that indicates the cache status of the applicable cache:
+
+| Cache            | Header Key                    |
+| ---------------- | ----------------------------- |
+| `sql_results`    | `Results-Cache-Status`        |
+| `search_results` | `Search-Results-Cache-Status` |
+
+The value of the header indicates the status of the cache:
 
 | Header value         | Description                                                                                        |
 | -------------------- | -------------------------------------------------------------------------------------------------- |
@@ -114,11 +135,16 @@ date: Thu, 13 Feb 2025 03:14:00 GMT
 
 ## Cache Control
 
-You can control caching behavior for specific queries using HTTP headers. The `Cache-Control` header helps skip the cache for a query while caching the results for subsequent queries.
+You can control caching behavior for specific requests using HTTP headers. The `Cache-Control` header helps skip the cache for a request while caching the results for subsequent requests.
 
 ### HTTP/Flight API
 
-The SQL query API endpoints (HTTP and Arrow Flight) support the standard HTTP [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). The [`no-cache` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) skips the cache for the current query but caches the results for future queries.
+The following endpoints support the standard HTTP [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control):
+
+* SQL query (HTTP and Arrow Flight)
+* Search (HTTP)
+
+The [`no-cache` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) skips the cache for the current request but caches the results for future requests.
 
 Other `Cache-Control` directives are not supported.
 
@@ -152,9 +178,9 @@ request
 // Send the request
 ```
 
-### `spice sql` CLI
+### `spice` CLI
 
-The `spice sql` command accepts a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
+The `spice sql` and `spice search` commands accept a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
 
 ```bash
 # Default behavior (use cache if available)
@@ -163,4 +189,11 @@ spice sql
 spice sql --cache-control cache
 # Skip cache for this query, but cache the results for future queries
 spice sql --cache-control no-cache
+
+# Default behavior (use cache if available)
+spice search
+# Same as above
+spice search --cache-control cache
+# Skip cache for this search, but cache the results for future searches
+spice search --cache-control no-cache
 ```
