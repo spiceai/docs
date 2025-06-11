@@ -19,10 +19,10 @@ models:
 
 The following parameters are specific to Perplexity models:
 
-| Parameter                          | Description                                      | Default |
-| ---------------------------------- | ------------------------------------------------ | ------- |
-| `perplexity_auth_token`            | The Perplexity API authentication token.        | -       |
-| `perplexity_*`                     | Additional, perplexity specific parameters to use on all requests. See [Perplexity API Reference](https://docs.perplexity.ai/api-reference/chat-completions)  | -       |
+| Parameter               | Description                                                                                                                                                  | Default |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `perplexity_auth_token` | The Perplexity API authentication token.                                                                                                                     | -       |
+| `perplexity_*`          | Additional, perplexity specific parameters to use on all requests. See [Perplexity API Reference](https://docs.perplexity.ai/api-reference/chat-completions) | -       |
 
 **Note:** Like other models in Spice, Perplexity can set default overrides for OpenAI parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides.md).
 
@@ -35,7 +35,7 @@ models:
     params:
       perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
       perplexity_search_domain_filter:
-       - docs.spiceai.org
-       - huggingface.co
-      openai_temperature: 0.3141595
+        - docs.spiceai.org
+        - huggingface.co
+      perplexity_temperature: 0.3141595
 ```

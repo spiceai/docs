@@ -46,6 +46,38 @@ Spice supports a variety of features for large language models (LLMs):
 
 For more details, refer to the [Large Language Models documentation](/docs/features/large-language-models).
 
+## Model Provider Prefix
+
+The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition and used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
+
+The following provider prefixes are supported:
+
+| Prefix       | Description                           |
+| ------------ | ------------------------------------- |
+| `openai`     | OpenAI or OpenAI-compatible endpoints |
+| `azure`      | Azure OpenAI                          |
+| `xai`        | xAI                                   |
+| `anthropic`  | Anthropic                             |
+| `perplexity` | Perplexity                            |
+| `hf`         | Hugging Face                          |
+| `file`       | Local filesystem                      |
+| `spiceai`    | Spice.ai Cloud Platform               |
+| `databricks` | Databricks Mosaic AI                  |
+
+**Example usage in `spicepod.yaml`:**
+
+```yaml
+models:
+  - from: openai:gpt-4o
+    name: openai-model
+
+  - from: hf:meta-llama/Llama-3-8B-Instruct
+    name: llama3-hf
+
+  - from: file://absolute/path/to/model.gguf
+    name: local-model
+```
+
 ## Model Examples
 
 The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help understand the configuration options available.
@@ -101,7 +133,7 @@ models:
 
 ### Example: Setting Default Parameter Overrides
 
-To set default overrides for parameters, use the `openai_` prefix followed by the parameter name. For more details, see the [Parameter Overrides documentation](/docs/features/large-language-models/parameter_overrides.md).
+To set default overrides for parameters, use the [model provider prefix](#model-provider-prefix) followed by the parameter name. For more details, see the [Parameter Overrides documentation](/docs/features/large-language-models/parameter_overrides.md).
 
 ```yaml
 models:
