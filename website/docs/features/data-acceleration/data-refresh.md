@@ -422,6 +422,8 @@ datasets:
 
 This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron.md).
 
+The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
+
 ## Refresh Retries
 
 |                                      |                  |
