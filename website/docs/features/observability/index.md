@@ -101,14 +101,19 @@ dataset_active_count{engine="duckdb"} 1
 | `results_cache_requests`<br/>*(count)*             | Number of requests to get a key from the cache.                                                  |
 | `results_cache_hits`<br/>*(count)*                 | Cache hit count.                                                                                 |
 | `results_cache_items_count`<br/>*(gauge)*          | Number of items currently in the cache.                                                          |
-| `results_cache_size_bytes`<br/>*(gauge)*           | Size of the cache in bytes.                                                                      |
+| `search_results_cache_size_bytes`<br/>*(gauge)*    | Size of the search cache in bytes.                                                               |
+| `search_results_cache_max_size_bytes`<br/>*(gauge)* | Maximum allowed size of the search cache in bytes.                                               |
+| `search_results_cache_requests`<br/>*(count)*      | Number of requests to get a key from the search cache.                                           |
+| `search_results_cache_hits`<br/>*(count)*          | Search cache hit count.                                                                          |
+| `search_results_cache_items_count`<br/>*(gauge)*   | Number of items currently in the search cache.                                                   |
+| `search_results_cache_size_bytes`<br/>*(gauge)*    | Size of the search cache in bytes.                                                               |
 | `runtime_flight_server_started`<br/>*(count)*      | Indicates the runtime Flight server has started.                                                 |
 | `runtime_http_server_started`<br/>*(count)*        | Indicates the runtime HTTP server has started.                                                   |
 | `secrets_store_load_duration_ms`<br/>*(histogram)* | Duration in milliseconds to load the secret stores.                                              |
 | `tool_active_count`<br/>*(gauge)*                  | Number of currently loaded LLM tools.                                                            |
 | `tool_load_errors`<br/>*(count)*                   | Number of errors loading the LLM tool.                                                           |
 | `tool_load_state`<br/>*(gauge)*                    | Status of the LLM tools. 1=Initializing, 2=Ready, 3=Disabled, 4=Error, 5=Refreshing.             |
-| `view_load_errors`<br/>*(count)*                   | Number of errors loading the view.                                                              |
+| `view_load_errors`<br/>*(count)*                   | Number of errors loading the view.                                                               |
 | `view_load_state`<br/>*(gauge)*                    | Status of the views. 1=Initializing, 2=Ready, 3=Disabled, 4=Error, 5=Refreshing.                 |
 
 :::note Component Metrics
