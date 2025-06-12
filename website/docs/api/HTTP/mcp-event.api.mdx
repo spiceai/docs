@@ -5,7 +5,7 @@ description: "Send message to the MCP endoint, for a given session."
 sidebar_label: "Send message to MCP server"
 hide_title: true
 hide_table_of_contents: true
-api: eJydU8Fu2zAM/RWCpw1wnaTrgNW3rtihwLIVTXcqglaVmFiYLKkS7TYL/O8DbRdrG2yHnWyI5CP5Ht8eWW0zVjfY6IjrAg1lnWxkGzxWuCJvoKGc1ZaAA3BNsDy/BPImWM8FbEICBVvbkYdMOdvgSywwREpKMC4MVgJ9Sx15xgKjSqohpiRN9+hVQ1jhVHphsEArjR9aSjssMNFDaxMZrDi1VGDWNTUKqz3yLg6VnKzfYt+vJTnH4DNliR/Pj+Xzep/ltIrSmiKTKeFqqoFH6xxkTqQa6KyC1epLiX2BJ/OTQ5zVOC/4wLAJrTclfAugNNuOnnkYuBHCRnbupudba+5G4MWHQ+BLtXNBGeAQwKm0pRKW6sk2bQPKufBIBrL9RWAznCw/Dzgf5/NDnAvPlLxykCl1lIBSCqmEMw+tp6dImsmAzbklCFq3KZEpse8LbIjrIKLFkEe9uMYKZ91i1ug4e5ZxhB01bJPDCmvmWM1mLmjl6pC5+jQ/nePbg/oqYTDUkQuxIc/TgCWcB7+x2zaJElzD3dGRIApVa2mn22R5N/RT0d7+JPlfS8z6TRgOwrKTi0itZ9vQQevrmiBHq8nAnxRnNflMUj+d4llUuqaj41KGt4Y8242l9DrSFyjrj8CLcnoSyhrlX4C99Y94Z1z47Xh71MGzkPv/rpsswfTEs+iU9TLUoM5+0vEGuwUWg9cLHLVcFyhySWy/v1eZfiTX9/I8elAYNzareycu3CiX6R+jv7uaDPse/jbQIN0rx3fKtZI3SN2pZKXZIO+Le7z8vrrGvv8N9CGX8A==
+api: eJydU8Fu2zAM/RWCpw1wnKTLgM23rtihwLIVTXcKglaVmFiYLKkS7TYL/O8DYw9rG/Sykw1SfHzk4zsgq13Gao2Njrgp0FDWyUa2wWOFK/IGGspZ7Qg4ANcEy4srIG+C9VzANiRQsLMdeciUsw2+xAJDpKQE49JgJdC31JFnLDCqpBpiStL0gF41hBWOpZcGC7TS+KGltMcCEz20NpHBilNL/UYiOQafKWN1wLPZmXxekl6OfJXWFJlMCddjDTxa5yBzItVAZxWsVl9L7AtczBanOKuBFPjAsA2tNyV8D6A0247+DntcgGxlWMHdGL615m4Ann84Bb5SexeUAQ4BnEo7KmGpnmzTNqCcC49kINvfBDbDYvnliPNxNjvFufRMySsHmVJHCSilkEo499B6eoqkmQzYnFuCoHWbEpkS+77AhrgOokwMeRCFa6xw2s2njY7TnAkLHEAHmdrksMKaOVbTqQtauTpkrj7NPs/w9c18kzQY6siF2JDnkV4JF8Fv7a5NogPXcDeZCKIsaiPtdJss74/9VLS3v0j+N5KzfhtkfLbs5FxS69k2dNL6pibI0Woy8O+Js5p8Jqkfr+08Kl3T5KwU8taQZ7u1lF5m+gJl/AF4Xi7K2STpci5x2Vqj/DPE1z4RjwxTv+Z4QB08ixf+3128j9KU6Ymn0SnrhdRRosMo5Rq7ORZHTxcocm4KFMUkczjcq0w/k+t7CQ9Ok6W/yfPd9ejC9/BW96NYL2zcKdfKu6O4nUpW3Yt2683z+7v6sbrBvv8DfhCIig==
 sidebar_class_name: "post api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -29,7 +29,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"/v1/mcp/event"}
+  path={"/v1/mcp/sse"}
   context={"endpoint"}
 >
   
@@ -48,7 +48,7 @@ Send message to the MCP endoint, for a given session.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"name":"sessionId","in":"query","required":true,"schema":{"type":"string"}}]}
+  parameters={[{"name":"sessionId","in":"query","required":true}]}
 >
   
 </ParamsDetails>
