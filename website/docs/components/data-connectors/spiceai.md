@@ -56,3 +56,7 @@ The Spice.ai Cloud Platform data connector can be configured by providing the fo
 ## Cookbook
 
 - A cookbook recipe to configure Spice.ai Cloud Platform as a data connector in Spice. [Spice.ai Cloud Platform Data Connector](https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme)
+
+## Limitations
+
+- The Spice Cloud Connector subjects to the limit of a maximum of 1000 requests per connection, after which the connection is reset by the Spice Cloud Platform. If the error message `Connection is reset by the server. Please retry the request.` is encountered or the `spiceai-retryable` metadata appears in the response, the query should be retried.
