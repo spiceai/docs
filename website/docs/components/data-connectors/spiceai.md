@@ -59,4 +59,10 @@ The Spice.ai Cloud Platform data connector can be configured by providing the fo
 
 ## Limitations
 
-- The Spice Cloud Connector subjects to the limit of a maximum of 1000 requests per connection, after which the connection is reset by the Spice Cloud Platform. If the error message `Connection is reset by the server. Please retry the request.` is encountered or the `spiceai-retryable` metadata appears in the response, the query should be retried.
+- The Spice.ai Data Connector subjects to the limit of a maximum of 1000 requests per connection, after which the connection is reset by the Spice Cloud Platform. If the error message `Connection is reset by the server. Please retry the request.` is encountered or the `spiceai-retryable` metadata appears in the response, the query should be retried.
+
+:::warning[Memory Considerations]
+
+When using the Spice.ai Data Connector without acceleration, data is loaded into memory during query execution if the query execution is not fully pushed down to the cloud platform. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
