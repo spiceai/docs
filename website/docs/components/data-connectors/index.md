@@ -37,12 +37,12 @@ Supported Data Connectors include:
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
-| `glue`                             | [Glue][glue]                          | Beta              | Iceberg, Parquet, CSV        |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
+| `glue`                             | [Glue][glue]                          | Alpha             | Iceberg, Parquet, CSV        |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
