@@ -91,7 +91,8 @@ Response:
         "title": "Improve scalar UDF array_distance",
         "state": "Closed",
         "body": "## Overview\n- Previous PR https://github.com/spiceai/spiceai/pull/1601 implements a scalar UDF `array_distance`:\n```\narray_distance(FixedSizeList[Float32], FixedSizeList[Float32])\narray_distance(FixedSizeList[Float32], List[Float64])\n```\n\n### Changes\n - Improve using Native arrow function, e.g. `arrow_cast`, [`sub_checked`](https://arrow.apache.org/rust/arrow/array/trait.ArrowNativeTypeOp.html#tymethod.sub_checked)\n - Support a greater range of array types and numeric types\n - Possibly create a sub operator and UDF, e.g.\n\t- `FixedSizeList[Float32] - FixedSizeList[Float32]`\n\t- `Norm(FixedSizeList[Float32])`"
-      }
+      },
+      "score": 0.66,
     },
     {
       "value": "est external tools being returned for toolusing models",
@@ -100,7 +101,8 @@ Response:
         "title": "Automatic NSQL retries in /v1/nsql ",
         "state": "Open",
         "body": "To mimic our ability for LLMs to repeatedly retry tools based on errors, the `/v1/nsql`, which does not use this same paradigm, should retry internally.\n\nIf possible, improve the structured output to increase the likelihood of valid SQL in the response. Currently we just inforce JSON like this\n```json\n{\n  "sql": "SELECT ..."\n}\n```"
-      }
+      },
+      "score": 0.52,
     }
   ],
   "duration_ms": 45
