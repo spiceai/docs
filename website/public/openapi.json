@@ -7,7 +7,7 @@
       "name": "Apache-2.0",
       "identifier": "Apache-2.0"
     },
-    "version": "1.4.0"
+    "version": "1.2.0"
   },
   "servers": [
     {
@@ -746,16 +746,7 @@
         }
       }
     },
-    "/v1/mcp/sse": {
-      "get": {
-        "tags": [
-          "mcp"
-        ],
-        "summary": "Establish an MCP SSE Connection",
-        "description": "Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools.\n\n\n             Once connected, clients can send messages via `POST /v1/mcp/sse` and receive responses through this SSE stream.",
-        "operationId": "operation_id",
-        "responses": {}
-      },
+    "/v1/mcp/event": {
       "post": {
         "tags": [
           "mcp"
@@ -767,7 +758,10 @@
           {
             "name": "sessionId",
             "in": "query",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -784,6 +778,17 @@
             "description": "Internal server error. An unexpected issue occurred."
           }
         }
+      }
+    },
+    "/v1/mcp/sse": {
+      "get": {
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Establish an MCP SSE Connection",
+        "description": "Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools.\n\n\n             Once connected, clients can send messages via `POST /v1/mcp/event` and receive responses through this SSE stream.",
+        "operationId": "operation_id",
+        "responses": {}
       }
     },
     "/v1/models": {

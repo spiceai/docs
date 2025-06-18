@@ -28,7 +28,6 @@ spice trace [task] [flags]
 - `tool_use::sql_query`
 - `tool_use::memory`
 - `vector_search`
-- `scheduled_worker`
 
 These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
 

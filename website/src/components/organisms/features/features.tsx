@@ -14,7 +14,7 @@ export const Features = () => {
           <Feature
             title='Federated Data Access'
             description='SQL API to query structured and unstructed data across databases, data warehouses, and data lakes.'
-            docsLink='https://docs.spiceai.org/features/query-federation'
+            docsLink='https://docs.spiceai.org/features/federated-queries'
           />
           <Feature
             title='AI Compute Engine'

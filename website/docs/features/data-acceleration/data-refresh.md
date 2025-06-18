@@ -398,32 +398,6 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 On-demand refresh always initiates a new refresh, terminating any in-progress refresh for the dataset.
 :::
 
-## Refresh Schedules
-
-|                             |                  |
-| --------------------------- | ---------------- |
-| Supported in `refresh_mode` | `full`, `append` |
-| Required                    | No               |
-| Default Value               | Unset            |
-
-The [`refresh_cron`](/docs/reference/spicepod/datasets#accelerationrefresh_cron) parameter supports specifying a cron schedule which controls when datasets refresh.
-
-Example:
-
-```yaml
-datasets:
-  - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
-    name: taxi_trips
-    acceleration:
-      enabled: true
-      refresh_mode: full
-      refresh_cron: "0 12 * * 1-5"
-```
-
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron.md).
-
-The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
-
 ## Refresh Retries
 
 |                                      |                  |

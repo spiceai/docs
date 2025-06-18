@@ -36,9 +36,9 @@ Supported Data Accelerators include:
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate | `memory`, `file` |
 
-[duckdb]: /docs/components/data-accelerators/duckdb.md
-[postgres]: /docs/components/data-accelerators/postgres/index.md
-[sqlite]: /docs/components/data-accelerators/sqlite.md
+[duckdb]: https://docs.spiceai.org/data-accelerators/duckdb
+[postgres]: https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#postgresql-data-accelerator
+[sqlite]: https://docs.spiceai.org/data-accelerators/sqlite
 
 ## Data Types
 

@@ -218,25 +218,21 @@ A Spicepod can contain one or more [workers](./workers.md) defining configurable
 ```yaml
 workers:
   - name: round-robin
-    type: load_balance
     description: |
       Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
-    load_balance:
-      routing:
-        - from: foo
-        - from: bar
+    models:
+      - from: foo
+      - from: bar
   - name: fallback
-    type: load_balance
     description: |
       Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
-    load_balance:
-      routing:
-        - from: foo
-          order: 2
-        - from: bar
-          order: 1
-        - from: baz
-          order: 3
+    models:
+      - from: foo
+        order: 2
+      - from: bar
+        order: 1
+      - from: baz
+        order: 3
 ```
 
 For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers.md).

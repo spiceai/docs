@@ -240,15 +240,9 @@ Optional. How to refresh the dataset. The following values are supported:
 
 ## `acceleration.refresh_check_interval`
 
-Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
+Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See [Duration](../duration/index.md)
-
-## `acceleration.refresh_cron`
-
-Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
-
-See the [cron schedule reference](/docs/reference/cron.md).
 
 ## `acceleration.refresh_sql`
 

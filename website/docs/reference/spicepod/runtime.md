@@ -10,64 +10,28 @@ The `runtime` section specifies configuration settings for the Spice runtime.
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
 
-## `runtime.caching`
+## `runtime.results_cache`
 
-This setting specifies cache settings for supported Runtime components:
+The results cache section specifies runtime cache configuration. [Learn more](/docs/features/caching/index.md).
 
-* `sql_results`: Specifies cache settings for results from SQL queries.
-* `search_results`: Specifies cache settings for results from searches.
-
-Runtime caches support common configuration parameters:
+```yaml
+runtime:
+  results_cache:
+    enabled: true
+    cache_max_size: 128MiB
+    item_ttl: 1s
+```
 
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `cache_max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `cache_max_size`. Defaults to `lru`, which is currently the only supported value.              |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
-### `runtime.caching.search_results`
-
-The search results cache section specifies runtime search cache configuration. [Learn more](/docs/features/caching/index.md).
-
-```yaml
-runtime:
-  caching:
-    search_results:
-      enabled: true
-      max_size: 128MiB
-      item_ttl: 1s
-```
-
-The search results cache supports the common cache configuration parameters.
-
-### `runtime.caching.sql_results`
-
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
-
-```yaml
-runtime:
-  caching:
-    sql_results:
-      enabled: true
-      max_size: 128MiB
-      item_ttl: 1s
-```
-
-In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
-
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
-
-:::info
-
-`runtime.results_cache` has been deprecated and will be removed in a future release. If `runtime.results_cache` is specifed in the spicepod it will override the `runtime.caching.sql_results` settings if it is not defined.
-
-:::
-
-#### Choosing a `cache_key_type`
+### Choosing a `cache_key_type`
 
 - **`plan` (Default):** Uses the query's logical plan as the cache key. Matches semantically equivalent queries but requires query parsing.
 - **`sql`:** Uses the raw SQL string as the cache key. Provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results. Use `sql` only when results are predictable.

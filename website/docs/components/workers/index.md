@@ -16,34 +16,21 @@ Workers are configured in the `workers` section of the `spicepod.yaml` file. Eac
 ```yaml
 workers:
   - name: round-robin
-    type: load_balance
     description: |
       Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
-    load_balance:
-      routing:
-        - from: foo
-        - from: bar
+    models:
+      - from: foo
+      - from: bar
   - name: fallback
-    type: load_balance
     description: |
       Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
-    load_balance:
-      routing:
-        - from: foo
-          order: 2
-        - from: bar
-          order: 1
-        - from: baz
-          order: 3
-  - name: weighted
-    description: |
-      Routes 80% of traffic to 'foo'.
-    load_balance:
-      routing:
-        - from: foo
-          weight: 4
-        - from: bar
-          weight: 1
+    models:
+      - from: foo
+        order: 2
+      - from: bar
+        order: 1
+      - from: baz
+        order: 3
 ```
 
 ## Use-Cases
