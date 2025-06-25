@@ -1,6 +1,6 @@
 ---
 title: 'Workers'
-sidebar_label 'Workers'
+sidebar_label: 'Workers'
 description: 'Workers YAML reference'
 ---
 
