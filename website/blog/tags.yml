@@ -50,6 +50,10 @@ configuration:
   label: 'configuration'
   permalink: '/configuration'
   description: 'Configuration settings and guides'
+cron:
+  label: 'cron'
+  permalink: '/cron'
+  description: 'Cron related topics and usage'
 csv:
   label: 'csv'
   permalink: '/csv'
@@ -114,6 +118,10 @@ gcp:
   label: 'gcp'
   permalink: '/gcp'
   description: 'Google Cloud Platform related topics and usage'
+glue:
+  label: 'glue'
+  permalink: '/glue'
+  description: 'AWS Glue related topics and usage'
 gpu:
   label: 'gpu'
   permalink: '/gpu'
