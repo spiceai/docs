@@ -26,28 +26,28 @@ These keywords apply to all data connectors:
 
 ### ClickHouse
 
-- PREWHERE
-- SETTINGS
-- FORMAT
+- `PREWHERE`
+- `SETTINGS`
+- `FORMAT`
 
 ### Snowflake
 
-- START
-- CONNECT
-- MATCH_RECOGNIZE
-- SAMPLE
-- TABLESAMPLE
-- FROM
+- `START`
+- `CONNECT`
+- `MATCH_RECOGNIZE`
+- `SAMPLE`
+- `TABLESAMPLE`
+- `FROM`
 
 ### MSSQL
 
-- OUTER
-- SET
-- QUALIFY
-- WINDOW
-- END
-- FOR
+- `OUTER`
+- `SET`
+- `QUALIFY`
+- `WINDOW`
+- `END`
+- `FOR`
 
 ### MySQL
 
-- PARTITION
+- `PARTITION`
