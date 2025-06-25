@@ -1,6 +1,6 @@
 ---
 title: 'Workers'
-sidegpt4_1_label: 'Workers'
+sidebar_label 'Workers'
 description: 'Workers YAML reference'
 ---
 
