@@ -14,13 +14,13 @@ The following keywords cannot be used as names for datasets.
 
 These keywords apply to all data connectors:
 
-- COUNT
-- FALSE
-- NULL
-- END-EXEC
-- LATERAL
-- TABLE
-- UNNEST
+- `COUNT`
+- `FALSE`
+- `NULL`
+- `END-EXEC`
+- `LATERAL`
+- `TABLE`
+- `UNNEST`
 
 ## Connector-Specific Protected Keywords
 
