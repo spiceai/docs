@@ -129,7 +129,7 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [protected keyword](/docs/reference/spicepod/keywords.md).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
 
 ## `description`
 

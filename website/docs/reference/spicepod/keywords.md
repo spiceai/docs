@@ -1,7 +1,7 @@
 ---
-title: 'Protected Keywords'
-sidebar_label: 'Protected Keywords'
-description: 'Protected keywords for datasets'
+title: 'Reserved Keywords'
+sidebar_label: 'Reserved Keywords'
+description: 'Reserved keywords for datasets'
 tags:
   - reference
   - spicepod
@@ -14,46 +14,13 @@ The following keywords cannot be used as names for datasets.
 
 These keywords apply to all data connectors:
 
-- WITH
-- EXPLAIN
-- ANALYZE
-- SELECT
-- WHERE
-- GROUP
-- SORT
-- PIVOT
-- UNPIVOT
-- TOP
+- COUNT
+- FALSE
+- NULL
+- END-EXEC
 - LATERAL
-- VIEW
-- LIMIT
-- OFFSET
-- FETCH
-- UNION
-- EXCEPT
-- INTERSECT
-- MINUS
-- ON
-- JOIN
-- INNER
-- CROSS
-- FULL
-- LEFT
-- RIGHT
-- NATURAL
-- USING
-- CLUSTER
-- DISTRIBUTE
-- GLOBAL
-- ANTI
-- SEMI
-- RETURNING
-- ASOF
-- MATCH_CONDITION
 - TABLE
-- FROM
-- INTO
-- END
+- UNNEST
 
 ## Connector-Specific Protected Keywords
 
