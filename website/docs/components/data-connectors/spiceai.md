@@ -63,6 +63,6 @@ The Spice.ai Cloud Platform data connector can be configured by providing the fo
 
 :::warning[Memory Considerations]
 
-When using the Spice.ai Data Connector without acceleration, data is loaded into memory during query execution if the query execution is not fully pushed down to the cloud platform. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+When using the Spice.ai Data Connector without acceleration, part of the query execution will be in memory if federating across different Spice Cloud Platform apps. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
 Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
