@@ -18,31 +18,32 @@ workers:
   - name: round-robin
     type: load_balance
     description: |
-      Distributes requests between 'foo' and 'bar' models in a round-robin fashion.
+      Distributes requests between 'llama3_2' and 'gpt4_1' models in a round-robin fashion.
     load_balance:
       routing:
-        - from: foo
-        - from: bar
+        - from: llama3_2
+        - from: gpt4_1
   - name: fallback
     type: load_balance
     description: |
-      Attempts 'bar' first, then 'foo', then 'baz' if previous models fail.
+      Attempts 'gpt4_1' first, then 'llama3_2', then 'anth_haiku' if previous models fail.
     load_balance:
       routing:
-        - from: foo
+        - from: llama3_2
           order: 2
-        - from: bar
+        - from: gpt4_1
           order: 1
-        - from: baz
+        - from: anth_haiku
           order: 3
   - name: weighted
+    type: load_balance
     description: |
-      Routes 80% of traffic to 'foo'.
+      Routes 80% of traffic to 'llama3_2'.
     load_balance:
       routing:
-        - from: foo
+        - from: llama3_2
           weight: 4
-        - from: bar
+        - from: gpt4_1
           weight: 1
 ```
 
