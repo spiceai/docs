@@ -31,7 +31,14 @@ A Snowflake fully qualified table name (database.schema.table). For instance `sn
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice.
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md) or any of the following keywords that are reserved by Snowflake:
+
+- `START`
+- `CONNECT`
+- `MATCH_RECOGNIZE`
+- `SAMPLE`
+- `TABLESAMPLE`
+- `FROM`
 
 ### `params`
 

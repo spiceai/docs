@@ -52,6 +52,8 @@ datasets:
 SELECT COUNT(*) FROM my_users;
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
 ### `params`
 
 The DynamoDB data connector supports the following configuration parameters:

@@ -48,6 +48,8 @@ SELECT COUNT(*) FROM transactions;
 +----------+
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
 ### `params`
 
 | Parameter Name | Description |

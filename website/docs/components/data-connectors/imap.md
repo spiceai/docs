@@ -89,6 +89,8 @@ SELECT COUNT(*) FROM emails;
 +----------+
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
 ### `params`
 
 The IMAP connector supports the following connection and authentication parameters:
