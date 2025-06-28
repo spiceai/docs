@@ -42,7 +42,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-This value cannot be any of the following keywords that are reserved by ClickHouse:
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md) or any of the following keywords that are reserved by ClickHouse:
 
 - `PREWHERE`
 - `SETTINGS`

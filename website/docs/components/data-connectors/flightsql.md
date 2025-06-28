@@ -26,7 +26,7 @@ The `from` field takes the form `flightsql:dataset` where `dataset` is the fully
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice.
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
 
 ### `params`
 

@@ -46,6 +46,8 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
 ### `params`
 
 The connector supports Basic HTTP authentication via `param` values.
