@@ -24,7 +24,7 @@ These keywords apply to all data connectors:
 
 ## Connector-Specific Protected Keywords
 
-These connectors have reserved keywords beyond the ones mentioned above.
+These data connectors have reserved keywords beyond the ones mentioned above.
 
 - [ClickHouse Keywords](/docs/components/data-connectors/clickhouse.md#name)
 - [Snowflake Keywords](/docs/components/data-connectors/snowflake.md#name)
