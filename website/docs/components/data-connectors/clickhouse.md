@@ -42,6 +42,12 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+This value cannot be any of the following keywords that are reserved by ClickHouse:
+
+- `PREWHERE`
+- `SETTINGS`
+- `FORMAT`
+
 ### `params`
 
 The ClickHouse data connector can be configured by providing the following `params`:

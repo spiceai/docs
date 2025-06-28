@@ -78,6 +78,10 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+This value cannot be the following keyword that is reserved by MySQL:
+
+- `PARTITION`
+
 ### `params`
 
 The MySQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mysql_conn_string}`.

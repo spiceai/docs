@@ -54,6 +54,15 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+This value cannot be any of the following keywords that are reserved by Microsoft SQL Server:
+
+- `OUTER`
+- `SET`
+- `QUALIFY`
+- `WINDOW`
+- `END`
+- `FOR`
+
 ### `params`
 
 The data connector supports the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mssql_conn_string}`.

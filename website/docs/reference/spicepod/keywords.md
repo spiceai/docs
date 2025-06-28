@@ -24,30 +24,9 @@ These keywords apply to all data connectors:
 
 ## Connector-Specific Protected Keywords
 
-### ClickHouse
+These connectors have reserved keywords beyond the ones mentioned above.
 
-- `PREWHERE`
-- `SETTINGS`
-- `FORMAT`
-
-### Snowflake
-
-- `START`
-- `CONNECT`
-- `MATCH_RECOGNIZE`
-- `SAMPLE`
-- `TABLESAMPLE`
-- `FROM`
-
-### MSSQL
-
-- `OUTER`
-- `SET`
-- `QUALIFY`
-- `WINDOW`
-- `END`
-- `FOR`
-
-### MySQL
-
-- `PARTITION`
+- [ClickHouse Keywords](/docs/components/data-connectors/clickhouse.md#name)
+- [Snowflake Keywords](/docs/components/data-connectors/snowflake.md#name)
+- [Microsoft SQL Server Keywords](/docs/components/data-connectors/mssql.md#name)
+- [MySQL Keywords](/docs/components/data-connectors/mysql.md#name)
