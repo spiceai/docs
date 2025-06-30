@@ -5,10 +5,7 @@ description: 'Learn how to use Spice in-memory caching'
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
-tags:
-  - caching
-  - results caching
-  - cache control
+tags: [caching]
 ---
 
 Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
@@ -36,10 +33,10 @@ runtime:
 
 ## `caching` Parameters
 
-| Parameter name    | Optional | Description                                                    |
-| ----------------- | -------- | -------------------------------------------------------------- |
-| `sql_results`     | Yes      | Configures the Runtime cache for results from SQL queries.     |
-| `search_results`  | Yes      | Configures the Runtime cache for results from searches. |
+| Parameter name   | Optional | Description                                                |
+| ---------------- | -------- | ---------------------------------------------------------- |
+| `sql_results`    | Yes      | Configures the Runtime cache for results from SQL queries. |
+| `search_results` | Yes      | Configures the Runtime cache for results from searches.    |
 
 ## Common Caching Parameters
 
@@ -48,8 +45,8 @@ Every cache type (`sql_results`, `search_results`) supports the following parame
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `max_size`          | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
@@ -66,9 +63,9 @@ Consider using `ahash` if maximum performance is most important, or where hashin
 
 In addition to the common caching parameters, `sql_results` also supports additional parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+| Parameter name   | Optional | Description                                                                                                                                   |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 
 ### Choosing a `cache_key_type`
 
@@ -141,8 +138,8 @@ You can control caching behavior for specific requests using HTTP headers. The `
 
 The following endpoints support the standard HTTP [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control):
 
-* SQL query (HTTP and Arrow Flight)
-* Search (HTTP)
+- SQL query (HTTP and Arrow Flight)
+- Search (HTTP)
 
 The [`no-cache` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) skips the cache for the current request but caches the results for future requests.
 

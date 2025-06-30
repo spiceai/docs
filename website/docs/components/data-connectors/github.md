@@ -2,7 +2,7 @@
 title: 'GitHub Data Connector'
 sidebar_label: 'GitHub Data Connector'
 description: 'GitHub Data Connector Documentation'
-tags: ['data-connector', 'github', 'sql', 'api', 'integration']
+tags: ['data-connectors', 'github', 'sql', 'api', 'integration']
 ---
 
 The GitHub Data Connector enables federated SQL queries on various GitHub resources such as files, issues, pull requests, and commits by specifying `github` as the selector in the `from` value for the dataset.
@@ -160,7 +160,7 @@ datasets:
 #### Schema
 
 | Column Name     | Data Type    | Is Nullable |
-|-----------------|--------------|-------------|
+| --------------- | ------------ | ----------- |
 | assignees       | List(Utf8)   | YES         |
 | author          | Utf8         | YES         |
 | body            | Utf8         | YES         |
