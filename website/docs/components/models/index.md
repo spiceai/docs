@@ -48,7 +48,7 @@ For more details, refer to the [Large Language Models documentation](/docs/featu
 
 ## Model Provider Prefix
 
-The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition and used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
+The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition, and is used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
 
 The following provider prefixes are supported:
 
