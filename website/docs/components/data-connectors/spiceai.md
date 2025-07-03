@@ -59,7 +59,7 @@ The Spice.ai Cloud Platform data connector can be configured by providing the fo
 
 ## Limitations
 
-- The Spice.ai Data Connector subjects to the limit of a maximum of 1000 requests per connection, after which the connection is reset by the Spice Cloud Platform. If the error message `Connection is reset by the server. Please retry the request.` is encountered or the `spiceai-retryable` metadata appears in the response, the query should be retried.
+- The Spice.ai Data Connector is subject to a maximum limit of 1000 requests per connection, after which the connection is reset by the Spice Cloud Platform. If the error message `Connection is reset by the server. Please retry the request.` is encountered or the `spiceai-retryable` metadata appears in the response, the query should be retried.
 
 :::warning[Memory Considerations]
 
