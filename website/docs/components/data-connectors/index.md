@@ -28,8 +28,8 @@ Supported Data Connectors include:
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
 | `mysql`                            | MySQL                                 | Stable            |                              |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
+| `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
-| `spice.ai`                         | [Spice.ai][spiceai]                   | Release Candidate | Arrow Flight                 |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
