@@ -20,6 +20,7 @@ spice run [flags] -- [spiced flags]
 - `--flight-endpoint` Configure runtime Flight endpoint. Defaults to `http://127.0.0.1:50051`.
 - `--http-endpoint` Configure runtime HTTP endpoint. Defaults to `http://127.0.0.1:8090`.
 - `--metrics-endpoint` Configure runtime Prometheus metrics endpoint. Defaults to `http://127.0.0.1:9090`.
+- `--open-telemetry-endpoint` Configure runtime OpenTelemetry endpoint. Defaults to `http://127.0.0.1:50052`.
 - `--captured-outputs` Configure the captured output setting for task history. Defaults to `truncated`.
 
 #### Spiced Flags
