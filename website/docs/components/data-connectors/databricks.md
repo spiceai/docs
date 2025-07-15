@@ -54,6 +54,8 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
 ### `params`
 
 Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
@@ -88,7 +90,7 @@ datasets:
 
 ### Databricks service principal
 
-Spice supports the M2M OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
+Spice supports the Machine-to-Machine (M2M) OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
 
 Ensure that you grant your service principal the "Data Reader" privilege preset for the catalog and "Can Attach" cluster permissions when using Spark Connect mode.
 

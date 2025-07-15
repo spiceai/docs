@@ -78,6 +78,10 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md) or any of the following keywords that are reserved by MySQL:
+
+- `PARTITION`
+
 ### `params`
 
 The MySQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mysql_conn_string}`.
@@ -92,6 +96,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `mysql_sslmode`           | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `mysql_sslrootcert`       | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul> |
 | `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                                       |
 
@@ -175,7 +180,7 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::note
 
-- The MySQL `TIMESTAMP` value is [retrieved as a UTC time value](https://dev.mysql.com/doc/refman/8.4/en/datetime.html).
+- The MySQL `TIMESTAMP` value is [retrieved as a UTC time value](https://dev.mysql.com/doc/refman/8.4/en/datetime.html) by default. Use the `mysql_time_zone` configuration parameter to specify the desired time zone for interpreting `TIMESTAMP` values during data retrieval.
 
 :::
 
