@@ -28,8 +28,3 @@ datasets:
 ```
 
 Search results (from `v1/search`) will retrieve results based on the keyword similarity of fields `title` & `body`. For more details, see the [API reference for /v1/search](/docs/api/HTTP/post-search).
-
-:::warning[Limitations]
- - Full text search indexes do not support updates after startup. This includes both:
-   - Changes to the underlying data source
-   - Accelerated refreshes of the underlying dataset.

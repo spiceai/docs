@@ -40,13 +40,13 @@ For performing vector-based search, see [Vector-Based Search](/docs/features/sea
 
 ## Full Text Search
 
-Full text search provide keyword based retrieval for a dataset. Search specific indexes are required to be added to the underlying columns of importance. This provides an efficient lookup and counting of words within rows and the table more broadly.
+Full text search provides keyword based retrieval for a dataset. Search specific indexes are required to be added to the underlying columns of importance. This provides an efficient lookup and counting of words within rows and the table more broadly.
 
 For performing full text search, see [Full text Search](/docs/features/search/vector-search).
 
 ## Hybrid Search
 
-Spice can handle a hybrid search solution based on the above mentioned [full-text](#full-text-search) and [vector](#vector-search) functionality.
+Spice supports hybrid search utilizing [full-text search](#full-text-search) and [vector search](#vector-search) functionality.
 
 The `v1/search` endpoint will automatically use hybrid search when configured with both full-text & vector search.
 
