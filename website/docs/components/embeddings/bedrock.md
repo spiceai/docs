@@ -12,7 +12,7 @@ To use an embedding model deployed to [AWS Bedrock service](https://aws.amazon.c
 
 | Parameter               | Description                                                                                                                             |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `aws_region`            |  S3 bucket region. Default: `us-east-1`.                                                                                                |
+| `aws_region`            | AWS region. Default: `us-east-1`.                                                                                                |
 | `aws_profile`           | Optional. AWS profile to load credentials.                                                                                              |
 | `aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
 | `aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
