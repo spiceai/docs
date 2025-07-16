@@ -443,7 +443,7 @@ datasets:
 
 ## `columns`
 
-Optional. Define metadata and features for specific columns in the dataset.
+Optional. Define metadata, semantic details and features (e.g. embeddings, or table indexes) for specific columns in the dataset.
 
 ```yaml
 datasets:
@@ -459,6 +459,8 @@ datasets:
               enabled: true
               target_chunk_size: 256
               overlap_size: 32
+        full_text_search:
+          enabled: true
 ```
 
 ## `columns[*].name`
@@ -500,6 +502,18 @@ columns:
 ```
 
 See [`embeddings[*].chunking`](#embeddingschunking) for details.
+
+## `columns[*].full_text_search` {#columns-search-full-text}
+
+## `columns[*].full_text_search.enabled`
+
+Optional. Enable or disable full text search support for specific column in the dataset. Default `false`.
+
+## `columns[*].full_text_search.row_id`
+
+Optional. For datasets without a primary key, used to explicitly specify column(s) that uniquely identify a row.
+
+Specifying a `row_id` enables unique identifier lookups for datasets from external systems that may not have a primary key.
 
 ## `columns[*].metadata`
 

@@ -9,7 +9,6 @@ pagination_next: null
 
 https://github.com/spiceai/spice-rs
 
-
 ### Install
 
 ```shell
@@ -25,7 +24,7 @@ use spiceai::ClientBuilder;
 
 #[tokio::main]
 async fn main() {
-  let mut client = ClientBuilder::new()
+  let client = ClientBuilder::new()
     .build()
     .await
     .unwrap();
@@ -43,7 +42,7 @@ use spiceai::ClientBuilder;
 
 #[tokio::main]
 async fn main() {
-  let mut client = ClientBuilder::new()
+  let client = ClientBuilder::new()
     .flight_url("http://my_remote_spice_instance:50051")
     .build()
     .await
