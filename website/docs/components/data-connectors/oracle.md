@@ -157,7 +157,7 @@ datasets:
 
 ### Wallet Auto-Login (SSO) Certificate Provided via Application Secret
 
-If your Oracle Cloud Autonomous Database wallet folder is not available locally, provide the base64-encoded wallet auto-login (SSO) certificate (`cwallet.sso`) using the `oracle_wallet_sso_cert` parameter. Set the `oracle_connection_string` to the full Easy Connect string from the _Database connection_ section.
+If your Oracle Cloud Autonomous Database wallet folder is not available locally, provide the base64-encoded wallet auto-login (SSO) certificate (`cwallet.sso`) using the `oracle_wallet_sso_cert` parameter. Set the `oracle_connection_string` to the Easy Connect string from the _Database connection_ section.
 
 ```yaml
 datasets:
@@ -167,7 +167,7 @@ datasets:
       oracle_username: admin
       oracle_password: ${secrets:ORACLE_PASSWORD}
       oracle_wallet_sso_cert: ${secrets:oracle_wallet_sso_cert}
-      oracle_connection_string: '(description=(retry_count=10)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-sanjose-1.oraclecloud.com))(connect_data=(service_name=g81f101d5c853_fgp1t_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))'
+      oracle_connection_string: 'tcps://adb.us-sanjose-1.oraclecloud.com:1522/g81f1d1d5c853_fgc1e_low.adb.oraclecloud.com?ssl_server_dn_match=yes'
 ```
 
 To generate a base64-encoded wallet certificate for use as a secret:
