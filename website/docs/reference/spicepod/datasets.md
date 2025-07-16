@@ -501,6 +501,18 @@ columns:
 
 See [`embeddings[*].chunking`](#embeddingschunking) for details.
 
+## `columns[*].metadata`
+
+Optional. Specific metadata associated to the column.
+
+## `columns[*].metadata.vectors`
+
+Optional. If provided, a vector engine (see [below](#vectors)) should store this column for a particular use, determined by the value, which is one of:
+ - `non-filterable`: Store the column in the vector engine.
+ - `filterable`: Store the column in the vector engine, and ensure the engine can filter on the column (if possible in the engine).
+
+Only applicable if `vectors.enabled` is both defined and `true`.
+
 ## `embeddings`
 
 Optional. Create vector embeddings for specific columns of the dataset.
@@ -573,3 +585,20 @@ datasets:
     metadata:
       instructions: The last 128 blocks.
 ```
+
+
+## `vectors`
+
+## `vectors.enabled`
+
+Enable or disable vector storage, defaults to `true`.
+
+## `vectors.engine`
+
+The vector engine to use. The following engines are supported:
+
+- [`s3_vectors`](/docs/components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+
+## `vectors.params`
+
+Optional. Parameters to pass to the vector engine. The parameters are specific to the vector engine used.
