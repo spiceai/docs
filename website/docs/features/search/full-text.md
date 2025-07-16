@@ -7,7 +7,8 @@ tags:
   - search
 ---
 
-Spice provides full text search functionality with BM25 scoring. Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration. For example
+Spice provides full text search functionality with BM25 scoring. Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration. For example:
+
 ```yaml
 datasets:
   - from: github:github.com/spiceai/docs/pulls

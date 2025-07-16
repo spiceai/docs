@@ -19,7 +19,7 @@ Spice provides advanced search capabilities that go beyond standard SQL queries,
 
 Vector-based search requires configured data sources (connectors or accelerators) in addition to embeddings. These embeddings convert data to numerical representations that can be used by machine learning models, facilitating similarity comparisons for more advanced search capabilities.
 
-Configuring embeddings is crucial for the effectiveness of vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](/docs/components/embeddings).
+Configuring embeddings is required for vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](/docs/components/embeddings).
 
 For performing vector-based search, see [Vector-Based Search](/docs/features/search/vector-search).
 
