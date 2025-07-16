@@ -210,3 +210,34 @@ sql> describe sales;
 |                   | })                                      |             |
 +-------------------+-----------------------------------------+-------------+
 ```
+
+### SQL UDTF
+The embedding index can also be used to perform search in SQL, via a user-defined table function (UDTF).
+```sql
+SELECT id, extra_column, score
+FROM vector_search(my_table, 'search query')
+WHERE date_published > '2021-01-01'
+ORDER BY score desc
+LIMIT 5
+```
+
+The function signature of `vector_search` is
+```sql
+vector_search(
+  table STRING,              -- Dataset name (required)
+  query STRING,              -- Search query expression (required)
+  col STRING,                -- Column name to search in (required if multiple embedding columns exist)
+  limit INTEGER,             -- Maximum number of results to return (optional, default: all)
+  include_score BOOLEAN      -- Whether to include relevance score (optional, default: TRUE)
+)
+RETURNS TABLE                -- The original table and:
+                             --  - A FLOAT column `score` (if `include_score`).
+                             --  - A STRING column `value` with the most relevant section of the column
+                             --    searched on. For non-chunked embedding columns, `value` is the entire value.
+```
+
+:::warning[Limitations]
+
+- `vector_search` UDTF does not support chunked embedding columns.
+
+:::
