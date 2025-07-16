@@ -232,8 +232,6 @@ vector_search(
 )
 RETURNS TABLE                -- The original table and:
                              --  - A FLOAT column `score` (if `include_score`).
-                             --  - A STRING column `value` with the most relevant section of the column
-                             --    searched on. For non-chunked embedding columns, `value` is the entire value.
 ```
 
 :::warning[Limitations]

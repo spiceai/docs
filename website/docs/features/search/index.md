@@ -27,7 +27,7 @@ For performing vector-based search, see [Vector-Based Search](/docs/features/sea
 
 Full text search provides keyword based retrieval for a dataset. Search specific indexes are required to be added to the underlying columns of importance. This provides an efficient lookup and counting of words within rows and the table more broadly.
 
-For performing full text search, see [Full text Search](/docs/features/search/vector-search).
+For performing full text search, see [Full text Search](/docs/features/search/full-text).
 
 ## Hybrid Search
 
@@ -73,6 +73,6 @@ ORDER BY score desc
 LIMIT 5
 ```
 
-For an entire specification of the `text_search` UDTF, see [Full text Search](/docs/features/search/vector-search#sql-udtf).
+For an entire specification of the `text_search` UDTF, see [Full text Search](/docs/features/search/full-text#sql-udtf).
 
 <DocCardList />
