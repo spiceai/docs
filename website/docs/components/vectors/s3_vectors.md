@@ -46,6 +46,7 @@ embeddings:
  - `s3_vectors_index` and `s3_vectors_arn` specify a single index for the dataset and therefore should not be used with a dataset containing more than one embedding column.
 :::
 
-## Cookbook
+<!--  ## Cookbook
 
 - A cookbook recipe to configure a dataset with an S3 vectors engine in Spice. [S3 Vectors engine](https://github.com/spiceai/cookbook/tree/trunk/vectors/s3#readme)
+ -->
