@@ -13,9 +13,17 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 ### `from`
 
-The `from` field takes the form of `github:github.com/<owner>/<repo>/<content>` where `content` could be `files`, `issues`, `pulls`, `commits`, `stargazers`. See [examples](#examples) for more configuration detail.
+The `from` field specifies the GitHub resource to query. It supports the following formats:
 
-It can also take the form `github:github.com/<organization>/members`.
+| Format                                         | Description                                               |
+| ---------------------------------------------- | --------------------------------------------------------- |
+| `github:github.com/<owner>/<repo>/files/<ref>` | Query files from a repository at a specific branch or tag |
+| `github:github.com/<owner>/<repo>/issues`      | Query issues from a repository                            |
+| `github:github.com/<owner>/<repo>/pulls`       | Query pull requests from a repository                     |
+| `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository                           |
+| `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
+| `github:github.com/<organization>/members`     | Query members from an organization                        |
+
 
 ### `name`
 
