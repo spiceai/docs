@@ -205,6 +205,21 @@ datasets:
       enabled: true
 ```
 
+## `availability_monitor`
+
+Spice automatically monitors the availability of non-accelerated datasets and emits metrics if a dataset becomes unavailable. Note that this monitoring process may trigger the startup of compute resources (for example, Databricks or Snowflake), potentially incurring additional costs. To disable availability monitoring, configure the `availability_monitor` parameter to `disabled`.
+
+- `default`: Use the default availability monitor for the dataset. This is the default value. Accelerated datasets will not be monitored.
+- `disabled`: Disable the availability monitor for the dataset.
+
+```yaml
+datasets:
+  - from: databricks:catalog.schema.table
+    name: my_dataset
+    availability_monitor: disabled
+    params: ...
+```
+
 ## `acceleration`
 
 Optional. Accelerate queries to the dataset by caching data locally.
