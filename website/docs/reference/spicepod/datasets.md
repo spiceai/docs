@@ -320,9 +320,17 @@ Optional. Enable or disable retention policy check, defaults to `false`.
 
 Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
-Required when `acceleration.retention_check_enabled` is `true`.
+`retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
 See [Duration](../duration/index.md)
+
+## `acceleration.retention_sql`
+
+Optional. Custom SQL statement to define data retention logic. Takes the form of a `DELETE FROM <table> WHERE <predicates>` statement.
+
+This parameter is useful for scenarios like soft-deleting rows in append-only datasets or removing data based on complex business logic that goes beyond simple time-based retention.
+
+`retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
 ## `acceleration.retention_check_interval`
 
@@ -443,7 +451,7 @@ datasets:
 
 ## `columns`
 
-Optional. Define metadata and features for specific columns in the dataset.
+Optional. Define metadata, semantic details and features (e.g. embeddings, or table indexes) for specific columns in the dataset.
 
 ```yaml
 datasets:
@@ -459,6 +467,8 @@ datasets:
               enabled: true
               target_chunk_size: 256
               overlap_size: 32
+        full_text_search:
+          enabled: true
 ```
 
 ## `columns[*].name`
@@ -500,6 +510,30 @@ columns:
 ```
 
 See [`embeddings[*].chunking`](#embeddingschunking) for details.
+
+## `columns[*].full_text_search` {#columns-search-full-text}
+
+## `columns[*].full_text_search.enabled`
+
+Optional. Enable or disable full text search support for specific column in the dataset. Default `false`.
+
+## `columns[*].full_text_search.row_id`
+
+Optional. For datasets without a primary key, used to explicitly specify column(s) that uniquely identify a row.
+
+Specifying a `row_id` enables unique identifier lookups for datasets from external systems that may not have a primary key.
+
+## `columns[*].metadata`
+
+Optional. Specific metadata associated to the column.
+
+## `columns[*].metadata.vectors`
+
+Optional. If provided, a vector engine (see [below](#vectors)) should store this column for a particular use, determined by the value, which is one of:
+ - `non-filterable`: Store the column in the vector engine.
+ - `filterable`: Store the column in the vector engine, and ensure the engine can filter on the column (if possible in the engine).
+
+Only applicable if `vectors.enabled` is both defined and `true`.
 
 ## `embeddings`
 
@@ -573,3 +607,20 @@ datasets:
     metadata:
       instructions: The last 128 blocks.
 ```
+
+
+## `vectors`
+
+## `vectors.enabled`
+
+Enable or disable vector storage, defaults to `true`.
+
+## `vectors.engine`
+
+The vector engine to use. The following engines are supported:
+
+- [`s3_vectors`](/docs/components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+
+## `vectors.params`
+
+Optional. Parameters to pass to the vector engine. The parameters are specific to the vector engine used.
