@@ -122,3 +122,13 @@ Output:
 | 11200      | 2014-06-22      | 59.89             | 27                  |
 +------------+-----------------+-------------------+---------------------+
 ```
+
+Exit the Spice SQL REPL with `exit`
+
+### Clean up
+
+Stop the MSSQL instance and cleanup:
+
+```shell
+docker compose down --volumes --rmi local
+```
