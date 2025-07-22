@@ -14,6 +14,10 @@ ai:
   label: 'ai'
   permalink: '/ai'
   description: 'Artificial Intelligence related topics and discussions'
+amazon s3 vectors:
+  label: 'amazon s3 vectors'
+  permalink: '/amazon s3 vectors'
+  description: 'Amazon s3 Vectors related topics and usage'
 announcement:
   label: 'announcement'
   permalink: '/announcements'
@@ -118,6 +122,10 @@ gcp:
   label: 'gcp'
   permalink: '/gcp'
   description: 'Google Cloud Platform related topics and usage'
+github:
+  label: 'github'
+  permalink: '/github'
+  description: 'GitHub related topics and usage'
 glue:
   label: 'glue'
   permalink: '/glue'
@@ -190,6 +198,10 @@ on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
   description: 'On-premises infrastructure and usage'
+oracle:
+  label: 'oracle'
+  permalink: '/oracle'
+  description: 'Oracle related topics and usage'
 parameterized queries:
   label: 'parameterized queries'
   permalink: '/parameterized queries'
@@ -254,6 +266,10 @@ tableau:
   label: 'tableau'
   permalink: '/tableau'
   description: 'Tableau Connector related topics and usage'
+vectors:
+  label: 'vectors'
+  permalink: '/vectors'
+  description: 'Vector related topics and usage'
 workers:
   label: 'workers'
   permalink: '/workers'
