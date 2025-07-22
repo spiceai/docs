@@ -103,6 +103,12 @@ const recipes: RecipeData[] = [
     path: '/mcp/README.md',
     tags: ['ai', 'mcp', 'tools']
   },
+  {
+    title: 'AWS S3 Vectors',
+    description: 'Use AWS S3 vectors to store embeddings and perform efficient vector search.',
+    path: '/vectors/s3/README.md',
+    tags: ['ai', 'search', 'AWS']
+  },
   // Data Acceleration
   {
     title: 'DuckDB Data Accelerator',
@@ -472,11 +478,11 @@ const recipes: RecipeData[] = [
     tags: ['advanced', 'replication', 'dataset']
   },
   {
-  title: 'Cron Dataset Schedules',
-  description: 'Schedule dataset refreshes using cron syntax.',
-  path: '/cron-schedules/README.md',
-  tags: ['configuration', 'scheduling', 'refresh']
-},
+    title: 'Cron Dataset Schedules',
+    description: 'Schedule dataset refreshes using cron syntax.',
+    path: '/cron-schedules/README.md',
+    tags: ['configuration', 'scheduling', 'refresh']
+  }
 ]
 
 const RecipeGroup: React.FC<{ recipes: RecipeData[] }> = ({ recipes }) => {
