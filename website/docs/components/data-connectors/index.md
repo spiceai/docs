@@ -28,8 +28,8 @@ Supported Data Connectors include:
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
 | `mysql`                            | MySQL                                 | Stable            |                              |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
+| `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
-| `spice.ai`                         | [Spice.ai][spiceai]                   | Release Candidate | Arrow Flight                 |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
@@ -46,6 +46,7 @@ Supported Data Connectors include:
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
+| `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 | `mongodb`                          | MongoDB                               | Roadmap           |                              |
@@ -58,6 +59,7 @@ Supported Data Connectors include:
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
+[ODPIC]: https://oracle.github.io/odpi/
 
 ## Object Store File Formats
 

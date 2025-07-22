@@ -218,6 +218,10 @@ openai:
   label: 'OpenAI'
   permalink: '/openai'
   description: 'Documentation related to OpenAI models and services.'
+oracle:
+  label: 'Oracle'
+  permalink: '/oracle'
+  description: 'Documentation related to Oracle database integration.'
 postgres:
   label: 'Postgres'
   permalink: '/postgres'
