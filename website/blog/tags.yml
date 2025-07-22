@@ -262,9 +262,9 @@ tableau:
   label: 'tableau'
   permalink: '/tableau'
   description: 'Tableau Connector related topics and usage'
-vector:
-  label: 'vector'
-  permalink: '/vector'
+vectors:
+  label: 'vectors'
+  permalink: '/vectors'
   description: 'Vector related topics and usage'
 workers:
   label: 'workers'
