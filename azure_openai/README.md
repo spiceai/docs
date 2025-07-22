@@ -1,6 +1,6 @@
 # Azure OpenAI Models
 
-This recipe demonstrates how to use Azure OpenAI models for vector-based search and chat functionalities with structured (taxi trips) and unstructured (GitHub files) data.
+This recipe demonstrates how to use Azure OpenAI models for vector-based search and chat functionalities with structured (taxi trips) and unstructured GitHub data.
 
 ## Prerequisites
 
@@ -134,20 +134,24 @@ Result:
 
 ```json
 {
-  "matches": [
+  "results": [
     {
-      "value": "# Metrics Naming\n\n## TL;DR\n\n**Metric Naming Guide**: Prioritize Developer Experience (DX) with intuitive, readable names that ...",
+      "matches": {
+        "content": "value": "# Metrics Naming\n\n## TL;DR\n\n**Metric Naming Guide**: Prioritize Developer Experience (DX) with intuitive, readable names that ..."
+      },
       "score": 0.7572349075959143,
       "dataset": "spiceai.files",
-      "metadata": {
+      "data": {
         "download_url": "https://raw.githubusercontent.com/spiceai/spiceai/trunk/docs/dev/metrics.md"
       }
     },
     {
-      "value": "# Criteria Definitions\n\n## RC\n\nAcronym for \"Release Candidate\". Identifies a version that is eligible for general/stable release ....",
+      "matches": {
+        "content": "value": "# Criteria Definitions\n\n## RC\n\nAcronym for \"Release Candidate\". Identifies a version that is eligible for general/stable release ...."
+      },
       "score": 0.6719117129814338,
       "dataset": "spiceai.files",
-      "metadata": {
+      "data": {
         "download_url": "https://raw.githubusercontent.com/spiceai/spiceai/trunk/docs/criteria/definitions.md"
       }
     }
@@ -178,6 +182,21 @@ Rank 1, Score: 75.7, Datasets [spice.spiceai.files]
 
 - Metric: is a measurement used to track the state and behavior of a system component. Metrics represent the current status (e.g., readiness or availability) or describe specific operations (e.g., request counts, cache hits, latencies, failures) to provide insight into system health, performance, and workload.
 ...
+```
+
+## Vector Search on multiple columns
+Notice on the `name: spiceai.issues` dataset, there are embeddings on both the `body` & `title`. When performing vector search on this table, it will search across both these columns, and return results based on combined relevance.
+
+```shell
+  curl -XPOST http://localhost:8090/v1/search \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"datasets\": [\"spiceai.issues\"],
+      \"text\": \"AI\",
+      \"where\": \"state='CLOSED'\",
+      \"additional_columns\": [\"url\"],
+      \"limit\": 3
+    }"
 ```
 
 ## Utilizing a natural language query
