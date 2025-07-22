@@ -320,9 +320,17 @@ Optional. Enable or disable retention policy check, defaults to `false`.
 
 Optional. The retention period for the dataset. Combine with `time_column` and `time_format` to determine if the data should be retained or not.
 
-Required when `acceleration.retention_check_enabled` is `true`.
+`retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
 See [Duration](../duration/index.md)
+
+## `acceleration.retention_sql`
+
+Optional. Custom SQL statement to define data retention logic. Takes the form of a `DELETE FROM <table> WHERE <predicates>` statement.
+
+This parameter is useful for scenarios like soft-deleting rows in append-only datasets or removing data based on complex business logic that goes beyond simple time-based retention.
+
+`retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
 ## `acceleration.retention_check_interval`
 
