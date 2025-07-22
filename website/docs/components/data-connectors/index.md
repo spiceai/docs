@@ -46,6 +46,7 @@ Supported Data Connectors include:
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
+| `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 | `mongodb`                          | MongoDB                               | Roadmap           |                              |
@@ -58,6 +59,7 @@ Supported Data Connectors include:
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
+[ODPIC]: https://oracle.github.io/odpi/
 
 ## Object Store File Formats
 
