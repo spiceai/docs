@@ -251,6 +251,12 @@ const recipes: RecipeData[] = [
     tags: ['connector', 'odbc', 'query']
   },
   {
+    title: 'Oracle Connector',
+    description: 'Connect to and query Oracle databases.',
+    path: '/oracle/README.md',
+    tags: ['connector', 'oracle', 'query']
+  },
+  {
     title: 'S3 Connector',
     description: 'Query data from S3 compatible storage.',
     path: '/s3/README.md',
