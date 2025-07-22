@@ -23,7 +23,7 @@ These parameters are used for [Amazon Titan Text](https://docs.aws.amazon.com/be
 
 | Parameter    | Description                                                                                                             |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `normalize`  | Whether or not to normalize the output embedding. Defaults to true.                                                     |
+| `normalize`  | Whether or not to normalize the output embedding. Defaults to `true`.                                                     |
 | `dimensions` | The number of dimensions the output embedding should have. The following values are accepted: 1024 (default), 512, 256. |
 
 
