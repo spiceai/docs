@@ -24,7 +24,7 @@ Spice embeds [DataFusion](https://datafusion.apache.org/), the fastest single-no
 
 Spice is primarily used for:
 
-- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](https://docs.spiceai.org/features/federated-queries).
+- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](/docs/features/query-federation).
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
 - **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
 
@@ -37,11 +37,11 @@ Spice is primarily used for:
 
 ## 4. Can Spice handle federated queries?
 
-Yes. Spice natively supports federated queries across disparate data sources with advanced query push-down capabilities. Spice executes portions of queries directly on source databases, reducing data transfer and improving performance. [Learn More](https://docs.spiceai.org/features/federated-queries).
+Yes. Spice natively supports federated queries across disparate data sources with advanced query push-down capabilities. Spice executes portions of queries directly on source databases, reducing data transfer and improving performance. [Learn More](/docs/features/query-federation).
 
 ## 5. Is Spice a cache?
 
-Not solely. Spice functions as an active cache or working dataset prefetcher. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](https://docs.spiceai.org/features/caching).
+Not solely. Spice functions as an active cache or working dataset prefetcher. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](/docs/features/caching).
 
 ## 6. Is Spice a CDN for databases?
 
@@ -65,7 +65,7 @@ Spice provides unified APIs for data and AI workflows, including model inference
 
 ## 11. What AI model providers does Spice support?
 
-Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](https://docs.spiceai.org/features/ai-models).
+Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](/docs/features/large-language-models/index.md).
 
 ## 12. What deployment options does Spice support?
 

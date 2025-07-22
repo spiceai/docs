@@ -13,11 +13,21 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 ### `from`
 
-The `from` field takes the form of `github:github.com/<owner>/<repo>/<content>` where `content` could be `files`, `issues`, `pulls`, `commits`, `stargazers`. See [examples](#examples) for more configuration detail.
+The `from` field specifies the GitHub resource to query. It supports the following formats:
+
+| Format                                         | Description                                               |
+| ---------------------------------------------- | --------------------------------------------------------- |
+| `github:github.com/<owner>/<repo>/files/<ref>` | Query files from a repository at a specific branch or tag |
+| `github:github.com/<owner>/<repo>/issues`      | Query issues from a repository                            |
+| `github:github.com/<owner>/<repo>/pulls`       | Query pull requests from a repository                     |
+| `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository                           |
+| `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
+| `github:github.com/<organization>/members`     | Query members from an organization                        |
+
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice.
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -160,7 +170,7 @@ datasets:
 #### Schema
 
 | Column Name     | Data Type    | Is Nullable |
-|-----------------|--------------|-------------|
+| --------------- | ------------ | ----------- |
 | assignees       | List(Utf8)   | YES         |
 | author          | Utf8         | YES         |
 | body            | Utf8         | YES         |
@@ -408,6 +418,69 @@ sql> select starred_at, login from spiceai.stargazers order by starred_at DESC l
 +----------------------+----------------------+
 
 Time: 0.0088075 seconds. 10 rows.
+```
+
+### Querying Members of a GitHub Organization
+
+:::warning[Limitations]
+
+- Querying with filters using date columns requires the use of [ISO8601 formatted dates](https://www.iso.org/iso-8601-date-and-time-format.html). For example, `WHERE created_at > '2024-09-24'`.
+- Setting `github_query_mode` to `search` is not supported.
+
+:::
+
+```yaml
+datasets:
+  - from: github:github.com/<organization>/members
+    name: members
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+```
+
+#### Schema
+
+| Column Name | Data Type | Is Nullable |
+| ----------- | --------- | ----------- |
+| username    | Utf8      | YES         |
+| name        | Utf8      | YES         |
+| avatar_url  | Utf8      | YES         |
+| url         | Utf8      | YES         |
+| email       | Utf8      | YES         |
+| location    | Utf8      | YES         |
+| company     | Utf8      | YES         |
+| created_at  | Timestamp | YES         |
+| bio         | Utf8      | YES         |
+
+#### Example
+
+```yaml
+datasets:
+  - from: github:github.com/apache/members
+    name: apache.members
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+    acceleration:
+      enabled: true
+```
+
+```
+sql> select created_at, username from apache.members order by created_at desc limit 10;
++---------------------+-------------------+
+| created_at          | username          |
++---------------------+-------------------+
+| 2023-10-09T13:14:13 | heliang666s       |
+| 2023-04-14T11:26:44 | cortlepp          |
+| 2023-02-16T08:28:58 | ChengJie1053      |
+| 2023-02-11T03:51:52 | FinalT            |
+| 2022-11-20T12:12:56 | Yanshuming1       |
+| 2022-10-10T23:29:29 | bernardodemarco   |
+| 2022-10-07T05:06:37 | coldgust          |
+| 2022-09-06T14:38:44 | No-SilverBullet   |
+| 2022-08-18T13:31:44 | harshithasudhakar |
+| 2022-07-05T10:44:08 | bearslyricattack  |
++---------------------+-------------------+
+
+Time: 0.054390375 seconds. 10 rows.
 ```
 
 ## Cookbook

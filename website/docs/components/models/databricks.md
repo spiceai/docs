@@ -31,7 +31,7 @@ models:
 
 ### Example `spicepod.yaml` configuration, using Databricks service principal
 
-Spice supports the M2M OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
+Spice supports the Machine-to-Machine (M2M) OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
 
 The service principal must be granted the "Can Query" permission for model serving.
 
