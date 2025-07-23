@@ -226,7 +226,8 @@ datasets:
     name: spiceai.pulls
     params:
       github_token: ${secrets:GITHUB_TOKEN}
-      github_include_comments: none # 'all', 'none' (default), 'review', 'discussion'
+      # Specifies the types of comments to fetch: 'all', 'review', 'discussion', or 'none'. Defaults to 'none'.
+      github_include_comments: none
       github_max_comments_fetched: 100 # Number of comments to fetch per discussion or review thread. Defaults to 100.
 ```
 
