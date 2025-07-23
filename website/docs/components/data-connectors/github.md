@@ -247,17 +247,17 @@ datasets:
 | commits_count   | Int64                                                           | YES         |
 | created_at      | Timestamp                                                       | YES         |
 | deletions       | Int64                                                           | YES         |
+| discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         |
 | hashes          | List(Utf8)                                                      | YES         |
 | id              | Utf8                                                            | YES         |
 | labels          | List(Utf8)                                                      | YES         |
 | merged_at       | Timestamp                                                       | YES         |
 | number          | Int64                                                           | YES         |
+| review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         | 
 | reviews_count   | Int64                                                           | YES         |
 | state           | Utf8                                                            | YES         |
 | title           | Utf8                                                            | YES         |
 | url             | Utf8                                                            | YES         |
-| discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         |
-| review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         | 
 
 **Note**: The `discussion` and `review_comments` columns are only included in the schema when the `github_include_comments` parameter is set accordingly.
 
