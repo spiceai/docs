@@ -24,7 +24,6 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 | `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
 | `github:github.com/<organization>/members`     | Query members from an organization                        |
 
-
 ### `name`
 
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
@@ -227,31 +226,37 @@ datasets:
     name: spiceai.pulls
     params:
       github_token: ${secrets:GITHUB_TOKEN}
+      github_include_comments: none # 'all', 'none' (default), 'review', 'discussion'
+      github_max_comments_fetched: 100 # Number of comments to fetch per discussion or review thread. Defaults to 100.
 ```
 
 #### Schema
 
-| Column Name    | Data Type  | Is Nullable |
-| -------------- | ---------- | ----------- |
-| additions      | Int64      | YES         |
-| assignees      | List(Utf8) | YES         |
-| author         | Utf8       | YES         |
-| body           | Utf8       | YES         |
-| changed_files  | Int64      | YES         |
-| closed_at      | Timestamp  | YES         |
-| comments_count | Int64      | YES         |
-| commits_count  | Int64      | YES         |
-| created_at     | Timestamp  | YES         |
-| deletions      | Int64      | YES         |
-| hashes         | List(Utf8) | YES         |
-| id             | Utf8       | YES         |
-| labels         | List(Utf8) | YES         |
-| merged_at      | Timestamp  | YES         |
-| number         | Int64      | YES         |
-| reviews_count  | Int64      | YES         |
-| state          | Utf8       | YES         |
-| title          | Utf8       | YES         |
-| url            | Utf8       | YES         |
+| Column Name     | Data Type                                                       | Is Nullable |
+| --------------- | --------------------------------------------------------------- | ----------- |
+| additions       | Int64                                                           | YES         |
+| assignees       | List(Utf8)                                                      | YES         |
+| author          | Utf8                                                            | YES         |
+| body            | Utf8                                                            | YES         |
+| changed_files   | Int64                                                           | YES         |
+| closed_at       | Timestamp                                                       | YES         |
+| comments_count  | Int64                                                           | YES         |
+| commits_count   | Int64                                                           | YES         |
+| created_at      | Timestamp                                                       | YES         |
+| deletions       | Int64                                                           | YES         |
+| hashes          | List(Utf8)                                                      | YES         |
+| id              | Utf8                                                            | YES         |
+| labels          | List(Utf8)                                                      | YES         |
+| merged_at       | Timestamp                                                       | YES         |
+| number          | Int64                                                           | YES         |
+| reviews_count   | Int64                                                           | YES         |
+| state           | Utf8                                                            | YES         |
+| title           | Utf8                                                            | YES         |
+| url             | Utf8                                                            | YES         |
+| discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         |
+| review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         | 
+
+**Note**: The `discussion` and `review_comments` columns are only included in the schema when the `github_include_comments` parameter is set accordingly.
 
 #### Example
 
@@ -291,6 +296,42 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 6h # check for new results every 6 hours
       refresh_data_window: 90d # at initial load, load the last 90 days of pulls
+```
+
+
+#### Comments Example
+```yaml
+datasets:
+  - from: github:github.com/spiceai/spiceai/pulls
+    name: spiceai.pulls
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+      github_include_comments: all
+      github_max_comments_fetched: 100
+    acceleration:
+      enabled: true
+```
+
+```console
+sql> select unnest(unnest(review_comments)) from spiceai.pulls where number = 6 limit 1;
++------------------------------------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------+
+| __unnest_placeholder(UNNEST(spiceai.pulls.review_comments)).body | __unnest_placeholder(UNNEST(spiceai.pulls.review_comments)).created_at | __unnest_placeholder(UNNEST(spiceai.pulls.review_comments)).author |
++------------------------------------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------+
+| Nitpick - extra space.                                           | 2021-08-11T17:36:23                                                    | haardvark                                                          |
++------------------------------------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------+
+
+Time: 0.034283334 seconds. 1 rows.
+```
+
+```console
+sql> select unnest(unnest(discussion)) from spiceai.pulls where number = 148 limit 1;
++-------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------------------+
+| __unnest_placeholder(UNNEST(spiceai.pulls.discussion)).body | __unnest_placeholder(UNNEST(spiceai.pulls.discussion)).created_at | __unnest_placeholder(UNNEST(spiceai.pulls.discussion)).author |
++-------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------------------+
+| Do not merge until after repo goes public.                  | 2021-09-06T08:00:45                                               | lukekim                                                       |
++-------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------------------+
+
+Time: 0.036530584 seconds. 1 rows.
 ```
 
 ### Querying GitHub Commits
