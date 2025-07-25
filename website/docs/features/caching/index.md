@@ -202,6 +202,11 @@ spice search --cache-control no-cache
 
 You may set the `Spice-Cache-Key` header to supply your own cache key. When set, a supplied cache key takes precedence over `caching.sql_results.cache_key_type`.
 
+:::info[Info]
+A valid cache key consists of up to 128 alphanumeric characters (and the characters `-` and `_`).
+:::
+
+
 ### HTTP Example
 
 Consider the case of two semantically equivalent queries:
