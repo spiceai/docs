@@ -262,7 +262,7 @@ date: Thu, 24 Jul 2025 14:18:00 GMT
 ```
 
 :::warning[Note]
-When supplying your own cache key, **you are responsible for asserting the semantic equivalence of your queries**. For example, this is expected behavior:
+When supplying a custom cache key, **ensure the semantic equivalence of queries**. For example, this is expected behavior:
 
 ```bash
 $ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select 1"
