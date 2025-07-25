@@ -17,8 +17,8 @@ To use an embedding model deployed to [AWS Bedrock service](https://aws.amazon.c
 | `aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
 | `aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
 | `aws_session_token`     | Optional. AWS session token for authentication                                                                                          |
-| `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to 40 |
-| `requests_per_min_limit` | Optional. The maximum number of requests made per minute. Defaults to 1500 |
+| `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to `40` |
+| `requests_per_min_limit` | Optional. The maximum number of requests made per minute. Defaults to `1500` |
 
 #### AWS Titan Models
 These parameters are used for [Amazon Titan Text](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) embedding model
