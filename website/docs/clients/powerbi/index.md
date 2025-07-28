@@ -1,5 +1,5 @@
 ---
-title: 'Power BI'
+title: 'Microsoft Power BI Connector'
 sidebar_label: 'Microsoft Power BI'
 sidebar_position: 11
 description: 'Use Microsoft Power BI to access, visualize and analyze Spice datasets.'
