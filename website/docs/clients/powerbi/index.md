@@ -14,7 +14,7 @@ Use the instructions below to get started with the **[Spice.ai Power BI Connecto
 
 ## Manual Connector Installation
 
-### Tableau Desktop
+### Power BI Desktop
 
 1. Download the latest `spice_adbc.mez` file from the [releases page](https://github.com/spiceai/powerbi-connector/releases)
 2. Copy to your Power BI `Custom Connectors` directory: `C:\Users\[USERNAME]\Documents\Microsoft Power BI Desktop\Custom Connectors`
