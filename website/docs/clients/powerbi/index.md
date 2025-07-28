@@ -2,7 +2,7 @@
 title: 'Power BI'
 sidebar_label: 'Microsoft Power BI'
 sidebar_position: 11
-description: 'Use Microsoft Power BI to access, visualise and analyse datasets loaded in Spice.'
+description: 'Use Microsoft Power BI to access, visualize and analyze Spice datasets.'
 pagination_prev: 'clients/index'
 pagination_next: null
 ---
