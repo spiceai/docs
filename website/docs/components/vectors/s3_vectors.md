@@ -1,7 +1,7 @@
 ---
-title: 'AWS S3 Vectors Engine'
-sidebar_label: 'AWS S3 Vectors'
-description: 'AWS S3 Vectors Engine Documentation'
+title: 'Amazon S3 Vectors Engine'
+sidebar_label: 'Amazon S3 Vectors'
+description: 'Amazon S3 Vectors Engine Documentation'
 sidebar_position: 1
 pagination_next: null
 ---

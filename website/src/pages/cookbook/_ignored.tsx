@@ -49,7 +49,7 @@ const recipes: RecipeData[] = [
     description: 'Use the Llama family of models locally from HuggingFace using Spice.',
     path: '/llama/README.md',
     tags: ['ai', 'llama', 'huggingface'],
-    videoUrl: 'https://youtu.be/I2i6uZKBbd4'
+    videoUrl: 'https://www.youtube.com/watch?v=ZlV3NX-bsIg'
   },
   {
     title: 'OpenAI SDK',
@@ -62,7 +62,7 @@ const recipes: RecipeData[] = [
     description: 'Persistent memory for language models.',
     path: '/llm-memory/README.md',
     tags: ['ai', 'llm', 'memory'],
-    videoUrl: 'https://youtu.be/uc8TCAPu1IM'
+    videoUrl: 'https://www.youtube.com/watch?v=NikPkLZJy7w'
   },
   {
     title: 'Text to SQL (NSQL)',
@@ -107,7 +107,8 @@ const recipes: RecipeData[] = [
     title: 'AWS S3 Vectors',
     description: 'Use AWS S3 vectors to store embeddings and perform efficient vector search.',
     path: '/vectors/s3/README.md',
-    tags: ['ai', 'search', 'AWS']
+    tags: ['ai', 'search', 'AWS'],
+    videoUrl: 'https://www.youtube.com/watch?v=QPbqPf5W36g'
   },
   // Data Acceleration
   {
@@ -115,7 +116,7 @@ const recipes: RecipeData[] = [
     description: 'Accelerate data locally using DuckDB.',
     path: '/duckdb/accelerator/README.md',
     tags: ['core', 'acceleration', 'duckdb', 'data'],
-    videoUrl: 'https://youtu.be/hFvVz5NGpaw'
+    videoUrl: 'https://www.youtube.com/watch?v=e1PtA3Hr8x8'
   },
   {
     title: 'PostgreSQL Data Accelerator',
