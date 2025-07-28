@@ -104,10 +104,11 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'mcp', 'tools']
   },
   {
-    title: 'AWS S3 Vectors',
-    description: 'Use AWS S3 vectors to store embeddings and perform efficient vector search.',
+    title: 'Amazon S3 Vectors',
+    description: 'Use Amazon S3 Vectors to store embeddings and perform efficient vector search.',
     path: '/vectors/s3/README.md',
-    tags: ['ai', 'search', 'AWS']
+    tags: ['ai', 'search', 'AWS'],
+    videoUrl: 'https://www.youtube.com/watch?v=QPbqPf5W36g'
   },
   // Data Acceleration
   {
