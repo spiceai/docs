@@ -546,6 +546,18 @@ columns:
 
 See [`embeddings[*].chunking`](#embeddingschunking) for details.
 
+## `columns[*].embeddings[*].vector_size`
+
+Optional. Specifies the size (number of dimensions) of the embedding vector for use in federated queries to databases that do not support arrays with fixed lengths.
+
+```yaml
+columns:
+  - name: review_body
+    embeddings:
+      - from: embed-static-retrieval
+        vector_size: 1024
+```
+
 ## `columns[*].full_text_search` {#columns-search-full-text}
 
 ## `columns[*].full_text_search.enabled`
