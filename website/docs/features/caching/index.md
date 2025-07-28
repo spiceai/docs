@@ -178,7 +178,7 @@ request
 // Send the request
 ```
 
-You can also control the cache via JDBC:
+The cache can be controlled using JDBC. For example,
 
 ```java
 Properties props = new Properties();
