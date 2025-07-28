@@ -178,6 +178,14 @@ request
 // Send the request
 ```
 
+The cache can be controlled using JDBC properties. For example,
+
+```java
+Properties props = new Properties();
+props.setProperty("cache-control", "no-cache");
+Connection conn = DriverManager.getConnection("jdbc:arrow-flight-sql://localhost:50051", props);
+```
+
 ### `spice` CLI
 
 The `spice sql` and `spice search` commands accept a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
