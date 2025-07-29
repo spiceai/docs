@@ -97,7 +97,7 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.5.0">Spice.ai OSS v1.5.0</a> is now available! 🚀',
+      content: '<a href="/blog/releases/v1.5.1">Spice.ai OSS v1.5.1</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true

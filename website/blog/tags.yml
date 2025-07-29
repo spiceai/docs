@@ -206,6 +206,10 @@ parameterized queries:
   label: 'parameterized queries'
   permalink: '/parameterized queries'
   description: 'Topics and usage related to parameterized queries'
+patitioning:
+  label: 'partitioning'
+  permalink: '/partitioning'
+  description: 'Topics and usage related to partitioning'
 performance:
   label: 'performance'
   permalink: '/performance'
