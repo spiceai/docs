@@ -9,6 +9,8 @@ tags:
   - embeddings
 ---
 
+🎓 Learn how it works with the [Amazon S3 Vectors with Spice](/blog/2025/amazon-s3-vectors-with-spice.mdx) engineering blog post.
+
 Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches. The runtime supports both:
 
 1. Local embedding models, e.g. [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
@@ -112,10 +114,12 @@ Response:
 ### Pre-Existing Embeddings
 
 Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, the dataset must:
-  1. Adhere to naming and type constraints for the underlying and embeddings columns.
-  2. Define the embedding model to use for the column in the `spicepod.yaml` file. This isn't used to compute embedding on data in the table, but to embed the query text for similarity search operations. Like above, this can be done in the dataset component:
-  ```yaml
-  datasets:
+
+1. Adhere to naming and type constraints for the underlying and embeddings columns.
+2. Define the embedding model to use for the column in the `spicepod.yaml` file. This isn't used to compute embedding on data in the table, but to embed the query text for similarity search operations. Like above, this can be done in the dataset component:
+
+```yaml
+datasets:
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
     acceleration:
@@ -124,19 +128,17 @@ Datasets that already include embeddings can utilize the same functionalities (e
       - name: body
         embeddings:
           - from: local_embedding_model # defined in `embeddings` section
-  ```
+```
 
 #### Constraints
-1. **Underlying Column Presence:**
 
+1. **Underlying Column Presence:**
    - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
 
 2. **Embeddings Column Naming Convention:**
-
    - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
 
 3. **Embeddings Column Data Type:**
-
    - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
      2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
@@ -212,7 +214,9 @@ sql> describe sales;
 ```
 
 ### SQL UDTF
+
 The embedding index can also be used to perform search in SQL, via a user-defined table function (UDTF).
+
 ```sql
 SELECT id, extra_column, score
 FROM vector_search(my_table, 'search query')
@@ -222,6 +226,7 @@ LIMIT 5
 ```
 
 The function signature of `vector_search` is
+
 ```sql
 vector_search(
   table STRING,              -- Dataset name (required)
