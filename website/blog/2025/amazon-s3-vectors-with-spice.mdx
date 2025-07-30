@@ -186,19 +186,19 @@ LIMIT 5;
 
 Logically, without a vector index, Spice would have to do the following at query time:
 
-1. **Embed the query text** 'issues with same day shipping' into a vector v.
+1. **Embed the query text** 'issues with same day shipping' into a vector `v`.
 
 2. **Retrieve or compute all candidate vectors** for the searchable column (here every body embedding in the dataset). This could mean scanning every row or at least every row matching other filters.
 
-3. **Calculate distances** between the query vector v and each candidate vector, compute a similarity score (e.g. `score = 1 - distance`).
+3. **Calculate distances** between the query vector `v` and each candidate vector, compute a similarity score (e.g. `score = 1 - distance`).
 
 4. **Sort all candidates** by the score and take the top 5.
 
 For large datasets, steps 2–4 would be extremely expensive (a brute-force scan through potentially millions of vectors for each search). This is exactly why we use a vector index: to avoid computing distances to every item by pre-indexing the vector space for approximate nearest neighbors.
 
-With S3 Vectors, step 2 and 3 are pushed down to the S3 service. The vector index can directly return the _top K closest matches_ to v. Conceptually, S3 Vectors gives back an ordered list of primary keys with their similarity scores. For example, it might return something like: {(review_id=123, score=0.82), (review_id=24, score=0.76), ...} up to K results.
+With S3 Vectors, step 2 and 3 are pushed down to the S3 service. The vector index can directly return the _top K closest matches_ to `v`. Conceptually, S3 Vectors gives back an ordered list of primary keys with their similarity scores. For example, it might return something like: `{(review_id=123, score=0.82), (review_id=24, score=0.76), ...}` up to K results.
 
-Spice then uses these results as a _temporary table_ (let’s call it vector_query_results) which it can join with the main reviews table to get the full records. In SQL pseudocode, Spice does something akin to:
+Spice then uses these results as a _temporary table_ (let’s call it `vector_query_results`) which it can join with the main reviews table to get the full records. In SQL pseudocode, Spice does something akin to:
 
 ```sql
 -- The vector index returns the closest matches into a temp table
