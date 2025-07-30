@@ -81,7 +81,7 @@ datafusion:
 deepseek:
   label: 'deepseek'
   permalink: '/deepseek'
-  description: 'Deepseek AI firm related topics and usage' 
+  description: 'Deepseek AI firm related topics and usage'
 delta:
   label: 'delta'
   permalink: '/delta'
@@ -110,6 +110,10 @@ embeddings:
   label: 'embeddings'
   permalink: '/embeddings'
   description: 'Embeddings related topics and usage'
+engineering:
+  label: 'engineering'
+  permalink: '/engineering'
+  description: 'Spice AI engineering team posts'
 evaluation:
   label: 'evaluation'
   permalink: '/evaluations'
@@ -146,6 +150,10 @@ huggingface:
   label: 'huggingface'
   permalink: '/huggingface'
   description: 'Hugging Face open-source machine learning tool related topics and usage'
+hybrid-search:
+  label: 'hybrid-search'
+  permalink: '/hybrid-search'
+  description: 'Hybrid search combining multiple search methodologies'
 iceberg:
   label: 'iceberg'
   permalink: '/iceberg'
@@ -222,6 +230,10 @@ python:
   label: 'python'
   permalink: '/python'
   description: 'Python Software related topics and usage'
+rag:
+  label: 'rag'
+  permalink: '/rag'
+  description: 'Retrieval-Augmented Generation (RAG) related topics and usage'
 release:
   label: 'release'
   permalink: '/releases'
@@ -238,10 +250,18 @@ sdk:
   label: 'sdk'
   permalink: '/sdk'
   description: 'Software Development Kit related topics and usage'
+search:
+  label: 'search'
+  permalink: '/search'
+  description: 'Search functionality and implementations'
 security:
   label: 'security'
   permalink: '/security'
   description: 'Security practices and tools'
+semantic-search:
+  label: 'semantic-search'
+  permalink: '/semantic-search'
+  description: 'Semantic search methods and implementations'
 snowflake:
   label: 'snowflake'
   permalink: '/snowflake'
@@ -250,6 +270,10 @@ spice.js:
   label: 'spice.js'
   permalink: '/spice.js'
   description: 'spice.js (Node.js SDK) related topics and usage'
+spiceai:
+  label: 'spiceai'
+  permalink: '/spiceai'
+  description: 'Spice.ai platform related topics and usage'
 spicepod:
   label: 'spicepod'
   permalink: '/spicepod'
@@ -270,6 +294,10 @@ tableau:
   label: 'tableau'
   permalink: '/tableau'
   description: 'Tableau Connector related topics and usage'
+vector-search:
+  label: 'vector-search'
+  permalink: '/vector-search'
+  description: 'Vector search techniques and applications'
 vectors:
   label: 'vectors'
   permalink: '/vectors'
