@@ -13,6 +13,8 @@ tags:
 
 import DocCardList from '@theme/DocCardList';
 
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/2025/amazon-s3-vectors-with-spice) engineering blog post.
+
 Spice provides advanced search capabilities that go beyond standard SQL queries, offering both traditional SQL search patterns, semantic (vector-based) search, and full text search functionality.
 
 ## Vector Search
@@ -51,9 +53,11 @@ WHERE
 ```
 
 ### SQL UDTFs
+
 Similar to the above mentioned [vector search](#vector-search) and [full text search](#full-text-search), Spice supports SQL equivalent user-defined table functions (UDTF).
 
 To perform a vector search
+
 ```sql
 SELECT id, extra_column, score
 FROM vector_search(my_table, 'search query')
@@ -65,6 +69,7 @@ LIMIT 5
 For an entire specification of the `vector_search` UDTF, see [Vector-Based Search](/docs/features/search/vector-search#sql-udtf).
 
 Similarly, for full text search use the `text_search` UDTF
+
 ```sql
 SELECT id, extra_column, score
 FROM text_search(my_table, 'search terms')
