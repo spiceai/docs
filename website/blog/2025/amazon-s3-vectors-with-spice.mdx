@@ -48,7 +48,7 @@ Vector similarity search retrieves data by comparing items in a high-dimensional
 
 - **Query by vector:** A search query (e.g. a phrase or image) is also converted into an embedding vector. The vector index is then queried to find the closest stored vectors by distance metric (cosine, Euclidean, dot product, etc.). The result is a set of IDs of the most similar items, often with a similarity score.
 
-This process enables **semantic search** – results are returned based on meaning and similarity rather than exact text matches. It powers features like finding relevant documents by topic even if exact terms differ, recommendation systems (finding similar user behavior or content), and providing knowledge context to LLMs in RAG. With Spice.ai’s integration, this whole lifecycle (embedding data, indexing vectors, querying) is managed by the Spice runtime and exposed via a familiar SQL or HTTP interface.
+This process enables **semantic search** – results are returned based on meaning and similarity rather than exact text matches. It powers features like finding relevant documents by topic even if exact terms differ, recommendation systems (finding similar user behavior or content), and providing knowledge context to LLMs in RAG. With the Spice.ai Open Source integration, this whole lifecycle (embedding data, indexing vectors, querying) is managed by the Spice runtime and exposed via a familiar SQL or HTTP interface.
 
 ## Amazon S3 Vectors in Spice.ai
 
