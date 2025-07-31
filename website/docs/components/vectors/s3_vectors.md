@@ -6,7 +6,7 @@ sidebar_position: 1
 pagination_next: null
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/2025/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 To use Amazon S3 Vectors as a Vector Engine, specify `s3_vectors` as the `engine`, and configure the associated location and AWS credentials.
 

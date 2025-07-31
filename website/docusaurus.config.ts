@@ -334,6 +334,10 @@ const config: Config = {
             to: '/docs/features/query-federation'
           },
           {
+            from: '/blog/2025/amazon-s3-vectors-with-spice',
+            to: '/blog/amazon-s3-vectors-with-spice'
+          },
+          {
             from: '/federated-queries',
             to: '/docs/features/query-federation'
           },

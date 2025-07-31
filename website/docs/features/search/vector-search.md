@@ -9,7 +9,7 @@ tags:
   - embeddings
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/2025/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches. The runtime supports both:
 
