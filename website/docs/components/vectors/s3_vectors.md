@@ -6,7 +6,7 @@ sidebar_position: 1
 pagination_next: null
 ---
 
-🎓 Learn how it works with the [Amazon S3 Vectors with Spice](/blog/2025/amazon-s3-vectors-with-spice.mdx) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](/blog/2025/amazon-s3-vectors-with-spice.mdx) engineering blog post.
 
 To use S3 Vectors as a Vector Engine, specify `s3_vectors` as the `engine`, and configure the associated location and AWS credentials.
 
@@ -39,7 +39,6 @@ embeddings:
 | `s3_vectors_aws_secret_access_key` | The secret access key for the S3 vectors index                                                                                                                              | -                                                                                    |
 | `s3_vectors_aws_session_token`     | Session token for the S3 vectors index.                                                                                                                                     | -                                                                                    |
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
-| `s3_vectors_endpoint`              | The endpoint for the S3 vectors index                                                                                                                                       | `s3vectors.us-east-2.api.aws`                                                        |
 | `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
 
 :::warning[Limitations]
