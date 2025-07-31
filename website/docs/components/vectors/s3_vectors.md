@@ -6,9 +6,9 @@ sidebar_position: 1
 pagination_next: null
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](/blog/2025/amazon-s3-vectors-with-spice.mdx) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/2025/amazon-s3-vectors-with-spice) engineering blog post.
 
-To use S3 Vectors as a Vector Engine, specify `s3_vectors` as the `engine`, and configure the associated location and AWS credentials.
+To use Amazon S3 Vectors as a Vector Engine, specify `s3_vectors` as the `engine`, and configure the associated location and AWS credentials.
 
 ```yaml
 datasets:
@@ -46,7 +46,6 @@ embeddings:
 - `s3_vectors_index` and `s3_vectors_arn` specify a single index for the dataset and therefore should not be used with a dataset containing more than one embedding column.
   :::
 
-<!--  ## Cookbook
+## Cookbook
 
 - A cookbook recipe to configure a dataset with an S3 vectors engine in Spice. [S3 Vectors engine](https://github.com/spiceai/cookbook/tree/trunk/vectors/s3#readme)
- -->
