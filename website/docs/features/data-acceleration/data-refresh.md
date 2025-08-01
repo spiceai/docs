@@ -467,13 +467,63 @@ datasets:
 | Required                           | No               |
 | Default `retention_check_enabled`  | `false`          |
 | Default `retention_period`         | Unset            |
+| Default `retention_sql`            | Unset            |
 | Default `retention_check_interval` | Unset            |
 
-Accelerated datasets can be set to automatically evict time-series data exceeding a retention period by setting a retention policy based on the configured `time_column` and `acceleration.retention_period`.
+Accelerated datasets can be configured to automatically evict data using two different retention strategies:
+
+### Time-based Retention
+
+Automatically evict time-series data exceeding a retention period by setting a retention policy based on the configured `time_column` and `acceleration.retention_period`.
 
 The policy is set using the [`acceleration.retention_check_enabled`](/docs/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/docs/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/docs/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/docs/reference/spicepod/datasets#time_column) and [`time_format`](/docs/reference/spicepod/datasets#time_format) dataset parameters.
 
 When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+
+Example:
+
+```yaml
+datasets:
+  - from: mysql:user_events
+    name: user_events
+    time_column: created_at
+    acceleration:
+      enabled: true
+      refresh_mode: append
+      retention_check_enabled: true
+      retention_period: 30d
+      retention_check_interval: 1h
+```
+
+### Custom SQL-based Retention
+
+Evict data from an acceleration based on custom filter predicates using the [`acceleration.retention_sql`](/docs/reference/spicepod/datasets#accelerationretention_sql) parameter. This is useful for scenarios like soft-deleting rows in append datasets or removing data based on complex business logic.
+
+The `retention_sql` parameter takes the form of a `DELETE FROM <table> WHERE <predicates>` statement.
+
+Example - Soft delete retention:
+
+```yaml
+datasets:
+  - from: mysql:user_events
+    name: user_events
+    time_column: created_at
+    acceleration:
+      enabled: true
+      refresh_mode: append
+      primary_key: user_id
+      on_conflict:
+        user_id: upsert
+      retention_check_enabled: true
+      retention_check_interval: 5m
+      retention_sql: DELETE FROM user_events WHERE status = 'archived'
+```
+
+:::note
+
+- Time-based retention (`retention_period`) and custom SQL retention (`retention_sql`) can be used independently or together. When both are configured, both retention policies will be applied during each retention check.
+
+:::
 
 ## Refresh Jitter
 

@@ -310,6 +310,11 @@ persistence:
   label: 'Persistence'
   permalink: '/persistence'
   description: 'Data persistence and durable storage mechanisms.'
+  description: 'Documentation related to OpenAI models and services.'
+oracle:
+  label: 'Oracle'
+  permalink: '/oracle'
+  description: 'Documentation related to Oracle database integration.'
 postgres:
   label: 'Postgres'
   permalink: '/postgres'

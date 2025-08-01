@@ -103,6 +103,13 @@ const recipes: RecipeData[] = [
     path: '/mcp/README.md',
     tags: ['ai', 'mcp', 'tools']
   },
+  {
+    title: 'Amazon S3 Vectors',
+    description: 'Use Amazon S3 Vectors to store embeddings and perform efficient vector search.',
+    path: '/vectors/s3/README.md',
+    tags: ['ai', 'search', 'AWS'],
+    videoUrl: 'https://www.youtube.com/watch?v=QPbqPf5W36g'
+  },
   // Data Acceleration
   {
     title: 'DuckDB Data Accelerator',
@@ -128,6 +135,12 @@ const recipes: RecipeData[] = [
     description: 'Accelerate data using Apache Arrow.',
     path: '/arrow/README.md',
     tags: ['acceleration', 'apache', 'arrow']
+  },
+  {
+    title: 'Hashed Partitioning with DuckDB',
+    description: 'Use hashed partitioning for performance with DuckDB.',
+    path: '/duckdb/hashed-partitioning/README.md',
+    tags: ['acceleration', 'duckdb', 'partitioning']
   },
   {
     title: 'Accelerated Views',
@@ -249,6 +262,18 @@ const recipes: RecipeData[] = [
     description: 'Connect to databases using ODBC.',
     path: '/odbc/README.md',
     tags: ['connector', 'odbc', 'query']
+  },
+  {
+    title: 'Oracle Connector',
+    description: 'Connect to and query Oracle databases.',
+    path: '/oracle/README.md',
+    tags: ['connector', 'oracle', 'query']
+  },
+  {
+    title: 'Glue Connector',
+    description: 'Connect to AWS Glue.',
+    path: '/glue/README.md',
+    tags: ['connector', 'aws', 'glue']
   },
   {
     title: 'S3 Connector',
@@ -420,6 +445,18 @@ const recipes: RecipeData[] = [
     path: '/clients/adbc/README.md',
     tags: ['client', 'python', 'adbc', 'parameterized queries']
   },
+  {
+    title: 'Java JDBC Client',
+    description: 'Query Spice.ai using the Java JDBC client.',
+    path: '/clients/jdbc/java/README.md',
+    tags: ['client', 'java', 'jdbc']
+  },
+  {
+    title: 'Scala JDBC Client',
+    description: 'Query Spice.ai using the Scala JDBC client.',
+    path: '/clients/jdbc/scala/README.md',
+    tags: ['client', 'scala', 'jdbc']
+  },
   // Security
   {
     title: 'TLS Encryption',
@@ -440,6 +477,12 @@ const recipes: RecipeData[] = [
     description: 'Link datasets in a parent/child relationship within the current Spicepod.',
     path: '/localpod/README.md',
     tags: ['advanced', 'replication', 'dataset']
+  },
+  {
+    title: 'Cron Dataset Schedules',
+    description: 'Schedule dataset refreshes using cron syntax.',
+    path: '/cron-schedules/README.md',
+    tags: ['configuration', 'scheduling', 'refresh']
   }
 ]
 
