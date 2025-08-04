@@ -29,6 +29,12 @@ Spice creates the S3 Vectors index if absent, ingests data, and generates embedd
 
 Use the `vector_search` table-valued function for semantic search. It embeds the query text and queries S3 Vectors for nearest neighbors by cosine similarity.
 
+Start the Spice SQL REPL:
+
+```shell
+spice sql
+```
+
 ### Basic Search
 
 Search for PRs similar to "bugs in DuckDB":
@@ -38,7 +44,7 @@ SELECT
     url,
     title,
     score -- this is a computed value (i.e. not in `describe pulls;`).
-FROM vector_search(pulls, 'bugs in DuckDB')
+FROM vector_search(pulls, 'bugs in DuckDB', 4)
 ORDER BY score DESC
 LIMIT 4;
 ```
@@ -63,7 +69,7 @@ The `score` column (0-1, higher is more similar) is computed from distances retu
 Examine execution:
 
 ```sql
-EXPLAIN SELECT url, title, score FROM vector_search(pulls, 'bugs in DuckDB') ORDER BY score DESC LIMIT 4;
+EXPLAIN SELECT url, title, score FROM vector_search(pulls, 'bugs in DuckDB', 4) ORDER BY score DESC LIMIT 4;
 ```
 
 Plan:
@@ -90,7 +96,7 @@ Plan:
 |               |                       ProjectionExec: expr=[key@0 as id, 1 - distance@1 as score]                                     |
 |               |                         RepartitionExec: partitioning=RoundRobinBatch(10), input_partitions=1                         |
 |               |                           BytesProcessedExec                                                                          |
-|               |                             S3VectorsQueryExec: limit=100                                                             |
+|               |                             **S3VectorsQueryExec: limit=4**                                                           |
 |               |                 CoalesceBatchesExec: target_batch_size=8192                                                           |
 |               |                   RepartitionExec: partitioning=Hash([id@0], 10), input_partitions=10                                 |
 |               |                     RepartitionExec: partitioning=RoundRobinBatch(10), input_partitions=1                             |
@@ -135,7 +141,7 @@ spice run
 Re-run the `EXPLAIN`:
 
 ```sql
-EXPLAIN SELECT url, title, score FROM vector_search(pulls, 'bugs in DuckDB') ORDER BY score DESC LIMIT 4;
+EXPLAIN SELECT url, title, score FROM vector_search(pulls, 'bugs in DuckDB', 4) ORDER BY score DESC LIMIT 4;
 ```
 
 Plan:
@@ -155,7 +161,7 @@ Plan:
 |               |         ProjectionExec: expr=[title@0 as title, url@1 as url, 1 - distance@2 as score] |
 |               |           RepartitionExec: partitioning=RoundRobinBatch(10), input_partitions=1        |
 |               |             BytesProcessedExec                                                         |
-|               |               S3VectorsQueryExec: limit=100                                            |
+|               |               **S3VectorsQueryExec: limit=4**                                          |
 |               |                                                                                        |
 +---------------+----------------------------------------------------------------------------------------+
 ```
@@ -167,7 +173,7 @@ Filter pushdown example:
 ```sql
 EXPLAIN
 SELECT url, title, score
-FROM vector_search(pulls, 'bugs in DuckDB')
+FROM vector_search(pulls, 'bugs in DuckDB', 4)
 WHERE state = 'OPEN'
 ORDER BY score DESC
 LIMIT 4;
@@ -182,7 +188,7 @@ Plan:
 | logical_plan  | Sort: vector_search().score DESC NULLS FIRST, fetch=4                                                                 |
 |               |   Projection: vector_search().url, vector_search().title, vector_search().score                                       |
 |               |     BytesProcessedNode                                                                                                |
-|               |       TableScan: vector_search() projection=[title, url, score], full_filters=[vector_search().state = Utf8("OPEN")] |
+|               |       TableScan: vector_search() projection=[title, url, score], full_filters=[vector_search().state = Utf8("OPEN")]  |
 | physical_plan | SortPreservingMergeExec: [score@2 DESC], fetch=4                                                                      |
 |               |   SortExec: TopK(fetch=4), expr=[score@2 DESC], preserve_partitioning=[true]                                          |
 |               |     ProjectionExec: expr=[url@1 as url, title@0 as title, score@2 as score]                                           |
@@ -190,7 +196,7 @@ Plan:
 |               |         ProjectionExec: expr=[title@0 as title, url@1 as url, 1 - distance@2 as score]                                |
 |               |           RepartitionExec: partitioning=RoundRobinBatch(10), input_partitions=1                                       |
 |               |             BytesProcessedExec                                                                                        |
-|               |               S3VectorsQueryExec: filter={state:{$eq:"OPEN"}} limit=100                                               |
+|               |               **S3VectorsQueryExec: filter={state:{$eq:"OPEN"}} limit=4**                                             |
 |               |                                                                                                                       |
 +---------------+----------------------------------------------------------------------------------------------------------------------+
 ```
