@@ -1,6 +1,6 @@
 ---
-title: "Datadog"
-sidebar_label: "Datadog"
+title: 'Datadog'
+sidebar_label: 'Datadog'
 description: 'Monitoring Spice with Datadog'
 pagination_prev: 'clients/index'
 sidebar_position: 3
@@ -21,10 +21,10 @@ Configure the Datadog Agent to scrape the Spice metrics endpoint:
 init_config:
 
 instances:
-    - prometheus_url: SPICE-METRICS-ENDPOINT>/metrics # for example http://localhost:9090/metrics
-      namespace: spice
-      metrics:
-          - '*'
+  - prometheus_url: SPICE-METRICS-ENDPOINT>/metrics # for example http://localhost:9090/metrics
+    namespace: spice
+    metrics:
+      - '*'
 ```
 
 1. [Restart the Agent](https://docs.datadoghq.com/agent/guide/agent-commands/#start-stop-and-restart-the-agent) to start collecting Spice metrics.
