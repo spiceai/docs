@@ -208,15 +208,21 @@ The filter is pushed to `S3VectorsQueryExec`, ensuring accurate top-K results.
 Use `/v1/search` for semantic search:
 
 ```shell
-curl -X POST http://localhost:8090/v1/search \
-  -H "Content-Type: application/json" \
-  -d '{
-    "datasets": ["pulls"],
-    "text": "bugs in DuckDB",
-    "additional_columns": ["url", "title"],
-    "where": "state=''OPEN''",
-    "limit": 4
-  }'
+curl --request POST \
+  --url http://localhost:8090/v1/search \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"datasets": [
+		"pulls"
+	],
+	"text": "bugs in DuckDB",
+	"additional_columns": [
+		"url",
+		"title"
+	],
+	"where": "state='\''CLOSED'\''",
+	"limit": 4
+}'
 ```
 
 Response:
