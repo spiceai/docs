@@ -20,7 +20,7 @@ catalogs:
   - from: iceberg:https://iceberg-catalog-host.com/v1/namespaces/my_catalog
     name: ice # tables from this catalog will be available in the "ice" catalog in Spice
     include:
-      - "*.my_table_name" # include only the "my_table_name" tables
+      - '*.my_table_name' # include only the "my_table_name" tables
     params:
       iceberg_token: ${secrets:iceberg_token} # Optional. Bearer token value to use for Authorization header.
       iceberg_oauth2_credential: ${secrets:client_id}:${secrets:client_secret} # Optional. Credential to use for OAuth2 client credential flow when initializing the catalog. Separated by a colon as <client_id>:<client_secret>.
@@ -90,25 +90,44 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 ## `params`
 
-The following parameters are supported for configuring the connection to the Iceberg catalog/tables:
+The following parameters are supported for configuring the connection to the Iceberg catalog, file, or S3 storage:
 
-| Parameter Name | Definition |
-|---------------|------------|
-| `iceberg_token` | Bearer token value to use for Authorization header. |
-| `iceberg_oauth2_credential` | Credential to use for OAuth2 client credential flow when initializing the catalog. Format: `<client_id>:<client_secret>` |
-| `iceberg_oauth2_scope` | Scope to use for OAuth2 client credential flow when initializing the catalog. Default: `catalog` |
-| `iceberg_oauth2_server_url` | URL of the OAuth2 server tokens endpoint for the client credential flow. |
-| `iceberg_s3_endpoint` | S3-compatible endpoint where the Iceberg tables are stored. |
-| `iceberg_s3_region` | Region of the S3-compatible endpoint. |
-| `iceberg_s3_access_key_id` | Access key ID for the S3-compatible endpoint. |
-| `iceberg_s3_secret_access_key` | Secret access key for the S3-compatible endpoint. |
-| `iceberg_s3_session_token` | Session token for the S3-compatible endpoint. |
-| `iceberg_s3_role_arn` | ARN of the IAM role to assume when accessing the S3-compatible endpoint. |
-| `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role. |
-| `iceberg_s3_connect_timeout` | Connection timeout in seconds for the S3-compatible endpoint. Default: `60` |
-| `iceberg_sigv4_enabled` | Enable SigV4 (AWS Signature Version 4) authentication when connecting to the catalog. Automatically enabled if the URL in `from` is an AWS Glue catalog. Default: `false` |
-| `iceberg_signing_region` | Region to use for SigV4 authentication. Extracted from the URL in `from` if not specified. |
-| `iceberg_signing_name` | Service name to use for SigV4 authentication. Default: `glue`. |
+| Parameter Name                 | Description                                                                                                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iceberg_token`                | Bearer token value to use for Authorization header.                                                                                                                                                  |
+| `iceberg_oauth2_credential`    | Credential to use for OAuth2 client credential flow when initializing the catalog. Separated by a colon as `<client_id>:<client_secret>`.                                                            |
+| `iceberg_oauth2_token_url`     | The URL to use for OAuth2 token endpoint.                                                                                                                                                            |
+| `iceberg_oauth2_scope`         | The scope to use for OAuth2 token endpoint (default: `catalog`).                                                                                                                                     |
+| `iceberg_oauth2_server_url`    | URL of the OAuth2 server tokens endpoint.                                                                                                                                                            |
+| `iceberg_sigv4_enabled`        | Enable SigV4 authentication for the catalog (for connecting to AWS Glue).                                                                                                                            |
+| `iceberg_signing_region`       | The region to use when signing the request for SigV4. Defaults to the region in the catalog URL if available.                                                                                        |
+| `iceberg_signing_name`         | The name to use when signing the request for SigV4. Default: `glue`.                                                                                                                                 |
+| `iceberg_s3_endpoint`          | Configure an alternative endpoint for the S3 service. This can be any S3-compatible object storage service (e.g., Minio, R2).                                                                        |
+| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage.                                                                                                                                                         |
+| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage.                                                                                                                                                     |
+| `iceberg_s3_session_token`     | Configure the static session token used for S3 storage.                                                                                                                                              |
+| `iceberg_s3_region`            | The AWS S3 region to use.                                                                                                                                                                            |
+| `iceberg_s3_role_session_name` | An optional identifier for the assumed role session for auditing purposes.                                                                                                                           |
+| `iceberg_s3_role_arn`          | The Amazon Resource Name (ARN) of the role to assume. If provided instead of iceberg_s3_access_key_id and iceberg_s3_secret_access_key, temporary credentials will be fetched by assuming this role. |
+| `iceberg_s3_connect_timeout`   | Configure socket connection timeout, in seconds (default: `60`).                                                                                                                                     |
+
+The Iceberg Catalog Connector supports both REST Catalog and Hadoop Catalog endpoints. Hadoop Catalog endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog.
+
+Example using Hadoop Catalog with a local warehouse:
+
+```yaml
+catalogs:
+  - from: iceberg:file:///tmp/hadoop_warehouse/
+    name: local_hadoop
+```
+
+Example using Hadoop Catalog with S3:
+
+```yaml
+catalogs:
+  - from: iceberg:s3a://my-bucket/hadoop_warehouse/
+    name: s3_hadoop
+```
 
 ## Cookbook
 
