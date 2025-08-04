@@ -32,4 +32,4 @@ pagination_next: null
 - [**Edge-Enabled AI Applications and Agents**](/use-cases/ai/edge-ai): Deploys AI applications across cloud and edge for low-latency decisions in security IoT use cases.
 - [**Tool-Augmented AI with Model Context Protocol Server**](/use-cases/mcp-server): Extends AI with custom tools via MCP server in finserv, integrating domain-specific APIs for enhanced functionality.
 - [**Federated MCP Client for Distributed Tool Ecosystems**](/use-cases/federated-mcp-client): Federates external MCP servers for scalable, tool-driven AI applications in security, enhancing threat analysis.
-- [**Agentic AI Applications and Agents**](/use-cases/agentic-ai-apps): Builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making.
+- [**Agentic AI Applications and Agents**](/use-cases/ai/agentic-apps): Builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making.
