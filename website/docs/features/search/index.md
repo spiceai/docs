@@ -13,71 +13,67 @@ tags:
 
 import DocCardList from '@theme/DocCardList';
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 For a practical walkthrough, see the: [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
-Spice provides advanced search capabilities that go beyond standard SQL queries, offering both traditional SQL search patterns, semantic (vector-based) search, and full text search functionality.
+Spice provides robust search capabilities enabling developers to query datasets beyond traditional SQL, including semantic (vector-based) search, full-text keyword search, and hybrid search methods.
 
-## Vector Search
+## Search Methods Overview
 
-Vector-based search requires configured data sources (connectors or accelerators) in addition to embeddings. These embeddings convert data to numerical representations that can be used by machine learning models, facilitating similarity comparisons for more advanced search capabilities.
+Spice supports three primary search methods:
 
-Configuring embeddings is required for vector-based search. For detailed instructions on setting up embeddings, refer to [Configured Embeddings](/docs/components/embeddings).
+- **Vector Search**: Semantic search using embeddings to retrieve data by meaning and similarity.
+- **Full-Text Search**: Keyword-driven search optimized for text data retrieval.
+- **SQL Search**: Traditional SQL queries for precise and structured searches.
 
-For performing vector-based search, see [Vector-Based Search](/docs/features/search/vector-search).
+### Vector Search
 
-## Full Text Search
+Vector search uses embeddings—numerical representations of data—to identify similar or related content based on semantic meaning.
 
-Full text search provides keyword based retrieval for a dataset. Search specific indexes are required to be added to the underlying columns of importance. This provides an efficient lookup and counting of words within rows and the table more broadly.
+**Requirements:**
 
-For performing full text search, see [Full text Search](/docs/features/search/full-text).
+- Configured data connectors or accelerators
+- Defined embeddings for datasets
 
-## Hybrid Search
+**Getting Started:**
 
-Spice supports hybrid search utilizing [full-text search](#full-text-search) and [vector search](#vector-search) functionality.
+- [Configure Embeddings](/docs/components/embeddings)
+- [Performing Vector Search](/docs/features/search/vector-search)
 
-The `v1/search` endpoint will automatically use hybrid search when configured with both full-text & vector search.
-
-## SQL Search
-
-SQL-based search requires the integration of data connectors or data accelerators. For more information on setting up data connectors and accelerators, see [Data Connectors](/docs/components/data-connectors) and [Data Accelerators](/docs/components/data-accelerators).
-
-Spice supports basic search patterns directly through SQL, leveraging its SQL query features. For example, you can perform a text search within a table using SQL's `LIKE` clause:
-
-```sql
-SELECT id, text_column
-FROM my_table
-WHERE
-    LOWER(text_column) LIKE '%search_term%'
-  AND
-    date_published > '2021-01-01'
-```
-
-### SQL UDTFs
-
-Similar to the above mentioned [vector search](#vector-search) and [full text search](#full-text-search), Spice supports SQL equivalent user-defined table functions (UDTF).
-
-To perform a vector search
+**Example SQL Vector Search:**
 
 ```sql
 SELECT id, extra_column, score
 FROM vector_search(my_table, 'search query')
 WHERE date_published > '2021-01-01'
-ORDER BY score desc
+ORDER BY score DESC
 LIMIT 5
 ```
 
-For an entire specification of the `vector_search` UDTF, see [Vector-Based Search](/docs/features/search/vector-search#sql-udtf).
+For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](/docs/features/search/vector-search#sql-udtf).
 
-Similarly, for full text search use the `text_search` UDTF
+### Full-Text Search
+
+Full-text search efficiently retrieves records matching specific keywords.
+
+**Requirements:**
+
+- Indexed columns within datasets
+
+**Getting Started:**
+
+- [Configure Full-Text Indexes](/docs/features/search/full-text#configuration)
+- [Performing Full-Text Search](/docs/features/search/full-text)
+
+**Example SQL Full-Text Search:**
 
 ```sql
 SELECT id, extra_column, score
 FROM text_search(my_table, 'search terms')
 WHERE date_published > '2021-01-01'
-ORDER BY score desc
+ORDER BY score DESC
 LIMIT 5
 ```
 
-For an entire specification of the `text_search` UDTF, see [Full text Search](/docs/features/search/full-text#sql-udtf).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#sql-udtf).
 
 <DocCardList />
