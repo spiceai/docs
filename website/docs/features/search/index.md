@@ -61,8 +61,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Configure Full-Text Indexes](/docs/features/search/full-text#configuration)
-- [Performing Full-Text Search](/docs/features/search/full-text)
+- [Full-Text Search Docs](./full-text.md)
 
 **Example SQL Full-Text Search:**
 
