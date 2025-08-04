@@ -73,6 +73,6 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#sql-udtf).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#searching-with-sql).
 
 <DocCardList />
