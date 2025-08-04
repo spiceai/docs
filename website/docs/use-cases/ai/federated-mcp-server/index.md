@@ -30,6 +30,5 @@ A security operations center federates external MCP servers for threat intellige
 
 ### Learn More
 
-- **MCP Documentation**: [Documentation](/docs/features/mcp).
 - **Federated SQL Queries**: [Documentation](/features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
 - **Vector and Hybrid Search**: [Documentation](/features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
