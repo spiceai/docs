@@ -242,6 +242,10 @@ rag:
   label: 'rag'
   permalink: '/rag'
   description: 'Retrieval-Augmented Generation (RAG) related topics and usage'
+redshift:
+  label: 'redshift'
+  permalink: '/redshift'
+  description: 'Redshift notes and updates'
 release:
   label: 'release'
   permalink: '/releases'
