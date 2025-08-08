@@ -24,7 +24,6 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 | `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
 | `github:github.com/<organization>/members`     | Query members from an organization                        |
 
-
 ### `name`
 
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
@@ -60,6 +59,35 @@ With GitHub App Installation authentication, the connector's functionality depen
 | `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
 | `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
 | `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
+
+## Advanced Configuration
+
+When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_max_concurrent_connections` runtime parameter. This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+
+Example Configuration:
+
+```yaml
+# ... other configuration ...
+runtime:
+  params:
+    github_max_concurrent_connections: 5 # Defaults to 10
+
+datasets:
+  - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
+    name: spiceai.files
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+      include: '**/*.txt'
+    acceleration:
+      enabled: true
+  - from: github:github.com/<owner>/<repo>/issues
+    name: spiceai.issues
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+    acceleration:
+      enabled: true
+# ... other configuration ...
+```
 
 ## Filter Push Down
 
