@@ -39,7 +39,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 #### GitHub App Installation
 
-GitHub Apps provide a secure and scalable way to integrate with GitHub's API. [Learn more](https://docs.github.com/en/apps).
+GitHub Apps provide a secure and scalable way to integrate with GitHub's API, and works well when interacting with one or more GitHub organizations. [Learn more](https://docs.github.com/en/apps).
 
 | Parameter Name           | Description                                                                    |
 | ------------------------ | ------------------------------------------------------------------------------ |
