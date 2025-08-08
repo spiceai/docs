@@ -47,6 +47,21 @@ GitHub Apps provide a secure and scalable way to integrate with GitHub's API. [L
 | `github_private_key`     | Required. Specifies the private key for GitHub App Installation auth mode.     |
 | `github_installation_id` | Required. Specifies the installation ID for GitHub App Installation auth mode. |
 
+The client ID and private key are generated when creating the GitHub app. 
+
+**Getting the Installation ID**
+
+If the app is installed on a GitHub organization:
+- Visit the settings page for the organization (`https://github.com/organizations/<ORG>/settings/installations`)
+- Click "Configure" on the app
+- The URL of the page will be of the form `https://github.com/organizations/<ORG>/settings/installations/<INSTALLATION_ID>`
+
+If the app is installed on a GitHub user:
+- Visit [the settings page](https://github.com/settings/installations)
+- Click "Configure" on the app
+- The URL of the page will be of the form `https://github.com/settings/installations/<INSTALLATION_ID>`
+
+
 :::note[Limitations]
 
 With GitHub App Installation authentication, the connector's functionality depends on the permissions and scope of the GitHub App. Ensure that the app is installed on the repositories and configured with content, commits, issues and pull permissions to allow the corresponding datasets to work.
