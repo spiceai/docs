@@ -38,6 +38,10 @@ azure:
   label: 'azure'
   permalink: '/azure'
   description: 'Microsoft Azure related topics and usage'
+bedrock:
+  label: 'bedrock'
+  permalink: '/bedrock'
+  description: 'Amazon Bedrock related topics and usage'
 caching:
   label: 'caching'
   permalink: '/caching'
@@ -138,6 +142,10 @@ gpu:
   label: 'gpu'
   permalink: '/gpu'
   description: 'Graphics Processing Unit related topics and usage'
+hadoop:
+  label: 'hadoop'
+  permalink: '/hadoop'
+  description: 'Hadoop related topics and usage'
 hashing:
   label: 'hashing'
   permalink: '/hashing'
@@ -234,6 +242,10 @@ rag:
   label: 'rag'
   permalink: '/rag'
   description: 'Retrieval-Augmented Generation (RAG) related topics and usage'
+redshift:
+  label: 'redshift'
+  permalink: '/redshift'
+  description: 'Redshift notes and updates'
 release:
   label: 'release'
   permalink: '/releases'
