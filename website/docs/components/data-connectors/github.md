@@ -38,13 +38,28 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 #### GitHub App Installation
 
-GitHub Apps provide a secure and scalable way to integrate with GitHub's API. [Learn more](https://docs.github.com/en/apps).
+GitHub Apps provide a secure and scalable way to integrate with GitHub's API, and works well when interacting with one or more GitHub organizations. [Learn more](https://docs.github.com/en/apps).
 
 | Parameter Name           | Description                                                                    |
 | ------------------------ | ------------------------------------------------------------------------------ |
 | `github_client_id`       | Required. Specifies the client ID for GitHub App Installation auth mode.       |
 | `github_private_key`     | Required. Specifies the private key for GitHub App Installation auth mode.     |
 | `github_installation_id` | Required. Specifies the installation ID for GitHub App Installation auth mode. |
+
+The client ID and private key are generated when creating the GitHub app. 
+
+**Getting the Installation ID**
+
+If the app is installed on a GitHub organization:
+- Visit the settings page for the organization (`https://github.com/organizations/<ORG>/settings/installations`)
+- Click "Configure" on the app
+- The URL of the page will be of the form `https://github.com/organizations/<ORG>/settings/installations/<INSTALLATION_ID>`
+
+If the app is installed on a GitHub user:
+- Visit [the settings page](https://github.com/settings/installations)
+- Click "Configure" on the app
+- The URL of the page will be of the form `https://github.com/settings/installations/<INSTALLATION_ID>`
+
 
 :::note[Limitations]
 
