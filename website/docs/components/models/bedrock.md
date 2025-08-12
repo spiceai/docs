@@ -11,12 +11,12 @@ Amazon Bedrock provides access to a range of foundation models for generative AI
 
 The following model IDs are supported:
 
-- `us.amazon.nova-lite-v1:0`
-- `us.amazon.nova-micro-v1:0`
-- `us.amazon.nova-premier-v1:0`
-- `us.amazon.nova-pro-v1:0`
+- `amazon.nova-lite-v1:0`
+- `amazon.nova-micro-v1:0`
+- `amazon.nova-premier-v1:0`
+- `amazon.nova-pro-v1:0`
 
-Refer to the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details on available models.
+Refer to the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details on available models and cross-region inference profiles.
 
 To request support for a model, file a GitHub Issue or ask us on Discord.
 
@@ -39,12 +39,13 @@ models:
 ### Parameters
 
 | Parameter                      | Description                                                                                                                                                                         | Default                                                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --- |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `aws_region`                   | AWS region for Bedrock API requests.                                                                                                                                                | -                                                                                           |
 | `aws_access_key_id`            | AWS access key ID.                                                                                                                                                                  | -                                                                                           |
 | `aws_secret_access_key`        | AWS secret access key.                                                                                                                                                              | -                                                                                           |
-| `bedrock_guardrail_identifier` | Identifier for the guardrail. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html). Pattern: `(([a-z0-9]+) | (arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))`. Length: 0-2048. | -   |
-| `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7})                                                                                                                                     | (DRAFT))`                                                                                   | -   |
+| `aws_secret_access_key`        | AWS secret access key.                                                                                                                                                              | -                                                                                           |
+| `bedrock_guardrail_identifier` | Identifier for the guardrail. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html). Pattern: `(([a-z0-9]+) \| (arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))`. Length: 0-2048. | -   |
+| `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7}) \| (DRAFT))`                                                                                   | -   |
 | `bedrock_trace`                | Trace behavior for the guardrail. Valid values: `enabled`, `disabled`, `enabled_full`. Default: `disabled`.                                                                         | disabled                                                                                    |
 
 ### OpenAI-Compatible Overrides
