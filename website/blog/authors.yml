@@ -89,3 +89,13 @@ break-the-build:
     github: break-the-build
     x: break_the_build
     linkedin: dan-luedke
+
+kczimm:
+  name: Kevin Zimmerman
+  title: Principal Software Engineer at Spice AI
+  url: https://github.com/kczimm
+  image_url: https://github.com/kczimm.png
+  page: true
+  socials:
+    github: kczimm
+    linkedin: kevinczimmerman
