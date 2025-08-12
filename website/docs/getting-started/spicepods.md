@@ -6,8 +6,7 @@ description: 'An introduction to Spicepods'
 pagination_next: null
 tags:
   - getting-started
-  - spicepods
-  - introduction
+  - spicepod
 ---
 
 ## Overview

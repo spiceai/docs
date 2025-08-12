@@ -18,18 +18,17 @@ Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
+| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-line              |
+| `mysql`                            | MySQL                                 | Stable            |                              |
+| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
+| `file`                             | File                                  | Stable            | Parquet, CSV                 |
+| `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
+| `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
+| `spice.ai`                         | [Spice.ai OSS & Cloud][spiceai]       | Stable            | Arrow Flight                 |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Stable            | S3/Delta Lake                |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
-| `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
-| `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
-| `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
-| `postgres`                         | PostgreSQL                            | Stable            |                              |
-| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
-| `mysql`                            | MySQL                                 | Stable            |                              |
-| `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
-| `spice.ai`                         | [Spice.ai][spiceai]                   | Release Candidate | Arrow Flight                 |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
@@ -38,15 +37,16 @@ Supported Data Connectors include:
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
-| `clickhouse`                       | Clickhouse                            | Alpha             |                              |
-| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
-| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `glue`                             | [Glue][glue]                          | Alpha             | Iceberg, Parquet, CSV        |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
+| `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
+| `clickhouse`                       | Clickhouse                            | Alpha             |                              |
+| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 | `mongodb`                          | MongoDB                               | Roadmap           |                              |
 
@@ -58,6 +58,7 @@ Supported Data Connectors include:
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
+[ODPIC]: https://oracle.github.io/odpi/
 
 ## Object Store File Formats
 
