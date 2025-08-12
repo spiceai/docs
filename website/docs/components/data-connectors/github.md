@@ -2,7 +2,7 @@
 title: 'GitHub Data Connector'
 sidebar_label: 'GitHub Data Connector'
 description: 'GitHub Data Connector Documentation'
-tags: ['data-connector', 'github', 'sql', 'api', 'integration']
+tags: ['data-connectors', 'github', 'sql', 'api', 'integration']
 ---
 
 The GitHub Data Connector enables federated SQL queries on various GitHub resources such as files, issues, pull requests, and commits by specifying `github` as the selector in the `from` value for the dataset.
@@ -23,7 +23,6 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 | `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository                           |
 | `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
 | `github:github.com/<organization>/members`     | Query members from an organization                        |
-
 
 ### `name`
 
@@ -75,6 +74,35 @@ With GitHub App Installation authentication, the connector's functionality depen
 | `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
 | `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
 | `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
+
+## Advanced Configuration
+
+When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_max_concurrent_connections` runtime parameter. This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+
+Example Configuration:
+
+```yaml
+# ... other configuration ...
+runtime:
+  params:
+    github_max_concurrent_connections: 5 # Defaults to 10
+
+datasets:
+  - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
+    name: spiceai.files
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+      include: '**/*.txt'
+    acceleration:
+      enabled: true
+  - from: github:github.com/<owner>/<repo>/issues
+    name: spiceai.issues
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+    acceleration:
+      enabled: true
+# ... other configuration ...
+```
 
 ## Filter Push Down
 

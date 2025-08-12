@@ -11,17 +11,21 @@ tags:
 
 > 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
-Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches. The runtime supports both:
+Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches.
 
-1. Local embedding models, e.g. [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
-2. Remote embedding providers, e.g. [OpenAI](https://platform.openai.com/docs/api-reference/embeddings/create).
+## Embedding Models
+
+Spice supports two types of embedding providers:
+
+- **Local embedding models** e.g., [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+- **Remote embedding services** e.g., [OpenAI Embeddings API](https://platform.openai.com/docs/api-reference/embeddings/create).
 
 Embedding models are defined in the `spicepod.yaml` file as top-level components.
 
 ```yaml
 embeddings:
-  - from: openai
-    name: remote_service
+  - name: openai_embeddings
+    from: openai
     params:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 
@@ -29,7 +33,9 @@ embeddings:
     from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 ```
 
-Datasets can be augmented with embeddings targeting specific columns, to enable search capabilities through similarity searches.
+## Configuring Datasets for Embeddings
+
+To enable vector search, specify embeddings for the dataset columns in `spicepod.yaml`:
 
 ```yaml
 datasets:
@@ -42,13 +48,17 @@ datasets:
     columns:
       - name: body
         embeddings:
-          - from: local_embedding_model # Embedding model used for this column
+          - from: local_embedding_model
 ```
 
-By defining embeddings on the `body` column, Spice is now configured to execute similarity searches on the dataset.
+This configuration instructs Spice to create embeddings from the `body` column, enabling similarity searches on body content.
+
+## Performing a Vector Search
+
+Execute similarity searches using Spice's HTTP API:
 
 ```shell
-curl -XPOST http://localhost:8090/v1/search \
+curl -X POST http://localhost:8090/v1/search \
   -H 'Content-Type: application/json' \
   -d '{
     "datasets": ["spiceai.issues"],
@@ -59,18 +69,14 @@ curl -XPOST http://localhost:8090/v1/search \
   }'
 ```
 
-For more details, see the [API reference for /v1/search](/docs/api/HTTP/post-search).
+For detailed API documentation, see [Search API Reference](/docs/api/HTTP/post-search).
 
-Spice also supports vector search on datasets with preexisting embeddings. See [below](/docs/components/embeddings#passthrough-embeddings) for compatibility details.
+## Retrieving Full Documents
 
-### Document Retrieval
-
-When performing searches on datasets with chunking enabled, Spice returns the most relevant chunk for each match. To retrieve the full content of a column, include the embedding column in the `additional_columns` list.
-
-For example:
+If the dataset uses chunking, Spice returns relevant chunks. To retrieve entire documents, include the embedding column in `additional_columns`:
 
 ```shell
-curl -XPOST http://localhost:8090/v1/search \
+curl -X POST http://localhost:8090/v1/search \
   -H 'Content-Type: application/json' \
   -d '{
     "datasets": ["spiceai.issues"],
@@ -111,48 +117,51 @@ Response:
 }
 ````
 
-### Pre-Existing Embeddings
+## SQL UDTF
 
-Datasets that already include embeddings can utilize the same functionalities (e.g., vector search) as those augmented with embeddings using Spice. To ensure compatibility, the dataset must:
+The embedding index can also be used to perform search in SQL, via a user-defined table function (UDTF).
 
-1. Adhere to naming and type constraints for the underlying and embeddings columns.
-2. Define the embedding model to use for the column in the `spicepod.yaml` file. This isn't used to compute embedding on data in the table, but to embed the query text for similarity search operations. Like above, this can be done in the dataset component:
-
-```yaml
-datasets:
-  - from: github:github.com/spiceai/spiceai/issues
-    name: spiceai.issues
-    acceleration:
-      enabled: true
-    columns:
-      - name: body
-        embeddings:
-          - from: local_embedding_model # defined in `embeddings` section
+```sql
+SELECT id, title, score
+FROM vector_search('sales', 'cutting edge AI')
+ORDER BY score DESC
+LIMIT 5;
 ```
 
-#### Constraints
+**SQL Function Signature of `vector_search`:**
 
-1. **Underlying Column Presence:**
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
+```sql
+vector_search(
+  table STRING,          -- Dataset name (required)
+  query STRING,          -- Search text (required)
+  col STRING,            -- Column name (optional if single embedding column)
+  limit INTEGER,         -- Results limit (default: all)
+  include_score BOOLEAN  -- Include relevance scores (default: TRUE)
+)
+RETURNS TABLE                -- The original table and:
+                             --  - A FLOAT column `score` (if `include_score`).
+```
 
-2. **Embeddings Column Naming Convention:**
-   - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
+:::warning[Limitations]
 
-3. **Embeddings Column Data Type:**
-   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
-     1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
+- `vector_search` UDTF does not support chunked embedding columns.
 
-4. **Offset Column for Chunked Data:**
-   - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
-     1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
-     - _For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively._
+:::
 
-By following these guidelines, you can ensure that your dataset with pre-existing embeddings is fully compatible with the vector search and other embedding functionalities provided by Spice.
+## Using Existing Embeddings
 
-#### Example
+Spice supports vector searches on datasets with pre-existing embeddings. Ensure the dataset meets these requirements:
 
-A table `sales` with an `address` column and corresponding embedding column(s).
+1. **Column Naming**: The embedding column name must be `<original_column_name>_embedding`.
+2. **Data Types**: Embedding columns must use Arrow types:
+   - Non-chunked: `FixedSizeList[Float32|Float64, N]`
+   - Chunked: `List[FixedSizeList[Float32|Float64, N]]`
+3. **Offset Columns**: For chunked embeddings, an additional offset column (`<column_name>_offsets`) is required:
+   - Type: `List[FixedSizeList[Int32, 2]]`, indicating chunk boundaries.
+
+Example dataset structure (`sales` table):
+
+Non-chunked:
 
 ```shell
 sql> describe sales;
@@ -177,7 +186,7 @@ sql> describe sales;
 +-------------------+-----------------------------------------+-------------+
 ```
 
-The same table if it was chunked:
+Chunked:
 
 ```shell
 sql> describe sales;
@@ -213,34 +222,26 @@ sql> describe sales;
 +-------------------+-----------------------------------------+-------------+
 ```
 
-### SQL UDTF
+### Constraints
 
-The embedding index can also be used to perform search in SQL, via a user-defined table function (UDTF).
+1. **Underlying Column Presence:**
+   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
 
-```sql
-SELECT id, extra_column, score
-FROM vector_search(my_table, 'search query')
-WHERE date_published > '2021-01-01'
-ORDER BY score desc
-LIMIT 5
-```
+2. **Embeddings Column Naming Convention:**
+   - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
 
-The function signature of `vector_search` is
+3. **Embeddings Column Data Type:**
+   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
+     1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
+     2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
-```sql
-vector_search(
-  table STRING,              -- Dataset name (required)
-  query STRING,              -- Search query expression (required)
-  col STRING,                -- Column name to search in (required if multiple embedding columns exist)
-  limit INTEGER,             -- Maximum number of results to return (optional, default: all)
-  include_score BOOLEAN      -- Whether to include relevance score (optional, default: TRUE)
-)
-RETURNS TABLE                -- The original table and:
-                             --  - A FLOAT column `score` (if `include_score`).
-```
+4. **Offset Column for Chunked Data:**
+   - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
+     1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
+     - _For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively._
 
-:::warning[Limitations]
+By following these guidelines, you can ensure that your dataset with pre-existing embeddings is fully compatible with the vector search and other embedding functionalities provided by Spice.
 
-- `vector_search` UDTF does not support chunked embedding columns.
+### Example
 
-:::
+A table `sales` with an `address` column and corresponding embedding column(s).
