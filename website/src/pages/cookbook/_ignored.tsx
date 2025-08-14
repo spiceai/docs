@@ -244,6 +244,7 @@ const recipes: RecipeData[] = [
     description: 'Connect to and query GitHub data.',
     path: '/github/README.md',
     tags: ['connector', 'github', 'query']
+    videoUrl: 'https://youtu.be/F4PEJ8DO1XI'
   },
   {
     title: 'GraphQL Connector',
