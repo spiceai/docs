@@ -71,6 +71,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_temperature`      | Set the default temperature to use on chat completions.                                            | -                           |
 | `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].              | -                           |
 | `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model. | -                           |
+| `openai_usage_tier` | The [OpenAI usage tier](https://platform.openai.com/settings/organization/limits) for the account. This parameter sets the maximum number of concurrent requests based on OpenAI's published limits per tier. Valid values are `free`, `tier1`, `tier2`, `tier3`, `tier4`, or `tier5`. | `tier1` |
 
 [tools]: ../../features/large-language-models/tools.md
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
