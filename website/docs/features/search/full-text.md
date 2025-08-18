@@ -50,7 +50,7 @@ Here's how you can query using SQL:
 
 ```sql
 SELECT id, title, score
-FROM text_search('doc.pulls', 'search keywords', 'body')
+FROM text_search(doc.pulls, 'search keywords', body)
 ORDER BY score DESC
 LIMIT 5;
 ```
