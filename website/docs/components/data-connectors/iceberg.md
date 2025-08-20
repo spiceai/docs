@@ -12,7 +12,7 @@ Iceberg catalogs can be of several types:
 
 - **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
-- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is less common and typically used for local development or legacy deployments.
+- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is typically used for local development or legacy deployments.
 
 :::warning[Hadoop-style Catalogs]
 
@@ -48,7 +48,7 @@ datasets:
     name: glue_table
 ```
 
-Hadoop-style catalogs (less common) use file-based paths such as `file://`, `s3://`, or `s3a://`. For these, specify the warehouse path as the table location. This is typically only used for local development or legacy setups.
+Hadoop-style catalogs use file-based paths such as `file://`, `s3://`, or `s3a://`. For these, specify the warehouse path as the table location. This is typically only used for local development or legacy setups.
 
 Example (Hadoop Catalog, local):
 

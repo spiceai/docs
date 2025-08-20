@@ -19,7 +19,7 @@ Iceberg catalogs can be of several types:
 
 - **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
-- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is less common and typically used for local development or legacy deployments.
+- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is typically used for local development or legacy deployments.
 
 :::warning[Hadoop-style Catalogs]
 For production and cloud environments, REST and AWS Glue catalogs are recommended. Hadoop-style catalogs are supported but less common and not recommended for most new deployments.
@@ -125,7 +125,7 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_arn`          | The Amazon Resource Name (ARN) of the role to assume. If provided instead of iceberg_s3_access_key_id and iceberg_s3_secret_access_key, temporary credentials will be fetched by assuming this role. |
 | `iceberg_s3_connect_timeout`   | Configure socket connection timeout, in seconds (default: `60`).                                                                                                                                     |
 
-The Iceberg Catalog Connector supports both REST Catalog and Hadoop-style Catalog endpoints. Hadoop-style endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog. This approach is less common and typically used for local development or legacy deployments.
+The Iceberg Catalog Connector supports both REST Catalog and Hadoop-style Catalog endpoints. Hadoop-style endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog. This approach is typically used for local development or legacy deployments.
 
 Example using Hadoop Catalog with a local warehouse:
 
