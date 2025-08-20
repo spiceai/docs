@@ -11,7 +11,19 @@ tags:
   - data-connectors
 ---
 
-Connect to an [Iceberg](https://iceberg.apache.org/) catalog provider and query Iceberg tables.
+The Iceberg Catalog Connector helps connect Spice to an [Apache Iceberg](https://iceberg.apache.org/) catalog, making Iceberg tables and schemas available for federated SQL queries. Every Iceberg table must be registered in a catalog, which manages table metadata and access. Using a catalog connector is the recommended approach for working with multiple Iceberg datasets, as it helps organize tables and schemas efficiently and mirrors the structure of the source catalog provider.
+
+For connecting to a single Iceberg table, see the [Iceberg Data Connector documentation](/docs/components/data-connectors/iceberg.md). For AWS Glue-based catalogs, see the [AWS Glue Catalog Connector documentation](/docs/components/catalogs/glue.md).
+
+Iceberg catalogs can be of several types:
+
+- **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
+- **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
+- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is typically used for local development or legacy deployments.
+
+:::warning[Hadoop-style Catalogs]
+For production and cloud environments, REST and AWS Glue catalogs are recommended. Hadoop-style catalogs are supported but less common and not recommended for most new deployments.
+:::
 
 ## Configuration
 
@@ -35,7 +47,7 @@ catalogs:
       iceberg_s3_role_session_name: my-session # Optional. Session name to use when assuming the IAM role.
       iceberg_s3_connect_timeout: 60 # Optional. Connection timeout for the S3-compatible endpoint (default: 60).
 
-  # AWS Glue Catalog
+  # AWS Glue Catalog (see also the [AWS Glue Catalog Connector documentation](/docs/components/catalogs/glue.md))
   - from: iceberg:https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/123456789012/namespaces
     name: glue
     params:
@@ -44,9 +56,9 @@ catalogs:
 
 ## `from`
 
-The `from` field is used to specify the catalog provider. For Iceberg, use `iceberg:<namespace_path>`. The `namespace_path` is the URL to the Iceberg namespace in the catalog provider to load the tables from. It is formatted as `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>`.
+The `from` field specifies the catalog provider. For Iceberg, use `iceberg:<namespace_path>`, where `namespace_path` is the URL to the Iceberg namespace in the catalog provider. The format is `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>`.
 
-For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is your AWS account ID.
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is your AWS account ID. See the [AWS Glue Catalog Connector documentation](/docs/components/catalogs/glue.md) for more details.
 
 The selected namespace must have sub-namespaces where the tables are stored.
 
@@ -80,6 +92,8 @@ A valid `from` value would be `iceberg:https://iceberg-catalog-host.com/v1/names
 
 For loading a multi-part namespace, separate the namespace parts with the `%1F` character. For example, `/v1/namespaces/unity%1Fvery%1Fnested` would load the `foobar` table from the `unity/very/nested/namespace` namespace as `<name>.namespace.foobar`.
 
+To connect to a single Iceberg table directly, see the [Iceberg Data Connector documentation](/docs/components/data-connectors/iceberg.md).
+
 ## `name`
 
 The `name` field is used to specify the name of the catalog in Spice. Tables from the Iceberg catalog will be available in the schema with this name in Spice. The schema hierarchy of the external catalog is preserved in Spice.
@@ -111,7 +125,7 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_arn`          | The Amazon Resource Name (ARN) of the role to assume. If provided instead of iceberg_s3_access_key_id and iceberg_s3_secret_access_key, temporary credentials will be fetched by assuming this role. |
 | `iceberg_s3_connect_timeout`   | Configure socket connection timeout, in seconds (default: `60`).                                                                                                                                     |
 
-The Iceberg Catalog Connector supports both REST Catalog and Hadoop Catalog endpoints. Hadoop Catalog endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog.
+The Iceberg Catalog Connector supports both REST Catalog and Hadoop-style Catalog endpoints. Hadoop-style endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog. This approach is typically used for local development or legacy deployments.
 
 Example using Hadoop Catalog with a local warehouse:
 
