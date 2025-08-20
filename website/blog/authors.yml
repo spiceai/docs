@@ -79,13 +79,12 @@ sevenan:
     x: Sevvvnnn
     linkedin: qianqian-liu-5247251a9
 
-break-the-build:
-  name: Daniel Luedke
-  title: Product Marketing Manager at Spice AI
-  url: https://github.com/break-the-build
-  image_url: https://github.com/break-the-build.png
+kczimm:
+  name: Kevin Zimmerman
+  title: Principal Software Engineer at Spice AI
+  url: https://github.com/kczimm
+  image_url: https://github.com/kczimm.png
   page: true
   socials:
-    github: break-the-build
-    x: break_the_build
-    linkedin: dan-luedke
+    github: kczimm
+    linkedin: kevinczimmerman

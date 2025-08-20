@@ -16,7 +16,7 @@ models:
     params:
       openai_api_key: ${ secrets:OPENAI_API_KEY } # Required for official OpenAI models
       tools: auto # Optional. Connect the model to datasets via SQL query/vector search tools
-      system_prompt: "You are a helpful assistant." # Optional.
+      system_prompt: 'You are a helpful assistant.' # Optional.
 
       # Optional parameters
       endpoint: https://api.openai.com/v1 # Override to use a compatible provider (i.e. NVidia NIM)
@@ -25,7 +25,7 @@ models:
 
       # Override default chat completion request parameters
       openai_temperature: 0.1
-      openai_response_format: { "type": "json_object" }
+      openai_response_format: { 'type': 'json_object' }
 ```
 
 ## Configuration
