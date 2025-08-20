@@ -55,7 +55,9 @@ const config: Config = {
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: 'https://github.com/spiceai/docs/tree/trunk/website/'
+          editUrl: ({ docPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/website/docs/${docPath}`
+          }
         },
         blog: {
           path: 'blog',
