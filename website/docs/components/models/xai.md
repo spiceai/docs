@@ -15,7 +15,7 @@ Example:
 
 ```yaml
 models:
-  - from: xai:grok2-latest
+  - from: xai:grok4
     name: xai
     params:
       xai_api_key: ${secrets:SPICE_GROK_API_KEY}

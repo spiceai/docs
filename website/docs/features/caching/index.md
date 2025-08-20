@@ -5,10 +5,7 @@ description: 'Learn how to use Spice in-memory caching'
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
-tags:
-  - caching
-  - results caching
-  - cache control
+tags: [caching]
 ---
 
 Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
@@ -36,10 +33,10 @@ runtime:
 
 ## `caching` Parameters
 
-| Parameter name    | Optional | Description                                                    |
-| ----------------- | -------- | -------------------------------------------------------------- |
-| `sql_results`     | Yes      | Configures the Runtime cache for results from SQL queries.     |
-| `search_results`  | Yes      | Configures the Runtime cache for results from searches. |
+| Parameter name   | Optional | Description                                                |
+| ---------------- | -------- | ---------------------------------------------------------- |
+| `sql_results`    | Yes      | Configures the Runtime cache for results from SQL queries. |
+| `search_results` | Yes      | Configures the Runtime cache for results from searches.    |
 
 ## Common Caching Parameters
 
@@ -48,8 +45,8 @@ Every cache type (`sql_results`, `search_results`) supports the following parame
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
+| `max_size`          | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
 | `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
 | `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
@@ -66,9 +63,9 @@ Consider using `ahash` if maximum performance is most important, or where hashin
 
 In addition to the common caching parameters, `sql_results` also supports additional parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+| Parameter name   | Optional | Description                                                                                                                                   |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 
 ### Choosing a `cache_key_type`
 
@@ -141,8 +138,8 @@ You can control caching behavior for specific requests using HTTP headers. The `
 
 The following endpoints support the standard HTTP [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control):
 
-* SQL query (HTTP and Arrow Flight)
-* Search (HTTP)
+- SQL query (HTTP and Arrow Flight)
+- Search (HTTP)
 
 The [`no-cache` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) skips the cache for the current request but caches the results for future requests.
 
@@ -178,6 +175,14 @@ request
 // Send the request
 ```
 
+The cache can be controlled using JDBC properties. For example,
+
+```java
+Properties props = new Properties();
+props.setProperty("cache-control", "no-cache");
+Connection conn = DriverManager.getConnection("jdbc:arrow-flight-sql://localhost:50051", props);
+```
+
 ### `spice` CLI
 
 The `spice sql` and `spice search` commands accept a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
@@ -197,3 +202,84 @@ spice search --cache-control cache
 # Skip cache for this search, but cache the results for future searches
 spice search --cache-control no-cache
 ```
+
+## Custom Cache Keys
+
+Set the `Spice-Cache-Key` header to supply a custom cache key. When set, a supplied cache key takes precedence over `caching.sql_results.cache_key_type`.
+
+:::info[Info]
+A valid cache key consists of up to 128 alphanumeric characters (and the characters `-` and `_`).
+:::
+
+
+### HTTP Example
+
+Consider the case of two semantically equivalent queries:
+
+```
+Time: 0.0251325 seconds. 2 rows.
+sql> select * from users where org_id = 1;
++----+--------+-------+----------------+
+| id | org_id | name  | email          |
++----+--------+-------+----------------+
+| 1  | 1      | Jane  | jane@spice.ai  |
+| 2  | 1      | Sarah | sarah@spice.ai |
++----+--------+-------+----------------+
+
+Time: 0.008993042 seconds. 2 rows.
+sql> select * from users where split_part(email, '@', 2) = 'spice.ai';
++----+--------+-------+----------------+
+| id | org_id | name  | email          |
++----+--------+-------+----------------+
+| 1  | 1      | Jane  | jane@spice.ai  |
+| 2  | 1      | Sarah | sarah@spice.ai |
++----+--------+-------+----------------+
+```
+
+To share a cache key for these queries, set `Spice-Cache-Key`. The first request is a cache miss:
+
+```bash
+$ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select * from users where org_id = 1;"
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: Miss from spiceai
+results-cache-status: MISS
+vary: Spice-Cache-Key
+vary: origin, access-control-request-method, access-control-request-headers
+content-length: 119
+date: Thu, 24 Jul 2025 14:15:53 GMT
+
+[{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
+```
+
+The subsequent request with the different (but semantically equivalent) query is a cache hit:
+
+```bash
+$ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select * from users where split_part(email, '@', 2) = 'spice.ai';"
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: Hit from spiceai
+results-cache-status: HIT
+vary: Spice-Cache-Key
+vary: origin, access-control-request-method, access-control-request-headers
+content-length: 119
+date: Thu, 24 Jul 2025 14:18:00 GMT
+```
+
+:::warning[Note]
+When supplying a custom cache key, **ensure the semantic equivalence of queries**. For example, this is expected behavior:
+
+```bash
+$ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select 1"
+HTTP/1.1 200 OK
+content-type: application/json
+x-cache: Hit from spiceai
+results-cache-status: HIT
+vary: Spice-Cache-Key
+vary: origin, access-control-request-method, access-control-request-headers
+content-length: 119
+date: Thu, 24 Jul 2025 14:21:32 GMT
+
+[{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
+```
+:::

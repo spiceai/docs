@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 ---
 
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+
 Data sourced by Data Connectors with vector embedding columns can be indexed and efficiently searched using a vector engine.
 
 A vector engine will store all vector embeddings associated to columns in a dataset, provide efficient vector search operations and avoid unnecessary recomputation of embeddings.
@@ -18,16 +20,15 @@ datasets:
   - name: dataset_with_embeddings
     vectors:
       enabled: true
-
 ```
 
 For the complete reference specification see [datasets](/docs/reference/spicepod/datasets.md).
 
 Supported Vector engines:
 
-| Name         | Description                     |
-| ------------ | ------------------------------- |
-| [`s3_vectors`][s3vectors] | AWS S3 vectors     |
+| Name                      | Description    |
+| ------------------------- | -------------- |
+| [`s3_vectors`][s3vectors] | AWS S3 vectors |
 
 [s3vectors]: /docs/components/vectors/s3_vectors.md
 
