@@ -17,7 +17,7 @@ datasets:
     name: my_dataset
     params:
       mongodb_host: localhost
-      mongodb_tcp_port: 27017
+      mongodb_port: 27017
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
@@ -181,7 +181,7 @@ datasets:
     name: my_dataset
     params:
       mongodb_host: localhost
-      mongodb_tcp_port: 27017
+      mongodb_port: 27017
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
@@ -196,7 +196,7 @@ datasets:
     name: my_dataset
     params:
       mongodb_host: localhost
-      mongodb_tcp_port: 27017
+      mongodb_port: 27017
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
@@ -223,7 +223,7 @@ datasets:
     name: my_dataset
     params:
       mongodb_host: localhost
-      mongodb_tcp_port: 27017
+      mongodb_port: 27017
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
