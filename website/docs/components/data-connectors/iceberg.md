@@ -14,7 +14,10 @@ Iceberg catalogs can be of several types:
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
 - **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is less common and typically used for local development or legacy deployments.
 
-:::warning[Hadoop-style Catalogs] For production and cloud environments, REST and AWS Glue catalogs are recommended. Hadoop-style catalogs are supported but less common and not recommended for most new deployments.
+:::warning[Hadoop-style Catalogs]
+
+For production and cloud environments, REST and AWS Glue catalogs are recommended. Hadoop-style catalogs are supported but less common and not recommended for most new deployments.
+
 :::
 
 ```yaml
