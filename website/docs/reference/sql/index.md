@@ -66,6 +66,12 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Union Functions](scalar_functions.md#union-functions)
 - [Other Functions](scalar_functions.md#other-functions)
 
+### [Search](search.md)
+
+- [Vector Search (`vector_search`)](search.md#vector-search-vector_search)
+- [Full-Text Search (`text_search`)](search.md#full-text-search-text_search)
+- [Lexical Search: LIKE, =, and Regex](search.md#lexical-search-like--and-regex)
+
 ### [Prepared Statements](prepared_statements.md)
 
 - [Positional Arguments](prepared_statements.md#positional-arguments)
