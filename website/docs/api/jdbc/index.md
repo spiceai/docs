@@ -45,7 +45,7 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 - In the DBeaver application menu bar, open the "Database" menu and choose: "Driver Manager"
 - Click the "New" button and follow instructions to add JDBC `.jar` file.
 
-[Full instruction](/docs/clients/DBeaver)
+[Full instruction](/docs/clients/dbeaver)
 
 ## Configure JDBC connection
 
