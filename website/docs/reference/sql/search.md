@@ -112,17 +112,12 @@ Returns rows where the column exactly matches the value.
 
 ### Regex Filtering
 
-```sql
-SELECT * FROM my_table WHERE column ~ 'pattern';
-```
-
-- `~` operator matches the column against a regular expression pattern.
-- Use `!~` for negation.
+Spice SQL does not support the `~` or `!~` operators for regular expression matching. Instead, use scalar functions such as `regexp_like`, `regexp_match`, and `regexp_replace` for regex-based filtering. For details and examples, see the [Scalar Functions documentation](/docs/reference/sql/scalar_functions#regular-expression-functions).
 
 #### Example
 
 ```sql
-SELECT * FROM my_table WHERE column ~ '^spice.*ai$';
+SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 ```
 
 ---
