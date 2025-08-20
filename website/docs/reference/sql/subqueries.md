@@ -3,14 +3,12 @@ title: 'Subqueries'
 sidebar_label: 'Subqueries'
 pagination_prev: 'reference/sql/operators'
 pagination_next: 'reference/sql/explain'
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 :::info
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
 :::
-
-# Subqueries
 
 A subquery, also known as an inner query or nested query, is a query inside another query. Subqueries can appear in the `SELECT`, `FROM`, `WHERE`, and `HAVING` clauses. The examples below reference these sample tables:
 
