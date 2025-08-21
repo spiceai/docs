@@ -65,7 +65,7 @@ The DynamoDB data connector supports the following configuration parameters:
 | `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
 | `dynamodb_aws_session_token` | Optional. AWS session token for authentication |
 
-### Credential Sources
+### Authentication
 
 If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
 
