@@ -36,10 +36,10 @@ embeddings:
 | Parameter                          | Description                                                                                                                                                                 | Example Value                                                                        |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `s3_vectors_arn`                   | The S3 vectors index to use. Incompatible with `s3_vectors_bucket` and `s3_vectors_index`.                                                                                  | `arn:aws:s3vectors:123456654321/bucket/a-bucket/index/index-of-important-embeddings` |
-| `s3_vectors_aws_access_key_id`     | The access key ID for the S3 vectors index                                                                                                                                  | -                                                                                    |
+| `s3_vectors_aws_access_key_id`     | Optional. The access key ID for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                                  | -                                                                                    |
 | `s3_vectors_aws_region`            | The AWS region for the S3 vectors index.                                                                                                                                    | `us-east-1`                                                                          |
-| `s3_vectors_aws_secret_access_key` | The secret access key for the S3 vectors index                                                                                                                              | -                                                                                    |
-| `s3_vectors_aws_session_token`     | Session token for the S3 vectors index.                                                                                                                                     | -                                                                                    |
+| `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                              | -                                                                                    |
+| `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                                     | -                                                                                    |
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
 | `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
 
@@ -47,6 +47,7 @@ embeddings:
 
 - `s3_vectors_index` and `s3_vectors_arn` specify a single index for the dataset and therefore should not be used with a dataset containing more than one embedding column.
 - S3 Vectors uses approximate nearest neighbor (ANN) algorithms for performance, providing probabilistically closest results.
+
   :::
 
 ## Overview
@@ -191,6 +192,119 @@ FULL OUTER JOIN title_results ON body_results.review_id = title_results.review_i
 ORDER BY combined_score DESC
 LIMIT 5;
 ```
+
+## Authentication
+
+If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
+
+1. **Environment Variables**:
+   - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+   - `AWS_SESSION_TOKEN` (if using temporary credentials)
+
+2. **Shared AWS Config/Credentials Files**:
+   - Config file: `~/.aws/config` (Linux/Mac) or `%UserProfile%\.aws\config` (Windows)
+   - Credentials file: `~/.aws/credentials` (Linux/Mac) or `%UserProfile%\.aws\credentials` (Windows)
+   - The `AWS_PROFILE` environment variable can be used to specify a named profile, otherwise the `[default]` profile is used.
+   - Supports both static credentials and SSO sessions
+   - Example credentials file:
+
+     ```ini
+     # Static credentials
+     [default]
+     aws_access_key_id = YOUR_ACCESS_KEY
+     aws_secret_access_key = YOUR_SECRET_KEY
+
+     # SSO profile
+     [profile sso-profile]
+     sso_start_url = https://my-sso-portal.awsapps.com/start
+     sso_region = us-west-2
+     sso_account_id = 123456789012
+     sso_role_name = MyRole
+     region = us-west-2
+     ```
+
+   :::tip
+   To set up SSO authentication:
+   1. Run `aws configure sso` to configure a new SSO profile
+   2. Use the profile by setting `AWS_PROFILE=sso-profile`
+   3. Run `aws sso login --profile sso-profile` to start a new SSO session
+   :::
+
+3. **AWS STS Web Identity Token Credentials**:
+   - Used primarily with OpenID Connect (OIDC) and OAuth
+   - Common in Kubernetes environments using IAM roles for service accounts (IRSA)
+
+4. **ECS Container Credentials**:
+   - Used when running in Amazon ECS containers
+   - Automatically uses the task's IAM role
+   - Retrieved from the ECS credential provider endpoint
+   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+
+5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
+   - Used when running on EC2 instances.
+   - Automatically uses the instance's IAM role.
+   - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
+
+The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
+
+:::note[IAM Permissions]
+Regardless of the credential source, the IAM role or user must have appropriate S3 Vectors permissions (e.g., `s3vectors:QueryVectors`, `s3vectors:GetVectors`) to access the vectors. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
+:::
+
+## Required IAM Permissions
+
+The IAM role or user needs the following minimum permissions to access S3 Vectors:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowApplicationVectorAccess",
+            "Effect": "Allow",
+            "Action": [
+                "s3vectors:QueryVectors",
+                "s3vectors:GetIndex",
+                "s3vectors:PutVectors",
+                "s3vectors:ListVectors"
+            ],
+            "Resource": [
+                "arn:aws:s3vectors:aws-region:123456789012:bucket/amzn-s3-demo-vector-bucket/index/*",
+            ]
+        },
+        {
+            "Sid": "AllowGetVectorBucket",
+            "Effect": "Allow",
+            "Action": "s3vectors:GetVectorBucket",
+            "Resource": "arn:aws:s3vectors:aws-region:123456789012:bucket/*"
+        },
+        {
+            "Sid": "AllowCreateVectorBucket",
+            "Effect": "Allow",
+            "Action": "s3vectors:CreateVectorBucket",
+            "Resource": "arn:aws:s3vectors:aws-region:123456789012:bucket/*"
+        },
+        {
+            "Sid": "AllowCreateVectorBucketIndex",
+            "Effect": "Allow",
+            "Action": "s3vectors:CreateIndex",
+            "Resource": "arn:aws:s3vectors:aws-region:123456789012:bucket/amzn-s3-demo-vector-bucket/index/*"
+        }
+    ]
+}
+```
+
+### Permission Details
+
+| Permission | Purpose |
+|------------|---------|
+| `s3vectors:GetIndex` | Required. Used to verify if the index already exists or needs to be created. |
+| `s3vectors:GetVectorBucket` | Required. Used to verify if the vector bucket already exists or needs to be created. |
+| `s3vectors:ListVectors` | Required. Used to populate the `*_embeddings` column on vector tables in Spice. |
+| `s3vectors:PutVectors` | Required. Used to populate the vector index with Spice-computed embeddings. |
+| `s3vectors:QueryVectors` | Required. Used to query for vectors using the `vector_search` table function. |
+| `s3vectors:CreateIndex` | Optional. Spice can automatically create indexes if this permission is given. |
+| `s3vectors:CreateVectorBucket` | Optional. Spice can automatically create the vector bucket if this permission is given. |
 
 ## Cookbook
 
