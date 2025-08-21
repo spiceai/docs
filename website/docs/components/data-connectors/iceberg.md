@@ -226,6 +226,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetDatabase` | Required. Retrieve metadata about the specified database. |
 | `glue:GetTable` | Required. Retrieve metadata about the specified table. |
 | `glue:GetTables` | Required. List the tables available in the current database. |
+
 ## Examples
 
 ### Basic Example (REST Catalog)
