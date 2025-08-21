@@ -67,7 +67,7 @@ The DynamoDB data connector supports the following configuration parameters:
 
 ### Credential Sources
 
-If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order:
+If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
 
 1. **Environment Variables**:
    - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
@@ -76,7 +76,7 @@ If AWS credentials are not explicitly provided in the configuration, the connect
 2. **Shared AWS Config/Credentials Files**:
    - Config file: `~/.aws/config` (Linux/Mac) or `%UserProfile%\.aws\config` (Windows)
    - Credentials file: `~/.aws/credentials` (Linux/Mac) or `%UserProfile%\.aws\credentials` (Windows)
-   - The `AWS_PROFILE` environment variable can be used to specify a named profile.
+   - The `AWS_PROFILE` environment variable can be used to specify a named profile, otherwise the `[default]` profile is used.
    - Supports both static credentials and SSO sessions
    - Example credentials file:
 
@@ -99,10 +99,10 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    To set up SSO authentication:
    1. Run `aws configure sso` to configure a new SSO profile
    2. Use the profile by setting `AWS_PROFILE=sso-profile`
-   3. Run `aws sso login` to start a new SSO session
+   3. Run `aws sso login --profile sso-profile` to start a new SSO session
    :::
 
-3. **Web Identity Token Credentials**:
+3. **AWS STS Web Identity Token Credentials**:
    - Used primarily with OpenID Connect (OIDC) and OAuth
    - Common in Kubernetes environments using IAM roles for service accounts (IRSA)
 
@@ -110,16 +110,17 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    - Used when running in Amazon ECS containers
    - Automatically uses the task's IAM role
    - Retrieved from the ECS credential provider endpoint
+   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
 
-5. **EC2 Instance Metadata Service (IMDSv2)**:
-   - Used when running on EC2 instances
-   - Automatically uses the instance's IAM role
-   - Retrieved securely using IMDSv2
+5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
+   - Used when running on EC2 instances.
+   - Automatically uses the instance's IAM role.
+   - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
 
 The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
 
 :::note[IAM Permissions]
-Regardless of the credential source, the IAM role or user must have appropriate DynamoDB permissions (e.g., `dynamodb:Scan`, `dynamodb:DescribeTable`) to access the table.
+Regardless of the credential source, the IAM role or user must have appropriate S3 permissions (e.g., `s3:ListBucket`, `s3:GetObject`) to access the files. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
 :::
 
 ## Required IAM Permissions
