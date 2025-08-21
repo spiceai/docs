@@ -30,7 +30,9 @@ datasets:
 
 ### `from`
 
-The `from` field specifies the Iceberg table to connect to, in the format `iceberg:<table_path>`. The `table_path` is the URL to the Iceberg table in the catalog provider. For REST Catalogs, use the format `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>/tables/<table_name>`. For AWS Glue, use the format `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces/<namespace_name>/tables/<table_name>`, where `<account_id>` is your AWS account ID.
+The `from` field specifies the Iceberg table to connect to, in the format `iceberg:<table_path>`. The `table_path` is the URL to the Iceberg table in the catalog provider.
+For REST Catalogs, use the format `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>/tables/<table_name>`.
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](/docs/components/data-connectors/glue.md) for connecting to Iceberg tables managed by Glue for a better experience.
 
 Example (REST Catalog):
 
