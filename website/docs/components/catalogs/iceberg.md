@@ -17,7 +17,7 @@ For connecting to a single Iceberg table, see the [Iceberg Data Connector docume
 
 Iceberg catalogs can be of several types:
 
-- **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
+- **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg table metadata over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
 - **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is typically used for local development or legacy deployments.
 
@@ -58,7 +58,7 @@ catalogs:
 
 The `from` field specifies the catalog provider. For Iceberg, use `iceberg:<namespace_path>`, where `namespace_path` is the URL to the Iceberg namespace in the catalog provider. The format is `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>`.
 
-For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is your AWS account ID. See the [AWS Glue Catalog Connector documentation](/docs/components/catalogs/glue.md) for more details.
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Catalog Connector](/docs/components/catalogs/glue.md) for connecting to Iceberg tables managed by Glue for a better experience.
 
 The selected namespace must have sub-namespaces where the tables are stored.
 
@@ -125,7 +125,7 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_arn`          | The Amazon Resource Name (ARN) of the role to assume. If provided instead of iceberg_s3_access_key_id and iceberg_s3_secret_access_key, temporary credentials will be fetched by assuming this role. |
 | `iceberg_s3_connect_timeout`   | Configure socket connection timeout, in seconds (default: `60`).                                                                                                                                     |
 
-The Iceberg Catalog Connector supports both REST Catalog and Hadoop-style Catalog endpoints. Hadoop-style endpoints use `file://`, `s3://`, or `s3a://` URLs to specify the warehouse path for the catalog. This approach is typically used for local development or legacy deployments.
+The Iceberg Catalog Connector supports both REST and Hadoop-style Catalogs. In both cases, the warehouse path (for example, s3://bucket/warehouse/) specifies the object store location where tables are physically stored. With a Hadoop-style Catalog, the metadata is resolved directly from the filesystem using the Hadoop convention (by reading a `version-hint.txt`), rather than through a catalog service. The warehouse path itself does not change between using a REST Catalog and a Hadoop-style Catalog — only how the metadata is discovered and managed differs. The warehouse path is discovered automatically from the catalog service, but must be explicitly specified when using Hadoop-style Iceberg tables. Hadoop-style catalogs are most commonly used for local development or legacy deployments.
 
 Example using Hadoop Catalog with a local warehouse:
 
