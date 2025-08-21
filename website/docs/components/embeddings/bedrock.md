@@ -127,8 +127,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
         {
             "Effect": "Allow",
             "Action": [
-                "bedrock:InvokeModel",
-                "bedrock:InvokeModelWithResponseStream"
+                "bedrock:InvokeModel"
             ],
             "Resource": [
                 "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"
@@ -142,8 +141,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 | Permission | Purpose |
 |------------|---------|
-| `bedrock:InvokeModel` | Required. Used to invoke the text model. |
-| `bedrock:InvokeModelWithResponseStream` | Required. Used to invoke the text model with streaming responses. |
+| `bedrock:InvokeModel` | Required. Used to invoke the embedding model. |
 
 ### Additional Information
 
