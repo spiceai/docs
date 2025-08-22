@@ -31,6 +31,10 @@ models:
       azure_api_version: 2024-08-01-preview
       azure_deployment_name: gpt-4o-mini
       azure_api_key: ${ secrets:SPICE_AZURE_API_KEY }
+
+      # Responses API configuration
+      azure_openai_responses_tools: web_search
+      responses_api: enabled
 ```
 
 Refer to the [Azure OpenAI Service models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) for more details on available models and configurations.
