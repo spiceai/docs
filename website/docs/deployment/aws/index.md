@@ -74,6 +74,64 @@ Deploy Spice.ai as containerized tasks on [Amazon ECS](https://aws.amazon.com/ec
 
 For more details, see the [Amazon ECS Developer Guide](https://docs.aws.amazon.com/ecs/latest/developerguide/Welcome.html) and [Spice.ai Docker Deployment Guide](https://spiceai.org/docs/deployment/docker).
 
+## Authentication
+
+Most AWS services that Spice connects to have explicit parameters for configuring authentication (usually by setting an `access_key_id` and `secret_access_key`). If explicit credentials are not provided, Spice follows the standard AWS SDK behavior for loading credentials from the environment based on the following sources in order:
+
+1. **Environment Variables**:
+   - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+   - `AWS_SESSION_TOKEN` (if using temporary credentials)
+
+2. **Shared AWS Config/Credentials Files**:
+   - Config file: `~/.aws/config` (Linux/Mac) or `%UserProfile%\.aws\config` (Windows)
+   - Credentials file: `~/.aws/credentials` (Linux/Mac) or `%UserProfile%\.aws\credentials` (Windows)
+   - The `AWS_PROFILE` environment variable can be used to specify a named profile, otherwise the `[default]` profile is used.
+   - Supports both static credentials and SSO sessions
+   - Example credentials file:
+
+     ```ini
+     # Static credentials
+     [default]
+     aws_access_key_id = YOUR_ACCESS_KEY
+     aws_secret_access_key = YOUR_SECRET_KEY
+
+     # SSO profile
+     [profile sso-profile]
+     sso_start_url = https://my-sso-portal.awsapps.com/start
+     sso_region = us-west-2
+     sso_account_id = 123456789012
+     sso_role_name = MyRole
+     region = us-west-2
+     ```
+
+   :::tip
+   To set up SSO authentication:
+   1. Run `aws configure sso` to configure a new SSO profile
+   2. Use the profile by setting `AWS_PROFILE=sso-profile`
+   3. Run `aws sso login --profile sso-profile` to start a new SSO session
+   :::
+
+3. **AWS STS Web Identity Token Credentials**:
+   - Used primarily with OpenID Connect (OIDC) and OAuth
+   - Common in Kubernetes environments using IAM roles for service accounts (IRSA)
+
+4. **ECS Container Credentials**:
+   - Used when running in Amazon ECS containers
+   - Automatically uses the task's IAM role
+   - Retrieved from the ECS credential provider endpoint
+   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+
+5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
+   - Used when running on EC2 instances.
+   - Automatically uses the instance's IAM role.
+   - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
+
+The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
+
+:::note[IAM Permissions]
+Regardless of the credential source, the IAM role or user must have appropriate permissions (e.g., `s3:ListBucket`, `s3:GetObject`) to access the service. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
+:::
+
 ## Learn More
 
 - [Using AWS Secrets Manager Secret Store with Spice.ai](https://spiceai.org/docs/components/secret-stores/aws-secrets-manager)

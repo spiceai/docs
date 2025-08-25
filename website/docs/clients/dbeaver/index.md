@@ -22,7 +22,6 @@ pagination_next: null
    ![Driver manager new button](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/5783d944-daae-4735-99e9-976f974bc100/public 'Driver manager new button')
 
 7. Add the JDBC jar file:
-
    1. Click the "Libraries" tab
    1. Click the: "Add File" button
    1. Choose the "flight-sql-jdbc-driver-15.0.1.jar" jar file (the file downloaded in step 3 above) - and click "Open"
@@ -30,25 +29,19 @@ pagination_next: null
    1. Close the Driver editor window with the blue "OK" button on the lower-right
 
 8. Enter the driver settings:
-
    1. Click the "Settings" tab
    1. In the "Driver Name" field - enter: `Apache Arrow Flight SQL`
    1. In the "URL Template" field - enter: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`
-
    - If [API key authentication](../../api/auth/index.md) is enabled, the URL template should be: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true&user=&password=<enter-api-key-here>` - where `<enter-api-key-here>` is the API key value
-
    1. In the "Driver Type" drop-down box - choose: "SQLite"
    1. Select "No authentication"
-
    - This should be selected even if API key authentication is enabled in the runtime, as the API key is supplied via the URL template above.
-
    1. The driver manager "Edit Driver" window should look like this:
       ![Driver Manager completed](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/20348c42-117b-4763-80d2-6e615b23ae00/public 'Driver Manager completed')
    1. Click the blue "OK" button on the lower-right to save the driver
    1. Close the "Driver Manager" window by clicking the blue "Close" button on the lower-right.
 
 9. Create a new Database Connection:
-
    1. In the DBeaver application menu bar, open the "Database" menu and choose: "New Database Connection":
       ![New Database Connection](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/acdf7251-4238-44ee-9639-0c557518da00/public 'New Database Connection')
    1. In the "Connect to a database" window - type: `Flight` in the search bar
