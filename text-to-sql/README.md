@@ -4,9 +4,18 @@ This recipe will walk you through using Spice as a text to SQL interface.
 
 ## Prerequisites
 
-- Ensure you have the Spice CLI installed. Follow the [Getting Started](https://docs.spiceai.org/getting-started) if you haven't done so.
+Ensure you have the Spice CLI installed. Follow the [Getting Started](https://docs.spiceai.org/getting-started) if you haven't done so.
+
+Clone the Spice samples repository and navigate to the `text-to-sql` directory:
+
+```bash
+git clone https://github.com/spiceai/cookbook.git
+cd cookbook/text-to-sql
+```
+
 - Populate `.env`.
   - `SPICE_OPENAI_API_KEY`: A valid OpenAI API key (or equivalent).
+
 - Install `jq` from [here](https://jqlang.github.io/jq/download/)
   - Or `brew install jq` for MacOS.
   - Or `sudo apt-get install jq` for Linux.
