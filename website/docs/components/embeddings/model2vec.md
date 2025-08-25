@@ -12,7 +12,7 @@ The following parameters are specific to Model2Vec models:
 | --------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------- |
 | `hf_token`                  | The Hugging Face access token for accessing private models.                                       | -                          |
 | `normalize`                 | Whether to normalize embeddings (defaults to the model's configuration).                          | Model's default setting    |
-| `subfolder`                 | Optional subfolder path when using Hugging Face models that reside in a subfolder of the repo.    | -                          |
+| `subfolder`                 | Optional subfolder path for models that reside in a subfolder of the repo/path.                   | -                          |
 | `parallelism`               | Number of parallel threads to use for embedding computation.                                      | System CPU count           |
 | `embed_max_token_length`    | Maximum token length for embeddings.                                                              | -                          |
 | `embed_custom_batch_size`   | Custom batch size override for embedding operations.                                              | -                          |
