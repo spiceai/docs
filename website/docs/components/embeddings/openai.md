@@ -15,6 +15,7 @@ The following parameters are specific to OpenAI models:
 | `openai_api_key`    | The API key for accessing OpenAI.     | -                           |
 | `openai_org_id`     | The organization ID for OpenAI.       | -                           |
 | `openai_project_id` | The project ID for OpenAI.            | -                           |
+| `openai_usage_tier` | The [OpenAI usage tier](https://platform.openai.com/settings/organization/limits) for the account. This parameter sets the maximum number of concurrent requests based on OpenAI's published limits per tier. Valid values are `free`, `tier1`, `tier2`, `tier3`, `tier4`, or `tier5`. | `tier1` |
 | `endpoint`          | The base endpoint for the OpenAI API. | `https://api.openai.com/v1` |
 
 Below is an example configuration in `spicepod.yaml`:

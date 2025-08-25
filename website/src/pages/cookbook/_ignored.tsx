@@ -244,7 +244,7 @@ const recipes: RecipeData[] = [
     description: 'Connect to and query GitHub data.',
     path: '/github/README.md',
     tags: ['connector', 'github', 'query'],
-    videoUrl: 'https://youtu.be/mxwt0HEF1VQ',
+    videoUrl: 'https://youtu.be/mxwt0HEF1VQ'
   },
   {
     title: 'GraphQL Connector',
@@ -347,6 +347,12 @@ const recipes: RecipeData[] = [
     description: 'Federated SQL query of mail across IMAP email servers',
     path: '/imap/README.md',
     tags: ['connector', 'imap', 'datasource']
+  },
+  {
+    title: 'MongoDB Connector',
+    description: 'Connect to and query MongoDB databases',
+    path: '/mongodb/connector/README.md',
+    tags: ['connector', 'mongodb', 'datasource']
   },
   // Deployment
   {
