@@ -9,7 +9,7 @@ Ensure you have the Spice CLI installed. Follow the [Getting Started](https://do
 Clone the Spice samples repository and navigate to the `text-to-sql` directory:
 
 ```bash
-git clone https://github.com/spiceai/cookbook.git
+git clone https://github.com/spiceai/cookbook.git  # Skip if already cloned
 cd cookbook/text-to-sql
 ```
 
