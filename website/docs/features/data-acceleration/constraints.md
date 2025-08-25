@@ -64,7 +64,7 @@ datasets:
 
 By default, even when `upsert` is configured if there are any violations within the same batch of data that Spice is processing, it will result in a constraint violation - as attempting to upsert that data into the target accelerator engine will result in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html))
 
-Spice has two other `upsert` options to resolve duplicates within a single update:
+Spice supports two other `upsert` options to resolve duplicates within a single update:
 - `upsert_dedup`: Removes exact duplicates in the incoming batch if there is a constraint violation. (i.e. the equivalent of running SELECT DISTINCT * FROM [batch])
 - `upsert_dedup_by_row_id`: Resolves conflicts by taking the row with the highest row id. This is the behavior that would occur if the upsert were applied row-by-row. This guarantees that no constraint violations would result in an error, but it has the tradeoff of being effectively "random" if the incoming data is not ordered.
 
