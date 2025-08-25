@@ -51,7 +51,7 @@ embeddings:
 
 ## Advanced Configuration
 
-For performance optimization, you can configure parallelism and embedding batch sizes:
+For performance optimization, configure parallelism and embedding batch sizes:
 
 ```yaml
 embeddings:
