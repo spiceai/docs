@@ -19,7 +19,7 @@ The following parameters are specific to Model2Vec models:
 
 For more details on Model2Vec parameters and functionality, refer to the [model2vec-rs documentation](https://github.com/MinishLab/model2vec-rs).
 
-Here is an example configuration in `spicepod.yaml` for [`minishlab/potion-base-8m`](https://huggingface.co/minishlab/potion-base-8M):
+Example configuration in `spicepod.yaml` for [`minishlab/potion-base-8m`](https://huggingface.co/minishlab/potion-base-8M):
 
 ```yaml
 embeddings:
