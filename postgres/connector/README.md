@@ -4,13 +4,7 @@ This recipe will use a demo instance of Postgres with a dataset generated using 
 
 ## Pre-requisites
 
-- Install [PostgresSQL](https://www.postgresql.org/download/). Once downloaded and installed, run the following commands:
-
-```bash
-createdb --help
-psql --help
-```
-
+- [Docker](https://docs.docker.com/get-docker/) is installed
 - Spice is installed (see the [Getting Started](https://docs.spiceai.org/getting-started) documentation).
 
 ## Step 1: Create a sample Postgres database and generate a testing table using stored procedure.
