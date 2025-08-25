@@ -17,7 +17,7 @@ The following parameters are specific to Model2Vec models:
 | `embed_max_token_length`    | Maximum token length for embeddings.                                                              | -                          |
 | `embed_custom_batch_size`   | Custom batch size override for embedding operations.                                              | -                          |
 
-For more details on Model2Vec parameters and functionality, refer to the [model2vec-rs documentation](https://github.com/MinishLab/model2vec/tree/main/rust).
+For more details on Model2Vec parameters and functionality, refer to the [model2vec-rs documentation](https://github.com/MinishLab/model2vec-rs).
 
 Here is an example configuration in `spicepod.yaml` for [`minishlab/potion-base-8m`](https://huggingface.co/minishlab/potion-base-8M):
 
