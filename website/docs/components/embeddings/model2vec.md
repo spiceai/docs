@@ -4,7 +4,7 @@ sidebar_label: 'Model2Vec'
 sidebar_position: 4
 ---
 
-To use a Model2Vec embedding model with Spice, specify the `model2vec` path in the `from` field of your configuration. Model2Vec is a technique that distills embeddings from transformer models into static word embeddings, providing efficient embedding generation, in parallel, without performing external API calls.
+To use a Model2Vec embedding model with Spice, specify the `model2vec` prefix in the `from` field of your configuration. Model2Vec is a technique that distills embeddings from transformer models into static word embeddings, providing efficient embedding generation, in parallel, without performing external API calls.
 
 The following parameters are specific to Model2Vec models:
 
