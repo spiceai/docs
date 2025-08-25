@@ -27,9 +27,11 @@ Spice supports various model sources and formats to provide embedding components
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock               | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`model2vec`][model2vec]   | Model2Vec static word embeddings             | Alpha             | -            | Model2Vec format                |
 
 [file]: /components/embeddings/local.md
 [hf]:  /components/embeddings/huggingface.md
+[model2vec]: /components/embeddings/model2vec.md
 [openai]: /components/embeddings/openai.md
 [azure]: /components/embeddings/azure.md
 [databricks]: /components/embeddings/databricks.md
