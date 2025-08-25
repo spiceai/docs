@@ -6,7 +6,7 @@ This recipe will walk you through using Spice as a text to SQL interface.
 
 Ensure you have the Spice CLI installed. Follow the [Getting Started](https://docs.spiceai.org/getting-started) if you haven't done so.
 
-Clone the Spice samples repository and navigate to the `text-to-sql` directory:
+Clone the Spice cookbook repository and navigate to the `text-to-sql` directory:
 
 ```bash
 git clone https://github.com/spiceai/cookbook.git  # Skip if already cloned
