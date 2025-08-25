@@ -141,7 +141,7 @@ datasets:
 
 Ensure that the `pg_pass` connector parameter is only set when `pg_user` used in spicepod requires a password.
 
-## Step 4: Start the Spice runtime
+## Step 4: Start the Spice runtime.
 
 ```bash
 spice run
