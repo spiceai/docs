@@ -145,7 +145,7 @@ datasets:
       pg_user: postgres
 ```
 
-Ensure that the `pg_pass` connctor parameter is only set when `pg_user` used in spicepod requires a password.
+Ensure that the `pg_pass` connector parameter is only set when `pg_user` used in spicepod requires a password.
 
 **Step 4.** Start the Spice runtime
 
