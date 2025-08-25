@@ -71,3 +71,9 @@ Example output:
 | 4           | MIDDLE EAST |  foxes boost furiously along the carefully dogged tithes. slyly regular orbits according to the special epit        |
 +-------------+-------------+---------------------------------------------------------------------------------------------------------------------+
 ```
+
+## Step 4: Cleanup
+
+```bash
+docker-compose down
+```
