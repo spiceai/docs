@@ -3,14 +3,12 @@ title: 'Operators'
 sidebar_label: 'Operators'
 pagination_prev: 'reference/sql/select'
 pagination_next: 'reference/sql/subqueries'
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 :::info
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
 :::
-
-# Operators
 
 ## Numerical Operators
 

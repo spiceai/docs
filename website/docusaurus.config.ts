@@ -55,7 +55,9 @@ const config: Config = {
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: 'https://github.com/spiceai/docs/tree/trunk/website/'
+          editUrl: ({ docPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/website/docs/${docPath}`
+          }
         },
         blog: {
           path: 'blog',
@@ -125,29 +127,7 @@ const config: Config = {
         },
         { to: 'blog', label: 'Blog', position: 'left' },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
-        {
-          type: 'dropdown',
-          label: 'Community',
-          position: 'left',
-          items: [
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/kZnTfneP5u'
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/spice_ai'
-            },
-            {
-              label: 'Reddit',
-              href: 'https://reddit.com/r/spiceai'
-            },
-            {
-              label: 'YouTube',
-              href: 'https://www.youtube.com/@spiceai'
-            }
-          ]
-        },
+        { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
         {
           label: 'X',
           href: 'https://x.com/spice_ai',
