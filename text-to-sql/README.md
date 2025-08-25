@@ -24,13 +24,13 @@ cd cookbook/text-to-sql
 
 Separate from using language models to interact with [runtime tools](https://spiceai.org/docs/components/tools), `spice` has a standalone text to SQL endpoint. This provides more granular control of how SQL generation is done, and is more robust to hallucination and misuse of tools.
 
-## Step 1: Start Spice
+## Step 1: Start Spice.
 
 ```bash
 spice run
 ```
 
-## Step 2: Call the dedicated text-to-sql endpoint
+## Step 2: Call the dedicated text-to-sql endpoint.
 
 ```shell
 curl -XPOST "http://localhost:8090/v1/nsql" \
