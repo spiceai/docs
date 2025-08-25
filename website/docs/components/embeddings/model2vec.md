@@ -145,8 +145,10 @@ You can create your own Model2Vec embeddings by distilling existing sentence tra
 
    **Performance Results:**
 
+   Note: The dramatic results are due to `model2vec` embedding execution being parallelized across all of the host's cores (default configuration). Per core, model2vec achieves a throughput of 300/400 rows/sec with this corpus. This specific test machine has 16 cores. Execution of SBERT models is currently not parallelized.
+
    | Model Name                               | Model Type            | Records Processed       | Throughput (records/sec) |
    | ---------------------------------------- | --------------------- | ----------------------- | ------------------------ |
    | `sentence-transformers/all-MiniLM-L6-v2` | Model2Vec (Distilled) | 278,528                 | ~4,043                   |
    | `sentence-transformers/all-MiniLM-L6-v2` | SBERT (Full)          | 100                     | ~1.1                     |
-   | **Performance Gain** (model2vec)         | -                     | **2,785x more records** | **~3,675x faster**       |
+   | **Performance Gain** (model2vec)         | -                     | -                       | **~3,675x faster**       |
