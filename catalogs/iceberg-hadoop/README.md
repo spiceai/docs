@@ -11,10 +11,15 @@ This recipe uses the Spice Runtime to connect to a TPCH dataset, configured on a
 
 ## Step 1: Start the MinIO Server
 
+Clone the Spice samples repository and navigate to the iceberg-hadoop directory:
+```bash
+git clone https://github.com/spiceai/cookbook.git
+cd cookbook/catalogs/iceberg-hadoop
+```
+
 Use the provided Docker Compose file to start a MinIO server, which sets up with a TPCH dataset:
 
 ```bash
-cd catalogs/iceberg-hadoop
 docker compose up -d
 ```
 
