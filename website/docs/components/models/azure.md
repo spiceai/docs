@@ -14,7 +14,7 @@ To use a language model hosted on Azure OpenAI, specify the `azure` path in the 
 | `azure_deployment_name` | The name of the model deployment.                                                   | Model name |
 | `endpoint`              | The Azure OpenAI resource endpoint, e.g., `https://resource-name.openai.azure.com`. | -          |
 | `azure_entra_token`     | The Azure Entra token for authentication.                                           | -          |
-| `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint | `enabled` |
+| `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint | `disabled` |
 | `azure_openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model.  These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`. | -                           |
 
 
