@@ -60,6 +60,62 @@ datasets:
         hash: upsert
 ```
 
+### Advanced upsert behavior
+
+By default, even when `upsert` is configured if there are any violations within the same batch of data that Spice is processing, it will result in a constraint violation - as attempting to upsert that data into the target accelerator engine will result in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html))
+
+Spice has two other `upsert` options to resolve duplicates within a single update:
+- `upsert_dedup`: Removes exact duplicates in the incoming batch if there is a constraint violation. (i.e. the equivalent of running SELECT DISTINCT * FROM [batch])
+- `upsert_dedup_by_row_id`: Resolves conflicts by taking the row with the highest row id. This is the behavior that would occur if the upsert were applied row-by-row. This guarantees that no constraint violations would result in an error, but it has the tradeoff of being effectively "random" if the incoming data is not ordered.
+
+The new behavior is only triggered when an incoming batch has a constraint violation, minimizing the effect of applying these computations to only when its necessary. However, they can have a performance impact and are not enabled by default.
+
+Full configuration example:
+
+```yaml
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      primary_key: id
+      on_conflict:
+        id: upsert_dedup # upsert_dedup_by_row_id
+```
+
+<details>
+      <summary>Examples for advanced upsert behavior</summary>
+      <div>
+
+        Take these two CSV files:
+
+        `one.csv`:
+        ```csv
+        foo,bar
+        a,1
+        b,2
+        a,1
+        ```
+
+        Behavior on `one.csv` with a primary key on `foo` and `on_conflict` set to:
+        - `upsert`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup`: Will succeed in loading 2 rows, the `a,1` row is reduced to a single instance.
+        - `upsert_dedup_by_row_id`: Same as `upsert_dedup`
+
+        `two.csv`:
+        ```csv
+        foo,bar
+        a,1
+        b,2
+        a,10
+        ```
+
+        Behavior on `one.csv` with a primary key on `foo` and `on_conflict` set to:
+        - `upsert`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup_by_row_id`: Will succeed in loading 2 rows, `a,10` and `b,2`. The primary key violation is resolved to the row that occurred later.
+      </div>
+    </details>
+
 ## Limitations
 
 - **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop.
