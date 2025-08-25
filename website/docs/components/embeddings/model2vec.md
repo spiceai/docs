@@ -65,7 +65,7 @@ embeddings:
 
 ## Distilling Your Own Models
 
-You can create your own Model2Vec embeddings by distilling existing sentence transformer models. For more detailed instructions, see the [Model2Vec Quickstart guide](https://github.com/MinishLab/model2vec?tab=readme-ov-file#quickstart). Here's how to distill the popular [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) model:
+Create custom Model2Vec embeddings by distilling existing sentence transformer models. For more detailed instructions, see the [Model2Vec Quickstart guide](https://github.com/MinishLab/model2vec?tab=readme-ov-file#quickstart). Here's how to distill the popular [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) model:
 
 1. **Install the Model2Vec Python library:**
    ```bash
