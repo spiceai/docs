@@ -198,6 +198,16 @@ Example:
 SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
 ```
 
+#### `GROUP BY ALL`
+
+Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside an aggregate function. This keeps the column definitions in one place, simplifies the query, and helps avoid bugs by keeping the SELECT granularity aligned with the GROUP BY granularity (e.g., preventing unintended duplication).
+
+Example:
+
+```sql
+SELECT a, b, MAX(c) FROM table GROUP BY ALL
+```
+
 ### HAVING clause
 
 The `HAVING` clause can be used with `GROUP BY` to eliminate groups that don't satisfy the condition given.
@@ -240,6 +250,14 @@ Examples:
 SELECT age, person FROM table ORDER BY age;
 SELECT age, person FROM table ORDER BY age DESC;
 SELECT age, person FROM table ORDER BY age, person DESC;
+```
+
+#### `ORDER BY ALL`
+
+Order from left to right (by age, then by person) in ascending order:
+
+```sql
+SELECT age, person FROM table ORDER BY ALL;
 ```
 
 ### LIMIT clause
