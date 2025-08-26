@@ -360,6 +360,13 @@ const recipes: RecipeData[] = [
     path: '/mongodb/connector/README.md',
     tags: ['connector', 'mongodb', 'datasource']
   },
+  {
+    title: 'Live Orders Analytics with Apache Kafka Data Connector',
+    description: 'Combine real-time data streaming from Kafka with other datasets using Spice',
+    path: '/kafka/README.md',
+    tags: ['connector', 'apache', 'kafka', 'datasource']
+  },
+
   // Deployment
   {
     title: 'Deploying to Kubernetes',
