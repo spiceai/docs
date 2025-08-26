@@ -350,19 +350,19 @@ const recipes: RecipeData[] = [
   },
   {
     title: 'IMAP Emails',
-    description: 'Federated SQL query of mail across IMAP email servers',
+    description: 'Federated SQL query of mail across IMAP email servers.',
     path: '/imap/README.md',
     tags: ['connector', 'imap', 'datasource']
   },
   {
     title: 'MongoDB Connector',
-    description: 'Connect to and query MongoDB databases',
+    description: 'Connect to and query MongoDB databases.',
     path: '/mongodb/connector/README.md',
     tags: ['connector', 'mongodb', 'datasource']
   },
   {
     title: 'Live Orders Analytics with Apache Kafka Data Connector',
-    description: 'Combine real-time data streaming from Kafka with other datasets using Spice',
+    description: 'Combine real-time data streaming from Kafka with other datasets using Spice.',
     path: '/kafka/README.md',
     tags: ['connector', 'apache', 'kafka', 'datasource']
   },
