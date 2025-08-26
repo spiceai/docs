@@ -464,8 +464,8 @@ Only a single `on_conflict` target can be specified, unless all `on_conflict` ta
 The possible conflict resolution strategies are:
 
 - `upsert` - Upsert the incoming data when the primary key constraint is violated.
-- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints.md#advanced-upsert-behavior).
-- `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints.md#advanced-upsert-behavior).
+- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
+- `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
 See [Constraints](../../features/data-acceleration/constraints.md)
