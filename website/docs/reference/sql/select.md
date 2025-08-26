@@ -200,7 +200,7 @@ SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
 
 #### `GROUP BY ALL`
 
-Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside an aggregate function. This keeps the column definitions in one place, simplifies the query, and helps prevent bugs by keeping the SELECT granularity aligned with the GROUP BY granularity (e.g., preventing unintended duplication).
+Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside an aggregate function. This keeps the column definitions in one place, simplifies the query, and prevents bugs by keeping the SELECT granularity aligned with the GROUP BY granularity (e.g., preventing unintended duplication).
 
 Example:
 
