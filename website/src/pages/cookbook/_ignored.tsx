@@ -58,6 +58,12 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'openai', 'sdk', 'core']
   },
   {
+    title: 'OpenAI Responses API',
+    description: 'Use the OpenAI Responses API with Spice',
+    path: '/openai-responses-api/README.md',
+    tags: ['ai', 'openai', 'core']
+  },
+  {
     title: 'LLM Memory',
     description: 'Persistent memory for language models.',
     path: '/llm-memory/README.md',
