@@ -58,6 +58,12 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'openai', 'sdk', 'core']
   },
   {
+    title: 'OpenAI Responses API',
+    description: 'Use the OpenAI Responses API with Spice',
+    path: '/openai-responses-api/README.md',
+    tags: ['ai', 'openai', 'core']
+  },
+  {
     title: 'LLM Memory',
     description: 'Persistent memory for language models.',
     path: '/llm-memory/README.md',
@@ -344,16 +350,23 @@ const recipes: RecipeData[] = [
   },
   {
     title: 'IMAP Emails',
-    description: 'Federated SQL query of mail across IMAP email servers',
+    description: 'Federated SQL query of mail across IMAP email servers.',
     path: '/imap/README.md',
     tags: ['connector', 'imap', 'datasource']
   },
   {
     title: 'MongoDB Connector',
-    description: 'Connect to and query MongoDB databases',
+    description: 'Connect to and query MongoDB databases.',
     path: '/mongodb/connector/README.md',
     tags: ['connector', 'mongodb', 'datasource']
   },
+  {
+    title: 'Live Orders Analytics with Apache Kafka Data Connector',
+    description: 'Combine real-time data streaming from Kafka with other datasets using Spice.',
+    path: '/kafka/README.md',
+    tags: ['connector', 'apache', 'kafka', 'datasource']
+  },
+
   // Deployment
   {
     title: 'Deploying to Kubernetes',
