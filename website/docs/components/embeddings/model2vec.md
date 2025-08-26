@@ -2,20 +2,23 @@
 title: 'Model2Vec Embedding Models'
 sidebar_label: 'Model2Vec'
 sidebar_position: 4
+description: Model2Vec embedding models help generate efficient static word embeddings from sentence transformer models for use in Spice, supporting local and Hugging Face sources with options for private models and performance tuning.
 ---
 
-To use a Model2Vec embedding model with Spice, specify the `model2vec` prefix in the `from` field of your configuration. Model2Vec is a technique that distills embeddings from transformer models into static word embeddings, providing efficient embedding generation, in parallel, without performing external API calls.
+[Model2Vec](https://huggingface.co/blog/Pringled/model2vec) is a technique that distills embeddings from sentence transformer models into static word embeddings, providing efficient embedding generation, in parallel, without performing external API calls. This can result in sentence transformer models up to 500x faster and 15x smaller.
+
+To use a Model2Vec embedding model with Spice, specify the `model2vec` prefix in the `from` field of your configuration.
 
 The following parameters are specific to Model2Vec models:
 
-| Parameter                   | Description                                                                                       | Default                    |
-| --------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------- |
-| `hf_token`                  | The Hugging Face access token for accessing private models.                                       | -                          |
-| `normalize`                 | Whether to normalize embeddings (defaults to the model's configuration).                          | Model's default setting    |
-| `subfolder`                 | Optional subfolder path for models that reside in a subfolder of the repo/path.                   | -                          |
-| `parallelism`               | Number of parallel threads to use for embedding computation.                                      | System CPU count           |
-| `embed_max_token_length`    | Maximum token length for embeddings.                                                              | -                          |
-| `embed_custom_batch_size`   | Custom batch size override for embedding operations.                                              | -                          |
+| Parameter                 | Description                                                                     | Default                 |
+| ------------------------- | ------------------------------------------------------------------------------- | ----------------------- |
+| `hf_token`                | The Hugging Face access token for accessing private models.                     | -                       |
+| `normalize`               | Whether to normalize embeddings (defaults to the model's configuration).        | Model's default setting |
+| `subfolder`               | Optional subfolder path for models that reside in a subfolder of the repo/path. | -                       |
+| `parallelism`             | Number of parallel threads to use for embedding computation.                    | System CPU count        |
+| `embed_max_token_length`  | Maximum token length for embeddings.                                            | -                       |
+| `embed_custom_batch_size` | Custom batch size override for embedding operations.                            | -                       |
 
 For more details on Model2Vec parameters and functionality, refer to the [model2vec-rs documentation](https://github.com/MinishLab/model2vec-rs).
 
@@ -68,24 +71,27 @@ embeddings:
 Create custom Model2Vec embeddings by distilling existing sentence transformer models. For more detailed instructions, see the [Model2Vec Quickstart guide](https://github.com/MinishLab/model2vec?tab=readme-ov-file#quickstart). Here's how to distill the popular [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) model:
 
 1. **Install the Model2Vec Python library:**
+
    ```bash
    pip install model2vec
    ```
 
 2. **Create a distillation script:**
+
    ```python
    from model2vec import StaticModel
-   
+
    # Load a sentence transformer model and distill it to a static model
    model = StaticModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2", device="cpu")
-   
+
    # Save the static model
    model.save_pretrained("./all-MiniLM-L6-v2-model2vec")
-   
+
    print("Model distilled and saved to ./all-MiniLM-L6-v2-model2vec")
    ```
 
 3. **Use the distilled model with Spice:**
+
    ```yaml
    embeddings:
      - from: model2vec:./all-MiniLM-L6-v2-model2vec
@@ -100,32 +106,33 @@ Create custom Model2Vec embeddings by distilling existing sentence transformer m
 
    ```yaml
    datasets:
-    - from: file://wiki_a.parquet
-      name: wiki_a_distilled
-      acceleration:
-        enabled: true
-      columns:
-      - name: text_trunc
-        embeddings:
-          - from: minilm_distilled
-    - from: file://wiki_a.parquet
-      name: wiki_a_full
-      acceleration:
-        enabled: true
-        refresh_sql: select * from wiki_a_full limit 100;
-      columns:
-        - name: text_trunc
-          embeddings:
-            - from: all_minilm_l6_v2
+     - from: file://wiki_a.parquet
+       name: wiki_a_distilled
+       acceleration:
+         enabled: true
+       columns:
+         - name: text_trunc
+           embeddings:
+             - from: minilm_distilled
+     - from: file://wiki_a.parquet
+       name: wiki_a_full
+       acceleration:
+         enabled: true
+         refresh_sql: select * from wiki_a_full limit 100;
+       columns:
+         - name: text_trunc
+           embeddings:
+             - from: all_minilm_l6_v2
    embeddings:
-   - from: model2vec:./all-MiniLM-L6-v2-model2vec
-     name: distilled_minilm
-   - from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-     name: all_minilm_l6_v2
+     - from: model2vec:./all-MiniLM-L6-v2-model2vec
+       name: distilled_minilm
+     - from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+       name: all_minilm_l6_v2
    ```
 
    Start Spice with `spice run`:
-   ```
+
+   ```shell
    2025-08-25T15:59:39.033644Z  INFO runtime::init::embedding: Embedding Model minilm_distilled ready
    2025-08-25T15:59:39.969381Z  INFO runtime::init::embedding: Embedding Model all_minilm_l6_v2 ready
    2025-08-25T15:59:39.969713Z  INFO runtime::init::dataset: Dataset wiki_a_full initializing...
@@ -147,8 +154,8 @@ Create custom Model2Vec embeddings by distilling existing sentence transformer m
 
    Note: The dramatic results are due to `model2vec` embedding execution being parallelized across all of the host's cores (default configuration). Per core, model2vec achieves a throughput of 300/400 rows/sec with this corpus. This specific test machine has 16 cores. Execution of SBERT models is currently not parallelized.
 
-   | Model Name                               | Model Type            | Records Processed       | Throughput (records/sec) |
-   | ---------------------------------------- | --------------------- | ----------------------- | ------------------------ |
-   | `sentence-transformers/all-MiniLM-L6-v2` | Model2Vec (Distilled) | 278,528                 | ~4,043                   |
-   | `sentence-transformers/all-MiniLM-L6-v2` | SBERT (Full)          | 100                     | ~1.1                     |
-   | **Performance Gain** (model2vec)         | -                     | -                       | **~3,675x faster**       |
+   | Model Name                               | Model Type            | Records Processed | Throughput (records/sec) |
+   | ---------------------------------------- | --------------------- | ----------------- | ------------------------ |
+   | `sentence-transformers/all-MiniLM-L6-v2` | Model2Vec (Distilled) | 278,528           | ~4,043                   |
+   | `sentence-transformers/all-MiniLM-L6-v2` | SBERT (Full)          | 100               | ~1.1                     |
+   | **Performance Gain** (model2vec)         | -                     | -                 | **~3,675x faster**       |

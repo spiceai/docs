@@ -1,7 +1,7 @@
 ---
 title: 'Embedding Models'
 sidebar_label: 'Embeddings'
-description: ''
+description: 'Describes how embedding models are used in Spice to convert text into numerical vectors for machine learning and search applications.'
 image: /img/og/embeddings.png
 sidebar_position: 6
 pagination_prev: null
@@ -13,24 +13,24 @@ tags:
   - search
 ---
 
-Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
+Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index.md).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models/index.md).
 
-Spice supports various model sources and formats to provide embedding components:
+Spice supports a variety of embedding model sources and formats:
 
-| Name                       | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
-| -------------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
-| [`file`][file]             | Local filesystem                             | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf]        | Models hosted on HuggingFace                 | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint          | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
-| [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`bedrock`][bedrock]       | Models deployed on AWS Bedrock               | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`model2vec`][model2vec]   | Model2Vec static word embeddings             | Alpha             | -            | Model2Vec format                |
+| Name                       | Description                             | Status            | ML Format(s) | LLM Format(s)\*                 |
+| -------------------------- | --------------------------------------- | ----------------- | ------------ | ------------------------------- |
+| [`file`][file]             | Local filesystem                        | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf]        | Models hosted on HuggingFace            | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
+| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint     | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
+| [`azure`][azure]           | Azure OpenAI                            | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`bedrock`][bedrock]       | Models deployed on AWS Bedrock          | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
 
 [file]: /components/embeddings/local.md
-[hf]:  /components/embeddings/huggingface.md
+[hf]: /components/embeddings/huggingface.md
 [model2vec]: /components/embeddings/model2vec.md
 [openai]: /components/embeddings/openai.md
 [azure]: /components/embeddings/azure.md
@@ -39,15 +39,15 @@ Spice supports various model sources and formats to provide embedding components
 
 ## Overview
 
-Spice provides three distinct methods for handling embedding columns in datasets:
+Spice provides three ways to handle embedding columns in datasets:
 
-1. **[Just-in-Time (JIT) Embeddings](#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
-2. **[Accelerated Embeddings](#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-3. **[Passthrough Embeddings](#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
+1. **[Just-in-Time (JIT) Embeddings](#jit-embeddings):** Embeddings are computed on demand during query execution, with no precomputation.
+2. **[Accelerated Embeddings](#accelerated-embeddings):** Embeddings are precomputed and stored, enabling faster queries and searches.
+3. **[Passthrough Embeddings](#passthrough-embeddings):** Pre-existing embeddings in the source dataset are used directly, with no additional computation.
 
 ## Configuring Embedding Models
 
-Embedding models are defined in the `spicepod.yaml` file as top-level components.
+Define embedding models in the `spicepod.yaml` file as top-level components.
 
 Example configuration in `spicepod.yaml`:
 
@@ -68,14 +68,14 @@ embeddings:
       - path: models/embed/tokenizer.json
 ```
 
-Embedding models can be used either by:
+Embedding models can be used via:
 
 - An OpenAI-compatible [endpoint](/docs/api/HTTP/post-embeddings)
-- Augmenting a dataset with column-level [embeddings](/docs/reference/spicepod/datasets.md#embeddings), to provide vector-based [search functionality](/docs/features/search/index.md#vector-search).
+- Augmenting a dataset with column-level [embeddings](/docs/reference/spicepod/datasets.md#embeddings) for vector-based [search functionality](/docs/features/search/index.md#vector-search)
 
-### Configuring Embeddings Columns on Datasets
+### Configuring Embedding Columns on Datasets
 
-Embedding models can be configured to create vector embeddings for specific columns in a dataset. Define embeddings under `columns` in the `spicepod.yaml` file, under the `datasets` section.
+To create vector embeddings for specific dataset columns, define them under `columns` in the `spicepod.yaml` file, within the `datasets` section.
 
 Example configuration in `spicepod.yaml`:
 
@@ -101,13 +101,13 @@ datasets:
               overlap_size: 32
 ```
 
-Refer to the [embeddings](/docs/reference/spicepod/embeddings.md) and [datasets](/docs/reference/spicepod/datasets.md#embeddings) Spicepod reference for more details on configuring embeddings for datasets.
+See the [embeddings](/docs/reference/spicepod/embeddings.md) and [datasets](/docs/reference/spicepod/datasets.md#embeddings) reference for more details.
 
 ## Embedding Methods
 
 ### Just-in-Time (JIT) Embeddings {#jit-embeddings}
 
-JIT embeddings are computed during query execution. This is useful when pre-computing embeddings is infeasible (e.g. if the dataset is large, infrequently queried, has heavy prefiltering). To add an embedding column, specify it within the dataset's column.
+JIT embeddings are computed at query time. This is useful when precomputing is impractical (e.g., large or rarely queried datasets, or heavy prefiltering). To add a JIT embedding column, specify it in the dataset's column config.
 
 ```yaml
 datasets:
@@ -128,7 +128,7 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](/docs/components/data-accelerators/index.md). The only change required for this it to set up the data accelerator. For example, just add
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](/docs/components/data-accelerators/index.md). Enable this by adding:
 
 ```yaml
 acceleration:
@@ -155,11 +155,11 @@ datasets:
 
 ### Passthrough Embeddings
 
-Datasets that already have embedding columns can utilize the same functionalities (e.g. vector search) as those augmented with Spice-generated embeddings. They should follow the same schema as Spice-generated embeddings (or be altered with a [view](/docs/reference/spicepod#views).
+If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](/docs/reference/spicepod#views)).
 
-#### Example
+**Example:**
 
-A `sales` table with an `address` column that has an embedding.
+A `sales` table with an `address` column and its embedding:
 
 ```shell
 sql> describe sales;
@@ -224,7 +224,7 @@ sql> describe sales;
 +-------------------+-----------------------------------------+-------------+
 ```
 
-Passthrough embedding columns must still be defined in the `spicepod.yaml` file. The spice instance must also have access to the same embedding model used to generate the embeddings.
+Passthrough embedding columns must still be defined in the `spicepod.yaml` file. The Spice instance must also have access to the same embedding model used to generate the embeddings.
 
 ```yaml
 datasets:
@@ -236,40 +236,33 @@ datasets:
           - from: local_embedding_model
 
 embeddings:
-  - name: local_embedding_model # Original embedding model used for this column
+  - name: local_embedding_model # The model originally used for this column
   ...
 ```
 
 #### Requirements
 
-To ensure compatibility, these table columns must adhere to the following constraints:
+To ensure compatibility, embedding columns must meet these requirements:
 
-1. **Underlying Column Presence:**
+1. **Underlying Column:**
+   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md).
+2. **Naming Convention:**
+   - The embedding column must be named `<column_name>_embedding` (e.g., `review_embedding` for a `review` column).
+3. **Data Type:**
+   - The embedding column must be:
+     - `FixedSizeList[Float32 or Float64, N]` for unchunked data, where `N` is the embedding vector size.
+     - `List[FixedSizeList[Float32 or Float64, N]]` for chunked data.
+4. **Offset Column (for chunked data):**
+   - If chunked, an offset column `<column_name>_offsets` must exist with type `List[FixedSizeList[Int32, 2]]`, where each pair `[start, end]` maps a chunk to its text segment.
+   - Example: `[[0, 100], [101, 200]]` means two chunks covering indices 0–100 and 101–200.
 
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
-
-2. **Embeddings Column Naming Convention:**
-
-   - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
-
-3. **Embeddings Column Data Type:**
-
-   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
-     1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
-
-4. **Offset Column for Chunked Data:**
-   - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
-     1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
-     - _For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively._
-
-Following these guidelines ensures that the dataset with pre-existing embeddings is fully compatible with embedding functionalities provided by Spice.
+Following these guidelines ensures that the dataset's pre-existing embeddings are fully compatible with Spice.
 
 ## Advanced Configuration
 
 ### Chunking
 
-Spice also supports chunking of content before embedding, which is useful for large text columns such as those found in [Document Tables](/docs/components/data-connectors/index.md#document-support). Chunking ensures that only the most relevant portions of text are returned during search queries. Chunking is configured as part of the embedding configuration.
+Spice supports chunking large text columns before embedding, which is useful for [Document Tables](/docs/components/data-connectors/index.md#document-support). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
 
 ```yaml
 datasets:
@@ -286,11 +279,11 @@ datasets:
               target_chunk_size: 512
 ```
 
-The `body` column will be divided into chunks of approximately 512 tokens, while maintaining structural and semantic integrity (e.g. not splitting sentences). See the [API reference](/docs/reference/spicepod/datasets#columns-embeddings-chunking) for full details.
+The `body` column will be split into chunks of about 512 tokens, preserving sentence and semantic boundaries. See the [API reference](/docs/reference/spicepod/datasets#columns-embeddings-chunking) for details.
 
 #### Row Identifiers
 
-Like a primary key, the `row_id` field specifies which column(s) uniquely identifies each row. This is useful for embedding datasets that don't have a primary key by default. This is important for chunked embedding datasets, so that operations (e.g. [`v1/search`](/docs/api/HTTP/post-search)), can be able to map multiple chunked vectors to a single dataset row. The `row_id` can be set in the `columns[*].embeddings[*].row_id`.
+The `row_id` field specifies which column(s) uniquely identify each row, similar to a primary key. This is important for chunked embeddings, so that operations (e.g., [`v1/search`](/docs/api/HTTP/post-search)) can map multiple chunked vectors to a single row. Set `row_id` in `columns[*].embeddings[*].row_id`.
 
 ```yaml
 datasets:
