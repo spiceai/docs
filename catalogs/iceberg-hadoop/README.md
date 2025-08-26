@@ -9,16 +9,21 @@ This recipe uses the Spice Runtime to connect to a TPCH dataset, configured on a
 - Docker is installed, to run the sample MinIO object store service with Hadoop catalog.
 - Spice is installed (see the [Getting Started](https://docs.spiceai.org/getting-started) documentation).
 
-## Step 1: Start the MinIO Server
+## Step 1: Start the MinIO Server.
+
+Clone the Spice cookbook repository and navigate to the `iceberg-hadoop` directory:
+```bash
+git clone https://github.com/spiceai/cookbook.git # Skip if already cloned
+cd cookbook/catalogs/iceberg-hadoop
+```
 
 Use the provided Docker Compose file to start a MinIO server, which sets up with a TPCH dataset:
 
 ```bash
-cd catalogs/iceberg-hadoop
 docker compose up -d
 ```
 
-## Step 2: Start the Spice Runtime
+## Step 2: Start the Spice Runtime.
 
 Once Docker has finished starting, enter into the provided spicepod directory and start the Spice Runtime:
 
@@ -41,7 +46,7 @@ The Runtime should start and register the TPCH catalog. Example output:
 2025-08-07T02:51:44.453020Z  INFO runtime: All components are loaded. Spice runtime is ready!
 ```
 
-## Step 3: Query the Hadoop Catalog
+## Step 3: Query the Hadoop Catalog.
 
 In a new terminal, run the Spice SQL REPL and execute an SQL command to read TPCH data from the Hadoop catalog:
 
@@ -65,4 +70,10 @@ Example output:
 | 3           | EUROPE      | e dolphins are furiously about the carefully                                                                        |
 | 4           | MIDDLE EAST |  foxes boost furiously along the carefully dogged tithes. slyly regular orbits according to the special epit        |
 +-------------+-------------+---------------------------------------------------------------------------------------------------------------------+
+```
+
+## Step 4: Cleanup.
+
+```bash
+docker-compose down
 ```

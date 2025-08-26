@@ -4,9 +4,18 @@ This recipe will walk you through using Spice as a text to SQL interface.
 
 ## Prerequisites
 
-- Ensure you have the Spice CLI installed. Follow the [Getting Started](https://docs.spiceai.org/getting-started) if you haven't done so.
+Ensure you have the Spice CLI installed. Follow the [Getting Started](https://docs.spiceai.org/getting-started) if you haven't done so.
+  
+Clone the Spice cookbook repository and navigate to the `text-to-sql` directory:
+
+```bash
+git clone https://github.com/spiceai/cookbook.git  # Skip if already cloned
+cd cookbook/text-to-sql
+```
+
 - Populate `.env`.
   - `SPICE_OPENAI_API_KEY`: A valid OpenAI API key (or equivalent).
+
 - Install `jq` from [here](https://jqlang.github.io/jq/download/)
   - Or `brew install jq` for MacOS.
   - Or `sudo apt-get install jq` for Linux.
@@ -15,13 +24,13 @@ This recipe will walk you through using Spice as a text to SQL interface.
 
 Separate from using language models to interact with [runtime tools](https://spiceai.org/docs/components/tools), `spice` has a standalone text to SQL endpoint. This provides more granular control of how SQL generation is done, and is more robust to hallucination and misuse of tools.
 
-1. Start Spice
+## Step 1: Start Spice.
 
 ```bash
 spice run
 ```
 
-2. Call the dedicated text-to-sql endpoint
+## Step 2: Call the dedicated text-to-sql endpoint.
 
 ```shell
 curl -XPOST "http://localhost:8090/v1/nsql" \
@@ -50,7 +59,7 @@ Result:
 ]
 ```
 
-3. Inspect the tools used.
+## Step 3: Inspect the tools used.
 
 ```shell
 spice trace nsql --include-input --truncate=40
