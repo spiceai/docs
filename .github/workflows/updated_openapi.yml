@@ -45,7 +45,7 @@ jobs:
           git config --global user.email 'schema-bot@spice.ai'
 
       - name: Commit and push changes
-        if: env.CHANGES_FOUND == 'true'
+        if: env.CHANGES_FOUND == 'true'  && !startsWith(github.head_ref, 'release/')
         working-directory: website
         run: |
           git add docs/api/HTTP/
