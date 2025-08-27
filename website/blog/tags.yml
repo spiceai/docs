@@ -170,6 +170,10 @@ json:
   label: 'json'
   permalink: '/json'
   description: 'JSON data handling and processing'
+kafka:
+  label: 'kafka'
+  permalink: '/kafka'
+  description: 'Kafka related topics and usage'
 language-models:
   label: 'language-model'
   permalink: '/language-models'
@@ -194,6 +198,14 @@ metal:
   label: 'metal'
   permalink: '/metal'
   description: 'Graphics and compute API created by Apple for M-Series on macOS'
+model2vec:
+  label: 'model2vec'
+  permalink: '/model2vec'
+  description: 'Model2Vec topics and usage'
+mongodb:
+  label: 'mongodb'
+  permalink: '/mongodb'
+  description: 'MongoDB database topics and usage'
 monitoring:
   label: 'monitoring'
   permalink: '/monitoring'
@@ -214,6 +226,10 @@ on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
   description: 'On-premises infrastructure and usage'
+openai:
+  label: 'openai'
+  permalink: '/openai'
+  description: 'OpenAI topics and usage'
 oracle:
   label: 'oracle'
   permalink: '/oracle'
