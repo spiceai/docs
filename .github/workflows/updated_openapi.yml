@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Cancel workflow if source branch is release/*
+        run: |
+          if [[ "${{ github.head_ref }}" == release/* ]]; then
+            echo "Source branch is release/*, skipping workflow."
+            exit 0
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
