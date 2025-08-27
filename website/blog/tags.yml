@@ -14,9 +14,9 @@ ai:
   label: 'ai'
   permalink: '/ai'
   description: 'Artificial Intelligence related topics and discussions'
-amazon s3 vectors:
+amazon-s3-vectors:
   label: 'amazon s3 vectors'
-  permalink: '/amazon s3 vectors'
+  permalink: '/amazon-s3-vectors'
   description: 'Amazon s3 Vectors related topics and usage'
 announcement:
   label: 'announcement'
