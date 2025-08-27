@@ -16,69 +16,37 @@ Spice AI acknowledges the following open source projects for making this project
 ## Go Modules
 
 github.com/AzureAD/microsoft-authentication-library-for-go/apps, https://github.com/AzureAD/microsoft-authentication-library-for-go/blob/v1.4.1/LICENSE, MIT
-
 github.com/chzyer/readline, https://github.com/chzyer/readline/blob/2972be24d48e/LICENSE, MIT
-
 github.com/fsnotify/fsnotify, https://github.com/fsnotify/fsnotify/blob/v1.7.0/LICENSE, BSD-3-Clause
-
 github.com/gocarina/gocsv, https://github.com/gocarina/gocsv/blob/b87c2d0e983a/LICENSE, MIT
-
 github.com/golang-jwt/jwt/v5, https://github.com/golang-jwt/jwt/blob/v5.2.2/LICENSE, MIT
-
 github.com/google/uuid, https://github.com/google/uuid/blob/v1.6.0/LICENSE, BSD-3-Clause
-
 github.com/hashicorp/go-cleanhttp, https://github.com/hashicorp/go-cleanhttp/blob/v0.5.2/LICENSE, MPL-2.0
-
 github.com/hashicorp/go-retryablehttp, https://github.com/hashicorp/go-retryablehttp/blob/v0.7.8/LICENSE, MPL-2.0
-
 github.com/hashicorp/hcl, https://github.com/hashicorp/hcl/blob/v1.0.0/LICENSE, MPL-2.0
-
 github.com/joho/godotenv, https://github.com/joho/godotenv/blob/v1.5.1/LICENCE, MIT
-
 github.com/kylelemons/godebug, https://github.com/kylelemons/godebug/blob/v1.1.0/LICENSE, Apache-2.0
-
 github.com/logrusorgru/aurora, https://github.com/logrusorgru/aurora/blob/v2.0.3/LICENSE, Unlicense
-
 github.com/magiconair/properties, https://github.com/magiconair/properties/blob/v1.8.7/LICENSE.md, BSD-2-Clause
-
 github.com/manifoldco/promptui, https://github.com/manifoldco/promptui/blob/v0.9.0/LICENSE.md, BSD-3-Clause
-
 github.com/mattn/go-runewidth, https://github.com/mattn/go-runewidth/blob/v0.0.15/LICENSE, MIT
-
 github.com/mitchellh/mapstructure, https://github.com/mitchellh/mapstructure/blob/v1.5.0/LICENSE, MIT
-
 github.com/olekukonko/tablewriter, https://github.com/olekukonko/tablewriter/blob/v0.0.5/LICENSE.md, MIT
-
 github.com/pelletier/go-toml/v2, https://github.com/pelletier/go-toml/blob/v2.2.2/LICENSE, MIT
-
 github.com/peterh/liner, https://github.com/peterh/liner/blob/v1.2.2/COPYING, MIT
-
 github.com/pkg/browser, https://github.com/pkg/browser/blob/5ac0b6a4141c/LICENSE, BSD-2-Clause
-
 github.com/rivo/uniseg, https://github.com/rivo/uniseg/blob/v0.4.6/LICENSE.txt, MIT
-
 github.com/sagikazarmark/slog-shim, https://github.com/sagikazarmark/slog-shim/blob/v0.1.0/LICENSE, BSD-3-Clause
-
 github.com/spf13/afero, https://github.com/spf13/afero/blob/v1.11.0/LICENSE.txt, Apache-2.0
-
 github.com/spf13/cast, https://github.com/spf13/cast/blob/v1.6.0/LICENSE, MIT
-
 github.com/spf13/cobra, https://github.com/spf13/cobra/blob/v1.9.1/LICENSE.txt, Apache-2.0
-
-github.com/spf13/pflag, https://github.com/spf13/pflag/blob/v1.0.6/LICENSE, BSD-3-Clause
-
+github.com/spf13/pflag, https://github.com/spf13/pflag/blob/v1.0.7/LICENSE, BSD-3-Clause
 github.com/spf13/viper, https://github.com/spf13/viper/blob/v1.19.0/LICENSE, MIT
-
 github.com/subosito/gotenv, https://github.com/subosito/gotenv/blob/v1.6.0/LICENSE, MIT
-
 golang.org/x/mod/semver, https://cs.opensource.google/go/x/mod/+/v0.26.0:LICENSE, BSD-3-Clause
-
 golang.org/x/sys/unix, https://cs.opensource.google/go/x/sys/+/v0.34.0:LICENSE, BSD-3-Clause
-
 golang.org/x/text, https://cs.opensource.google/go/x/text/+/v0.26.0:LICENSE, BSD-3-Clause
-
 gopkg.in/ini.v1, https://github.com/go-ini/ini/blob/v1.67.0/LICENSE, Apache-2.0
-
 gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 ## Rust Crates
@@ -96,6 +64,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
   <br/>https://github.com/dtolnay/anyhow
 
 - arrow 55.1.0, Apache-2.0 
+  <br/>https://github.com/apache/arrow-rs
+
+- arrow-array 55.1.0, Apache-2.0 
   <br/>https://github.com/apache/arrow-rs
 
 - arrow-buffer 55.1.0, Apache-2.0 
@@ -137,7 +108,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - async-trait 0.1.88, Apache-2.0 OR MIT 
   <br/>https://github.com/dtolnay/async-trait
 
-- aws-config 1.6.3, Apache-2.0 
+- aws-config 1.8.2, Apache-2.0 
   <br/>https://github.com/smithy-lang/smithy-rs
 
 - aws-credential-types 1.2.4, Apache-2.0 
@@ -146,7 +117,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - aws-sdk-bedrockruntime 1.92.0, Apache-2.0 
   <br/>https://github.com/awslabs/aws-sdk-rust
 
-- aws-sdk-dynamodb 1.77.0, Apache-2.0 
+- aws-sdk-dynamodb 1.84.0, Apache-2.0 
   <br/>https://github.com/awslabs/aws-sdk-rust
 
 - aws-sdk-glue 1.90.0, Apache-2.0 
@@ -158,7 +129,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - aws-sdk-secretsmanager 1.76.0, Apache-2.0 
   <br/>https://github.com/awslabs/aws-sdk-rust
 
-- aws-sdk-sts 1.71.0, Apache-2.0 
+- aws-sdk-sts 1.78.0, Apache-2.0 
   <br/>https://github.com/awslabs/aws-sdk-rust
 
 - aws-smithy-types 1.3.2, Apache-2.0 
@@ -239,11 +210,14 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - clickhouse-rs 1.1.0-alpha.1, MIT 
   <br/>https://github.com/suharev7/clickhouse-rs
 
-- croner 2.2.0, MIT 
+- croner 3.0.0, MIT 
   <br/>https://github.com/hexagon/croner-rust
 
 - csv 1.3.1, MIT OR Unlicense 
   <br/>https://github.com/BurntSushi/rust-csv
+
+- ctor 0.2.9, Apache-2.0 OR MIT 
+  <br/>https://github.com/mmastrac/rust-ctor
 
 - ctrlc 3.4.7, Apache-2.0 OR MIT 
   <br/>https://github.com/Detegr/rust-ctrlc.git
@@ -368,6 +342,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - iceberg-datafusion 0.5.1, Apache-2.0 
   <br/>https://github.com/apache/iceberg-rust
 
+- iceberg_test_utils 0.5.1, Apache-2.0 
+  <br/>https://github.com/apache/iceberg-rust
+
 - imap 3.0.0-alpha.14, Apache-2.0 OR MIT 
   <br/>https://github.com/jonhoo/rust-imap
 
@@ -455,6 +432,9 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - once_cell 1.21.3, Apache-2.0 OR MIT 
   <br/>https://github.com/matklad/once_cell
 
+- opendal 0.53.3, Apache-2.0 
+  <br/>https://github.com/apache/opendal
+
 - opentelemetry 0.27.1, Apache-2.0 
   <br/>https://github.com/open-telemetry/opentelemetry-rust
 
@@ -539,7 +519,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - rand 0.8.5, Apache-2.0 OR MIT 
   <br/>https://github.com/rust-random/rand
 
-- rand 0.9.1, Apache-2.0 OR MIT 
+- rand 0.9.2, Apache-2.0 OR MIT 
   <br/>https://github.com/rust-random/rand
 
 - rdkafka 0.38.0, MIT 
@@ -647,7 +627,7 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 - sysinfo 0.30.13, MIT 
   <br/>https://github.com/GuillaumeGomez/sysinfo
 
-- sysinfo 0.33.1, MIT 
+- sysinfo 0.35.2, MIT 
   <br/>https://github.com/GuillaumeGomez/sysinfo
 
 - tantivy 0.24.1, MIT 
@@ -772,3 +752,4 @@ gopkg.in/yaml.v3, https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE, MIT
 
 - zip 3.0.0, MIT 
   <br/>https://github.com/zip-rs/zip2.git
+
