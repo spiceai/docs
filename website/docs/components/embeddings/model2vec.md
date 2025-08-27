@@ -4,7 +4,17 @@ sidebar_label: 'Model2Vec'
 sidebar_position: 4
 ---
 
-To use a Model2Vec embedding model with Spice, specify the `model2vec` prefix in the `from` field of your configuration. Model2Vec is a technique that distills embeddings from transformer models into static word embeddings, providing efficient embedding generation, in parallel, without performing external API calls.
+Model2Vec is a technique that distills embeddings from transformer models into static word embeddings [(read the blog post)](https://huggingface.co/blog/Pringled/model2vec), providing efficient embedding generation (~500x faster on CPU), in parallel, without performing external API calls. To use a Model2Vec embedding model with Spice, specify the `model2vec` prefix in the `from` field of your configuration.
+
+## Model Compatibility
+
+Find models compatible with `model2vec`:
+
+- [Model2Vec base models](https://huggingface.co/collections/minishlab/model2vec-base-models-66fd9dd9b7c3b3c0f25ca90e) (ready to use, pre-distilled)
+- [Sentence Transformers](https://huggingface.co/collections/sentence-transformers/embedding-model-datasets-6644d7a3673a511914aa7552) (needs [distillation](#distilling-your-own-models))
+- [Pre-distilled community models](https://huggingface.co/models?search=model2vec)
+
+## Parameters
 
 The following parameters are specific to Model2Vec models:
 
