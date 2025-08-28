@@ -129,8 +129,8 @@ const config: Config = {
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
         {
-          label: 'Cloud Docs',
-          href: 'https://docs.spice.ai/',
+          label: 'Try Spice Cloud',
+          href: 'https://spice.ai/login?redirectTo=/pricing',
           position: 'right'
         },
         {
