@@ -3,7 +3,8 @@ title: 'Web Search Tool'
 sidebar_label: 'Websearch'
 ---
 
-The Web Search Tool enables Spice models to search the web for information. The tool is available through the `websearch` tool, and backed by different search engines. Some model providers, like OpenAI and Perplexity, natively support web-search. Learn more about natively configuring web search for the OpenAI model provider [here](/docs/components/models/openai) and for the Perplexity model provider [here](/docs/components/models/perplexity).
+The Web Search Tool enables Spice models to search the web for information. The tool is available through the `websearch` tool, and backed by different search engines.
+
 ## Usage
 ```yaml
 tools:
@@ -53,3 +54,16 @@ To define a Perplexity search engine, use the following parameters:
         - docs.perplexity.ai
       ```
   - `perplexity_search_recency_filter`: Returns search results within the specified time interval - does not apply to images. One of: `month`, `week`, `day`, `hour`.
+
+## OpenAI
+To use web search with OpenAI's Responses API, add the following configuration under the `models` section of the Spicepod:
+```yaml
+  - from: openai:gpt-4.1 # Or any other model supported by OpenAI's Responses API
+    name: web_searching_model
+    params:
+      openai_api_key: ${ secrets:OPENAI_API_KEY }
+      responses_api: enabled # Required for using web search with OpenAI
+      openai_responses_tools: web_search # Allowlist the web search tool for the model
+      system_prompt: You are a model that can search the web # Optional
+```
+To invoke this model, use `spice chat --responses` for an interactive chat session or Spice's OpenAI-compatible `/v1/responses` HTTP endpoint.
