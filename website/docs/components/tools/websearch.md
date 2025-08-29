@@ -3,8 +3,7 @@ title: 'Web Search Tool'
 sidebar_label: 'Websearch'
 ---
 
-The Web Search Tool enables Spice models to search the web for information. The tool is available through the `websearch` tool, and backed by different search engines.
-
+The Web Search Tool enables Spice models to search the web for information. The tool is available through the `websearch` tool, and backed by different search engines. Some model providers, like OpenAI and Perplexity, natively support web-search. Learn more about natively configuring web search for the OpenAI model provider [here](/docs/components/models/openai) and for the Perplexity model provider [here](/docs/components/models/perplexity).
 ## Usage
 ```yaml
 tools:

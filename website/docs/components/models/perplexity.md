@@ -5,7 +5,7 @@ sidebar_label: 'Perplexity'
 sidebar_position: 4
 ---
 
-To use a language model hosted on Perplexity, specify `perplexity` in the `from` field.
+To use a language model hosted on Perplexity, specify `perplexity` in the `from` field. This model provider natively supports web search as a tool.
 
 To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `sonar`.
 
