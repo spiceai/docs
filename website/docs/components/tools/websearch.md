@@ -54,17 +54,3 @@ To define a Perplexity search engine, use the following parameters:
         - docs.perplexity.ai
       ```
   - `perplexity_search_recency_filter`: Returns search results within the specified time interval - does not apply to images. One of: `month`, `week`, `day`, `hour`.
-
-## OpenAI
-To use web search with OpenAI's Responses API, add the following model in the Spicepod:
-```yaml
-models:
-  - from: openai:gpt-4.1 # Or any other model supported by OpenAI's Responses API
-    name: web_searching_model
-    params:
-      openai_api_key: ${ secrets:OPENAI_API_KEY }
-      responses_api: enabled # Required for using web search with OpenAI
-      openai_responses_tools: web_search # Allowlist the web search tool for the model
-      system_prompt: You are a model that can search the web # Optional
-```
-To invoke this model, use `spice chat --responses` for an interactive chat session or Spice's OpenAI-compatible `/v1/responses` HTTP endpoint.
