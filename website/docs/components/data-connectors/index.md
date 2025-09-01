@@ -46,6 +46,7 @@ Supported Data Connectors include:
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
