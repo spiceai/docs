@@ -46,9 +46,10 @@ Supported Data Connectors include:
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `dynamodb`                         | DynamoDB                              | Alpha             |                              |
+| `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
-| `mongodb`                          | MongoDB                               | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
