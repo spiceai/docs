@@ -69,7 +69,7 @@ dataset_active_count{engine="duckdb"} 1
 ## Metrics
 
 | Metric                                                       | Description                                                                                                 |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | --- |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
 | `accelerated_ready_state_federated_fallback`<br/>_(count)_   | Number of times the federated table was queried due to the accelerated table loading the initial data.      |
 | `catalog_load_errors`<br/>_(count)_                          | Number of errors loading the catalog provider.                                                              |
 | `catalog_load_state`<br/>_(gauge)_                           | Status of the catalog provider. 0=Initializing, 1=Ready, 2=Disabled, 3=Error, 4=Refreshing, 5=ShuttingDown. |
@@ -85,7 +85,7 @@ dataset_active_count{engine="duckdb"} 1
 | `flight_request_duration_ms`<br/>_(histogram)_               | Measures the duration of Flight requests in milliseconds.                                                   |
 | `flight_requests`<br/>_(count)_                              | Total number of Flight requests.                                                                            |
 | `http_requests_duration_ms`<br/>_(histogram)_                | Measures the duration of HTTP requests in milliseconds.                                                     |
-| `http_requests`<br/>_(count)_                                | Number of HTTP requests.                                                                                    |     |
+| `http_requests`<br/>_(count)_                                | Number of HTTP requests.                                                                                    |
 | `llm_load_state`<br/>_(gauge)_                               | Status of the LLM model. 0=Initializing, 1=Ready, 2=Disabled, 3=Error, 4=Refreshing, 5=ShuttingDown.        |
 | `model_active_count`<br/>_(gauge)_                           | Number of currently loaded models.                                                                          |
 | `model_load_duration_ms`<br/>_(histogram)_                   | Duration in milliseconds to load the model.                                                                 |
