@@ -98,14 +98,15 @@ Reciprocal Rank Fusion (RRF) combines results from multiple search queries to im
 
 ### Usage
 
-`rrf` is varadic and takes two or more search UDTF calls as arguments. A smoothing parameter override can be provided as the last argument. Spice will compute a JOIN key on-the-fly in order to fuse the results.
+`rrf` is varadic and takes two or more search UDTF calls as arguments. An optional join key column and smoothing parameter can be provided. When no join key is specified, Spice will compute a JOIN key on-the-fly (by hashing rows) in order to fuse the results. Specifying an explicit JOIN key is recommended for optimal performance.
 
 ```sql
 SELECT id, content, fused_score
 FROM rrf(
     vector_search(table, 'search query'),
     text_search(table, 'search terms', column),
-    60.0  -- optional k parameter (smoothing factor)
+    id,    -- optional join key column
+    60.0   -- optional k parameter (smoothing factor)
 )
 ORDER BY fused_score DESC
 LIMIT 10;
@@ -118,6 +119,7 @@ LIMIT 10;
 | `query_1`  | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`) |
 | `query_2`  | Search UDTF call | Yes      | Second search query                                       |
 | `...`      | Search UDTF call | No       | Additional search queries (variadic)                      |
+| `join_key` | Column           | No       | Column name to use for joining results across queries     |
 | `k`        | Float            | No       | Smoothing parameter for RRF scoring (default: 60)         |
 
 #### Example
@@ -127,7 +129,8 @@ LIMIT 10;
 SELECT id, title, content, fused_score
 FROM rrf(
     vector_search(documents, 'machine learning algorithms'),
-    text_search(documents, 'neural networks deep learning', content)
+    text_search(documents, 'neural networks deep learning', content),
+    id  -- use 'id' column as join key for better performance
 )
 WHERE fused_score > 0.01
 ORDER BY fused_score DESC
