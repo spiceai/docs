@@ -1419,7 +1419,187 @@ Binary string functions help encode and decode binary data, such as base64 and h
 
 ## Regular Expression Functions
 
-Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Functions such as `regexp_like`, `regexp_match`, and `regexp_replace` are available.
+Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Spice supports the following regular expressions:
+
+- [`regexp_like`](#regexp_like)
+- [`regexp_match`](#regexp_match)
+- [`regexp_replace`](#regexp_replace)
+- [`regexp_count`](#regexp_count)
+- [`regexp_instr`](#regexp_instr)
+
+### `regexp_like`
+
+Returns true if a regular expression has at least one match in a string, false otherwise.
+
+```sql
+regexp_like(str, regexp[, flags])
+```
+
+#### Arguments
+
+* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+    * **i**: case-insensitive: letters match both upper and lower case
+    * **m**: multi-line mode: ^ and $ match begin/end of line
+    * **s**: allow . to match \n
+    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+    * **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_like('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
++--------------------------------------------------------+
+| regexp_like(Utf8("Köln"),Utf8("[a-zA-Z]ö[a-zA-Z]{2}")) |
++--------------------------------------------------------+
+| true                                                   |
++--------------------------------------------------------+
+> SELECT regexp_like('aBc', '(b|d)', 'i');
++--------------------------------------------------+
+| regexp_like(Utf8("aBc"),Utf8("(b|d)"),Utf8("i")) |
++--------------------------------------------------+
+| true                                             |
++--------------------------------------------------+
+```
+
+### `regexp_match`
+
+Returns the first regular expression matches in a string.
+
+```sql
+regexp_match(str, regexp[, flags])
+```
+
+#### Arguments
+
+* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **regexp**: Regular expression to match against. Can be a constant, column, or function.
+* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+    * **i**: case-insensitive: letters match both upper and lower case
+    * **m**: multi-line mode: ^ and $ match begin/end of line
+    * **s**: allow . to match \n
+    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+    * **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_match('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
++---------------------------------------------------------+
+| regexp_match(Utf8("Köln"),Utf8("[a-zA-Z]ö[a-zA-Z]{2}")) |
++---------------------------------------------------------+
+| [Köln]                                                  |
++---------------------------------------------------------+
+SELECT regexp_match('aBc', '(b|d)', 'i');
++---------------------------------------------------+
+| regexp_match(Utf8("aBc"),Utf8("(b|d)"),Utf8("i")) |
++---------------------------------------------------+
+| [B]                                               |
++---------------------------------------------------+
+```
+
+### `regexp_replace`
+
+Replaces substrings in a string that match a regular expression.
+
+```sql
+regexp_replace(str, regexp, replacement[, flags])
+```
+
+#### Arguments
+
+* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **regexp**: Regular expression to match against. Can be a constant, column, or function.
+* **replacement**: Replacement string expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+    * **g**: (global) Search globally and don’t return after the first match
+    * **i**: case-insensitive: letters match both upper and lower case
+    * **m**: multi-line mode: ^ and $ match begin/end of line
+    * **s**: allow . to match \n
+    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+    * **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_replace('foobarbaz', 'b(..)', 'X\\1Y', 'g');
++------------------------------------------------------------------------+
+| regexp_replace(Utf8("foobarbaz"),Utf8("b(..)"),Utf8("X\1Y"),Utf8("g")) |
++------------------------------------------------------------------------+
+| fooXarYXazY                                                            |
++------------------------------------------------------------------------+
+SELECT regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i');
++-------------------------------------------------------------------+
+| regexp_replace(Utf8("aBc"),Utf8("(b|d)"),Utf8("Ab\1a"),Utf8("i")) |
++-------------------------------------------------------------------+
+| aAbBac                                                            |
++-------------------------------------------------------------------+
+```
+
+### `regexp_count`
+
+Returns the number of matches that a regular expression has in a string.
+
+```sql
+regexp_count(str, regexp[, start, flags])
+```
+
+#### Arguments
+
+* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
+* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+    * **i**: case-insensitive: letters match both upper and lower case
+    * **m**: multi-line mode: ^ and $ match begin/end of line
+    * **s**: allow . to match \n
+    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+    * **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_count('abcAbAbc', 'abc', 2, 'i');
++---------------------------------------------------------------+
+| regexp_count(Utf8("abcAbAbc"),Utf8("abc"),Int64(2),Utf8("i")) |
++---------------------------------------------------------------+
+| 1                                                             |
++---------------------------------------------------------------+
+```
+
+### `regexp_instr`
+
+Returns the position in a string where the specified occurrence of a POSIX regular expression is located.
+
+```sql
+regexp_instr(str, regexp[, start[, N[, flags[, subexpr]]]])
+```
+
+#### Arguments
+
+* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+* **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1
+* **N**: **- N**: Optional The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
+* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+    * **i**: case-insensitive: letters match both upper and lower case
+    * **m**: multi-line mode: ^ and $ match begin/end of line
+    * **s**: allow . to match \n
+    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+    * **U**: swap the meaning of x* and x*?
+* **subexpr**: Optional Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
+
+#### Example
+
+```sql
+> SELECT regexp_instr('ABCDEF', 'C(.)(..)');
++---------------------------------------------------------------+
+| regexp_instr(Utf8("ABCDEF"),Utf8("C(.)(..)"))                 |
++---------------------------------------------------------------+
+| 3                                                             |
++---------------------------------------------------------------+
+```
 
 ## Time and Date Functions
 
