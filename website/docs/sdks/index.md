@@ -4,7 +4,7 @@ sidebar_label: 'SDKs'
 description: 'Connect to spice, using official Spice SDKs'
 pagination_prev: null
 pagination_next: null
-sidebar_position: 13
+sidebar_position: 14
 ---
 
 import DocCardList from '@theme/DocCardList';
