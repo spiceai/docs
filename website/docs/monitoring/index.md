@@ -5,6 +5,8 @@ description: 'Monitoring Spice.ai deployments'
 sidebar_position: 12
 ---
 
+![](/website/static/img/features/observability.png)
+
 Learn how to monitor Spice.ai deployments.
 
 - [Datadog](datadog/index.md)
