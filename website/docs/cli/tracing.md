@@ -9,8 +9,6 @@ tags:
   - logging
 ---
 
-Output trace verbosity is controlled by (in the order of presedence): 
-
 Trace output verbosity is determined by the following sources, listed in order of precedence:
 
 1. Verbosity flags (`-v`/`--verbose`, `-vv`/`--very-verbose`). If these flags are provided, they override all other settings.
