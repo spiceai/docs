@@ -38,7 +38,7 @@ spice run -v
 spiced -v
 ```
 
-Alternatively you can use `runtime` yaml configuration:
+Alternatively you can use `runtime.output_level` yaml configuration:
 ```yaml
 runtime:
   output_level: verbose
@@ -59,7 +59,7 @@ spice run -vv
 spiced -vv
 ```
 
-Alternatively you can use `runtime` yaml configuration:
+Alternatively you can use `runtime.output_level` yaml configuration:
 ```yaml
 runtime:
   output_level: very_verbose
