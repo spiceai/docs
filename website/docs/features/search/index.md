@@ -19,10 +19,11 @@ Spice provides robust search capabilities enabling developers to query datasets 
 
 ## Search Methods Overview
 
-Spice supports three primary search methods:
+Spice supports multiple search methods:
 
 - **Vector Search**: Semantic search using embeddings to retrieve data by meaning and similarity.
 - **Full-Text Search**: Keyword-driven search optimized for text data retrieval.
+- **Hybrid Search**: Combine multiple search methods using Reciprocal Rank Fusion (RRF) for improved relevance.
 - **SQL Search**: Traditional SQL queries for precise and structured searches.
 
 ### Vector Search
@@ -74,5 +75,28 @@ LIMIT 5
 ```
 
 For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#searching-with-sql).
+
+### Hybrid Search with RRF
+
+Reciprocal Rank Fusion (RRF) combines results by merging rankings from multiple search methods to improve relevance.
+
+**Requirements:**
+
+- Multiple search methods configured (vector, full-text, etc.)
+
+**Example SQL Hybrid Search:**
+
+```sql
+SELECT id, title, content, fused_score
+FROM rrf(
+    vector_search(documents, 'machine learning algorithms'),
+    text_search(documents, 'neural networks deep learning', content),
+    id  -- join key for optimal performance
+)
+ORDER BY fused_score DESC
+LIMIT 5
+```
+
+For complete RRF syntax and parameters, see [Search SQL Reference](/docs/reference/sql/search#reciprocal-rank-fusion-rrf).
 
 <DocCardList />
