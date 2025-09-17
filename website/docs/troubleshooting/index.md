@@ -205,7 +205,7 @@ Attach an [ephemeral container](https://kubernetes.io/docs/concepts/workloads/po
      --profile=sysadmin
    ```
 
-   `--target` names the container inside the pod; Helm installs the Spice container as `spiceai` by default. `--profile` selects capability presets (`general`, `netadmin`, or `sysadmin`). With `--profile=sysadmin` and `--target=spiceai`, the Spice filesystem mounts at `/proc/1/root` inside the debugger for direct inspection.
+   `--target` names the container inside the pod; Helm installs the Spice container as `spiceai` by default. `--profile` applies a [static debugging profile](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#static-profile); the `sysadmin` preset adds root-level capabilities. With `--profile=sysadmin` and `--target=spiceai`, the Spice filesystem mounts at `/proc/1/root` inside the debugger for direct inspection.
 
 3. Run the required commands and exit. For example, review the deployed Spicepod definition:
 
