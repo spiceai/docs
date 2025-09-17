@@ -190,6 +190,31 @@ Or from `kubectl`:
 kubectl exec -it <pod_name> -- spiced --repl
 ```
 
+### Debug Kubernetes Pods with Ephemeral Containers
+
+Attach an [ephemeral container](https://kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/) to inspect a running Spice pod without restarting it. The helper container shares the runtime container's namespaces, so diagnostics reflect the live workload.
+
+1. List pods in the relevant namespace: `kubectl get pods -n <namespace>`
+2. Start the debugger:
+
+   ```bash
+   kubectl debug -it my-spicepod-name \
+     -n my-spicepod-ns \
+     --image=ubuntu:24.04 \
+     --target=spiceai \
+     --profile=sysadmin
+   ```
+
+   `--target` names the container inside the pod; Helm installs the Spice container as `spiceai` by default. `--profile` selects capability presets (`general`, `netadmin`, or `sysadmin`). With `--profile=sysadmin` and `--target=spiceai`, the Spice filesystem mounts at `/proc/1/root` inside the debugger for direct inspection.
+
+3. Run the required commands and exit. For example, review the deployed Spicepod definition:
+
+   ```bash
+   cat /proc/1/root/app/spicepod.yaml
+   ```
+
+Ephemeral containers require Kubernetes v1.25+.
+
 ### Debugging with a shell
 
 To debug issues using a shell, mount a volume that has a statically compiled `busybox` binary, and exec into the container using the `busybox sh` command. Here is an example in Docker:
