@@ -10,6 +10,10 @@ tags:
 
 Spice supports distributed tracing by integrating with [Zipkin](https://zipkin.io/) and compatible tracing systems.
 
+<img width="740" alt="zipkin" src="https://github.com/user-attachments/assets/5addc073-35ee-4a84-bf63-7d94ad106187" />
+
+<img width="740" alt="zipkin" src="https://github.com/user-attachments/assets/d8f77900-de1b-430c-96eb-051c10d3ff72" />
+
 ## Configuration
 
 Enable Zipkin tracing by configuring the `runtime.tracing` section in `spicepod.yaml`:
