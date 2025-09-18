@@ -10,7 +10,7 @@ tags:
 
 Spice supports distributed tracing by integrating with [Zipkin](https://zipkin.io/) and compatible tracing systems.
 
-<img width="740" alt="zipkin" src="https://github.com/user-attachments/assets/5addc073-35ee-4a84-bf63-7d94ad106187" />
+<img width="740" alt="zipkin" src="https://github.com/user-attachments/assets/b2763cdf-1ec9-4b85-9a88-16a11a98aaf6" />
 
 <img width="740" alt="zipkin" src="https://github.com/user-attachments/assets/c28e042e-96d8-4aab-8da4-d1f493642e02" />
 
