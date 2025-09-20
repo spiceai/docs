@@ -6,7 +6,7 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-Spice currently supports CSV and Parquet data file-formats for data connectors that can read files from a file system or cloud object storage (i.e. [`s3://`](../components/data-connectors/s3.md), [`abfs://`](../components/data-connectors/abfs.md), [`file://`](../components/data-connectors/file.md), etc.). Support for Iceberg and other file-formats are on the roadmap.
+Spice currently supports CSV, JSON, and Parquet data file-formats for data connectors that can read files from a file system or cloud object storage (i.e. [`s3://`](../components/data-connectors/s3.md), [`abfs://`](../components/data-connectors/abfs.md), [`file://`](../components/data-connectors/file.md), etc.). Support for Iceberg and other file-formats are on the roadmap.
 
 The parameters supported for specific file-formats are detailed on this page.
 
@@ -45,3 +45,9 @@ Data encodings:
 - `csv_escape`: Optional. A one-character string used to represent special characters or to include characters that would normally be interpreted as delimiters or new line characters within a field value. Defaults to `null`
 - `csv_schema_infer_max_records`: Optional. A number used to set the limit in terms of records to scan to infer the schema. Defaults to `1000`
 - `csv_delimiter`: Optional. A one-character string used to separate individual fields. Defaults to `,`
+
+## JSON
+
+### Parameters
+
+- `json_format`: Optional. Specifies the JSON format to parse. Valid values are `array`, `ndjson`, and `jsonl`. Defaults to `jsonl`
