@@ -2,7 +2,6 @@
 title: 'Scalar Functions'
 sidebar_label: 'Scalar Functions'
 pagination_prev: 'reference/sql/information_schema'
-pagination_next: null
 sidebar_position: 6
 ---
 
