@@ -2,7 +2,10 @@
 title: 'Kafka Data Connector'
 sidebar_label: 'Kafka Data Connector'
 description: 'Kafka Data Connector Documentation'
-pagination_prev: null
+tags:
+  - data-connectors
+  - kafka
+  - component-metrics
 ---
 
 The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](/docs/components/data-accelerators/index.md). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
@@ -84,8 +87,34 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
+| `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                            |
 | `schema_infer_max_records`                    | Number of Kafka messages to sample for schema inference. Default: `1`. Increase if your data has optional fields or varying structure.                                                                                                                                                                                          |
 | `flatten_json`                                | Set `true` to flatten nested structs in JSON as separate columns.                                                                                                                                                                                                                                                               |
+
+### `metrics`
+
+The connector supports the following optional [component metrics](/docs/features/observability/component_metrics):
+
+| Metric Name              | Type    | Description                                                                                       |
+|--------------------------|---------|---------------------------------------------------------------------------------------------------|
+| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                               |
+| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                                     |
+| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed)              |
+
+These metrics are not enabled by default, enable them by setting the `metrics` parameter:
+
+```yaml
+datasets:
+  - from: kafka:user_events
+    name: events
+    metrics:
+      - name: records_lag
+      - name: records_consumed_total
+      - name: bytes_consumed_total
+    params: 
+    ...
+
+```
 
 ### Acceleration Settings
 
