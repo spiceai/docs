@@ -73,7 +73,7 @@ workers:
       routing:
         - from: llama3_2
         - from: gpt4_1
-    cron: "* * * * *" # every minute
+    cron: '* * * * *' # every minute
     params:
       prompt: "What's the date today?"
 ```
@@ -87,8 +87,8 @@ When a `sql` action is specified with a cron schedule, the worker runs the SQL a
 ```yaml
 workers:
   - name: sql-worker
-    cron: "* * * * *" # every minute
-    sql: "SELECT COUNT(*) FROM orders"
+    cron: '* * * * *' # every minute
+    sql: 'SELECT COUNT(*) FROM orders'
 ```
 
 ### `load_balance`
@@ -143,7 +143,6 @@ workers:
 ```
 
 The worker uses the models in increasing order, returning the first result that is not an error.
-
 
 #### Worker with weighted model routing
 

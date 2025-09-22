@@ -6,7 +6,7 @@ sidebar_position: 6
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. Note, when using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Scalar functions help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The function set closely follows the PostgreSQL dialect.
@@ -1436,14 +1436,14 @@ regexp_like(str, regexp[, flags])
 
 #### Arguments
 
-* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
-    * **i**: case-insensitive: letters match both upper and lower case
-    * **m**: multi-line mode: ^ and $ match begin/end of line
-    * **s**: allow . to match \n
-    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
-    * **U**: swap the meaning of x* and x*?
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
 
 #### Example
 
@@ -1472,14 +1472,14 @@ regexp_match(str, regexp[, flags])
 
 #### Arguments
 
-* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **regexp**: Regular expression to match against. Can be a constant, column, or function.
-* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
-    * **i**: case-insensitive: letters match both upper and lower case
-    * **m**: multi-line mode: ^ and $ match begin/end of line
-    * **s**: allow . to match \n
-    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
-    * **U**: swap the meaning of x* and x*?
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to match against. Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
 
 #### Example
 
@@ -1508,16 +1508,16 @@ regexp_replace(str, regexp, replacement[, flags])
 
 #### Arguments
 
-* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **regexp**: Regular expression to match against. Can be a constant, column, or function.
-* **replacement**: Replacement string expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
-    * **g**: (global) Search globally and don’t return after the first match
-    * **i**: case-insensitive: letters match both upper and lower case
-    * **m**: multi-line mode: ^ and $ match begin/end of line
-    * **s**: allow . to match \n
-    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
-    * **U**: swap the meaning of x* and x*?
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to match against. Can be a constant, column, or function.
+- **replacement**: Replacement string expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **g**: (global) Search globally and don’t return after the first match
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
 
 #### Example
 
@@ -1546,15 +1546,15 @@ regexp_count(str, regexp[, start, flags])
 
 #### Arguments
 
-* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
-* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
-    * **i**: case-insensitive: letters match both upper and lower case
-    * **m**: multi-line mode: ^ and $ match begin/end of line
-    * **s**: allow . to match \n
-    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
-    * **U**: swap the meaning of x* and x*?
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
 
 #### Example
 
@@ -1577,17 +1577,17 @@ regexp_instr(str, regexp[, start[, N[, flags[, subexpr]]]])
 
 #### Arguments
 
-* **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
-* **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1
-* **N**: **- N**: Optional The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
-* **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
-    * **i**: case-insensitive: letters match both upper and lower case
-    * **m**: multi-line mode: ^ and $ match begin/end of line
-    * **s**: allow . to match \n
-    * **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
-    * **U**: swap the meaning of x* and x*?
-* **subexpr**: Optional Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1
+- **N**: **- N**: Optional The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+- **subexpr**: Optional Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
 
 #### Example
 
