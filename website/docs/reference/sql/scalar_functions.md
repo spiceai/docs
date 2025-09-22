@@ -2,7 +2,6 @@
 title: 'Scalar Functions'
 sidebar_label: 'Scalar Functions'
 pagination_prev: 'reference/sql/information_schema'
-pagination_next: null
 sidebar_position: 6
 ---
 
@@ -2425,6 +2424,33 @@ Union functions help work with union (variant) data types, such as extracting th
 ## Other Functions
 
 Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
+
+### `embed`
+
+Generates vector embeddings for text using specified embedding models. Supports both single text strings and arrays of text for batch processing.
+
+```sql
+embed(text, model_name)
+```
+
+#### Arguments
+
+- **text**: String or array of strings to generate embeddings for.
+- **model_name**: Name of the embedding model to use (e.g., 'potion_2m', 'xl_embed') as configured in your Spicepod.
+
+#### Return Type
+
+Returns a list of floating-point values representing the embedding vector. For array inputs, returns embeddings for each element, preserving the input array length including NULL values.
+
+#### Example
+
+```sql
+-- Single text embedding (returns a single array)
+> select embed('hello world', 'potion_2m');
+
+-- Multiple text embeddings (returns an array with 3 embedding arrays)
+> select embed(['hey', 'there', 'sunshine'], 'potion_2m');
+```
 
 ---
 

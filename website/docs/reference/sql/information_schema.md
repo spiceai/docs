@@ -1,8 +1,6 @@
 ---
 title: 'Information Schema'
 sidebar_label: 'Information Schema'
-pagination_prev: 'reference/sql/explain'
-pagination_next: 'reference/sql/scalar_functions'
 sidebar_position: 5
 ---
 

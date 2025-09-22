@@ -2,8 +2,6 @@
 title: 'Grafana & Prometheus'
 sidebar_label: 'Grafana & Prometheus'
 description: 'Monitoring Spice instances with Grafana & Prometheus'
-pagination_prev: 'clients/index'
-pagination_next: null
 ---
 
 Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](/features/observability/index.md) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
@@ -39,8 +37,9 @@ global:
 
 ## Local Quickstart
 
-This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes: 
-  - Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
+This tutorial creates and configures Grafana and Prometheus locally to scrape and display metrics from several Spice instances. It assumes:
+
+- Two Spice runtimes, `spiced-main` and `spiced-edge`, are running on `127.0.0.1:9091` and `127.0.0.1:9092` respectively.
 
 1. Create a `compose.yaml`:
 
