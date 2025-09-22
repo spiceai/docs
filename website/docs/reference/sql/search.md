@@ -115,7 +115,7 @@ LIMIT 10;
 **Arguments:**
 
 | Parameter  | Type             | Required | Description                                               |
-|------------|------------------|----------|-----------------------------------------------------------|
+| ---------- | ---------------- | -------- | --------------------------------------------------------- |
 | `query_1`  | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`) |
 | `query_2`  | Search UDTF call | Yes      | Second search query                                       |
 | `...`      | Search UDTF call | No       | Additional search queries (variadic)                      |
@@ -138,6 +138,7 @@ LIMIT 5;
 ```
 
 **How RRF works:**
+
 - Each input query is ranked independently by score
 - Rankings are combined using the formula: `RRF Score = Σ(1 / (k + rank))`
 - Documents appearing in multiple result sets receive higher scores

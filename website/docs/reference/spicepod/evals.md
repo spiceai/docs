@@ -8,7 +8,6 @@ A Spicepod can contain one or more evaluations (evals) referenced by relative pa
 
 To learn about evals, including what they are and how to run them in Spice, refer to the [Evals documentation](/docs/features/large-language-models/evals).
 
-
 # `evals`
 
 Example:

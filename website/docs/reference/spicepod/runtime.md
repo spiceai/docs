@@ -14,9 +14,9 @@ This setting specifies the maximum number of datasets that can be loaded in para
 
 This setting specifies cache settings for supported Runtime components:
 
-* `sql_results`: Specifies cache settings for results from SQL queries.
-* `search_results`: Specifies cache settings for results from searches.
-* `embeddings`: Specifies cache settings for embeddings requests.
+- `sql_results`: Specifies cache settings for results from SQL queries.
+- `search_results`: Specifies cache settings for results from searches.
+- `embeddings`: Specifies cache settings for embeddings requests.
 
 Runtime caches support common configuration parameters:
 
@@ -73,9 +73,9 @@ runtime:
 
 In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+| Parameter name   | Optional | Description                                                                                                                                   |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 
 :::info
 

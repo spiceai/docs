@@ -87,18 +87,15 @@ Optional. A list of files associated with this model. Each file has:
 File types include:
 
 - `weights`: Model weights
-
   - For ML models: typically `.onnx` files
   - For LLMs: `.gguf`, `.ggml`, `.safetensors`, or `pytorch_model.bin` files
   - These files contain the trained parameters of the model
 
 - `config`: Model configuration
-
   - Usually a `config.json` file
   - Contains model architecture and hyperparameters
 
 - `tokenizer`: Tokenizer file
-
   - Usually a `tokenizer.json` file
   - Defines how input text is converted into tokens for the model
 
