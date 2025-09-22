@@ -42,7 +42,7 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
   - [`->`](#op_json_get)
     - [Arguments](#arguments-10)
     - [Example](#example-10)
-  - [`->>`](#op_json_text)
+  - [`->>`](#op_json_as_text)
     - [Arguments](#arguments-11)
     - [Example](#example-11)
   - [`?`](#op_json_contains)
