@@ -1,8 +1,6 @@
 ---
 title: 'Prepared Statements'
 sidebar_label: 'Prepared Statements'
-pagination_prev: 'reference/sql/subqueries'
-pagination_next: 'reference/sql/explain'
 sidebar_position: 4
 ---
 
