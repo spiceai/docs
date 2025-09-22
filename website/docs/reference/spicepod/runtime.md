@@ -16,6 +16,7 @@ This setting specifies cache settings for supported Runtime components:
 
 * `sql_results`: Specifies cache settings for results from SQL queries.
 * `search_results`: Specifies cache settings for results from searches.
+* `embeddings`: Specifies cache settings for embeddings requests.
 
 Runtime caches support common configuration parameters:
 
@@ -41,6 +42,21 @@ runtime:
 ```
 
 The search results cache supports the common cache configuration parameters.
+
+### `runtime.caching.embeddings`
+
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](/docs/features/caching/index.md).
+
+```yaml
+runtime:
+  caching:
+    embeddings:
+      enabled: true
+      max_size: 128MiB
+      item_ttl: 1s
+```
+
+The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 

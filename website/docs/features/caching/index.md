@@ -37,10 +37,11 @@ runtime:
 | ---------------- | -------- | ---------------------------------------------------------- |
 | `sql_results`    | Yes      | Configures the Runtime cache for results from SQL queries. |
 | `search_results` | Yes      | Configures the Runtime cache for results from searches.    |
+| `embeddings`     | Yes      | Configures the Runtime cache for embeddings requests.      |
 
 ## Common Caching Parameters
 
-Every cache type (`sql_results`, `search_results`) supports the following parameters:
+Every cache type (`sql_results`, `search_results`, `embeddings`) supports the following parameters:
 
 | Parameter name      | Optional | Description                                                                                                                                    |
 | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
