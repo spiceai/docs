@@ -35,7 +35,7 @@ runtime:
 
 | Parameter name   | Optional | Description                                                                    |
 | ---------------- | -------- | ------------------------------------------------------------------------------ |
-| `sql_results`    | Yes      | Enabled by default. Configures the Runtime cache for results from SQL queries. |
+| `sql_results`    | Yes      | Enabled by default. Configures the Runtime cache for results from SQL queries. See the [SQL Results Parameters](#cachingsql_results-parameters) for cache parameter details. |
 | `search_results` | Yes      | Enabled by default. Configures the Runtime cache for results from searches. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
 | `embeddings`     | Yes      | Enabled by default. Configures the Runtime cache for embeddings requests. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
 
