@@ -33,23 +33,23 @@ runtime:
 
 ## `caching` Parameters
 
-| Parameter name   | Optional | Description                                                |
-| ---------------- | -------- | ---------------------------------------------------------- |
-| `sql_results`    | Yes      | Configures the Runtime cache for results from SQL queries. |
-| `search_results` | Yes      | Configures the Runtime cache for results from searches.    |
-| `embeddings`     | Yes      | Configures the Runtime cache for embeddings requests.      |
+| Parameter name   | Optional | Description                                                                    |
+| ---------------- | -------- | ------------------------------------------------------------------------------ |
+| `sql_results`    | Yes      | Enabled by default. Configures the Runtime cache for results from SQL queries. |
+| `search_results` | Yes      | Enabled by default. Configures the Runtime cache for results from searches. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
+| `embeddings`     | Yes      | Enabled by default. Configures the Runtime cache for embeddings requests. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
 
 ## Common Caching Parameters
 
 Every cache type (`sql_results`, `search_results`, `embeddings`) supports the following parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`          | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
-| `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
-| `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+| Parameter name      | Optional | Default   | Description                                                                                                                                    |
+| ------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`           | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
+| `max_size`          | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
+| `item_ttl`          | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `hashing_algorithm` | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
 ## Choosing a `hashing_algorithm`
 

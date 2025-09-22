@@ -103,7 +103,7 @@ dataset_active_count{engine="duckdb"} 1
 | `embeddings_cache_hits`<br/>_(count)_                        | Cache hit count.                                                                                            |
 | `embeddings_cache_items_count`<br/>_(gauge)_                 | Number of items currently in the cache.                                                                     |
 | `embeddings_cache_size_bytes`<br/>_(gauge)_                  | Size of the cache in bytes.                                                                                 |
-| `embeddings_cache_max_size_bytes`<br/>_(gauge)_              | Maximum allowed size of the cache in bytes.                                                                 |
+| `results_cache_max_size_bytes`<br/>_(gauge)_                 | Maximum allowed size of the cache in bytes.                                                                 |
 | `results_cache_requests`<br/>_(count)_                       | Number of requests to get a key from the cache.                                                             |
 | `results_cache_hits`<br/>_(count)_                           | Cache hit count.                                                                                            |
 | `results_cache_items_count`<br/>_(gauge)_                    | Number of items currently in the cache.                                                                     |
