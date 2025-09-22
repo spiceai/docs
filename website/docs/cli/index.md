@@ -2,7 +2,7 @@
 title: 'Spice.ai OSS CLI documentation'
 sidebar_label: 'CLI'
 description: 'Detailed documentation on the Spice.ai OSS CLI'
-sidebar_position: 12
+sidebar_position: 13
 pagination_prev: null
 ---
 

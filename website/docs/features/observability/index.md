@@ -7,14 +7,15 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info).
+Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info). Spice also supports distributed tracing by integrating with [Zipkin](https://zipkin.io/) and compatible tracing systems.
 
 <img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
 
 Monitoring clients configuration:
 
-- [Grafana](/docs/clients/grafana)
-- [Datadog](/docs/clients/datadog)
+- [Grafana](/docs/monitoring/grafana)
+- [Datadog](/docs/monitoring/datadog)
+- [Zipkin](/docs/monitoring/zipkin)
 
 ## Spice Metrics Endpoint Configuration
 

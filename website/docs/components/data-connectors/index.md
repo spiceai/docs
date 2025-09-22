@@ -20,8 +20,8 @@ Supported Data Connectors include:
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
 | `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-line              |
 | `mysql`                            | MySQL                                 | Stable            |                              |
-| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
-| `file`                             | File                                  | Stable            | Parquet, CSV                 |
+| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV, JSON           |
+| `file`                             | File                                  | Stable            | Parquet, CSV, JSON           |
 | `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
 | `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
 | `spice.ai`                         | [Spice.ai OSS & Cloud][spiceai]       | Stable            | Arrow Flight                 |
@@ -36,10 +36,10 @@ Supported Data Connectors include:
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
-| `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
-| `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
+| `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, JSON           |
+| `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, JSON           |
 | `glue`                             | [Glue][glue]                          | Alpha             | Iceberg, Parquet, CSV        |
-| `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
+| `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV, JSON           |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
