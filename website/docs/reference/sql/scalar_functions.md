@@ -6,7 +6,7 @@ sidebar_position: 6
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. Note, when using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Scalar functions help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The function set closely follows the PostgreSQL dialect.
@@ -1418,7 +1418,187 @@ Binary string functions help encode and decode binary data, such as base64 and h
 
 ## Regular Expression Functions
 
-Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Functions such as `regexp_like`, `regexp_match`, and `regexp_replace` are available.
+Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Spice supports the following regular expressions:
+
+- [`regexp_like`](#regexp_like)
+- [`regexp_match`](#regexp_match)
+- [`regexp_replace`](#regexp_replace)
+- [`regexp_count`](#regexp_count)
+- [`regexp_instr`](#regexp_instr)
+
+### `regexp_like`
+
+Returns true if a regular expression has at least one match in a string, false otherwise.
+
+```sql
+regexp_like(str, regexp[, flags])
+```
+
+#### Arguments
+
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_like('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
++--------------------------------------------------------+
+| regexp_like(Utf8("Köln"),Utf8("[a-zA-Z]ö[a-zA-Z]{2}")) |
++--------------------------------------------------------+
+| true                                                   |
++--------------------------------------------------------+
+> SELECT regexp_like('aBc', '(b|d)', 'i');
++--------------------------------------------------+
+| regexp_like(Utf8("aBc"),Utf8("(b|d)"),Utf8("i")) |
++--------------------------------------------------+
+| true                                             |
++--------------------------------------------------+
+```
+
+### `regexp_match`
+
+Returns the first regular expression matches in a string.
+
+```sql
+regexp_match(str, regexp[, flags])
+```
+
+#### Arguments
+
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to match against. Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_match('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
++---------------------------------------------------------+
+| regexp_match(Utf8("Köln"),Utf8("[a-zA-Z]ö[a-zA-Z]{2}")) |
++---------------------------------------------------------+
+| [Köln]                                                  |
++---------------------------------------------------------+
+SELECT regexp_match('aBc', '(b|d)', 'i');
++---------------------------------------------------+
+| regexp_match(Utf8("aBc"),Utf8("(b|d)"),Utf8("i")) |
++---------------------------------------------------+
+| [B]                                               |
++---------------------------------------------------+
+```
+
+### `regexp_replace`
+
+Replaces substrings in a string that match a regular expression.
+
+```sql
+regexp_replace(str, regexp, replacement[, flags])
+```
+
+#### Arguments
+
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to match against. Can be a constant, column, or function.
+- **replacement**: Replacement string expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **g**: (global) Search globally and don’t return after the first match
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_replace('foobarbaz', 'b(..)', 'X\\1Y', 'g');
++------------------------------------------------------------------------+
+| regexp_replace(Utf8("foobarbaz"),Utf8("b(..)"),Utf8("X\1Y"),Utf8("g")) |
++------------------------------------------------------------------------+
+| fooXarYXazY                                                            |
++------------------------------------------------------------------------+
+SELECT regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i');
++-------------------------------------------------------------------+
+| regexp_replace(Utf8("aBc"),Utf8("(b|d)"),Utf8("Ab\1a"),Utf8("i")) |
++-------------------------------------------------------------------+
+| aAbBac                                                            |
++-------------------------------------------------------------------+
+```
+
+### `regexp_count`
+
+Returns the number of matches that a regular expression has in a string.
+
+```sql
+regexp_count(str, regexp[, start, flags])
+```
+
+#### Arguments
+
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+
+#### Example
+
+```sql
+> select regexp_count('abcAbAbc', 'abc', 2, 'i');
++---------------------------------------------------------------+
+| regexp_count(Utf8("abcAbAbc"),Utf8("abc"),Int64(2),Utf8("i")) |
++---------------------------------------------------------------+
+| 1                                                             |
++---------------------------------------------------------------+
+```
+
+### `regexp_instr`
+
+Returns the position in a string where the specified occurrence of a POSIX regular expression is located.
+
+```sql
+regexp_instr(str, regexp[, start[, N[, flags[, subexpr]]]])
+```
+
+#### Arguments
+
+- **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1
+- **N**: **- N**: Optional The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
+- **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
+  - **i**: case-insensitive: letters match both upper and lower case
+  - **m**: multi-line mode: ^ and $ match begin/end of line
+  - **s**: allow . to match \n
+  - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
+  - **U**: swap the meaning of x* and x*?
+- **subexpr**: Optional Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
+
+#### Example
+
+```sql
+> SELECT regexp_instr('ABCDEF', 'C(.)(..)');
++---------------------------------------------------------------+
+| regexp_instr(Utf8("ABCDEF"),Utf8("C(.)(..)"))                 |
++---------------------------------------------------------------+
+| 3                                                             |
++---------------------------------------------------------------+
+```
 
 ## Time and Date Functions
 
@@ -2244,6 +2424,33 @@ Union functions help work with union (variant) data types, such as extracting th
 ## Other Functions
 
 Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
+
+### `embed`
+
+Generates vector embeddings for text using specified embedding models. Supports both single text strings and arrays of text for batch processing.
+
+```sql
+embed(text, model_name)
+```
+
+#### Arguments
+
+- **text**: String or array of strings to generate embeddings for.
+- **model_name**: Name of the embedding model to use (e.g., 'potion_2m', 'xl_embed') as configured in your Spicepod.
+
+#### Return Type
+
+Returns a list of floating-point values representing the embedding vector. For array inputs, returns embeddings for each element, preserving the input array length including NULL values.
+
+#### Example
+
+```sql
+-- Single text embedding (returns a single array)
+> select embed('hello world', 'potion_2m');
+
+-- Multiple text embeddings (returns an array with 3 embedding arrays)
+> select embed(['hey', 'there', 'sunshine'], 'potion_2m');
+```
 
 ---
 
