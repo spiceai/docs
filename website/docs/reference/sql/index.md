@@ -66,6 +66,18 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Union Functions](scalar_functions.md#union-functions)
 - [Other Functions](scalar_functions.md#other-functions)
 
+### [Aggregate Functions](aggregate_functions.md)
+
+- [General Aggregate Functions](aggregate_functions.md#general-functions)
+- [Statistical Aggregate Functions](aggregate_functions.md#statistical-functions)
+- [Approximate Aggregate Functions](aggregate_functions.md#approximate-functions)
+
+### [JSON Functions and Operators](json.md)
+
+- [JSON Functions](json.md#json-functions)
+- [JSON Operators](json.md#json-operators)
+- [Usage Examples](json.md#usage-examples)
+
 ### [Search](search.md)
 
 - [Vector Search (`vector_search`)](search.md#vector-search-vector_search)

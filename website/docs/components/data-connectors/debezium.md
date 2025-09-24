@@ -2,7 +2,10 @@
 title: 'Debezium Data Connector'
 sidebar_label: 'Debezium Data Connector'
 description: 'Debezium Data Connector Documentation'
-pagination_prev: null
+tags:
+  - data-connectors
+  - debezium
+  - component-metrics
 ---
 
 [Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](/docs/features/cdc/index.md) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
@@ -74,6 +77,32 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
+| `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                                      |
+
+### `metrics`
+
+The connector supports the following optional [component metrics](/docs/features/observability/component_metrics):
+
+| Metric Name              | Type    | Description                                                                                       |
+|--------------------------|---------|---------------------------------------------------------------------------------------------------|
+| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                               |
+| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                                     |
+| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed)              |
+
+These metrics are not enabled by default, enable them by setting the `metrics` parameter:
+
+```yaml
+datasets:
+  - from: debezium:my_kafka_topic_with_debezium_changes
+    name: cool_dataset
+    metrics:
+      - name: records_lag
+      - name: records_consumed_total
+      - name: bytes_consumed_total
+    params: 
+    ...
+
+```
 
 ### Acceleration Settings
 
