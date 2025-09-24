@@ -110,6 +110,10 @@ duckdb:
   label: 'duckdb'
   permalink: '/duckdb'
   description: 'DuckDB database topics and usage'
+embeddinggemma:
+  label: 'embeddinggemma'
+  permalink: '/embeddinggemma'
+  description: 'EmbeddingGemma related topics and usage'
 embeddings:
   label: 'embeddings'
   permalink: '/embeddings'
