@@ -91,7 +91,7 @@ SELECT id, title, content, fused_score
 FROM rrf(
     vector_search(documents, 'machine learning algorithms'),
     text_search(documents, 'neural networks deep learning', content),
-    id  -- join key for optimal performance
+    join_key => 'id'  -- join key for optimal performance
 )
 ORDER BY fused_score DESC
 LIMIT 5

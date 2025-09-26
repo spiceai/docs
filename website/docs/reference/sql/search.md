@@ -94,19 +94,19 @@ See [Full-Text Search](/docs/features/search/full-text) for configuration and de
 
 ## Reciprocal Rank Fusion (`rrf`)
 
-Reciprocal Rank Fusion (RRF) combines results from multiple search queries to improve relevance by merging rankings from different search methods.
+Reciprocal Rank Fusion (RRF) combines results from multiple search queries to improve relevance by merging rankings from different search methods. Advanced features include per-query ranking weights, recency boosting, and flexible decay functions.
 
 ### Usage
 
-`rrf` is varadic and takes two or more search UDTF calls as arguments. An optional join key column and smoothing parameter can be provided. When no join key is specified, Spice will compute a JOIN key on-the-fly (by hashing rows) in order to fuse the results. Specifying an explicit JOIN key is recommended for optimal performance.
+`rrf` is variadic and takes two or more search UDTF calls as arguments. Named parameters provide advanced control over ranking, recency, and fusion behavior.
 
 ```sql
 SELECT id, content, fused_score
 FROM rrf(
     vector_search(table, 'search query'),
     text_search(table, 'search terms', column),
-    id,    -- optional join key column
-    60.0   -- optional k parameter (smoothing factor)
+    join_key => 'id',    -- explicit join key for performance
+    k => 60.0            -- smoothing parameter
 )
 ORDER BY fused_score DESC
 LIMIT 10;
@@ -114,35 +114,92 @@ LIMIT 10;
 
 **Arguments:**
 
-| Parameter  | Type             | Required | Description                                               |
-| ---------- | ---------------- | -------- | --------------------------------------------------------- |
-| `query_1`  | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`) |
-| `query_2`  | Search UDTF call | Yes      | Second search query                                       |
-| `...`      | Search UDTF call | No       | Additional search queries (variadic)                      |
-| `join_key` | Column           | No       | Column name to use for joining results across queries     |
-| `k`        | Float            | No       | Smoothing parameter for RRF scoring (default: 60)         |
+| Parameter           | Type             | Required | Description                                                        |
+| ------------------- | ---------------- | -------- | ------------------------------------------------------------------ |
+| `query_1`           | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`)          |
+| `query_2`           | Search UDTF call | Yes      | Second search query                                                |
+| `...`               | Search UDTF call | No       | Additional search queries (variadic)                               |
+| `join_key`          | String           | No       | Column name to use for joining results (default: auto-hash)        |
+| `k`                 | Float            | No       | Smoothing parameter for RRF scoring (default: 60.0)                |
+| `time_column`       | String           | No       | Column name containing timestamps for recency boosting             |
+| `recency_decay`     | String           | No       | Decay function: 'linear' or 'exponential' (default: 'exponential') |
+| `decay_constant`    | Float            | No       | Decay rate for exponential decay (default: 0.01)                   |
+| `decay_scale_secs`  | Float            | No       | Time scale in seconds for decay (default: 86400)                   |
+| `decay_window_secs` | Float            | No       | Window size for linear decay in seconds (default: 86400)           |
+| `rank_weight`       | Float            | No       | Per-query ranking weight (specified within search functions)       |
 
-#### Example
+#### Examples
 
+**Basic Hybrid Search:**
 ```sql
 -- Combine vector and text search for enhanced relevance
 SELECT id, title, content, fused_score
 FROM rrf(
     vector_search(documents, 'machine learning algorithms'),
     text_search(documents, 'neural networks deep learning', content),
-    id  -- use 'id' column as join key for better performance
+    join_key => 'id'  -- explicit join key for performance
 )
 WHERE fused_score > 0.01
 ORDER BY fused_score DESC
 LIMIT 5;
 ```
 
+**Weighted Ranking:**
+```sql
+-- Boost semantic search over exact text matching
+SELECT fused_score, title, content
+FROM rrf(
+    text_search(posts, 'artificial intelligence', rank_weight => 50.0),
+    vector_search(posts, 'AI machine learning', rank_weight => 200.0)
+)
+ORDER BY fused_score DESC
+LIMIT 10;
+```
+
+**Recency-Boosted Search:**
+```sql
+-- Exponential decay favoring recent content
+SELECT fused_score, title, created_at
+FROM rrf(
+    text_search(news, 'breaking news'),
+    vector_search(news, 'latest updates'),
+    time_column => 'created_at',
+    recency_decay => 'exponential',
+    decay_constant => 0.05,
+    decay_scale_secs => 3600  -- 1 hour scale
+)
+ORDER BY fused_score DESC
+LIMIT 10;
+```
+
+**Linear Decay:**
+```sql
+-- Linear decay over 24 hours
+SELECT fused_score, content
+FROM rrf(
+    text_search(posts, 'trending'),
+    vector_search(posts, 'viral popular'),
+    time_column => 'created_at',
+    recency_decay => 'linear',
+    decay_window_secs => 86400
+)
+ORDER BY fused_score DESC;
+```
+
 **How RRF works:**
 
 - Each input query is ranked independently by score
-- Rankings are combined using the formula: `RRF Score = Σ(1 / (k + rank))`
+- Rankings are combined using the formula: `RRF Score = Σ(rank_weight / (k + rank))`
 - Documents appearing in multiple result sets receive higher scores
 - The `k` parameter controls ranking sensitivity (lower = more sensitive to rank position)
+
+**Advanced query tuning**:
+
+- **Rank weighting**: Individual queries can be weighted using `rank_weight` parameter
+- **Recency boosting**: When `time_column` is specified, scores are multiplied by a decay factor
+  - **Exponential decay**: `e^(-decay_constant * age_in_units)` where age is in `decay_scale_secs`
+  - **Linear decay**: `max(0, 1 - (age_in_units / decay_window_secs))`
+- **Auto-join**: When no `join_key` is specified, rows are automatically hashed for joining
 
 ---
 
