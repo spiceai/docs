@@ -100,6 +100,10 @@ Reciprocal Rank Fusion (RRF) combines results from multiple search queries to im
 
 `rrf` is variadic and takes two or more search UDTF calls as arguments. Named parameters provide advanced control over ranking, recency, and fusion behavior.
 
+:::info
+The `rrf` function automatically adds a `fused_score` column to the result set, which contains the combined relevance score from all input search queries. Results are sorted by `fused_score DESC` by default when no explicit `ORDER BY` clause is specified.
+:::
+
 ```sql
 SELECT id, content, fused_score
 FROM rrf(
