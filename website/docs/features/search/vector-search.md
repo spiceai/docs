@@ -142,7 +142,7 @@ RETURNS TABLE                -- The original table and:
                              --  - A FLOAT column `score` (if `include_score`).
 ```
 
-By default, `vector_search` retrieves up to 1000 results. To adjust this limit, specify the `limit` parameter in the function call.
+By default, `vector_search` retrieves up to 1000 results. To adjust this limit, specify the `limit` parameter in the function call. When using a specific vector engine, such as `s3_vectors` the limit defaults to that of the vector engine.
 
 ```sql
 SELECT id, title, score
