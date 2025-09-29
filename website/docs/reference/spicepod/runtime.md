@@ -259,3 +259,13 @@ The path to a temporary directory that Spice uses for query and acceleration ope
 runtime:
   temp_directory: /tmp/spice
 ```
+
+## `runtime.output_level`
+
+Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
+Supported values are `info`, `verbose`, and `very_verbose`. The value is applied in the following priority: CLI, environment variables, then YAML configuration.
+
+```yaml
+runtime:
+  output_level: info # or verbose, very_verbose
+```
