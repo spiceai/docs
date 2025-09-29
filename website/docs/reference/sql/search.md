@@ -107,7 +107,7 @@ The `rrf` function automatically adds a `fused_score` column to the result set, 
 ```sql
 SELECT id, content, fused_score
 FROM rrf(
-    vector_search(table, 'search query'),
+    vector_search(table, 'search query', rank_weight => 20),
     text_search(table, 'search terms', column),
     join_key => 'id',    -- explicit join key for performance
     k => 60.0            -- smoothing parameter
@@ -117,6 +117,9 @@ LIMIT 10;
 ```
 
 **Arguments:**
+
+Note that `rank_weight` is specified as the last argument to either a `text_search` or `vector_search` UDTF call (as shown above). All other arguments can be specified in any order after the search calls (within an `rrf` invocation).
+
 
 | Parameter           | Type             | Required | Description                                                        |
 | ------------------- | ---------------- | -------- | ------------------------------------------------------------------ |
@@ -130,7 +133,7 @@ LIMIT 10;
 | `decay_constant`    | Float            | No       | Decay rate for exponential decay (default: 0.01)                   |
 | `decay_scale_secs`  | Float            | No       | Time scale in seconds for decay (default: 86400)                   |
 | `decay_window_secs` | Float            | No       | Window size for linear decay in seconds (default: 86400)           |
-| `rank_weight`       | Float            | No       | Per-query ranking weight (specified within search functions)       |
+| `rank_weight`       | Float            | No       | Per-query ranking weight (**specified within search functions**)   |
 
 #### Examples
 
