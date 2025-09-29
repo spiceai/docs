@@ -97,6 +97,10 @@ Welcome to the Spice.ai OSS Cookbook—a comprehensive collection of recipes for
 
 - [Amazon S3 Vectors](./vectors/s3-vectors/README.md) - Use Amazon S3 as a vector engine for embeddings and similarity search.
 
+## Search
+
+- [Hybrid-Search](./search/README.md) - Combine keyword and vector search for improved retrieval.
+
 ### Deployment and Installation
 
 - [Deploying to Kubernetes](./kubernetes/README.md)
