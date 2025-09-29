@@ -73,6 +73,7 @@ spice run
 ```
 
 You should see this output:
+
 ```
 2025-09-26T15:21:38.154354Z  INFO spiced: Starting runtime v1.8.0-unstable-build.71ac09ff2+models.metal
 2025-09-26T15:21:38.225135Z  INFO runtime::init::caching: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
