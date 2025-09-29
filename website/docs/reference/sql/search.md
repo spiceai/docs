@@ -43,14 +43,16 @@ LIMIT 5;
 - `table`: Dataset name (required)
 - `query`: Search text (required)
 - `col`: Column name (optional if only one embedding column)
-- `limit`: Maximum results (optional)
+- `limit`: Maximum results (optional, default: 1000)
 - `include_score`: Include relevance scores (optional, default TRUE)
+
+By default, `vector_search` retrieves up to 1000 results. To change this, specify a limit parameter in the function call.
 
 #### Example
 
 ```sql
 SELECT review_id, rating, customer_id, body, score
-FROM vector_search(reviews, 'issues with same day shipping')
+FROM vector_search(reviews, 'issues with same day shipping', 1500)
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
 ORDER BY score DESC
 LIMIT 2;

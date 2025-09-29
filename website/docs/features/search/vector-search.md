@@ -135,16 +135,24 @@ vector_search(
   table STRING,          -- Dataset name (required)
   query STRING,          -- Search text (required)
   col STRING,            -- Column name (optional if single embedding column)
-  limit INTEGER,         -- Results limit (default: all)
+  limit INTEGER,         -- Results limit (default: 1000)
   include_score BOOLEAN  -- Include relevance scores (default: TRUE)
 )
 RETURNS TABLE                -- The original table and:
                              --  - A FLOAT column `score` (if `include_score`).
 ```
 
+By default, `vector_search` retrieves up to 1000 results. To adjust this limit, specify the `limit` parameter in the function call. When using a specific vector engine, such as `s3_vectors` the limit defaults to that of the vector engine.
+
+```sql
+SELECT id, title, score
+FROM vector_search('sales', 'cutting edge AI', 1500)
+ORDER BY score DESC;
+```
+
 :::warning[Limitations]
 
-- `vector_search` UDTF does not support chunked embedding columns.
+- `vector_search` UDTF does not yet support chunked embedding columns. Chunking support is on the roadmap.
 
 :::
 
@@ -225,12 +233,15 @@ sql> describe sales;
 ### Constraints
 
 1. **Underlying Column Presence:**
+
    - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
 
 2. **Embeddings Column Naming Convention:**
+
    - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
 
 3. **Embeddings Column Data Type:**
+
    - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
      2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
