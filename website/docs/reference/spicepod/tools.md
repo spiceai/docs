@@ -16,7 +16,7 @@ Example:
 tools:
   - name: arpanet
     from: websearch
-    description: "Search the web for information."
+    description: 'Search the web for information.'
     params:
       engine: perplexity
       perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }

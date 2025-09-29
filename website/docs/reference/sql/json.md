@@ -8,21 +8,52 @@ sidebar_position: 7
 JSON support in Spice is based on [datafusion-functions-json](https://github.com/datafusion-contrib/datafusion-functions-json), which provides functions and operators to extract, query, and manipulate JSON data stored as strings. Advanced features for JSON creation, modification, or complex path expressions are not supported.
 
 - [JSON Functions](#json-functions)
-  - [json_contains](#json_contains)
-  - [json_get](#json_get)
-  - [json_get_str](#json_get_str)
-  - [json_get_int](#json_get_int)
-  - [json_get_float](#json_get_float)
-  - [json_get_bool](#json_get_bool)
-  - [json_get_json](#json_get_json)
-  - [json_get_array](#json_get_array)
-  - [json_as_text](#json_as_text)
-  - [json_length](#json_length)
+  - [`json_contains`](#json_contains)
+    - [Arguments](#arguments)
+    - [Example](#example)
+  - [`json_get`](#json_get)
+    - [Arguments](#arguments-1)
+    - [Example](#example-1)
+  - [`json_get_str`](#json_get_str)
+    - [Arguments](#arguments-2)
+    - [Example](#example-2)
+  - [`json_get_int`](#json_get_int)
+    - [Arguments](#arguments-3)
+    - [Example](#example-3)
+  - [`json_get_float`](#json_get_float)
+    - [Arguments](#arguments-4)
+    - [Example](#example-4)
+  - [`json_get_bool`](#json_get_bool)
+    - [Arguments](#arguments-5)
+    - [Example](#example-5)
+  - [`json_get_json`](#json_get_json)
+    - [Arguments](#arguments-6)
+    - [Example](#example-6)
+  - [`json_get_array`](#json_get_array)
+    - [Arguments](#arguments-7)
+    - [Example](#example-7)
+  - [`json_as_text`](#json_as_text)
+    - [Arguments](#arguments-8)
+    - [Example](#example-8)
+  - [`json_length`](#json_length)
+    - [Arguments](#arguments-9)
+    - [Example](#example-9)
 - [JSON Operators](#json-operators)
-  - [-> (JSON access)](#op_json_get)
-  - [->> (JSON text extraction)](#op_json_as_text)
-  - [? (JSON containment)](#op_json_contains)
+  - [`->`](#op_json_get)
+    - [Arguments](#arguments-10)
+    - [Example](#example-10)
+  - [`->>`](#op_json_as_text)
+    - [Arguments](#arguments-11)
+    - [Example](#example-11)
+  - [`?`](#op_json_contains)
+    - [Arguments](#arguments-12)
+    - [Example](#example-12)
 - [Usage Examples](#usage-examples)
+  - [Nested Object Access](#nested-object-access)
+  - [Array Access](#array-access)
+  - [Conditional JSON Queries](#conditional-json-queries)
+  - [Using JSON Functions in Views](#using-json-functions-in-views)
+- [Further Reading](#further-reading)
 
 ---
 
@@ -384,8 +415,8 @@ json_string ? 'key'
 ### Conditional JSON Queries
 
 ```sql
-> SELECT name, properties ->> 'color' as color 
-  FROM products 
+> SELECT name, properties ->> 'color' as color
+  FROM products
   WHERE properties ? 'color' AND properties ->> 'color' IN ('black', 'white');
 ```
 
@@ -395,7 +426,7 @@ JSON functions can be used in views to simplify access to nested JSON data:
 
 ```sql
 CREATE VIEW products_with_color AS
-SELECT 
+SELECT
   id,
   name,
   properties ->> 'color' as color,

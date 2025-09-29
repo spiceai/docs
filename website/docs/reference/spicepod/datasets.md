@@ -81,7 +81,6 @@ Where:
 - `<data_connector>`: The Data Connector to use to connect to the dataset
 
   Currently supported data connectors:
-
   - [`spiceai`](/docs/components/data-connectors/spiceai.md)
   - [`dremio`](/docs/components/data-connectors/dremio.md)
   - [`spark`](/docs/components/data-connectors/spark.md)
@@ -579,8 +578,9 @@ Optional. Specific metadata associated to the column.
 ## `columns[*].metadata.vectors`
 
 Optional. If provided, a vector engine (see [below](#vectors)) should store this column for a particular use, determined by the value, which is one of:
- - `non-filterable`: Store the column in the vector engine.
- - `filterable`: Store the column in the vector engine, and ensure the engine can filter on the column (if possible in the engine).
+
+- `non-filterable`: Store the column in the vector engine.
+- `filterable`: Store the column in the vector engine, and ensure the engine can filter on the column (if possible in the engine).
 
 Only applicable if `vectors.enabled` is both defined and `true`.
 
@@ -656,7 +656,6 @@ datasets:
     metadata:
       instructions: The last 128 blocks.
 ```
-
 
 ## `vectors`
 

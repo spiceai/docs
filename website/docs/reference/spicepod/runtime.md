@@ -14,18 +14,19 @@ This setting specifies the maximum number of datasets that can be loaded in para
 
 This setting specifies cache settings for supported Runtime components:
 
-* `sql_results`: Specifies cache settings for results from SQL queries.
-* `search_results`: Specifies cache settings for results from searches.
+- `sql_results`: Specifies cache settings for results from SQL queries.
+- `search_results`: Specifies cache settings for results from searches.
+- `embeddings`: Specifies cache settings for embeddings requests.
 
 Runtime caches support common configuration parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | Yes      | Defaults to `true`.                                                                                                                            |
-| `max_size`    | Yes      | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.              |
-| `item_ttl`          | Yes      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
-| `hashing_algorithm` | Yes      | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+| Parameter name      | Optional | Default   | Description                                                                                                                                    |
+| ------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`           | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
+| `max_size`          | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`   | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
+| `item_ttl`          | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `hashing_algorithm` | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
 ### `runtime.caching.search_results`
 
@@ -42,6 +43,21 @@ runtime:
 
 The search results cache supports the common cache configuration parameters.
 
+### `runtime.caching.embeddings`
+
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](/docs/features/caching/index.md).
+
+```yaml
+runtime:
+  caching:
+    embeddings:
+      enabled: true
+      max_size: 128MiB
+      item_ttl: 1s
+```
+
+The embeddings cache supports the common cache configuration parameters.
+
 ### `runtime.caching.sql_results`
 
 The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
@@ -57,9 +73,9 @@ runtime:
 
 In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
 
-| Parameter name      | Optional | Description                                                                                                                                    |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`    | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.  |
+| Parameter name   | Optional | Description                                                                                                                                   |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 
 :::info
 
@@ -242,4 +258,14 @@ The path to a temporary directory that Spice uses for query and acceleration ope
 ```yaml
 runtime:
   temp_directory: /tmp/spice
+```
+
+## `runtime.output_level`
+
+Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
+Supported values are `info`, `verbose`, and `very_verbose`. The value is applied in the following priority: CLI, environment variables, then YAML configuration.
+
+```yaml
+runtime:
+  output_level: info # or verbose, very_verbose
 ```

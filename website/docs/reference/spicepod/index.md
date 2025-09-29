@@ -49,7 +49,6 @@ Where:
 - `<secret_store>`: The Secret Store to use
 
   Currently supported secret stores:
-
   - [`env`](/docs/components/secret-stores/env/index.md)
   - [`kubernetes`](/docs/components/secret-stores/kubernetes/index.md)
   - [`keyring`](/docs/components/secret-stores/keyring/index.md)
