@@ -79,9 +79,11 @@ LIMIT 5;
 - `table`: Dataset name (required)
 - `query`: Keyword or phrase (required)
 - `col`: Column to search (required if multiple indexed columns)
-- `limit`: Maximum results (optional)
+- `limit`: Maximum results (optional, default: 1000)
 - `include_score`: Include relevance scores (optional, default TRUE)
 - `rank_weight`: Result rank weight (optional, named argument, default `score * 1`, only when specified as an argument in [RRF](#reciprocal-rank-fusion-rrf))
+
+By default, `text_search` retrieves up to 1000 results. To change this, specify a limit parameter in the function call.
 
 #### Example
 
@@ -124,7 +126,6 @@ LIMIT 10;
 
 Note that `rank_weight` is specified as the last argument to either a `text_search` or `vector_search` UDTF call (as shown above). All other arguments can be specified in any order after the search calls (within an `rrf` invocation).
 
-
 | Parameter           | Type             | Required | Description                                                        |
 | ------------------- | ---------------- | -------- | ------------------------------------------------------------------ |
 | `query_1`           | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`)          |
@@ -142,6 +143,7 @@ Note that `rank_weight` is specified as the last argument to either a `text_sear
 #### Examples
 
 **Basic Hybrid Search:**
+
 ```sql
 -- Combine vector and text search for enhanced relevance
 SELECT id, title, content, fused_score
@@ -156,6 +158,7 @@ LIMIT 5;
 ```
 
 **Weighted Ranking:**
+
 ```sql
 -- Boost semantic search over exact text matching
 SELECT fused_score, title, content
@@ -168,6 +171,7 @@ LIMIT 10;
 ```
 
 **Recency-Boosted Search:**
+
 ```sql
 -- Exponential decay favoring recent content
 SELECT fused_score, title, created_at
@@ -184,6 +188,7 @@ LIMIT 10;
 ```
 
 **Linear Decay:**
+
 ```sql
 -- Linear decay over 24 hours
 SELECT fused_score, content
@@ -247,4 +252,4 @@ SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 
 ---
 
-For more on hybrid and advanced search, see [Search Functionality](/docs/features/search) and [Vector-Based Search](/docs/features/search/vector-search).
+For more on hybrid and advanced search, see [Search Functionality](/docs/features/search) and [Vector-Based Search](/docs/features/search/vector-search)
