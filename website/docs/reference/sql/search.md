@@ -18,12 +18,12 @@ This section documents search capabilities in Spice SQL, including vector search
     - [Example](#example-1)
 - [Reciprocal Rank Fusion (`rrf`)](#reciprocal-rank-fusion-rrf)
   - [Usage](#usage-2)
-    - [Example](#example-2)
+    - [Examples](#examples)
 - [Lexical Search: LIKE, =, and Regex](#lexical-search-like--and-regex)
   - [LIKE (Pattern Matching)](#like-pattern-matching)
   - [= (Keyword/Exact Match)](#-keywordexact-match)
   - [Regex Filtering](#regex-filtering)
-    - [Example](#example-3)
+    - [Example](#example-2)
 
 ---
 
