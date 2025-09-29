@@ -45,6 +45,7 @@ LIMIT 5;
 - `col`: Column name (optional if only one embedding column)
 - `limit`: Maximum results (optional)
 - `include_score`: Include relevance scores (optional, default TRUE)
+- `rank_weight`: Result rank weight (optional, named argument, default `score * 1`, only when specified as an argument in [RRF](#reciprocal-rank-fusion-rrf))
 
 #### Example
 
@@ -78,6 +79,7 @@ LIMIT 5;
 - `col`: Column to search (required if multiple indexed columns)
 - `limit`: Maximum results (optional)
 - `include_score`: Include relevance scores (optional, default TRUE)
+- `rank_weight`: Result rank weight (optional, named argument, default `score * 1`, only when specified as an argument in [RRF](#reciprocal-rank-fusion-rrf))
 
 #### Example
 
