@@ -88,4 +88,9 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 
 - [Positional Arguments](prepared_statements.md#positional-arguments)
 
+
+### [DML (Data Manipulation Language)](dml.md)
+
+- [INSERT Statement](dml.md#insert)
+
 Refer to each section for detailed syntax, supported features, and examples.

@@ -74,6 +74,13 @@ The name of the catalog to register in Spice. The schema hierarchy of the extern
 
 Optional. The `include` field is used to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
+## `access`
+
+Optional. Specifies the access level for the catalog. Supported values are:
+
+- `read` (default): Read-only access.
+- `read_write`: Enables both read and write operations. Only supported for [writable catalogs](/docs/tags/writable).
+
 ## `params`
 
 Optional. Parameters to pass to the catalog connector for retrieving the metadata on the schemas and tables to be included. The parameters are specific to the connector used.
