@@ -91,6 +91,13 @@ const recipes: RecipeData[] = [
     videoUrl: 'https://youtu.be/5y26MveEJ8c'
   },
   {
+    title: 'Hybrid-Search with RRF',
+    description:
+      'Combine multiple search methods using Reciprocal Rank Fusion (RRF) for improved search results.',
+    path: '/search/README.md',
+    tags: ['ai', 'search', 'rrf']
+  },
+  {
     title: 'xAI Models',
     description: 'Use xAI models such as Grok.',
     path: '/models/xai/README.md',
