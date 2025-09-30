@@ -1,7 +1,7 @@
 ---
 title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
-description: 'Learn how to ingest data into Spice.'
+description: 'Learn how to ingest data in Spice.'
 sidebar_position: 5
 pagination_prev: null
 pagination_next: null
