@@ -113,6 +113,7 @@ Example uses include:
 
 - Setting default OpenAI request parameters for language models, see [parameter overrides](/docs/features/large-language-models/parameter_overrides.md).
 - Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](/docs/features/large-language-models/tools.md).
+- Invoking language models directly from SQL queries using the [`ai()` function](/docs/reference/sql/scalar_functions#ai).
 
 ### `datasets`
 
