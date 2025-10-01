@@ -2455,14 +2455,14 @@ The function honors DataFusion concurrency configuration for parallel requests. 
 
 ```sql
 -- Using default model (when only one model is configured)
-SELECT 
+SELECT
   zone,
   ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.')) AS category
 FROM taxi_zones
 LIMIT 10;
 
 -- Specifying a model explicitly
-SELECT 
+SELECT
   zone,
   ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.'), 'gpt-4o') AS category
 FROM taxi_zones
