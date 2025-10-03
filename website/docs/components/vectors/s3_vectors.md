@@ -194,6 +194,30 @@ ORDER BY combined_score DESC
 LIMIT 5;
 ```
 
+## Index Partitioning
+S3 Vectors indexes can be partitioned using an arbitrary logical expression. This allows Spice to write vectors at scale mitigating the per-index ingestion [limitations](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-vectors-limitations.html).
+
+To partition your S3 vector indexes:
+
+```yaml
+vectors:
+  enabled: true
+  engine: s3_vectors
+  partition_by:
+    - 'bucket(50, PULocationID)'
+```
+
+This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generated partition-specific names.
+
+:::warning[Limitations]
+
+- `partition_by` must have only 1 expression.
+- Expression must reference exactly one column from the dataset.
+- Expression must produce a scalar value
+- Expression cannot contain a subquery
+
+:::
+
 ## Authentication
 
 If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
