@@ -207,7 +207,7 @@ vectors:
     - 'bucket(50, PULocationID)'
 ```
 
-This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generated partition-specific names.
+This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generate partition-specific names.
 
 :::warning[Limitations]
 
