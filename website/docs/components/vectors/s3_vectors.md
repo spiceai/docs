@@ -195,7 +195,7 @@ LIMIT 5;
 ```
 
 ## Index Partitioning
-S3 Vectors indexes can be partitioned using an arbitrary logical expression. This allows Spice to write vectors at scale mitigating the per-index ingestion [limitations](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-vectors-limitations.html).
+S3 Vectors indexes can be partitioned using an arbitrary logical expression. This allows Spice to compose many actual vector indexes as one logical vector index, enabling elastic scalability for vector storage.
 
 To partition your S3 vector indexes:
 
