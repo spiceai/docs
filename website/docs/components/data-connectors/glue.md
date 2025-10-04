@@ -5,7 +5,7 @@ description: 'Glue Data Connector Documentation'
 tags:
   - data-connectors
   - glue
-  - writable
+  - write
 ---
 
 The Glue Data Connector enables federated SQL querying on tables in an AWS Glue Data Catalog.

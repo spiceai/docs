@@ -9,7 +9,7 @@ tags:
   - catalogs
   - iceberg
   - data-connectors
-  - writable
+  - write
 ---
 
 The Iceberg Catalog Connector helps connect Spice to an [Apache Iceberg](https://iceberg.apache.org/) catalog, making Iceberg tables and schemas available for federated SQL queries. Every Iceberg table must be registered in a catalog, which manages table metadata and access. Using a catalog connector is the recommended approach for working with multiple Iceberg datasets, as it helps organize tables and schemas efficiently and mirrors the structure of the source catalog provider.

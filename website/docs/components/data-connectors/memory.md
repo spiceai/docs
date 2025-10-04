@@ -7,7 +7,7 @@ tags:
   - data-connectors
   - memory
   - in-memory
-  - writable
+  - write
 ---
 
 The Memory Data Connector enables configuring an in-memory dataset for tables used, or produced by the Spice runtime. Only certain tables, with predefined schemas, can be defined by the connector. These are:

@@ -7,12 +7,12 @@ pagination_prev: null
 pagination_next: null
 tags:
   - features
-  - writable
+  - write
 ---
 
 Data can be ingested by the Spice runtime into a Data Connector using the following methods:
 
-1. **SQL Statements** – Write data directly to [write-capable connectors](/docs/tags/writable) using standard SQL syntax.
+1. **SQL Statements** – Write data directly to [write-capable connectors](/docs/tags/write) using standard SQL syntax.
 2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL data for real-time processing.
 
 ## SQL Statements
@@ -21,7 +21,7 @@ Spice supports writing data to **compatible data connectors** using standard SQL
 
 ### Write-Capable Connectors
 
-Data connectors that support write operations are tagged as [writable](/docs/tags/writable):
+Data connectors that support write operations are tagged as [write](/docs/tags/write):
 
 - **[Apache Iceberg](/docs/components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](/docs/components/catalogs/iceberg)
 - **[AWS Glue](/docs/components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](/docs/components/catalogs/glue)
@@ -109,7 +109,7 @@ SMART data will be available in the `smart_attribute_raw_value` dataset in Spice
 
 :::warning[Current Limitations]
 
-- Write Support: Only select data connectors support write operations. See [writable connectors](/docs/tags/writable) for the current list
+- Write Support: Only selected [write-capable connectors and catalogs](/docs/tags/write) support write operations.
 - Only Spice.ai replication is supported for OpenTelemetry ingestion
 
 :::

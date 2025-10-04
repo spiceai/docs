@@ -5,7 +5,7 @@ description: 'Data Manipulation Language (DML) statements for inserting and modi
 sidebar_position: 30
 ---
 
-Data Manipulation Language (DML) statements are used to insert, update, and delete data in tables. Spice supports DML operations on [write-capable data connectors](/docs/tags/writable) configured with `access: read_write`.
+Data Manipulation Language (DML) statements are used to insert, update, and delete data in tables. Spice supports DML operations on [write-capable data connectors](/docs/tags/write) configured with `access: read_write`.
 
 :::info
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
