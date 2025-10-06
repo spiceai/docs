@@ -20,14 +20,14 @@ spice trace [task] [flags]
 - `ai_completion`
 - `sql_query`
 - `nsql`
-- `tool_use::document_similarity`
+- `tool_use::search`
 - `tool_use::list_datasets`
 - `tool_use::sql`
 - `tool_use::table_schema`
 - `tool_use::sample_data`
 - `tool_use::sql_query`
 - `tool_use::memory`
-- `vector_search`
+- `search`
 - `scheduled_worker`
 
 These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
@@ -78,5 +78,5 @@ This output represents a structured trace of executed tasks.
 TREE                   STATUS DURATION   TASK                    OUTPUT
 a97f52ccd7687e64       ✅       673.14ms ai_chat                 The capital of New York is Albany.
   ├── 4eebde7b04321803 ✅         0.04ms tool_use::list_datasets []
-  └── 4c9049e1bf1c3500 ✅       671.91ms ai_completion           [{"content":"The capital of New York is Albany.","refusal":null,"tool_calls":null,"role":"assistant","function_call":null,"audio":null}] 
+  └── 4c9049e1bf1c3500 ✅       671.91ms ai_completion           [{"content":"The capital of New York is Albany.","refusal":null,"tool_calls":null,"role":"assistant","function_call":null,"audio":null}]
 ```

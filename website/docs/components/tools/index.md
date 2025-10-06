@@ -29,7 +29,7 @@ For details on tool specifications, see the [Tools Spicepod Reference](/docs/ref
 | `list_datasets`           | List all available datasets in the runtime.                       | `auto`        |
 | `sql`                     | Execute SQL queries on the runtime.                               | `auto`        |
 | `table_schema`            | Get the schema of a specific SQL table.                           | `auto`        |
-| `document_similarity`     | Retrieve documents based on an input query.                       | `auto`        |
+| `search`                  | Searches a configured dataset based on an input query.            | `auto`        |
 | `sample_distinct_columns` | Generate a synthetic sample of data with distinct values.         | `auto`        |
 | `random_sample`           | Sample random rows from a table.                                  | `auto`        |
 | `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`        |
