@@ -2,6 +2,10 @@
 title: 'Glue Data Connector'
 sidebar_label: 'Glue Data Connector'
 description: 'Glue Data Connector Documentation'
+tags:
+  - data-connectors
+  - glue
+  - write
 ---
 
 The Glue Data Connector enables federated SQL querying on tables in an AWS Glue Data Catalog.

@@ -2,6 +2,10 @@
 title: 'Iceberg Data Connector'
 sidebar_label: 'Iceberg Data Connector'
 description: 'Connect to and query Apache Iceberg tables'
+tags:
+  - data-connectors
+  - iceberg
+  - write
 ---
 
 The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.

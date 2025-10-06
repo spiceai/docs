@@ -122,7 +122,7 @@ To enable memory tools for a model, define a `store` memory dataset and specify 
 datasets:
   - from: memory:store
     name: llm_memory
-    mode: read_write
+    access: read_write
 
 models:
   - name: memory-enabled-model
@@ -196,7 +196,7 @@ Next, create a chat model that includes memory and tools to access the accelerat
 datasets:
   - from: memory:store
     name: llm_memory
-    mode: read_write
+    access: read_write
 
 models:
   - name: github-issues-analyzer
@@ -223,7 +223,7 @@ datasets:
 
   - from: memory:store
     name: llm_memory
-    mode: read_write
+    access: read_write
 
 models:
   - name: github-issues-analyzer

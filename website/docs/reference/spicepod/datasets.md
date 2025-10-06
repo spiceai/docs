@@ -134,6 +134,24 @@ The name of the dataset. Used to reference the dataset in the pod manifest, as w
 
 The description of the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
 
+## `access`
+
+Optional. Specifies the access level for the dataset. Supported values are:
+
+- `read` (default): Read-only access.
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](/docs/tags/write).
+
+To enable write operations, configure your dataset with `read_write` access:
+
+```yaml
+datasets:
+  - from: glue:my_catalog.my_schema.my_table
+    name: my_table
+    access: read_write
+    params:
+      # ... connector-specific parameters
+```
+
 ## `time_column`
 
 Optional. The name of the column that represents the temporal (time) ordering of the dataset.
