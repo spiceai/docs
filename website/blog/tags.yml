@@ -254,6 +254,10 @@ postgres:
   label: 'postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database topics and usage'
+prometheus:
+  label: 'prometheus'
+  permalink: '/prometheus'
+  description: 'Prometheus related topics and usage'
 python:
   label: 'python'
   permalink: '/python'
@@ -270,6 +274,10 @@ release:
   label: 'release'
   permalink: '/releases'
   description: 'Release notes and updates'
+rrf:
+  label: 'rrf'
+  permalink: '/rrf'
+  description: 'Reciprocal Rank Fusion related topics and usage'
 runtime:
   label: 'runtime'
   permalink: '/runtime'
