@@ -68,7 +68,7 @@ Spice supports ODBC clients through an ODBC driver implementation based on the [
 
   </TabItem>
   <TabItem value="macos" label="macOS">
-  
+
     - Ensure that [ODBC Manager](http://www.odbcmanager.net/) is installed.
     - Launch **ODBC Manager** -> **System DSN** page, select **Arrow Flight SQL ODBC DSN** and click **Configure**.
     - Specify Spice.ai OSS runtime `HOST`, `PORT`, in the `UseEncryption` field, specify one of these values:
@@ -108,7 +108,7 @@ spiced --flight 0.0.0.0:50051
 2024-10-06T20:06:50.084015Z  INFO runtime::flight: Spice Runtime Flight listening on 0.0.0.0:50051
 2024-10-06T20:06:50.086948Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
 2024-10-06T20:06:50.297512Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
-2024-10-06T20:06:50.308775Z  INFO runtime: Tool [document_similarity] ready to use
+2024-10-06T20:06:50.308775Z  INFO runtime: Tool [search] ready to use
 2024-10-06T20:06:50.308803Z  INFO runtime: Tool [table_schema] ready to use
 2024-10-06T20:06:50.308814Z  INFO runtime: Tool [sql] ready to use
 2024-10-06T20:06:50.308829Z  INFO runtime: Tool [list_datasets] ready to use

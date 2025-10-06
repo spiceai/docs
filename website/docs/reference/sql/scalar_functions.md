@@ -1,7 +1,7 @@
 ---
 title: 'Scalar Functions'
 sidebar_label: 'Scalar Functions'
-pagination_prev: 'reference/sql/information_schema'
+pagination_prev: 'reference/sql/ai'
 sidebar_position: 6
 ---
 
@@ -2424,6 +2424,71 @@ Union functions help work with union (variant) data types, such as extracting th
 ## Other Functions
 
 Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
+
+### `ai`
+
+Invokes large language models (LLMs) directly within SQL queries for text generation tasks. This asynchronous function processes prompts through configured model providers and returns generated text responses.
+
+```sql
+ai(message)
+ai(message, model_name)
+```
+
+#### Arguments
+
+- **message**: String prompt to send to the language model.
+- **model_name** (optional): Name of the model to use as configured in your Spicepod. If omitted, the default model is used (only valid when exactly one model is configured).
+
+#### Return Type
+
+Returns a string containing the generated text response. Returns NULL if an error occurs during processing (errors are logged).
+
+#### Behavior
+
+Queries execute asynchronously, processing LLM calls in parallel across rows for improved performance. Each invocation queues an asynchronous call to the specified model provider.
+
+The function honors DataFusion concurrency configuration for parallel requests. When multiple models with different providers are configured (e.g., OpenAI and Anthropic), each provider processes requests in parallel according to concurrency settings.
+
+**Limits**: Maximum batch size of 100 rows per query; maximum input message size of 1 MB per message.
+
+#### Example
+
+```sql
+-- Using default model (when only one model is configured)
+SELECT
+  zone,
+  ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.')) AS category
+FROM taxi_zones
+LIMIT 10;
+
+-- Specifying a model explicitly
+SELECT
+  zone,
+  ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.'), 'gpt-4o') AS category
+FROM taxi_zones
+LIMIT 10;
+
+-- Example output
++-----------------------+-------------+
+| zone                  | category    |
++-----------------------+-------------+
+| Newark Airport        | Transport   |
+| Jamaica Bay           | Nature      |
+| Allerton/Pelham...    | Residential |
++-----------------------+-------------+
+```
+
+#### Configuration
+
+Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](/docs/features/large-language-models) for configuration details.
+
+```yaml
+models:
+  - name: gpt-4o
+    from: openai:gpt-4o
+    params:
+      openai_api_key: ${secrets:openai_key}
+```
 
 ### `embed`
 

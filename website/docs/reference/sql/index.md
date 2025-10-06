@@ -43,6 +43,11 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [SHOW COLUMNS](information_schema.md#show-columns)
 - [SHOW ALL (configuration options)](information_schema.md#show-all-configuration-options)
 
+### [AI Functions](ai.md)
+
+- [ai (LLM Text Generation)](ai.md#ai)
+- [embed (Vector Embeddings)](ai.md#embed)
+
 ### [Operators and Literals](operators.md)
 
 - [Numerical Operators](operators.md#numerical-operators)
