@@ -10,7 +10,7 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
 :::warning[Limitations]
 
 - JSON functions and operators are supported only **during DataFusion (Arrow)** execution.
-- **Fully federated or accelerated sources** (non-Arrow) may **not support all JSON functions**.
+- **Federated or accelerated sources** (non-Arrow) may **not support all JSON functions**.
 
 :::
 
