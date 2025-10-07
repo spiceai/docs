@@ -82,6 +82,10 @@ data-connectors:
   label: 'Data Connectors'
   permalink: '/data-connectors'
   description: 'Data source connectors and integration patterns.'
+write:
+  label: 'Write'
+  permalink: '/write'
+  description: 'Data connectors and catalogs that support write operations.'
 data-lake:
   label: 'Data Lake'
   permalink: '/data-lake'

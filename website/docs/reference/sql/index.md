@@ -43,6 +43,11 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [SHOW COLUMNS](information_schema.md#show-columns)
 - [SHOW ALL (configuration options)](information_schema.md#show-all-configuration-options)
 
+### [AI Functions](ai.md)
+
+- [ai (LLM Text Generation)](ai.md#ai)
+- [embed (Vector Embeddings)](ai.md#embed)
+
 ### [Operators and Literals](operators.md)
 
 - [Numerical Operators](operators.md#numerical-operators)
@@ -87,5 +92,9 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 ### [Prepared Statements](prepared_statements.md)
 
 - [Positional Arguments](prepared_statements.md#positional-arguments)
+
+### [DML (Data Manipulation Language)](dml.md)
+
+- [INSERT Statement](dml.md#insert)
 
 Refer to each section for detailed syntax, supported features, and examples.

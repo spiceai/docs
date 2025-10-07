@@ -24,7 +24,7 @@ To enable memory tools for Spice models, define a `store` [memory](/docs/compone
 datasets:
   - from: memory:store
     name: llm_memory
-    mode: read_write
+    access: read_write
 
 models:
   - name: memory-enabled-model

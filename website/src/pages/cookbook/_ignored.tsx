@@ -78,6 +78,12 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'text-to-sql', 'nsql', 'tools']
   },
   {
+    title: 'AI SQL Function',
+    description: 'Invoke LLMs directly within SQL queries using the AI SQL function.',
+    path: '/ai/README.md',
+    tags: ['ai', 'sql', 'llm']
+  },
+  {
     title: 'Nvidia NIM',
     description: 'Deploy Nvidia NIM infrastructure, on Kubernetes, with GPUs connected to Spice.',
     path: '/nvidia-nim/README.md',
@@ -338,8 +344,8 @@ const recipes: RecipeData[] = [
     tags: ['catalog', 'unity']
   },
   {
-    title: 'Iceberg Catalog',
-    description: 'Connect to Iceberg catalog.',
+    title: 'Iceberg Catalog Connector',
+    description: 'Connect to Iceberg catalog with support for reading and writing Iceberg tables.',
     path: '/catalogs/iceberg/README.md',
     tags: ['catalog', 'iceberg']
   },
@@ -454,8 +460,8 @@ const recipes: RecipeData[] = [
     tags: ['sdk', 'go']
   },
   {
-    title: 'JavaScript SDK',
-    description: 'Query Spice.ai using the JavaScript SDK.',
+    title: 'Spice.js JavaScript (Node.js) SDK',
+    description: 'Query Spice.ai using the JavaScript (Node.js) SDK with examples.',
     path: '/client-sdk/spice.js-sdk-sample/README.md',
     tags: ['sdk', 'javascript']
   },

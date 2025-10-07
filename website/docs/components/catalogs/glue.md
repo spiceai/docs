@@ -9,6 +9,7 @@ tags:
   - catalogs
   - glue
   - data-connectors
+  - write
 ---
 
 Connect to an [AWS Glue Data Catalog](https://docs.aws.amazon.com/glue/latest/dg/start-data-catalog.html) as a catalog provider for federated SQL query.
