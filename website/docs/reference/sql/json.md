@@ -7,6 +7,13 @@ sidebar_position: 7
 
 JSON support in Spice is based on [datafusion-functions-json](https://github.com/datafusion-contrib/datafusion-functions-json), which provides functions and operators to extract, query, and manipulate JSON data stored as strings. Advanced features for JSON creation, modification, or complex path expressions are not supported.
 
+:::warning[Limitations]
+
+- JSON functions and operators are supported only **during DataFusion (Arrow)** execution.
+- **Federated or accelerated sources** (non-Arrow) may **not support all JSON functions**.
+
+:::
+
 - [JSON Functions](#json-functions)
   - [`json_contains`](#json_contains)
     - [Arguments](#arguments)
