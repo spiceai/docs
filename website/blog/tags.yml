@@ -6,6 +6,10 @@ acceleration:
   label: 'acceleration'
   permalink: '/acceleration'
   description: 'Topics related to acceleration techniques and tools'
+snapshots:
+  label: 'snapshots'
+  permalink: '/snapshots'
+  description: 'Topics related to database and acceleration snapshots'
 adbc:
   label: 'adbc'
   permalink: '/adbc'
