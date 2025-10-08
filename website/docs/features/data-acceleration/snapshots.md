@@ -1,6 +1,6 @@
 ---
-title: 'Acceleration Snapshots'
-sidebar_label: 'Acceleration Snapshots'
+title: 'Snapshots'
+sidebar_label: 'Snapshots'
 description: 'Bootstrap file-mode accelerations from managed snapshots to eliminate cold starts.'
 sidebar_position: 3
 ---
