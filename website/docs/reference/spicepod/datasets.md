@@ -283,6 +283,19 @@ Optional. The mode of acceleration. The following values are supported:
 
 `mode` is currently only supported for the `duckdb` engine.
 
+## `acceleration.snapshots`
+
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./index.md#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+
+Supported values:
+
+- `enabled` – Download the newest snapshot on startup when the acceleration file is missing and write a fresh snapshot after each refresh.
+- `bootstrap_only` – Download snapshots on startup but never write new ones.
+- `create_only` – Write snapshots after refreshes but never download them on startup.
+- `disabled` (default) – Do not use snapshots for this dataset.
+
+Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots.md).
+
 ## `acceleration.refresh_mode`
 
 Optional. How to refresh the dataset. The following values are supported:
