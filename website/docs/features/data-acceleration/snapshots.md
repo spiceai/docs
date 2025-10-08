@@ -5,7 +5,7 @@ description: 'Bootstrap file-mode accelerations from managed snapshots to elimin
 sidebar_position: 3
 ---
 
-## Example
+## Spicepod Example
 
 ```yaml
 snapshots:
