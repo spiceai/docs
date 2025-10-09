@@ -81,6 +81,14 @@ dataset_active_count{engine="duckdb"} 1
 | `dataset_acceleration_refresh_lag_ms`<br/>_(gauge)_                  | Difference between the maximum time_column value after and before the refresh operation, in milliseconds.               |
 | `dataset_acceleration_ingestion_lag_ms`<br/>_(gauge)_                | Lag between the current wall-clock time and the maximum time_column value after the refresh operation, in milliseconds. |
 | `dataset_acceleration_refresh_errors`<br/>_(count)_                  | Number of errors refreshing the dataset.                                                                                |
+| `dataset_acceleration_snapshot_bootstrap_bytes`<br/>_(gauge)_        | Number of bytes downloaded when bootstrapping the acceleration from a snapshot.                                         |
+| `dataset_acceleration_snapshot_bootstrap_checksum`<br/>_(gauge)_     | Checksum of the snapshot downloaded during bootstrap (emitted with `checksum` attribute).                               |
+| `dataset_acceleration_snapshot_bootstrap_duration_ms`<br/>_(histogram)_ | Time in milliseconds taken to download the snapshot used to bootstrap acceleration.                                  |
+| `dataset_acceleration_snapshot_failure_count`<br/>_(count)_          | Number of failures encountered while writing snapshots.                                                                 |
+| `dataset_acceleration_snapshot_write_bytes`<br/>_(gauge)_            | Number of bytes written for the most recent snapshot.                                                                   |
+| `dataset_acceleration_snapshot_write_checksum`<br/>_(gauge)_         | Checksum of the most recent snapshot write (emitted with `checksum` attribute).                                         |
+| `dataset_acceleration_snapshot_write_duration_ms`<br/>_(histogram)_  | Time in milliseconds taken to write the latest snapshot to object storage.                                              |
+| `dataset_acceleration_snapshot_write_timestamp`<br/>_(gauge)_        | Unix timestamp (seconds) when the most recent snapshot write completed.                                                 |
 | `dataset_active_count`<br/>_(gauge)_                                 | Number of currently loaded datasets.                                                                                    |
 | `dataset_load_state`<br/>_(gauge)_                                   | Status of the dataset. 0=Initializing, 1=Ready, 2=Disabled, 3=Error, 4=Refreshing, 5=ShuttingDown.                      |
 | `dataset_unavailable_time_ms`<br/>_(gauge)_                          | Time dataset went offline in milliseconds.                                                                              |
