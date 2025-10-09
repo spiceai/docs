@@ -83,7 +83,7 @@ dataset_active_count{engine="duckdb"} 1
 | `dataset_acceleration_refresh_errors`<br/>_(count)_                  | Number of errors refreshing the dataset.                                                                                |
 | `dataset_acceleration_snapshot_bootstrap_bytes`<br/>_(gauge)_        | Number of bytes downloaded when bootstrapping the acceleration from a snapshot.                                         |
 | `dataset_acceleration_snapshot_bootstrap_checksum`<br/>_(gauge)_     | Checksum of the snapshot downloaded during bootstrap (emitted with `checksum` attribute).                               |
-| `dataset_acceleration_snapshot_bootstrap_duration_ms`<br/>_(histogram)_ | Time in milliseconds taken to download the snapshot used to bootstrap acceleration.                                  |
+| `dataset_acceleration_snapshot_bootstrap_duration_ms`<br/>_(count)_ | Time in milliseconds taken to download the snapshot used to bootstrap acceleration.                                  |
 | `dataset_acceleration_snapshot_failure_count`<br/>_(count)_          | Number of failures encountered while writing snapshots.                                                                 |
 | `dataset_acceleration_snapshot_write_bytes`<br/>_(gauge)_            | Number of bytes written for the most recent snapshot.                                                                   |
 | `dataset_acceleration_snapshot_write_checksum`<br/>_(gauge)_         | Checksum of the most recent snapshot write (emitted with `checksum` attribute).                                         |
