@@ -109,13 +109,14 @@ Ensure adequate disk space for temporary files, swap files, WAL files, and inter
 
 The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
 
-Set the `runtime.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
 
 Example configuration:
 
 ```yaml
 runtime:
-  temp_directory: /tmp/spice
+  query:
+    temp_directory: /tmp/spice
 ```
 
 Use this parameter when:
