@@ -46,8 +46,6 @@ DataFusion supports spilling for several operators, but not all operations are c
 - ExternalSorterMerge (no current tracking issue; previously discussed in the context of SortMergeJoin)
 - RepartitionMerge (spilling is suggested to be supported, but may depend on HashJoin support; see [issue](https://github.com/apache/arrow-datafusion/issues/1047))
 
-
-
 ## Embedded Data Accelerators
 
 Spice.ai integrates with embedded accelerators like [SQLite](/docs/components/data-accelerators/sqlite.md) and [DuckDB](/docs/components/data-accelerators/duckdb.md), each with unique memory considerations:
