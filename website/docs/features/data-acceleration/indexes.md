@@ -39,6 +39,12 @@ There are two types of indexes that can be specified in a Spicepod:
 - `unique`: Creates a unique index on the specified column(s). See [Constraints](./constraints.md) for more information on working with unique constraints on locally accelerated tables.
   - Similar to specifying `CREATE UNIQUE INDEX my_index ON my_table (my_column)`.
 
+## Engine-Specific Configuration
+
+### DuckDB Index Scan Parameters
+
+When using DuckDB acceleration, index scan behavior can be configured to control when indexes are used for query execution. See the [DuckDB Index Scan Configuration](/docs/components/data-accelerators/duckdb.md#index-scan-configuration) section for configuration details and examples.
+
 :::warning[Limitations]
 
 - **Not supported for in-memory Arrow:** The default in-memory Arrow acceleration engine does not support indexes. Use [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/duckdb.md), or [PostgreSQL](/docs/components/data-accelerators/postgres/index.md) as the acceleration engine to enable indexing.

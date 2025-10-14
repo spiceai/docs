@@ -38,6 +38,8 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_data_dir` (string, default:`.spice/data/`): Path to the directory the DuckDB database file(s) will be placed in. This is useful when using the `partition_by` acceleration parameter. If both `duckdb_data_dir` and `duckdb_file` are specified, `duckdb_file` will be used and `duckdb_data_dir` will be ignored.
 - `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
 - `duckdb_preserve_insertion_order` (boolean, default: `true`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
+- `duckdb_index_scan_percentage` (double, default: `0.001`): Sets a threshold for index scans. If fewer than `MAX(index_scan_max_count, index_scan_percentage * total_row_count)` rows match, an index scan is performed instead of a table scan. Value range: 0.0 to 1.0 (representing 0% to 100%). See [Index Scan Configuration](#index-scan-configuration) for details and examples.
+- `duckdb_index_scan_max_count` (unsigned big integer, default: `2048`): Sets a threshold for index scans. If fewer than `MAX(index_scan_max_count, index_scan_percentage * total_row_count)` rows match, an index scan is performed instead of a table scan. See [Index Scan Configuration](#index-scan-configuration) for details and examples.
 
 Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets.md#acceleration) for additional supported fields.
 
@@ -54,6 +56,41 @@ datasets:
         duckdb_file: /my/chosen/location/duckdb.db
         duckdb_memory_limit: '2GB'
 ```
+
+## Index Scan Configuration
+
+When using the DuckDB accelerator with [indexes](/docs/features/data-acceleration/indexes.md), index scan behavior can be configured to control when ART (Adaptive Radix Tree) indexes are used for query execution instead of full table scans.
+
+DuckDB uses an index scan when the number of qualifying rows is less than the maximum of two thresholds:
+
+```text
+MAX(duckdb_index_scan_max_count, duckdb_index_scan_percentage * total_row_count)
+```
+
+These parameters can be configured per dataset:
+
+```yaml
+datasets:
+  - from: postgres:my_table
+    name: my_table
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      indexes:
+        user_id: enabled
+      params:
+        duckdb_index_scan_percentage: '0.10' # Use index scan if < 10% of rows qualify
+        duckdb_index_scan_max_count: '1000' # Use index scan if < 1000 rows qualify
+```
+
+For more information about DuckDB ART index scans, see the [DuckDB Indexing documentation](https://duckdb.org/docs/stable/guides/performance/indexing#art-index-scans).
+
+## Automatic Configuration
+
+### Checkpoint on Shutdown
+
+The DuckDB accelerator automatically configures `PRAGMA enable_checkpoint_on_shutdown` for all connections. This ensures that any pending changes in the Write-Ahead Log (WAL) are checkpointed when the database is shut down, maintaining data consistency.
 
 ## Limitations
 
