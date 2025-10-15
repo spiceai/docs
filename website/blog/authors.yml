@@ -88,3 +88,13 @@ kczimm:
   socials:
     github: kczimm
     linkedin: kevinczimmerman
+
+krinart:
+  name: Viktor Yershov
+  title: Senior Software Engineer at Spice AI
+  url: https://github.com/krinart
+  image_url: https://github.com/krinart.png 
+  page: true
+  socials:
+    github: krinart
+    linkedin: viktorershov
