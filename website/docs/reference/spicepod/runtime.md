@@ -269,3 +269,26 @@ Supported values are `info`, `verbose`, and `very_verbose`. The value is applied
 runtime:
   output_level: info # or verbose, very_verbose
 ```
+
+## `runtime.metrics`
+
+Allows to enable metrics that are disabled by default.
+
+Following metrics are disabled by default:
+* `dataset_acceleration_max_timestamp_before_refresh_ms`
+* `dataset_acceleration_max_timestamp_after_refresh_ms`
+* `dataset_acceleration_refresh_lag_ms`
+* `dataset_acceleration_ingestion_lag_ms`
+
+For details about these metrics, see [Observability](/docs/features/observability/index.md).
+
+```yaml
+runtime:
+  metrics:
+    - name: dataset_acceleration_max_timestamp_before_refresh_ms
+    - name: dataset_acceleration_max_timestamp_after_refresh_ms
+      enabled: true
+    - name: dataset_acceleration_refresh_lag_ms
+      enabled: false
+    - name: dataset_acceleration_ingestion_lag_ms
+```
