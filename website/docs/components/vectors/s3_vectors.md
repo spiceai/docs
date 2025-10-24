@@ -43,6 +43,7 @@ embeddings:
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
 | `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
 | `s3_vectors_distance_metric`                 | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.  | `euclidean`                                                      |
+| `s3_vectors_index_poll_interval`             | The interval to poll for index updates to avoid excessive API calls. Minimum 5 seconds. Default is to poll on every scan. | `5m`                                                            |
 
 :::warning[Limitations]
 
