@@ -198,14 +198,18 @@ runtime:
     captured_output: none
     retention_period: 8h
     retention_check_interval: 15m
+    min_sql_duration: 5s
 ```
 
-| Parameter name             | Optional | Description                                                                                    |
-| -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `enabled`                  | Yes      | Defaults to `true`.                                                                            |
-| `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.          |
-| `retention_period`         | Yes      | Specifies how long records in the task history table are retained. Defaults to `8h` (8 hours). |
-| `retention_check_interval` | Yes      | Specifies how often old records are checked for removal. Defaults to `15m` (15 minutes).       |
+| Parameter name             | Optional | Description                                                                                                                                                  |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`                  | Yes      | Defaults to `true`.                                                                                                                                          |
+| `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.                                                                        |
+| `captured_plan`            | Yes      | Controls SQL query plan capture. Options: `none` (default), `explain`, or `explain analyze`. Query plans are captured asynchronously after query completion. |
+| `min_sql_duration`         | Yes      | Minimum query execution duration before a plan is captured. Only queries exceeding this threshold are captured. Example: `5s`.                               |
+| `min_plan_duration`        | Yes      | Minimum plan execution duration before a plan is captured. This threshold applies to the execution time of the `EXPLAIN` operation itself. Example: `10s`.   |
+| `retention_period`         | Yes      | Specifies how long records in the task history table are retained. Defaults to `8h` (8 hours).                                                               |
+| `retention_check_interval` | Yes      | Specifies how often old records are checked for removal. Defaults to `15m` (15 minutes).                                                                     |
 
 ## `runtime.cors`
 
@@ -275,10 +279,11 @@ runtime:
 Allows to enable metrics that are disabled by default.
 
 Following metrics are disabled by default:
-* `dataset_acceleration_max_timestamp_before_refresh_ms`
-* `dataset_acceleration_max_timestamp_after_refresh_ms`
-* `dataset_acceleration_refresh_lag_ms`
-* `dataset_acceleration_ingestion_lag_ms`
+
+- `dataset_acceleration_max_timestamp_before_refresh_ms`
+- `dataset_acceleration_max_timestamp_after_refresh_ms`
+- `dataset_acceleration_refresh_lag_ms`
+- `dataset_acceleration_ingestion_lag_ms`
 
 For details about these metrics, see [Observability](/docs/features/observability/index.md).
 

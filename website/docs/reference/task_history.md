@@ -302,3 +302,64 @@ Example output:
 | sql_query | 2024-11-25T07:15:30.574257 | 40.908                | select  i_item_id  ,i_item_desc  ,s_store_id  ,s_store_name  ,min(ss_net_profit) as store_sales_prof |               | {protocol: FlightSQL, rows_produced: 0, accelerated: true, datasets: store_returns,date_dim,store,store_sales,item,catalog_sales, query_execution_duration_ms: 40.29496}          |
 +-----------+----------------------------+-----------------------+------------------------------------------------------------------------------------------------------+---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
+
+## SQL Query Plan Capture
+
+Spice supports automated SQL query plan capture through `EXPLAIN` or `EXPLAIN ANALYZE` statements. This feature stores query plans in the task history, providing detailed execution information for analysis and debugging. Query plans are captured asynchronously after query completion to avoid blocking query execution.
+
+### Configuration
+
+Configure SQL query plan capture using `runtime.task_history` parameters:
+
+```yaml
+runtime:
+  task_history:
+    captured_plan: explain analyze
+    min_sql_duration: 5s
+    min_plan_duration: 10s
+```
+
+#### Parameters
+
+- **`captured_plan`**: Determines which plan type is captured. Options:
+  - `none` (default): No plans are captured
+  - `explain`: Captures the logical query plan without executing it
+  - `explain analyze`: Captures the query plan with actual execution metrics
+- **`min_sql_duration`**: Minimum query execution duration before a plan is captured. Plans are captured only for queries that exceed this threshold.
+- **`min_plan_duration`**: Minimum plan execution duration before a plan is captured. This threshold applies to the execution time of the `EXPLAIN` or `EXPLAIN ANALYZE` operation itself.
+
+### Captured Output
+
+Query plans are stored in the `captured_output` column of the task history table. This column contains the result of the `EXPLAIN` or `EXPLAIN ANALYZE` statement generated for the original query.
+
+### Query Examples
+
+Retrieve query plans for slow queries:
+
+```sql
+SELECT
+    start_time,
+    execution_duration_ms,
+    SUBSTRING(input, 1, 80) AS query_preview,
+    captured_output
+FROM spice.runtime.task_history
+WHERE task = 'sql_query'
+  AND captured_output IS NOT NULL
+  AND execution_duration_ms > 5000
+ORDER BY start_time DESC
+LIMIT 5;
+```
+
+Find queries with specific execution patterns:
+
+```sql
+SELECT
+    start_time,
+    execution_duration_ms,
+    captured_output
+FROM spice.runtime.task_history
+WHERE task = 'sql_query'
+  AND captured_output LIKE '%TableScan%'
+  AND execution_duration_ms > 1000
+ORDER BY execution_duration_ms DESC;
+```
