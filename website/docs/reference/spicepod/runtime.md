@@ -242,26 +242,44 @@ runtime:
 
 This configuration permits requests only from the `https://example.com` origin.
 
-## `runtime.memory_limit`
+## `runtime.query.memory_limit`
 
-The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.query.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
 
 ```yaml
 runtime:
-  memory_limit: 4GiB
+  query:
+    memory_limit: 4GiB
 ```
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
 For detailed memory information, see [Memory](/docs/reference/memory.md).
 
-## `runtime.temp_directory`
+## `runtime.query.spill_compression`
+
+The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.
+
+**Supported values:**
+- `zstd` (default): Enables high compression ratios for spill files, reducing disk usage but with moderate (de)compression speed.
+- `lz4_frame`: Provides faster (de)compression, resulting in larger spill files and potentially higher disk usage.
+- `uncompressed`: Disables compression. Spill files will be the largest, but with no (de)compression overhead.
+
+```yaml
+runtime:
+  query:
+    spill_compression: lz4_frame
+```
+This option allows you to balance disk space usage and query performance for large-scale analytics workloads.
+
+## `runtime.query.temp_directory`
 
 The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml
 runtime:
-  temp_directory: /tmp/spice
+  query:
+    temp_directory: /tmp/spice
 ```
 
 ## `runtime.output_level`
