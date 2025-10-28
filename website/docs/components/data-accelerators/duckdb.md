@@ -38,6 +38,8 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_data_dir` (string, default:`.spice/data/`): Path to the directory the DuckDB database file(s) will be placed in. This is useful when using the `partition_by` acceleration parameter. If both `duckdb_data_dir` and `duckdb_file` are specified, `duckdb_file` will be used and `duckdb_data_dir` will be ignored.
 - `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
 - `duckdb_preserve_insertion_order` (boolean, default: `true`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
+- `connection_pool_size` (integer, default: `10`): Controls the maximum number of connections to keep open in the connection pool for concurrent query execution.
+- `on_refresh_recompute_statistics` (string, default: `enabled`): Triggers automatic `ANALYZE` execution after data refreshes. This keeps DuckDB optimizer statistics up-to-date for efficient query plans and performance. Set to `disabled` to turn automatic statistics recomputation off. See [DuckDB ANALYZE statement documentation](https://duckdb.org/docs/stable/sql/statements/analyze).
 - `partition_mode` (string, default: `files`): Controls how partitioned data is stored. Can only be used with `partition_by`. Set to `tables` to store partitions as separate tables within a single DuckDB database, improving resource usage through single shared connection pool for all partitions. Default `files` mode creates separate database files per partition with individual connection pools and generally faster query performance.
 - `duckdb_partitioned_write_flush_threshold` (integer, default: `122880`): The number of rows buffered per partition before flushing data to acceleration storage. Only applicable when using `partition_mode: tables`. Using a larger value can improve write performance but requires more memory.
 
@@ -111,13 +113,14 @@ Ensure adequate disk space for temporary files, swap files, WAL files, and inter
 
 The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
 
-Set the `runtime.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
 
 Example configuration:
 
 ```yaml
 runtime:
-  temp_directory: /tmp/spice
+  query:
+    temp_directory: /tmp/spice
 ```
 
 Use this parameter when:
@@ -125,7 +128,7 @@ Use this parameter when:
 - Handling workloads that frequently spill to disk.
 - Distributing swap and data I/O operations across multiple storage volumes.
 
-For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/runtime.md#runtimetemp_directory).
+For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/runtime.md#runtimequerytemp_directory).
 
 For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
 
