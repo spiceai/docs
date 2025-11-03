@@ -58,12 +58,15 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 The DynamoDB data connector supports the following configuration parameters:
 
-| Parameter Name | Description |
-| -------------- | ----------- |
-| `dynamodb_aws_region` | Required. The AWS region containing the DynamoDB table |
-| `dynamodb_aws_access_key_id` | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
-| `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
-| `dynamodb_aws_session_token` | Optional. AWS session token for authentication |
+| Parameter Name                   | Description                                                                                                                                            |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dynamodb_aws_region`            | Required. The AWS region containing the DynamoDB table                                                                                                 |
+| `dynamodb_aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                    |
+| `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                |
+| `dynamodb_aws_session_token`     | Optional. AWS session token for authentication                                                                                                         |
+| `unnest_depth`                   | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields.                |
+| `schema_infer_max_records`       | Optional. Number of documents to use to infer the schema. Defaults to 10                                                                               |
+| `scan_segments`                  | Optional. Number of segments for `Scan` request. 'auto' by default, which will calcualte nujmber of segments based on number of the records in a table |
 
 ### Authentication
 
@@ -135,6 +138,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
             "Effect": "Allow",
             "Action": [
                 "dynamodb:Scan",
+                "dynamodb:Query",
                 "dynamodb:DescribeTable"
             ],
             "Resource": [
@@ -147,10 +151,11 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `dynamodb:Scan` | Required. Allows reading all items from the table |
-| `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information |
+| Permission               | Purpose                                                           |
+|--------------------------|-------------------------------------------------------------------|
+| `dynamodb:Scan`          | Required. Allows reading all items from the table                 |
+| `dynamodb:Query`         | Required. Allows reading items from the table using partition key |
+| `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information   |
 
 ### Example IAM Policies
 
@@ -164,6 +169,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
             "Effect": "Allow",
             "Action": [
                 "dynamodb:Scan",
+                "dynamodb:Query",
                 "dynamodb:DescribeTable"
             ],
             "Resource": "arn:aws:dynamodb:us-west-2:123456789012:table/users"
@@ -182,6 +188,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
             "Effect": "Allow",
             "Action": [
                 "dynamodb:Scan",
+                "dynamodb:Query",
                 "dynamodb:DescribeTable"
             ],
             "Resource": [
@@ -203,6 +210,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
             "Effect": "Allow",
             "Action": [
                 "dynamodb:Scan",
+                "dynamodb:Query",
                 "dynamodb:DescribeTable"
             ],
             "Resource": "arn:aws:dynamodb:us-west-2:123456789012:table/*"
@@ -276,8 +284,6 @@ WHERE address.city = 'San Francisco';
 
 :::warning[Limitations]
 
-- The DynamoDB connector currently does not support filter push-down optimization. All filtering is performed after data is retrieved from DynamoDB.
-- Primary key optimizations are not yet implemented - retrieving items by their primary key will still scan the table.
 - The DynamoDB connector will scan the first 10 items to determine the schema of the table. This may miss columns that are not present in the first 10 items.
 
 :::
@@ -310,7 +316,3 @@ describe users;
 ...
 +----------------+------------------+-------------+
 ```
-
-## Performance Considerations
-
-- Due to limited support for filter push-down, enable acceleration to prevent scanning the entire table on every query.
