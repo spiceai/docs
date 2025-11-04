@@ -350,7 +350,7 @@ columns:
           trim_whitespace: false
 ```
 
-See [`embeddings[*].chunking`](#embeddingschunking) for details.
+See [`embeddings[*].chunking`](#columns-embeddings-chunking) for details.
 
 ## `columns[*].embeddings[*].vector_size`
 
