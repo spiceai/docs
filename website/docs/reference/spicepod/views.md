@@ -74,7 +74,7 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
 - [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
+- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
 
 ## `acceleration.mode`
 
@@ -209,7 +209,7 @@ See [Duration](../duration/index.md)
 
 ## `acceleration.refresh_jitter_enabled`
 
-Optional. Enable or disable refresh jitter, defaults to `false`. The refresh jitter adds/substracts a randomized time period from the `refresh_check_interval`.
+Optional. Enable or disable refresh jitter, defaults to `false`. The refresh jitter adds/subtracts a randomized time period from the `refresh_check_interval`.
 
 ## `acceleration.refresh_jitter_max`
 
@@ -268,7 +268,7 @@ Only a single `on_conflict` target can be specified, unless all `on_conflict` ta
 The possible conflict resolution strategies are:
 
 - `upsert` - Upsert the incoming data when the primary key constraint is violated.
-- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
+- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a constraint violation within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
