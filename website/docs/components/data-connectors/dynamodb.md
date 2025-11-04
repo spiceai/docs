@@ -65,7 +65,7 @@ The DynamoDB data connector supports the following configuration parameters:
 | `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                |
 | `dynamodb_aws_session_token`     | Optional. AWS session token for authentication                                                                                                         |
 | `unnest_depth`                   | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields.                |
-| `schema_infer_max_records`       | Optional. Number of documents to use to infer the schema. Defaults to 10                                                                               |
+| `schema_infer_max_records`       | Optional. The number of documents to use to infer the schema. Defaults to 10                                                                               |
 | `scan_segments`                  | Optional. Number of segments for `Scan` request. 'auto' by default, which will calculate number of segments based on number of the records in a table |
 
 ### Authentication
