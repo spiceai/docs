@@ -28,7 +28,7 @@ Cayenne uses Vortex as its storage format, providing significant performance adv
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance.
 
-While [DuckDB](/components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Cayenne with Vortex is designed to scale beyond these limits.
+While [DuckDB](/docs/components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Cayenne with Vortex is designed to scale beyond these limits.
 
 For detailed Vortex performance benchmarks, visit [bench.vortex.dev](https://bench.vortex.dev).
 
