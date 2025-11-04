@@ -29,13 +29,15 @@ A choice of DuckDB, SQLite, or PostgreSQL engines can be used to materialize dat
 
 Supported Data Accelerators include:
 
-| Name       | Description                     | Status            | Engine Modes     |
-| ---------- | ------------------------------- | ----------------- | ---------------- |
-| `arrow`    | In-Memory Arrow Records         | Stable            | `memory`         |
-| `duckdb`   | Embedded [DuckDB][duckdb]       | Stable            | `memory`, `file` |
-| `postgres` | Attached [PostgreSQL][postgres] | Release Candidate | N/A              |
-| `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate | `memory`, `file` |
+| Name       | Description                     | Status               | Engine Modes     |
+| ---------- | ------------------------------- | -------------------- | ---------------- |
+| `arrow`    | In-Memory Arrow Records         | Stable               | `memory`         |
+| `cayenne`  | [Cayenne][cayenne]              | Alpha (v1.9.0-rc.1+) | `file`           |
+| `duckdb`   | Embedded [DuckDB][duckdb]       | Stable               | `memory`, `file` |
+| `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
+| `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
 
+[cayenne]: /docs/components/data-accelerators/cayenne.md
 [duckdb]: /docs/components/data-accelerators/duckdb.md
 [postgres]: /docs/components/data-accelerators/postgres/index.md
 [sqlite]: /docs/components/data-accelerators/sqlite.md

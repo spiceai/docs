@@ -41,6 +41,6 @@ There are two types of indexes that can be specified in a Spicepod:
 
 :::warning[Limitations]
 
-- **Not supported for in-memory Arrow:** The default in-memory Arrow acceleration engine does not support indexes. Use [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/duckdb.md), or [PostgreSQL](/docs/components/data-accelerators/postgres/index.md) as the acceleration engine to enable indexing.
+Indexes are not supported for the in-memory Arrow or [Cayenne](/docs/components/data-accelerators/cayenne.md) acceleration engines. Use [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/duckdb.md), or [PostgreSQL](/docs/components/data-accelerators/postgres/index.md) as the acceleration engine to enable indexing.
 
 :::
