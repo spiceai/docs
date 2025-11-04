@@ -32,6 +32,12 @@ Supported Vector engines:
 
 [s3vectors]: /docs/components/vectors/s3_vectors.md
 
+:::warning[Limitations]
+
+- A dataset must be accelerated (i.e. `.dataset[].accelerated.enabled: true`, see [docs](https://spiceai.org/docs/reference/spicepod/datasets#accelerationenabled)) for a vector engine to be provided the appropriate data to ingest.
+
+  :::
+
 ## Vector Engine Docs
 
 import DocCardList from '@theme/DocCardList';
