@@ -285,7 +285,7 @@ WHERE address.city = 'San Francisco';
 :::warning[Limitations]
 
 - The DynamoDB connector will scan the first 10 items to determine the schema of the table. This may miss columns that are not present in the first 10 items.
-- DynamoDB connector does not support Decimal types.
+- The DynamoDB connector does not support Decimal types.
 
 :::
 
