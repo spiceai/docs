@@ -112,7 +112,7 @@ ORDER BY score DESC
 LIMIT 2;
 ```
 
-Results include matching snippets, additional fields, primary keys, scores, and dataset names.
+Results include matching snippets, additional fields, primary keys, scores, and table names.
 
 ## Managing Embeddings
 

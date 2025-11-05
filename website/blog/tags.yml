@@ -50,6 +50,7 @@ cayenne:
   label: 'cayenne'
   permalink: '/cayenne'
   description: 'Cayenne data accelerator related topics and usage'
+  description: 'Cayenne (Vortex) data accelerator related topics and usage'
 cli:
   label: 'cli'
   permalink: '/cli'
@@ -78,6 +79,10 @@ data-connector:
   label: 'data-connector'
   permalink: '/data-connectors'
   description: 'Data connector tools and integrations'
+data-accelerators:
+  label: 'data-accelerators'
+  permalink: '/data-accelerators'
+  description: 'Data accelerator technologies and implementations'
 databricks:
   label: 'databricks'
   permalink: '/databricks'
@@ -358,6 +363,7 @@ vortex:
   label: 'vortex'
   permalink: '/vortex'
   description: 'Vortex related topics and usage'
+  description: 'Vortex columnar file format related topics and usage'
 workers:
   label: 'workers'
   permalink: '/workers'
