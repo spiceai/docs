@@ -1,369 +1,368 @@
 abfs:
-  label: 'abfs'
-  permalink: '/abfs'
-  description: 'Azure Blob File System related topics and usage'
+  label: "abfs"
+  permalink: "/abfs"
+  description: "Azure Blob File System related topics and usage"
 acceleration:
-  label: 'acceleration'
-  permalink: '/acceleration'
-  description: 'Topics related to acceleration techniques and tools'
+  label: "acceleration"
+  permalink: "/acceleration"
+  description: "Topics related to acceleration techniques and tools"
 adbc:
-  label: 'adbc'
-  permalink: '/adbc'
-  description: 'Arrow Database Connectivity (ADBC) related topics and discussions'
+  label: "adbc"
+  permalink: "/adbc"
+  description: "Arrow Database Connectivity (ADBC) related topics and discussions"
 ai:
-  label: 'ai'
-  permalink: '/ai'
-  description: 'Artificial Intelligence related topics and discussions'
+  label: "ai"
+  permalink: "/ai"
+  description: "Artificial Intelligence related topics and discussions"
 amazon-s3-vectors:
-  label: 'amazon s3 vectors'
-  permalink: '/amazon-s3-vectors'
-  description: 'Amazon s3 Vectors related topics and usage'
+  label: "amazon s3 vectors"
+  permalink: "/amazon-s3-vectors"
+  description: "Amazon s3 Vectors related topics and usage"
 announcement:
-  label: 'announcement'
-  permalink: '/announcements'
-  description: 'Announcements about Spice.ai OSS'
+  label: "announcement"
+  permalink: "/announcements"
+  description: "Announcements about Spice.ai OSS"
 api:
-  label: 'api'
-  permalink: '/api'
-  description: 'Application Programming Interface related topics and discussions'
+  label: "api"
+  permalink: "/api"
+  description: "Application Programming Interface related topics and discussions"
 arrow:
-  label: 'arrow'
-  permalink: '/arrow'
-  description: 'Apache Arrow topics and usage'
+  label: "arrow"
+  permalink: "/arrow"
+  description: "Apache Arrow topics and usage"
 aws:
-  label: 'aws'
-  permalink: '/aws'
-  description: 'Amazon Web Services related topics and usage'
+  label: "aws"
+  permalink: "/aws"
+  description: "Amazon Web Services related topics and usage"
 azure:
-  label: 'azure'
-  permalink: '/azure'
-  description: 'Microsoft Azure related topics and usage'
+  label: "azure"
+  permalink: "/azure"
+  description: "Microsoft Azure related topics and usage"
 bedrock:
-  label: 'bedrock'
-  permalink: '/bedrock'
-  description: 'Amazon Bedrock related topics and usage'
+  label: "bedrock"
+  permalink: "/bedrock"
+  description: "Amazon Bedrock related topics and usage"
 caching:
-  label: 'caching'
-  permalink: '/caching'
-  description: 'Results Cache related topics and usage'
+  label: "caching"
+  permalink: "/caching"
+  description: "Results Cache related topics and usage"
 cayenne:
-  label: 'cayenne'
-  permalink: '/cayenne'
-  description: 'Cayenne (Vortex) data accelerator related topics and usage'
+  label: "cayenne"
+  permalink: "/cayenne"
+  description: "Cayenne (Vortex) data accelerator related topics and usage"
 cli:
-  label: 'cli'
-  permalink: '/cli'
-  description: 'Command Line Interface related topics and usage'
+  label: "cli"
+  permalink: "/cli"
+  description: "Command Line Interface related topics and usage"
 cloud:
-  label: 'cloud'
-  permalink: '/cloud'
-  description: 'Cloud computing, cloud storage, or cloud-based services related topics and usage'
+  label: "cloud"
+  permalink: "/cloud"
+  description: "Cloud computing, cloud storage, or cloud-based services related topics and usage"
 configuration:
-  label: 'configuration'
-  permalink: '/configuration'
-  description: 'Configuration settings and guides'
+  label: "configuration"
+  permalink: "/configuration"
+  description: "Configuration settings and guides"
 cron:
-  label: 'cron'
-  permalink: '/cron'
-  description: 'Cron related topics and usage'
+  label: "cron"
+  permalink: "/cron"
+  description: "Cron related topics and usage"
 csv:
-  label: 'csv'
-  permalink: '/csv'
-  description: 'CSV file handling and processing'
+  label: "csv"
+  permalink: "/csv"
+  description: "CSV file handling and processing"
 cuda:
-  label: 'cuda'
-  permalink: '/cuda'
-  description: 'Compute Unified Device Architecture related topics and usage'
+  label: "cuda"
+  permalink: "/cuda"
+  description: "Compute Unified Device Architecture related topics and usage"
 data-connector:
-  label: 'data-connector'
-  permalink: '/data-connectors'
-  description: 'Data connector tools and integrations'
+  label: "data-connector"
+  permalink: "/data-connectors"
+  description: "Data connector tools and integrations"
 data-accelerators:
-  label: 'data-accelerators'
-  permalink: '/data-accelerators'
-  description: 'Data accelerator technologies and implementations'
+  label: "data-accelerators"
+  permalink: "/data-accelerators"
+  description: "Data accelerator technologies and implementations"
 databricks:
-  label: 'databricks'
-  permalink: '/databricks'
-  description: 'Databricks platform related topics and usage'
+  label: "databricks"
+  permalink: "/databricks"
+  description: "Databricks platform related topics and usage"
 datafusion:
-  label: 'datafusion'
-  permalink: '/datafusion'
-  description: 'DataFusion query engine related topics and usage'
+  label: "datafusion"
+  permalink: "/datafusion"
+  description: "DataFusion query engine related topics and usage"
 deepseek:
-  label: 'deepseek'
-  permalink: '/deepseek'
-  description: 'Deepseek AI firm related topics and usage'
+  label: "deepseek"
+  permalink: "/deepseek"
+  description: "Deepseek AI firm related topics and usage"
 delta:
-  label: 'delta'
-  permalink: '/delta'
-  description: 'Delta Lake Data Connector related topics and usage'
+  label: "delta"
+  permalink: "/delta"
+  description: "Delta Lake Data Connector related topics and usage"
 delta-lake:
-  label: 'delta-lake'
-  permalink: '/delta-lake'
-  description: 'Delta Lake storage layer topics and usage'
+  label: "delta-lake"
+  permalink: "/delta-lake"
+  description: "Delta Lake storage layer topics and usage"
 dependency:
-  label: 'dependency'
-  permalink: '/dependencies'
-  description: 'Dependency management and tools'
+  label: "dependency"
+  permalink: "/dependencies"
+  description: "Dependency management and tools"
 docker:
-  label: 'docker'
-  permalink: '/docker'
-  description: 'Docker-related topics and guides'
+  label: "docker"
+  permalink: "/docker"
+  description: "Docker-related topics and guides"
 dremio:
-  label: 'dremio'
-  permalink: '/dremio'
-  description: 'Dremio data lake engine topics and usage'
+  label: "dremio"
+  permalink: "/dremio"
+  description: "Dremio data lake engine topics and usage"
 duckdb:
-  label: 'duckdb'
-  permalink: '/duckdb'
-  description: 'DuckDB database topics and usage'
+  label: "duckdb"
+  permalink: "/duckdb"
+  description: "DuckDB database topics and usage"
 dynamodb:
-  label: 'dynamodb'
-  permalink: '/dynamodb'
-  description: 'DynamoDB database topics and usage'
+  label: "dynamodb"
+  permalink: "/dynamodb"
+  description: "DynamoDB database topics and usage"
 embeddinggemma:
-  label: 'embeddinggemma'
-  permalink: '/embeddinggemma'
-  description: 'EmbeddingGemma related topics and usage'
+  label: "embeddinggemma"
+  permalink: "/embeddinggemma"
+  description: "EmbeddingGemma related topics and usage"
 embeddings:
-  label: 'embeddings'
-  permalink: '/embeddings'
-  description: 'Embeddings related topics and usage'
+  label: "embeddings"
+  permalink: "/embeddings"
+  description: "Embeddings related topics and usage"
 engineering:
-  label: 'engineering'
-  permalink: '/engineering'
-  description: 'Spice AI engineering team posts'
+  label: "engineering"
+  permalink: "/engineering"
+  description: "Spice AI engineering team posts"
 evaluation:
-  label: 'evaluation'
-  permalink: '/evaluations'
-  description: 'Evaluation methods and metrics'
+  label: "evaluation"
+  permalink: "/evaluations"
+  description: "Evaluation methods and metrics"
 filesystem-hosted:
-  label: 'filesystem-hosted'
-  permalink: '/filesystem-hosted'
-  description: 'Filesystem-Hosted topics and usage'
+  label: "filesystem-hosted"
+  permalink: "/filesystem-hosted"
+  description: "Filesystem-Hosted topics and usage"
 gcp:
-  label: 'gcp'
-  permalink: '/gcp'
-  description: 'Google Cloud Platform related topics and usage'
+  label: "gcp"
+  permalink: "/gcp"
+  description: "Google Cloud Platform related topics and usage"
 github:
-  label: 'github'
-  permalink: '/github'
-  description: 'GitHub related topics and usage'
+  label: "github"
+  permalink: "/github"
+  description: "GitHub related topics and usage"
 glue:
-  label: 'glue'
-  permalink: '/glue'
-  description: 'AWS Glue related topics and usage'
+  label: "glue"
+  permalink: "/glue"
+  description: "AWS Glue related topics and usage"
 gpu:
-  label: 'gpu'
-  permalink: '/gpu'
-  description: 'Graphics Processing Unit related topics and usage'
+  label: "gpu"
+  permalink: "/gpu"
+  description: "Graphics Processing Unit related topics and usage"
 hadoop:
-  label: 'hadoop'
-  permalink: '/hadoop'
-  description: 'Hadoop related topics and usage'
+  label: "hadoop"
+  permalink: "/hadoop"
+  description: "Hadoop related topics and usage"
 hashing:
-  label: 'hashing'
-  permalink: '/hashing'
-  description: 'Hashing related topics and usage'
+  label: "hashing"
+  permalink: "/hashing"
+  description: "Hashing related topics and usage"
 helm:
-  label: 'helm'
-  permalink: '/helm'
-  description: 'Helm Chart related topics and usage'
+  label: "helm"
+  permalink: "/helm"
+  description: "Helm Chart related topics and usage"
 huggingface:
-  label: 'huggingface'
-  permalink: '/huggingface'
-  description: 'Hugging Face open-source machine learning tool related topics and usage'
+  label: "huggingface"
+  permalink: "/huggingface"
+  description: "Hugging Face open-source machine learning tool related topics and usage"
 hybrid-search:
-  label: 'hybrid-search'
-  permalink: '/hybrid-search'
-  description: 'Hybrid search combining multiple search methodologies'
+  label: "hybrid-search"
+  permalink: "/hybrid-search"
+  description: "Hybrid search combining multiple search methodologies"
 iceberg:
-  label: 'iceberg'
-  permalink: '/iceberg'
-  description: 'Iceberg Catalong Connector related topics and usage'
+  label: "iceberg"
+  permalink: "/iceberg"
+  description: "Iceberg Catalong Connector related topics and usage"
 json:
-  label: 'json'
-  permalink: '/json'
-  description: 'JSON data handling and processing'
+  label: "json"
+  permalink: "/json"
+  description: "JSON data handling and processing"
 kafka:
-  label: 'kafka'
-  permalink: '/kafka'
-  description: 'Kafka related topics and usage'
+  label: "kafka"
+  permalink: "/kafka"
+  description: "Kafka related topics and usage"
 language-models:
-  label: 'language-model'
-  permalink: '/language-models'
-  description: 'Language models and their applications'
+  label: "language-model"
+  permalink: "/language-models"
+  description: "Language models and their applications"
 llm-tools:
-  label: 'llm-tool'
-  permalink: '/llm-tools'
-  description: 'Tools for working with large language models'
+  label: "llm-tool"
+  permalink: "/llm-tools"
+  description: "Tools for working with large language models"
 machine-learning:
-  label: 'machine-learning'
-  permalink: '/machine-learning'
-  description: 'Machine learning techniques and tools'
+  label: "machine-learning"
+  permalink: "/machine-learning"
+  description: "Machine learning techniques and tools"
 mcp:
-  label: 'mcp'
-  permalink: '/mcp'
-  description: 'Model-Context-Protocol (MCP) related topics and usage'
+  label: "mcp"
+  permalink: "/mcp"
+  description: "Model-Context-Protocol (MCP) related topics and usage"
 memory:
-  label: 'memory'
-  permalink: '/memory'
-  description: 'LLM memory related topics and usage'
+  label: "memory"
+  permalink: "/memory"
+  description: "LLM memory related topics and usage"
 metal:
-  label: 'metal'
-  permalink: '/metal'
-  description: 'Graphics and compute API created by Apple for M-Series on macOS'
+  label: "metal"
+  permalink: "/metal"
+  description: "Graphics and compute API created by Apple for M-Series on macOS"
 model2vec:
-  label: 'model2vec'
-  permalink: '/model2vec'
-  description: 'Model2Vec topics and usage'
+  label: "model2vec"
+  permalink: "/model2vec"
+  description: "Model2Vec topics and usage"
 mongodb:
-  label: 'mongodb'
-  permalink: '/mongodb'
-  description: 'MongoDB database topics and usage'
+  label: "mongodb"
+  permalink: "/mongodb"
+  description: "MongoDB database topics and usage"
 monitoring:
-  label: 'monitoring'
-  permalink: '/monitoring'
-  description: 'Monitoring tools and practices'
+  label: "monitoring"
+  permalink: "/monitoring"
+  description: "Monitoring tools and practices"
 mysql:
-  label: 'mysql'
-  permalink: '/mysql'
-  description: 'MySQL database topics and usage'
+  label: "mysql"
+  permalink: "/mysql"
+  description: "MySQL database topics and usage"
 node.js:
-  label: 'node.js'
-  permalink: '/node.js'
-  description: 'Node.js related topics and usage'
+  label: "node.js"
+  permalink: "/node.js"
+  description: "Node.js related topics and usage"
 nsql:
-  label: 'nsql'
-  permalink: '/nsql'
-  description: 'Natural Language SQL (NSQL) topics and usage'
+  label: "nsql"
+  permalink: "/nsql"
+  description: "Natural Language SQL (NSQL) topics and usage"
 on-prem:
-  label: 'on-prem'
-  permalink: '/on-prem'
-  description: 'On-premises infrastructure and usage'
+  label: "on-prem"
+  permalink: "/on-prem"
+  description: "On-premises infrastructure and usage"
 openai:
-  label: 'openai'
-  permalink: '/openai'
-  description: 'OpenAI topics and usage'
+  label: "openai"
+  permalink: "/openai"
+  description: "OpenAI topics and usage"
 oracle:
-  label: 'oracle'
-  permalink: '/oracle'
-  description: 'Oracle related topics and usage'
+  label: "oracle"
+  permalink: "/oracle"
+  description: "Oracle related topics and usage"
 parameterized queries:
-  label: 'parameterized queries'
-  permalink: '/parameterized queries'
-  description: 'Topics and usage related to parameterized queries'
+  label: "parameterized queries"
+  permalink: "/parameterized queries"
+  description: "Topics and usage related to parameterized queries"
 patitioning:
-  label: 'partitioning'
-  permalink: '/partitioning'
-  description: 'Topics and usage related to partitioning'
+  label: "partitioning"
+  permalink: "/partitioning"
+  description: "Topics and usage related to partitioning"
 performance:
-  label: 'performance'
-  permalink: '/performance'
-  description: 'Performance optimization and analysis'
+  label: "performance"
+  permalink: "/performance"
+  description: "Performance optimization and analysis"
 postgres:
-  label: 'postgres'
-  permalink: '/postgres'
-  description: 'PostgreSQL database topics and usage'
+  label: "postgres"
+  permalink: "/postgres"
+  description: "PostgreSQL database topics and usage"
 prometheus:
-  label: 'prometheus'
-  permalink: '/prometheus'
-  description: 'Prometheus related topics and usage'
+  label: "prometheus"
+  permalink: "/prometheus"
+  description: "Prometheus related topics and usage"
 python:
-  label: 'python'
-  permalink: '/python'
-  description: 'Python Software related topics and usage'
+  label: "python"
+  permalink: "/python"
+  description: "Python Software related topics and usage"
 rag:
-  label: 'rag'
-  permalink: '/rag'
-  description: 'Retrieval-Augmented Generation (RAG) related topics and usage'
+  label: "rag"
+  permalink: "/rag"
+  description: "Retrieval-Augmented Generation (RAG) related topics and usage"
 redshift:
-  label: 'redshift'
-  permalink: '/redshift'
-  description: 'Redshift notes and updates'
+  label: "redshift"
+  permalink: "/redshift"
+  description: "Redshift notes and updates"
 release:
-  label: 'release'
-  permalink: '/releases'
-  description: 'Release notes and updates'
+  label: "release"
+  permalink: "/releases"
+  description: "Release notes and updates"
 rrf:
-  label: 'rrf'
-  permalink: '/rrf'
-  description: 'Reciprocal Rank Fusion related topics and usage'
+  label: "rrf"
+  permalink: "/rrf"
+  description: "Reciprocal Rank Fusion related topics and usage"
 runtime:
-  label: 'runtime'
-  permalink: '/runtime'
-  description: 'Runtime environments and configurations'
+  label: "runtime"
+  permalink: "/runtime"
+  description: "Runtime environments and configurations"
 s3:
-  label: 's3'
-  permalink: '/s3'
-  description: 'Amazon S3 storage service topics and usage'
+  label: "s3"
+  permalink: "/s3"
+  description: "Amazon S3 storage service topics and usage"
 sdk:
-  label: 'sdk'
-  permalink: '/sdk'
-  description: 'Software Development Kit related topics and usage'
+  label: "sdk"
+  permalink: "/sdk"
+  description: "Software Development Kit related topics and usage"
 search:
-  label: 'search'
-  permalink: '/search'
-  description: 'Search functionality and implementations'
+  label: "search"
+  permalink: "/search"
+  description: "Search functionality and implementations"
 security:
-  label: 'security'
-  permalink: '/security'
-  description: 'Security practices and tools'
+  label: "security"
+  permalink: "/security"
+  description: "Security practices and tools"
 semantic-search:
-  label: 'semantic-search'
-  permalink: '/semantic-search'
-  description: 'Semantic search methods and implementations'
+  label: "semantic-search"
+  permalink: "/semantic-search"
+  description: "Semantic search methods and implementations"
 snapshots:
-  label: 'snapshots'
-  permalink: '/snapshots'
-  description: 'Topics related to database and acceleration snapshots'
+  label: "snapshots"
+  permalink: "/snapshots"
+  description: "Topics related to database and acceleration snapshots"
 snowflake:
-  label: 'snowflake'
-  permalink: '/snowflake'
-  description: 'Snowflake Data Connector related topics and usage'
+  label: "snowflake"
+  permalink: "/snowflake"
+  description: "Snowflake Data Connector related topics and usage"
 spice.js:
-  label: 'spice.js'
-  permalink: '/spice.js'
-  description: 'spice.js (Node.js SDK) related topics and usage'
+  label: "spice.js"
+  permalink: "/spice.js"
+  description: "spice.js (Node.js SDK) related topics and usage"
 spiceai:
-  label: 'spiceai'
-  permalink: '/spiceai'
-  description: 'Spice.ai platform related topics and usage'
+  label: "spiceai"
+  permalink: "/spiceai"
+  description: "Spice.ai platform related topics and usage"
 spicepod:
-  label: 'spicepod'
-  permalink: '/spicepod'
-  description: 'Spicepod related topics and usage'
+  label: "spicepod"
+  permalink: "/spicepod"
+  description: "Spicepod related topics and usage"
 sqlite:
-  label: 'sqlite'
-  permalink: '/sqlite'
-  description: 'SQLite database topics and usage'
+  label: "sqlite"
+  permalink: "/sqlite"
+  description: "SQLite database topics and usage"
 sql:
-  label: 'sql'
-  permalink: '/sql'
-  description: 'SQL queries and database management'
+  label: "sql"
+  permalink: "/sql"
+  description: "SQL queries and database management"
 task-history:
-  label: 'task-history'
-  permalink: '/task-history'
-  description: 'Task history tracking and management'
+  label: "task-history"
+  permalink: "/task-history"
+  description: "Task history tracking and management"
 tableau:
-  label: 'tableau'
-  permalink: '/tableau'
-  description: 'Tableau Connector related topics and usage'
+  label: "tableau"
+  permalink: "/tableau"
+  description: "Tableau Connector related topics and usage"
 vector-search:
-  label: 'vector-search'
-  permalink: '/vector-search'
-  description: 'Vector search techniques and applications'
+  label: "vector-search"
+  permalink: "/vector-search"
+  description: "Vector search techniques and applications"
 vectors:
-  label: 'vectors'
-  permalink: '/vectors'
-  description: 'Vector related topics and usage'
+  label: "vectors"
+  permalink: "/vectors"
+  description: "Vector related topics and usage"
 vortex:
-  label: 'vortex'
-  permalink: '/vortex'
-  description: 'Vortex related topics and usage'
-  description: 'Vortex columnar file format related topics and usage'
+  label: "vortex"
+  permalink: "/vortex"
+  description: "Vortex columnar file format related topics and usage"
 workers:
-  label: 'workers'
-  permalink: '/workers'
-  description: 'Topics and usage related to Spice workers'
+  label: "workers"
+  permalink: "/workers"
+  description: "Topics and usage related to Spice workers"
