@@ -49,6 +49,7 @@ caching:
 cayenne:
   label: 'cayenne'
   permalink: '/cayenne'
+  description: 'Cayenne data accelerator related topics and usage'
   description: 'Cayenne (Vortex) data accelerator related topics and usage'
 cli:
   label: 'cli'
@@ -118,6 +119,10 @@ duckdb:
   label: 'duckdb'
   permalink: '/duckdb'
   description: 'DuckDB database topics and usage'
+dynamodb:
+  label: 'dynamodb'
+  permalink: '/dynamodb'
+  description: 'DynamoDB database topics and usage'
 embeddinggemma:
   label: 'embeddinggemma'
   permalink: '/embeddinggemma'
@@ -357,6 +362,7 @@ vectors:
 vortex:
   label: 'vortex'
   permalink: '/vortex'
+  description: 'Vortex related topics and usage'
   description: 'Vortex columnar file format related topics and usage'
 workers:
   label: 'workers'
