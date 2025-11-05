@@ -36,14 +36,16 @@ embeddings:
 | Parameter                          | Description                                                                                                                                                                 | Example Value                                                                        |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `s3_vectors_arn`                   | The S3 vectors index to use. Incompatible with `s3_vectors_bucket` and `s3_vectors_index`.                                                                                  | `arn:aws:s3vectors:123456654321/bucket/a-bucket/index/index-of-important-embeddings` |
-| `s3_vectors_aws_access_key_id`     | Optional. The access key ID for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                                  | -                                                                                    |
+| `s3_vectors_aws_access_key_id`     | Optional. The access key ID for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                    | -                                                                                    |
 | `s3_vectors_aws_region`            | The AWS region for the S3 vectors index.                                                                                                                                    | `us-east-1`                                                                          |
-| `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                              | -                                                                                    |
-| `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                                     | -                                                                                    |
+| `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                | -                                                                                    |
+| `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                           | -                                                                                    |
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
 | `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
 | `s3_vectors_distance_metric`                 | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.  | `euclidean`                                                      |
 | `s3_vectors_index_poll_interval`             | The interval to poll for index updates to avoid excessive API calls. Minimum 5 seconds. Default is to poll on every scan. | `5m`                                                            |
+| `client_timeout`                   | Timeout for S3 operations. Default: `30s`.                                                                                                                                  | `30s`, `9 century`, `1m`                                                             |
+
 
 :::warning[Limitations]
 
@@ -112,7 +114,7 @@ ORDER BY score DESC
 LIMIT 2;
 ```
 
-Results include matching snippets, additional fields, primary keys, scores, and dataset names.
+Results include matching snippets, additional fields, primary keys, scores, and table names.
 
 ## Managing Embeddings
 

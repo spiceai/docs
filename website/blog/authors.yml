@@ -98,3 +98,13 @@ krinart:
   socials:
     github: krinart
     linkedin: viktorershov
+
+mach-kernel:
+  name: David Stancu 
+  title: Principal Software Engineer at Spice AI
+  url: https://github.com/mach-kernel
+  image_url: https://github.com/mach-kernel.png 
+  page: true
+  socials:
+    github: mach-kernel
+    linkedin: dstancu

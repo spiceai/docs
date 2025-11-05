@@ -198,14 +198,18 @@ runtime:
     captured_output: none
     retention_period: 8h
     retention_check_interval: 15m
+    min_sql_duration: 5s
 ```
 
-| Parameter name             | Optional | Description                                                                                    |
-| -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `enabled`                  | Yes      | Defaults to `true`.                                                                            |
-| `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.          |
-| `retention_period`         | Yes      | Specifies how long records in the task history table are retained. Defaults to `8h` (8 hours). |
-| `retention_check_interval` | Yes      | Specifies how often old records are checked for removal. Defaults to `15m` (15 minutes).       |
+| Parameter name             | Optional | Description                                                                                                                                                  |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`                  | Yes      | Defaults to `true`.                                                                                                                                          |
+| `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.                                                                        |
+| `captured_plan`            | Yes      | Controls SQL query plan capture. Options: `none` (default), `explain`, or `explain analyze`. Query plans are captured asynchronously after query completion. |
+| `min_sql_duration`         | Yes      | Minimum query execution duration before a plan is captured. Only queries exceeding this threshold are captured. Example: `5s`.                               |
+| `min_plan_duration`        | Yes      | Minimum plan execution duration before a plan is captured. This threshold applies to the execution time of the `EXPLAIN` operation itself. Example: `10s`.   |
+| `retention_period`         | Yes      | Specifies how long records in the task history table are retained. Defaults to `8h` (8 hours).                                                               |
+| `retention_check_interval` | Yes      | Specifies how often old records are checked for removal. Defaults to `15m` (15 minutes).                                                                     |
 
 ## `runtime.cors`
 
@@ -238,26 +242,44 @@ runtime:
 
 This configuration permits requests only from the `https://example.com` origin.
 
-## `runtime.memory_limit`
+## `runtime.query.memory_limit`
 
-The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.query.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
 
 ```yaml
 runtime:
-  memory_limit: 4GiB
+  query:
+    memory_limit: 4GiB
 ```
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
 For detailed memory information, see [Memory](/docs/reference/memory.md).
 
-## `runtime.temp_directory`
+## `runtime.query.spill_compression`
+
+The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.
+
+**Supported values:**
+- `zstd` (default): Enables high compression ratios for spill files, reducing disk usage but with moderate (de)compression speed.
+- `lz4_frame`: Provides faster (de)compression, resulting in larger spill files and potentially higher disk usage.
+- `uncompressed`: Disables compression. Spill files will be the largest, but with no (de)compression overhead.
+
+```yaml
+runtime:
+  query:
+    spill_compression: lz4_frame
+```
+This option allows you to balance disk space usage and query performance for large-scale analytics workloads.
+
+## `runtime.query.temp_directory`
 
 The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml
 runtime:
-  temp_directory: /tmp/spice
+  query:
+    temp_directory: /tmp/spice
 ```
 
 ## `runtime.output_level`
@@ -268,4 +290,28 @@ Supported values are `info`, `verbose`, and `very_verbose`. The value is applied
 ```yaml
 runtime:
   output_level: info # or verbose, very_verbose
+```
+
+## `runtime.metrics`
+
+Allows to enable metrics that are disabled by default.
+
+Following metrics are disabled by default:
+
+- `dataset_acceleration_max_timestamp_before_refresh_ms`
+- `dataset_acceleration_max_timestamp_after_refresh_ms`
+- `dataset_acceleration_refresh_lag_ms`
+- `dataset_acceleration_ingestion_lag_ms`
+
+For details about these metrics, see [Observability](/docs/features/observability/index.md).
+
+```yaml
+runtime:
+  metrics:
+    - name: dataset_acceleration_max_timestamp_before_refresh_ms
+    - name: dataset_acceleration_max_timestamp_after_refresh_ms
+      enabled: true
+    - name: dataset_acceleration_refresh_lag_ms
+      enabled: false
+    - name: dataset_acceleration_ingestion_lag_ms
 ```
