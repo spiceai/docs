@@ -49,7 +49,6 @@ caching:
 cayenne:
   label: 'cayenne'
   permalink: '/cayenne'
-  description: 'Cayenne data accelerator related topics and usage'
   description: 'Cayenne (Vortex) data accelerator related topics and usage'
 cli:
   label: 'cli'
