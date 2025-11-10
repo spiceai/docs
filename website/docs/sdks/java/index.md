@@ -21,7 +21,7 @@ https://github.com/spiceai/spice-java
     <dependency>
         <groupId>ai.spice</groupId>
         <artifactId>spiceai</artifactId>
-        <version>0.1.0</version>
+        <version>0.4.0</version>
         <scope>compile</scope>
     </dependency>
     ```
@@ -29,7 +29,7 @@ https://github.com/spiceai/spice-java
   <TabItem value="gradle" label="Gradle">
     Add the following dependency:
     ```groovy
-    implementation 'ai.spice:spiceai:0.1.0'
+    implementation 'ai.spice:spiceai:0.4.0'
     ```
   </TabItem>
 </Tabs>
@@ -85,3 +85,28 @@ SpiceClient client = SpiceClient.builder()
 
 Retries are performed for connection and system internal errors. It is the SDK user's responsibility to properly
 handle other errors, for example RESOURCE_EXHAUSTED (HTTP 429).
+
+### Memory Configuration
+
+The `SpiceClient` uses an Arrow `RootAllocator` for managing off-heap memory. By default, it uses all available memory. You can configure the memory limit using megabytes:
+
+```java
+SpiceClient client = SpiceClient.builder()
+    .withArrowMemoryLimitMB(1024) // 1GB limit
+    .build();
+```
+
+### Spice.ai Runtime commands
+
+#### Accelerated dataset refresh
+
+Use `refresh` method to perform [Accelerated Dataset](/components/data-accelerators) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
+
+```java
+SpiceClient client = SpiceClient.builder()
+    ..
+    .build();
+
+client.refresh("taxi_trips")
+
+```
