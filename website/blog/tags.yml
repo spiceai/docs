@@ -43,13 +43,13 @@ bedrock:
   permalink: "/bedrock"
   description: "Amazon Bedrock related topics and usage"
 caching:
-  label: "caching"
-  permalink: "/caching"
-  description: "Results Cache related topics and usage"
+  label: 'caching'
+  permalink: '/caching'
+  description: 'Results Cache related topics and usage'
 cayenne:
-  label: "cayenne"
-  permalink: "/cayenne"
-  description: "Cayenne (Vortex) data accelerator related topics and usage"
+  label: 'cayenne'
+  permalink: '/cayenne'
+  description: 'Cayenne (Vortex) data accelerator related topics and usage'
 cli:
   label: "cli"
   permalink: "/cli"
@@ -75,13 +75,13 @@ cuda:
   permalink: "/cuda"
   description: "Compute Unified Device Architecture related topics and usage"
 data-connector:
-  label: "data-connector"
-  permalink: "/data-connectors"
-  description: "Data connector tools and integrations"
+  label: 'data-connector'
+  permalink: '/data-connectors'
+  description: 'Data connector tools and integrations'
 data-accelerators:
-  label: "data-accelerators"
-  permalink: "/data-accelerators"
-  description: "Data accelerator technologies and implementations"
+  label: 'data-accelerators'
+  permalink: '/data-accelerators'
+  description: 'Data accelerator technologies and implementations'
 databricks:
   label: "databricks"
   permalink: "/databricks"
@@ -355,13 +355,13 @@ vector-search:
   permalink: "/vector-search"
   description: "Vector search techniques and applications"
 vectors:
-  label: "vectors"
-  permalink: "/vectors"
-  description: "Vector related topics and usage"
+  label: 'vectors'
+  permalink: '/vectors'
+  description: 'Vector related topics and usage'
 vortex:
-  label: "vortex"
-  permalink: "/vortex"
-  description: "Vortex columnar file format related topics and usage"
+  label: 'vortex'
+  permalink: '/vortex'
+  description: 'Vortex columnar file format related topics and usage'
 workers:
   label: "workers"
   permalink: "/workers"
