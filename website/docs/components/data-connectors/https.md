@@ -129,7 +129,7 @@ When querying HTTP(s) datasets, Spice respects standard HTTP caching headers in 
 
 ### `Cache-Control`
 
-The `Cache-Control` response header from the HTTP(s) endpoint controls how Spice caches the dataset. When the HTTP(s) server returns a `Cache-Control` header with the `stale-while-revalidate` directive, Spice serves stale data while refreshing the cache in the background.
+The `Cache-Control` response header from the HTTP(s) endpoint is passed through to clients querying Spice. When the HTTP(s) server returns a `Cache-Control` header with the `stale-while-revalidate` directive, clients can use this value to determine appropriate caching behavior.
 
 For example, if the HTTP(s) endpoint returns:
 
@@ -137,12 +137,12 @@ For example, if the HTTP(s) endpoint returns:
 Cache-Control: max-age=10, stale-while-revalidate=10
 ```
 
-Spice will:
+Clients querying Spice will receive this header and can:
 1. Serve fresh data for 10 seconds after fetching.
 2. Between 10-20 seconds, serve stale data while fetching fresh data in the background.
 3. After 20 seconds, fetch fresh data before serving the next request.
 
-This behavior mirrors the `stale_while_revalidate_ttl` configuration available in the [caching configuration](/docs/features/caching#stale-while-revalidate), but is controlled by the HTTP(s) server rather than the Spicepod configuration.
+The stale-while-revalidate behavior in Spice is controlled by the `stale_while_revalidate_ttl` parameter in the [caching configuration](/docs/features/caching#stale-while-revalidate). When `stale_while_revalidate_ttl` is set to `0` (default), stale data will not be served. When set to a non-zero value, Spice serves stale cache entries while revalidating in the background.
 
 ## Timeouts and Retries
 
