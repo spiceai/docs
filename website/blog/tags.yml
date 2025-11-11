@@ -38,6 +38,10 @@ azure:
   label: "azure"
   permalink: "/azure"
   description: "Microsoft Azure related topics and usage"
+ballista:
+  label: "ballista"
+  permalink: "/ballista"
+  description: "Ballista related topics and usage"
 bedrock:
   label: "bedrock"
   permalink: "/bedrock"
@@ -106,6 +110,10 @@ dependency:
   label: "dependency"
   permalink: "/dependencies"
   description: "Dependency management and tools"
+distributed-query:
+  label: "distributed-query"
+  permalink: "/distributed-query"
+  description: "Distributed Query related topics and usage"
 docker:
   label: "docker"
   permalink: "/docker"
