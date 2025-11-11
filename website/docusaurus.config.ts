@@ -99,7 +99,7 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.8.3">Spice.ai OSS v1.8.3</a> is now available! 🚀',
+      content: '<a href="/blog/releases/v1.9.0-rc.2">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0-rc.2</a> is now available! 🚀',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
