@@ -123,6 +123,27 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `retry_max_duration`     | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                     |
 | `retry_jitter`           | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                 |
 
+## HTTP Response Headers
+
+When querying HTTP(s) datasets, Spice respects standard HTTP caching headers in responses. The connector supports the following cache-related response headers:
+
+### `Cache-Control`
+
+The `Cache-Control` response header from the HTTP(s) endpoint controls how Spice caches the dataset. When the HTTP(s) server returns a `Cache-Control` header with the `stale-while-revalidate` directive, Spice serves stale data while refreshing the cache in the background.
+
+For example, if the HTTP(s) endpoint returns:
+
+```
+Cache-Control: max-age=10, stale-while-revalidate=10
+```
+
+Spice will:
+1. Serve fresh data for 10 seconds after fetching.
+2. Between 10-20 seconds, serve stale data while fetching fresh data in the background.
+3. After 20 seconds, fetch fresh data before serving the next request.
+
+This behavior mirrors the `stale_while_revalidate_ttl` configuration available in the [caching configuration](/docs/features/caching#stale-while-revalidate), but is controlled by the HTTP(s) server rather than the Spicepod configuration.
+
 ## Timeouts and Retries
 
 ### Timeouts
