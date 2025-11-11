@@ -334,6 +334,78 @@ This example demonstrates:
 - Executing complex search queries against REST APIs
 - Fetching results based on structured query syntax
 
+### Processing JSON Responses
+
+APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions](/docs/reference/sql/json) to process and transform JSON responses directly in SQL queries.
+
+#### Extracting Fields from JSON
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tvmaze
+    params:
+      file_format: json
+```
+
+Extract specific fields from JSON responses:
+
+```sql
+-- Extract the show name from a JSON response
+SELECT json_get_str(content, 'name') as name
+FROM tvmaze
+WHERE request_path = '/shows/169';
+```
+
+#### Working with Nested JSON
+
+APIs often return deeply nested JSON structures that require parsing to extract specific fields. Use chained JSON functions to navigate nested objects:
+
+```sql
+-- Extract nested fields from a show's network information
+SELECT
+  json_get_str(content, 'name') as show_name,
+  json_get_str(json_get(content, 'network'), 'name') as network_name,
+  json_get_str(json_get(json_get(content, 'network'), 'country'), 'name') as country,
+  json_get_str(json_get(json_get(content, 'network'), 'country'), 'code') as country_code
+FROM tvmaze
+WHERE request_path = '/shows/82';
+```
+
+This demonstrates extracting nested objects step by step:
+
+- `json_get(content, 'network')` extracts the network object
+- `json_get_str(json_get(content, 'network'), 'name')` gets the network name from the nested object
+- Multiple `json_get` calls can be chained to navigate deeper levels
+
+#### Extracting Multiple Fields
+
+```sql
+-- Parse multiple fields from a TV show API response
+SELECT
+  json_get_str(content, 'name') as show_name,
+  json_get_str(content, 'type') as show_type,
+  json_get_str(content, 'language') as language,
+  json_get_int(content, 'runtime') as runtime_minutes,
+  json_get_str(content, 'premiered') as premiere_date,
+  json_get_str(content, 'status') as status
+FROM tvmaze
+WHERE request_path = '/shows/169';
+```
+
+#### Processing JSON Arrays
+
+```sql
+-- Extract genres from a JSON array
+SELECT
+  json_get_str(content, 'name') as show_name,
+  json_get_array(content, 'genres') as genres_array
+FROM tvmaze
+WHERE request_path = '/shows/82';
+```
+
+For more details on available JSON functions including `json_get`, `json_get_str`, `json_get_int`, `json_get_bool`, and others, refer to the [JSON functions reference](/docs/reference/sql/json).
+
 ### Refresh SQL with Dynamic Filters
 
 The HTTP connector supports dynamic URL construction through `refresh_sql` with templated query parameters. This enables incremental data loading by appending filter conditions from the SQL query to the HTTP request URL.
