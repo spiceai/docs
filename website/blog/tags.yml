@@ -41,7 +41,7 @@ azure:
 ballista:
   label: "ballista"
   permalink: "/ballista"
-  description: "Ballista related topics and usage"
+  description: "Apache Ballista related topics and usage"
 bedrock:
   label: "bedrock"
   permalink: "/bedrock"
