@@ -25,10 +25,12 @@ runtime:
       enabled: true
       max_size: 1GiB # Default 128 MiB
       item_ttl: 1m # Default 1s
+      stale_while_revalidate_ttl: 30s # Default 0s (disabled)
     search_results:
       enabled: true
       max_size: 1GiB # Default 128 MiB
       item_ttl: 1m # Default 1s
+      stale_while_revalidate_ttl: 30s # Default 0s (disabled)
 ```
 
 ## `caching` Parameters
@@ -43,13 +45,14 @@ runtime:
 
 Every cache type (`sql_results`, `search_results`, `embeddings`) supports the following parameters:
 
-| Parameter name      | Optional | Default   | Description                                                                                                                                    |
-| ------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
-| `max_size`          | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
-| `item_ttl`          | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
-| `hashing_algorithm` | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+| Parameter name               | Optional | Default   | Description                                                                                                                                    |
+| ---------------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                    | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
+| `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
+| `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
+| `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| `hashing_algorithm`          | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
 
 ## Choosing a `hashing_algorithm`
 
@@ -91,6 +94,7 @@ The value of the header indicates the status of the cache:
 | `HIT`                | The query result was served from the cache.                                                        |
 | `MISS`               | The cache was checked, but the result was not found.                                               |
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).         |
+| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table). |
 
 ### Examples
@@ -131,9 +135,51 @@ content-length: 416
 date: Thu, 13 Feb 2025 03:14:00 GMT
 ```
 
+#### Stale Cache Response (Stale-While-Revalidate)
+
+```bash
+$ curl -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit 1;'
+HTTP/1.1 200 OK
+content-type: text/plain; charset=utf-8
+results-cache-status: STALE
+vary: origin, access-control-request-method, access-control-request-headers
+content-length: 416
+date: Thu, 13 Feb 2025 03:15:30 GMT
+```
+
 ## Cache Control
 
 You can control caching behavior for specific requests using HTTP headers. The `Cache-Control` header helps skip the cache for a request while caching the results for subsequent requests.
+
+### Stale-While-Revalidate
+
+The `stale_while_revalidate_ttl` parameter configures a grace period during which stale cache entries continue to be served while a background refresh occurs. This technique reduces latency for end users by serving cached data immediately, even after `item_ttl` expires, while the system fetches fresh data asynchronously.
+
+When `stale_while_revalidate_ttl` is set to a non-zero value:
+
+1. Cache entries are served normally until `item_ttl` expires.
+2. After `item_ttl` expires but before `item_ttl + stale_while_revalidate_ttl` expires, the stale entry is served immediately with a `STALE` cache status.
+3. Simultaneously, a background task refreshes the cache entry.
+4. Once the background refresh completes, subsequent requests receive the fresh data with a `HIT` cache status.
+5. After `item_ttl + stale_while_revalidate_ttl` expires, the entry is evicted and the next request results in a `MISS`.
+
+#### Example Configuration
+
+```yaml
+runtime:
+  caching:
+    sql_results:
+      enabled: true
+      item_ttl: 10s
+      stale_while_revalidate_ttl: 10s
+```
+
+With this configuration:
+- Fresh cache entries are served for 10 seconds after creation.
+- Between 10-20 seconds after creation, stale entries are served while being refreshed in the background.
+- After 20 seconds, the entry is evicted if not refreshed.
+
+This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
 
 ### HTTP/Flight API
 
@@ -142,9 +188,15 @@ The following endpoints support the standard HTTP [`Cache-Control` header](https
 - SQL query (HTTP and Arrow Flight)
 - Search (HTTP)
 
-The [`no-cache` directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) skips the cache for the current request but caches the results for future requests.
+The following `Cache-Control` directives are supported:
 
-Other `Cache-Control` directives are not supported.
+| Directive | Description |
+| --------- | ----------- |
+| [`no-cache`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) | Skips the cache for the current request but caches the results for future requests. |
+| [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh) | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds. |
+| [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale) | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness allowed. For example, `max-stale=30` accepts responses stale for up to 30 seconds. |
+| [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data. |
+| [`stale-if-error`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#stale-if-error) | Serves stale cached responses if an error occurs while fetching fresh data. An optional value in seconds specifies how stale the response can be. For example, `stale-if-error=600` serves responses stale for up to 10 minutes if fetching fails. |
 
 #### HTTP Example
 
@@ -154,6 +206,18 @@ curl -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
 
 # Skip cache for this query, but cache the results for future queries
 curl -H "cache-control: no-cache" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
+
+# Only use cached response if it will be fresh for at least 30 more seconds
+curl -H "cache-control: min-fresh=30" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
+
+# Accept cached responses that are stale for up to 60 seconds
+curl -H "cache-control: max-stale=60" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
+
+# Only return cached responses, fail if cache miss
+curl -H "cache-control: only-if-cached" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
+
+# Serve stale cache (up to 300 seconds old) if fetching fresh data fails
+curl -H "cache-control: stale-if-error=300" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
 ```
 
 #### Arrow FlightSQL Example
@@ -186,7 +250,7 @@ Connection conn = DriverManager.getConnection("jdbc:arrow-flight-sql://localhost
 
 ### `spice` CLI
 
-The `spice sql` and `spice search` commands accept a `--cache-control` flag that follows the same behavior as the HTTP `Cache-Control` header:
+The `spice sql` and `spice search` commands accept a `--cache-control` flag that supports all cache-control directives:
 
 ```bash
 # Default behavior (use cache if available)
@@ -195,6 +259,14 @@ spice sql
 spice sql --cache-control cache
 # Skip cache for this query, but cache the results for future queries
 spice sql --cache-control no-cache
+# Only use cached response if fresh for at least 30 more seconds
+spice sql --cache-control min-fresh=30
+# Accept cached responses stale for up to 60 seconds
+spice sql --cache-control max-stale=60
+# Only return cached responses, fail if cache miss
+spice sql --cache-control only-if-cached
+# Serve stale cache (up to 300 seconds) if fetching fails
+spice sql --cache-control stale-if-error=300
 
 # Default behavior (use cache if available)
 spice search
@@ -202,6 +274,8 @@ spice search
 spice search --cache-control cache
 # Skip cache for this search, but cache the results for future searches
 spice search --cache-control no-cache
+# Accept stale search results up to 60 seconds old
+spice search --cache-control max-stale=60
 ```
 
 ## Custom Cache Keys
