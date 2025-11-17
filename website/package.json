@@ -15,11 +15,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.8.1",
-    "@docusaurus/faster": "^3.8.1",
-    "@docusaurus/plugin-client-redirects": "^3.8.1",
-    "@docusaurus/plugin-google-gtag": "^3.8.1",
-    "@docusaurus/preset-classic": "^3.8.1",
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/faster": "^3.9.2",
+    "@docusaurus/plugin-client-redirects": "^3.9.2",
+    "@docusaurus/plugin-google-gtag": "^3.9.2",
+    "@docusaurus/preset-classic": "^3.9.2",
     "@heroicons/react": "^2.2.0",
     "@mdx-js/react": "^3.0.1",
     "@radix-ui/react-dialog": "^1.1.4",
@@ -43,9 +43,9 @@
     "workers-og": "^0.0.25"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.8.1",
-    "@docusaurus/tsconfig": "^3.8.1",
-    "@docusaurus/types": "^3.8.1",
+    "@docusaurus/module-type-aliases": "^3.9.0",
+    "@docusaurus/tsconfig": "^3.9.0",
+    "@docusaurus/types": "^3.9.0",
     "cross-env": "^10.1.0",
     "typescript": "^5.9.2",
     "wrangler": "^4.31.0"
