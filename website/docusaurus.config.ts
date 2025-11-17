@@ -1,12 +1,40 @@
 import { themes as prismThemes } from 'prism-react-renderer'
 import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
+import type { SpiceSearchThemeConfig } from './src/types/spice-search'
 
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs'
 import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
+
+const inferPreconnectOrigin = (endpoint?: string): string | undefined => {
+  if (!endpoint) {
+    return undefined
+  }
+  if (!endpoint.startsWith('http')) {
+    return undefined
+  }
+  try {
+    return new URL(endpoint).origin
+  } catch {
+    return undefined
+  }
+}
+
+const defaultSearchEndpoint = process.env.SPICE_SEARCH_API_ENDPOINT ?? '/spice-search'
+const defaultPreconnectOrigin =
+  process.env.SPICE_SEARCH_PRECONNECT ?? inferPreconnectOrigin(defaultSearchEndpoint) ?? 'https://data.spiceai.io'
+
+const spiceSearchConfig: SpiceSearchThemeConfig = {
+  endpoint: defaultSearchEndpoint,
+  apiKey: process.env.SPICE_SEARCH_API_KEY,
+  resultTitleField: process.env.SPICE_SEARCH_TITLE_FIELD,
+  resultUrlField: process.env.SPICE_SEARCH_URL_FIELD,
+  resultDescriptionField: process.env.SPICE_SEARCH_DESCRIPTION_FIELD,
+  preconnectOrigin: defaultPreconnectOrigin
+}
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -228,12 +256,7 @@ const config: Config = {
       darkTheme: prismThemes.gruvboxMaterialDark,
       additionalLanguages: ['bash', 'json', 'csharp']
     },
-    algolia: {
-      appId: '0SP8I8JTL8',
-      apiKey: '72f66fe334ccd3c7db696a123d68735c',
-      indexName: 'spiceai',
-      contextualSearch: false
-    }
+    spiceSearch: spiceSearchConfig
   } satisfies Preset.ThemeConfig,
 
   headTags: [

@@ -35,6 +35,9 @@ datasets:
               target_chunk_size: 512
               overlap_size: 128
               trim_whitespace: true
+        full_text_search:
+          - row_id:
+              - path
 
   - from: github:github.com/spiceai/cookbook/files/trunk
     name: spiceai.cookbook
@@ -64,6 +67,9 @@ datasets:
               target_chunk_size: 512
               overlap_size: 128
               trim_whitespace: true
+        full_text_search:
+          - row_id:
+              - path
 
   - from: github:github.com/spiceai/docs/files/trunk
     name: spiceai.blog
@@ -94,6 +100,9 @@ datasets:
               target_chunk_size: 512
               overlap_size: 128
               trim_whitespace: true
+        full_text_search:
+          - row_id:
+              - path
 
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues

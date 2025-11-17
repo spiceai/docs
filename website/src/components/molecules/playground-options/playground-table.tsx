@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
 
 import { ResponseData } from './playground-options'
-import { Dialog, DialogContent } from 'components/ui/dialog'
+import { Dialog, DialogContent } from '@site/src/components/ui/dialog'
 
 import { DialogTitle } from '@radix-ui/react-dialog'
 

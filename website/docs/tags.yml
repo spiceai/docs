@@ -294,6 +294,10 @@ odbc:
   label: 'ODBC'
   permalink: '/odbc'
   description: 'Open Database Connectivity driver configuration.'
+observability:
+  label: 'Observability'
+  permalink: '/observability'
+  description: 'Observability practices, tracing, and monitoring integrations.'
 open-source:
   label: 'Open Source'
   permalink: '/open-source'
@@ -410,6 +414,10 @@ vortex:
   label: 'Vortex'
   permalink: '/vortex'
   description: 'Vortex columnar file format and storage engine.'
+zipkin:
+  label: 'Zipkin'
+  permalink: '/zipkin'
+  description: 'Zipkin distributed tracing integration.'
 yaml:
   label: 'YAML'
   permalink: '/yaml'
