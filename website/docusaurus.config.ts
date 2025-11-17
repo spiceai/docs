@@ -25,7 +25,9 @@ const inferPreconnectOrigin = (endpoint?: string): string | undefined => {
 
 const defaultSearchEndpoint = process.env.SPICE_SEARCH_API_ENDPOINT ?? '/spice-search'
 const defaultPreconnectOrigin =
-  process.env.SPICE_SEARCH_PRECONNECT ?? inferPreconnectOrigin(defaultSearchEndpoint) ?? 'https://data.spiceai.io'
+  process.env.SPICE_SEARCH_PRECONNECT ??
+  inferPreconnectOrigin(defaultSearchEndpoint) ??
+  'https://data.spiceai.io'
 
 const spiceSearchConfig: SpiceSearchThemeConfig = {
   endpoint: defaultSearchEndpoint,
