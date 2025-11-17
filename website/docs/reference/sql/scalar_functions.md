@@ -298,6 +298,58 @@ lcm(expression_x, expression_y)
 - **expression_x**: First integer value.
 - **expression_y**: Second integer value.
 
+### `mod`
+
+Returns the remainder after dividing the first argument by the second, matching the Spark SQL `%`/`mod` semantics for signed values.
+
+```sql
+mod(dividend, divisor)
+```
+
+#### Arguments
+
+- **dividend**: Numeric expression to divide.
+- **divisor**: Numeric expression that cannot be zero.
+
+#### Example
+
+```sql
+> select mod(-10, 3);
++----------------------------+
+| mod(Int64(-10),Int64(3))   |
++----------------------------+
+| -1                         |
++----------------------------+
+```
+
+Reference: [Spark SQL `mod`](https://spark.apache.org/docs/latest/api/sql/index.html#mod).
+
+### `pmod`
+
+Returns a positive remainder for integer or floating-point division. When the standard remainder is negative, the divisor is added to produce a non-negative result, mirroring Spark SQL behavior.
+
+```sql
+pmod(dividend, divisor)
+```
+
+#### Arguments
+
+- **dividend**: Numeric expression to divide.
+- **divisor**: Numeric expression that cannot be zero.
+
+#### Example
+
+```sql
+> select pmod(-10, 3);
++-----------------------------+
+| pmod(Int64(-10),Int64(3))   |
++-----------------------------+
+| 2                           |
++-----------------------------+
+```
+
+Reference: [Spark SQL `pmod`](https://spark.apache.org/docs/latest/api/sql/index.html#pmod).
+
 ### `ln`
 
 Returns the natural logarithm (base e) of a numeric expression.
@@ -416,6 +468,31 @@ round(numeric_expression[, decimal_places])
 - **numeric_expression**: Value to round.
 - **decimal_places**: Optional. Number of decimal places to round to. Defaults to 0.
 
+### `rint`
+
+Rounds a double-precision value to the nearest integer using IEEE-754 "round to nearest, ties to even" rules and returns the rounded value as a floating-point number, matching Spark SQL semantics.
+
+```sql
+rint(numeric_expression)
+```
+
+#### Arguments
+
+- **numeric_expression**: Floating-point expression to round. Integers are implicitly cast to double.
+
+#### Example
+
+```sql
+> select rint(12.5);
++-------------------------+
+| rint(Float64(12.5))     |
++-------------------------+
+| 12.0                    |
++-------------------------+
+```
+
+Reference: [Spark SQL `rint`](https://spark.apache.org/docs/latest/api/sql/index.html#rint).
+
 ### `signum`
 
 Returns the sign of a numeric expression. Returns -1 for negative numbers, 1 for zero and positive numbers.
@@ -501,11 +578,67 @@ trunc(numeric_expression[, decimal_places])
 - **numeric_expression**: Value to truncate.
 - **decimal_places**: Optional. Number of decimal places to truncate to. Defaults to 0.
 
+### `width_bucket`
+
+Assigns a value to an equiwidth histogram bucket. Returns 0 when the value is below `min_value`, `num_bucket + 1` when it is above `max_value`, and otherwise the 1-based bucket index, mirroring Spark SQL behavior.
+
+```sql
+width_bucket(value, min_value, max_value, num_bucket)
+```
+
+#### Arguments
+
+- **value**: Numeric or interval expression to bin.
+- **min_value**: Lower bound of the histogram range.
+- **max_value**: Upper bound of the histogram range.
+- **num_bucket**: Positive integer specifying the number of buckets.
+
+#### Example
+
+```sql
+> select width_bucket(5.3, 0.2, 10.6, 5);
++--------------------------------------------------+
+| width_bucket(Float64(5.3),Float64(0.2),Float64(10.6),Int64(5)) |
++--------------------------------------------------+
+| 3                                                |
++--------------------------------------------------+
+```
+
+Reference: [Spark SQL `width_bucket`](https://spark.apache.org/docs/latest/api/sql/index.html#width_bucket).
+
 ---
 
 ## Conditional Functions
 
 Conditional functions help handle null values, select among alternatives, and compare multiple expressions. Functions such as `coalesce`, `greatest`, `least`, and `nullif` are supported. These are useful for data cleaning and conditional logic in queries.
+
+### `if`
+
+Evaluates a boolean condition and returns one of two expressions, matching the Spark SQL `if` function semantics.
+
+```sql
+if(condition, true_value, false_value)
+```
+
+#### Arguments
+
+- **condition**: Boolean expression determining which branch to take.
+- **true_value**: Expression to return when the condition evaluates to true.
+- **false_value**: Expression to return when the condition evaluates to false or NULL.
+
+#### Example
+
+```sql
+> select if(temperature > 70, 'warm', 'cool') as label from (values (65), (72)) as t(temperature);
++------------+
+| label      |
++------------+
+| cool       |
+| warm       |
++------------+
+```
+
+Reference: [Spark SQL `if`](https://spark.apache.org/docs/latest/api/sql/index.html#if).
 
 ## String Functions
 
@@ -730,6 +863,58 @@ contains(str, search_str)
 +---------------------------------------------------+
 ```
 
+### `like`
+
+Performs SQL pattern matching using `%` to match zero or more characters and `_` to match a single character. The optional SQL `ESCAPE` clause can be used to treat a wildcard literally, matching Spark SQL behavior.
+
+```sql
+like(str, pattern)
+```
+
+#### Arguments
+
+- **str**: String expression to compare.
+- **pattern**: Pattern containing literal text plus `%` and `_` wildcards.
+
+#### Example
+
+```sql
+> select like('spice.ai', 'spice%');
++----------------------------------+
+| like(Utf8("spice.ai"),Utf8("spice%")) |
++----------------------------------+
+| true                             |
++----------------------------------+
+```
+
+Reference: [Spark SQL `like`](https://spark.apache.org/docs/latest/api/sql/index.html#like).
+
+### `ilike`
+
+Case-insensitive variant of [`like`](#like) that treats ASCII characters in `str` and `pattern` without regard to case. The optional SQL `ESCAPE` clause may be used to treat `%` or `_` literally.
+
+```sql
+ilike(str, pattern)
+```
+
+#### Arguments
+
+- **str**: String expression to compare.
+- **pattern**: Case-insensitive pattern containing literal text plus `%` and `_` wildcards.
+
+#### Example
+
+```sql
+> select ilike('Spice.AI', 'spice%');
++-----------------------------------+
+| ilike(Utf8("Spice.AI"),Utf8("spice%")) |
++-----------------------------------+
+| true                              |
++-----------------------------------+
+```
+
+Reference: [Spark SQL `ilike`](https://spark.apache.org/docs/latest/api/sql/index.html#ilike).
+
 ### `ends_with`
 
 Returns true if `str` ends with the substring `substr`.
@@ -892,6 +1077,31 @@ lower(str)
 
 Related functions: [`initcap`](#initcap), [`upper`](#upper)
 
+### `luhn_check`
+
+Validates that a string of digits satisfies the [Luhn checksum](https://en.wikipedia.org/wiki/Luhn_algorithm), returning true for valid numbers and false otherwise. This matches the Spark SQL implementation and is useful for validating identifiers such as credit card numbers.
+
+```sql
+luhn_check(str)
+```
+
+#### Arguments
+
+- **str**: String expression containing digits.
+
+#### Example
+
+```sql
+> select luhn_check('79927398713');
++--------------------------------------+
+| luhn_check(Utf8("79927398713"))      |
++--------------------------------------+
+| true                                 |
++--------------------------------------+
+```
+
+Reference: [Spark SQL `luhn_check`](https://spark.apache.org/docs/latest/api/sql/index.html#luhn_check).
+
 ### `lpad`
 
 Pads the left side of the string with another string until the result reaches the specified length. If the padding string is omitted, a space is used.
@@ -1003,6 +1213,39 @@ overlay(str PLACING substr FROM pos [FOR count])
 | Thomas                                                 |
 +--------------------------------------------------------+
 ```
+
+### `parse_url`
+
+Extracts a component from a URL, or retrieves an individual query parameter when provided a key, following Spark SQL semantics. Supported parts include `HOST`, `PATH`, `QUERY`, `REF`, `PROTOCOL`, `FILE`, and `AUTHORITY`.
+
+```sql
+parse_url(url, part_to_extract[, key])
+```
+
+#### Arguments
+
+- **url**: URL string expression.
+- **part_to_extract**: Case-insensitive token identifying which component to extract.
+- **key**: Optional query parameter key to extract from the `QUERY` part.
+
+#### Example
+
+```sql
+> select parse_url('https://spice.ai/blog?id=42', 'HOST');
++-------------------------------------------------------+
+| parse_url(Utf8("https://spice.ai/blog?id=42"),Utf8("HOST")) |
++-------------------------------------------------------+
+| spice.ai                                              |
++-------------------------------------------------------+
+> select parse_url('https://spice.ai/blog?id=42', 'QUERY', 'id');
++------------------------------------------------------------------+
+| parse_url(Utf8("https://spice.ai/blog?id=42"),Utf8("QUERY"),Utf8("id")) |
++------------------------------------------------------------------+
+| 42                                                               |
++------------------------------------------------------------------+
+```
+
+Reference: [Spark SQL `parse_url`](https://spark.apache.org/docs/latest/api/sql/index.html#parse_url).
 
 ### `position`
 
@@ -1416,6 +1659,82 @@ uuid()
 
 Binary string functions help encode and decode binary data, such as base64 and hexadecimal conversions. These are useful for working with encoded data or binary blobs.
 
+### `bit_get`
+
+Returns the bit (0 or 1) at the specified zero-based position when counting from the least-significant bit of an integral or binary expression, matching Spark SQL semantics.
+
+```sql
+bit_get(value, position)
+```
+
+#### Arguments
+
+- **value**: Integer or binary expression whose bits are inspected.
+- **position**: Zero-based index of the bit to return. Must be non-negative.
+
+#### Example
+
+```sql
+> select bit_get(11, 2) as bit;
++-----+
+| bit |
++-----+
+| 0   |
++-----+
+```
+
+Reference: [Spark SQL `bit_get`](https://spark.apache.org/docs/latest/api/sql/index.html#bit_get).
+
+### `bit_count`
+
+Counts the number of set bits in an integral or binary expression. Useful for quick popcount operations on bitmaps or packed flags, aligned with Spark SQL behavior.
+
+```sql
+bit_count(value)
+```
+
+#### Arguments
+
+- **value**: Integer or binary expression.
+
+#### Example
+
+```sql
+> select bit_count(255) as popcnt;
++--------+
+| popcnt |
++--------+
+| 8      |
++--------+
+```
+
+Reference: [Spark SQL `bit_count`](https://spark.apache.org/docs/latest/api/sql/index.html#bit_count).
+
+### `bitmap_count`
+
+Returns the number of set bits in a binary bitmap produced by functions such as `bitmap_construct_agg`, mirroring the Spark SQL implementation.
+
+```sql
+bitmap_count(bitmap)
+```
+
+#### Arguments
+
+- **bitmap**: Binary expression representing a bitmap.
+
+#### Example
+
+```sql
+> select bitmap_count(x'0F') as popcnt;
++--------+
+| popcnt |
++--------+
+| 4      |
++--------+
+```
+
+Reference: [Spark SQL `bitmap_count`](https://spark.apache.org/docs/latest/api/sql/index.html#bitmap_count).
+
 ## Regular Expression Functions
 
 Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Spice supports the following regular expressions:
@@ -1707,6 +2026,109 @@ FROM VALUES ('2023-01-01T18:18:18Z'), ('2023-01-03T19:00:03Z')  t(time);
 +---------------------+
 2 row(s) fetched.
 ```
+
+### `date_add`
+
+Adds a number of days to a DATE or TIMESTAMP expression, matching Spark SQL semantics. Negative offsets move backwards in time.
+
+```sql
+date_add(start_date, num_days)
+```
+
+#### Arguments
+
+- **start_date**: DATE or TIMESTAMP expression.
+- **num_days**: Integer number of days to add.
+
+#### Example
+
+```sql
+> select date_add(date '2024-02-27', 3);
++---------------------------------+
+| date_add(Date32("2024-02-27"),Int64(3)) |
++---------------------------------+
+| 2024-03-01                     |
++---------------------------------+
+```
+
+Reference: [Spark SQL `date_add`](https://spark.apache.org/docs/latest/api/sql/index.html#date_add).
+
+### `date_sub`
+
+Subtracts a number of days from a DATE or TIMESTAMP expression using Spark-compatible behavior.
+
+```sql
+date_sub(start_date, num_days)
+```
+
+#### Arguments
+
+- **start_date**: DATE or TIMESTAMP expression.
+- **num_days**: Integer number of days to subtract.
+
+#### Example
+
+```sql
+> select date_sub(date '2024-03-05', 7);
++---------------------------------+
+| date_sub(Date32("2024-03-05"),Int64(7)) |
++---------------------------------+
+| 2024-02-27                     |
++---------------------------------+
+```
+
+Reference: [Spark SQL `date_sub`](https://spark.apache.org/docs/latest/api/sql/index.html#date_sub).
+
+### `last_day`
+
+Returns the last day of the month that contains the input date or timestamp, matching Spark SQL semantics.
+
+```sql
+last_day(expression)
+```
+
+#### Arguments
+
+- **expression**: DATE or TIMESTAMP expression.
+
+#### Example
+
+```sql
+> select last_day(date '2024-02-14');
++----------------------------------+
+| last_day(Date32("2024-02-14"))   |
++----------------------------------+
+| 2024-02-29                      |
++----------------------------------+
+```
+
+Reference: [Spark SQL `last_day`](https://spark.apache.org/docs/latest/api/sql/index.html#last_day).
+
+### `next_day`
+
+Returns the first date after `start_date` that matches the requested day of week. Valid day names include full names (e.g., `Monday`) or abbreviations such as `Mon`, matching Spark SQL behavior.
+
+```sql
+next_day(start_date, day_of_week)
+```
+
+#### Arguments
+
+- **start_date**: DATE or TIMESTAMP expression.
+- **day_of_week**: String literal naming the target weekday.
+
+#### Example
+
+```sql
+> select next_day(date '2024-02-14', 'FRI');
++--------------------------------------------------+
+| next_day(Date32("2024-02-14"),Utf8("FRI"))        |
++--------------------------------------------------+
+| 2024-02-16                                       |
++--------------------------------------------------+
+```
+
+Reference: [Spark SQL `next_day`](https://spark.apache.org/docs/latest/api/sql/index.html#next_day).
 
 ### `date_format`
 
@@ -2173,6 +2595,32 @@ _Alias of [current_date](#current_date)._
 ## Array Functions
 
 Array functions in Spice.ai SQL help construct, transform, and query array data types. These functions operate on array expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following array functions are supported:
+
+### `array`
+
+Constructs an array from the provided expressions using Spark-compatible semantics. Inputs are evaluated left to right, cast to a common element type, and collected into a single Arrow list value without removing duplicates or nulls.
+
+```sql
+array(expression[, ..., expression_n])
+```
+
+#### Arguments
+
+- **expression**: Value to include in the array. Expressions must be implicitly castable to a shared element type.
+- **expression_n**: Additional expressions to append to the array.
+
+#### Example
+
+```sql
+> select array(1, 2, 3);
++-----------------------------------+
+| array(Int64(1),Int64(2),Int64(3)) |
++-----------------------------------+
+| [1, 2, 3]                         |
++-----------------------------------+
+```
+
+Reference: [Spark SQL `array`](https://spark.apache.org/docs/latest/api/sql/index.html#array).
 
 ### `array_any_value`
 

@@ -71,6 +71,8 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Union Functions](scalar_functions.md#union-functions)
 - [Other Functions](scalar_functions.md#other-functions)
 
+Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`, and `parse_url` follow the semantics documented in the [Spark SQL built-in function reference](https://spark.apache.org/docs/latest/api/sql/index.html).
+
 ### [Aggregate Functions](aggregate_functions.md)
 
 - [General Aggregate Functions](aggregate_functions.md#general-functions)
