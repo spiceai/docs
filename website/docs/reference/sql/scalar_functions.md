@@ -2965,6 +2965,70 @@ Returns a list of floating-point values representing the embedding vector. For a
 > select embed(['hey', 'there', 'sunshine'], 'potion_2m');
 ```
 
+### `bucket`
+
+Assigns a deterministic bucket identifier for a value by hashing the input and projecting it into a fixed number of buckets. Helpful for `partition_by` expressions and for co-locating related rows during acceleration refreshes.
+
+```sql
+bucket(num_buckets, value)
+```
+
+#### Arguments
+
+- **num_buckets**: Positive integer indicating how many buckets to distribute values across. Values less than 1 produce an error.
+- **value**: Expression to hash. Accepts strings, numbers, and other scalar types supported by the query engine.
+
+#### Return Type
+
+Returns an `Int64` in the range `[0, num_buckets - 1]`. The same input value always maps to the same bucket for a given `num_buckets`.
+
+#### Example
+
+```sql
+-- Partition account IDs into 100 stable buckets
+SELECT account_id, bucket(100, account_id) AS account_bucket
+FROM accounts;
+```
+
+In `spicepod.yaml`, use the function directly inside `partition_by` to build file-based accelerations:
+
+```yaml
+datasets:
+  - name: my_table
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      partition_by: bucket(100, account_id)
+```
+
+### `truncate`
+
+Rounds numeric values down to the nearest multiple of the specified width. Useful when partitioning timestamps or numeric identifiers into wider ranges.
+
+```sql
+truncate(width, value)
+```
+
+#### Arguments
+
+- **width**: Positive numeric value that defines the bucket size (for example, `10`, `900`, or `3600`).
+- **value**: Numeric expression to truncate. Works with integers, decimals, and timestamps cast to integers (for example, epoch seconds).
+
+#### Return Type
+
+Returns a numeric value of the same type as `value`, rounded down so that the result is evenly divisible by `width`.
+
+#### Example
+
+```sql
+SELECT truncate(10, 101) AS truncated_id;  -- returns 100
+
+-- Truncate event timestamps to the start of each hour (3600 seconds)
+SELECT truncate(3600, extract(epoch FROM event_time)) AS hour_start
+FROM events;
+```
+
 ---
 
 Spice.ai aims for compatibility with PostgreSQL, but some functions or behaviors may differ depending on the underlying engine version.
