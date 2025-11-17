@@ -114,6 +114,9 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_username`               | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                            |
 | `http_password`               | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.   |
 | `http_headers`                | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                              |
+| `allowed_request_paths`       | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                         |
+| `allow_request_query_filters` | Optional. Set to `true` to enable `request_query` filters. Default: `false`. When disabled, query parameter filters will be rejected.                                                                       |
+| `allow_request_body_filters`  | Optional. Set to `true` to enable `request_body` filters for POST requests. Default: `false`. When disabled, request body filters will be rejected.                                                         |
 | `client_timeout`              | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle. |
 | `connect_timeout`             | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                         |
 | `pool_max_idle_per_host`      | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                         |
@@ -122,10 +125,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `retry_backoff_method`        | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                        |
 | `retry_max_duration`          | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                     |
 | `retry_jitter`                | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                 |
-| `allowed_request_paths`       | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                         |
-| `allow_request_query_filters` | Optional. Set to `true` to enable `request_query` filters. Default: `false`. When disabled, query parameter filters will be rejected.                                                                       |
 | `max_request_query_length`    | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                 |
-| `allow_request_body_filters`  | Optional. Set to `true` to enable `request_body` filters for POST requests. Default: `false`. When disabled, request body filters will be rejected.                                                         |
 | `max_request_body_bytes`      | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                     |
 
 ## HTTP Response Headers
@@ -223,7 +223,7 @@ For security, these metadata fields require explicit configuration to prevent un
 - `request_path` requires `allowed_request_paths` to be configured
 - `request_query` requires `allow_request_query_filters: true`
 - `request_body` requires `allow_request_body_filters: true`
-:::
+  :::
 
 | Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
