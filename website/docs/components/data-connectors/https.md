@@ -108,20 +108,25 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 The connector supports authentication, timeout, connection pooling, and retry configuration via `params`.
 
-| Parameter Name           | Description                                                                                                                                                                                                 |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `http_port`              | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                      |
-| `http_username`          | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                            |
-| `http_password`          | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.   |
-| `http_headers`           | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                              |
-| `client_timeout`         | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle. |
-| `connect_timeout`        | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                         |
-| `pool_max_idle_per_host` | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                         |
-| `pool_idle_timeout`      | Optional. Timeout for idle connections in the pool (in seconds). Default: `90`.                                                                                                                             |
-| `max_retries`            | Optional. Maximum number of retries for failed HTTP requests. Default: `3`.                                                                                                                                 |
-| `retry_backoff_method`   | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                        |
-| `retry_max_duration`     | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                     |
-| `retry_jitter`           | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                 |
+| Parameter Name                | Description                                                                                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `http_port`                   | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                      |
+| `http_username`               | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                            |
+| `http_password`               | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.   |
+| `http_headers`                | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                              |
+| `client_timeout`              | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle. |
+| `connect_timeout`             | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                         |
+| `pool_max_idle_per_host`      | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                         |
+| `pool_idle_timeout`           | Optional. Timeout for idle connections in the pool (in seconds). Default: `90`.                                                                                                                             |
+| `max_retries`                 | Optional. Maximum number of retries for failed HTTP requests. Default: `3`.                                                                                                                                 |
+| `retry_backoff_method`        | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                        |
+| `retry_max_duration`          | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                     |
+| `retry_jitter`                | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                 |
+| `allowed_request_paths`       | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                         |
+| `allow_request_query_filters` | Optional. Set to `true` to enable `request_query` filters. Default: `false`. When disabled, query parameter filters will be rejected.                                                                       |
+| `max_request_query_length`    | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                 |
+| `allow_request_body_filters`  | Optional. Set to `true` to enable `request_body` filters for POST requests. Default: `false`. When disabled, request body filters will be rejected.                                                         |
+| `max_request_body_bytes`      | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                     |
 
 ## HTTP Response Headers
 
@@ -138,6 +143,7 @@ Cache-Control: max-age=10, stale-while-revalidate=10
 ```
 
 Clients querying Spice will receive this header and can:
+
 1. Serve fresh data for 10 seconds after fetching.
 2. Between 10-20 seconds, serve stale data while fetching fresh data in the background.
 3. After 20 seconds, fetch fresh data before serving the next request.
@@ -209,13 +215,21 @@ datasets:
 
 ### Special Metadata Fields
 
-The HTTP connector supports special metadata fields that provide fine-grained control over HTTP requests. These fields can be included in your dataset schema to dynamically construct request URLs and payloads:
+The HTTP connector supports special metadata fields that provide fine-grained control over HTTP requests. These fields can be included in your dataset schema to dynamically construct request URLs and payloads.
 
-| Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                    |
-| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `request_path`  | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. |
-| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`.                                                                                                     |
-| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`.                                                                                                                         |
+:::warning Security Requirements
+For security, these metadata fields require explicit configuration to prevent unauthorized access:
+
+- `request_path` requires `allowed_request_paths` to be configured
+- `request_query` requires `allow_request_query_filters: true`
+- `request_body` requires `allow_request_body_filters: true`
+:::
+
+| Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
+| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request_path`  | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. **Requires `allowed_request_paths` parameter.** |
+| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `allow_request_query_filters: true`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).           |
+| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `allow_request_body_filters: true`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                             |
 
 These metadata fields work in combination:
 
@@ -237,6 +251,9 @@ datasets:
     name: api_requests
     params:
       http_headers: 'Content-Type:application/json'
+      allowed_request_paths: '/users,/data/upload'
+      allow_request_query_filters: true
+      allow_request_body_filters: true
 ```
 
 With the above configuration, you can query different endpoints by providing values for the special metadata fields:
@@ -268,6 +285,8 @@ datasets:
     name: tv_shows
     params:
       http_headers: 'Accept:application/json'
+      allowed_request_paths: '/search/shows,/shows,/shows/82,/shows/82/episodes'
+      allow_request_query_filters: true
 ```
 
 Query specific API endpoints dynamically:
@@ -292,6 +311,9 @@ WHERE request_path = '/shows/82/episodes' AND request_query = 'season=1';
 datasets:
   - from: https://api.example.com
     name: events
+    params:
+      allowed_request_paths: '/events'
+      allow_request_query_filters: true
     acceleration:
       enabled: true
       refresh_mode: append
@@ -315,6 +337,8 @@ datasets:
     name: paginated_data
     params:
       http_headers: 'Content-Type:application/json'
+      allowed_request_paths: '/data'
+      allow_request_query_filters: true
     acceleration:
       enabled: true
       refresh_mode: append
@@ -340,13 +364,15 @@ datasets:
     name: search_results
     params:
       http_headers: 'Content-Type:application/json'
+      allowed_request_paths: '/search'
+      allow_request_body_filters: true
     acceleration:
       enabled: true
       refresh_mode: full
       refresh_sql: |
         SELECT * FROM search_results
         WHERE request_path = '/search'
-          AND _body = '{"query": {"match": {"status": "active"}}, "from": 0, "size": 1000}'
+          AND request_body = '{"query": {"match": {"status": "active"}}, "from": 0, "size": 1000}'
 ```
 
 This example demonstrates:
@@ -367,6 +393,7 @@ datasets:
     name: tvmaze
     params:
       file_format: json
+      allowed_request_paths: '/shows/169,/shows/82'
 ```
 
 Extract specific fields from JSON responses:
@@ -471,6 +498,79 @@ The dynamic filter feature supports the following SQL operations:
 - URL parameters must match filter column names in the `refresh_sql`
 - Only filters that can be pushed down to the HTTP source will be applied to the URL
 - Complex filters may not be supported for URL templating
+
+## Limitations
+
+### Security Constraints
+
+For security and to prevent unauthorized access, the HTTP connector enforces the following constraints on special metadata fields:
+
+#### Request Path Limitations
+
+- **Explicit Allow-List Required**: The `request_path` field cannot be used without configuring `allowed_request_paths`
+- **Path Format**: All paths in `allowed_request_paths` must:
+  - Start with `/`
+  - Not contain `..` path traversal segments
+  - Not exceed 2048 characters in length
+- **Exact Match Required**: Query filters must exactly match a path in the `allowed_request_paths` list
+- **Empty Paths**: Empty `request_path` filters are rejected
+
+Example error when `allowed_request_paths` is not configured:
+
+```
+request_path filters are disabled for this dataset. Configure allowed_request_paths to enable them.
+```
+
+#### Request Query Limitations
+
+- **Explicit Enable Required**: The `request_query` field requires `allow_request_query_filters: true`
+- **Length Limit**: Query strings are limited to 1024 characters by default (configurable up to 4096 via `max_request_query_length`)
+- **Control Characters**: Query strings cannot contain control characters
+- **Leading Question Mark**: The connector automatically strips leading `?` if present
+
+Example error when query filters are not enabled:
+
+```
+request_query filters are disabled for this dataset. Enable allow_request_query_filters to use them.
+```
+
+#### Request Body Limitations
+
+- **Explicit Enable Required**: The `request_body` field requires `allow_request_body_filters: true`
+- **Size Limit**: Request bodies are limited to 16 KiB (16,384 bytes) by default (configurable up to 64 KiB via `max_request_body_bytes`)
+- **POST Method**: When a `request_body` filter is present, the HTTP method automatically changes to POST
+
+Example error when body filters are not enabled:
+
+```
+request_body filters are disabled for this dataset. Enable allow_request_body_filters to use them.
+```
+
+### Configuration Requirements
+
+To use the special metadata fields (`request_path`, `request_query`, `request_body`), you must:
+
+1. **For `request_path`**: Configure `allowed_request_paths` with a comma-separated list of allowed paths
+2. **For `request_query`**: Set `allow_request_query_filters: true` in params
+3. **For `request_body`**: Set `allow_request_body_filters: true` in params
+
+Example minimal configuration for all three fields:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: my_api
+    params:
+      allowed_request_paths: '/users,/posts,/comments'
+      allow_request_query_filters: true
+      allow_request_body_filters: true
+```
+
+### Performance Considerations
+
+- **Connection Pooling**: The connector maintains up to 10 idle connections per host by default
+- **Retry Overhead**: With the default 3 retries and Fibonacci backoff, failed requests may take several seconds before returning an error
+- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters
 
 ## Secrets
 
