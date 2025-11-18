@@ -375,7 +375,11 @@ function SearchModal({
       <div className='DocSearch-Modal' onClick={(e) => e.stopPropagation()}>
         <header className='DocSearch-SearchBar'>
           <form className='DocSearch-Form' onSubmit={handleSubmit}>
-            <label className='DocSearch-MagnifierLabel' htmlFor='docsearch-input' id='docsearch-label'>
+            <label
+              className='DocSearch-MagnifierLabel'
+              htmlFor='docsearch-input'
+              id='docsearch-label'
+            >
               <svg width='20' height='20' className='DocSearch-Search-Icon' viewBox='0 0 20 20'>
                 <path
                   d='M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z'
@@ -454,34 +458,97 @@ function SearchModal({
           {answer && query.trim() && (
             <section className='DocSearch-Dropdown-Container' style={{ marginBottom: '1rem' }}>
               <div className='DocSearch-Hit'>
-                <div className='DocSearch-Hit-Container' style={{ display: 'block', height: 'auto', padding: '1rem' }}>
+                <div
+                  className='DocSearch-Hit-Container'
+                  style={{ display: 'block', height: 'auto', padding: '1rem' }}
+                >
                   <div className='DocSearch-Hit-content-wrapper' style={{ width: '100%' }}>
-                    <div style={{ marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--docsearch-muted-color)', fontWeight: 600 }}>AI Answer</div>
+                    <div
+                      style={{
+                        marginBottom: '0.5rem',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        color: 'var(--docsearch-muted-color)',
+                        fontWeight: 600
+                      }}
+                    >
+                      AI Answer
+                    </div>
                     {answer.text && (
-                      <div className='DocSearch-Hit-title' style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', marginBottom: answer.sources.length > 0 ? '1rem' : 0 }}>
+                      <div
+                        className='DocSearch-Hit-title'
+                        style={{
+                          whiteSpace: 'pre-wrap',
+                          fontSize: '0.9rem',
+                          marginBottom: answer.sources.length > 0 ? '1rem' : 0
+                        }}
+                      >
                         {answer.text}
                       </div>
                     )}
                     {answer.sources.length > 0 && (
                       <div style={{ marginTop: '0.75rem' }}>
-                        <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--docsearch-muted-color)', marginBottom: '0.5rem', fontWeight: 500 }}>Sources</div>
+                        <div
+                          style={{
+                            fontSize: '0.7rem',
+                            textTransform: 'uppercase',
+                            color: 'var(--docsearch-muted-color)',
+                            marginBottom: '0.5rem',
+                            fontWeight: 500
+                          }}
+                        >
+                          Sources
+                        </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                           {answer.sources.map((source, index) => {
                             const key = `${source.url ?? source.title ?? source.dataset ?? 'source'}-${index}`
-                            const label = source.title ?? source.url ?? source.dataset ?? `Result ${index + 1}`
+                            const label =
+                              source.title ?? source.url ?? source.dataset ?? `Result ${index + 1}`
                             const snippet = source.snippet?.trim()
 
                             return (
-                              <div key={key} style={{ fontSize: '0.8rem', padding: '0.5rem', background: 'var(--docsearch-footer-background)', borderRadius: '4px' }}>
+                              <div
+                                key={key}
+                                style={{
+                                  fontSize: '0.8rem',
+                                  padding: '0.5rem',
+                                  background: 'var(--docsearch-footer-background)',
+                                  borderRadius: '4px'
+                                }}
+                              >
                                 {source.url ? (
-                                  <a href={source.url} target='_blank' rel='noreferrer' style={{ color: 'var(--docsearch-highlight-color)', textDecoration: 'none', fontWeight: 500 }}>
+                                  <a
+                                    href={source.url}
+                                    target='_blank'
+                                    rel='noreferrer'
+                                    style={{
+                                      color: 'var(--docsearch-highlight-color)',
+                                      textDecoration: 'none',
+                                      fontWeight: 500
+                                    }}
+                                  >
                                     {label}
                                   </a>
                                 ) : (
-                                  <span style={{ fontWeight: 500, color: 'var(--docsearch-text-color)' }}>{label}</span>
+                                  <span
+                                    style={{
+                                      fontWeight: 500,
+                                      color: 'var(--docsearch-text-color)'
+                                    }}
+                                  >
+                                    {label}
+                                  </span>
                                 )}
                                 {snippet && (
-                                  <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--docsearch-muted-color)' }}>{snippet}</div>
+                                  <div
+                                    style={{
+                                      marginTop: '0.25rem',
+                                      fontSize: '0.75rem',
+                                      color: 'var(--docsearch-muted-color)'
+                                    }}
+                                  >
+                                    {snippet}
+                                  </div>
                                 )}
                               </div>
                             )
@@ -498,11 +565,22 @@ function SearchModal({
           {status === 'success' && results.length === 0 && query.trim() && (
             <div className='DocSearch-NoResults'>
               <div className='DocSearch-Screen-Icon'>
-                <svg width='40' height='40' viewBox='0 0 20 20' fill='none' fillRule='evenodd' stroke='currentColor' strokeLinecap='round' strokeLinejoin='round'>
+                <svg
+                  width='40'
+                  height='40'
+                  viewBox='0 0 20 20'
+                  fill='none'
+                  fillRule='evenodd'
+                  stroke='currentColor'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
                   <path d='M15.5 4.8c2 3 1.7 7-1 9.7h0l4.3 4.3-4.3-4.3a7.8 7.8 0 01-9.8 1m-2.2-2.2A7.8 7.8 0 0113.2 2.4M2 18L18 2' />
                 </svg>
               </div>
-              <p className='DocSearch-Title'>No results for <q>{query}</q></p>
+              <p className='DocSearch-Title'>
+                No results for <q>{query}</q>
+              </p>
               <p className='DocSearch-Help'>Try refining your query or use different keywords.</p>
             </div>
           )}
@@ -532,13 +610,22 @@ function SearchModal({
                         </div>
                         <div className='DocSearch-Hit-content-wrapper'>
                           <span className='DocSearch-Hit-title'>{title}</span>
-                          {description && (
-                            <span className='DocSearch-Hit-path'>{description}</span>
-                          )}
+                          {description && <span className='DocSearch-Hit-path'>{description}</span>}
                         </div>
                         <div className='DocSearch-Hit-action'>
-                          <svg className='DocSearch-Hit-Select-Icon' width='20' height='20' viewBox='0 0 20 20'>
-                            <g stroke='currentColor' fill='none' fillRule='evenodd' strokeLinecap='round' strokeLinejoin='round'>
+                          <svg
+                            className='DocSearch-Hit-Select-Icon'
+                            width='20'
+                            height='20'
+                            viewBox='0 0 20 20'
+                          >
+                            <g
+                              stroke='currentColor'
+                              fill='none'
+                              fillRule='evenodd'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                            >
                               <path d='M18 3v4c0 2-2 4-4 4H2' />
                               <path d='M8 17l-6-6 6-6' />
                             </g>
@@ -582,7 +669,9 @@ function SearchModal({
 
         <footer className='DocSearch-Footer'>
           <div className='DocSearch-Logo'>
-            <span style={{ fontSize: '0.85rem', color: 'var(--docsearch-muted-color)' }}>Powered by Spice Search</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--docsearch-muted-color)' }}>
+              Powered by Spice Search
+            </span>
           </div>
         </footer>
       </div>
