@@ -12,12 +12,6 @@
   z-index: calc(var(--ifm-z-index-fixed) + 1);
 }
 
-/* Ensure DocSearch container backdrop behaves like the modal overlay */
-.DocSearch-Container {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Ensure modal is properly centered */
-.DocSearch-Modal {
-  margin: 60px auto;
+.DocSearch-Button-Key {
+  padding: 0;
 }
