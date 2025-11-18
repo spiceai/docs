@@ -150,68 +150,9 @@ Clients querying Spice will receive this header and can:
 
 The stale-while-revalidate behavior in Spice is controlled by the `stale_while_revalidate_ttl` parameter in the [caching configuration](/docs/features/caching#stale-while-revalidate). When `stale_while_revalidate_ttl` is set to `0` (default), stale data will not be served. When set to a non-zero value, Spice serves stale cache entries while revalidating in the background.
 
-## Timeouts and Retries
+## Advanced Features
 
-### Timeouts
-
-The connector provides granular control over HTTP timeouts:
-
-- **`client_timeout`**: Maximum time to wait for a complete HTTP response (default: 30 seconds)
-- **`connect_timeout`**: Maximum time to establish a connection (default: 10 seconds)
-
-Example configuration:
-
-```yaml
-datasets:
-  - from: https://example.com/data.csv
-    name: my_data
-    params:
-      client_timeout: 60s
-      connect_timeout: 15s
-```
-
-### Connection Pooling
-
-The connector maintains a connection pool for improved performance:
-
-- **`pool_max_idle_per_host`**: Maximum idle connections per host (default: 10)
-- **`pool_idle_timeout`**: How long idle connections are kept (default: 90 seconds)
-
-Example configuration:
-
-```yaml
-datasets:
-  - from: https://api.example.com/data
-    name: api_data
-    params:
-      pool_max_idle_per_host: 20
-      pool_idle_timeout: 120
-```
-
-### Retries
-
-The HTTP connector automatically retries failed requests with configurable retry behavior:
-
-- **Automatic retries**: Transient failures (network errors, 5xx server errors) trigger automatic retries
-- **Default strategy**: Fibonacci backoff with 3 maximum attempts
-- **Configurable options**:
-  - `max_retries`: Number of retry attempts (default: 3)
-  - `retry_backoff_method`: Strategy for retry delays - `fibonacci` (default), `linear`, or `exponential`
-  - `retry_max_duration`: Total time limit for all retries (e.g., `30s`, `5m`)
-  - `retry_jitter`: Randomization to prevent thundering herd (default: 0.3 for 30% randomization)
-
-Example with custom retry configuration:
-
-```yaml
-datasets:
-  - from: https://api.example.com/data.csv
-    name: my_data
-    params:
-      max_retries: 5
-      retry_backoff_method: exponential
-      retry_max_duration: 2m
-      retry_jitter: 0.5
-```
+The HTTP connector provides advanced capabilities for working with dynamic APIs and RESTful services through special metadata fields.
 
 ### Special Metadata Fields
 
@@ -220,7 +161,7 @@ The HTTP connector supports special metadata fields that provide fine-grained co
 :::warning Security Requirements
 For security, these metadata fields require explicit configuration to prevent unauthorized access:
 
-- `request_path` requires `allowed_request_paths` to be configured
+- `request_path` requires `allowed_request_paths` to be configured with glob patterns
 - `request_query` requires `request_query_filters: enabled`
 - `request_body` requires `request_body_filters: enabled`
   :::
@@ -251,7 +192,7 @@ datasets:
     name: api_requests
     params:
       http_headers: 'Content-Type:application/json'
-      allowed_request_paths: '/users,/data/upload'
+      allowed_request_paths: '/users,/data/upload,/api/**'
       request_query_filters: enabled
       request_body_filters: enabled
 ```
@@ -273,6 +214,73 @@ The connector will construct requests like:
 - `https://api.example.com/v1/users/123?include=profile,settings`
 - `https://api.example.com/v1/data/upload` with the JSON body
 
+#### Securing Paths with Glob Patterns
+
+The `allowed_request_paths` parameter supports glob patterns to flexibly and securely match request paths. This provides a powerful way to configure path filtering without listing every possible endpoint.
+
+**Pattern Types:**
+
+- **Single wildcard (`*`)**: Matches any characters within a single path segment
+  - Example: `/shows/*` matches `/shows/123` and `/shows/breaking-bad`
+  - Does not match across path separators: `/shows/*` does not match `/shows/123/episodes`
+
+- **Recursive wildcard (`**`)**: Matches any number of path segments
+  - Example: `/api/**` matches `/api/users`, `/api/v1/users`, and `/api/v2/posts/123`
+  - Use for flexible API version matching or deep hierarchies
+
+- **Character classes (`[...]`)**: Matches one character from a set
+  - Example: `/api/v[0-9]/*` matches `/api/v1/users` and `/api/v2/posts`
+  - Example: `/api/v[1-3]/*` matches `/api/v1/users`, `/api/v2/posts`, and `/api/v3/data`
+
+**Examples:**
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_api
+    params:
+      # Match any show ID
+      allowed_request_paths: '/shows/*'
+```
+
+```sql
+-- Matches because /shows/82 matches the pattern /shows/*
+SELECT * FROM tv_api WHERE request_path = '/shows/82';
+```
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: versioned_api
+    params:
+      # Match all endpoints under any API version
+      allowed_request_paths: '/api/**'
+```
+
+```sql
+-- All of these match the pattern /api/**
+SELECT * FROM versioned_api WHERE request_path = '/api/users';
+SELECT * FROM versioned_api WHERE request_path = '/api/v1/users';
+SELECT * FROM versioned_api WHERE request_path = '/api/v2/products/electronics';
+```
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: specific_versions
+    params:
+      # Match only API versions 1-9
+      allowed_request_paths: '/api/v[0-9]/*'
+```
+
+```sql
+-- Matches because /api/v1/users matches /api/v[0-9]/*
+SELECT * FROM specific_versions WHERE request_path = '/api/v1/users';
+
+-- Does NOT match because v10 has two digits
+SELECT * FROM specific_versions WHERE request_path = '/api/v10/users';
+```
+
 ### Dynamic Filters with Metadata Fields
 
 The special metadata fields can be combined with dynamic filters to create sophisticated data refresh patterns.
@@ -285,7 +293,7 @@ datasets:
     name: tv_shows
     params:
       http_headers: 'Accept:application/json'
-      allowed_request_paths: '/search/shows,/shows,/shows/82,/shows/82/episodes'
+      allowed_request_paths: '/search/shows,/shows/*,/shows/*/episodes'
       request_query_filters: enabled
 ```
 
@@ -296,11 +304,11 @@ Query specific API endpoints dynamically:
 SELECT * FROM tv_shows
 WHERE request_path = '/search/shows' AND request_query = 'q=game+of+thrones';
 
--- Get a specific show by ID
+-- Get a specific show by ID (matches /shows/* pattern)
 SELECT * FROM tv_shows
 WHERE request_path = '/shows/82';
 
--- Get episodes for a show with filters
+-- Get episodes for a show with filters (matches /shows/*/episodes pattern)
 SELECT * FROM tv_shows
 WHERE request_path = '/shows/82/episodes' AND request_query = 'season=1';
 ```
@@ -312,7 +320,7 @@ datasets:
   - from: https://api.example.com
     name: events
     params:
-      allowed_request_paths: '/events'
+      allowed_request_paths: '/events,/events/*'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -393,7 +401,7 @@ datasets:
     name: tvmaze
     params:
       file_format: json
-      allowed_request_paths: '/shows/169,/shows/82'
+      allowed_request_paths: '/shows/*'
 ```
 
 Extract specific fields from JSON responses:
@@ -508,11 +516,14 @@ For security and to prevent unauthorized access, the HTTP connector enforces the
 #### Request Path Limitations
 
 - **Explicit Allow-List Required**: The `request_path` field cannot be used without configuring `allowed_request_paths`
-- **Path Format**: All paths in `allowed_request_paths` must:
+- **Path Pattern Format**: All patterns in `allowed_request_paths` must:
   - Start with `/`
   - Not contain `..` path traversal segments
   - Not exceed 2048 characters in length
-- **Exact Match Required**: Query filters must exactly match a path in the `allowed_request_paths` list
+- **Glob Pattern Matching**: Query filters are matched against glob patterns in the `allowed_request_paths` list using:
+  - `*` matches a single path segment (e.g., `/shows/*` matches `/shows/123` but not `/shows/123/episodes`)
+  - `**` matches multiple path segments recursively (e.g., `/api/**` matches `/api/v1/users` and `/api/v2/posts/123`)
+  - `[...]` character classes (e.g., `/api/v[0-9]/*` matches `/api/v1/users` but not `/api/v10/users`)
 - **Empty Paths**: Empty `request_path` filters are rejected
 
 Example error when `allowed_request_paths` is not configured:
@@ -550,7 +561,7 @@ request_body filters are disabled for this dataset. Enable request_body_filters 
 
 To use the special metadata fields (`request_path`, `request_query`, `request_body`), you must:
 
-1. **For `request_path`**: Configure `allowed_request_paths` with a comma-separated list of allowed paths
+1. **For `request_path`**: Configure `allowed_request_paths` with a comma-separated list of allowed path patterns (supports glob patterns)
 2. **For `request_query`**: Set `request_query_filters: enabled` in params
 3. **For `request_body`**: Set `request_body_filters: enabled` in params
 
@@ -561,7 +572,7 @@ datasets:
   - from: https://api.example.com
     name: my_api
     params:
-      allowed_request_paths: '/users,/posts,/comments'
+      allowed_request_paths: '/users,/posts,/comments,/api/**'
       request_query_filters: enabled
       request_body_filters: enabled
 ```
