@@ -205,6 +205,7 @@ function useSpiceSearchClient(config: SpiceSearchThemeConfig) {
         }
 
         try {
+          console.log('[Spice Search] Calling:', config.endpoint, 'with query:', query)
           const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
@@ -429,6 +430,8 @@ function DocSearch({
             appId='spice'
             apiKey='dummy'
             onAskAiToggle={() => {}}
+            disableUserPersonalization
+            getMissingResultsUrl={() => undefined}
             // @ts-expect-error searchClient is valid but not typed in v4
             searchClient={searchClient}
           />,
