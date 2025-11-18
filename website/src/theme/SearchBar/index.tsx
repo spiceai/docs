@@ -8,7 +8,6 @@ import Link from '@docusaurus/Link'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import React, { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { DocSearchButton, useDocSearchKeyboardEvents } from '@docsearch/react'
-import translations from '@theme-original/SearchTranslations'
 
 import type { SpiceSearchThemeConfig } from '@site/src/types/spice-search'
 
@@ -26,7 +25,45 @@ type SpiceSearchMatch = {
 type SpiceSearchResponse = {
   results: SpiceSearchMatch[]
   duration_ms: number
+  answer?: SpiceSearchAnswerPayload | string | null
 }
+
+type SpiceSearchAnswerSource = {
+  dataset?: string
+  title?: string
+  url?: string
+  snippet?: string
+  score?: number
+}
+
+type SpiceSearchAnswerPayload = {
+  text?: string
+  markdown?: string
+  summary?: string
+  answer?: string
+  content?: string
+  follow_ups?: string[]
+  followUps?: string[]
+  suggestions?: string[]
+  sources?: SpiceSearchAnswerSource[]
+  references?: SpiceSearchAnswerSource[]
+  citations?: SpiceSearchAnswerSource[]
+  [key: string]: unknown
+}
+
+type NormalizedAnswer = {
+  text?: string
+  sources: SpiceSearchAnswerSource[]
+  followUps: string[]
+}
+
+const docSearchTranslations = {
+  placeholder: 'Search docs',
+  button: {
+    buttonText: 'Search',
+    buttonAriaLabel: 'Search'
+  }
+} as const
 
 const MIN_QUERY_LENGTH = 2
 const MAX_DISPLAY_RESULTS = 6
@@ -120,6 +157,65 @@ function useDebouncedValue<T>(value: T, delay: number): T {
   return debouncedValue
 }
 
+function normalizeAnswer(
+  answer?: SpiceSearchAnswerPayload | string | null
+): NormalizedAnswer | null {
+  if (!answer) {
+    return null
+  }
+
+  if (typeof answer === 'string') {
+    const text = answer.trim()
+    return text ? { text, sources: [], followUps: [] } : null
+  }
+
+  const textFieldCandidates = [
+    answer.markdown,
+    answer.text,
+    answer.summary,
+    answer.answer,
+    answer.content
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0)
+
+  const text = textFieldCandidates[0]
+
+  const rawSourceList = (answer.sources ?? answer.references ?? answer.citations ?? []).filter(
+    (source): source is SpiceSearchAnswerSource => !!source
+  )
+
+  const sources = rawSourceList
+    .map((source) => ({
+      dataset: isString(source.dataset) ? source.dataset : undefined,
+      title: isString(source.title) ? source.title : undefined,
+      url: isString(source.url) ? source.url : undefined,
+      snippet: isString(source.snippet) ? source.snippet : undefined,
+      score:
+        typeof source.score === 'number'
+          ? source.score
+          : typeof source.score === 'string' && !Number.isNaN(Number(source.score))
+            ? Number(source.score)
+            : undefined
+    }))
+    .filter((source) => source.dataset || source.title || source.url || source.snippet)
+
+  const followUps = (answer.follow_ups ?? answer.followUps ?? answer.suggestions ?? [])
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .map((item) => item.trim())
+
+  if (!text && sources.length === 0 && followUps.length === 0) {
+    return null
+  }
+
+  return {
+    text,
+    sources,
+    followUps
+  }
+}
+
 function SearchModal({
   config,
   isOpen,
@@ -138,6 +234,7 @@ function SearchModal({
   const [results, setResults] = useState<SpiceSearchMatch[]>([])
   const [durationMs, setDurationMs] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [answer, setAnswer] = useState<NormalizedAnswer | null>(null)
 
   const debouncedQuery = useDebouncedValue(query, 150)
 
@@ -148,6 +245,7 @@ function SearchModal({
       setStatus('idle')
       setDurationMs(null)
       setErrorMessage(null)
+      setAnswer(null)
     }
   }, [isOpen])
 
@@ -175,6 +273,7 @@ function SearchModal({
       }
       setResults([])
       setDurationMs(null)
+      setAnswer(null)
       return
     }
 
@@ -183,6 +282,7 @@ function SearchModal({
       setErrorMessage('Spice Search endpoint is not configured.')
       setResults([])
       setDurationMs(null)
+      setAnswer(null)
       return
     }
 
@@ -191,6 +291,7 @@ function SearchModal({
       try {
         setStatus('loading')
         setErrorMessage(null)
+        setAnswer(null)
 
         const payload: Record<string, unknown> = {
           text: trimmedQuery
@@ -214,6 +315,7 @@ function SearchModal({
         const trimmedResults = (json.results ?? []).slice(0, MAX_DISPLAY_RESULTS)
         setResults(trimmedResults)
         setDurationMs(json.duration_ms ?? null)
+        setAnswer(normalizeAnswer(json.answer))
         setStatus('success')
       } catch (error) {
         if (isAbortError(error)) {
@@ -222,6 +324,7 @@ function SearchModal({
         setResults([])
         setDurationMs(null)
         setStatus('error')
+        setAnswer(null)
         setErrorMessage(error instanceof Error ? error.message : 'Unexpected search error')
       }
     }
@@ -283,7 +386,7 @@ function SearchModal({
               className='spiceSearchInput'
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={translations.placeholder}
+              placeholder={docSearchTranslations.placeholder}
               type='search'
               aria-label='Search Spice documents'
             />
@@ -293,6 +396,71 @@ function SearchModal({
             {status === 'loading' && <span className='spiceSearchSpinner' aria-hidden='true' />}
             <span>{summaryText}</span>
           </div>
+
+          {answer && (
+            <section className='spiceSearchAnswer' aria-live='polite'>
+              <header className='spiceSearchAnswerHeader'>
+                <span className='spiceSearchAnswerLabel'>AI answer</span>
+              </header>
+              {answer.text && (
+                <p className='spiceSearchAnswerText' data-testid='spice-search-answer'>
+                  {answer.text}
+                </p>
+              )}
+              {answer.sources.length > 0 && (
+                <div className='spiceSearchAnswerSources'>
+                  <span className='spiceSearchAnswerSourcesTitle'>Sources</span>
+                  <ul>
+                    {answer.sources.map((source, index) => {
+                      const key = `${source.url ?? source.title ?? source.dataset ?? 'source'}-${index}`
+                      const label =
+                        source.title ?? source.url ?? source.dataset ?? `Result ${index + 1}`
+                      const snippet = source.snippet?.trim()
+                      const score =
+                        typeof source.score === 'number' ? source.score.toFixed(2) : undefined
+
+                      const body = (
+                        <div className='spiceSearchAnswerSourceBody'>
+                          <span className='spiceSearchAnswerSourceLabel'>{label}</span>
+                          {snippet && (
+                            <span className='spiceSearchAnswerSourceSnippet'>{snippet}</span>
+                          )}
+                          {(source.dataset || score) && (
+                            <span className='spiceSearchAnswerSourceMeta'>
+                              {source.dataset && <span>{source.dataset}</span>}
+                              {score && <span>Score {score}</span>}
+                            </span>
+                          )}
+                        </div>
+                      )
+
+                      return (
+                        <li key={key} className='spiceSearchAnswerSource'>
+                          {source.url ? (
+                            <a href={source.url} target='_blank' rel='noreferrer'>
+                              {body}
+                            </a>
+                          ) : (
+                            body
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )}
+              {answer.followUps.length > 0 && (
+                <div className='spiceSearchAnswerFollowUps'>
+                  <span className='spiceSearchAnswerSourcesTitle'>Suggested follow-ups</span>
+                  <ul>
+                    {answer.followUps.map((suggestion) => (
+                      <li key={suggestion}>{suggestion}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
 
           <div className='spiceSearchResultList' role='list'>
             {status === 'success' && results.length === 0 && (
@@ -406,6 +574,8 @@ export default function SearchBar(): ReactNode {
 
   useDocSearchKeyboardEvents({
     isOpen,
+    isAskAiActive: false,
+    onAskAiToggle: () => undefined,
     onOpen: openModal,
     onClose: closeModal,
     onInput: handleInput,
@@ -426,7 +596,7 @@ export default function SearchBar(): ReactNode {
       <DocSearchButton
         onClick={openModal}
         ref={searchButtonRef}
-        translations={translations.button}
+        translations={docSearchTranslations.button}
         aria-label='Search Spice docs'
       />
 
