@@ -124,9 +124,9 @@ function readField(result: SpiceSearchMatch, field?: string): string | undefined
 function resolveUrl(result: SpiceSearchMatch, config?: SpiceSearchThemeConfig): string | undefined {
   const candidates = [
     readField(result, config?.resultUrlField),
+    result.matches?.url,
     result.data?.url,
-    result.metadata?.url,
-    result.matches?.url
+    result.metadata?.url
   ]
   return candidates.find(
     (candidate): candidate is string => isString(candidate) && candidate.length > 0
@@ -136,10 +136,15 @@ function resolveUrl(result: SpiceSearchMatch, config?: SpiceSearchThemeConfig): 
 function resolveTitle(result: SpiceSearchMatch, config?: SpiceSearchThemeConfig): string {
   return (
     readField(result, config?.resultTitleField) ??
+    (result.matches?.title as string | undefined) ??
     (result.metadata?.title as string | undefined) ??
     (result.data?.title as string | undefined) ??
     getFirstTextValue(result.matches) ??
+    // Use dataset name as last resort, make it more readable
     result.dataset
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
   )
 }
 
@@ -149,9 +154,10 @@ function resolveDescription(
 ): string | undefined {
   return (
     readField(result, config?.resultDescriptionField) ??
+    (result.matches?.description as string | undefined) ??
+    getFirstTextValue(result.matches) ??
     (result.metadata?.description as string | undefined) ??
-    (result.data?.description as string | undefined) ??
-    getFirstTextValue(result.matches)
+    (result.data?.description as string | undefined)
   )
 }
 
