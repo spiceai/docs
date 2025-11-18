@@ -15,7 +15,6 @@ import { useHistory } from '@docusaurus/router'
 import { isRegexpStringMatch, useSearchLinkCreator } from '@docusaurus/theme-common'
 import Translate from '@docusaurus/Translate'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
-import translations from '@theme/SearchTranslations'
 
 import type {
   InternalDocSearchHit,
@@ -415,7 +414,6 @@ function DocSearch({
         onMouseOver={importDocSearchModalIfNeeded}
         onClick={openModal}
         ref={searchButtonRef}
-        translations={translations.button}
       />
 
       {isOpen &&
@@ -432,17 +430,15 @@ function DocSearch({
             {...(searchPagePath && {
               resultsFooterComponent
             })}
-            placeholder={translations.placeholder}
-            translations={translations.modal}
+            placeholder='Search docs'
             disableUserPersonalization
             getMissingResultsUrl={() => undefined}
             // Pass our custom search client - this will be used instead of Algolia
             // @ts-expect-error searchClient is valid in DocSearch but has complex typing
             searchClient={searchClient}
-            // These are required by TypeScript but won't be used since we provide searchClient
+            appId='spice'
+            apiKey='dummy'
             indexName='spice-search'
-            appId='spiceai/docs'
-            apiKey=''
           />,
           searchContainer.current
         )}
@@ -465,10 +461,10 @@ export default function SearchBar(): ReactNode {
       spiceSearch={themeConfig.spiceSearch}
       searchPagePath={false}
       externalUrlRegex={undefined}
-      appId=''
-      apiKey=''
-      onAskAiToggle={() => {}}
+      appId='spice'
+      apiKey='dummy'
       indexName='spice-search'
+      onAskAiToggle={() => {}}
     />
   )
 }
