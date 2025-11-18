@@ -6,6 +6,29 @@ description: 'Runtime YAML reference'
 
 The `runtime` section specifies configuration settings for the Spice runtime.
 
+## `runtime.auth`
+
+### `runtime.auth.api-key`
+
+Spice supports adding optional authentication to its API endpoints via configurable API keys. [Learn more](../../api/auth/index.md).
+
+```yaml
+runtime:
+  auth:
+    api-key:
+      enabled: true
+      keys:
+        - ${ secrets:api_key } # Use the secret replacement syntax to load the API key from a secret store
+        - 1234567890 # Or specify the API key directly
+```
+
+API key authentication supports the following configuration parameters:
+
+| Parameter name | Optional | Default | Description                                                    |
+| -------------- | -------- | ------- | -------------------------------------------------------------- |
+| `enabled`      | Yes      | `false` | Defaults to `false`. Whether API key authentication is enabled |
+| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+
 ## `runtime.dataset_load_parallelism`
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
