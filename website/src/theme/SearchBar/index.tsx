@@ -419,6 +419,7 @@ function DocSearch({
             })}
             placeholder={translations.placeholder}
             translations={translations.modal}
+            indexName='spice-search'
             appId='spice'
             apiKey='dummy'
             onAskAiToggle={() => {}}
