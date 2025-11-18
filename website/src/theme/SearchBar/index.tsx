@@ -209,8 +209,7 @@ function useSpiceSearchClient(config: SpiceSearchThemeConfig) {
           const response = await fetch(config.endpoint, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {})
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({ text: query })
           })
@@ -220,6 +219,7 @@ function useSpiceSearchClient(config: SpiceSearchThemeConfig) {
           }
 
           const json = (await response.json()) as SpiceSearchResponse
+          console.log('[Spice Search] Results:', json.results.length, 'hits')
 
           // Transform Spice Search results to Algolia format
           const hits = (json.results || []).map((result, index) => {
@@ -264,7 +264,7 @@ function useSpiceSearchClient(config: SpiceSearchThemeConfig) {
             ]
           }
         } catch (error) {
-          console.error('Spice Search error:', error)
+          console.error('[Spice Search] Error:', error)
           return {
             results: [
               {
@@ -281,7 +281,15 @@ function useSpiceSearchClient(config: SpiceSearchThemeConfig) {
             ]
           }
         }
-      }
+      },
+      // Add other required search client methods
+      searchForFacetValues: async () => ({
+        facetHits: [],
+        exhaustiveFacetsCount: true,
+        processingTimeMS: 0
+      }),
+      addAlgoliaAgent: () => {},
+      clearCache: () => Promise.resolve()
     }
   }, [config])
 }
@@ -426,14 +434,15 @@ function DocSearch({
             })}
             placeholder={translations.placeholder}
             translations={translations.modal}
-            indexName='spice-search'
-            appId='spice'
-            apiKey='dummy'
-            onAskAiToggle={() => {}}
             disableUserPersonalization
             getMissingResultsUrl={() => undefined}
-            // @ts-expect-error searchClient is valid but not typed in v4
+            // Pass our custom search client - this will be used instead of Algolia
+            // @ts-expect-error searchClient is valid in DocSearch but has complex typing
             searchClient={searchClient}
+            // These are required by TypeScript but won't be used since we provide searchClient
+            indexName='spice-search'
+            appId='spiceai/docs'
+            apiKey=''
           />,
           searchContainer.current
         )}
@@ -456,8 +465,8 @@ export default function SearchBar(): ReactNode {
       spiceSearch={themeConfig.spiceSearch}
       searchPagePath={false}
       externalUrlRegex={undefined}
-      appId='spice'
-      apiKey='dummy'
+      appId=''
+      apiKey=''
       onAskAiToggle={() => {}}
       indexName='spice-search'
     />

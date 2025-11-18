@@ -31,7 +31,7 @@ const defaultPreconnectOrigin =
 
 const spiceSearchConfig: SpiceSearchThemeConfig = {
   endpoint: defaultSearchEndpoint,
-  apiKey: process.env.SPICE_SEARCH_API_KEY,
+  // API key should NOT be in client config - it's handled server-side by the Cloudflare function
   resultTitleField: process.env.SPICE_SEARCH_TITLE_FIELD,
   resultUrlField: process.env.SPICE_SEARCH_URL_FIELD,
   resultDescriptionField: process.env.SPICE_SEARCH_DESCRIPTION_FIELD,
@@ -129,7 +129,8 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.9.0-rc.2">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0-rc.2</a> is now available! 🌶',
+      content:
+        '<a href="/blog/releases/v1.9.0-rc.2">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0-rc.2</a> is now available! 🌶',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
