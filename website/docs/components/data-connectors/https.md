@@ -115,8 +115,8 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_password`               | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.   |
 | `http_headers`                | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                              |
 | `allowed_request_paths`       | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                         |
-| `allow_request_query_filters` | Optional. Set to `true` to enable `request_query` filters. Default: `false`. When disabled, query parameter filters will be rejected.                                                                       |
-| `allow_request_body_filters`  | Optional. Set to `true` to enable `request_body` filters for POST requests. Default: `false`. When disabled, request body filters will be rejected.                                                         |
+| `request_query_filters` | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                       |
+| `request_body_filters`  | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                         |
 | `client_timeout`              | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle. |
 | `connect_timeout`             | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                         |
 | `pool_max_idle_per_host`      | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                         |
@@ -221,15 +221,15 @@ The HTTP connector supports special metadata fields that provide fine-grained co
 For security, these metadata fields require explicit configuration to prevent unauthorized access:
 
 - `request_path` requires `allowed_request_paths` to be configured
-- `request_query` requires `allow_request_query_filters: true`
-- `request_body` requires `allow_request_body_filters: true`
+- `request_query` requires `request_query_filters: enabled`
+- `request_body` requires `request_body_filters: enabled`
   :::
 
 | Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `request_path`  | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. **Requires `allowed_request_paths` parameter.** |
-| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `allow_request_query_filters: true`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).           |
-| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `allow_request_body_filters: true`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                             |
+| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `request_query_filters: enabled`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).           |
+| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `request_body_filters: enabled`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                             |
 
 These metadata fields work in combination:
 
@@ -252,8 +252,8 @@ datasets:
     params:
       http_headers: 'Content-Type:application/json'
       allowed_request_paths: '/users,/data/upload'
-      allow_request_query_filters: true
-      allow_request_body_filters: true
+      request_query_filters: enabled
+      request_body_filters: enabled
 ```
 
 With the above configuration, you can query different endpoints by providing values for the special metadata fields:
@@ -286,7 +286,7 @@ datasets:
     params:
       http_headers: 'Accept:application/json'
       allowed_request_paths: '/search/shows,/shows,/shows/82,/shows/82/episodes'
-      allow_request_query_filters: true
+      request_query_filters: enabled
 ```
 
 Query specific API endpoints dynamically:
@@ -313,7 +313,7 @@ datasets:
     name: events
     params:
       allowed_request_paths: '/events'
-      allow_request_query_filters: true
+      request_query_filters: enabled
     acceleration:
       enabled: true
       refresh_mode: append
@@ -338,7 +338,7 @@ datasets:
     params:
       http_headers: 'Content-Type:application/json'
       allowed_request_paths: '/data'
-      allow_request_query_filters: true
+      request_query_filters: enabled
     acceleration:
       enabled: true
       refresh_mode: append
@@ -365,7 +365,7 @@ datasets:
     params:
       http_headers: 'Content-Type:application/json'
       allowed_request_paths: '/search'
-      allow_request_body_filters: true
+      request_body_filters: enabled
     acceleration:
       enabled: true
       refresh_mode: full
@@ -523,7 +523,7 @@ request_path filters are disabled for this dataset. Configure allowed_request_pa
 
 #### Request Query Limitations
 
-- **Explicit Enable Required**: The `request_query` field requires `allow_request_query_filters: true`
+- **Explicit Enable Required**: The `request_query` field requires `request_query_filters: enabled`
 - **Length Limit**: Query strings are limited to 1024 characters by default (configurable up to 4096 via `max_request_query_length`)
 - **Control Characters**: Query strings cannot contain control characters
 - **Leading Question Mark**: The connector automatically strips leading `?` if present
@@ -531,19 +531,19 @@ request_path filters are disabled for this dataset. Configure allowed_request_pa
 Example error when query filters are not enabled:
 
 ```
-request_query filters are disabled for this dataset. Enable allow_request_query_filters to use them.
+request_query filters are disabled for this dataset. Enable request_query_filters to use them.
 ```
 
 #### Request Body Limitations
 
-- **Explicit Enable Required**: The `request_body` field requires `allow_request_body_filters: true`
+- **Explicit Enable Required**: The `request_body` field requires `request_body_filters: enabled`
 - **Size Limit**: Request bodies are limited to 16 KiB (16,384 bytes) by default (configurable up to 64 KiB via `max_request_body_bytes`)
 - **POST Method**: When a `request_body` filter is present, the HTTP method automatically changes to POST
 
 Example error when body filters are not enabled:
 
 ```
-request_body filters are disabled for this dataset. Enable allow_request_body_filters to use them.
+request_body filters are disabled for this dataset. Enable request_body_filters to use them.
 ```
 
 ### Configuration Requirements
@@ -551,8 +551,8 @@ request_body filters are disabled for this dataset. Enable allow_request_body_fi
 To use the special metadata fields (`request_path`, `request_query`, `request_body`), you must:
 
 1. **For `request_path`**: Configure `allowed_request_paths` with a comma-separated list of allowed paths
-2. **For `request_query`**: Set `allow_request_query_filters: true` in params
-3. **For `request_body`**: Set `allow_request_body_filters: true` in params
+2. **For `request_query`**: Set `request_query_filters: enabled` in params
+3. **For `request_body`**: Set `request_body_filters: enabled` in params
 
 Example minimal configuration for all three fields:
 
@@ -562,8 +562,8 @@ datasets:
     name: my_api
     params:
       allowed_request_paths: '/users,/posts,/comments'
-      allow_request_query_filters: true
-      allow_request_body_filters: true
+      request_query_filters: enabled
+      request_body_filters: enabled
 ```
 
 ### Performance Considerations
