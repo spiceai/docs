@@ -2999,7 +2999,8 @@ datasets:
       enabled: true
       engine: duckdb
       mode: file
-      partition_by: bucket(100, account_id)
+      partition_by: 
+        - bucket(100, account_id)
 ```
 
 ### `truncate`
