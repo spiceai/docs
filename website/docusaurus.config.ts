@@ -31,7 +31,7 @@ const defaultPreconnectOrigin =
 
 const spiceSearchConfig: SpiceSearchThemeConfig = {
   endpoint: defaultSearchEndpoint,
-  // API key should NOT be in client config - it's handled server-side by the Cloudflare function
+  apiKey: 'dummy', // Dummy value for DocSearch validation - actual auth handled server-side by Cloudflare function
   resultTitleField: process.env.SPICE_SEARCH_TITLE_FIELD,
   resultUrlField: process.env.SPICE_SEARCH_URL_FIELD,
   resultDescriptionField: process.env.SPICE_SEARCH_DESCRIPTION_FIELD,
