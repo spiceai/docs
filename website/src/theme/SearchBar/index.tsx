@@ -1,8 +1,6 @@
 import '@docsearch/react/style'
 import './styles.css'
 
-import * as Dialog from '@radix-ui/react-dialog'
-import clsx from 'clsx'
 import Head from '@docusaurus/Head'
 import Link from '@docusaurus/Link'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
@@ -368,166 +366,227 @@ function SearchModal({
     [firstResultUrl, onClose]
   )
 
-  return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <Dialog.Portal>
-        <Dialog.Overlay className='spiceSearchOverlay' />
-        <Dialog.Content className='spiceSearchContent' aria-modal='true'>
-          <div className='spiceSearchHeader'>
-            <Dialog.Title className='spiceSearchTitle'>Search</Dialog.Title>
-            <Dialog.Close className='spiceSearchClose' aria-label='Close search'>
-              Close
-            </Dialog.Close>
-          </div>
+  if (!isOpen) {
+    return null
+  }
 
-          <form onSubmit={handleSubmit} className='spiceSearchForm'>
+  return (
+    <div className='DocSearch DocSearch-Container' role='button' tabIndex={0} onClick={onClose}>
+      <div className='DocSearch-Modal' onClick={(e) => e.stopPropagation()}>
+        <header className='DocSearch-SearchBar'>
+          <form className='DocSearch-Form' onSubmit={handleSubmit}>
+            <label className='DocSearch-MagnifierLabel' htmlFor='docsearch-input' id='docsearch-label'>
+              <svg width='20' height='20' className='DocSearch-Search-Icon' viewBox='0 0 20 20'>
+                <path
+                  d='M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z'
+                  stroke='currentColor'
+                  fill='none'
+                  fillRule='evenodd'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+            </label>
+
             <input
-              autoFocus
-              className='spiceSearchInput'
+              id='docsearch-input'
+              className='DocSearch-Input'
+              autoComplete='off'
+              autoCorrect='off'
+              autoCapitalize='off'
+              spellCheck='false'
+              placeholder={docSearchTranslations.placeholder}
+              maxLength={64}
+              type='search'
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={docSearchTranslations.placeholder}
-              type='search'
-              aria-label='Search Spice documents'
+              autoFocus
             />
+
+            <button
+              type='reset'
+              title='Clear the query'
+              className='DocSearch-Reset'
+              hidden={!query}
+              onClick={() => setQuery('')}
+            >
+              <svg width='20' height='20' viewBox='0 0 20 20'>
+                <path
+                  d='M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z'
+                  stroke='currentColor'
+                  fill='none'
+                  fillRule='evenodd'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+            </button>
           </form>
 
-          <div className='spiceSearchStatus'>
-            {status === 'loading' && <span className='spiceSearchSpinner' aria-hidden='true' />}
-            <span>{summaryText}</span>
-          </div>
+          <button className='DocSearch-Close' onClick={onClose}>
+            <svg width='20' height='20' viewBox='0 0 20 20'>
+              <path
+                d='M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z'
+                stroke='currentColor'
+                fill='none'
+                fillRule='evenodd'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              />
+            </svg>
+          </button>
+        </header>
 
-          {answer && (
-            <section className='spiceSearchAnswer' aria-live='polite'>
-              <header className='spiceSearchAnswerHeader'>
-                <span className='spiceSearchAnswerLabel'>AI answer</span>
-              </header>
-              {answer.text && (
-                <p className='spiceSearchAnswerText' data-testid='spice-search-answer'>
-                  {answer.text}
-                </p>
-              )}
-              {answer.sources.length > 0 && (
-                <div className='spiceSearchAnswerSources'>
-                  <span className='spiceSearchAnswerSourcesTitle'>Sources</span>
-                  <ul>
-                    {answer.sources.map((source, index) => {
-                      const key = `${source.url ?? source.title ?? source.dataset ?? 'source'}-${index}`
-                      const label =
-                        source.title ?? source.url ?? source.dataset ?? `Result ${index + 1}`
-                      const snippet = source.snippet?.trim()
-                      const score =
-                        typeof source.score === 'number' ? source.score.toFixed(2) : undefined
+        <div className='DocSearch-Dropdown'>
+          {!query.trim() && (
+            <div className='DocSearch-StartScreen'>
+              <p className='DocSearch-Help'>Start typing to search Spice docs and blogs.</p>
+            </div>
+          )}
 
-                      const body = (
-                        <div className='spiceSearchAnswerSourceBody'>
-                          <span className='spiceSearchAnswerSourceLabel'>{label}</span>
-                          {snippet && (
-                            <span className='spiceSearchAnswerSourceSnippet'>{snippet}</span>
-                          )}
-                          {(source.dataset || score) && (
-                            <span className='spiceSearchAnswerSourceMeta'>
-                              {source.dataset && <span>{source.dataset}</span>}
-                              {score && <span>Score {score}</span>}
-                            </span>
-                          )}
+          {status === 'error' && errorMessage && (
+            <div className='DocSearch-ErrorScreen'>
+              <p className='DocSearch-Title'>Unable to search</p>
+              <p className='DocSearch-Help'>{errorMessage}</p>
+            </div>
+          )}
+
+          {answer && query.trim() && (
+            <section className='DocSearch-Dropdown-Container' style={{ marginBottom: '1rem' }}>
+              <div className='DocSearch-Hit'>
+                <div className='DocSearch-Hit-Container' style={{ display: 'block', height: 'auto', padding: '1rem' }}>
+                  <div className='DocSearch-Hit-content-wrapper' style={{ width: '100%' }}>
+                    <div style={{ marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--docsearch-muted-color)', fontWeight: 600 }}>AI Answer</div>
+                    {answer.text && (
+                      <div className='DocSearch-Hit-title' style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', marginBottom: answer.sources.length > 0 ? '1rem' : 0 }}>
+                        {answer.text}
+                      </div>
+                    )}
+                    {answer.sources.length > 0 && (
+                      <div style={{ marginTop: '0.75rem' }}>
+                        <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--docsearch-muted-color)', marginBottom: '0.5rem', fontWeight: 500 }}>Sources</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {answer.sources.map((source, index) => {
+                            const key = `${source.url ?? source.title ?? source.dataset ?? 'source'}-${index}`
+                            const label = source.title ?? source.url ?? source.dataset ?? `Result ${index + 1}`
+                            const snippet = source.snippet?.trim()
+
+                            return (
+                              <div key={key} style={{ fontSize: '0.8rem', padding: '0.5rem', background: 'var(--docsearch-footer-background)', borderRadius: '4px' }}>
+                                {source.url ? (
+                                  <a href={source.url} target='_blank' rel='noreferrer' style={{ color: 'var(--docsearch-highlight-color)', textDecoration: 'none', fontWeight: 500 }}>
+                                    {label}
+                                  </a>
+                                ) : (
+                                  <span style={{ fontWeight: 500, color: 'var(--docsearch-text-color)' }}>{label}</span>
+                                )}
+                                {snippet && (
+                                  <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: 'var(--docsearch-muted-color)' }}>{snippet}</div>
+                                )}
+                              </div>
+                            )
+                          })}
                         </div>
-                      )
-
-                      return (
-                        <li key={key} className='spiceSearchAnswerSource'>
-                          {source.url ? (
-                            <a href={source.url} target='_blank' rel='noreferrer'>
-                              {body}
-                            </a>
-                          ) : (
-                            body
-                          )}
-                        </li>
-                      )
-                    })}
-                  </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-              {answer.followUps.length > 0 && (
-                <div className='spiceSearchAnswerFollowUps'>
-                  <span className='spiceSearchAnswerSourcesTitle'>Suggested follow-ups</span>
-                  <ul>
-                    {answer.followUps.map((suggestion) => (
-                      <li key={suggestion}>{suggestion}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              </div>
             </section>
           )}
 
-          <div className='spiceSearchResultList' role='list'>
-            {status === 'success' && results.length === 0 && (
-              <div className='spiceSearchEmpty'>No matches yet. Try refining your query.</div>
-            )}
+          {status === 'success' && results.length === 0 && query.trim() && (
+            <div className='DocSearch-NoResults'>
+              <div className='DocSearch-Screen-Icon'>
+                <svg width='40' height='40' viewBox='0 0 20 20' fill='none' fillRule='evenodd' stroke='currentColor' strokeLinecap='round' strokeLinejoin='round'>
+                  <path d='M15.5 4.8c2 3 1.7 7-1 9.7h0l4.3 4.3-4.3-4.3a7.8 7.8 0 01-9.8 1m-2.2-2.2A7.8 7.8 0 0113.2 2.4M2 18L18 2' />
+                </svg>
+              </div>
+              <p className='DocSearch-Title'>No results for <q>{query}</q></p>
+              <p className='DocSearch-Help'>Try refining your query or use different keywords.</p>
+            </div>
+          )}
 
-            {results.map((result) => {
-              const href = resolveUrl(result, config)
-              const description = resolveDescription(result, config)
-              const title = resolveTitle(result, config)
-              const content = (
-                <div className='spiceSearchResultCard'>
-                  <div className='spiceSearchResultHeading'>
-                    <span className='spiceSearchResultTitle'>{title}</span>
-                    <span className='spiceSearchResultDataset'>{result.dataset}</span>
-                  </div>
-                  {description && <p className='spiceSearchResultExcerpt'>{description}</p>}
-                  <div className='spiceSearchResultMeta'>
-                    <span>Score {result.score.toFixed(2)}</span>
-                  </div>
-                </div>
-              )
+          {status === 'success' && results.length > 0 && (
+            <div className='DocSearch-Dropdown-Container'>
+              <section className='DocSearch-Hits'>
+                <div className='DocSearch-Hit-source'>Search Results</div>
+                <ul role='listbox'>
+                  {results.map((result, index) => {
+                    const href = resolveUrl(result, config)
+                    const description = resolveDescription(result, config)
+                    const title = resolveTitle(result, config)
 
-              if (href) {
-                const isExternal = /^https?:\/\//i.test(href)
-                return isExternal ? (
-                  <a
-                    key={`${result.dataset}-${result.score}-${href}`}
-                    href={href}
-                    target='_blank'
-                    rel='noreferrer'
-                    className='spiceSearchResultLink'
-                    role='listitem'
-                  >
-                    {content}
-                  </a>
-                ) : (
-                  <Link
-                    key={`${result.dataset}-${result.score}-${href}`}
-                    to={href}
-                    className='spiceSearchResultLink'
-                    role='listitem'
-                    onClick={onClose}
-                  >
-                    {content}
-                  </Link>
-                )
-              }
+                    const hitContent = (
+                      <>
+                        <div className='DocSearch-Hit-icon'>
+                          <svg width='20' height='20' viewBox='0 0 20 20'>
+                            <path
+                              d='M17 5H3h14zm0 5H3h14zm0 5H3h14z'
+                              stroke='currentColor'
+                              fill='none'
+                              fillRule='evenodd'
+                              strokeLinejoin='round'
+                            />
+                          </svg>
+                        </div>
+                        <div className='DocSearch-Hit-content-wrapper'>
+                          <span className='DocSearch-Hit-title'>{title}</span>
+                          {description && (
+                            <span className='DocSearch-Hit-path'>{description}</span>
+                          )}
+                        </div>
+                        <div className='DocSearch-Hit-action'>
+                          <svg className='DocSearch-Hit-Select-Icon' width='20' height='20' viewBox='0 0 20 20'>
+                            <g stroke='currentColor' fill='none' fillRule='evenodd' strokeLinecap='round' strokeLinejoin='round'>
+                              <path d='M18 3v4c0 2-2 4-4 4H2' />
+                              <path d='M8 17l-6-6 6-6' />
+                            </g>
+                          </svg>
+                        </div>
+                      </>
+                    )
 
-              return (
-                <div
-                  key={`${result.dataset}-${result.score}-static`}
-                  className={clsx('spiceSearchResultLink', 'spiceSearchResultLink--disabled')}
-                  role='listitem'
-                >
-                  {content}
-                </div>
-              )
-            })}
+                    const key = `${result.dataset}-${result.score}-${index}`
+
+                    if (href) {
+                      const isExternal = /^https?:\/\//i.test(href)
+                      return (
+                        <li key={key} className='DocSearch-Hit' role='option'>
+                          {isExternal ? (
+                            <a href={href} target='_blank' rel='noreferrer' onClick={onClose}>
+                              <div className='DocSearch-Hit-Container'>{hitContent}</div>
+                            </a>
+                          ) : (
+                            <Link to={href} onClick={onClose}>
+                              <div className='DocSearch-Hit-Container'>{hitContent}</div>
+                            </Link>
+                          )}
+                        </li>
+                      )
+                    }
+
+                    return (
+                      <li key={key} className='DocSearch-Hit' role='option'>
+                        <div style={{ opacity: 0.6, cursor: 'default' }}>
+                          <div className='DocSearch-Hit-Container'>{hitContent}</div>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            </div>
+          )}
+        </div>
+
+        <footer className='DocSearch-Footer'>
+          <div className='DocSearch-Logo'>
+            <span style={{ fontSize: '0.85rem', color: 'var(--docsearch-muted-color)' }}>Powered by Spice Search</span>
           </div>
-
-          <footer className='spiceSearchFooter'>
-            Powered by <span>Spice Search</span>
-          </footer>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </footer>
+      </div>
+    </div>
   )
 }
 
