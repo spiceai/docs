@@ -100,6 +100,7 @@ In addition to the common cache configuration parameters, `sql_results` also sup
 | ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
 | `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 :::info
 
