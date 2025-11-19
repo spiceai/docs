@@ -32,7 +32,7 @@ Cluster deployment typically starts with a scheduler instance, followed by one o
 
 ### Start the Scheduler
 
-The scheduler is the only `spiced` process that needs to be configured. Override the Flight bind address when it must be reachable outside of `localhost`:
+The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`:
 
 ```bash
 # Start scheduler
@@ -41,7 +41,7 @@ spiced --cluster-mode scheduler --flight 0.0.0.0:50051
 
 ### Start Executors
 
-Executors need the scheduler's Flight URI to register and pull work. Each executor automatically selects a free port if the default is unavailable:
+Executors need the scheduler's Flight URI to register and pull work. The executors do not require a `spicepod.yaml` to be present, it will fetch the configuration from the coordinator. Each executor automatically selects a free port if the default is unavailable:
 
 ```bash
 # Start executor
