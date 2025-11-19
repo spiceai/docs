@@ -35,24 +35,41 @@ runtime:
 
 ## `caching` Parameters
 
-| Parameter name   | Optional | Description                                                                    |
-| ---------------- | -------- | ------------------------------------------------------------------------------ |
+| Parameter name   | Optional | Description                                                                                                                                                                  |
+| ---------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sql_results`    | Yes      | Enabled by default. Configures the Runtime cache for results from SQL queries. See the [SQL Results Parameters](#cachingsql_results-parameters) for cache parameter details. |
-| `search_results` | Yes      | Enabled by default. Configures the Runtime cache for results from searches. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
-| `embeddings`     | Yes      | Enabled by default. Configures the Runtime cache for embeddings requests. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details. |
+| `search_results` | Yes      | Enabled by default. Configures the Runtime cache for results from searches. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details.     |
+| `embeddings`     | Yes      | Enabled by default. Configures the Runtime cache for embeddings requests. See the [Common Caching Parameters](#common-caching-parameters) for cache parameter details.       |
 
 ## Common Caching Parameters
 
 Every cache type (`sql_results`, `search_results`, `embeddings`) supports the following parameters:
 
-| Parameter name               | Optional | Default   | Description                                                                                                                                    |
-| ---------------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`                    | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
-| `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
-| `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
+| Parameter name               | Optional | Default   | Description                                                                                                                                                                                                           |
+| ---------------------------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                    | Yes      | `true`    | Defaults to `true`.                                                                                                                                                                                                   |
+| `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                             |
+| `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                                           |
+| `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                                 |
 | `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
-| `hashing_algorithm`          | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`. |
+| `hashing_algorithm`          | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`.                                                                        |
+| `encoding`                   | Yes      | `none`    | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
+
+## `caching.sql_results` Parameters
+
+In addition to the common caching parameters, `sql_results` also supports additional parameters:
+
+| Parameter name   | Optional | Default | Description                                                                                                                                   |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+
+### Choosing a `cache_key_type`
+
+- **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
+- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
+
+Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
 
 ## Choosing a `hashing_algorithm`
 
@@ -63,20 +80,14 @@ The hashing algorithm determines how cache keys are hashed before being stored, 
 
 Consider using `ahash` if maximum performance is most important, or where hashing DoS attacks are unlikely or a low risk. More information on the security mechanisms of AHash are available [in the AHash documentation](https://github.com/tkaitchuck/aHash/wiki/How-aHash-is-resists-DOS-attacks).
 
-## `caching.sql_results` Parameters
+### Choosing an `encoding`
 
-In addition to the common caching parameters, `sql_results` also supports additional parameters:
+The encoding algorithm determines how cached results are compressed in memory, trading CPU for memory efficiency.
 
-| Parameter name   | Optional | Description                                                                                                                                   |
-| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+- **`none` (Default):** Stores query results uncompressed. Uses more memory but has zero compression overhead. Best for small result sets or when memory is not a constraint.
+- **`zstd`:** Uses the [Zstandard compression algorithm](https://facebook.github.io/zstd/) to compress cached query results. Provides high compression ratios (often 50-90% reduction) with fast decompression speeds. Recommended when caching large result sets to maximize cache capacity.
 
-### Choosing a `cache_key_type`
-
-- **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
-- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
-
-Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
+Use `zstd` when maximizing cache efficiency is important, especially for large queries that would otherwise quickly fill the cache. Use `none` for the lowest latency when memory is not constrained.
 
 ## Cached Responses
 
@@ -89,13 +100,13 @@ Responses from HTTP APIs include a header that indicates the cache status of the
 
 The value of the header indicates the status of the cache:
 
-| Header value         | Description                                                                                        |
-| -------------------- | -------------------------------------------------------------------------------------------------- |
-| `HIT`                | The query result was served from the cache.                                                        |
-| `MISS`               | The cache was checked, but the result was not found.                                               |
-| `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).         |
+| Header value         | Description                                                                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `HIT`                | The query result was served from the cache.                                                                                              |
+| `MISS`               | The cache was checked, but the result was not found.                                                                                     |
+| `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
 | `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
-| _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table). |
+| _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table).                                       |
 
 ### Examples
 
@@ -175,6 +186,7 @@ runtime:
 ```
 
 With this configuration:
+
 - Fresh cache entries are served for 10 seconds after creation.
 - Between 10-20 seconds after creation, stale entries are served while being refreshed in the background.
 - After 20 seconds, the entry is evicted if not refreshed.
@@ -190,12 +202,12 @@ The following endpoints support the standard HTTP [`Cache-Control` header](https
 
 The following `Cache-Control` directives are supported:
 
-| Directive | Description |
-| --------- | ----------- |
-| [`no-cache`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache) | Skips the cache for the current request but caches the results for future requests. |
-| [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh) | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds. |
-| [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale) | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness allowed. For example, `max-stale=30` accepts responses stale for up to 30 seconds. |
-| [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data. |
+| Directive                                                                                                  | Description                                                                                                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`no-cache`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache)             | Skips the cache for the current request but caches the results for future requests.                                                                                                                                                                |
+| [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds.                                                                  |
+| [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness allowed. For example, `max-stale=30` accepts responses stale for up to 30 seconds.                                                 |
+| [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data.                                                                                                                                |
 | [`stale-if-error`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#stale-if-error) | Serves stale cached responses if an error occurs while fetching fresh data. An optional value in seconds specifies how stale the response can be. For example, `stale-if-error=600` serves responses stale for up to 10 minutes if fetching fails. |
 
 #### HTTP Example
@@ -286,7 +298,6 @@ Set the `Spice-Cache-Key` header to supply a custom cache key. When set, a suppl
 A valid cache key consists of up to 128 alphanumeric characters (and the characters `-` and `_`).
 :::
 
-
 ### HTTP Example
 
 Consider the case of two semantically equivalent queries:
@@ -357,4 +368,54 @@ date: Thu, 24 Jul 2025 14:21:32 GMT
 
 [{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
 ```
+
 :::
+
+## Metrics
+
+Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](/docs/features/observability/index.md). The following metrics are available for each cache type:
+
+| Metric                   | Type    | Description                                                |
+| ------------------------ | ------- | ---------------------------------------------------------- |
+| `*_cache_max_size_bytes` | Gauge   | Maximum configured cache size in bytes.                    |
+| `*_cache_requests`       | Counter | Total number of cache lookup requests.                     |
+| `*_cache_hits`           | Counter | Total number of cache hits.                                |
+| `*_cache_items_count`    | Gauge   | Current number of items in the cache.                      |
+| `*_cache_size_bytes`     | Gauge   | Current cache size in bytes.                               |
+| `*_cache_evictions`      | Counter | Total number of cache evictions due to size or TTL limits. |
+| `*_cache_hit_ratio`      | Gauge   | Current cache hit ratio (hits / total requests).           |
+
+The `*` prefix corresponds to the cache type:
+
+- `results_*` - SQL query results cache metrics
+- `search_results_*` - Search results cache metrics
+- `embeddings_*` - Embeddings cache metrics
+
+Example metrics output:
+
+```
+# HELP results_cache_evictions Number of cache evictions.
+# TYPE results_cache_evictions counter
+results_cache_evictions 2
+# HELP results_cache_hit_ratio Cache hit ratio (hits / total requests).
+# TYPE results_cache_hit_ratio gauge
+results_cache_hit_ratio 0.625
+# HELP results_cache_hits Cache hit count.
+# TYPE results_cache_hits counter
+results_cache_hits 14
+# HELP results_cache_items_count Number of items currently in the cache.
+# TYPE results_cache_items_count gauge
+results_cache_items_count 1
+# HELP results_cache_max_size_bytes Maximum allowed size of the cache in bytes.
+# TYPE results_cache_max_size_bytes gauge
+results_cache_max_size_bytes 134217728
+# HELP results_cache_misses Cache miss count.
+# TYPE results_cache_misses counter
+results_cache_misses 4
+# HELP results_cache_requests Number of requests to get a key from the cache.
+# TYPE results_cache_requests counter
+results_cache_requests 18
+# HELP results_cache_size_bytes Size of the cache in bytes.
+# TYPE results_cache_size_bytes gauge
+results_cache_size_bytes 7776
+```
