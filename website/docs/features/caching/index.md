@@ -51,9 +51,7 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                             |
 | `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                                           |
 | `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                                 |
-| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 | `hashing_algorithm`          | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`.                                                                        |
-| `encoding`                   | Yes      | `none`    | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
 
 ## `caching.sql_results` Parameters
 
@@ -61,8 +59,9 @@ In addition to the common caching parameters, `sql_results` also supports additi
 
 | Parameter name   | Optional | Default | Description                                                                                                                                   |
 | ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
-| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 ### Choosing a `cache_key_type`
 
