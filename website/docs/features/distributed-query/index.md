@@ -9,7 +9,7 @@ pagination_next: null
 
 Learn how to configure and run Spice in distributed mode to handle larger scale queries across multiple nodes.
 
-:::note Preview
+:::info Preview
 Multi-node distributed query execution based on Apache Ballista is available as a preview feature in Spice `v1.9.0`.
 :::
 
@@ -21,7 +21,7 @@ Spice integrates with [Apache Ballista](https://github.com/apache/datafusion-bal
 
 A distributed Spice cluster consists of two components:
 
-- **Scheduler** – Plans distributed queries and manages the work queue for the executor fleet.
+- **Scheduler** – Plans distributed queries and manages the work queue for the executor fleet. Single instance per cluster.
 - **Executors** – One or more nodes responsible for executing physical query plans.
 
 The scheduler holds the cluster-wide configuration for a Spicepod, while executors connect to the scheduler to receive work.
@@ -56,9 +56,7 @@ Queries run against the scheduler endpoint. The `EXPLAIN` output confirms that d
 EXPLAIN SELECT count(id) FROM my_dataset;
 ```
 
-## Current Limitations
-
-:::note[Warning]
+:::warning[Limitations]
 
 - Accelerated datasets are not yet supported; distributed query currently targets partitioned data lake sources.
 - As a preview feature, clusters may encounter stability or performance issues.
