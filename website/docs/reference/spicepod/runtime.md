@@ -96,9 +96,11 @@ runtime:
 
 In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
 
-| Parameter name   | Optional | Description                                                                                                                                   |
-| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| Parameter name   | Optional | Default | Description                                                                                                                                   |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 :::info
 
@@ -284,6 +286,7 @@ For detailed memory information, see [Memory](/docs/reference/memory.md).
 The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.
 
 **Supported values:**
+
 - `zstd` (default): Enables high compression ratios for spill files, reducing disk usage but with moderate (de)compression speed.
 - `lz4_frame`: Provides faster (de)compression, resulting in larger spill files and potentially higher disk usage.
 - `uncompressed`: Disables compression. Spill files will be the largest, but with no (de)compression overhead.
@@ -293,6 +296,7 @@ runtime:
   query:
     spill_compression: lz4_frame
 ```
+
 This option allows you to balance disk space usage and query performance for large-scale analytics workloads.
 
 ## `runtime.query.temp_directory`

@@ -2,7 +2,7 @@
 title: 'Observability & Monitoring'
 sidebar_label: 'Observability'
 description: 'Learn how to use Spice telemetry.'
-sidebar_position: 10
+sidebar_position: 12
 pagination_prev: null
 pagination_next: null
 ---
