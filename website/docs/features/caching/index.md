@@ -62,7 +62,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 | Parameter name   | Optional | Default | Description                                                                                                                                   |
 | ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
-| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `encoding`       | Yes      | `none`  | Compression algorithm for cached results (Only supported for SQL results). Defaults to `none`. Supports `none` or `zstd`.                     |
 
 ### Choosing a `cache_key_type`
 
@@ -82,7 +82,7 @@ Consider using `ahash` if maximum performance is most important, or where hashin
 
 ### Choosing an `encoding`
 
-The encoding algorithm determines how cached results are compressed in memory, trading CPU for memory efficiency.
+The encoding algorithm determines how cached results are compressed in memory, trading CPU for memory efficiency. Currrently supported for SQL results only.
 
 - **`none` (Default):** Stores query results uncompressed. Uses more memory but has zero compression overhead. Best for small result sets or when memory is not a constraint.
 - **`zstd`:** Uses the [Zstandard compression algorithm](https://facebook.github.io/zstd/) to compress cached query results. Provides high compression ratios (often 50-90% reduction) with fast decompression speeds. Recommended when caching large result sets to maximize cache capacity.
