@@ -15,7 +15,7 @@ Multi-node distributed query execution based on Apache Ballista is available as 
 
 ## Overview
 
-Spice integrates with [Apache Ballista](https://github.com/apache/datafusion-ballista) to schedule and coordinate distributed queries across multiple executor nodes. This integration enables distributed execution when running large queries over partitioned data lake formats such as Parquet, Delta Lake, or Iceberg.
+Spice integrates [Apache Ballista](https://github.com/apache/datafusion-ballista) to schedule and coordinate distributed queries across multiple executor nodes. This integration enables distributed execution when running large queries over partitioned data lake formats such as Parquet, Delta Lake, or Iceberg.
 
 ## Architecture
 
