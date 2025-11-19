@@ -2,7 +2,7 @@
 title: 'Large Language Models'
 sidebar_label: 'Large Language Models'
 description: 'Learn how to configure large language models (LLMs)'
-sidebar_position: 5
+sidebar_position: 7
 pagination_prev: null
 pagination_next: null
 tags:
