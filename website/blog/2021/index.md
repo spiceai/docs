@@ -15,7 +15,7 @@ Today, we are making [Spice.ai](https://spiceai.org/) available on GitHub, a new
 
 ![](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/7616136d-c018-494a-dfc8-402493ef0800/public)
 
-*Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands*
+_Figure 1. Adding a Spice.ai pod, training and getting a recommendation in three commands_
 
 Like many developer stories, it all started with a side-project. We were interested in [neurofeedback](https://en.wikipedia.org/wiki/Neurofeedback), a type of biofeedback therapy that reinforces healthy brain function but can cost up to $15,000. We wanted to make it accessible to more people, so we set out to build a system that leverages AI to deliver neurofeedback more cost-effectively. Using AI for the application was much more challenging than expected, and this sparked the inspiration for Spice.ai.
 
@@ -45,7 +45,7 @@ Building intelligent apps that leverage AI is still way too hard, even for advan
 
 This mission is a huge undertaking and Spice.ai v0.1-alpha has many gaps, including limited deep learning algorithms and training scale, streaming data, simulated environments, and offline learning modes. Pods aren't searchable or even listed on [spicerack.org](http://spicerack.org) yet. But if the vision resonates with you, join us! Our [Spice.ai Roadmap](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md) is public, and now that we have launched, the project and work are open for collaboration.
 
-If you are interested in partnering, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Discord](https://discord.com/channels/803820740868571196/803820740868571199), or reach out on [Twitter](https://twitter.com/0xlukekim).
+If you are interested in partnering, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Slack](https://spiceai.org/slack), or reach out on [Twitter](https://twitter.com/0xlukekim).
 
 We are just getting started! 🚀
 

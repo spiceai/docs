@@ -50,9 +50,10 @@ With the advent of modern deep-learning techniques and the ability to access sig
 
 A new class of applications that can learn and adapt are made possible by integrating AI-powered decision engines. Spice.ai is a decision engine that makes it easy for developers to build these applications.
 
-If you'd like to partner with us in creating this new generation of intelligent decision-making applications, we invite you to join us on [Discord](https://discord.gg/kZnTfneP5u), reach out on [Twitter](https://twitter.com/spice_ai) or [email](mailto:hey@spice.ai) us.
+If you'd like to partner with us in creating this new generation of intelligent decision-making applications, we invite you to join us on [Slack](https://spiceai.org/slack), reach out on [Twitter](https://twitter.com/spice_ai) or [email](mailto:hey@spice.ai) us.
 
 Phillip
 
 [^1]: Russell, Stuart; Norvig, Peter (1995). [Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu/). Simon & Schuster. pp. 22–23. ISBN 978-0-13-103805-9.
+
 [^2]: Kendal, S. L., & Creen, M. (2007). [An introduction to knowledge engineering](https://www.worldcat.org/title/introduction-to-knowledge-engineering/oclc/70987401). London: Springer. ISBN 978-1-84628-475-5
