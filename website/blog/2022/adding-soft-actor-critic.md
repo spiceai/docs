@@ -75,7 +75,7 @@ For the new agent, inheriting from the main `SpiceAIAgent` class, 5 functions ne
 
 ## Conclusion
 
-Soft Actor-Critic is a fascinating algorithm that performs well in complex environments. We now [support Soft Actor Critic](../releases/v0.5-alpha.md) in Spice.ai, which is another step forward in constantly improving the performance of the AI engine. Additionally, we'll continue improving existing algorithms and adding newer ones over time. We designed the platform for ease of implementation and experimentation so if you'd like to try building your own agent, you can get the source code on [Github](https://github.com/spiceai/spiceai) and contribute to the platform. Say hi on [Discord](https://discord.gg/kZnTfneP5u), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
+Soft Actor-Critic is a fascinating algorithm that performs well in complex environments. We now [support Soft Actor Critic](../releases/v0.5-alpha.md) in Spice.ai, which is another step forward in constantly improving the performance of the AI engine. Additionally, we'll continue improving existing algorithms and adding newer ones over time. We designed the platform for ease of implementation and experimentation so if you'd like to try building your own agent, you can get the source code on [Github](https://github.com/spiceai/spiceai) and contribute to the platform. Say hi on [Slack](https://spiceai.org/slack), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
 
 I hope you enjoy this post and something new.
 

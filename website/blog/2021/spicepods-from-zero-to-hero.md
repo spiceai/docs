@@ -127,7 +127,7 @@ Building intelligent apps that leverage AI is still way too hard, even for advan
 
 Our [Spice.ai Roadmap](https://github.com/spiceai/spiceai/blob/trunk/docs/ROADMAP.md) is public, and now that we have launched, the project and work are open for collaboration.
 
-If you are interested in partnering, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Discord](https://discord.gg/kZnTfneP5u), or reach out on [Twitter](https://twitter.com/spice_ai).
+If you are interested in partnering, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Slack](https://spiceai.org/slack), or reach out on [Twitter](https://twitter.com/spice_ai).
 
 We are just getting started! 🚀
 

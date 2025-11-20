@@ -19,37 +19,39 @@ Reinforcement learning's reward is often provided from a simple function that ca
 Those questions are already mostly answered, and many algorithms deal with those topics. Our journey here will be to understand how we tackle those questions and end up with a beautiful formula that is at the core of modern approaches of RL:
 
 <!-- Equation 1 -->
+
 ![](/svg/q_learning/q_formula.svg)
-*Equation 1. Q estimation at the heart of many RL algorithm, also known as the Bellman equation.*
+_Equation 1. Q estimation at the heart of many RL algorithm, also known as the Bellman equation._
 
 ## Q-learning
 
 The vast majority, if not all, of modern RL algorithms are based on the principles of Q-learning: the idea is to evaluate a 'reward expectation' for each possible action. If we can have a good evaluation, we could maximize the reward by choosing actions with the maximum evaluated rewards. The function giving this expected reward is named Q. For now, we will assume we can have a reward for any action.
 
 <!-- Equation 2 -->
+
 ![](/svg/q_learning/q_function.svg)
-*Equation 2. Definition of the Q function.*
+_Equation 2. Definition of the Q function._
 
 The `t` indices show that the state and action aren't constant and will vary, usually with time/action taken. On the other hand, the `Q` function and the reward function `r` are unique functions that ideally return the 'expected reward' for any (state, action) pairs.
 
 For now, we will assume we can have a reward that gives an objective and perfect evaluation of each state/action.
 
 ![](https://user-images.githubusercontent.com/19952490/145569847-4be91c13-3ffb-4ad8-83c4-fb841e9d2c96.png)
-*Figure 1. Example of reward given for different actions at a specific state. Here a simple 2D map with a goal.*
+_Figure 1. Example of reward given for different actions at a specific state. Here a simple 2D map with a goal._
 
 ### Q-Table
 
 We know that actions' outcomes (rewards) will vary depending on the current state we are in, otherwise the problem would be trivial to solve. If the states that are relevant to our actions can be numbered, a simple way would be to build a table with all the possible states/action pairs. There are different ways to build such a table depending on how we can interact with our environment. Eventually, we would have a good 'map' to guide us to do the best actions.
 
 ![](https://user-images.githubusercontent.com/19952490/145569842-298103e3-e7ed-412f-8229-66c745d29807.png)
-*Figure 2. Example of Q-table: we can build an exhaustive table for all the possible (state, action) pairs*
+_Figure 2. Example of Q-table: we can build an exhaustive table for all the possible (state, action) pairs_
 
 ### Deep Q-Learning
 
 When the number of variables of the environment relevant to our actions/rewards becomes too large, the number of possible states grows quickly. It doesn't take a lot of possible parameters to make the Q-table approach unfeasible. Neural networks are known to work very nicely and efficiently in high dimensionality (with many input variables). They also generalize well, so the idea in Deep Q-Learning is to use a neural network to predict the different Q values for each action given a state.
 
 ![](https://user-images.githubusercontent.com/19952490/145569840-369d4eb0-48c6-44d8-bc5e-bfabdd7713a4.png)
-*Figure 3. A neural network can predict Q values from state information*
+_Figure 3. A neural network can predict Q values from state information_
 
 In this case, we do not need to give the state/action pairs but only the state, as the neural network would exhaustively return all the Q values associated with each action. Outputting all actions' Q value is a common method as the general cases have a complex environment but a smaller number of possible actions.
 
@@ -64,12 +66,12 @@ TD-learning is a clever way to account for potential future value without knowin
 We can, for instance, sum all the future rewards:
 
 ![](https://user-images.githubusercontent.com/19952490/145569849-f528b7df-a240-41d6-b850-fde58334cac5.png)
-*Figure 4. Cumulating future rewards to assign values to each state.*
+_Figure 4. Cumulating future rewards to assign values to each state._
 
 Mathematically this can be written as:
 
 ![](/svg/q_learning/value_naive_function.svg)
-*Equation 3.*
+_Equation 3._
 
 This is named TD(0): the simplest form of TD method, accumulating all the rewards.
 
@@ -80,29 +82,29 @@ We could try different trajectories (sequence of actions) and retrospectively ge
 If a state can have different branches, we can select the best one, and this would be our policy, the way we choose actions. This simple form of taking the maximum is called the 'greedy' policy.
 
 ![](https://user-images.githubusercontent.com/19952490/145569828-f9505a88-1556-4c88-ba43-834daa60e594.png)
-*Figure 5. With a greedy policy the associated values to state come from the maximum value of the next state. Here despite the lower branch giving only half the top reward directly the overall value is greater.*
+_Figure 5. With a greedy policy the associated values to state come from the maximum value of the next state. Here despite the lower branch giving only half the top reward directly the overall value is greater._
 
 This can be written down as:
 
 ![](/svg/q_learning/value_policy_function.svg)
-*Equation 4.*
+_Equation 4._
 
 The expected value notation is defined as:
 
 ![](/svg/q_learning/expected_value.svg)
-*Equation 5.*
+_Equation 5._
 
 For a greedy policy the probabilities `p` would all be set to 0 but the one associated with the highest return to 1 (in case of equality between n actions, we would attribute '1/n' as probabilities to get the same expected value).
 
 ![](/svg/q_learning/expected_greedy_value.svg)
-*Equation 6.*
+_Equation 6._
 
 ### Relation with Q function
 
 The expected reward can be replaced by the Q function we used earlier, which now can be denominated to be specific to our chosen policy (named π):
 
 ![](/svg/q_learning/value_q_relation.svg)
-*Equation 7.*
+_Equation 7._
 
 ### TD-0
 
@@ -111,22 +113,22 @@ We previously discussed the problem of not being able to go through all the stat
 The TD(0) method is elegant as we can, in fact, only use the next state's expected value instead of all future ones. The idea is that with successive evaluations, we build a chain of dependencies as each states' value depends on the next one.
 
 ![](/svg/q_learning/td_0_value.svg)
-*Equation 8.*
+_Equation 8._
 
 ![](https://user-images.githubusercontent.com/19952490/145569853-335f65d9-aa16-44c6-9e97-287db5862628.png)
-*Figure 6. Iterative propagation of state values following TD(0) method.*
+_Figure 6. Iterative propagation of state values following TD(0) method._
 
 We can see that the greedy policy would work even with null rewards in the trajectory. We can explicit our greedy policy, going back to use Q value instead of the state value V:
 
 ![](/svg/q_learning/td_0_q.svg)
-*Equation 9.*
+_Equation 9._
 
 ### TD-lambda
 
 We need to fix a problem: if a trajectory grows too long or never ends, a state value can potentially grow indefinitely. To counter that, we can add a **discount factor** (originally named lambda, usually refer as gamma in Q-learning) for the next state's value:
 
 ![](/svg/q_learning/td_lambda_q.svg)
-*Equation 10.*
+_Equation 10._
 
 Notice that we simplify the reward notation for clarity.
 
@@ -135,14 +137,14 @@ To avoid exploding values, this discount has to be between 0 and 1 (strictly bel
 The sparsity of rewards is also solved: giving only a positive reward after many non-rewarding steps will create smooth values for the intermediate states. Any reward, positive or negative, will diffuse its value to the neighbor states.
 
 ![](https://user-images.githubusercontent.com/19952490/145569835-ff21b42f-21d0-4eb3-a451-9b9aa5a76f78.png)
-*Figure 7. The TD(0) value propagation can allow for a smooth value distribution over the state that will help building efficient behaviour.*
+_Figure 7. The TD(0) value propagation can allow for a smooth value distribution over the state that will help building efficient behaviour._
 
 ## Q-Learning algorithm
 
 Finally, as we train a neural network to estimate the Q function, we need to update its target with successive iteration. We cannot fully trust the estimator (a neural network here) to give the correct value, so we introduce a learning rate to update the target smoothly.
 
 ![](/svg/q_learning/final_formula.svg)
-*Equation 11. Fully explained Bellman equation.*
+_Equation 11. Fully explained Bellman equation._
 
 That is it! We now understand all the parts of this formula. Over multiple training steps with different sates, the training should find a good average Q function. While training, the estimator uses its own output to train itself (commonly referred to as bootstrapping): it is like it is chasing itself. Bootstrapping can lead to instability in the training process. There are many additional methods to help against such instability.
 
@@ -160,7 +162,7 @@ We can see how our rewards are used to train AI's policies using Q-learning. By 
 
 We didn't see how the AI's algorithm can explore different actions given an environment here. Spice.ai's technology focuses exclusively on off-policy training where we only have past data and cannot interact with the environment. RL is a vast topic and currently quickly growing. Robotics is a fantastic field of application; many other areas are yet to be explored with such a technology. We hope to push forward the technology and its field of application with our platform.
 
-If you'd like to partner with us on the mission of making new applications by leveraging RL, we invite you to discuss with us on [Discord](https://discord.gg/kZnTfneP5u), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
+If you'd like to partner with us on the mission of making new applications by leveraging RL, we invite you to discuss with us on [Slack](https://spiceai.org/slack), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
 
 I hope you enjoy this post and learn new things.
 

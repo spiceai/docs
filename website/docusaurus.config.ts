@@ -99,7 +99,8 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.9.0">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0</a> is now available! 🌶',
+      content:
+        '<a href="/blog/releases/v1.9.0">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0</a> is now available! 🌶',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -138,8 +139,8 @@ const config: Config = {
           position: 'right'
         },
         {
-          label: 'Discord',
-          href: 'https://discord.gg/kZnTfneP5u',
+          label: 'Slack',
+          href: 'https://spiceai.org/slack',
           position: 'right'
         },
         {
@@ -187,8 +188,8 @@ const config: Config = {
               href: 'https://reddit.com/r/spiceai'
             },
             {
-              label: 'Discord',
-              href: 'https://discord.gg/kZnTfneP5u'
+              label: 'Slack',
+              href: 'https://spiceai.org/slack'
             },
             {
               label: 'X',
