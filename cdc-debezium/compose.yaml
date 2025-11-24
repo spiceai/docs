@@ -82,7 +82,8 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - redpanda-kafka-0
+      redpanda-kafka-0:
+        condition: service_healthy
   debezium:
     image: debezium/connect:2.7.3.Final
     container_name: debezium
@@ -91,6 +92,10 @@ services:
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: connect_configs
       OFFSET_STORAGE_TOPIC: connect_offsets
-    depends_on: [postgres, redpanda-kafka-0]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda-kafka-0:
+        condition: service_healthy
     ports:
       - 8083:8083
