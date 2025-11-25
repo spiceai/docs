@@ -227,6 +227,109 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 :::
 
+## Data Types
+
+The table below shows the DynamoDB data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| DynamoDB Type | Description | Arrow Type                           | Notes                                                                                                                               |
+|---------------|-------------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `Bool`        | Boolean     | `Boolean`                            |                                                                                                                                     |
+| `S`           | String      | `Utf8`                               |                                                                                                                                     |
+| `S`           | String      | `Timestamp(Millisecond)`             | Naive timestamp if it matches `time_format` without timezone                                                                        |
+| `S`           | String      | `Timestamp(Millisecond, <timezone>)` | Timezone-aware timestamp if it matches `time_format` with timezone                                                                  |
+| `Ss`          | String Set  | `List<Utf8>`                         |                                                                                                                                     |
+| `N`           | Number      | `Int64` \| `Float64`                 |                                                                                                                                     |
+| `Ns`          | Number Set  | `List<Int64\|Float64>`               |                                                                                                                                     |
+| `B`           | Binary      | `Binary`                             |                                                                                                                                     |
+| `Bs`          | Binary Set  | `List<Binary>`                       |                                                                                                                                     |
+| `L`           | List        | `List<Utf8>`                         | DynamoDB arrays can be heterogeneous e.g. `[1, "foo", true]`, Arrow arrays must be homogeneous - use strings to preserve all data   |
+| `M`           | Map         | `Utf8` or Unflattened                | Depending on `unnest_depth` value                                                                                                   |
+
+## Time format
+
+Since DynamoDB stores timestamps as strings, Spice supports parsing timestamps using a customizable format. By default, Spice will try to parse timestamps using ISO8601 format, but you can provide a custom format using the `time_format` parameter.
+
+Once Spice is able to parse a timestamp, it will convert it to a `Timestamp(Millisecond)` Arrow type, and will use the same format to serialize it back to DynamoDB for filter pushdown.
+
+This parameter uses Go-style time formatting, which uses a reference time of `Mon Jan 2 15:04:05 MST 2006`.
+
+| Format Pattern                  | Example Value                   | Description                                |
+|---------------------------------|---------------------------------|--------------------------------------------|
+| `2006-01-02T15:04:05Z07:00`     | `2024-03-15T14:30:00Z`          | ISO8601 / RFC3339 with timezone (default)  |
+| `2006-01-02T15:04:05.999Z07:00` | `2024-03-15T14:30:00.123-07:00` | ISO8601 with milliseconds and timezone     |
+| `2006-01-02T15:04:05`           | `2024-03-15T14:30:00`           | ISO8601 without timezone (naive timestamp) |
+| `2006-01-02 15:04:05`           | `2024-03-15 14:30:00`           | Date and time with space separator         |
+| `01/02/2006 15:04:05`           | `03/15/2024 14:30:00`           | US-style date with time                    |
+| `02/01/2006 15:04:05`           | `15/03/2024 14:30:00`           | European-style date with time              |
+| `Jan 2, 2006 3:04:05 PM`        | `Mar 15, 2024 2:30:00 PM`       | Human-readable with 12-hour clock          |
+| `20060102150405`                | `20240315143000`                | Compact format (no separators)             |
+
+Go's format uses specific reference values that must appear exactly as shown:
+
+| Component    | Reference Value | Alternatives                          |
+|--------------|-----------------|---------------------------------------|
+| Year         | `2006`          | `06` (2-digit)                        |
+| Month        | `01`            | `1`, `Jan`, `January`                 |
+| Day          | `02`            | `2`                                   |
+| Hour (24h)   | `15`            | —                                     |
+| Hour (12h)   | `03`            | `3`                                   |
+| Minute       | `04`            | `4`                                   |
+| Second       | `05`            | `5`                                   |
+| AM/PM        | `PM`            | `pm`                                  |
+| Timezone     | `Z07:00`        | `-0700`, `MST`                        |
+| Milliseconds | `.000`          | `.999` (trailing zeros trimmed)       |
+| Microseconds | `.000000`       | `.999999` (trailing zeros trimmed)    |
+| Nanoseconds  | `.000000000`    | `.999999999` (trailing zeros trimmed) |
+
+:::
+
+## Unnesting
+
+Consider the following document:
+```json
+{
+  "a": 1,
+  "b": {
+    "x": 2,
+    "y": {
+      "z": 3
+    }
+  }
+}
+```
+
+Using `unnest_depth` you can control the unnesting behavior. Here are the examples:
+
+### unnest_depth: 0
+```sql
+sql> select * from test_table;
++-----------+---------------------+
+| a (Int32) | b (Utf8)            |
++-----------+---------------------+
+| 1         | {"x":2,"y":{"z":3}} |
++---+-----------------------------+
+```
+
+### unnest_depth: 1
+```sql
+sql> select * from test_table;
++-----------+-------------+------------+
+| a (Int32) | b.x (Int32) | b.y (Utf8) |
++-----------+-------------+------------+
+| 1         | 2           | {"z":3}    | 
++-----------+-------------+------------+
+```
+
+### unnest_depth: 2
+```sql
+sql> select * from test_table;
++-----------+-------------+---------------+
+| a (Int32) | b.x (Int32) | b.y.z (Int32) |
++-----------+-------------+---------------+
+| 1         | 2           | 3             |
++-----------+-------------+---------------+
+```
+
 ## Examples
 
 ### Basic Configuration with Environment Credentials
@@ -263,6 +366,23 @@ datasets:
       enabled: true
 ```
 
+### Configuration with time_format
+
+```yaml
+version: v1
+kind: Spicepod
+name: dynamodb
+
+datasets:
+  - from: dynamodb:users
+    name: users
+    params:
+      dynamodb_aws_region: us-west-2
+      time_format: 2006-01-02 15:04:05
+    acceleration:
+      enabled: true
+```
+
 ### Querying Nested Structures
 
 DynamoDB supports complex nested JSON structures. These fields can be queried using SQL:
@@ -285,18 +405,9 @@ WHERE address.city = 'San Francisco';
 :::warning[Limitations]
 
 - The DynamoDB connector will scan the first 10 items to determine the schema of the table. This may miss columns that are not present in the first 10 items.
-- The DynamoDB connector does not support Decimal types.
+- The DynamoDB connector does not support Decimal type.
 
 :::
-
-## Data Types
-
-The DynamoDB connector supports the following data types and mappings:
-
-- Basic scalar types (String, Number, Boolean)
-- Lists and Maps
-- Nested structures
-- Binary data
 
 Example schema from a users table:
 
