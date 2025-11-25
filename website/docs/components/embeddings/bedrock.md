@@ -30,6 +30,16 @@ These parameters are used for [Amazon Titan Text](https://docs.aws.amazon.com/be
 | `normalize`  | Whether or not to normalize the output embedding. Defaults to `true`.                                                     |
 | `dimensions` | The number of dimensions the output embedding should have. The following values are accepted: 1024 (default), 512, 256. |
 
+#### Amazon Nova Models
+
+These parameters are used for [Amazon Nova](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) multimodal embedding models
+
+| Parameter           | Description                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dimensions`        | **Required**. The number of dimensions the output embedding should have. Accepted value: 256, 384, 1024 or 3072.                                                    |
+| `truncation_mode`   | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                 |
+| `embedding_purpose` | Optional. Use the Nova embeddings model optimized for different purposes. Default `GENERIC_INDEX`. See reference [docs](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) for all options. |
+
 #### Cohere Models
 
 | Parameter    | Description                                                                                                                                                     |
@@ -58,6 +68,21 @@ embeddings:
     name: titan-embeddings
     params:
       dimensions: "256"
+```
+
+### Example `spicepod.yaml` configuration, Amazon Nova model
+
+```yaml
+embeddings:
+  - from: bedrock:amazon.nova-2-multimodal-embeddings-v1:0
+    name: nova-embeddings
+    params:
+      dimensions: "3072"
+      truncation_mode: START
+      embedding_purpose: GENERIC_RETRIEVAL
+      aws_region: us-east-1
+      aws_access_key_id: ${ secrets:AWS_ACCESS_KEY_ID }
+      aws_secret_access_key: ${ secrets:AWS_SECRET_ACCESS_KEY }
 ```
 
 ### Authentication
