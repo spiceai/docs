@@ -18,7 +18,7 @@ The following model IDs are supported:
 
 Refer to the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details on available models and cross-region inference profiles.
 
-To request support for a model, file a GitHub Issue or ask us on Discord.
+To request support for a model, file a GitHub Issue or ask us on Slack.
 
 ## Configuration
 
@@ -38,15 +38,15 @@ models:
 
 ### Parameters
 
-| Parameter                      | Description                                                                                                                                                                         | Default                                                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `aws_region`                   | AWS region for Bedrock API requests.                                                                                                                                                | -                                                                                           |
-| `aws_access_key_id`            | AWS access key ID. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                                  | -                                                                                           |
-| `aws_secret_access_key`        | AWS secret access key. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                              | -                                                                                           |
-| `aws_session_token`        | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                          | -                                                                                           |
-| `bedrock_guardrail_identifier` | Identifier for the guardrail. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html). Pattern: `(([a-z0-9]+) \| (arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))`. Length: 0-2048. | -   |
-| `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7}) \| (DRAFT))`                                                                                   | -   |
-| `bedrock_trace`                | Trace behavior for the guardrail. Valid values: `enabled`, `disabled`, `enabled_full`. Default: `disabled`.                                                                         | disabled                                                                                    |
+| Parameter                      | Description                                                                                                                                                                                                                                                                        | Default  |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `aws_region`                   | AWS region for Bedrock API requests.                                                                                                                                                                                                                                               | -        |
+| `aws_access_key_id`            | AWS access key ID. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                                            | -        |
+| `aws_secret_access_key`        | AWS secret access key. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                                        | -        |
+| `aws_session_token`            | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                                                                                                           | -        |
+| `bedrock_guardrail_identifier` | Identifier for the guardrail. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html). Pattern: `(([a-z0-9]+) \| (arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))`. Length: 0-2048. | -        |
+| `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7}) \| (DRAFT))`                                                                                                                                                                                                                       | -        |
+| `bedrock_trace`                | Trace behavior for the guardrail. Valid values: `enabled`, `disabled`, `enabled_full`. Default: `disabled`.                                                                                                                                                                        | disabled |
 
 ### OpenAI-Compatible Overrides
 
@@ -111,7 +111,7 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    1. Run `aws configure sso` to configure a new SSO profile
    2. Use the profile by setting `AWS_PROFILE=sso-profile`
    3. Run `aws sso login --profile sso-profile` to start a new SSO session
-   :::
+      :::
 
 3. **AWS STS Web Identity Token Credentials**:
    - Used primarily with OpenID Connect (OIDC) and OAuth
@@ -140,27 +140,22 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "bedrock:InvokeModel",
-                "bedrock:InvokeModelWithResponseStream"
-            ],
-            "Resource": [
-                "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"
-            ]
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": ["arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"]
+    }
+  ]
 }
 ```
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `bedrock:InvokeModel` | Required. Used to invoke the text model. |
+| Permission                              | Purpose                                                           |
+| --------------------------------------- | ----------------------------------------------------------------- |
+| `bedrock:InvokeModel`                   | Required. Used to invoke the text model.                          |
 | `bedrock:InvokeModelWithResponseStream` | Required. Used to invoke the text model with streaming responses. |
 
 ## References

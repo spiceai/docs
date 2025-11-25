@@ -63,6 +63,6 @@ The potential of the next generation of intelligent applications to improve the 
 
 Even for advanced developers, building intelligent apps that leverage AI is still way too hard. Our mission is to make this as easy as creating a modern web page. If that vision resonates with you, join us!
 
-If you want to get involved, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Discord](https://discord.gg/kZnTfneP5u), or reach out on [Twitter](https://twitter.com/spice_ai).
+If you want to get involved, we'd love to talk. Try out [Spice.ai](https://spiceai.org), [email us](mailto:hey@spice.ai) "hey," get in touch on [Slack](https://spiceai.org/slack), or reach out on [Twitter](https://twitter.com/spice_ai).
 
 Luke

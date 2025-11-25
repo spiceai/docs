@@ -12,7 +12,7 @@ In February, we announced [Spice.ai OSS v0.6](https://blog.spiceai.org/posts/202
 In [Spice.ai OSS v0.6.1](https://blog.spiceai.org/posts/2022/04/21/announcing-the-release-of-spice.ai-v0.6.1-alpha/) we announced a new big data system integration… our own, [Spice.xyz](https://spice.xyz)!
 
 ![Spice.xyz - Data and AI infrastructure for web3](https://user-images.githubusercontent.com/80174/167584679-115c26ff-74ea-48b7-9c26-4bd4feae2afa.jpg)
-*Figure 1. Spice.xyz - Data and AI infrastructure for web3*
+_Figure 1. Spice.xyz - Data and AI infrastructure for web3_
 
 ### Integration with Spice.xyz
 
@@ -60,6 +60,6 @@ Goal-oriented learning applies to many domains, whether it be minimizing fees in
 
 Even for advanced developers, building intelligent apps that leverage AI is still way too hard. Our mission is to make this as easy as creating a modern web page. If that vision resonates with you, join us!
 
-If you’d like to get involved, we’d love to talk. Try out [Spice.ai OSS](http://Spice.ai), [Spice.xyz](https://spice.xyz), [email us “hey,”](mailto:hey@spiceai.io?subject=hey) get in touch on [Discord](https://discord.gg/kZnTfneP5u), or reach out on [Twitter](https://twitter.com/spiceaihq).
+If you’d like to get involved, we’d love to talk. Try out [Spice.ai OSS](http://Spice.ai), [Spice.xyz](https://spice.xyz), [email us “hey,”](mailto:hey@spiceai.io?subject=hey) get in touch on [Slack](https://spiceai.org/slack), or reach out on [Twitter](https://twitter.com/spiceaihq).
 
 Luke

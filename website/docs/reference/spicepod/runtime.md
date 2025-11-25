@@ -6,6 +6,29 @@ description: 'Runtime YAML reference'
 
 The `runtime` section specifies configuration settings for the Spice runtime.
 
+## `runtime.auth`
+
+### `runtime.auth.api-key`
+
+Spice supports adding optional authentication to its API endpoints via configurable API keys. [Learn more](../../api/auth/index.md).
+
+```yaml
+runtime:
+  auth:
+    api-key:
+      enabled: true
+      keys:
+        - ${ secrets:api_key } # Use the secret replacement syntax to load the API key from a secret store
+        - 1234567890 # Or specify the API key directly
+```
+
+API key authentication supports the following configuration parameters:
+
+| Parameter name | Optional | Default | Description                                                    |
+| -------------- | -------- | ------- | -------------------------------------------------------------- |
+| `enabled`      | Yes      | `false` | Defaults to `false`. Whether API key authentication is enabled |
+| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+
 ## `runtime.dataset_load_parallelism`
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
@@ -73,9 +96,11 @@ runtime:
 
 In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
 
-| Parameter name   | Optional | Description                                                                                                                                   |
-| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type` | Yes      | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| Parameter name   | Optional | Default | Description                                                                                                                                   |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
+| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 :::info
 
@@ -261,6 +286,7 @@ For detailed memory information, see [Memory](/docs/reference/memory.md).
 The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.
 
 **Supported values:**
+
 - `zstd` (default): Enables high compression ratios for spill files, reducing disk usage but with moderate (de)compression speed.
 - `lz4_frame`: Provides faster (de)compression, resulting in larger spill files and potentially higher disk usage.
 - `uncompressed`: Disables compression. Spill files will be the largest, but with no (de)compression overhead.
@@ -270,6 +296,7 @@ runtime:
   query:
     spill_compression: lz4_frame
 ```
+
 This option allows you to balance disk space usage and query performance for large-scale analytics workloads.
 
 ## `runtime.query.temp_directory`

@@ -14,7 +14,7 @@ This post will discuss some of the challenges and directions for the technology 
 ### Time Series
 
 ![Time Series processing visualization: a time window is usually chosen to process part of the data stream](https://user-images.githubusercontent.com/19952490/142404970-de910848-cdb4-451b-a0d5-302c90215216.png)
-*Figure 1. Time Series processing visualization: a time window is usually chosen to process part of the data stream*
+_Figure 1. Time Series processing visualization: a time window is usually chosen to process part of the data stream_
 
 Time series AI has become more popular over recent years, and there is extensive literature on the subject, including time-series-focused neural networks. Research in this space points to the likelihood that there is no silver bullet, and a single approach to time series AI will not be sufficient. However, for developers, this can make building a product complex, as it comes with the challenge of exploring and evaluating many algorithms and approaches.
 
@@ -33,7 +33,7 @@ Reinforcement Learning (RL) has grown steadily, especially in fields like roboti
 Most of today's research is based on environments the agent can interact with during the training process, known as online learning. Usually, efficient training processes have multiple agent/environment pairs training together and sharing their experiences. Having an environment for agents to interact enables different actions from the actual historical state known as **on-policy learning**, and using only past experiences without an environment is **off-policy learning**.
 
 ![AI training without interacting with the environment](https://user-images.githubusercontent.com/19952490/142404987-cc6f0654-d2bd-496a-b6a4-52da19b9f912.png)
-*Figure 2. AI training without interacting with the environment (real world nor simulation). Only gathered data is used for training.*
+_Figure 2. AI training without interacting with the environment (real world nor simulation). Only gathered data is used for training._
 
 Spice.ai is initially taking an off-policy approach, where an environment (either pre-made or given by the user) is not required. Despite limiting the exploration of agents, this aligns to an application-centric approach as:
 
@@ -42,6 +42,6 @@ Spice.ai is initially taking an off-policy approach, where an environment (eithe
 
 The Spice.ai approach to time series AI can be described as 'Data-Driven' Reinforcement Learning. This domain is very exciting, and we are building upon excellent research that is being published. The [Berkeley Artificial Intelligence Research](https://bair.berkeley.edu/)'s blog shows the potential of this field and many other research entities that have made great discoveries like [DeepMind](https://deepmind.com/), [Open AI](https://openai.com/), [Facebook AI](https://ai.facebook.com/) and [Google AI](https://ai.google/) (among many others). We are inspired and are building upon all the research in Reinforcement Learning to develop core Spice.ai technology.
 
-If you are interested in Reinforcement Learning, we recommend following these blogs, and if you'd like to partner with us on the mission of making it easier to build intelligent applications by leveraging RL, we invite you to discuss with us on [Discord](https://discord.gg/kZnTfneP5u), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
+If you are interested in Reinforcement Learning, we recommend following these blogs, and if you'd like to partner with us on the mission of making it easier to build intelligent applications by leveraging RL, we invite you to discuss with us on [Slack](https://spiceai.org/slack), reach out on [Twitter](https://twitter.com/spice_ai) or [email us](mailto:hey@spice.ai).
 
 Corentin
