@@ -108,25 +108,26 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 The connector supports authentication, timeout, connection pooling, and retry configuration via `params`.
 
-| Parameter Name                | Description                                                                                                                                                                                                 |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `http_port`                   | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                      |
-| `http_username`               | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                            |
-| `http_password`               | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.   |
-| `http_headers`                | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                              |
-| `allowed_request_paths`       | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                         |
-| `request_query_filters` | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                       |
-| `request_body_filters`  | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                         |
-| `client_timeout`              | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle. |
-| `connect_timeout`             | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                         |
-| `pool_max_idle_per_host`      | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                         |
-| `pool_idle_timeout`           | Optional. Timeout for idle connections in the pool (in seconds). Default: `90`.                                                                                                                             |
-| `max_retries`                 | Optional. Maximum number of retries for failed HTTP requests. Default: `3`.                                                                                                                                 |
-| `retry_backoff_method`        | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                        |
-| `retry_max_duration`          | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                     |
-| `retry_jitter`                | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                 |
-| `max_request_query_length`    | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                 |
-| `max_request_body_bytes`      | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                     |
+| Parameter Name             | Description                                                                                                                                                                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `http_port`                | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                                                                                               |
+| `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                     |
+| `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                            |
+| `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                                                                                                       |
+| `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                  |
+| `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                          |
+| `request_body_filters`     | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                                                                                            |
+| `client_timeout`           | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Supports duration formats like `30s`, `1m`, `500ms`, `2m30s`. Applied to the entire request-response cycle.                                                                          |
+| `connect_timeout`          | Optional. Timeout for establishing HTTP(s) connections (in seconds). Default: `10`.                                                                                                                                                                                                  |
+| `pool_max_idle_per_host`   | Optional. Maximum number of idle connections to keep alive per host. Default: `10`.                                                                                                                                                                                                  |
+| `pool_idle_timeout`        | Optional. Timeout for idle connections in the pool (in seconds). Default: `90`.                                                                                                                                                                                                      |
+| `max_retries`              | Optional. Maximum number of retries for failed HTTP requests. Default: `3`.                                                                                                                                                                                                          |
+| `retry_backoff_method`     | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                                                                                                 |
+| `retry_max_duration`       | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                                                                                              |
+| `retry_jitter`             | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                                                                                          |
+| `max_request_query_length` | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                                                                                          |
+| `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                                                                                              |
+| `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`. |
 
 ## HTTP Response Headers
 
@@ -169,8 +170,8 @@ For security, these metadata fields require explicit configuration to prevent un
 | Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `request_path`  | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. **Requires `allowed_request_paths` parameter.** |
-| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `request_query_filters: enabled`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).           |
-| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `request_body_filters: enabled`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                             |
+| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `request_query_filters: enabled`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).              |
+| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `request_body_filters: enabled`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                                |
 
 These metadata fields work in combination:
 
@@ -179,6 +180,61 @@ These metadata fields work in combination:
 - `request_path` is appended to the base URL
 - `request_query` is appended as query parameters
 - `request_body` is sent as the request payload (requires appropriate HTTP method configuration)
+
+### Endpoint Validation
+
+The HTTP connector validates the configured endpoint during initialization to detect issues such as DNS errors, connection problems, or invalid URLs early in the startup process.
+
+#### Default Validation Behavior
+
+By default, the connector performs a health check by requesting a randomly generated path (e.g., `/__spice_health_check_abc123def456`) that is expected to return a 404 status. Any HTTP response, including 404 Not Found, indicates that the endpoint is reachable and the dataset will initialize successfully.
+
+This default behavior works for most HTTP endpoints but may not be suitable for APIs that:
+
+- Return error responses for unknown paths without proper HTTP status codes
+- Have strict path validation that rejects requests to non-existent endpoints
+- Require authentication for all paths, including health check endpoints
+
+#### Custom Health Probe
+
+For endpoints that require a specific health check path, configure the `health_probe` parameter:
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      health_probe: /health
+```
+
+When a custom health probe is configured:
+
+- The connector validates the endpoint by requesting the specified path
+- The health probe endpoint must return a 2xx status code (200-299) for validation to succeed
+- If the health probe returns a non-2xx status code, the dataset will fail to initialize with an error message
+
+This provides more reliable validation for APIs with dedicated health check endpoints.
+
+##### Example with Authentication
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: authenticated_api
+    params:
+      http_headers: 'Authorization:Bearer ${secrets:api_token}'
+      health_probe: /api/status
+```
+
+In this configuration, the health probe request to `/api/status` will include the authentication header, ensuring that the validation succeeds for APIs that require authentication on all endpoints.
+
+##### Health Probe Requirements
+
+The `health_probe` parameter has the following requirements:
+
+- Must start with `/`
+- Cannot exceed 2048 characters in length
+- The target endpoint must return a 2xx HTTP status code for validation to succeed
 
 ## Advanced Usage
 
@@ -224,7 +280,7 @@ The `allowed_request_paths` parameter supports glob patterns to flexibly and sec
   - Example: `/shows/*` matches `/shows/123` and `/shows/breaking-bad`
   - Does not match across path separators: `/shows/*` does not match `/shows/123/episodes`
 
-- **Recursive wildcard (`**`)**: Matches any number of path segments
+- **Recursive wildcard (`**`)\*\*: Matches any number of path segments
   - Example: `/api/**` matches `/api/users`, `/api/v1/users`, and `/api/v2/posts/123`
   - Use for flexible API version matching or deep hierarchies
 
