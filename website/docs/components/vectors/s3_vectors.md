@@ -334,6 +334,61 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
 | `s3vectors:CreateIndex` | Optional. Spice can automatically create indexes if this permission is given. |
 | `s3vectors:CreateVectorBucket` | Optional. Spice can automatically create the vector bucket if this permission is given. |
 
+### `metrics`
+
+Spice supports the following [S3 Vector engine metrics](/docs/features/observability/component_metrics):
+
+| Metric Name | Type | Description |
+| ----------- | ---- | ----------- |
+| `s3_vectors_create_index_errors` | counter | Number of errors returned from create_index operation. |
+| `s3_vectors_create_index_latency` | histogram | Total duration of create_index operation, in milliseconds. |
+| `s3_vectors_create_index_requests` | counter | Number of requests to create_index operation. |
+| `s3_vectors_create_vector_bucket_errors` | counter | Number of errors returned from create_vector_bucket operation. |
+| `s3_vectors_create_vector_bucket_latency` | histogram | Total duration of create_vector_bucket operation, in milliseconds. |
+| `s3_vectors_create_vector_bucket_requests` | counter | Number of requests to create_vector_bucket operation. |
+| `s3_vectors_delete_index_errors` | counter | Number of errors returned from delete_index operation. |
+| `s3_vectors_delete_index_latency` | histogram | Total duration of delete_index operation, in milliseconds. |
+| `s3_vectors_delete_index_requests` | counter | Number of requests to delete_index operation. |
+| `s3_vectors_delete_vector_bucket_errors` | counter | Number of errors returned from delete_vector_bucket operation. |
+| `s3_vectors_delete_vector_bucket_latency` | histogram | Total duration of delete_vector_bucket operation, in milliseconds. |
+| `s3_vectors_delete_vector_bucket_policy_errors` | counter | Number of errors returned from delete_vector_bucket_policy operation. |
+| `s3_vectors_delete_vector_bucket_policy_latency` | histogram | Total duration of delete_vector_bucket_policy operation, in milliseconds. |
+| `s3_vectors_delete_vector_bucket_policy_requests` | counter | Number of requests to delete_vector_bucket_policy operation. |
+| `s3_vectors_delete_vector_bucket_requests` | counter | Number of requests to delete_vector_bucket operation. |
+| `s3_vectors_delete_vectors_errors` | counter | Number of errors returned from delete_vectors operation. |
+| `s3_vectors_delete_vectors_latency` | histogram | Total duration of delete_vectors operation, in milliseconds. |
+| `s3_vectors_delete_vectors_requests` | counter | Number of requests to delete_vectors operation. |
+| `s3_vectors_get_index_errors` | counter | Number of errors returned from get_index operation. |
+| `s3_vectors_get_index_latency` | histogram | Total duration of get_index operation, in milliseconds. |
+| `s3_vectors_get_index_requests` | counter | Number of requests to get_index operation. |
+| `s3_vectors_get_vector_bucket_errors` | counter | Number of errors returned from get_vector_bucket operation. |
+| `s3_vectors_get_vector_bucket_latency` | histogram | Total duration of get_vector_bucket operation, in milliseconds. |
+| `s3_vectors_get_vector_bucket_policy_errors` | counter | Number of errors returned from get_vector_bucket_policy operation. |
+| `s3_vectors_get_vector_bucket_policy_latency` | histogram | Total duration of get_vector_bucket_policy operation, in milliseconds. |
+| `s3_vectors_get_vector_bucket_policy_requests` | counter | Number of requests to get_vector_bucket_policy operation. |
+| `s3_vectors_get_vector_bucket_requests` | counter | Number of requests to get_vector_bucket operation. |
+| `s3_vectors_get_vectors_errors` | counter | Number of errors returned from get_vectors operation. |
+| `s3_vectors_get_vectors_latency` | histogram | Total duration of get_vectors operation, in milliseconds. |
+| `s3_vectors_get_vectors_requests` | counter | Number of requests to get_vectors operation. |
+| `s3_vectors_list_indexes_errors` | counter | Number of errors returned from list_indexes operation. |
+| `s3_vectors_list_indexes_latency` | histogram | Total duration of list_indexes operation, in milliseconds. |
+| `s3_vectors_list_indexes_requests` | counter | Number of requests to list_indexes operation. |
+| `s3_vectors_list_vector_buckets_errors` | counter | Number of errors returned from list_vector_buckets operation. |
+| `s3_vectors_list_vector_buckets_latency` | histogram | Total duration of list_vector_buckets operation, in milliseconds. |
+| `s3_vectors_list_vector_buckets_requests` | counter | Number of requests to list_vector_buckets operation. |
+| `s3_vectors_list_vectors_errors` | counter | Number of errors returned from list_vectors operation. |
+| `s3_vectors_list_vectors_latency` | histogram | Total duration of list_vectors operation, in milliseconds. |
+| `s3_vectors_list_vectors_requests` | counter | Number of requests to list_vectors operation. |
+| `s3_vectors_put_vector_bucket_policy_errors` | counter | Number of errors returned from put_vector_bucket_policy operation. |
+| `s3_vectors_put_vector_bucket_policy_latency` | histogram | Total duration of put_vector_bucket_policy operation, in milliseconds. |
+| `s3_vectors_put_vector_bucket_policy_requests` | counter | Number of requests to put_vector_bucket_policy operation. |
+| `s3_vectors_put_vectors_errors` | counter | Number of errors returned from put_vectors operation. |
+| `s3_vectors_put_vectors_latency` | histogram | Total duration of put_vectors operation, in milliseconds. |
+| `s3_vectors_put_vectors_requests` | counter | Number of requests to put_vectors operation. |
+| `s3_vectors_query_vectors_errors` | counter | Number of errors returned from query_vectors operation. |
+| `s3_vectors_query_vectors_latency` | histogram | Total duration of query_vectors operation, in milliseconds. |
+| `s3_vectors_query_vectors_requests` | counter | Number of requests to query_vectors operation. |
+
 ## Cookbook
 
 - A cookbook recipe to configure a dataset with an S3 vectors engine in Spice. [S3 Vectors engine](https://github.com/spiceai/cookbook/tree/trunk/vectors/s3#readme)
