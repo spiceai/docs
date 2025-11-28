@@ -136,7 +136,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetTable",
           "glue:GetTables"
         ],
-        Resource: "*"
+        "Resource": "*"
       }
     ]
 }
