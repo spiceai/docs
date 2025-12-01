@@ -200,6 +200,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      caching_ttl: 2m # Data is fresh for 2 minutes
       refresh_check_interval: 5m # Refresh every 5 minutes in background
       refresh_sql: |
         SELECT * FROM shows_cache
@@ -230,6 +231,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      caching_ttl: 5m # Cache data is fresh for 5 minutes
       refresh_check_interval: 10m # Background refresh every 10 minutes
       refresh_on_startup: always # Always refresh on startup
       refresh_sql: |
@@ -395,6 +397,7 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist to disk
+      caching_ttl: 5m # Cache data is fresh for 5 minutes
       refresh_check_interval: 10m # Background refresh (SWR)
       refresh_on_startup: auto # Use persisted cache on startup
       refresh_sql: |
@@ -482,9 +485,55 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_check_interval` | How often to refresh cached data in the background                    | None           |
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
+| `caching_ttl`            | Time-to-live for cached data before considered stale                  | `30s`          |
 | `on_zero_results`        | Behavior when cache returns no results (`return_empty`, `use_source`) | `return_empty` |
 | `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `arrow`        |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
+
+### Cache TTL (Time-to-Live)
+
+The `caching_ttl` parameter defines how long cached data is considered fresh before it becomes stale. Once cached data exceeds this age, the SWR pattern triggers background refresh to update the cache while continuing to serve the stale data.
+
+**Configuring Cache TTL**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows_ttl
+    params:
+      file_format: json
+      allowed_request_paths: '/shows/*'
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      caching_ttl: 5m # Cache data is fresh for 5 minutes
+      refresh_check_interval: 10m # Periodic check for stale data
+```
+
+**How Cache TTL Works**:
+
+1. When data is fetched, the `fetched_at` timestamp is recorded
+2. On subsequent queries, the system checks `now - fetched_at > caching_ttl`
+3. If data is within TTL, it is served immediately (fresh)
+4. If data exceeds TTL, it becomes stale:
+   - Stale data is served immediately (no query delay)
+   - Background refresh is triggered to update the cache
+   - Next query receives the refreshed data
+
+**TTL Format**: Duration strings support common units:
+
+- Seconds: `30s`, `90s`
+- Minutes: `5m`, `15m`
+- Hours: `1h`, `24h`
+- Mixed: `1h30m`, `2h15m30s`
+
+**Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases.
+
+**TTL Considerations**:
+
+- **Shorter TTL** (e.g., `10s`, `30s`): More frequent refresh, higher data freshness, more API requests
+- **Longer TTL** (e.g., `10m`, `1h`): Fewer refreshes, lower API costs, potentially stale data
+- **Matching patterns**: Set `caching_ttl` shorter than `refresh_check_interval` to define the staleness window
 
 ## Limitations
 

@@ -301,6 +301,8 @@ Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
+- `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
+- `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md) for details.
 
 ## `acceleration.refresh_check_interval`
 
@@ -313,6 +315,29 @@ See [Duration](../duration/index.md)
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See the [cron schedule reference](/docs/reference/cron.md).
+
+## `acceleration.caching_ttl`
+
+Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
+
+When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. Stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache. This implements the Stale-While-Revalidate (SWR) pattern.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      caching_ttl: 5m # Cache data is fresh for 5 minutes
+      refresh_check_interval: 10m # Periodic background refresh
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
 
 ## `acceleration.refresh_sql`
 
