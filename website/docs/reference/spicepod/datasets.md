@@ -333,8 +333,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 5m # Cache data is fresh for 5 minutes
-      refresh_check_interval: 10m # Periodic background refresh
+      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Periodic background refresh
 ```
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.

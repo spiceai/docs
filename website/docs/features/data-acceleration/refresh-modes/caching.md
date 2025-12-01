@@ -64,7 +64,10 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      refresh_check_interval: 5m
+      engine: duckdb
+      mode: file
+      caching_ttl: 10s
+      refresh_check_interval: 30s
 ```
 
 ## Use Cases
@@ -84,7 +87,10 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      refresh_check_interval: 10m
+      engine: duckdb
+      mode: file
+      caching_ttl: 15s
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_search_cache
         WHERE request_path = '/search/shows'
@@ -113,7 +119,10 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      refresh_check_interval: 15m
+      engine: duckdb
+      mode: file
+      caching_ttl: 10s
+      refresh_check_interval: 20s
       refresh_sql: |
         SELECT * FROM episodes_cache
         WHERE request_path = '/shows/82/episodes'
@@ -135,7 +144,10 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      refresh_check_interval: 5m
+      engine: duckdb
+      mode: file
+      caching_ttl: 10s
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM multi_endpoint_cache
         WHERE (request_path = '/shows/82' OR request_path = '/shows/169')
@@ -202,8 +214,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 2m # Data is fresh for 2 minutes
-      refresh_check_interval: 5m # Refresh every 5 minutes in background
+      caching_ttl: 10s # Data is fresh for 10 seconds
+      refresh_check_interval: 30s # Refresh every 30 seconds in background
       refresh_sql: |
         SELECT * FROM shows_cache
         WHERE request_path = '/shows/82'
@@ -235,8 +247,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 5m # Cache data is fresh for 5 minutes
-      refresh_check_interval: 10m # Background refresh every 10 minutes
+      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Background refresh every 30 seconds
       refresh_on_startup: always # Always refresh on startup
       refresh_sql: |
         SELECT * FROM tv_search_swr
@@ -246,7 +258,7 @@ datasets:
 
 With this configuration:
 
-- The cache refreshes every 10 minutes automatically
+- The cache refreshes every 30 seconds automatically
 - Queries are served immediately from the cache
 - Manual refresh is available via `/v1/datasets/tv_search_swr/acceleration/refresh`
 - Cache is guaranteed fresh on application startup
@@ -280,7 +292,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb # or sqlite, cayenne
       mode: file # Enable file persistence
-      refresh_check_interval: 15m
+      caching_ttl: 10s
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM shows_persistent_cache
         WHERE request_path IN ('/shows/82', '/shows/169')
@@ -304,7 +317,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      refresh_check_interval: 30m
+      caching_ttl: 10s
+      refresh_check_interval: 30s
       params:
         duckdb_file: tv_shows_cache.db # Specify custom file location
       refresh_sql: |
@@ -330,7 +344,8 @@ datasets:
       refresh_mode: caching
       engine: sqlite
       mode: file
-      refresh_check_interval: 10m
+      caching_ttl: 15s
+      refresh_check_interval: 30s
       params:
         sqlite_file: tv_search_cache.db
       refresh_sql: |
@@ -355,7 +370,8 @@ datasets:
       refresh_mode: caching
       engine: cayenne
       mode: file
-      refresh_check_interval: 5m
+      caching_ttl: 10s
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_shows_cayenne
         WHERE request_path IN ('/shows/82', '/shows/169', '/shows/73')
@@ -401,8 +417,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist to disk
-      caching_ttl: 5m # Cache data is fresh for 5 minutes
-      refresh_check_interval: 10m # Background refresh (SWR)
+      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Background refresh (SWR)
       refresh_on_startup: auto # Use persisted cache on startup
       refresh_sql: |
         SELECT * FROM tv_shows_optimized
@@ -413,7 +429,7 @@ datasets:
 This configuration provides:
 
 - Immediate query response from persisted cache on startup
-- Background refresh every 10 minutes without blocking queries
+- Background refresh every 30 seconds without blocking queries
 - Durable cache that survives application restarts
 - Reduced API requests and costs
 
@@ -463,8 +479,11 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      engine: duckdb
+      mode: file
       primary_key: [id, season, number] # Use episode fields as cache key
-      refresh_check_interval: 10m
+      caching_ttl: 15s
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_episodes_custom_key
         WHERE request_path = '/shows/82/episodes'
@@ -512,8 +531,8 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 5m # Cache data is fresh for 5 minutes
-      refresh_check_interval: 10m # Periodic check for stale data
+      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Periodic check for stale data
 ```
 
 **How Cache TTL Works**:
