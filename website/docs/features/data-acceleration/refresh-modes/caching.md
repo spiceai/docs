@@ -200,6 +200,8 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
       caching_ttl: 2m # Data is fresh for 2 minutes
       refresh_check_interval: 5m # Refresh every 5 minutes in background
       refresh_sql: |
@@ -231,6 +233,8 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
       caching_ttl: 5m # Cache data is fresh for 5 minutes
       refresh_check_interval: 10m # Background refresh every 10 minutes
       refresh_on_startup: always # Always refresh on startup
@@ -506,6 +510,8 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
       caching_ttl: 5m # Cache data is fresh for 5 minutes
       refresh_check_interval: 10m # Periodic check for stale data
 ```
