@@ -55,12 +55,12 @@ To use `caching` mode, configure your dataset with `refresh_mode: caching`:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: api_cache
+  - from: https://api.tvmaze.com
+    name: tv_shows_cache
     params:
-      allowed_request_paths: '/search,/api/v1/*'
+      file_format: json
+      allowed_request_paths: '/search/shows,/shows/*'
       request_query_filters: enabled
-      http_headers: 'Authorization:Bearer ${secrets:api_token}'
     acceleration:
       enabled: true
       refresh_mode: caching
@@ -69,65 +69,68 @@ datasets:
 
 ## Use Cases
 
-### Caching Search Results
+### Caching TV Show Search Results
 
-Cache search API results where the same query may return different results over time:
+Cache TV show search API results where the same query may return different results over time:
 
 ```yaml
 datasets:
-  - from: https://search.example.com
-    name: search_cache
+  - from: https://api.tvmaze.com
+    name: tv_search_cache
     params:
-      allowed_request_paths: '/api/search'
+      file_format: json
+      allowed_request_paths: '/search/shows'
       request_query_filters: enabled
     acceleration:
       enabled: true
       refresh_mode: caching
       refresh_check_interval: 10m
       refresh_sql: |
-        SELECT * FROM search_cache
-        WHERE request_path = '/api/search'
-          AND request_query = 'q=machine learning&limit=100'
+        SELECT * FROM tv_search_cache
+        WHERE request_path = '/search/shows'
+          AND request_query = 'q=game+of+thrones'
 ```
 
 This configuration:
 
-- Fetches search results for the query "machine learning" every 10 minutes
+- Fetches search results for "game of thrones" every 10 minutes
 - Stores all result items with the same request metadata
 - Replaces all previous results for this query on each refresh
 - Preserves the timestamp of when results were fetched
 
-### Dynamic Content API
+### Caching TV Show Episodes
 
-Cache responses from a content API that returns multiple articles:
+Cache responses from a TV show episodes API:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: content_cache
+  - from: https://api.tvmaze.com
+    name: episodes_cache
     params:
-      allowed_request_paths: '/api/content'
+      file_format: json
+      allowed_request_paths: '/shows/*/episodes'
       request_query_filters: enabled
     acceleration:
       enabled: true
       refresh_mode: caching
       refresh_check_interval: 15m
       refresh_sql: |
-        SELECT * FROM content_cache
-        WHERE request_path = '/api/content'
-          AND request_query = 'category=technology&status=published'
+        SELECT * FROM episodes_cache
+        WHERE request_path = '/shows/82/episodes'
+          AND request_query = 'season=1'
 ```
 
 ### Multi-Endpoint Caching
 
-Cache responses from multiple API endpoints:
+Cache responses from multiple TVMaze API endpoints:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
+  - from: https://api.tvmaze.com
     name: multi_endpoint_cache
     params:
-      allowed_request_paths: '/api/users,/api/posts,/api/comments'
+      file_format: json
+      allowed_request_paths: '/shows/*,/search/shows,/people/*'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -135,8 +138,8 @@ datasets:
       refresh_check_interval: 5m
       refresh_sql: |
         SELECT * FROM multi_endpoint_cache
-        WHERE request_path IN ('/api/users', '/api/posts')
-          AND request_query = 'limit=100'
+        WHERE (request_path = '/shows/82' OR request_path = '/shows/169')
+           OR (request_path = '/search/shows' AND request_query = 'q=breaking+bad')
 ```
 
 ## Querying Cached Data
@@ -144,21 +147,29 @@ datasets:
 Query cached data using standard SQL, filtering by request metadata or content:
 
 ```sql
--- Get all cached search results for a specific query
+-- Get all cached search results for a specific TV show query
 SELECT content, fetched_at
-FROM search_cache
-WHERE request_query = 'q=machine learning&limit=100'
+FROM tv_search_cache
+WHERE request_query = 'q=game+of+thrones'
 ORDER BY fetched_at DESC;
 
 -- Find the most recent cache entry for each unique request
 SELECT request_path, request_query, MAX(fetched_at) as last_fetched
-FROM api_cache
+FROM tv_shows_cache
 GROUP BY request_path, request_query;
 
 -- Get cached results fetched within the last hour
 SELECT *
-FROM content_cache
+FROM episodes_cache
 WHERE fetched_at > NOW() - INTERVAL '1 hour';
+
+-- Parse JSON to extract show information
+SELECT
+  json_get_str(content, 'name') as show_name,
+  json_get_str(content, 'type') as show_type,
+  fetched_at
+FROM tv_shows_cache
+WHERE request_path = '/shows/82';
 ```
 
 ## Stale-While-Revalidate Pattern
@@ -181,19 +192,18 @@ Configure background refresh using `refresh_check_interval` to specify how frequ
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: api_cache
+  - from: https://api.tvmaze.com
+    name: shows_cache
     params:
-      allowed_request_paths: '/api/data'
-      request_query_filters: enabled
+      file_format: json
+      allowed_request_paths: '/shows/*'
     acceleration:
       enabled: true
       refresh_mode: caching
       refresh_check_interval: 5m # Refresh every 5 minutes in background
       refresh_sql: |
-        SELECT * FROM api_cache
-        WHERE request_path = '/api/data'
-          AND request_query = 'limit=1000'
+        SELECT * FROM shows_cache
+        WHERE request_path = '/shows/82'
 ```
 
 ### SWR Benefits for API Caching
@@ -211,10 +221,11 @@ Combine background refresh with on-demand refresh for maximum flexibility:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: dynamic_cache
+  - from: https://api.tvmaze.com
+    name: tv_search_swr
     params:
-      allowed_request_paths: '/api/search'
+      file_format: json
+      allowed_request_paths: '/search/shows'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -222,15 +233,16 @@ datasets:
       refresh_check_interval: 10m # Background refresh every 10 minutes
       refresh_on_startup: always # Always refresh on startup
       refresh_sql: |
-        SELECT * FROM dynamic_cache
-        WHERE request_path = '/api/search'
+        SELECT * FROM tv_search_swr
+        WHERE request_path = '/search/shows'
+          AND request_query = 'q=breaking+bad'
 ```
 
 With this configuration:
 
 - The cache refreshes every 10 minutes automatically
 - Queries are served immediately from the cache
-- Manual refresh is available via `/v1/datasets/dynamic_cache/acceleration/refresh`
+- Manual refresh is available via `/v1/datasets/tv_search_swr/acceleration/refresh`
 - Cache is guaranteed fresh on application startup
 
 ## Cache Persistence
@@ -251,10 +263,11 @@ Enable file persistence by setting `acceleration.mode: file` and specifying an a
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: persistent_cache
+  - from: https://api.tvmaze.com
+    name: shows_persistent_cache
     params:
-      allowed_request_paths: '/api/products'
+      file_format: json
+      allowed_request_paths: '/shows/*,/search/shows'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -263,9 +276,9 @@ datasets:
       mode: file # Enable file persistence
       refresh_check_interval: 15m
       refresh_sql: |
-        SELECT * FROM persistent_cache
-        WHERE request_path = '/api/products'
-          AND request_query = 'category=electronics'
+        SELECT * FROM shows_persistent_cache
+        WHERE request_path IN ('/shows/82', '/shows/169')
+           OR (request_path = '/search/shows' AND request_query = 'q=game+of+thrones')
 ```
 
 ### DuckDB Persistence Example
@@ -274,10 +287,11 @@ DuckDB provides excellent performance for analytical queries on cached data:
 
 ```yaml
 datasets:
-  - from: https://analytics-api.example.com
-    name: analytics_cache
+  - from: https://api.tvmaze.com
+    name: tv_shows_duckdb
     params:
-      allowed_request_paths: '/api/metrics'
+      file_format: json
+      allowed_request_paths: '/shows/*,/shows/*/episodes'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -286,10 +300,11 @@ datasets:
       mode: file
       refresh_check_interval: 30m
       params:
-        duckdb_file: analytics_cache.db # Specify custom file location
+        duckdb_file: tv_shows_cache.db # Specify custom file location
       refresh_sql: |
-        SELECT * FROM analytics_cache
-        WHERE request_path = '/api/metrics'
+        SELECT * FROM tv_shows_duckdb
+        WHERE request_path IN ('/shows/82', '/shows/169')
+           OR (request_path = '/shows/82/episodes' AND request_query = 'season=1')
 ```
 
 ### SQLite Persistence Example
@@ -298,10 +313,11 @@ SQLite is ideal for lightweight caching scenarios:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: lightweight_cache
+  - from: https://api.tvmaze.com
+    name: tv_search_sqlite
     params:
-      allowed_request_paths: '/api/users'
+      file_format: json
+      allowed_request_paths: '/search/shows'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -310,10 +326,11 @@ datasets:
       mode: file
       refresh_check_interval: 10m
       params:
-        sqlite_file: user_cache.db
+        sqlite_file: tv_search_cache.db
       refresh_sql: |
-        SELECT * FROM lightweight_cache
-        WHERE request_path = '/api/users'
+        SELECT * FROM tv_search_sqlite
+        WHERE request_path = '/search/shows'
+          AND request_query IN ('q=breaking+bad', 'q=game+of+thrones')
 ```
 
 ### Cayenne Persistence Example
@@ -322,11 +339,11 @@ Cayenne provides optimized performance for Spice workloads:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: optimized_cache
+  - from: https://api.tvmaze.com
+    name: tv_shows_cayenne
     params:
-      allowed_request_paths: '/api/events'
-      request_query_filters: enabled
+      file_format: json
+      allowed_request_paths: '/shows/*'
     acceleration:
       enabled: true
       refresh_mode: caching
@@ -334,8 +351,8 @@ datasets:
       mode: file
       refresh_check_interval: 5m
       refresh_sql: |
-        SELECT * FROM optimized_cache
-        WHERE request_path = '/api/events'
+        SELECT * FROM tv_shows_cayenne
+        WHERE request_path IN ('/shows/82', '/shows/169', '/shows/73')
 ```
 
 ### Benefits of File Persistence
@@ -367,10 +384,11 @@ For optimal performance, combine the SWR pattern with file persistence:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: high_performance_cache
+  - from: https://api.tvmaze.com
+    name: tv_shows_optimized
     params:
-      allowed_request_paths: '/api/data'
+      file_format: json
+      allowed_request_paths: '/shows/*,/search/shows'
       request_query_filters: enabled
     acceleration:
       enabled: true
@@ -380,8 +398,9 @@ datasets:
       refresh_check_interval: 10m # Background refresh (SWR)
       refresh_on_startup: auto # Use persisted cache on startup
       refresh_sql: |
-        SELECT * FROM high_performance_cache
-        WHERE request_path = '/api/data'
+        SELECT * FROM tv_shows_optimized
+        WHERE request_path IN ('/shows/82', '/shows/169')
+           OR (request_path = '/search/shows' AND request_query = 'q=game+of+thrones')
 ```
 
 This configuration provides:
@@ -429,16 +448,19 @@ Example with custom primary key:
 
 ```yaml
 datasets:
-  - from: https://api.example.com
-    name: custom_cache
+  - from: https://api.tvmaze.com
+    name: tv_episodes_custom_key
     params:
-      allowed_request_paths: '/api/items'
-      request_query_filters: enabled
+      file_format: json
+      allowed_request_paths: '/shows/*/episodes'
     acceleration:
       enabled: true
       refresh_mode: caching
-      primary_key: [item_id, version] # Use content fields as cache key
+      primary_key: [id, season, number] # Use episode fields as cache key
       refresh_check_interval: 10m
+      refresh_sql: |
+        SELECT * FROM tv_episodes_custom_key
+        WHERE request_path = '/shows/82/episodes'
 ```
 
 ### HTTP Date Header
