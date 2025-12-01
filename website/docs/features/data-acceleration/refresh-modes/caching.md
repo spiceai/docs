@@ -1,0 +1,482 @@
+---
+title: 'Caching Refresh Mode'
+sidebar_label: 'Caching'
+description: 'Learn how to use caching refresh mode for HTTP-based datasets'
+sidebar_position: 4
+pagination_prev: null
+pagination_next: null
+---
+
+The `caching` refresh mode provides intelligent caching for HTTP-based datasets where multiple result rows can share the same request metadata. This mode is specifically designed for scenarios like API responses where the same request parameters can return different content over time or multiple rows of data.
+
+The caching mode supports two key paradigms:
+
+1. **Stale-While-Revalidate (SWR)** - Serves cached data immediately while refreshing in the background, optimizing for low latency and reduced API costs
+2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (DuckDB, SQLite, or Cayenne) for fast cold starts and durability
+
+## Overview
+
+Unlike traditional refresh modes that treat datasets as single sources of truth, the `caching` mode treats HTTP request metadata (path, query parameters, and body) as cache keys. This approach is particularly useful for:
+
+- REST API responses that return multiple records for a single request
+- Search API results where the same query may return different results over time
+- Dynamic content APIs where responses change based on server state
+
+:::info[Future Enhancement]
+While currently designed for HTTP-based datasets, future versions of Spice will extend the `caching` mode to support arbitrary queries from any data source, enabling flexible caching strategies across all connector types.
+:::
+
+## How It Works
+
+The `caching` mode uses HTTP request filter values as cache keys rather than enforcing primary key constraints. When a refresh occurs:
+
+1. **Cache Key Generation**: By default, the combination of `request_path`, `request_query`, and `request_body` acts as the cache key. If a `primary_key` is explicitly specified in the acceleration configuration, it will be used instead of the metadata fields.
+2. **Row Replacement**: All existing rows matching the cache key are removed before inserting new data
+3. **Multiple Results**: Multiple rows with identical request metadata can coexist, representing different content items from the same API response
+4. **Timestamp Tracking**: Each row includes a `fetched_at` timestamp indicating when the data was retrieved
+
+## Schema
+
+Datasets using `caching` mode include the following metadata fields in addition to the content data:
+
+| Field Name      | Type      | Description                                                         |
+| --------------- | --------- | ------------------------------------------------------------------- |
+| `request_path`  | String    | The URL path used for the request                                   |
+| `request_query` | String    | The query parameters used for the request                           |
+| `request_body`  | String    | The request body (for POST requests)                                |
+| `content`       | String    | The response content                                                |
+| `fetched_at`    | Timestamp | The timestamp when the data was fetched (based on HTTP Date header) |
+
+The `fetched_at` timestamp uses the HTTP `Date` response header when available, falling back to the current system time if not present.
+
+## Configuration
+
+To use `caching` mode, configure your dataset with `refresh_mode: caching`:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: api_cache
+    params:
+      allowed_request_paths: '/search,/api/v1/*'
+      request_query_filters: enabled
+      http_headers: 'Authorization:Bearer ${secrets:api_token}'
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 5m
+```
+
+## Use Cases
+
+### Caching Search Results
+
+Cache search API results where the same query may return different results over time:
+
+```yaml
+datasets:
+  - from: https://search.example.com
+    name: search_cache
+    params:
+      allowed_request_paths: '/api/search'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 10m
+      refresh_sql: |
+        SELECT * FROM search_cache
+        WHERE request_path = '/api/search'
+          AND request_query = 'q=machine learning&limit=100'
+```
+
+This configuration:
+
+- Fetches search results for the query "machine learning" every 10 minutes
+- Stores all result items with the same request metadata
+- Replaces all previous results for this query on each refresh
+- Preserves the timestamp of when results were fetched
+
+### Dynamic Content API
+
+Cache responses from a content API that returns multiple articles:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: content_cache
+    params:
+      allowed_request_paths: '/api/content'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 15m
+      refresh_sql: |
+        SELECT * FROM content_cache
+        WHERE request_path = '/api/content'
+          AND request_query = 'category=technology&status=published'
+```
+
+### Multi-Endpoint Caching
+
+Cache responses from multiple API endpoints:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: multi_endpoint_cache
+    params:
+      allowed_request_paths: '/api/users,/api/posts,/api/comments'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 5m
+      refresh_sql: |
+        SELECT * FROM multi_endpoint_cache
+        WHERE request_path IN ('/api/users', '/api/posts')
+          AND request_query = 'limit=100'
+```
+
+## Querying Cached Data
+
+Query cached data using standard SQL, filtering by request metadata or content:
+
+```sql
+-- Get all cached search results for a specific query
+SELECT content, fetched_at
+FROM search_cache
+WHERE request_query = 'q=machine learning&limit=100'
+ORDER BY fetched_at DESC;
+
+-- Find the most recent cache entry for each unique request
+SELECT request_path, request_query, MAX(fetched_at) as last_fetched
+FROM api_cache
+GROUP BY request_path, request_query;
+
+-- Get cached results fetched within the last hour
+SELECT *
+FROM content_cache
+WHERE fetched_at > NOW() - INTERVAL '1 hour';
+```
+
+## Stale-While-Revalidate Pattern
+
+The `caching` mode supports the Stale-While-Revalidate (SWR) pattern for acceleration, providing optimal performance by serving cached data immediately while refreshing in the background.
+
+### How SWR Works
+
+When configured with background refresh, the caching mode:
+
+1. **Serves stale data immediately** - Returns cached results without waiting for a refresh
+2. **Triggers background refresh** - Initiates an asynchronous refresh of the cache
+3. **Updates cache transparently** - Subsequent queries receive fresh data once the refresh completes
+
+This pattern reduces query latency by eliminating wait times for data fetches while keeping the cache reasonably fresh.
+
+### Background Refresh Configuration
+
+Configure background refresh using `refresh_check_interval` to specify how frequently the cache should be updated:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: api_cache
+    params:
+      allowed_request_paths: '/api/data'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 5m # Refresh every 5 minutes in background
+      refresh_sql: |
+        SELECT * FROM api_cache
+        WHERE request_path = '/api/data'
+          AND request_query = 'limit=1000'
+```
+
+### SWR Benefits for API Caching
+
+The SWR pattern is particularly valuable for caching API responses:
+
+- **Reduced latency** - Queries return immediately from the cache without waiting for HTTP requests
+- **Lower API costs** - Fewer requests to external APIs reduce usage and costs
+- **Improved reliability** - Cached data remains available even if the API is temporarily unavailable
+- **Better user experience** - Consistent fast response times improve application performance
+
+### Example: SWR with On-Demand Refresh
+
+Combine background refresh with on-demand refresh for maximum flexibility:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: dynamic_cache
+    params:
+      allowed_request_paths: '/api/search'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 10m # Background refresh every 10 minutes
+      refresh_on_startup: always # Always refresh on startup
+      refresh_sql: |
+        SELECT * FROM dynamic_cache
+        WHERE request_path = '/api/search'
+```
+
+With this configuration:
+
+- The cache refreshes every 10 minutes automatically
+- Queries are served immediately from the cache
+- Manual refresh is available via `/v1/datasets/dynamic_cache/acceleration/refresh`
+- Cache is guaranteed fresh on application startup
+
+## Cache Persistence
+
+The `caching` mode supports persisting cached data to disk using file-based acceleration engines, enabling the cache to survive application restarts and reducing cold start times.
+
+### File-Based Accelerators
+
+Three acceleration engines support file persistence for caching mode:
+
+- **DuckDB** - High-performance analytical database with excellent compression
+- **SQLite** - Lightweight, reliable database ideal for embedded scenarios
+- **Cayenne** - Spice's native accelerator optimized for analytical workloads
+
+### Configuring File Persistence
+
+Enable file persistence by setting `acceleration.mode: file` and specifying an acceleration engine:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: persistent_cache
+    params:
+      allowed_request_paths: '/api/products'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb # or sqlite, cayenne
+      mode: file # Enable file persistence
+      refresh_check_interval: 15m
+      refresh_sql: |
+        SELECT * FROM persistent_cache
+        WHERE request_path = '/api/products'
+          AND request_query = 'category=electronics'
+```
+
+### DuckDB Persistence Example
+
+DuckDB provides excellent performance for analytical queries on cached data:
+
+```yaml
+datasets:
+  - from: https://analytics-api.example.com
+    name: analytics_cache
+    params:
+      allowed_request_paths: '/api/metrics'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      refresh_check_interval: 30m
+      params:
+        duckdb_file: analytics_cache.db # Specify custom file location
+      refresh_sql: |
+        SELECT * FROM analytics_cache
+        WHERE request_path = '/api/metrics'
+```
+
+### SQLite Persistence Example
+
+SQLite is ideal for lightweight caching scenarios:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: lightweight_cache
+    params:
+      allowed_request_paths: '/api/users'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: sqlite
+      mode: file
+      refresh_check_interval: 10m
+      params:
+        sqlite_file: user_cache.db
+      refresh_sql: |
+        SELECT * FROM lightweight_cache
+        WHERE request_path = '/api/users'
+```
+
+### Cayenne Persistence Example
+
+Cayenne provides optimized performance for Spice workloads:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: optimized_cache
+    params:
+      allowed_request_paths: '/api/events'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: cayenne
+      mode: file
+      refresh_check_interval: 5m
+      refresh_sql: |
+        SELECT * FROM optimized_cache
+        WHERE request_path = '/api/events'
+```
+
+### Benefits of File Persistence
+
+Persisting the cache to disk provides several advantages:
+
+- **Fast cold starts** - Cache is immediately available on application restart without fetching from APIs
+- **Reduced API load** - No need to refetch all data after restarts
+- **Cost savings** - Fewer API requests reduce metered API costs
+- **Offline capability** - Cached data remains queryable even when the API is unavailable
+- **Data durability** - Cache survives application crashes and restarts
+
+### Memory vs. File Mode
+
+Choose between in-memory and file-based caching based on your requirements:
+
+| Aspect          | Memory Mode (`mode: memory`)      | File Mode (`mode: file`)      |
+| --------------- | --------------------------------- | ----------------------------- |
+| **Performance** | Fastest - all data in RAM         | Fast with disk I/O            |
+| **Persistence** | Lost on restart                   | Survives restarts             |
+| **Capacity**    | Limited by available memory       | Limited by disk space         |
+| **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
+| **Best for**    | Small, frequently changing caches | Large, stable caches          |
+| **Engines**     | `arrow` (default)                 | `duckdb`, `sqlite`, `cayenne` |
+
+### Combining SWR and Persistence
+
+For optimal performance, combine the SWR pattern with file persistence:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: high_performance_cache
+    params:
+      allowed_request_paths: '/api/data'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist to disk
+      refresh_check_interval: 10m # Background refresh (SWR)
+      refresh_on_startup: auto # Use persisted cache on startup
+      refresh_sql: |
+        SELECT * FROM high_performance_cache
+        WHERE request_path = '/api/data'
+```
+
+This configuration provides:
+
+- Immediate query response from persisted cache on startup
+- Background refresh every 10 minutes without blocking queries
+- Durable cache that survives application restarts
+- Reduced API requests and costs
+
+## Behavior and Characteristics
+
+### Row-Level Replacement
+
+The `caching` mode uses `InsertOp::Replace` to handle data updates. When new data is fetched for a given cache key (request metadata):
+
+1. All existing rows matching that cache key are removed
+2. All new rows are inserted
+3. This operation is atomic, ensuring consistent cache state
+
+This behavior differs from other modes:
+
+- **`full` mode**: Replaces the entire dataset
+- **`append` mode**: Adds new rows without removing existing ones
+- **`changes` mode**: Applies CDC events
+- **`caching` mode**: Replaces rows matching the specific cache key
+
+### Cache Key Behavior
+
+The `caching` mode determines cache keys based on the acceleration configuration:
+
+**Default (No Primary Key Specified)**:
+
+- Uses HTTP request metadata fields as the cache key: `request_path`, `request_query`, and `request_body`
+- Multiple result rows can share the same request metadata
+- The cache key serves as the logical grouping mechanism for row replacement
+- Content within a response may have duplicate values across different requests
+
+**With Primary Key Specified**:
+
+- Uses the explicitly configured `primary_key` columns as the cache key
+- Provides fine-grained control over cache key composition
+- Useful when caching requires uniqueness based on response content fields rather than request metadata
+
+Example with custom primary key:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: custom_cache
+    params:
+      allowed_request_paths: '/api/items'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      primary_key: [item_id, version] # Use content fields as cache key
+      refresh_check_interval: 10m
+```
+
+### HTTP Date Header
+
+The `fetched_at` timestamp respects the HTTP `Date` response header when present. This provides:
+
+- Accurate server-side timestamps for cached responses
+- Consistency across distributed systems
+- Proper cache age calculation based on server time
+
+If the `Date` header is not present, the system falls back to using the current system time.
+
+## Refresh Configuration
+
+The `caching` mode supports standard refresh configuration options. See [Stale-While-Revalidate Pattern](#stale-while-revalidate-pattern) for background refresh details and [Cache Persistence](#cache-persistence) for file-based caching configuration.
+
+| Parameter                | Description                                                           | Default        |
+| ------------------------ | --------------------------------------------------------------------- | -------------- |
+| `refresh_check_interval` | How often to refresh cached data in the background                    | None           |
+| `refresh_sql`            | SQL query defining what data to cache                                 | None           |
+| `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
+| `on_zero_results`        | Behavior when cache returns no results (`return_empty`, `use_source`) | `return_empty` |
+| `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `arrow`        |
+| `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
+
+## Limitations
+
+- Currently only available for HTTP-based datasets using the [HTTPS connector](/docs/components/data-connectors/https.md). Future releases will extend support to arbitrary queries from any data source.
+- Requires `acceleration.enabled: true`
+- When no `primary_key` is specified, cache keys default to request metadata fields (`request_path`, `request_query`, `request_body`)
+- On-demand refresh via `/v1/datasets/:name/acceleration/refresh` API triggers a new refresh for all cache keys defined in `refresh_sql`
+
+## Related Documentation
+
+- [HTTPS Data Connector](/docs/components/data-connectors/https.md) - Detailed HTTP connector configuration
+- [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Overview of all refresh modes
+- [Refresh SQL](/docs/features/data-acceleration/data-refresh.md#refresh-sql) - Using SQL to control refresh behavior
+- [Special Metadata Fields](/docs/components/data-connectors/https.md#special-metadata-fields) - HTTP request metadata fields
+- [Data Accelerators](/docs/components/data-accelerators) - Acceleration engines for cache persistence
+- [DuckDB Accelerator](/docs/components/data-accelerators/duckdb.md) - DuckDB acceleration engine
+- [SQLite Accelerator](/docs/components/data-accelerators/sqlite.md) - SQLite acceleration engine
