@@ -51,7 +51,7 @@ The `fetched_at` timestamp uses the HTTP `Date` response header when available, 
 
 ## Configuration
 
-To use `caching` mode, configure your dataset with `refresh_mode: caching`:
+To use `caching` mode, configure an `HTTP`/`HTTPS` dataset with `refresh_mode: caching`:
 
 ```yaml
 datasets:
@@ -66,8 +66,10 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      caching_ttl: 10s
       refresh_check_interval: 30s
+      params:
+        caching_ttl: 10s # How long a cache entry is considered fresh
+        caching_stale_while_revalidate_ttl: 30s # How long after the `caching_ttl` to serve stale data while refreshing in the background
 ```
 
 ## Use Cases
@@ -89,7 +91,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      caching_ttl: 15s
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_search_cache
@@ -99,7 +103,7 @@ datasets:
 
 This configuration:
 
-- Fetches search results for "game of thrones" every 10 minutes
+- Fetches search results for "game of thrones" every 30 seconds
 - Stores all result items with the same request metadata
 - Replaces all previous results for this query on each refresh
 - Preserves the timestamp of when results were fetched
@@ -121,7 +125,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      caching_ttl: 10s
+      params:
+        caching_ttl: 10s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 20s
       refresh_sql: |
         SELECT * FROM episodes_cache
@@ -146,7 +152,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      caching_ttl: 10s
+      params:
+        caching_ttl: 10s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM multi_endpoint_cache
@@ -214,7 +222,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 10s # Data is fresh for 10 seconds
+      params:
+        caching_ttl: 10s # Data is fresh for 10 seconds
+        caching_stale_while_revalidate_ttl: 10s # Serve stale data for 10 seconds while refreshing
       refresh_check_interval: 30s # Refresh every 30 seconds in background
       refresh_sql: |
         SELECT * FROM shows_cache
@@ -247,7 +257,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 10s # Serve stale data for 10 seconds while refreshing
       refresh_check_interval: 30s # Background refresh every 30 seconds
       refresh_on_startup: always # Always refresh on startup
       refresh_sql: |
@@ -292,7 +304,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb # or sqlite, cayenne
       mode: file # Enable file persistence
-      caching_ttl: 10s
+      params:
+        caching_ttl: 10s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM shows_persistent_cache
@@ -317,10 +331,11 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file
-      caching_ttl: 10s
-      refresh_check_interval: 30s
       params:
+        caching_ttl: 10s
+        caching_stale_while_revalidate_ttl: 10s
         duckdb_file: tv_shows_cache.db # Specify custom file location
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_shows_duckdb
         WHERE request_path IN ('/shows/82', '/shows/169')
@@ -344,10 +359,11 @@ datasets:
       refresh_mode: caching
       engine: sqlite
       mode: file
-      caching_ttl: 15s
-      refresh_check_interval: 30s
       params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 10s
         sqlite_file: tv_search_cache.db
+      refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_search_sqlite
         WHERE request_path = '/search/shows'
@@ -370,7 +386,9 @@ datasets:
       refresh_mode: caching
       engine: cayenne
       mode: file
-      caching_ttl: 10s
+      params:
+        caching_ttl: 10s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_shows_cayenne
@@ -417,7 +435,9 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist to disk
-      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 10s # Serve stale data for 10 seconds while refreshing
       refresh_check_interval: 30s # Background refresh (SWR)
       refresh_on_startup: auto # Use persisted cache on startup
       refresh_sql: |
@@ -482,7 +502,9 @@ datasets:
       engine: duckdb
       mode: file
       primary_key: [id, season, number] # Use episode fields as cache key
-      caching_ttl: 15s
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 10s
       refresh_check_interval: 30s
       refresh_sql: |
         SELECT * FROM tv_episodes_custom_key
@@ -508,14 +530,22 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_check_interval` | How often to refresh cached data in the background                    | None           |
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
-| `caching_ttl`            | Time-to-live for cached data before considered stale                  | `30s`          |
 | `on_zero_results`        | Behavior when cache returns no results (`return_empty`, `use_source`) | `return_empty` |
 | `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `arrow`        |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
 ### Cache TTL (Time-to-Live)
 
-The `caching_ttl` parameter defines how long cached data is considered fresh before it becomes stale. Once cached data exceeds this age, the SWR pattern triggers background refresh to update the cache while continuing to serve the stale data.
+The caching mode provides two TTL parameters to control cache freshness and staleness behavior:
+
+| Parameter                            | Description                                                                                                              | Default |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `caching_ttl`                        | Duration that cached data is considered fresh. After this period, data becomes stale and triggers a background refresh. | `30s`   |
+| `caching_stale_while_revalidate_ttl` | Duration after `caching_ttl` expires during which stale data is served while refreshing in the background. After this period, queries wait for fresh data. | None    |
+
+The `caching_ttl` parameter defines how long cached data is considered fresh before it becomes stale. Once cached data exceeds this age, the SWR pattern triggers background refresh to update the cache while continuing to serve the stale data during the `caching_stale_while_revalidate_ttl` window.
+
+If `caching_stale_while_revalidate_ttl` is omitted, cached data becomes rotten immediately after `caching_ttl` expires, and queries will wait for fresh data rather than returning stale results. When a value is specified, stale data is served during that window after `caching_ttl` expires while a background refresh occurs. Once the combined `caching_ttl + caching_stale_while_revalidate_ttl` period has passed, queries will wait for fresh data instead of returning stale results.
 
 **Configuring Cache TTL**:
 
@@ -531,8 +561,10 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 15s # Cache data is fresh for 15 seconds
       refresh_check_interval: 30s # Periodic check for stale data
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 10s # Serve stale data for 10 seconds while refreshing
 ```
 
 **How Cache TTL Works**:
@@ -541,7 +573,7 @@ datasets:
 2. On subsequent queries, the system checks `now - fetched_at > caching_ttl`
 3. If data is within TTL, it is served immediately (fresh)
 4. If data exceeds TTL, it becomes stale:
-   - Stale data is served immediately (no query delay)
+   - Stale data is served immediately (no query delay) if within `caching_stale_while_revalidate_ttl`
    - Background refresh is triggered to update the cache
    - Next query receives the refreshed data
 
@@ -552,7 +584,7 @@ datasets:
 - Hours: `1h`, `24h`
 - Mixed: `1h30m`, `2h15m30s`
 
-**Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases.
+**Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
 
 **TTL Considerations**:
 

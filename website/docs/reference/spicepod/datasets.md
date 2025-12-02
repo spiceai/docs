@@ -316,11 +316,11 @@ Optional. Specifies a cron schedule which controls how often data is refreshed. 
 
 See the [cron schedule reference](/docs/reference/cron.md).
 
-## `acceleration.caching_ttl`
+## `acceleration.params.caching_ttl`
 
 Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
 
-When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. Stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache. This implements the Stale-While-Revalidate (SWR) pattern.
+When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
 
 **Example**:
 
@@ -333,8 +333,38 @@ datasets:
       refresh_mode: caching
       engine: duckdb
       mode: file # Persist cache to disk
-      caching_ttl: 15s # Cache data is fresh for 15 seconds
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
       refresh_check_interval: 30s # Periodic background refresh
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.params.caching_stale_while_revalidate_ttl`
+
+Optional. The duration after `caching_ttl` expires during which stale data is served while refreshing in the background. Only applicable when `refresh_mode: caching`. Defaults to none (stale data is not served).
+
+When `caching_ttl` expires and data becomes stale, this parameter controls how long stale data continues to be served immediately while a background refresh occurs. After the combined `caching_ttl + caching_stale_while_revalidate_ttl` period, queries wait for fresh data instead of returning stale results.
+
+If omitted, cached data becomes "rotten" immediately after `caching_ttl` expires, and queries will wait for fresh data rather than returning stale results.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 30s # Serve stale data for 30 seconds while refreshing
+      refresh_check_interval: 60s
 ```
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
