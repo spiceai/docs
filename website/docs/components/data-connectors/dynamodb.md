@@ -428,3 +428,28 @@ describe users;
 ...
 +----------------+------------------+-------------+
 ```
+
+# Streams
+
+The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html) to enable real-time streaming of table changes. This feature supports both initial table bootstrapping and continuous change data capture (CDC), allowing Spice to automatically detect and stream inserts, updates, and deletes from DynamoDB tables.
+
+## Overview
+
+DynamoDB Streams provides a time-ordered sequence of item-level changes in a DynamoDB table. The Spice connector uses this stream to:
+
+1. **Bootstrap** - Perform an initial full table load to populate the acceleration layer
+2. **Stream Changes** - Continuously capture and apply changes (inserts, updates, deletes) in real-time
+
+This enables real-time query, search, and LLM-inference on dynamically changing DynamoDB data.
+
+## Configuration
+
+To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration:
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: orders_stream
+    acceleration:
+      enabled: true
+      refresh_mode: changes
+```
