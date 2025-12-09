@@ -346,8 +346,10 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 
 | Parameter name  | Optional | Default | Description                                                                                                     |
 | --------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                  |
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](/docs/reference/duration/index.md). |
+| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                 |
 
 **Protocol inference:**
 
@@ -379,6 +381,21 @@ runtime:
       # HTTP - include scheme and /v1/metrics path
       endpoint: 'http://localhost:4318/v1/metrics'
       push_interval: '30s'
+```
+
+With metric filtering (export only specific metrics):
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'localhost:4317'
+      push_interval: '30s'
+      metrics:
+        - query_duration_ms
+        - query_executions
+        - dataset_load_state
 ```
 
 ## `runtime.metrics`

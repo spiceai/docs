@@ -84,11 +84,12 @@ Spice can push metrics to an [OpenTelemetry](https://opentelemetry.io/) collecto
 
 Configure the OpenTelemetry exporter in `spicepod.yaml` under `runtime.telemetry.otel_exporter`:
 
-| Parameter       | Required | Default | Description                                                      |
-| --------------- | -------- | ------- | ---------------------------------------------------------------- |
-| `enabled`       | Yes      | -       | Enable the exporter                                              |
-| `endpoint`      | Yes      | -       | The OpenTelemetry collector endpoint.                            |
-| `push_interval` | No       | `60s`   | Default 30s. How frequently metrics are pushed to the collector. |
+| Parameter       | Required | Default | Description                                                           |
+| --------------- | -------- | ------- | --------------------------------------------------------------------- |
+| `enabled`       | No       | `true`  | Whether the OpenTelemetry exporter is enabled.                        |
+| `endpoint`      | Yes      | -       | The OpenTelemetry collector endpoint.                                 |
+| `push_interval` | No       | `60s`   | How frequently metrics are pushed to the collector.                   |
+| `metrics`       | No       | `[]`    | List of metric names to export. When empty, all metrics are exported. |
 
 ### Protocol Selection
 
@@ -122,6 +123,24 @@ runtime:
       endpoint: 'http://localhost:4318/v1/metrics'
       push_interval: '30s'
 ```
+
+### Metric Filtering
+
+To export only specific metrics, use the `metrics` parameter:
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'localhost:4317'
+      metrics:
+        - query_duration_ms
+        - query_executions
+        - dataset_load_state
+```
+
+When `metrics` is empty or omitted, all available metrics are exported.
 
 For full configuration details, see the [runtime.telemetry reference](/docs/reference/spicepod/runtime#runtimetelemetry).
 
