@@ -556,6 +556,27 @@ The possible conflict resolution strategies are:
 
 See [Constraints](../../features/data-acceleration/constraints.md)
 
+## `acceleration.snapshots_trigger_threshold`
+
+Optional. Specify how frequently snapshots are created during streaming operations. Only applicable when using `refresh_mode: changes` and `refresh_mode: append` without `time_column`.
+
+The `snapshots_trigger_threshold` field is an integer that determines after how many batch updates a snapshot should be created. For example, a value of `5` means a snapshot will be created every 5 batch updates.
+
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: orders_stream
+    acceleration:
+      enabled: true
+      refresh_mode: changes
+      on_conflict:
+        (id, version): upsert
+      params:
+        snapshots_trigger_threshold: 5 # Create snapshot every 5 batch updates
+```
+
+See [Snapshots](../../features/data-acceleration/snapshots.md)
+
 ```yaml
 datasets:
   - from: spice.ai/eth.recent_blocks
