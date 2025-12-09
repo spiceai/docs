@@ -254,6 +254,10 @@ openai:
   label: "openai"
   permalink: "/openai"
   description: "OpenAI topics and usage"
+opentelemetry:
+  label: "opentelemetry"
+  permalink: "/opentelemetry"
+  description: "OpenTelemetry topics and usage"
 oracle:
   label: "oracle"
   permalink: "/oracle"
