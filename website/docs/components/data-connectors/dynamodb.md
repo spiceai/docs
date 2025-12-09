@@ -478,12 +478,12 @@ datasets:
 
 The following [Component Metrics](../../features/observability/component_metrics.md) are provided for monitoring streaming performance and health:
 
-| Metric                   | Description                                                                          |
-|--------------------------|--------------------------------------------------------------------------------------|
-| `shards_active`          | Current number of active shards in the stream (Gauge)                                |
-| `records_consumed_total` | Total number of records consumed from the stream (Counter)                           |
-| `lag_ms`                 | Current lag in milliseconds between stream watermark and the current time (Gauge)    |
-| `errors_transient_total` | Total number of transient errors encountered while polling from the stream (Counter) |
+| Metric                   | Type    | Description                                                                 |
+|--------------------------|---------|-----------------------------------------------------------------------------|
+| `shards_active`          | Gauge   | Current number of active shards in the stream                               |
+| `records_consumed_total` | Counter | Total number of records consumed from the stream                            |
+| `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time   |
+| `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream  |
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
 
