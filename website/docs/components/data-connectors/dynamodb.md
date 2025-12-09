@@ -452,6 +452,7 @@ datasets:
     acceleration:
       enabled: true
       engine: duckdb
+      mode: file
       refresh_mode: changes
       on_conflict:
         (id, version): upsert
@@ -511,6 +512,7 @@ datasets:
      acceleration:
         enabled: true
         engine: duckdb
+        mode: file
         refresh_mode: changes
         on_conflict:
            (id, version): upsert
