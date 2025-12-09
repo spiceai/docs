@@ -469,7 +469,7 @@ datasets:
 - **`on_conflict`** - Specifies the conflict resolution strategy when streaming changes that match existing records. The keys in the tuple should correspond to your DynamoDB table's partition key and range key (if applicable). The `upsert` action will insert new records or update existing ones based on these key columns.
 
   **Examples:**
-   - Single partition key: `(id): upsert`
+   - Single partition key: `id: upsert`
    - Partition key + range key: `(partition_key, sort_key): upsert`
 
 - **`snapshots_trigger_threshold`** - Determines how frequently snapshots are created during streaming. A value of `5` means a snapshot is created every 5 batch updates. Snapshots enable faster recovery and better query performance but consume additional storage.
