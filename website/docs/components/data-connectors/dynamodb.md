@@ -6,6 +6,7 @@ tags:
   - data-connectors
   - dynamodb
   - nosql
+  - component-metrics
 ---
 
 Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability. This connector enables using DynamoDB tables as data sources for federated SQL queries in Spice.
@@ -435,16 +436,15 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 ### Overview
 
-DynamoDB Streams provides a time-ordered sequence of item-level changes in a DynamoDB table. The Spice connector uses this stream to:
-
-1. **Bootstrap** - Perform an initial full table load to populate the acceleration layer
-2. **Stream Changes** - Continuously capture and apply changes (inserts, updates, deletes) in real-time
+DynamoDB Streams provides a time-ordered sequence of item-level changes in a DynamoDB table. The Spice connector uses this stream to continuously capture and apply changes (inserts, updates, deletes) in real-time
 
 This enables real-time query, search, and LLM-inference on dynamically changing DynamoDB data.
 
-### Configuration
+### Basic Configuration
 
-To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration:
+To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration.
+
+You also need to configure the `on_conflict` parameter to specify how the connector should handle updates to existing records. The keys defined in `on_conflict` must match your DynamoDB table's partition key and range key (if your table has one)
 ```yaml
 datasets:
   - from: dynamodb:my_table
@@ -452,4 +452,65 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: changes
+      on_conflict:
+        (id, version): upsert
+```
+
+### Configuration Parameters
+
+#### Dataset Parameters
+
+- **`ready_lag`** - Defines the maximum lag threshold before the dataset is reported as "Ready". Once the stream lag falls below this value, queries can be executed against the dataset. Default behavior reports ready immediately after bootstrap completes.
+
+- **`scan_interval`** - Controls the polling frequency for checking new records in the DynamoDB stream. Lower values provide more real-time updates but increase API calls. Higher values reduce API usage but may introduce additional latency.
+
+#### Acceleration Parameters
+
+- **`on_conflict`** - Specifies the conflict resolution strategy when streaming changes that match existing records. The keys in the tuple should correspond to your DynamoDB table's partition key and range key (if applicable). The `upsert` action will insert new records or update existing ones based on these key columns.
+
+  **Examples:**
+   - Single partition key: `(id): upsert`
+   - Partition key + range key: `(partition_key, sort_key): upsert`
+
+- **`snapshots_trigger_threshold`** - Determines how frequently snapshots are created during streaming. A value of `5` means a snapshot is created every 5 batch updates. Snapshots enable faster recovery and better query performance but consume additional storage.
+
+### Metrics
+
+The following [Component Metrics](../../features/observability/component_metrics.md) are provided for monitoring streaming performance and health:
+
+| Metric                   | Description                                                                          |
+|--------------------------|--------------------------------------------------------------------------------------|
+| `shards_active`          | Current number of active shards in the stream (Gauge)                                |
+| `records_consumed_total` | Total number of records consumed from the stream (Counter)                           |
+| `lag_ms`                 | Current lag in milliseconds between stream watermark and the current time (Gauge)    |
+| `errors_transient_total` | Total number of transient errors encountered while polling from the stream (Counter) |
+
+You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
+
+## Advanced Configuration
+
+For production workloads requiring fine-tuned control over streaming behavior and performance characteristics:
+```yaml
+datasets:
+   - from: dynamodb:my_table
+     name: orders_stream
+     params:
+        ready_lag: 1s          # Dataset reports as Ready when lag is below 1 second
+        scan_interval: 100ms   # Poll for new stream records every 100 milliseconds
+     acceleration:
+        enabled: true
+        refresh_mode: changes
+        on_conflict:
+           (id, version): upsert
+        params:
+           snapshots_trigger_threshold: 5  # Create snapshot every 5 batch updates
+     metrics:
+     - name: shards_active
+       enabled: true
+     - name: records_consumed_total
+       enabled: true
+     - name: lag_ms
+       enabled: true
+     - name: errors_transient_total
+       enabled: true
 ```
