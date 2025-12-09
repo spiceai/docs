@@ -440,6 +440,12 @@ DynamoDB Streams provides a time-ordered sequence of item-level changes in a Dyn
 
 This enables real-time query, search, and LLM-inference on dynamically changing DynamoDB data.
 
+:::warning
+
+Using the DynamoDB connector **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes` and defined `on_conflict` configuration.
+
+:::
+
 ### Basic Configuration
 
 To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration.
