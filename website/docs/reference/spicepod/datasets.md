@@ -301,6 +301,8 @@ Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
+- `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
+- `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md) for details.
 
 ## `acceleration.refresh_check_interval`
 
@@ -313,6 +315,92 @@ See [Duration](../duration/index.md)
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See the [cron schedule reference](/docs/reference/cron.md).
+
+## `acceleration.params.caching_ttl`
+
+Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
+
+When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Periodic background refresh
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.params.caching_stale_while_revalidate_ttl`
+
+Optional. The duration after `caching_ttl` expires during which stale data is served while refreshing in the background. Only applicable when `refresh_mode: caching`. Defaults to none (stale data is not served).
+
+When `caching_ttl` expires and data becomes stale, this parameter controls how long stale data continues to be served immediately while a background refresh occurs. After the combined `caching_ttl + caching_stale_while_revalidate_ttl` period, queries wait for fresh data instead of returning stale results.
+
+If omitted, cached data becomes "rotten" immediately after `caching_ttl` expires, and queries will wait for fresh data rather than returning stale results.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 30s # Serve stale data for 30 seconds while refreshing
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.params.caching_stale_if_error`
+
+Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+
+When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+
+Valid values:
+
+- `enabled` - Serve expired cached data when upstream errors occur
+- `disabled` (default) - Propagate upstream errors to queries
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 30s
+        caching_stale_if_error: enabled # Serve stale data on upstream errors
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
 
 ## `acceleration.refresh_sql`
 
@@ -498,6 +586,27 @@ The possible conflict resolution strategies are:
 - `drop` - Drop the data when the primary key constraint is violated.
 
 See [Constraints](../../features/data-acceleration/constraints.md)
+
+## `acceleration.snapshots_trigger_threshold`
+
+Optional. Specify how frequently snapshots are created during streaming operations. Only applicable when using `refresh_mode: changes` and `refresh_mode: append` without `time_column`.
+
+The `snapshots_trigger_threshold` field is an integer that determines after how many batch updates a snapshot should be created. For example, a value of `5` means a snapshot will be created every 5 batch updates.
+
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: orders_stream
+    acceleration:
+      enabled: true
+      refresh_mode: changes
+      on_conflict:
+        (id, version): upsert
+      params:
+        snapshots_trigger_threshold: 5 # Create snapshot every 5 batch updates
+```
+
+See [Snapshots](../../features/data-acceleration/snapshots.md)
 
 ```yaml
 datasets:
