@@ -528,3 +528,8 @@ datasets:
      - name: errors_transient_total
        enabled: true
 ```
+
+## Cookbooks
+
+- A cookbook recipe to configure DynamoDB as a data connector in Spice. [DynamoDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/dynamodb#readme)
+- A cookbook recipe to configure DynamoDB Streams as a data connector in Spice. [DynamoDB Streams Data Connector](https://github.com/spiceai/cookbook/tree/trunk/dynamodb/streams#readme)
