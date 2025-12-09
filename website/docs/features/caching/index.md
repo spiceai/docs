@@ -51,7 +51,7 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                             |
 | `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                                           |
 | `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                                 |
-| `hashing_algorithm`          | Yes      | `siphash` | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `siphash`. Supports `siphash` or `ahash`.                                                                        |
+| `hashing_algorithm`          | Yes      | `xxh3`    | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                                                                        |
 
 ## `caching.sql_results` Parameters
 
@@ -74,10 +74,13 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 
 The hashing algorithm determines how cache keys are hashed before being stored, impacting both lookup speed and protection against potential DOS attacks.
 
-- **`siphash` (Default):** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
+- **`xxh3` (Default):** Uses the [XXH3](https://cyan4973.github.io/xxHash/) algorithm for hashing the cache keys. XXH3 is a fast, non-cryptographic hash algorithm that provides high performance and good distribution. It is suitable for scenarios where speed is critical and cryptographic security is not required.
+- **`siphash`:** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
 - **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
+- **`blake3`:** Uses the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function. BLAKE3 is a fast, parallelizable hash function that provides cryptographic security while maintaining high performance. It is suitable for scenarios requiring both speed and cryptographic guarantees.
+- **`xxh32`, `xxh64`, `xxh128`:** Variants of the XXH hashing algorithm with different output sizes. These algorithms offer a balance between speed and collision resistance, with larger hash sizes providing better collision resistance at the cost of performance.
 
-Consider using `ahash` if maximum performance is most important, or where hashing DoS attacks are unlikely or a low risk. More information on the security mechanisms of AHash are available [in the AHash documentation](https://github.com/tkaitchuck/aHash/wiki/How-aHash-is-resists-DOS-attacks).
+Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, `xxh64` or `xxh128` for reduced collision probability when caching a large number of queries. Use `blake3` when cryptographic security is required. Use `siphash` when protection against hash flooding attacks is a priority.
 
 ### Choosing an `encoding`
 
