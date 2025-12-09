@@ -371,6 +371,37 @@ See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cac
 
 See [Duration](../duration/index.md)
 
+## `acceleration.params.caching_stale_if_error`
+
+Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+
+When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+
+Valid values:
+
+- `enabled` - Serve expired cached data when upstream errors occur
+- `disabled` (default) - Propagate upstream errors to queries
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 30s
+        caching_stale_if_error: enabled # Serve stale data on upstream errors
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
+
 ## `acceleration.refresh_sql`
 
 Optional. Filters the data fetched from the source to be stored in the accelerator engine. Only supported for `full` refresh_mode datasets.

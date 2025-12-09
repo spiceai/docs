@@ -536,12 +536,13 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 
 ### Cache TTL (Time-to-Live)
 
-The caching mode provides two TTL parameters to control cache freshness and staleness behavior:
+The caching mode provides parameters to control cache freshness and staleness behavior:
 
-| Parameter                            | Description                                                                                                              | Default |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `caching_ttl`                        | Duration that cached data is considered fresh. After this period, data becomes stale and triggers a background refresh. | `30s`   |
-| `caching_stale_while_revalidate_ttl` | Duration after `caching_ttl` expires during which stale data is served while refreshing in the background. After this period, queries wait for fresh data. | None    |
+| Parameter                            | Description                                                                                                                                                | Default    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `caching_ttl`                        | Duration that cached data is considered fresh. After this period, data becomes stale and triggers a background refresh.                                    | `30s`      |
+| `caching_stale_while_revalidate_ttl` | Duration after `caching_ttl` expires during which stale data is served while refreshing in the background. After this period, queries wait for fresh data. | None       |
+| `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error. Valid values: `enabled`, `disabled`.                            | `disabled` |
 
 The `caching_ttl` parameter defines how long cached data is considered fresh before it becomes stale. Once cached data exceeds this age, the SWR pattern triggers background refresh to update the cache while continuing to serve the stale data during the `caching_stale_while_revalidate_ttl` window.
 
@@ -585,6 +586,46 @@ datasets:
 - Mixed: `1h30m`, `2h15m30s`
 
 **Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
+
+### Stale-If-Error Behavior
+
+The `caching_stale_if_error` parameter controls whether expired cached data is served when the upstream data source returns an error during a refresh attempt. This provides fault tolerance by returning stale data instead of failing the query when the upstream source is temporarily unavailable.
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows_resilient
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 30s
+        caching_stale_if_error: enabled # Serve stale data on upstream errors
+```
+
+When `caching_stale_if_error: enabled`:
+
+- If the upstream source returns an error during refresh, expired cached data is served instead of failing
+- Queries continue to return data even when the upstream API is unavailable
+- Useful for APIs with intermittent availability or rate limits
+
+When `caching_stale_if_error: disabled` (default):
+
+- Errors from the upstream source propagate to the query
+- Queries fail when fresh data cannot be fetched and cached data has expired
+
+:::warning[Stale-While-Revalidate Configuration Conflict]
+When using `refresh_mode: caching`, you cannot configure both the caching accelerator's `caching_stale_while_revalidate_ttl` and the [results cache](/docs/features/caching)'s `stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers, and having both enabled creates a conflict.
+
+Choose one approach:
+
+- **Caching accelerator SWR**: Use `acceleration.params.caching_stale_while_revalidate_ttl` for HTTP-based dataset caching
+- **Results cache SWR**: Use `runtime.caching.sql_results.stale_while_revalidate_ttl` for SQL query results caching
+
+:::
 
 **TTL Considerations**:
 
