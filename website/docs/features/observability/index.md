@@ -10,7 +10,7 @@ pagination_next: null
 Spice provides monitoring and observability through three mechanisms:
 
 - **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), and [Chronosphere](https://chronosphere.io/).
-- **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC or HTTP.
+- **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC.
 - **Distributed tracing**: Integrates with [Zipkin](https://zipkin.io/) and compatible tracing systems for request tracing.
 
 <img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
@@ -91,14 +91,9 @@ Configure the OpenTelemetry exporter in `spicepod.yaml` under `runtime.telemetry
 | `push_interval` | No       | `60s`   | How frequently metrics are pushed to the collector.                   |
 | `metrics`       | No       | `[]`    | List of metric names to export. When empty, all metrics are exported. |
 
-### Protocol Selection
+### Protocol
 
-The protocol (gRPC or HTTP) is inferred from the endpoint format:
-
-| Format                                  | Protocol | Example                            |
-| --------------------------------------- | -------- | ---------------------------------- |
-| Host and port without scheme            | gRPC     | `localhost:4317`                   |
-| URL with `http://` or `https://` scheme | HTTP     | `http://localhost:4318/v1/metrics` |
+Spice currently supports only the gRPC protocol for OpenTelemetry metrics export. Specify the collector `endpoint` as a host and port (e.g., `localhost:4317`). 
 
 ### Examples
 
@@ -110,17 +105,6 @@ runtime:
     enabled: true
     otel_exporter:
       endpoint: 'localhost:4317'
-      push_interval: '30s'
-```
-
-**HTTP (default port 4318):**
-
-```yaml
-runtime:
-  telemetry:
-    enabled: true
-    otel_exporter:
-      endpoint: 'http://localhost:4318/v1/metrics'
       push_interval: '30s'
 ```
 
