@@ -100,7 +100,7 @@ const config: Config = {
   themeConfig: {
     announcementBar: {
       content:
-        '<a href="/blog/releases/v1.9.0">Introducing the Cayenne Data Accelerator & Multi-Node Distributed Query: Spice.ai OSS v1.9.0</a> is now available! 🌶',
+        '<a href="/blog/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
