@@ -451,6 +451,7 @@ datasets:
     name: orders_stream
     acceleration:
       enabled: true
+      engine: duckdb
       refresh_mode: changes
       on_conflict:
         (id, version): upsert
@@ -509,6 +510,7 @@ datasets:
         scan_interval: 100ms   # Poll for new stream records every 100 milliseconds
      acceleration:
         enabled: true
+        engine: duckdb
         refresh_mode: changes
         on_conflict:
            (id, version): upsert
