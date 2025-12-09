@@ -45,22 +45,22 @@ runtime:
 
 Every cache type (`sql_results`, `search_results`, `embeddings`) supports the following parameters:
 
-| Parameter name               | Optional | Default   | Description                                                                                                                                                                                                           |
-| ---------------------------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`                    | Yes      | `true`    | Defaults to `true`.                                                                                                                                                                                                   |
-| `max_size`                   | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                             |
-| `eviction_policy`            | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                                           |
-| `item_ttl`                   | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                                 |
-| `hashing_algorithm`          | Yes      | `xxh3`    | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                                                                        |
+| Parameter name      | Optional | Default  | Description                                                                                                                                                                                |
+| ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                        |
+| `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                  |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                |
+| `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                      |
+| `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`. |
 
 ## `caching.sql_results` Parameters
 
 In addition to the common caching parameters, `sql_results` also supports additional parameters:
 
-| Parameter name   | Optional | Default | Description                                                                                                                                   |
-| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
-| `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
+| Parameter name               | Optional | Default | Description                                                                                                                                                                                                           |
+| ---------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
+| `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
 | `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 ### Choosing a `cache_key_type`
@@ -194,6 +194,16 @@ With this configuration:
 - After 20 seconds, the entry is evicted if not refreshed.
 
 This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
+
+:::warning[Conflict with Caching Accelerator SWR]
+When using a dataset with `refresh_mode: caching`, you cannot configure both the results cache's `stale_while_revalidate_ttl` and the caching accelerator's `caching_stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers.
+
+Choose one approach:
+
+- **Results cache SWR**: Configure `runtime.caching.sql_results.stale_while_revalidate_ttl` for SQL query results caching
+- **Caching accelerator SWR**: Configure `acceleration.params.caching_stale_while_revalidate_ttl` for [HTTP-based dataset caching](/docs/features/data-acceleration/refresh-modes/caching)
+
+:::
 
 ### HTTP/Flight API
 
