@@ -43,13 +43,13 @@ This setting specifies cache settings for supported Runtime components:
 
 Runtime caches support common configuration parameters:
 
-| Parameter name      | Optional | Default   | Description                                                                                                                                    |
-| ------------------- | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | Yes      | `true`    | Defaults to `true`.                                                                                                                            |
-| `max_size`          | Yes      | `128MiB`  | Maximum cache size. Defaults to `128MiB`.                                                                                                      |
-| `eviction_policy`   | Yes      | `lru`     | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                    |
-| `item_ttl`          | Yes      | `1s`      | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                          |
-| `hashing_algorithm` | Yes      | `xxh3`    | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                                                                        |
+| Parameter name      | Optional | Default  | Description                                                                                                                                                                                |
+| ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                        |
+| `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                  |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`, which is currently the only supported value.                                                                |
+| `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                      |
+| `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`. |
 
 ### `runtime.caching.search_results`
 
@@ -96,11 +96,11 @@ runtime:
 
 In addition to the common cache configuration parameters, `sql_results` also supports the following parameters:
 
-| Parameter name   | Optional | Default | Description                                                                                                                                   |
-| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_key_type` | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string. |
-| `encoding`       | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                      |
-| `stale_while_revalidate_ttl` | Yes      | `0s`      | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| Parameter name               | Optional | Default | Description                                                                                                                                                                                                           |
+| ---------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
+| `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
+| `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
 
 :::info
 
@@ -322,9 +322,68 @@ runtime:
   output_level: info # or verbose, very_verbose
 ```
 
+## `runtime.telemetry`
+
+The telemetry section configures runtime telemetry collection and export. [Learn more](/docs/features/observability).
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      enabled: true
+      endpoint: 'localhost:4317'
+      push_interval: '5m'
+```
+
+### `runtime.telemetry.enabled`
+
+Enables or disables runtime telemetry collection. Defaults to `true`.
+
+### `runtime.telemetry.otel_exporter`
+
+Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
+
+| Parameter name  | Optional | Default | Description                                                                                                     |
+| --------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](/docs/reference/duration/index.md). |
+
+**Protocol inference:**
+
+- **gRPC (default):** Use a bare host:port endpoint without a scheme (e.g., `localhost:4317`). gRPC uses port 4317 by default.
+- **HTTP:** Include the `http://` or `https://` scheme and the `/v1/metrics` path (e.g., `http://localhost:4318/v1/metrics`). HTTP uses port 4318 by default.
+
+**Examples:**
+
+gRPC configuration:
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      # gRPC - no scheme or path needed
+      endpoint: 'localhost:4317'
+      push_interval: '30s'
+```
+
+HTTP configuration:
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      enabled: true
+      # HTTP - include scheme and /v1/metrics path
+      endpoint: 'http://localhost:4318/v1/metrics'
+      push_interval: '30s'
+```
+
 ## `runtime.metrics`
 
-Allows to enable metrics that are disabled by default.
+Specifies metrics that are disabled by default.
 
 Following metrics are disabled by default:
 
