@@ -26,32 +26,32 @@ Telemetry can be disabled in one of three ways:
 
 1. Running the Spice runtime with the CLI flag `--telemetry-enabled false`:
 
-  ```bash
-  spice run -- --telemetry-enabled false
-  ```
+```bash
+spice run -- --telemetry-enabled false
+```
 
-  or
+or
 
-  ```bash
-  spiced --telemetry-enabled false
-  ```
+```bash
+spiced --telemetry-enabled false
+```
 
 2. Add the following configuration to the Spicepod configuration file (`spicepod.yaml`):
 
-  ```yaml
-  runtime:
-    telemetry:
-      enabled: false
-  ```
+```yaml
+runtime:
+  telemetry:
+    enabled: false
+```
 
 3. Compile the Spice runtime without the `anonymous_telemetry` default feature:
 
-  ```bash
-  cargo build --release --no-default-features --features "<other_default_features>"
-  ```
+```bash
+cargo build --release --no-default-features --features "<other_default_features>"
+```
 
-  i.e.
+i.e.
 
-  ```bash
-  cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
-  ```
+```bash
+cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
+```

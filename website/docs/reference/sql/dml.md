@@ -52,7 +52,7 @@ VALUES (1, 'Alice Smith', 'alice@example.com');
 
 ```sql
 INSERT INTO customers (id, name, email)
-VALUES 
+VALUES
   (2, 'Bob Johnson', 'bob@example.com'),
   (3, 'Carol Wilson', 'carol@example.com'),
   (4, 'David Brown', 'david@example.com');
@@ -69,7 +69,7 @@ VALUES
 #### Insert All Columns (Optional Column List)
 
 ```sql
-INSERT INTO products 
+INSERT INTO products
 VALUES (101, 'Laptop', 999.99, 'Electronics');
 ```
 
