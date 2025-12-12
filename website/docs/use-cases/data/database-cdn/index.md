@@ -22,6 +22,22 @@ Unlike traditional CDNs (e.g., Cloudflare, Akamai) designed for static content d
 
 A SaaS customer relationship management (CRM) platform caches user interaction data and account states locally, ensuring uninterrupted access to critical features during peak usage or cloud outages. This delivers a seamless user experience, unlike cloud-only platforms prone to latency spikes or downtime, improving customer satisfaction and retention. The [CQRS Cookbook](https://github.com/spiceai/cookbook/tree/trunk/cqrs#readme) illustrates colocation strategies for such use cases.
 
+### Example Configuration
+
+```yaml
+datasets:
+  - from: postgres:crm_db.user_sessions
+    name: user_sessions
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      refresh_mode: changes
+      refresh_check_interval: 1m
+```
+
+This configuration accelerates the `user_sessions` table from a PostgreSQL database, storing it locally in DuckDB file mode for fast, resilient access.
+
 ## Benefits
 
 - **Availability**: Local replicas ensure uptime, enhancing user trust and retention in SaaS applications.

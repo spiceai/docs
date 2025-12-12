@@ -11,9 +11,9 @@ tags:
 
 ## Overview
 
-A **Spicepod** is a package that encapsulates application-centric datasets and machine learning (ML) models.
+A **Spicepod** is a configuration package that defines application-specific datasets, catalogs, machine learning (ML) models, and secrets. It functions similarly to a code packaging system (such as npm or pip), but is designed for data and AI components rather than code libraries.
 
-Spicepods are analogous to code packaging systems, like NPM, however differ by expanding the concepts to data and ML models.
+Spicepods are defined in a YAML manifest file, typically named `spicepod.yaml`, and can be shared, versioned, and reused across projects.
 
 ## Structure
 

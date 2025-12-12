@@ -6,9 +6,11 @@ description: 'Learn how Spice AI uses anonymous telemetry.'
 pagination_next: null
 ---
 
-Spice collects anonymous telemetry data, which is used to help understand how to improve the product in future versions.
+Spice collects anonymous telemetry data to help improve the product. Telemetry is enabled by default but can be disabled at any time.
 
-Data collected includes:
+## Data Collected
+
+The following anonymous information is collected:
 
 - The version of Spice being used (i.e. `v1.0.0`)
 - An anonymous identifier for the Spice instance, computed as `sha256(hostname + spicepod.name)`.

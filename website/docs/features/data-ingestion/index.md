@@ -10,10 +10,12 @@ tags:
   - write
 ---
 
-Data can be ingested by the Spice runtime into a Data Connector using the following methods:
+Data can be ingested into the Spice runtime using the following methods:
 
 1. **SQL Statements** – Write data directly to [write-capable connectors](/docs/tags/write) using standard SQL syntax.
-2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL data for real-time processing.
+2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
+
+Data ingestion is useful for scenarios such as collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
 
 ## SQL Statements
 

@@ -12,6 +12,8 @@ tags:
 
 Spice provides a number of methods to support debugging Runtime operations, including capturing verbose logs and reviewing task history in SQL queries or AI completions.
 
+For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/cookbook) for recipes demonstrating common troubleshooting scenarios.
+
 ## Verbose Logging
 
 Running `spiced` with `--verbose` produces immediate debug logs for diagnosing issues in real time. Running `spiced` with `--very-verbose` captures trace logs, which are useful for examining function outputs and other low-level details. The verbosity flags are also available for `spice run`, providing consistent behavior during local testing or production operation.

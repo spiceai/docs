@@ -5,10 +5,24 @@ sidebar_position: 7
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. Note, when using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
+Spice is built on [Apache DataFusion v50](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Aggregate functions operate on a set of values to compute a single result.
+
+:::tip[Window Functions]
+Many aggregate functions can also be used as **window functions** by adding an `OVER` clause. Window functions perform calculations across a set of rows related to the current row without collapsing them into a single output row.
+
+```sql
+SELECT
+  employee_id,
+  salary,
+  AVG(salary) OVER (PARTITION BY dept_id) AS dept_avg_salary
+FROM employees;
+```
+
+Supported window functions include: `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `PERCENT_RANK`, `CUME_DIST`, `NTILE`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, `NTH_VALUE`, and all general aggregate functions.
+:::
 
 ## Filter clause
 
@@ -29,6 +43,22 @@ FROM employees;
 
 Note: When no rows pass the filter, `COUNT` returns `0` while `SUM`/`AVG`/`MIN`/`MAX` return `NULL`.
 
+## WITHIN GROUP / Ordered-set Aggregates
+
+Some aggregate functions accept the SQL `WITHIN GROUP (ORDER BY ...)` clause to specify the ordering the aggregate relies on. These are called ordered-set aggregate functions.
+
+```sql
+percentile_cont(0.5) WITHIN GROUP (ORDER BY value)
+```
+
+The built-in aggregate functions that support `WITHIN GROUP` are:
+
+- `percentile_cont` — exact percentile aggregate
+- `approx_percentile_cont` — approximate percentile using the t-digest algorithm
+- `approx_percentile_cont_with_weight` — approximate weighted percentile
+
+Using `WITHIN GROUP` with other aggregates (such as `SUM` or `COUNT`) results in an error.
+
 ## General Functions
 
 - [array_agg](#array_agg)
@@ -46,6 +76,7 @@ Note: When no rows pass the filter, `COUNT` returns `0` while `SUM`/`AVG`/`MIN`/
 - [mean](#mean)
 - [median](#median)
 - [min](#min)
+- [percentile_cont](#percentile_cont)
 - [string_agg](#string_agg)
 - [sum](#sum)
 - [var](#var)
@@ -368,6 +399,45 @@ min(expression)
 | 12                   |
 +----------------------+
 ```
+
+### `percentile_cont`
+
+Returns the exact percentile of input values, interpolating between values if needed.
+
+```sql
+percentile_cont(percentile) WITHIN GROUP (ORDER BY expression)
+```
+
+#### Arguments
+
+- **expression**: The expression to operate on. Can be a constant, column, or function, and any combination of operators.
+- **percentile**: Percentile to compute. Must be a float value between 0 and 1 (inclusive).
+
+#### Example
+
+```sql
+> SELECT percentile_cont(0.75) WITHIN GROUP (ORDER BY column_name) FROM table_name;
++----------------------------------------------------------+
+| percentile_cont(0.75) WITHIN GROUP (ORDER BY column_name) |
++----------------------------------------------------------+
+| 45.5                                                     |
++----------------------------------------------------------+
+```
+
+An alternate syntax is also supported:
+
+```sql
+> SELECT percentile_cont(column_name, 0.75) FROM table_name;
++---------------------------------------+
+| percentile_cont(column_name, 0.75)    |
++---------------------------------------+
+| 45.5                                  |
++---------------------------------------+
+```
+
+#### Aliases
+
+- quantile_cont
 
 ### `string_agg`
 

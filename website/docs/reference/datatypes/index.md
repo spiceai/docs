@@ -8,4 +8,8 @@ pagination_next: null
 
 import DocCardList from '@theme/DocCardList';
 
+Spice uses [Apache Arrow](https://arrow.apache.org/) data types internally, providing consistent type handling across different data sources and accelerators. This section documents how Arrow types map to specific accelerators and object store formats.
+
+For SQL type casting and conversion, see [Type Casting Operators](/reference/sql/operators#type-casting-operators).
+
 <DocCardList />

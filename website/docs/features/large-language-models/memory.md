@@ -14,6 +14,8 @@ tags:
 
 Spice provides memory persistence tools that help language models store and retrieve information across conversations. These tools are available through the `memory` tool group.
 
+Memory tools are useful for applications where context from previous interactions should influence future responses, such as chatbots, assistants, or multi-turn workflows.
+
 ## Enabling Memory Tools
 
 To enable memory tools for Spice models, define a `store` [memory](/docs/components/data-connectors/memory.md) dataset and specify `memory` in the model's `tools` parameter.

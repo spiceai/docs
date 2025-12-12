@@ -142,9 +142,9 @@ Time: 0.011524375 seconds. 1 rows.
 
 ### Acceleration
 
-While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+The query in step 8 returns results from federated remote data sources, but performance is affected by network latency and data transfer overhead.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/docs/components/data-accelerators/index.md), resulting in significant performance gains.
+Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](/docs/components/data-accelerators/index.md). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
 :::warning[Limitations]
 
