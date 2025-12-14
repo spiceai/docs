@@ -56,7 +56,7 @@ For more details on the `INSERT` statement syntax, see the [SQL INSERT documenta
 
 ## OpenTelemetry Data Ingestion
 
-By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50052 for the OTEL data ingestion.
+By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50051 for the OTEL data ingestion.
 
 OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
 
@@ -97,7 +97,7 @@ Start telegraf with the following config:
 [[inputs.smart]]
   attributes = true
 [[outputs.opentelemetry]]
-  service_address = "localhost:50052"
+  service_address = "localhost:50051"
 [agent]
   interval = "1s"
   flush_interval = "1s"
