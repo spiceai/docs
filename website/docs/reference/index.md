@@ -7,6 +7,8 @@ pagination_prev: null
 pagination_next: null
 ---
 
+This section contains reference documentation for the Spice.ai runtime, CLI, API, and Spicepod configuration syntax.
+
 import DocCardList from '@theme/DocCardList';
 
 <DocCardList />

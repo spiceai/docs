@@ -19,6 +19,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [JOIN Clause](select.md#join-clause)
 - [GROUP BY Clause](select.md#group-by-clause)
 - [HAVING Clause](select.md#having-clause)
+- [QUALIFY Clause](select.md#qualify-clause)
 - [UNION Clause](select.md#union-clause)
 - [ORDER BY Clause](select.md#order-by-clause)
 - [LIMIT Clause](select.md#limit-clause)
@@ -54,7 +55,9 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Comparison Operators](operators.md#comparison-operators)
 - [Logical Operators](operators.md#logical-operators)
 - [Bitwise Operators](operators.md#bitwise-operators)
+- [Type Casting Operators](operators.md#type-casting-operators)
 - [Other Operators](operators.md#other-operators)
+- [Literals](operators.md#literals)
 
 ### [Scalar Functions](scalar_functions.md)
 
@@ -75,9 +78,26 @@ Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`
 
 ### [Aggregate Functions](aggregate_functions.md)
 
+- [Filter Clause](aggregate_functions.md#filter-clause)
+- [WITHIN GROUP / Ordered-set Aggregates](aggregate_functions.md#within-group--ordered-set-aggregates)
 - [General Aggregate Functions](aggregate_functions.md#general-functions)
 - [Statistical Aggregate Functions](aggregate_functions.md#statistical-functions)
 - [Approximate Aggregate Functions](aggregate_functions.md#approximate-functions)
+
+### Window Functions
+
+Window functions perform calculations across sets of rows related to the current row. Spice supports window functions using the `OVER` clause with aggregate and ranking functions. See [Aggregate Functions](aggregate_functions.md) for functions that support the `OVER` clause, including `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, and `NTH_VALUE`.
+
+**Example:**
+
+```sql
+SELECT
+  dept_id,
+  employee_name,
+  salary,
+  ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rank
+FROM employees;
+```
 
 ### [JSON Functions and Operators](json.md)
 
@@ -98,5 +118,21 @@ Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`
 ### [DML (Data Manipulation Language)](dml.md)
 
 - [INSERT Statement](dml.md#insert)
+
+### Data Types
+
+Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference](/docs/reference/datatypes/index.md). Common SQL types include:
+
+| SQL Type          | Description                         |
+| ----------------- | ----------------------------------- |
+| `INT`, `BIGINT`   | Integer types                       |
+| `FLOAT`, `DOUBLE` | Floating-point types                |
+| `VARCHAR`, `TEXT` | String types                        |
+| `BOOLEAN`         | Boolean type                        |
+| `TIMESTAMP`       | Timestamp with nanosecond precision |
+| `DATE`            | Date type                           |
+| `DECIMAL`         | Arbitrary precision numeric         |
+
+Use `CAST(expression AS type)` or `expression::type` to convert between types.
 
 Refer to each section for detailed syntax, supported features, and examples.

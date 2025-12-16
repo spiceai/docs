@@ -41,7 +41,7 @@ Yes. Spice natively supports federated queries across disparate data sources wit
 
 ## 5. Is Spice a cache?
 
-Not solely. Spice functions as an active cache or working dataset prefetcher. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](/docs/features/caching).
+Not solely. Spice functions as an active cache or working dataset prefetcher. A _working dataset_ is a subset of data actively used by an application or model, such as recent records or frequently accessed tables. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](/docs/features/caching).
 
 ## 6. Is Spice a CDN for databases?
 

@@ -5,7 +5,7 @@ description: 'Models YAML reference'
 pagination_next: null
 ---
 
-Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration helps specify either type from various sources. The model type is automatically determined based on the model source and files.
+The `models` section of a Spicepod defines machine learning (ML) models and large language models (LLMs) for use with Spice. Models can be loaded from Hugging Face, OpenAI, local files, or other supported providers. The model type is automatically determined based on the source and file format.
 
 | Field         | Description                                                              |
 | ------------- | ------------------------------------------------------------------------ |

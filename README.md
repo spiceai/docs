@@ -1,10 +1,10 @@
-# Spice.ai OSS documentation
+# Spice.ai OSS Documentation
 
-If you are looking to explore the Spice.ai OSS documentation, please go to the documentation website:
+This repository contains the source files for the Spice.ai OSS documentation website.
 
-[**https://docs.spiceai.org**](https://docs.spiceai.org)
+To view the published documentation, visit [**https://docs.spiceai.org**](https://docs.spiceai.org).
 
-This repo contains the markdown files which generate the above website. See below for guidance on running with a local environment to contribute to the docs.
+To contribute to the documentation, follow the instructions below to set up a local development environment.
 
 ## Overview
 
@@ -12,10 +12,12 @@ The Spice docs are built using [Docusaurus](https://docusaurus.io/) hosted on [G
 
 The [website](./website) directory contains the Docusaurus project, markdown files, and theme configurations.
 
-## Pre-requisites
+## Prerequisites
 
-- [Node.js](https://nodejs.org/en/)
-- [Docusaurus](https://docusaurus.io/docs/installation)
+- [Node.js](https://nodejs.org/en/) (v18 or later recommended)
+- npm (included with Node.js)
+
+Docusaurus is installed as a project dependency and does not need to be installed globally.
 
 ## Environment setup
 
@@ -38,21 +40,34 @@ cd ./docs/website
 npm install
 ```
 
-## Run local server
+## Run Local Server
 
-1. Make sure you're still in the `website` directory
-2. Run
+1. Ensure you are in the `website` directory.
+2. Start the development server:
 
 ```sh
 npm start
 ```
 
-3. Navigate to `http://localhost:3000/`
+3. Open `http://localhost:3000/` in a browser. The local documentation site should appear, and changes to markdown files are reflected automatically.
 
-## Update docs
+## Contributing to the Docs
 
-1. Fork repo into your account
-1. Create new branch
-1. Commit and push changes to forked branch
-1. Submit pull request from downstream branch to the upstream branch for the correct version you are targeting
-1. Staging site will automatically get created and linked to PR to review and test
+1. Fork this repository to your GitHub account.
+2. Clone your fork and create a new branch:
+
+   ```sh
+   git checkout -b my-docs-update
+   ```
+
+3. Make changes to the markdown files in `website/docs/`.
+4. Commit and push your changes:
+
+   ```sh
+   git add .
+   git commit -m "docs: describe your change"
+   git push origin my-docs-update
+   ```
+
+5. Open a pull request from your branch to the `trunk` branch of the upstream repository.
+6. A staging site is automatically generated and linked in the pull request for review.

@@ -61,4 +61,18 @@ spice sql
 select * from taxi_trips;
 ```
 
+Example output:
+
+```
++---------------+--------------+------------------+
+| trip_distance | total_amount | tpep_pickup_time |
++---------------+--------------+------------------+
+| 1.2           | 9.80         | 2023-01-15 08:32 |
+| 3.4           | 18.50        | 2023-01-15 09:10 |
++---------------+--------------+------------------+
+Time: 0.012s. 2 rows.
+```
+
+Locally accelerated datasets provide significantly faster query times compared to remote sources.
+
 [Learn more about Data Accelerators](/docs/components/data-accelerators) for faster access.

@@ -42,6 +42,23 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/i
 
 Binaries for Linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
 
+**Verify the installation:**
+
+After installing, verify Spice is installed correctly:
+
+```bash
+spice version
+```
+
+Expected output:
+
+```
+CLI version:     1.x.x
+Runtime version: 1.x.x
+```
+
+If the command is not found, ensure the Spice binary directory is in your `PATH`.
+
 ## Building Spice from Source
 
 ### Build prerequisites
@@ -55,18 +72,21 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     ```
 
-  2. Install the Xcode Command Line tools
-    ```shell
-    xcode-select --install
-    ```
+2. Install the Xcode Command Line tools
 
-  3. Install dependencies
-    ```shell
-    brew install rust
-    brew install go
-    brew install cmake
-    brew install protobuf
-    ```
+```shell
+xcode-select --install
+```
+
+3. Install dependencies
+
+   ```shell
+   brew install rust
+   brew install go
+   brew install cmake
+   brew install protobuf
+   ```
+
   </TabItem>
 
   <TabItem value="linux" label="Linux (Ubuntu)">
@@ -76,26 +96,29 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
     sudo apt install build-essential curl openssl libssl-dev pkg-config protobuf-compiler cmake
     ```
 
-  2. Install Go
-    ```shell
-    export GO_VERSION="1.22.4"
-    rm -rf /tmp/spice
-    mkdir -p /tmp/spice
-    cd /tmp/spice
-    wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
-    tar xvfz go$GO_VERSION.linux-amd64.tar.gz
-    sudo mv ./go /usr/local/go
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-    source $HOME/.profile
-    cd $HOME
-    rm -rf /tmp/spice
-    ```
+2. Install Go
 
-  3. Install Rust
-    ```shell
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended
-      source $HOME/.cargo/env
-    ```
+   ```shell
+   export GO_VERSION="1.22.4"
+   rm -rf /tmp/spice
+   mkdir -p /tmp/spice
+   cd /tmp/spice
+   wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
+   tar xvfz go$GO_VERSION.linux-amd64.tar.gz
+   sudo mv ./go /usr/local/go
+   echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+   source $HOME/.profile
+   cd $HOME
+   rm -rf /tmp/spice
+   ```
+
+3. Install Rust
+
+   ```shell
+     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended
+     source $HOME/.cargo/env
+   ```
+
   </TabItem>
 
 </Tabs>

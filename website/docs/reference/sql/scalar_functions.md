@@ -6,7 +6,7 @@ sidebar_position: 6
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. Note, when using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Scalar functions help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The function set closely follows the PostgreSQL dialect.
@@ -2145,6 +2145,7 @@ date_part(part, expression)
 #### Arguments
 
 - **part**: Part of the date to return. The following date parts are supported:
+
   - year
   - quarter (emits value in inclusive range [1, 4] based on which quartile of the year the date is in)
   - month
@@ -2184,6 +2185,7 @@ date_trunc(precision, expression)
 #### Arguments
 
 - **precision**: Time precision to truncate to. The following precisions are supported:
+
   - year / YEAR
   - quarter / QUARTER
   - month / MONTH
@@ -2871,7 +2873,77 @@ Union functions help work with union (variant) data types, such as extracting th
 
 ## Other Functions
 
-Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
+Additional scalar functions include type casting, type inspection, and version reporting.
+
+### `arrow_cast`
+
+Casts an expression to a specific Arrow data type. Use this function when you need precise control over the target Arrow type, such as specifying timestamp precision.
+
+```sql
+arrow_cast(expression, arrow_type)
+```
+
+#### Arguments
+
+- **expression**: The value to cast.
+- **arrow_type**: A string specifying the target Arrow type (e.g., `'Int32'`, `'Utf8'`, `'Timestamp(Second, None)'`).
+
+#### Example
+
+```sql
+> SELECT arrow_cast(now(), 'Timestamp(Second, None)') AS now_seconds;
++---------------------+
+| now_seconds         |
++---------------------+
+| 2024-01-15T10:30:45 |
++---------------------+
+
+> SELECT arrow_cast('123', 'Int64') AS num;
++-----+
+| num |
++-----+
+| 123 |
++-----+
+```
+
+See [Data Types Reference](/docs/reference/datatypes) for supported Arrow types.
+
+### `arrow_typeof`
+
+Returns the Arrow data type of the given expression as a string.
+
+```sql
+arrow_typeof(expression)
+```
+
+#### Arguments
+
+- **expression**: Any SQL expression.
+
+#### Example
+
+```sql
+> SELECT arrow_typeof(1);
++------------------------+
+| arrow_typeof(Int64(1)) |
++------------------------+
+| Int64                  |
++------------------------+
+
+> SELECT arrow_typeof(now());
++-------------------------------+
+| arrow_typeof(now())           |
++-------------------------------+
+| Timestamp(Nanosecond, None)   |
++-------------------------------+
+
+> SELECT arrow_typeof(interval '1 month');
++------------------------------+
+| arrow_typeof(...)            |
++------------------------------+
+| Interval(MonthDayNano)       |
++------------------------------+
+```
 
 ### `ai`
 
@@ -2999,7 +3071,7 @@ datasets:
       enabled: true
       engine: duckdb
       mode: file
-      partition_by: 
+      partition_by:
         - bucket(100, account_id)
 ```
 

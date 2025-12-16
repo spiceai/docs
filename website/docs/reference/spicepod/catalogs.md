@@ -4,7 +4,7 @@ sidebar_label: 'Catalogs'
 description: 'Catalogs YAML reference'
 ---
 
-A Spicepod can contain one or more catalogs.
+The `catalogs` section of a Spicepod defines connections to external data catalogs, such as Databricks Unity Catalog or Spice.ai Cloud. Catalogs expose multiple schemas and tables through a single configuration, making it easier to work with large numbers of datasets.
 
 # `catalogs`
 
