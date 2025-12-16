@@ -24,20 +24,74 @@ For details on tool specifications, see the [Tools Spicepod Reference](/docs/ref
 
 ### Available Tools
 
-| Name                      | Description                                                       | Default Group |
-| ------------------------- | ----------------------------------------------------------------- | ------------- |
-| `list_datasets`           | List all available datasets in the runtime.                       | `auto`        |
-| `sql`                     | Execute SQL queries on the runtime.                               | `auto`        |
-| `table_schema`            | Get the schema of a specific SQL table.                           | `auto`        |
-| `search`                  | Searches a configured dataset based on an input query.            | `auto`        |
-| `sample_distinct_columns` | Generate a synthetic sample of data with distinct values.         | `auto`        |
-| `random_sample`           | Sample random rows from a table.                                  | `auto`        |
-| `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`        |
-| `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`      |
-| `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
-| [`websearch`][websearch]  | Search the web for information.                                   | -             |
+| Name                      | Description                                                       | Default Group | Supports `table_allowlist` |
+| ------------------------- | ----------------------------------------------------------------- | ------------- | -------------------------- |
+| `list_datasets`           | List all available datasets in the runtime.                       | `auto`        | ✓                          |
+| `sql`                     | Execute SQL queries on the runtime.                               | `auto`        | ✓                          |
+| `table_schema`            | Get the schema of a specific SQL table.                           | `auto`        | ✓                          |
+| `search`                  | Searches a configured dataset based on an input query.            | `auto`        | ✓                          |
+| `sample_distinct_columns` | Generate a synthetic sample of data with distinct values.         | `auto`        |                            |
+| `random_sample`           | Sample random rows from a table.                                  | `auto`        |                            |
+| `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`        |                            |
+| `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`      |                            |
+| `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |                            |
+| [`websearch`][websearch]  | Search the web for information.                                   | -             |                            |
 
 [websearch]: /docs/components/tools/websearch
+
+### Restricting Table Access with `table_allowlist`
+
+Several builtin tools support restricting access to specific datasets and tables via the `table_allowlist` parameter. This parameter accepts a comma-delimited list of glob patterns that determine which tables the tool can access.
+
+When `table_allowlist` is configured, the tool operates as if only the matching datasets and tables exist in the runtime. This restriction helps create focused tools for specific subsets of data.
+
+**Example**: Restricting tools to specific datasets
+
+```yaml
+tools:
+  - name: foo_sql
+    from: builtin:sql
+    params:
+      table_allowlist: foo.*,bar.specific_table
+
+  - name: foo_list_datasets
+    from: builtin:list_datasets
+    params:
+      table_allowlist: foo.*
+
+  - name: bar_search
+    from: builtin:search
+    params:
+      table_allowlist: bar.*
+
+  - name: foo_table_schema
+    from: builtin:table_schema
+    params:
+      table_allowlist: foo.*,bar.another_table
+
+datasets:
+  - from: file:./data/sales.jsonl
+    name: foo.sales
+    acceleration:
+      enabled: true
+
+  - from: file:./data/users.jsonl
+    name: bar.users
+    acceleration:
+      enabled: true
+```
+
+In this configuration, `foo_sql` can only execute queries on tables matching the `foo.*` pattern and the specific table `bar.specific_table`. The `foo_list_datasets` tool lists only datasets in the `foo` schema.
+
+**Glob Pattern Support**
+
+The `table_allowlist` parameter supports glob patterns for flexible matching:
+
+- `foo.*` matches all tables in the `foo` schema
+- `*.users` matches any `users` table across all catalogs and schemas
+- `catalog.schema.table` matches a specific fully-qualified table
+- Patterns are case-sensitive for quoted identifiers but case-insensitive otherwise
+- Multiple patterns can be combined with commas: `foo.*,bar.table1,baz.table2`
 
 ### Tool Groups
 

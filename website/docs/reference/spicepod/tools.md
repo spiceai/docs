@@ -38,6 +38,26 @@ Optional. A textual description of the tool's function.
 
 Optional. A map of key-value pairs for additional parameters specific to the tool.
 
+#### Common Parameters
+
+##### `table_allowlist`
+
+Available for: `builtin:sql`, `builtin:list_datasets`, `builtin:search`, `builtin:table_schema`
+
+A comma-delimited list of glob patterns that restrict which tables the tool can access. When specified, the tool operates as if only the matching datasets and tables exist in the runtime.
+
+**Example:**
+
+```yaml
+tools:
+  - name: restricted_sql
+    from: builtin:sql
+    params:
+      table_allowlist: foo.*,bar.specific_table
+```
+
+For more details, see [Restricting Table Access](/docs/components/tools#restricting-table-access-with-table_allowlist).
+
 ### `env`
 
 Optional. A map of key-value pairs of arbitrary environment variables to set when running the tool. Only useable if the tool requires a subprocess to run (e.g. MCP over stdio) .
