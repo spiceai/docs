@@ -5,7 +5,7 @@ sidebar_position: 7
 ---
 
 :::info
-Spice is built on [Apache DataFusion v50](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Aggregate functions operate on a set of values to compute a single result.
