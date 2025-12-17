@@ -35,11 +35,11 @@ This will result in a scan plan that only reads from the partitions that contain
 
 :::warning[Limitations]
 
-- Partitioning is currently limited to `engine: duckdb` and `mode: file`.
-- `partition_by` must have only 1 expression.
+- Partitioning is currently limited to `engine: duckdb` or `engine: cayenne` with `mode: file`.
+- `partition_by` currently only supports 1 expression for partitioning.
 - Expression must reference exactly one column from the dataset.
-- Expression must produce a scalar value
-- Expression cannot contain a subquery
+- Expression must produce a scalar value.
+- Expression cannot contain a subquery.
 - Partition pruning is limited to specific filter expressions such as:
   - `WHERE foo = bar`
   - `WHERE foo IN (bar, baz, ...)`

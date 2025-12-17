@@ -45,6 +45,15 @@ datasets:
       mode: file
 ```
 
+#### `params`
+
+| Parameter name                 | Description     |
+| ------------------------------ | ------ |
+| `cayenne_compression_strategy` | Determines the type of compression to use when accelerating datasets. Defaults to [`btrblocks`](https://www.cs.cit.tum.de/fileadmin/w00cfj/dis/papers/btrblocks.pdf). Supports `btrblocks` or [`zstd`](https://github.com/facebook/zstd). |
+| `cayenne_unsupported_type_action` | Determines what action to take when a data type that is not supported is encountered. See [`unsupported_type_action` for more information](../../reference/spicepod/datasets.md#unsupported_type_action). |
+| `cayenne_footer_cache_mb` | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans. Defaults to `128MiB`. |
+| `cayenne_segment_cache_mb` | Size of the in-memory Vortex segment cache in megabytes, to cache decompressed data segments for improved query performance in repeated scans. Defaults to `256MiB`. |
+
 ## Features
 
 ### High-Performance Columnar Storage
