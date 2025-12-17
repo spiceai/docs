@@ -49,49 +49,49 @@ When `table_allowlist` is configured, the tool operates as if only the matching 
 
 ```yaml
 tools:
-  - name: foo_sql
+  - name: sales_sql
     from: builtin:sql
     params:
-      table_allowlist: foo.*,bar.specific_table
+      table_allowlist: sales.*,analytics.customer_metrics
 
-  - name: foo_list_datasets
+  - name: sales_list_datasets
     from: builtin:list_datasets
     params:
-      table_allowlist: foo.*
+      table_allowlist: sales.*
 
-  - name: bar_search
+  - name: analytics_search
     from: builtin:search
     params:
-      table_allowlist: bar.*
+      table_allowlist: analytics.*
 
-  - name: foo_table_schema
+  - name: sales_table_schema
     from: builtin:table_schema
     params:
-      table_allowlist: foo.*,bar.another_table
+      table_allowlist: sales.*,analytics.products
 
 datasets:
   - from: file:./data/sales.jsonl
-    name: foo.sales
+    name: sales.transactions
     acceleration:
       enabled: true
 
   - from: file:./data/users.jsonl
-    name: bar.users
+    name: analytics.customers
     acceleration:
       enabled: true
 ```
 
-In this configuration, `foo_sql` can only execute queries on tables matching the `foo.*` pattern and the specific table `bar.specific_table`. The `foo_list_datasets` tool lists only datasets in the `foo` schema.
+In this configuration, `sales_sql` can only execute queries on tables matching the `sales.*` pattern and the specific table `analytics.customer_metrics`. The `sales_list_datasets` tool lists only datasets in the `sales` schema.
 
 **Glob Pattern Support**
 
 The `table_allowlist` parameter supports glob patterns for flexible matching:
 
-- `foo.*` matches all tables in the `foo` schema
-- `*.users` matches any `users` table across all catalogs and schemas
+- `sales.*` matches all tables in the `sales` schema
+- `*.customers` matches any `customers` table across all catalogs and schemas
 - `catalog.schema.table` matches a specific fully-qualified table
 - Patterns are case-sensitive for quoted identifiers but case-insensitive otherwise
-- Multiple patterns can be combined with commas: `foo.*,bar.table1,baz.table2`
+- Multiple patterns can be combined with commas: `sales.*,analytics.table1,marketing.table2`
 
 ### Tool Groups
 
