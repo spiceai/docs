@@ -1,24 +1,26 @@
 ---
 title: 'Amazon Bedrock Models'
 description: 'How to use Amazon Bedrock models with Spice.'
-sidebar_label: 'Bedrock'
+sidebar_label: 'Amazon Bedrock'
 sidebar_position: 9
 ---
 
-Amazon Bedrock provides access to a range of foundation models for generative AI. Spice supports using Bedrock-hosted models by specifying the `bedrock` prefix in the `from` field and configuring the required parameters.
+Spice supports large language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/). Specify the `bedrock:` prefix in the `from` field along with the model ID.
 
-## Supported Model IDs
+## Supported Models
 
-The following model IDs are supported:
+Spice supports the following Amazon Nova models:
 
-- `amazon.nova-lite-v1:0`
-- `amazon.nova-micro-v1:0`
-- `amazon.nova-premier-v1:0`
-- `amazon.nova-pro-v1:0`
+| Model ID                   | Description                                    |
+| -------------------------- | ---------------------------------------------- |
+| `amazon.nova-micro-v1:0`   | Text-only, lowest latency responses            |
+| `amazon.nova-lite-v1:0`    | Multimodal, low-cost with fast processing      |
+| `amazon.nova-pro-v1:0`     | Multimodal, balanced accuracy, speed, and cost |
+| `amazon.nova-premier-v1:0` | Multimodal, best for complex tasks             |
 
-Refer to the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details on available models and cross-region inference profiles.
+Cross-region inference profiles (e.g., `us.amazon.nova-lite-v1:0`) are also supported. See the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details.
 
-To request support for a model, file a GitHub Issue or ask us on Slack.
+To request support for additional models, file a [GitHub Issue](https://github.com/spiceai/spiceai/issues).
 
 ## Configuration
 
@@ -38,42 +40,77 @@ models:
 
 ### Parameters
 
-| Parameter                      | Description                                                                                                                                                                                                                                                                        | Default  |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `aws_region`                   | AWS region for Bedrock API requests.                                                                                                                                                                                                                                               | -        |
-| `aws_access_key_id`            | AWS access key ID. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                                            | -        |
-| `aws_secret_access_key`        | AWS secret access key. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                                        | -        |
-| `aws_session_token`            | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                                                                                                           | -        |
-| `bedrock_guardrail_identifier` | Identifier for the guardrail. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html). Pattern: `(([a-z0-9]+) \| (arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))`. Length: 0-2048. | -        |
-| `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7}) \| (DRAFT))`                                                                                                                                                                                                                       | -        |
-| `bedrock_trace`                | Trace behavior for the guardrail. Valid values: `enabled`, `disabled`, `enabled_full`. Default: `disabled`.                                                                                                                                                                        | disabled |
+#### AWS Authentication
 
-### OpenAI-Compatible Overrides
+| Parameter               | Description                                                                                       | Default     |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | ----------- |
+| `aws_region`            | AWS region for Bedrock API requests.                                                              | `us-east-1` |
+| `aws_profile`           | AWS profile to use when loading credentials from shared config files.                             | -           |
+| `aws_access_key_id`     | AWS access key ID. If not provided, credentials load from environment variables or IAM roles.     | -           |
+| `aws_secret_access_key` | AWS secret access key. If not provided, credentials load from environment variables or IAM roles. | -           |
+| `aws_session_token`     | AWS session token for temporary credentials.                                                      | -           |
 
-The following OpenAI-compatible parameters are supported and passed in the request payload:
+#### Guardrails
 
-- `maxTokens`
-- `temperature`
-- `topP`
-- `topK`
-- `stopSequences`
+Bedrock Guardrails filter model inputs and outputs. See [GuardrailConfiguration](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html).
 
-See [Parameter Overrides](https://spiceai.org/docs/features/large-language-models/parameter_overrides) for details.
+| Parameter                      | Description                                                                              | Default    |
+| ------------------------------ | ---------------------------------------------------------------------------------------- | ---------- |
+| `bedrock_guardrail_identifier` | Guardrail ID or ARN. Example: `arn:aws:bedrock:us-east-1:123456789012:guardrail/abc123`. | -          |
+| `bedrock_guardrail_version`    | Guardrail version number or `DRAFT`.                                                     | -          |
+| `bedrock_trace`                | Trace output for guardrail evaluation. One of: `disabled`, `enabled`, `enabled_full`.    | `disabled` |
 
-## Example Configuration
+#### Model Parameters
+
+These parameters control model behavior and are passed in the request payload:
+
+| Parameter       | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `maxTokens`     | Maximum number of tokens to generate.                           |
+| `temperature`   | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
+| `topP`          | Nucleus sampling probability (0.0 to 1.0).                      |
+| `topK`          | Number of highest probability tokens to consider.               |
+| `stopSequences` | Sequences that stop generation when encountered.                |
+
+See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides) for details on setting default values.
+
+## Examples
+
+### Basic Configuration
 
 ```yaml
 models:
-  - from: bedrock:us.amazon.nova-lite-v1:0
-    name: novash
+  - from: bedrock:amazon.nova-lite-v1:0
+    name: nova
     params:
       aws_region: us-east-1
       aws_access_key_id: ${ secrets:AWS_ACCESS_KEY_ID }
       aws_secret_access_key: ${ secrets:AWS_SECRET_ACCESS_KEY }
-      bedrock_guardrail_identifier: arn:aws:bedrock:abcdefg012927:0123456789876:guardrail/hello
-      bedrock_guardrail_version: DRAFT
+```
+
+### Cross-Region Inference
+
+Use cross-region inference profiles for improved availability:
+
+```yaml
+models:
+  - from: bedrock:us.amazon.nova-pro-v1:0
+    name: nova-pro
+    params:
+      aws_region: us-east-1
+```
+
+### With Guardrails
+
+```yaml
+models:
+  - from: bedrock:amazon.nova-lite-v1:0
+    name: nova-guarded
+    params:
+      aws_region: us-east-1
+      bedrock_guardrail_identifier: arn:aws:bedrock:us-east-1:123456789012:guardrail/abc123
+      bedrock_guardrail_version: '1'
       bedrock_trace: enabled
-      bedrock_temperature: 42
 ```
 
 ## Authentication
@@ -136,7 +173,7 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ## Required IAM Permissions
 
-The IAM role or user needs the following permissions to access DynamoDB tables:
+The IAM role or user needs permissions to invoke Bedrock models:
 
 ```json
 {
@@ -145,22 +182,20 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
     {
       "Effect": "Allow",
       "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
-      "Resource": ["arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"]
+      "Resource": ["arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-*"]
     }
   ]
 }
 ```
 
-### Permission Details
+| Permission                              | Purpose                                       |
+| --------------------------------------- | --------------------------------------------- |
+| `bedrock:InvokeModel`                   | Required. Invoke model for text generation.   |
+| `bedrock:InvokeModelWithResponseStream` | Required. Invoke model with streaming output. |
 
-| Permission                              | Purpose                                                           |
-| --------------------------------------- | ----------------------------------------------------------------- |
-| `bedrock:InvokeModel`                   | Required. Used to invoke the text model.                          |
-| `bedrock:InvokeModelWithResponseStream` | Required. Used to invoke the text model with streaming responses. |
+## Related Resources
 
-## References
-
-- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/)
-- [GuardrailConfiguration API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html)
-- [SpiceAI Bedrock Embeddings](https://spiceai.org/docs/components/embeddings/bedrock)
-- [Parameter Overrides](https://spiceai.org/docs/features/large-language-models/parameter_overrides)
+- [Amazon Bedrock Embeddings](/docs/components/embeddings/bedrock) - Use Bedrock for text embeddings
+- [Parameter Overrides](/docs/features/large-language-models/parameter_overrides) - Set default model parameters
+- [Amazon Bedrock User Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/) - AWS documentation
+- [Bedrock Model IDs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) - Available models and inference profiles
