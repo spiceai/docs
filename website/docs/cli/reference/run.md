@@ -20,7 +20,6 @@ spice run [flags] -- [spiced flags]
 - `--flight-endpoint` Configure runtime Flight endpoint. Defaults to `http://127.0.0.1:50051`.
 - `--http-endpoint` Configure runtime HTTP endpoint. Defaults to `http://127.0.0.1:8090`.
 - `--metrics-endpoint` Configure runtime Prometheus metrics endpoint. Defaults to `http://127.0.0.1:9090`.
-- `--open-telemetry-endpoint` Configure runtime OpenTelemetry endpoint. Defaults to `http://127.0.0.1:50052`.
 - `--captured-outputs` Configure the captured output setting for task history. Defaults to `truncated`.
 
 #### Spiced Flags
@@ -29,7 +28,6 @@ Flags that are passed to the `spiced` runtime directly.
 
 - `--http` Configure runtime HTTP address [default: 127.0.0.1:8090]
 - `--flight` Configure runtime Flight address [default: 127.0.0.1:50051]
-- `--open_telemetry` Configure runtime OpenTelemetry address [default: 127.0.0.1:50052]
 - `--tls-enabled` Enable TLS
 - `--tls-certificate` The TLS PEM-encoded certificate
 - `--tls-certificate-file` Path to the TLS PEM-encoded certificate file
@@ -101,11 +99,4 @@ spice run -- --http 0.0.0.0:8090
 ```shell
 # Expose the HTTP & Flight servers on all interfaces with TLS
 spice run -- --http 0.0.0.0:8090 --flight 0.0.0.0:50051 --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
-```
-
-#### `--open_telemetry`
-
-```shell
-# Run Spice with OpenTelemetry enabled
-spice run -- --open_telemetry 0.0.0.0:50052
 ```
