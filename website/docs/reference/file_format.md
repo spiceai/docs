@@ -50,4 +50,4 @@ Data encodings:
 
 ### Parameters
 
-- `json_format`: Optional. Specifies the JSON format to parse. Valid values are `array`, `ndjson`, and `jsonl`. Defaults to `jsonl`
+- `json_format`: Optional. Specifies the JSON format to parse. Valid values are `array`, and `jsonl`. Defaults to `jsonl`
