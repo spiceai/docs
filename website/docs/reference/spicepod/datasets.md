@@ -402,6 +402,31 @@ datasets:
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
 
+## `acceleration.params.snapshots_create_interval`
+
+Optional. The interval at which snapshots are created for the accelerated dataset. Only applicable when `acceleration.snapshots` is set to `enabled` or `create_only`. Defaults to creating snapshots only after each refresh.
+
+When configured, Spice writes a new snapshot at the specified interval in addition to writing snapshots after refreshes. This is useful for datasets that use `refresh_mode: caching` where there is no refresh interval.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: my_data
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      refresh_mode: caching
+      snapshots: enabled
+      params:
+        snapshots_create_interval: 60s # Create a snapshot every 60 seconds
+        duckdb_file: /nvme/my_data.db
+```
+
+See [Duration](../duration/index.md) and [Acceleration Snapshots](../../features/data-acceleration/snapshots.md) for more details.
+
 ## `acceleration.refresh_sql`
 
 Optional. Filters the data fetched from the source to be stored in the accelerator engine. Only supported for `full` refresh_mode datasets.
