@@ -23,6 +23,8 @@ datasets:
       kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem # Optional. Used to verify the SSL/TLS certificate of the Kafka broker.
       kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
       kafka_ssl_endpoint_identification_algorithm: https # Default is `https`. Valid values are `none` and `https`.
+      batch_max_size: 100000 # Default is `10000`. Maximum number of change events to batch together before processing.
+      batch_max_duration: 1s # Default is `1s`. Maximum time to wait for a batch to fill before processing.
 
     acceleration:
       enabled: true # Acceleration is required for the kafka connector.
