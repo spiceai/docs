@@ -436,7 +436,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using the DynamoDB connector **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes` and defined `on_conflict` configuration.
+Using the DynamoDB Streams **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes`.
 
 :::
 
@@ -444,7 +444,6 @@ Using the DynamoDB connector **requires** [acceleration](/docs/components/data-a
 
 To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration.
 
-You also need to configure the `on_conflict` parameter to specify how the connector should handle updates to existing records. The keys defined in `on_conflict` must match your DynamoDB table's partition key and range key (if your table has one)
 ```yaml
 datasets:
   - from: dynamodb:my_table
@@ -454,8 +453,6 @@ datasets:
       engine: duckdb
       mode: file
       refresh_mode: changes
-      on_conflict:
-        (id, version): upsert
 ```
 
 ### Configuration Parameters
@@ -467,12 +464,6 @@ datasets:
 - **`scan_interval`** - Controls the polling frequency for checking new records in the DynamoDB stream. Lower values provide more real-time updates but increase API calls. Higher values reduce API usage but may introduce additional latency.
 
 #### Acceleration Parameters
-
-- **`on_conflict`** - Specifies the conflict resolution strategy when streaming changes that match existing records. The keys in the tuple should correspond to your DynamoDB table's partition key and range key (if applicable). The `upsert` action will insert new records or update existing ones based on these key columns.
-
-  **Examples:**
-   - Single partition key: `id: upsert`
-   - Partition key + range key: `(partition_key, sort_key): upsert`
 
 - **`snapshots_trigger_threshold`** - Determines how frequently snapshots are created during streaming. A value of `5` means a snapshot is created every 5 batch updates. Snapshots enable faster recovery and better query performance but consume additional storage.
 
@@ -490,11 +481,16 @@ The following [Component Metrics](../../features/observability/component_metrics
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
 datasets:
-- from: kafka:user_events
+- from: dynamodb:user_events
   name: events
+  acceleration:
+    enabled: true
+    refresh_mode: changes
   metrics:
    - name: shards_active
+   - name: records_consumed_total
    - name: lag_ms
+   - name: errors_transient_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
