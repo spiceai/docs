@@ -331,6 +331,79 @@ sql> select * from test_table;
 +-----------+-------------+---------------+
 ```
 
+## JSON Nesting
+
+When working with DynamoDB tables that have many columns, you can consolidate unspecified columns into a single JSON column using the `json_object` metadata option. This is useful when you only need a few columns as discrete fields and want to bundle the remaining columns into a single JSON structure.
+
+### Configuration
+
+To use JSON nesting, define your desired columns explicitly in the `columns` list and add a "catch-all" column with `json_object: "*"` metadata. Any columns from the source table that are not explicitly listed will be nested into this JSON column.
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: my_table
+    params:
+      dynamodb_aws_region: us-west-2
+    columns:
+      - name: PK
+      - name: SK
+      - name: Baz
+      - name: data_json
+        metadata:
+          json_object: "*"
+```
+
+### Example
+
+Given a DynamoDB table with this schema:
+
+| Column | Type   |
+|--------|--------|
+| PK     | String |
+| SK     | String |
+| Foo    | Map    |
+| Bar    | List   |
+| Baz    | String |
+
+The configuration above produces:
+
+| Column    | Type                                   |
+|-----------|----------------------------------------|
+| PK        | String                                 |
+| SK        | String                                 |
+| Baz       | String                                 |
+| data_json | JSON (`{"Foo": <map>, "Bar": <list>}`) |
+
+The `Foo` and `Bar` columns, which were not explicitly listed, are automatically nested into the `data_json` column as a JSON object.
+
+### Interaction with `unnest_depth`
+
+When both `unnest_depth` and `json_object` are specified, the operations are applied in this order:
+
+1. **Unnesting first**: Nested structures are flattened according to the `unnest_depth` value
+2. **JSON nesting second**: Unspecified columns are then consolidated into the `json_object` column
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: my_table
+    params:
+      dynamodb_aws_region: us-west-2
+      unnest_depth: 2
+    columns:
+      - name: PK
+      - name: SK
+      - name: extra_data
+        metadata:
+          json_object: "*"
+```
+
+### Constraints
+
+| Constraint | Description |
+|------------|-------------|
+| Only `"*"` is supported | The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified columns |
+| Single JSON column only | Only one column can have the `json_object` metadata. Specifying multiple columns with `json_object` will result in an error |
+
 ## Examples
 
 ### Basic Configuration with Environment Credentials
@@ -402,6 +475,8 @@ FROM (
 )
 WHERE address.city = 'San Francisco';
 ```
+
+### 
 
 :::warning[Limitations]
 
