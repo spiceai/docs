@@ -39,7 +39,7 @@ Acceleration snapshots are available in preview.
 - If the file is missing and snapshots are enabled, Spice looks under the configured snapshot location and downloads the newest snapshot for that dataset.
 - If no snapshot is available, the acceleration boots empty and refreshes from the source.
 - After each refresh, Spice writes a new snapshot unless the dataset is configured in `bootstrap_only` mode.
-- When `snapshots_create_interval` is configured, Spice also writes periodic snapshots at the specified interval, independent of refresh cycles.
+- When `snapshots_create_interval` is configured, Spice writes additional periodic snapshots at the specified interval, independent of refresh cycles.
 
 Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset`, Spice writes files such as:
 
