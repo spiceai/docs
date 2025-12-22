@@ -26,7 +26,7 @@ datasets:
       kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
       kafka_ssl_endpoint_identification_algorithm: https # Default is `https`. Valid values are `none` and `https`.
       batch_max_size: 10000 # Default is `10000`. Maximum number of change events to batch together before processing.
-      batch_max_duration: 1s # Default is `1s`. Maximum number of change events to batch together before processing.
+      batch_max_duration: 1s # Default is `1s`. Maximum time to wait for a batch to fill before processing.
 
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
