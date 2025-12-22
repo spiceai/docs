@@ -382,29 +382,48 @@ When both `unnest_depth` and `json_object` are specified, the operations are app
 
 1. **Unnesting first**: Nested structures are flattened according to the `unnest_depth` value
 2. **JSON nesting second**: Unspecified columns are then consolidated into the `json_object` column
+
+Consider this DynamoDB dataset:
+```
++----+------+-------------------+------------------------------------------------------+
+| PK | SK   | Baz               | Foo                                                  | 
++----+------+-------------------+------------------------------------------------------+
+| 1  | 200  | some_string_value | { "Age" : { "N" : "35" }, "Name" : { "S" : "Joe" } } |
++----+------+-------------------+------------------------------------------------------+
+```
+
+And this configuration
 ```yaml
 datasets:
   - from: dynamodb:my_table
     name: my_table
     params:
       dynamodb_aws_region: us-west-2
-      unnest_depth: 2
+      unnest_depth: 1
     columns:
       - name: PK
       - name: SK
-      - name: extra_data
         metadata:
           json_object: "*"
 ```
 
-### Constraints
+Will produce the following Spice dataset:
+```
++----+-----+---------------------------------------------------------+
+| PK | SK  | json_data                                               |
++----+-----+---------------------------------------------------------+
+| 1  | 200 | {"Baz":"some_string", "Foo.Age":35.0, "Foo.Name":"Joe"} |
++----+-----+---------------------------------------------------------+
+```
 
-| Constraint | Description |
-|------------|-------------|
-| Only `"*"` is supported | The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified columns |
-| Single JSON column only | Only one column can have the `json_object` metadata. Specifying multiple columns with `json_object` will result in an error |
+:::warning[Limitations]
 
-## Examples
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified columns
+- Only one column can have the `json_object` metadata. Specifying multiple columns with `json_object` will result in an error
+
+:::
+
+# Examples
 
 ### Basic Configuration with Environment Credentials
 
