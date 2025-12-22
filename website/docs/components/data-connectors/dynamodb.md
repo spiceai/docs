@@ -436,7 +436,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using the DynamoDB Streams **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes`.
+Using DynamoDB Streams **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes`.
 
 :::
 
