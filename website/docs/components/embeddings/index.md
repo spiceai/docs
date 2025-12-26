@@ -25,6 +25,7 @@ Spice supports a variety of embedding model sources and formats:
 | [`huggingface`][hf]        | Models hosted on HuggingFace            | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
 | [`openai`][openai]         | OpenAI (or compatible) LLM endpoint     | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]           | Azure OpenAI                            | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google AI embedding models              | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock          | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
@@ -34,6 +35,7 @@ Spice supports a variety of embedding model sources and formats:
 [model2vec]: /components/embeddings/model2vec.md
 [openai]: /components/embeddings/openai.md
 [azure]: /components/embeddings/azure.md
+[google]: /components/embeddings/google.md
 [databricks]: /components/embeddings/databricks.md
 [bedrock]: /components/embeddings/bedrock.md
 

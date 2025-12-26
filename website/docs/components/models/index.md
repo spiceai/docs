@@ -15,6 +15,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Alpha             | ONNX         | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google AI language models                    | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
@@ -24,6 +25,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [openai]: ./openai.md
 [azure]: ./azure.md
 [ant]: ./anthropic.md
+[google]: ./google.md
 [xai]: ./xai.md
 [databricks]: ./databricks.md
 
@@ -58,6 +60,7 @@ The following provider prefixes are supported:
 | `azure`      | Azure OpenAI                          |
 | `xai`        | xAI                                   |
 | `anthropic`  | Anthropic                             |
+| `google`     | Google AI                             |
 | `perplexity` | Perplexity                            |
 | `hf`         | Hugging Face                          |
 | `file`       | Local filesystem                      |
