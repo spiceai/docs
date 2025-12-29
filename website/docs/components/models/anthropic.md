@@ -20,8 +20,8 @@ Example `spicepod.yml` configuration:
 
 ```yaml
 models:
-  - from: anthropic:claude-3-5-sonnet-latest
-    name: claude_3_5_sonnet
+  - from: anthropic:claude-sonnet-4-5
+    name: claude_4_5_sonnet
     params:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
