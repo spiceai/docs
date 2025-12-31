@@ -2,7 +2,7 @@
 title: 'Embedding Datasets'
 sidebar_label: 'Embedding Datasets'
 description: 'Learn how to define, or augment existing datasets with embedding column(s).'
-sidebar_position: 7
+sidebar_position: 9
 pagination_prev: null
 pagination_next: null
 ---

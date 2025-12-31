@@ -5,7 +5,7 @@ sidebar_position: 5
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.
 :::
 
 Spice supports display metadata about available tables and views. This information is accessible through the ISO SQL `information_schema` schema or the `SHOW TABLES` and `SHOW COLUMNS` commands.

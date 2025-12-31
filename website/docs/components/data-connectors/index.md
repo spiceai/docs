@@ -47,7 +47,7 @@ Supported Data Connectors include:
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
-| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
+| `dynamodb`                         | DynamoDB                              | Release Candidate |                              |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 

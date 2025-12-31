@@ -54,6 +54,10 @@ caching:
   label: 'Caching'
   permalink: '/caching'
   description: 'Data caching strategies and performance optimization.'
+cayenne:
+  label: 'Cayenne'
+  permalink: '/cayenne'
+  description: 'Cayenne (Vortex) data accelerator built on Vortex columnar format.'
 catalogs:
   label: 'Catalogs'
   permalink: '/catalogs'
@@ -94,6 +98,10 @@ data-refresh:
   label: 'Data Refresh'
   permalink: '/data-refresh'
   description: 'Automated data refresh and synchronization mechanisms.'
+data-accelerators:
+  label: 'Data Accelerators'
+  permalink: '/data-accelerators'
+  description: 'Data acceleration engines for high-performance query execution.'
 databricks:
   label: 'Databricks'
   permalink: '/databricks'
@@ -398,6 +406,10 @@ views:
   label: 'Views'
   permalink: '/views'
   description: 'Virtual views and data transformation layers.'
+vortex:
+  label: 'Vortex'
+  permalink: '/vortex'
+  description: 'Vortex columnar file format and storage engine.'
 yaml:
   label: 'YAML'
   permalink: '/yaml'

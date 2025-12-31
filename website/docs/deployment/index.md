@@ -5,7 +5,7 @@ description: 'Deploy Spice.ai in your environment'
 sidebar_position: 11
 ---
 
-Learn how to deploy Spice.ai in your environment.
+Spice supports flexible deployment options ranging from a single binary to fully managed cloud deployments. Choose the architecture that best fits your application's latency, scale, and operational requirements.
 
 ## Deployment Architectures
 

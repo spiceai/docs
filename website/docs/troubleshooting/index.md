@@ -12,6 +12,8 @@ tags:
 
 Spice provides a number of methods to support debugging Runtime operations, including capturing verbose logs and reviewing task history in SQL queries or AI completions.
 
+For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/cookbook) for recipes demonstrating common troubleshooting scenarios.
+
 ## Verbose Logging
 
 Running `spiced` with `--verbose` produces immediate debug logs for diagnosing issues in real time. Running `spiced` with `--very-verbose` captures trace logs, which are useful for examining function outputs and other low-level details. The verbosity flags are also available for `spice run`, providing consistent behavior during local testing or production operation.
@@ -80,16 +82,16 @@ Time: 4.24s (first token 3.85s). Tokens: 826. Prompt: 793. Completion: 33 (85.50
 To inspect the last chat, run `spice trace ai_chat`, producing an AI chat trace output:
 
 ```console
-[8153c6563c7f9d88] ( 4234.38ms) ai_chat 
-  ├── [8656eaacb6c7a57d] (    0.13ms) tool_use::list_datasets 
-  ├── [3873d8257d8ea30c] ( 4233.47ms) ai_completion 
-  ├── [02f2def1712f1473] (    1.11ms) tool_use::sql 
-  │ └── [1e4e5f4e79e74e5e] (    0.91ms) sql_query 
-  ├── [8d1db4d4db80c021] ( 3185.46ms) ai_completion 
-  ├── [0c7b421812ca8180] (    0.17ms) tool_use::table_schema 
-  ├── [a49553aca9f19384] ( 2166.24ms) ai_completion 
-  ├── [ec69ce81b3d71b1a] (    3.38ms) tool_use::sql 
-  │ └── [24769e9b068656ed] (    3.33ms) sql_query 
+[8153c6563c7f9d88] ( 4234.38ms) ai_chat
+  ├── [8656eaacb6c7a57d] (    0.13ms) tool_use::list_datasets
+  ├── [3873d8257d8ea30c] ( 4233.47ms) ai_completion
+  ├── [02f2def1712f1473] (    1.11ms) tool_use::sql
+  │ └── [1e4e5f4e79e74e5e] (    0.91ms) sql_query
+  ├── [8d1db4d4db80c021] ( 3185.46ms) ai_completion
+  ├── [0c7b421812ca8180] (    0.17ms) tool_use::table_schema
+  ├── [a49553aca9f19384] ( 2166.24ms) ai_completion
+  ├── [ec69ce81b3d71b1a] (    3.38ms) tool_use::sql
+  │ └── [24769e9b068656ed] (    3.33ms) sql_query
   └── [6ff16c04ecf6f6ff] (  961.39ms) ai_completion
 ```
 
@@ -123,7 +125,7 @@ For more information, view the [task history documentation](../reference/task_hi
 
 ## Logging Additional Captured Output
 
-Set `runtime.task_history.captured_output` to `truncated` to store summarized SQL query information in the `captured_output` `task_history` column. Enable captured output by running `spiced` with  `--set-runtime task_history.captured_output=truncated` or adjusting the Spicepod parameter `runtime.task_history.captured_output`.
+Set `runtime.task_history.captured_output` to `truncated` to store summarized SQL query information in the `captured_output` `task_history` column. Enable captured output by running `spiced` with `--set-runtime task_history.captured_output=truncated` or adjusting the Spicepod parameter `runtime.task_history.captured_output`.
 
 Example Spicepod excerpt:
 
@@ -146,6 +148,48 @@ Example captured output:
 | 2025-02-07T00:17:54.717312222 | 2025-02-07T00:17:54.728507220 | sql_query           | [{"subject":"Hello, world!"}] |               |
 +-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
 ```
+
+## Capturing SQL Query Plans in Task History
+
+Configure Spice to automatically capture SQL query plans (`EXPLAIN` or `EXPLAIN ANALYZE`) in the task history. This feature captures query execution information asynchronously, storing results in the `captured_output` column for later analysis without impacting query performance.
+
+Configure plan capture using the `runtime.task_history` settings:
+
+```yaml
+runtime:
+  task_history:
+    captured_plan: explain analyze
+    min_sql_duration: 5s
+    min_plan_duration: 10s
+```
+
+### Configuration Parameters
+
+- **`captured_plan`**: Determines the type of plan captured:
+  - `none` (default): No plans are captured
+  - `explain`: Captures logical and physical query plans
+  - `explain analyze`: Captures plans with actual execution metrics
+- **`min_sql_duration`**: Minimum query duration before plan capture. Only queries exceeding this threshold generate a plan.
+- **`min_plan_duration`**: Minimum plan execution duration before storage. Plans that execute faster than this threshold are discarded.
+
+### Query Examples
+
+Review captured plans for slow queries:
+
+```sql
+SELECT
+    start_time,
+    execution_duration_ms,
+    SUBSTRING(input, 1, 80) AS query_preview,
+    captured_output
+FROM spice.runtime.task_history
+WHERE task = 'sql_query'
+  AND captured_output IS NOT NULL
+ORDER BY execution_duration_ms DESC
+LIMIT 5;
+```
+
+Plans are captured asynchronously after query completion, ensuring query execution proceeds without blocking. For more details, view the [task history documentation](../reference/task_history.md#sql-query-plan-capture).
 
 ## SQL Explain Plans
 
@@ -232,6 +276,6 @@ docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spicea
 # Exec into the container
 docker exec -it spiceai-debug /busy/busybox sh
 
-# At this point, a shell with standard Linux tools is available via the busybox binary. 
+# At this point, a shell with standard Linux tools is available via the busybox binary.
 # However, commands must be prefixed with `/busy/busybox`, for example: `/busy/busybox ls -l /app`.
 ```

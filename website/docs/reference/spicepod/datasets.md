@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / duckdb / sqlite / postgres
+      engine: arrow # / cayenne / duckdb / sqlite / postgres
       refresh_check_interval: 1h
       refresh_mode: full / append # update / incremental
 ```
@@ -270,18 +270,30 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
+- [`cayenne`](/docs/components/data-accelerators/cayenne.md) - Accelerated by the Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
 - [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
 - [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
+- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory.
-- `file` - Store acceleration data in a file. Only supported for `duckdb` and `sqlite` acceleration engines.
+- `memory` - Store acceleration data in-memory. Not supported for the `cayenne` engine.
+- `file` - Store acceleration data in a file. Supported for `cayenne`, `duckdb` and `sqlite` acceleration engines.
 
-`mode` is currently only supported for the `duckdb` engine.
+## `acceleration.snapshots`
+
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./index.md#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+
+Supported values:
+
+- `enabled` – Download the newest snapshot on startup when the acceleration file is missing and write a fresh snapshot after each refresh.
+- `bootstrap_only` – Download snapshots on startup but never write new ones.
+- `create_only` – Write snapshots after refreshes but never download them on startup.
+- `disabled` (default) – Do not use snapshots for this dataset.
+
+Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots.md).
 
 ## `acceleration.refresh_mode`
 
@@ -289,6 +301,8 @@ Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
+- `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
+- `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md) for details.
 
 ## `acceleration.refresh_check_interval`
 
@@ -301,6 +315,117 @@ See [Duration](../duration/index.md)
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
 See the [cron schedule reference](/docs/reference/cron.md).
+
+## `acceleration.params.caching_ttl`
+
+Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
+
+When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Periodic background refresh
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.params.caching_stale_while_revalidate_ttl`
+
+Optional. The duration after `caching_ttl` expires during which stale data is served while refreshing in the background. Only applicable when `refresh_mode: caching`. Defaults to none (stale data is not served).
+
+When `caching_ttl` expires and data becomes stale, this parameter controls how long stale data continues to be served immediately while a background refresh occurs. After the combined `caching_ttl + caching_stale_while_revalidate_ttl` period, queries wait for fresh data instead of returning stale results.
+
+If omitted, cached data becomes "rotten" immediately after `caching_ttl` expires, and queries will wait for fresh data rather than returning stale results.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 30s # Serve stale data for 30 seconds while refreshing
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration/index.md)
+
+## `acceleration.params.caching_stale_if_error`
+
+Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+
+When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+
+Valid values:
+
+- `enabled` - Serve expired cached data when upstream errors occur
+- `disabled` (default) - Propagate upstream errors to queries
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 30s
+        caching_stale_if_error: enabled # Serve stale data on upstream errors
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
+
+## `acceleration.params.snapshots_create_interval`
+
+Optional. The interval at which snapshots are created for the accelerated dataset. Only applicable when `acceleration.snapshots` is set to `enabled` or `create_only`. Defaults to creating snapshots only after each refresh.
+
+When configured, Spice writes a new snapshot at the specified interval in addition to writing snapshots after refreshes. This is useful for datasets that use `refresh_mode: caching` where there is no refresh interval.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: my_data
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      refresh_mode: caching
+      snapshots: enabled
+      params:
+        snapshots_create_interval: 60s # Create a snapshot every 60 seconds
+        duckdb_file: /nvme/my_data.db
+```
+
+See [Duration](../duration/index.md) and [Acceleration Snapshots](../../features/data-acceleration/snapshots.md) for more details.
 
 ## `acceleration.refresh_sql`
 
@@ -486,6 +611,27 @@ The possible conflict resolution strategies are:
 - `drop` - Drop the data when the primary key constraint is violated.
 
 See [Constraints](../../features/data-acceleration/constraints.md)
+
+## `acceleration.snapshots_trigger_threshold`
+
+Optional. Specify how frequently snapshots are created during streaming operations. Only applicable when using `refresh_mode: changes` and `refresh_mode: append` without `time_column`.
+
+The `snapshots_trigger_threshold` field is an integer that determines after how many batch updates a snapshot should be created. For example, a value of `5` means a snapshot will be created every 5 batch updates.
+
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: orders_stream
+    acceleration:
+      enabled: true
+      refresh_mode: changes
+      on_conflict:
+        (id, version): upsert
+      params:
+        snapshots_trigger_threshold: 5 # Create snapshot every 5 batch updates
+```
+
+See [Snapshots](../../features/data-acceleration/snapshots.md)
 
 ```yaml
 datasets:

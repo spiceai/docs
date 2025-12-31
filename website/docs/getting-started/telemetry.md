@@ -6,9 +6,11 @@ description: 'Learn how Spice AI uses anonymous telemetry.'
 pagination_next: null
 ---
 
-Spice collects anonymous telemetry data, which is used to help understand how to improve the product in future versions.
+Spice collects anonymous telemetry data to help improve the product. Telemetry is enabled by default but can be disabled at any time.
 
-Data collected includes:
+## Data Collected
+
+The following anonymous information is collected:
 
 - The version of Spice being used (i.e. `v1.0.0`)
 - An anonymous identifier for the Spice instance, computed as `sha256(hostname + spicepod.name)`.
@@ -24,32 +26,32 @@ Telemetry can be disabled in one of three ways:
 
 1. Running the Spice runtime with the CLI flag `--telemetry-enabled false`:
 
-  ```bash
-  spice run -- --telemetry-enabled false
-  ```
+```bash
+spice run -- --telemetry-enabled false
+```
 
-  or
+or
 
-  ```bash
-  spiced --telemetry-enabled false
-  ```
+```bash
+spiced --telemetry-enabled false
+```
 
 2. Add the following configuration to the Spicepod configuration file (`spicepod.yaml`):
 
-  ```yaml
-  runtime:
-    telemetry:
-      enabled: false
-  ```
+```yaml
+runtime:
+  telemetry:
+    enabled: false
+```
 
 3. Compile the Spice runtime without the `anonymous_telemetry` default feature:
 
-  ```bash
-  cargo build --release --no-default-features --features "<other_default_features>"
-  ```
+```bash
+cargo build --release --no-default-features --features "<other_default_features>"
+```
 
-  i.e.
+i.e.
 
-  ```bash
-  cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
-  ```
+```bash
+cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
+```

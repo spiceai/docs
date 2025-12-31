@@ -7,7 +7,13 @@ tags:
   - search
 ---
 
-Spice provides full text search functionality with BM25 scoring. Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration.
+Spice provides full-text search functionality with BM25 scoring. This search method is optimized for keyword-based queries and is useful when:
+
+- Users search for specific terms or phrases
+- Exact keyword matching is important
+- Searching structured text fields like titles, tags, or names
+
+Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration.
 
 ## Enabling Full-Text Search
 

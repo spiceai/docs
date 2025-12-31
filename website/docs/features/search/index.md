@@ -2,7 +2,7 @@
 title: 'Search Functionality'
 sidebar_label: 'Search'
 description: 'Learn how Spice can search across datasets using database-native and vector-search methods.'
-sidebar_position: 8
+sidebar_position: 10
 pagination_prev: null
 pagination_next: null
 tags:
@@ -78,11 +78,17 @@ For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/featur
 
 ### Hybrid Search with RRF
 
-Reciprocal Rank Fusion (RRF) combines results by merging rankings from multiple search methods to improve relevance.
+Reciprocal Rank Fusion (RRF) combines results by merging rankings from multiple search methods to improve relevance. This is useful when neither vector search nor full-text search alone provides optimal results.
 
 **Requirements:**
 
 - Multiple search methods configured (vector, full-text, etc.)
+
+**When to use hybrid search:**
+
+- The query contains both semantic concepts and specific keywords.
+- Results from a single method are missing relevant documents.
+- Improved ranking is needed across diverse content types.
 
 **Example SQL Hybrid Search:**
 

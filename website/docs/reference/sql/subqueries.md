@@ -5,7 +5,7 @@ sidebar_position: 2
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.
 :::
 
 A subquery, also known as an inner query or nested query, is a query inside another query. Subqueries can appear in the `SELECT`, `FROM`, `WHERE`, and `HAVING` clauses. The examples below reference these sample tables:

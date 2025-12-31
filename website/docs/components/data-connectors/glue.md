@@ -53,9 +53,39 @@ The following parameters are supported for configuring the connection to the Glu
 | Parameter Name       | Definition                                                                  |
 | -------------------- | --------------------------------------------------------------------------- |
 | `glue_region`        | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                 |
+| `glue_catalog_id`    | The Glue catalog ID. For Amazon S3 Tables, use the format `<account_id>:s3tablescatalog/<table_bucket_name>`. If not provided, the default catalog for the account is used. |
 | `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                 |
 | `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                             |
 | `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials    |
+
+## Examples
+
+### Basic Glue Table
+
+```yaml
+datasets:
+  - from: glue:tpch.lineitem
+    name: lineitem
+    params:
+      glue_region: us-east-1
+      glue_key: ${env:AWS_ACCESS_KEY_ID}
+      glue_secret: ${env:AWS_SECRET_ACCESS_KEY}
+```
+
+### Amazon S3 Tables
+
+Connect to tables in [Amazon S3 Tables](https://aws.amazon.com/s3/features/tables/) using the `glue_catalog_id` parameter with the S3 Tables catalog format:
+
+```yaml
+datasets:
+  - from: glue:my_namespace.orders
+    name: orders
+    params:
+      glue_catalog_id: 123635965758:s3tablescatalog/my-table-bucket
+      glue_region: us-east-2
+      glue_key: ${env:AWS_ACCESS_KEY_ID}
+      glue_secret: ${env:AWS_SECRET_ACCESS_KEY}
+```
 
 ## Authentication
 
@@ -142,7 +172,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetTable",
           "glue:GetTables"
         ],
-        Resource: "*"
+        "Resource": "*"
       }
     ]
 }

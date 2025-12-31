@@ -6,15 +6,17 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
+Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](/docs/components/data-connectors) and storing it locally in a [Data Accelerator](/docs/components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring deployments maintain the latest data locally for querying.
 
 ![Spice.ai Open Source Query Federation with Acceleration](/img/features/data-acceleration.png)
 
 ## Benefits
 
-Local data acceleration stores data alongside your application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/docs/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
+Local data acceleration stores data alongside the application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](/docs/components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
 
 Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
+
+[Acceleration snapshots](./snapshots.md) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
 ## Example Use Case
 
@@ -42,9 +44,9 @@ datasets:
       refresh_check_interval: 10s
 ```
 
-- The dataset `taxi_trips` will be accelerated locally by the Spice runtime. The data will be refreshed every 10 seconds.
+- The dataset `taxi_trips` is accelerated locally by the Spice runtime. The data refreshes every 10 seconds.
 
-- Compare query times against the Spice platform:
+- Query times can be compared against the Spice platform:
 
 ```bash
 curl \
@@ -52,11 +54,25 @@ curl \
 --data 'select * from taxi_trips'
 ```
 
-And the locally accelerated dataset:
+The locally accelerated dataset can then be queried locally:
 
 ```bash
 spice sql
 select * from taxi_trips;
 ```
+
+Example output:
+
+```
++---------------+--------------+------------------+
+| trip_distance | total_amount | tpep_pickup_time |
++---------------+--------------+------------------+
+| 1.2           | 9.80         | 2023-01-15 08:32 |
+| 3.4           | 18.50        | 2023-01-15 09:10 |
++---------------+--------------+------------------+
+Time: 0.012s. 2 rows.
+```
+
+Locally accelerated datasets provide significantly faster query times compared to remote sources.
 
 [Learn more about Data Accelerators](/docs/components/data-accelerators) for faster access.

@@ -10,11 +10,10 @@ authors: [lukekim]
 tags: [announcement, release]
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import ReactPlayer from 'react-player';
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
 
-import Quote from '@site/src/components/molecules/quote/quote';
+import Quote from '@site/src/components/molecules/quote/quote'
 
 🎉 Today marks the [1.0-stable release](../releases/v1.0-stable.md) of Spice.ai Open Source—purpose-built to help enterprises ground AI in data. By unifying federated data query, retrieval, and AI inference into a single engine, Spice mitigates AI hallucinations, accelerates data access for mission-critical workloads, and makes it simple and easy for developers to build fast and accurate data-intensive applications across cloud, edge, or on-prem.
 
@@ -108,8 +107,14 @@ Here are some examples of how Spice.ai OSS solves real problems for these teams.
 
 A core requirement for many applications is consistently fast data access, with or without AI. Twilio uses Spice.ai OSS as a data acceleration framework or [Database CDN](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai), staging data in object-storage that's accelerated with Spice for sub-second query to improve the reliability of critical services in its messaging pipelines. Before Spice, a database outage could result in a service outage.
 
-<Quote name="Peter Janovsky" title="Software Architect" company="Twilio" imageUrl="/img/blog/2024/announcing-1.0-stable/peter-janovsky.jpeg">
-  "Spice opened the door to take these critical control-plane datasets and move them next to our services in the runtime path."
+<Quote
+  name='Peter Janovsky'
+  title='Software Architect'
+  company='Twilio'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/peter-janovsky.jpeg'
+>
+  "Spice opened the door to take these critical control-plane datasets and move them next to our
+  services in the runtime path."
 </Quote>
 
 With Spice, Twilio has achieved:
@@ -120,7 +125,12 @@ With Spice, Twilio has achieved:
 
 - **Mission-Critical Reliability**: Reduced reliance on queries to databases by using Spice to accelerate data in-memory locally, with automatic failover to query data directly from S3, ensuring uninterrupted service even during database downtime.
 
-<Quote name="David Blum" title="Principal Software Engineer" company="Twilio" imageUrl="/img/blog/2024/announcing-1.0-stable/david-blum.jpeg">
+<Quote
+  name='David Blum'
+  title='Principal Software Engineer'
+  company='Twilio'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/david-blum.jpeg'
+>
   "With a simple drop in container, we are able to double our data redundancy by using Spice."
 </Quote>
 
@@ -136,7 +146,12 @@ By adopting Spice.ai OSS, Twilio strengthened its infrastructure, ensuring relia
 
 Barracuda uses Spice.ai OSS to modernize data access for their email archiving and audit log systems, solving two big problems: slow query performance and costly queries. Before Spice, customers experienced frustrating delays of up to two minutes when searching email archives, due to the data volume being queried.
 
-<Quote name="David Stancu" title="Senior Principal Software Engineer" company="Barracuda" imageUrl="/img/blog/2024/announcing-1.0-stable/david-stancu.jpeg">
+<Quote
+  name='David Stancu'
+  title='Senior Principal Software Engineer'
+  company='Barracuda'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/david-stancu.jpeg'
+>
   "It's just a huge gain in responsiveness for the customer."
 </Quote>
 
@@ -150,7 +165,12 @@ With Spice, Barracuda has achieved:
 
 - **Significant Cost Reduction**: Replaced expensive Databricks Spark queries, significantly cutting expenses while improving performance.
 
-<Quote name="Darin Douglass" title="Principal Software Engineer" company="Barracuda" imageUrl="/img/blog/2024/announcing-1.0-stable/darin-douglass.jpeg">
+<Quote
+  name='Darin Douglass'
+  title='Principal Software Engineer'
+  company='Barracuda'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/darin-douglass.jpeg'
+>
   It just kinda spins up and it just works, which is really nice.
 </Quote>
 
@@ -164,8 +184,14 @@ With Spice, Barracuda has achieved:
 
 NRC Health uses Spice.ai OSS to simplify and accelerate the development of data-grounded AI features, unifying data from multiple platforms including MySQL, SharePoint, and Salesforce, into secure, AI-ready data. Before Spice, scaling AI expertise across the organization to build complex RAG-based scenarios was a challenge.
 
-<Quote name="Dustin Warner" title="Director of Software Engineering" company="NRC Health" imageUrl="/img/blog/2024/announcing-1.0-stable/dustin-warner.jpeg">
-  "What I like the most about Spice, it's very easy to collect data from different data sources and I am able to chat with this data and do everything in one place."
+<Quote
+  name='Dustin Warner'
+  title='Director of Software Engineering'
+  company='NRC Health'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/dustin-warner.jpeg'
+>
+  "What I like the most about Spice, it's very easy to collect data from different data sources and
+  I am able to chat with this data and do everything in one place."
 </Quote>
 
 With Spice OSS, NRC Health has achieved:
@@ -174,21 +200,31 @@ With Spice OSS, NRC Health has achieved:
 
 - **Accelerated Time-to-Market**: Centralized data integration and AI model serving an enterprise-ready service, accelerating time to market.
 
-<Quote name="Taher Ahmed" title="Software Engineering Manager" company="NRC Health" imageUrl="/img/blog/2024/announcing-1.0-stable/taher-ahmed.jpeg">
-  "I explored AI, embeddings, search algorithms, and features with our own database. I read a lot about this, but it was so much easier to use Spice than doing it from scratch."
+<Quote
+  name='Taher Ahmed'
+  title='Software Engineering Manager'
+  company='NRC Health'
+  imageUrl='/img/blog/2024/announcing-1.0-stable/taher-ahmed.jpeg'
+>
+  "I explored AI, embeddings, search algorithms, and features with our own database. I read a lot
+  about this, but it was so much easier to use Spice than doing it from scratch."
 </Quote>
 
 ---
 
-###  Data-Grounded AI Software Development — Spice.ai GitHub Copilot Extension
+### Data-Grounded AI Software Development — Spice.ai GitHub Copilot Extension
 
 When using tools like GitHub Copilot, developers often face the hassle of switching between multiple environments to get the data they need.
 
-<div style={{display: 'flex', justifyContent: 'center', marginBottom: '15px'}}>
-  <ReactPlayer
-    controls
-    url='https://www.youtube.com/watch?v=A0QdHVUKfAk'
-  />
+<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+  <iframe
+       width="640"
+       height="360"
+       src="https://www.youtube.com/embed/A0QdHVUKfAk"
+       frameBorder="0"
+       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+       allowFullScreen
+     />
 </div>
 
 The [Spice.ai for GitHub Copilot Extension](https://github.com/marketplace/spice-ai-for-github-copilot) built on Spice.ai OSS, gives developers the ability to connect data from external sources to Copilot, grounding Copilot in relevant data not generally available in GitHub, like test data stored in a development database.
@@ -240,5 +276,5 @@ The Spice AI Team
 - **[Cookbook](/cookbook)**: 47+ samples and examples using Spice.ai OSS
 - **[Documentation](/docs)**: Learn about features, use cases, and advanced configurations
 - **[X](https://x.com/spice_ai)**: Follow @spice_ai on X for news and updates
-- **[Discord](https://discord.gg/kZnTfneP5u)**: Connect with the team and the community
+- **[Slack](https://spiceai.org/slack)**: Connect with the team and the community
 - **[GitHub](https://github.com/spiceai/spiceai)**: Star the repo, contribute, and raise issues

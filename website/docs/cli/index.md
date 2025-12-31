@@ -32,7 +32,14 @@ The Spice CLI can be installed by:
 
 The `spice` program will be added to the PATH automatically for **bash**, **fish**, and **zsh** shells.
 
-After installing the Spice CLI for the first time, ensure you've got the correct version by running `spice version`. The Runtime version is not expected to be shown, as the runtime will be downloaded and installed automatically upon first run.
+After installing the Spice CLI for the first time, verify the installation by running `spice version`. Expected output:
+
+```console
+CLI version:     1.x.x
+Runtime version: (not installed)
+```
+
+The runtime is downloaded and installed automatically upon first run of `spice run`.
 
 ## Getting started
 
