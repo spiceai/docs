@@ -7,16 +7,20 @@ image: /img/og/getting-started.png
 pagination_next: null
 ---
 
-import ReactPlayer from 'react-player';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<div style={{display: 'flex', justifyContent: 'center', marginBottom: '15px'}}>
-  <ReactPlayer
-    controls
-    url='https://www.youtube.com/watch?v=yAIyjb1RxX4'
-  />
-</div>
+<BrowserOnly>
+  {() => {
+    const ReactPlayer = require('react-player').default;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+        <ReactPlayer controls url='https://www.youtube.com/watch?v=yAIyjb1RxX4' />
+      </div>
+    );
+  }}
+</BrowserOnly>
 
 ### Follow these steps to get started with Spice
 
