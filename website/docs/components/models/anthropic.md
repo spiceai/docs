@@ -26,4 +26,4 @@ models:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
 
-See [Anthropic Model Names](https://docs.anthropic.com/en/docs/about-claude/models#model-names) for a list of supported model names.
+See [Anthropic Model Names](https://platform.claude.com/docs/en/about-claude/models/overview) for a list of supported model names.
