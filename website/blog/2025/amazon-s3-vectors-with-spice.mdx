@@ -20,8 +20,6 @@ tags:
   - hybrid-search
 ---
 
-import ReactPlayer from 'react-player'
-
 The latest Spice.ai Open Source release ([v1.5.0](../releases/v1.5.0.md)) brings major improvements to search, including native support for **Amazon S3 Vectors**. Announced in public preview at [AWS Summit New York 2025](https://www.aboutamazon.com/news/aws/aws-summit-agentic-ai-innovations-2025), Amazon S3 Vectors is a new S3 bucket type purpose-built for vector embeddings, with dedicated APIs for similarity search.
 
 Spice AI was a day 1 launch partner for S3 Vectors, integrating it as a scalable vector index backend. In this post, we explore how S3 Vectors integrates into Spice.ai’s data, search, and AI-inference engine, how Spice manages indexing and lifecycle of embeddings for production vector search, and how this unlocks a powerful hybrid search experience. We’ll also put this in context with industry trends and compare Spice’s approach to other vector database solutions like Qdrant, Weaviate, Pinecone, and Turbopuffer.
@@ -156,7 +154,14 @@ This would yield a result set (with columns like `review_id`, `score`, etc.) sim
 See a 2-min demo of it in action:
 
 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-  <ReactPlayer controls url='https://www.youtube.com/watch?v=v8z35jI8JKY' />
+  <iframe
+       width="640"
+       height="360"
+       src="https://www.youtube.com/embed/v8z35jI8JKY"
+       frameBorder="0"
+       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+       allowFullScreen
+     />
 </div>
 
 ## **Managing Embeddings Storage in Spice.ai**
