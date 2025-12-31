@@ -117,7 +117,10 @@ Example uses include:
 
 ### `datasets`
 
-Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
+Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to.
+
+For LLM models, restrict the datasets available to any LLM [tools](/docs/components/tools/). For LLMs, this includes table regex.
+For ML models, this preselects the dataset to use for inference.
 
 ### `dependsOn`
 

@@ -59,3 +59,20 @@ models:
     params:
       tool_recursion_limit: 3
 ```
+
+### Restricting tools to certain datasets 
+
+Tool use can be restricted to certain tables by specifying tables under `models[].datasets`. 
+
+```yaml
+models:
+  - name: sql-model
+    from: openai:gpt-4o
+    datasets:
+      - sales.*
+      - analytics.customer_metrics
+    params:
+      tools: list_datasets, sql, table_schema
+```
+
+For `sql-model`, tools `list_datasets`, `sql` & `table_schema` can only operate on `sales.*` & `analytics.customer_metrics`.
