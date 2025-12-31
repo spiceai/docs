@@ -331,6 +331,98 @@ sql> select * from test_table;
 +-----------+-------------+---------------+
 ```
 
+## JSON Nesting
+
+When working with DynamoDB tables that have many columns, you can consolidate unspecified columns into a single JSON column using the `json_object` metadata option. This is useful when you only need a few columns as discrete fields and want to bundle the remaining columns into a single JSON structure.
+
+### Configuration
+
+To use JSON nesting, define your desired columns explicitly in the `columns` list and add a "catch-all" column with `json_object: "*"` metadata. Any columns from the source table that are not explicitly listed will be nested into this JSON column.
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: my_table
+    params:
+      dynamodb_aws_region: us-west-2
+    columns:
+      - name: PK
+      - name: SK
+      - name: Baz
+      - name: data_json
+        metadata:
+          json_object: "*"
+```
+
+### Example
+
+Given a DynamoDB table with this schema:
+
+| Column | Type   |
+|--------|--------|
+| PK     | String |
+| SK     | String |
+| Foo    | Map    |
+| Bar    | List   |
+| Baz    | String |
+
+The configuration above produces:
+
+| Column    | Type                                   |
+|-----------|----------------------------------------|
+| PK        | String                                 |
+| SK        | String                                 |
+| Baz       | String                                 |
+| data_json | JSON (`{"Foo": <map>, "Bar": <list>}`) |
+
+The `Foo` and `Bar` columns, which were not explicitly listed, are automatically nested into the `data_json` column as a JSON object.
+
+### Interaction with `unnest_depth`
+
+When both `unnest_depth` and `json_object` are specified, the operations are applied in this order:
+
+1. **Unnesting first**: Nested structures are flattened according to the `unnest_depth` value
+2. **JSON nesting second**: Unspecified columns are then consolidated into the `json_object` column
+
+Consider this DynamoDB dataset:
+```
++----+------+-------------------+------------------------------------------------------+
+| PK | SK   | Baz               | Foo                                                  | 
++----+------+-------------------+------------------------------------------------------+
+| 1  | 200  | some_string_value | { "Age" : { "N" : "35" }, "Name" : { "S" : "Joe" } } |
++----+------+-------------------+------------------------------------------------------+
+```
+
+And this configuration
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    name: my_table
+    params:
+      dynamodb_aws_region: us-west-2
+      unnest_depth: 1
+    columns:
+      - name: PK
+      - name: SK
+        metadata:
+          json_object: "*"
+```
+
+Will produce the following Spice dataset:
+```
++----+-----+---------------------------------------------------------+
+| PK | SK  | json_data                                               |
++----+-----+---------------------------------------------------------+
+| 1  | 200 | {"Baz":"some_string", "Foo.Age":35.0, "Foo.Name":"Joe"} |
++----+-----+---------------------------------------------------------+
+```
+
+:::warning[Limitations]
+
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified columns
+- Only one column can have the `json_object` metadata. Specifying multiple columns with `json_object` will result in an error
+
+:::
+
 ## Examples
 
 ### Basic Configuration with Environment Credentials
@@ -403,6 +495,8 @@ FROM (
 WHERE address.city = 'San Francisco';
 ```
 
+### 
+
 :::warning[Limitations]
 
 - The DynamoDB connector will scan the first 10 items to determine the schema of the table. This may miss columns that are not present in the first 10 items.
@@ -436,7 +530,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using the DynamoDB connector **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes` and defined `on_conflict` configuration.
+Using DynamoDB Streams **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: changes`.
 
 :::
 
@@ -444,7 +538,6 @@ Using the DynamoDB connector **requires** [acceleration](/docs/components/data-a
 
 To enable streaming from DynamoDB, enable acceleration and set the `refresh_mode` to `changes` in your dataset configuration.
 
-You also need to configure the `on_conflict` parameter to specify how the connector should handle updates to existing records. The keys defined in `on_conflict` must match your DynamoDB table's partition key and range key (if your table has one)
 ```yaml
 datasets:
   - from: dynamodb:my_table
@@ -454,8 +547,6 @@ datasets:
       engine: duckdb
       mode: file
       refresh_mode: changes
-      on_conflict:
-        (id, version): upsert
 ```
 
 ### Configuration Parameters
@@ -467,12 +558,6 @@ datasets:
 - **`scan_interval`** - Controls the polling frequency for checking new records in the DynamoDB stream. Lower values provide more real-time updates but increase API calls. Higher values reduce API usage but may introduce additional latency.
 
 #### Acceleration Parameters
-
-- **`on_conflict`** - Specifies the conflict resolution strategy when streaming changes that match existing records. The keys in the tuple should correspond to your DynamoDB table's partition key and range key (if applicable). The `upsert` action will insert new records or update existing ones based on these key columns.
-
-  **Examples:**
-   - Single partition key: `id: upsert`
-   - Partition key + range key: `(partition_key, sort_key): upsert`
 
 - **`snapshots_trigger_threshold`** - Determines how frequently snapshots are created during streaming. A value of `5` means a snapshot is created every 5 batch updates. Snapshots enable faster recovery and better query performance but consume additional storage.
 
@@ -490,11 +575,16 @@ The following [Component Metrics](../../features/observability/component_metrics
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
 datasets:
-- from: kafka:user_events
+- from: dynamodb:user_events
   name: events
+  acceleration:
+    enabled: true
+    refresh_mode: changes
   metrics:
    - name: shards_active
+   - name: records_consumed_total
    - name: lag_ms
+   - name: errors_transient_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
