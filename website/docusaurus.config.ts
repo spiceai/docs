@@ -99,7 +99,7 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
+      content: '<a href="/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -324,7 +324,7 @@ const config: Config = {
           },
           {
             from: '/blog/releases/v1.10-0',
-            to: '/blog/releases/v1.10.0'
+            to: '/releases/v1.10.0'
           },
           {
             from: '/query-federation',
@@ -332,7 +332,7 @@ const config: Config = {
           },
           {
             from: '/blog/2025/amazon-s3-vectors-with-spice',
-            to: '/blog/amazon-s3-vectors-with-spice'
+            to: 'https://spice.ai/blog/amazon-s3-vectors-with-spice'
           },
           {
             from: '/federated-queries',

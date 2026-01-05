@@ -238,6 +238,10 @@ keyring:
   label: 'Keyring'
   permalink: '/keyring'
   description: 'Operating system keyring integration for secure credential storage.'
+kafka:
+  label: 'Kafka'
+  permalink: '/kafka'
+  description: 'Apache Kafka event streaming platform integration.'
 kubernetes:
   label: 'Kubernetes'
   permalink: '/kubernetes'
@@ -278,6 +282,10 @@ models:
   label: 'Models'
   permalink: '/models'
   description: 'Machine learning models and AI inference engines.'
+mongodb:
+  label: 'MongoDB'
+  permalink: '/mongodb'
+  description: 'MongoDB NoSQL document database integration.'
 mssql:
   label: 'MSSQL'
   permalink: '/mssql'
@@ -290,6 +298,10 @@ nosql:
   label: 'NoSQL'
   permalink: '/nosql'
   description: 'NoSQL database systems and document stores.'
+observability:
+  label: 'Observability'
+  permalink: '/observability'
+  description: 'Monitoring, tracing, and metrics for system visibility.'
 odbc:
   label: 'ODBC'
   permalink: '/odbc'
@@ -414,3 +426,7 @@ yaml:
   label: 'YAML'
   permalink: '/yaml'
   description: 'YAML configuration syntax and file formats.'
+zipkin:
+  label: 'Zipkin'
+  permalink: '/zipkin'
+  description: 'Zipkin distributed tracing system integration.'
