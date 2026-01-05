@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Data sourced by Data Connectors, or views built atop them with vector embedding columns can be indexed and efficiently searched using a vector engine.
 

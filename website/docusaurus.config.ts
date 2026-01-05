@@ -99,7 +99,7 @@ const config: Config = {
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
     announcementBar: {
-      content: '<a href="/blog/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
+      content: '<a href="/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -124,7 +124,12 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API'
         },
-        { to: 'blog', label: 'Blog', position: 'left' },
+        { to: 'releases', label: 'Releases', position: 'left' },
+        {
+          label: 'Blog',
+          href: 'https://spice.ai/blog',
+          position: 'left'
+        },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
         {
@@ -205,7 +210,7 @@ const config: Config = {
           items: [
             {
               label: 'Blog',
-              href: 'https://blog.spiceai.org'
+              href: 'https://spice.ai/blog'
             },
             {
               label: 'GitHub',
@@ -292,6 +297,32 @@ const config: Config = {
   plugins: [
     tailwindPlugin,
     [
+      '@docusaurus/plugin-content-blog',
+      {
+        id: 'releases',
+        path: 'releases',
+        routeBasePath: 'releases',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+        onUntruncatedBlogPosts: 'ignore',
+        editUrl: ({ locale, blogDirPath, blogPath }) => {
+          return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
+        },
+        remarkPlugins: [],
+        postsPerPage: 10,
+        feedOptions: {
+          type: 'all',
+          description: 'Keep up to date with Spice.ai OSS releases by following our feed!',
+          copyright: `Copyright © 2025-2026 Spice AI, Inc.`,
+          xslt: true
+        },
+        blogTitle: 'Spice.ai OSS Releases',
+        blogDescription: 'Spice.ai OSS release notes and announcements',
+        blogSidebarCount: 'ALL',
+        blogSidebarTitle: 'All Releases'
+      } satisfies BlogOptions
+    ],
+    [
       'docusaurus-plugin-openapi-docs',
       {
         id: 'api',
@@ -314,16 +345,72 @@ const config: Config = {
       {
         redirects: [
           {
+            from: '/blog',
+            to: 'https://spice.ai/blog'
+          },
+          {
             from: '/blog/releases/v1.10-0',
-            to: '/blog/releases/v1.10.0'
+            to: '/releases/v1.10.0'
           },
           {
             from: '/query-federation',
             to: '/docs/features/query-federation'
           },
+          // 2021 blog posts
+          {
+            from: '/blog/2021/a-new-class-of-applications-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/2021/ai-needs-ai-ready-data',
+            to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
+          },
+          {
+            from: '/blog/2021/making-apps-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/2021/q-learning-reward-is-all-you-need',
+            to: 'https://spice.ai/blog/q-learning-reward-is-all-you-need'
+          },
+          {
+            from: '/blog/2021/spiceais-approach-to-time-series-ai',
+            to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
+          },
+          {
+            from: '/blog/2021/spicepods-from-zero-to-hero',
+            to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
+          },
+          {
+            from: '/blog/2021/teaching-apps-how-to-learn-with-spicepods',
+            to: 'https://spice.ai/blog/teaching-apps-how-to-learn-with-spicepods'
+          },
+          // 2022 blog posts
+          {
+            from: '/blog/2022/adding-soft-actor-critic',
+            to: 'https://spice.ai/blog/adding-soft-actor-critic'
+          },
+          {
+            from: '/blog/2022/building-on-apache-arrow-and-flight',
+            to: 'https://spice.ai/blog/building-on-apache-arrow-and-flight'
+          },
+          {
+            from: '/blog/2022/what-data-informs-ai-driven-decision-making',
+            to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
+          },
+          // 2024 blog posts
+          {
+            from: '/blog/2024/adding-spice',
+            to: 'https://spice.ai/blog/adding-spice'
+          },
+          {
+            from: '/blog/2024/announcing-1.0-stable',
+            to: 'https://spice.ai/blog/announcing-1.0-stable'
+          },
+          // 2025 blog posts
           {
             from: '/blog/2025/amazon-s3-vectors-with-spice',
-            to: '/blog/amazon-s3-vectors-with-spice'
+            to: 'https://spice.ai/blog/amazon-s3-vectors-with-spice'
           },
           {
             from: '/federated-queries',
