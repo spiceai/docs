@@ -38,6 +38,8 @@ Supported Data Connectors include:
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, JSON           |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, JSON           |
+| `smb`                              | SMB                                   | Alpha             | Parquet, CSV, JSON           |
+| `nfs`                              | NFS                                   | Alpha             | Parquet, CSV, JSON           |
 | `glue`                             | [Glue][glue]                          | Alpha             | Iceberg, Parquet, CSV        |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV, JSON           |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
@@ -61,41 +63,118 @@ Supported Data Connectors include:
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
 [ODPIC]: https://oracle.github.io/odpi/
 
-## Object Store File Formats
+## File Formats
 
-For data connectors that are object store compatible, if a folder is provided, the file format must be specified with `params.file_format`.
+Data connectors that read files from object stores (S3, Azure Blob, GCS) or network-attached storage (FTP, SFTP, SMB, NFS) support a variety of file formats. These connectors work with both structured data formats (Parquet, CSV) and document formats (Markdown, PDF).
 
-If a file is provided, the file format will be inferred, and `params.file_format` is unnecessary.
+### Specifying File Format
 
-File formats currently supported are:
+When connecting to a **directory**, specify the file format using `params.file_format`:
 
-| Name                                          | Parameter              | Supported | Is Document Format |
-| --------------------------------------------- | ---------------------- | --------- | ------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
-| Markdown                                      | `file_format: md`      | ✅        | ✅                 |
-| Text                                          | `file_format: txt`     | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                 |
-| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                 |
+```yaml
+datasets:
+  - from: s3://bucket/data/sales/
+    name: sales
+    params:
+      file_format: parquet
+```
 
-File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](/docs/reference/file_format)
+When connecting to a **specific file**, the format is inferred from the file extension:
 
-If a format is a document format, each file will be treated as a document, as per [document support](#document-support) below.
+```yaml
+datasets:
+  - from: sftp://files.example.com/reports/quarterly.parquet
+    name: quarterly_report
+```
+
+### Supported Formats
+
+| Name                                          | Parameter              | Status  | Description                                   |
+| --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
+| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
+| JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)  |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)            |
+| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)    |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)        |
+
+### Format-Specific Parameters
+
+File formats support additional parameters for fine-grained control. Common examples include:
+
+| Parameter        | Applies To | Description                                      |
+| ---------------- | ---------- | ------------------------------------------------ |
+| `csv_has_header` | CSV        | Whether the first row contains column headers    |
+| `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
+| `csv_quote`      | CSV        | Quote character for fields containing delimiters |
+
+For complete format options, see [File Formats Reference](/docs/reference/file_format).
+
+### Applicable Connectors
+
+The following data connectors support file format configuration:
+
+| Connector Type               | Connectors                             |
+| ---------------------------- | -------------------------------------- |
+| **Object Stores**            | S3, Azure Blob (ABFS), GCS, HTTP/HTTPS |
+| **Network-Attached Storage** | FTP, SFTP, SMB, NFS                    |
+| **Local Storage**            | File                                   |
+
+### Hive Partitioning
+
+File-based connectors support Hive-style partitioning, which extracts partition columns from folder names. Enable with `hive_partitioning_enabled: true`.
+
+Given a folder structure:
+
+```text
+/data/
+  year=2024/
+    month=01/
+      data.parquet
+    month=02/
+      data.parquet
+```
+
+Configure the dataset:
+
+```yaml
+datasets:
+  - from: s3://bucket/data/
+    name: partitioned_data
+    params:
+      file_format: parquet
+      hive_partitioning_enabled: true
+```
+
+Query with partition filters:
+
+```sql
+SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
+```
+
+Partition pruning improves query performance by reading only the relevant files.
+
+### Document Formats
+
+Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 
 :::warning[Note]
-Document formats in Alpha (e.g. pdf, docx) may not parse all structure or text from the underlying documents correctly.
+Document formats in Alpha (PDF, DOCX) may not parse all structure or text from the underlying documents correctly.
 :::
 
-### Document Support
+#### Document Table Schema
 
-If a Data Connector supports documents, when the appropriate file format is specified (see [above](#object-store-file-formats)), each file will be treated as a row in the table, with the contents of the file within the `content` column. Additional columns will exist, dependent on the data connector.
+| Column     | Type   | Description                       |
+| ---------- | ------ | --------------------------------- |
+| `location` | String | Path to the source file           |
+| `content`  | String | Full text content of the document |
 
 #### Example
 
-Consider a local filesystem
+Consider a local filesystem:
 
 ```shell
 >>> ls -la
