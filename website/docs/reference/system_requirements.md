@@ -48,7 +48,6 @@ The following ports are used:
 | HTTP / HTTPS (if TLS is configured) | 8090  |
 | Metrics Endpoint                    | 9090  |
 | Arrow Flight / ADBC/ODBC/JDBC       | 50051 |
-| OpenTelemetry Ingestion             | 50052 |
 
 ## Kubernetes Requirements
 
