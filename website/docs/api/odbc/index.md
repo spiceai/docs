@@ -104,7 +104,6 @@ spiced --flight 0.0.0.0:50051
 ```
 
 ```shell
-2024-10-06T20:06:50.084017Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
 2024-10-06T20:06:50.084015Z  INFO runtime::flight: Spice Runtime Flight listening on 0.0.0.0:50051
 2024-10-06T20:06:50.086948Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
 2024-10-06T20:06:50.297512Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
