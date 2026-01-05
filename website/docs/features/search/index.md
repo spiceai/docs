@@ -13,7 +13,7 @@ tags:
 
 import DocCardList from '@theme/DocCardList';
 
-> 🎓 For a practical walkthrough, see the: [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 For a practical walkthrough, see the: [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Spice provides robust search capabilities enabling developers to query datasets beyond traditional SQL, including semantic (vector-based) search, full-text keyword search, and hybrid search methods.
 
