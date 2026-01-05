@@ -64,7 +64,7 @@ function generateBlogLink(date: string, title: string) {
 }
 
 export async function getArticlesData(): Promise<ProcessedFile[]> {
-  const releases = await fetchContents('/website/blog/releases')
+  const releases = await fetchContents('/website/releases')
 
   const processedReleases = []
 

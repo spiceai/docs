@@ -9,7 +9,7 @@ tags:
   - embeddings
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Vector search uses embeddings (numerical representations of text or data) to find semantically similar content. Unlike keyword search, vector search understands meaning and context, making it useful for:
 

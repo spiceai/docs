@@ -66,18 +66,18 @@ datasets:
               trim_whitespace: true
 
   - from: github:github.com/spiceai/docs/files/trunk
-    name: spiceai.blog
-    description: Spice.ai OSS blog posts
+    name: spiceai.releases
+    description: Spice.ai OSS release notes
     metadata:
       instructions: |
-        This dataset provides access to the Spice.ai OSS project blog posts in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
-      reference_base_url: https://github.com/spiceai/blog/tree/trunk/content/posts/<post_path>
+        This dataset provides access to the Spice.ai OSS project release notes in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
+      reference_base_url: https://github.com/spiceai/docs/tree/trunk/website/releases/<post_path>
     params:
       file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      include: 'website/blog/**/*.md'
+      include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
       refresh_check_interval: 4h
