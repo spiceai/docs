@@ -5,15 +5,77 @@ description: 'Learn how to use federated SQL queries in Spice.ai Open Source'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
+tags:
+  - query
+  - sql
+  - features
 ---
 
-Spice supports query federation, enabling you to join, combine, and query data using SQL from multiple sources, including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO).
+import DocCardList from '@theme/DocCardList';
+
+Spice provides a high-performance SQL query engine built on Apache DataFusion, supporting query federation across multiple data sources including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO).
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
 For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
 
-## Getting Started
+## Query Methods
+
+Spice supports multiple ways to execute queries:
+
+- **SQL Queries**: Execute standard SQL queries against datasets using the HTTP API, Arrow Flight SQL, JDBC, ODBC, or ADBC.
+- **Parameterized Queries**: Execute prepared statements with parameter binding for improved security and performance.
+- **Federated Queries**: Join and query data across multiple sources in a single SQL statement.
+
+## API Endpoints
+
+| Protocol         | Endpoint                 | Description                            |
+| ---------------- | ------------------------ | -------------------------------------- |
+| HTTP             | `/v1/sql`                | Execute SQL queries over HTTP          |
+| Arrow Flight SQL | `grpc://localhost:50051` | High-performance Arrow-native queries  |
+| JDBC/ODBC        | Flight SQL compatible    | Connect from BI tools and applications |
+| ADBC             | Flight SQL driver        | Arrow Database Connectivity            |
+
+### HTTP API
+
+Execute a query using the HTTP API:
+
+```bash
+curl -X POST http://localhost:8090/v1/sql \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT * FROM my_table LIMIT 10"}'
+```
+
+### Arrow Flight SQL
+
+Connect using Arrow Flight SQL for high-performance data transfer:
+
+```python
+import adbc_driver_flightsql.dbapi
+
+conn = adbc_driver_flightsql.dbapi.connect('grpc://localhost:50051')
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM my_table LIMIT 10")
+result = cursor.fetch_arrow_table()
+```
+
+### SQL REPL
+
+Use the Spice CLI for interactive queries:
+
+```bash
+spice sql
+```
+
+```sql
+SELECT * FROM my_table LIMIT 10;
+```
+
+## Query Features
+
+<DocCardList />
+
+## Federated Query Example
 
 To start using federated queries in Spice, follow these steps:
 
@@ -152,3 +214,10 @@ Step 9 demonstrates the same query executed against locally materialized dataset
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
 
 :::
+
+## Related Topics
+
+- [Distributed Query](/docs/features/distributed-query) - Scale queries across multiple nodes
+- [Results Caching](/docs/features/caching) - Cache query results for improved performance
+- [Arrow Flight SQL API](/docs/api/arrow-flight-sql) - High-performance query protocol
+- [ADBC](/docs/api/adbc) - Arrow Database Connectivity
