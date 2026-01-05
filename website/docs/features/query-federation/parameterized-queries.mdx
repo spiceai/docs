@@ -13,8 +13,8 @@ tags:
   - adbc
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
 
 Parameterized queries separate SQL logic from data values, providing protection against SQL injection attacks and improving query performance through prepared statement caching.
 
@@ -215,17 +215,17 @@ curl -X POST http://localhost:8090/v1/sql \
 
 Spice supports a wide range of parameter types with automatic type inference:
 
-| Type Category     | Examples                                    | Arrow Type      |
-| ----------------- | ------------------------------------------- | --------------- |
-| Signed integers   | `int`, `int8`, `int16`, `int32`, `int64`    | Int8/16/32/64   |
-| Unsigned integers | `uint`, `uint8`, `uint16`, `uint32`         | Uint8/16/32/64  |
-| Floating point    | `float`, `double`                           | Float32/Float64 |
-| Text              | `string`                                    | Utf8            |
-| Boolean           | `bool`, `boolean`                           | Boolean         |
-| Binary            | `byte[]`, `[]byte`                          | Binary          |
-| Date/Time         | `LocalDate`, `LocalDateTime`, `time.Time`   | Date32/64, Timestamp |
-| Decimal           | `BigDecimal`, `decimal`                     | Decimal128/256  |
-| Null              | `null`, `nil`                               | Null            |
+| Type Category     | Examples                                  | Arrow Type           |
+| ----------------- | ----------------------------------------- | -------------------- |
+| Signed integers   | `int`, `int8`, `int16`, `int32`, `int64`  | Int8/16/32/64        |
+| Unsigned integers | `uint`, `uint8`, `uint16`, `uint32`       | Uint8/16/32/64       |
+| Floating point    | `float`, `double`                         | Float32/Float64      |
+| Text              | `string`                                  | Utf8                 |
+| Boolean           | `bool`, `boolean`                         | Boolean              |
+| Binary            | `byte[]`, `[]byte`                        | Binary               |
+| Date/Time         | `LocalDate`, `LocalDateTime`, `time.Time` | Date32/64, Timestamp |
+| Decimal           | `BigDecimal`, `decimal`                   | Decimal128/256       |
+| Null              | `null`, `nil`                             | Null                 |
 
 ## Explicit Type Control
 
@@ -348,17 +348,17 @@ Parameterized queries can improve performance in several ways:
 
 ## SDK Support
 
-| SDK                                                              | Version  | Method                                      | Status    |
-| ---------------------------------------------------------------- | -------- | ------------------------------------------- | --------- |
-| [gospice](https://github.com/spiceai/gospice) (Go)               | v8.0.0+  | `SqlWithParams()` with typed constructors   | ✅ Full    |
-| [spice-rs](https://github.com/spiceai/spice-rs) (Rust)           | v3.0.0+  | `query_with_params()` with `RecordBatch`    | ✅ Full    |
-| [spice-dotnet](https://github.com/spiceai/spice-dotnet) (Dotnet) | v1.1.0+  | `Query()` with `Dictionary<string, object>` | ✅ Full    |
-| [spice-java](https://github.com/spiceai/spice-java) (Java)       | v0.5.0+  | `queryWithParams()` with `Param` class      | ✅ Full    |
-| [spice.js](https://github.com/spiceai/spice.js) (JavaScript)     | -        | Coming soon                                 | ❌ Not yet |
-| [spicepy](https://github.com/spiceai/spicepy) (Python)           | -        | Coming soon (use ADBC)                      | ❌ Not yet |
-| ADBC (Python)                                                    | -        | `cursor.execute()` with `parameters`        | ✅ Full    |
-| JDBC                                                             | -        | `PreparedStatement`                         | ✅ Full    |
-| ODBC                                                             | -        | Parameterized queries                       | ✅ Full    |
+| SDK                                                              | Version | Method                                      | Status     |
+| ---------------------------------------------------------------- | ------- | ------------------------------------------- | ---------- |
+| [gospice](https://github.com/spiceai/gospice) (Go)               | v8.0.0+ | `SqlWithParams()` with typed constructors   | ✅ Full    |
+| [spice-rs](https://github.com/spiceai/spice-rs) (Rust)           | v3.0.0+ | `query_with_params()` with `RecordBatch`    | ✅ Full    |
+| [spice-dotnet](https://github.com/spiceai/spice-dotnet) (Dotnet) | v1.1.0+ | `Query()` with `Dictionary<string, object>` | ✅ Full    |
+| [spice-java](https://github.com/spiceai/spice-java) (Java)       | v0.5.0+ | `queryWithParams()` with `Param` class      | ✅ Full    |
+| [spice.js](https://github.com/spiceai/spice.js) (JavaScript)     | -       | Coming soon                                 | ❌ Not yet |
+| [spicepy](https://github.com/spiceai/spicepy) (Python)           | -       | Coming soon (use ADBC)                      | ❌ Not yet |
+| ADBC (Python)                                                    | -       | `cursor.execute()` with `parameters`        | ✅ Full    |
+| JDBC                                                             | -       | `PreparedStatement`                         | ✅ Full    |
+| ODBC                                                             | -       | Parameterized queries                       | ✅ Full    |
 
 ## Examples
 
