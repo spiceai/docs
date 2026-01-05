@@ -6,7 +6,7 @@ sidebar_position: 1
 pagination_next: null
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Amazon S3 Vectors, announced in public preview at AWS Summit New York 2025, is a new S3 bucket type designed for storing and querying vector embeddings at scale. It supports billions of vectors with sub-second similarity queries, reducing costs by up to 90% compared to traditional vector databases by separating storage from compute. Spice AI integrates S3 Vectors as a vector index backend, managing embedding indexing, lifecycle, and queries for hybrid search experiences.
 
@@ -395,5 +395,5 @@ Spice supports the following [S3 Vector engine metrics](/docs/features/observabi
 
 ## References
 
-- [Spice.ai announcement](https://spiceai.org/blog/amazon-s3-vectors-with-spice)
+- [Spice.ai announcement](https://spice.ai/blog/amazon-s3-vectors-with-spice)
 - [Amazon S3 Vectors official page](https://aws.amazon.com/s3/vectors/)

@@ -124,7 +124,12 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API'
         },
-        { to: 'blog', label: 'Blog', position: 'left' },
+        { to: 'releases', label: 'Releases', position: 'left' },
+        {
+          label: 'Blog',
+          href: 'https://spice.ai/blog',
+          position: 'left'
+        },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
         {
@@ -205,7 +210,7 @@ const config: Config = {
           items: [
             {
               label: 'Blog',
-              href: 'https://blog.spiceai.org'
+              href: 'https://spice.ai/blog'
             },
             {
               label: 'GitHub',
@@ -313,6 +318,10 @@ const config: Config = {
       '@docusaurus/plugin-client-redirects',
       {
         redirects: [
+          {
+            from: '/blog',
+            to: 'https://spice.ai/blog'
+          },
           {
             from: '/blog/releases/v1.10-0',
             to: '/blog/releases/v1.10.0'
