@@ -39,6 +39,7 @@ Acceleration snapshots are available in preview.
 - If the file is missing and snapshots are enabled, Spice looks under the configured snapshot location and downloads the newest snapshot for that dataset.
 - If no snapshot is available, the acceleration boots empty and refreshes from the source.
 - After each refresh, Spice writes a new snapshot unless the dataset is configured in `bootstrap_only` mode.
+- When `snapshots_create_interval` is configured, Spice writes additional periodic snapshots at the specified interval, independent of refresh cycles.
 
 Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset`, Spice writes files such as:
 
@@ -81,6 +82,24 @@ Each dataset opts into snapshotting through the `acceleration.snapshots` field. 
 - `bootstrap_only` – only download snapshots; never write new ones.
 - `create_only` – write new snapshots after refreshes, but never download them on startup.
 - `disabled` – disable snapshot usage for this dataset. (Default.)
+
+### Periodic snapshot creation
+
+By default, snapshots are created after each data refresh. For datasets using `refresh_mode: caching`, where row-level changes occur frequently but traditional refresh cycles do not apply, configure `acceleration.params.snapshots_create_interval` to write snapshots at a fixed interval:
+
+```yaml
+acceleration:
+  enabled: true
+  engine: duckdb
+  mode: file
+  refresh_mode: caching
+  snapshots: enabled
+  params:
+    snapshots_create_interval: 60s # Write a snapshot every 60 seconds
+    duckdb_file: /nvme/my_dataset.db
+```
+
+This ensures snapshot persistence even when no explicit refresh triggers occur.
 
 Example Spicepod configuration:
 
