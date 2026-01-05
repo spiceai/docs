@@ -342,6 +342,10 @@ postgres:
   label: 'Postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database integration and configuration.'
+query:
+  label: 'Query'
+  permalink: '/query'
+  description: 'SQL query execution, parameterized queries, and prepared statements.'
 reference:
   label: 'Reference'
   permalink: '/reference'
