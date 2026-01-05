@@ -1,0 +1,461 @@
+---
+title: 'Parameterized Queries'
+sidebar_label: 'Parameterized Queries'
+description: 'Learn how to use prepared statements and parameterized queries in Spice for improved security and performance.'
+sidebar_position: 1
+pagination_prev: null
+pagination_next: null
+tags:
+  - query
+  - sql
+  - security
+  - features
+  - adbc
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Parameterized queries separate SQL logic from data values, providing protection against SQL injection attacks and improving query performance through prepared statement caching.
+
+## Overview
+
+Instead of embedding values directly in SQL strings, parameterized queries use placeholders (e.g., `$1`, `$2`) that are bound to values at execution time. This approach:
+
+- **Prevents SQL injection**: Values are never interpreted as SQL code
+- **Improves performance**: Query plans can be cached and reused
+- **Enhances code clarity**: Query structure is separate from data
+
+## Placeholder Syntax
+
+Spice uses positional placeholders following the PostgreSQL convention:
+
+```sql
+SELECT * FROM users WHERE id = $1 AND status = $2
+```
+
+Parameters are bound in order: `$1` receives the first parameter, `$2` the second, and so on.
+
+## Using Parameterized Queries
+
+<Tabs groupId="sdk">
+  <TabItem value="python" label="Python (ADBC)" default>
+
+ADBC provides native support for parameterized queries through the FlightSQL driver:
+
+```python
+from adbc_driver_flightsql.dbapi import connect
+
+with connect("grpc://127.0.0.1:50051") as conn:
+    with conn.cursor() as cur:
+        # Single parameter
+        cur.execute("SELECT * FROM users WHERE id = $1", parameters=(42,))
+        table = cur.fetch_arrow_table()
+        print(table)
+
+        # Multiple parameters
+        cur.execute(
+            "SELECT * FROM orders WHERE customer_id = $1 AND total > $2",
+            parameters=(100, 50.0)
+        )
+        table = cur.fetch_arrow_table()
+        print(table)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+The [gospice](https://github.com/spiceai/gospice) SDK (v8+) provides `SqlWithParams()` for parameterized queries:
+
+```go
+import "github.com/spiceai/gospice/v8"
+
+spice := gospice.NewSpiceClient()
+defer spice.Close()
+
+if err := spice.Init(); err != nil {
+    panic(err)
+}
+
+// Query with parameters
+reader, err := spice.SqlWithParams(
+    context.Background(),
+    "SELECT * FROM customers WHERE c_custkey > $1 LIMIT 10",
+    100,
+)
+if err != nil {
+    panic(err)
+}
+defer reader.Release()
+
+for reader.Next() {
+    record := reader.RecordBatch()
+    defer record.Release()
+    fmt.Println(record)
+}
+```
+
+Multiple parameters with different types:
+
+```go
+reader, err := spice.SqlWithParams(
+    context.Background(),
+    "SELECT * FROM orders WHERE customer_id = $1 AND order_date > $2 AND total > $3",
+    42,           // int
+    "2024-01-01", // string
+    100.50,       // float64
+)
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+The [spice-java](https://github.com/spiceai/spice-java) SDK (v0.5.0+) provides `queryWithParams()` for parameterized queries:
+
+```java
+import org.apache.arrow.vector.VectorSchemaRoot;
+import org.apache.arrow.vector.ipc.ArrowReader;
+import ai.spice.SpiceClient;
+
+public class Example {
+    public static void main(String[] args) {
+        try (SpiceClient client = SpiceClient.builder().build()) {
+
+            // Query with automatic type inference
+            ArrowReader reader = client.queryWithParams(
+                "SELECT * FROM taxi_trips WHERE trip_distance > $1 LIMIT 10",
+                5.0); // Double is inferred as Float64
+
+            while (reader.loadNextBatch()) {
+                VectorSchemaRoot root = reader.getVectorSchemaRoot();
+                System.out.println(root.contentToTSVString());
+            }
+            reader.close();
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+Multiple parameters:
+
+```java
+ArrowReader reader = client.queryWithParams(
+    "SELECT * FROM taxi_trips WHERE trip_distance > $1 AND fare_amount > $2 LIMIT 10",
+    5.0, 20.0);
+```
+
+  </TabItem>
+  <TabItem value="rust" label="Rust">
+
+The [spice-rs](https://github.com/spiceai/spice-rs) SDK (v3.0.0+) provides `query_with_params()`:
+
+```rust
+use spice_rs::Client;
+use arrow::record_batch::RecordBatch;
+
+let client = Client::new("http://localhost:50051").await?;
+
+// Create parameter batch
+let params = RecordBatch::try_new(
+    Arc::new(Schema::new(vec![
+        Field::new("$1", DataType::Float64, false),
+    ])),
+    vec![Arc::new(Float64Array::from(vec![5.0]))],
+)?;
+
+let batches = client.query_with_params(
+    "SELECT * FROM taxi_trips WHERE trip_distance > $1 LIMIT 10",
+    params
+).await?;
+```
+
+  </TabItem>
+  <TabItem value="dotnet" label="Dotnet">
+
+The [spice-dotnet](https://github.com/spiceai/spice-dotnet) SDK (v1.1.0+) provides `Query()` with dictionary parameters:
+
+```csharp
+using Spice;
+
+var client = new SpiceClientBuilder().Build();
+
+var parameters = new Dictionary<string, object>
+{
+    { "min_distance", 5.0 },
+    { "min_fare", 20.0 }
+};
+
+var data = await client.Query(
+    "SELECT * FROM taxi_trips WHERE trip_distance > :min_distance AND fare_amount > :min_fare",
+    parameters
+);
+```
+
+  </TabItem>
+  <TabItem value="http" label="HTTP API">
+
+The HTTP API supports parameterized queries through the `/v1/sql` endpoint:
+
+```bash
+curl -X POST http://localhost:8090/v1/sql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sql": "SELECT * FROM users WHERE id = $1 AND status = $2",
+    "params": [42, "active"]
+  }'
+```
+
+  </TabItem>
+</Tabs>
+
+## Supported Parameter Types
+
+Spice supports a wide range of parameter types with automatic type inference:
+
+| Type Category     | Examples                                    | Arrow Type      |
+| ----------------- | ------------------------------------------- | --------------- |
+| Signed integers   | `int`, `int8`, `int16`, `int32`, `int64`    | Int8/16/32/64   |
+| Unsigned integers | `uint`, `uint8`, `uint16`, `uint32`         | Uint8/16/32/64  |
+| Floating point    | `float`, `double`                           | Float32/Float64 |
+| Text              | `string`                                    | Utf8            |
+| Boolean           | `bool`, `boolean`                           | Boolean         |
+| Binary            | `byte[]`, `[]byte`                          | Binary          |
+| Date/Time         | `LocalDate`, `LocalDateTime`, `time.Time`   | Date32/64, Timestamp |
+| Decimal           | `BigDecimal`, `decimal`                     | Decimal128/256  |
+| Null              | `null`, `nil`                               | Null            |
+
+## Explicit Type Control
+
+For precise control over Arrow types, SDKs provide typed parameter constructors:
+
+<Tabs groupId="sdk">
+  <TabItem value="go" label="Go" default>
+
+```go
+import "github.com/spiceai/gospice/v8"
+
+reader, err := spice.SqlWithParams(
+    ctx,
+    "SELECT * FROM financial WHERE amount >= $1 AND timestamp > $2",
+    gospice.Decimal128Param(amountBytes, 19, 4),            // Decimal with precision & scale
+    gospice.TimestampParam(ts, arrow.Microsecond, "UTC"),   // Timestamp with unit & timezone
+)
+```
+
+Available constructors: `Int8Param`, `Int16Param`, `Int32Param`, `Int64Param`, `Uint8Param`, `Uint16Param`, `Uint32Param`, `Uint64Param`, `Float16Param`, `Float32Param`, `Float64Param`, `StringParam`, `LargeStringParam`, `BinaryParam`, `LargeBinaryParam`, `FixedSizeBinaryParam`, `BoolParam`, `Date32Param`, `Date64Param`, `Time32Param`, `Time64Param`, `TimestampParam`, `DurationParam`, `MonthIntervalParam`, `DayTimeIntervalParam`, `MonthDayNanoIntervalParam`, `Decimal128Param`, `Decimal256Param`, `NullParam`
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java
+import ai.spice.Param;
+
+ArrowReader reader = client.queryWithParams(
+    "SELECT * FROM orders WHERE order_id = $1 AND amount >= $2",
+    Param.int64(12345),
+    Param.decimal128(new BigDecimal("99.99"), 10, 2));
+```
+
+Available constructors: `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `float16`, `float32`, `float64`, `string`, `largeString`, `binary`, `largeBinary`, `fixedSizeBinary`, `bool`, `date32`, `date64`, `time32`, `time64`, `timestamp`, `duration`, `decimal128`, `decimal256`, `nullValue`
+
+You can also use generic constructors: `Param.of(value)` for automatic type inference, or `Param.of(value, arrowType)` for explicit Arrow type.
+
+  </TabItem>
+  <TabItem value="rust" label="Rust">
+
+Rust uses Arrow `RecordBatch` for parameters, giving full control over the Arrow schema:
+
+```rust
+use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
+use arrow::array::{TimestampMicrosecondArray, Decimal128Array};
+
+let params = RecordBatch::try_new(
+    Arc::new(Schema::new(vec![
+        Field::new("$1", DataType::Decimal128(19, 4), false),
+        Field::new("$2", DataType::Timestamp(TimeUnit::Microsecond, Some("UTC".into())), false),
+    ])),
+    vec![
+        Arc::new(Decimal128Array::from(vec![Some(9999)])),
+        Arc::new(TimestampMicrosecondArray::from(vec![Some(1704067200000000)])),
+    ],
+)?;
+```
+
+  </TabItem>
+</Tabs>
+
+## Security Benefits
+
+Parameterized queries protect against SQL injection by ensuring user input is never interpreted as SQL code.
+
+<Tabs groupId="sdk">
+  <TabItem value="go" label="Go" default>
+
+```go
+// ❌ DANGEROUS: User input directly in SQL string
+userId := getUserInput() // Could be: "1 OR 1=1"
+sql := fmt.Sprintf("SELECT * FROM users WHERE id = %s", userId)
+reader, err := spice.Sql(ctx, sql)
+
+// ✅ SAFE: User input passed as parameter
+userId := getUserInput()
+reader, err := spice.SqlWithParams(ctx, "SELECT * FROM users WHERE id = $1", userId)
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java
+// ❌ DANGEROUS: User input directly in SQL string
+String userId = getUserInput(); // Could be: "1 OR 1=1"
+String sql = "SELECT * FROM users WHERE id = " + userId;
+FlightStream stream = client.query(sql);
+
+// ✅ SAFE: User input passed as parameter
+ArrowReader reader = client.queryWithParams(
+    "SELECT * FROM users WHERE id = $1",
+    userId);
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python (ADBC)">
+
+```python
+# ❌ DANGEROUS: User input directly in SQL string
+user_id = get_user_input()  # Could be: "1 OR 1=1"
+sql = f"SELECT * FROM users WHERE id = {user_id}"
+cur.execute(sql)
+
+# ✅ SAFE: User input passed as parameter
+cur.execute("SELECT * FROM users WHERE id = $1", parameters=(user_id,))
+```
+
+  </TabItem>
+</Tabs>
+
+With parameterized queries, even if `userId` contains malicious SQL like `1 OR 1=1`, it is treated as a literal string value, not as SQL code.
+
+## Performance Considerations
+
+Parameterized queries can improve performance in several ways:
+
+1. **Query Plan Caching**: The database can cache and reuse execution plans for parameterized queries
+2. **Reduced Parsing**: Parameter binding avoids repeated SQL parsing
+3. **Batch Operations**: Multiple executions with different parameters use the same prepared statement
+
+## SDK Support
+
+| SDK                                                              | Version  | Method                                      | Status    |
+| ---------------------------------------------------------------- | -------- | ------------------------------------------- | --------- |
+| [gospice](https://github.com/spiceai/gospice) (Go)               | v8.0.0+  | `SqlWithParams()` with typed constructors   | ✅ Full    |
+| [spice-rs](https://github.com/spiceai/spice-rs) (Rust)           | v3.0.0+  | `query_with_params()` with `RecordBatch`    | ✅ Full    |
+| [spice-dotnet](https://github.com/spiceai/spice-dotnet) (Dotnet) | v1.1.0+  | `Query()` with `Dictionary<string, object>` | ✅ Full    |
+| [spice-java](https://github.com/spiceai/spice-java) (Java)       | v0.5.0+  | `queryWithParams()` with `Param` class      | ✅ Full    |
+| [spice.js](https://github.com/spiceai/spice.js) (JavaScript)     | -        | Coming soon                                 | ❌ Not yet |
+| [spicepy](https://github.com/spiceai/spicepy) (Python)           | -        | Coming soon (use ADBC)                      | ❌ Not yet |
+| ADBC (Python)                                                    | -        | `cursor.execute()` with `parameters`        | ✅ Full    |
+| JDBC                                                             | -        | `PreparedStatement`                         | ✅ Full    |
+| ODBC                                                             | -        | Parameterized queries                       | ✅ Full    |
+
+## Examples
+
+### Filtering with Multiple Conditions
+
+```python
+# Python with ADBC
+cur.execute("""
+    SELECT order_id, customer_name, total
+    FROM orders
+    WHERE status = $1
+      AND order_date BETWEEN $2 AND $3
+      AND total > $4
+    ORDER BY order_date DESC
+    LIMIT $5
+""", parameters=("completed", "2024-01-01", "2024-12-31", 100.0, 50))
+```
+
+### Batch Processing Pattern
+
+```go
+// Go: Process multiple customers with same query
+customerIDs := []int{100, 200, 300, 400, 500}
+
+for _, id := range customerIDs {
+    reader, err := spice.SqlWithParams(
+        ctx,
+        "SELECT * FROM orders WHERE customer_id = $1",
+        id,
+    )
+    if err != nil {
+        log.Printf("Error querying customer %d: %v", id, err)
+        continue
+    }
+    processOrders(reader)
+    reader.Release()
+}
+```
+
+### Using with Aggregations
+
+```python
+# Calculate statistics for a specific time range
+cur.execute("""
+    SELECT
+        DATE_TRUNC('day', order_date) as day,
+        COUNT(*) as order_count,
+        SUM(total) as daily_total
+    FROM orders
+    WHERE order_date >= $1 AND order_date < $2
+    GROUP BY DATE_TRUNC('day', order_date)
+    ORDER BY day
+""", parameters=("2024-01-01", "2024-02-01"))
+```
+
+## Troubleshooting
+
+### Parameter Count Mismatch
+
+Ensure the number of parameters matches the number of placeholders:
+
+```python
+# Error: 3 placeholders but only 2 parameters
+cur.execute("SELECT * FROM t WHERE a = $1 AND b = $2 AND c = $3", parameters=(1, 2))
+
+# Correct: 3 placeholders and 3 parameters
+cur.execute("SELECT * FROM t WHERE a = $1 AND b = $2 AND c = $3", parameters=(1, 2, 3))
+```
+
+### Type Mismatch
+
+If you encounter type errors, use explicit type constructors (Go) or ensure Python types match expected column types:
+
+```go
+// If int is inferred as Int64 but column expects Int32
+reader, err := spice.SqlWithParams(ctx, "SELECT $1", gospice.Int32Param(42))
+```
+
+### Connection Issues
+
+For ADBC connections, verify the Spice runtime is running and accessible:
+
+```python
+# Test connection
+try:
+    conn = connect("grpc://localhost:50051")
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1")
+    print("Connection successful")
+except Exception as e:
+    print(f"Connection failed: {e}")
+```
+
+## Related Topics
+
+- [ADBC API](/docs/api/adbc) - Arrow Database Connectivity documentation
+- [Arrow Flight SQL API](/docs/api/arrow-flight-sql) - Flight SQL protocol details
+- [Go SDK](/docs/sdks/golang) - gospice SDK documentation
+- [Python SDK](/docs/sdks/python) - spicepy SDK documentation
+- [Results Caching](/docs/features/caching) - Query result caching

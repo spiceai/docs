@@ -1,8 +1,12 @@
 ---
 title: 'JavaScript SDK'
-description: 'Connect to spice using Spice.js SDK'
+description: 'Connect to Spice using the JavaScript SDK'
 pagination_prev: null
 pagination_next: null
+tags:
+  - sdk
+  - javascript
+  - nodejs
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,7 +14,11 @@ import TabItem from '@theme/TabItem';
 
 ## JavaScript SDK for Spice.ai
 
-https://github.com/spiceai/spice.js
+[github.com/spiceai/spice.js](https://github.com/spiceai/spice.js)
+
+:::note[Parameterized Queries]
+Parameterized query support is coming soon. See [Parameterized Queries](/docs/features/query-federation/parameterized-queries) for more information.
+:::
 
 ### Install
 
