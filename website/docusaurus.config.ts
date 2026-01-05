@@ -297,6 +297,32 @@ const config: Config = {
   plugins: [
     tailwindPlugin,
     [
+      '@docusaurus/plugin-content-blog',
+      {
+        id: 'releases',
+        path: 'releases',
+        routeBasePath: 'releases',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+        onUntruncatedBlogPosts: 'ignore',
+        editUrl: ({ locale, blogDirPath, blogPath }) => {
+          return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
+        },
+        remarkPlugins: [],
+        postsPerPage: 10,
+        feedOptions: {
+          type: 'all',
+          description: 'Keep up to date with Spice.ai OSS releases by following our feed!',
+          copyright: `Copyright © 2025-2026 Spice AI, Inc.`,
+          xslt: true
+        },
+        blogTitle: 'Spice.ai OSS Releases',
+        blogDescription: 'Spice.ai OSS release notes and announcements',
+        blogSidebarCount: 'ALL',
+        blogSidebarTitle: 'All Releases'
+      } satisfies BlogOptions
+    ],
+    [
       'docusaurus-plugin-openapi-docs',
       {
         id: 'api',
