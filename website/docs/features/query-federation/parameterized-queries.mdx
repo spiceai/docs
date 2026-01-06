@@ -204,7 +204,7 @@ curl -X POST http://localhost:8090/v1/sql \
   -H "Content-Type: application/json" \
   -d '{
     "sql": "SELECT * FROM users WHERE id = $1 AND status = $2",
-    "params": [42, "active"]
+    "parameters": [42, "active"]
   }'
 ```
 
