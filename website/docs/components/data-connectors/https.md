@@ -5,7 +5,7 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
-The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors#file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
 
 ```yaml
 datasets:
@@ -63,7 +63,7 @@ datasets:
 
 The `from` field specifies the HTTP(s) endpoint and can be configured in two ways:
 
-1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](/docs/components/data-connectors/index.md#object-store-file-formats).
+1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](/docs/components/data-connectors#file-formats).
 
    ```yaml
    from: https://example.com/data/report.csv
