@@ -411,7 +411,7 @@ const config: Config = {
             from: '/blog/adding-spice',
             to: 'https://spice.ai/blog/adding-spice'
           },
-          
+
           {
             from: '/federated-queries',
             to: '/docs/features/query-federation'
