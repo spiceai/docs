@@ -85,7 +85,7 @@ async fn main() {
 
     let data = client.query_with_params(
         "SELECT * FROM products WHERE price > $1 AND category = $2",
-        params
+        Some(params)
     ).await;
 }
 ```
