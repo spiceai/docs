@@ -370,11 +370,23 @@ const config: Config = {
             to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
           },
           {
+            from: '/blog/2021/a-new-class-of-applications-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
             from: '/blog/ai-needs-ai-ready-data',
+            to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
+          },
+           {
+            from: '/blog/2021/ai-needs-ai-ready-data',
             to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
           },
           {
             from: '/blog/making-apps-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/2021/making-apps-that-learn-and-adapt',
             to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
           },
           {
@@ -386,7 +398,15 @@ const config: Config = {
             to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
           },
           {
+            from: '/blog/2021/spiceais-approach-to-time-series-ai',
+            to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
+          },
+          {
             from: '/blog/spicepods-from-zero-to-hero',
+            to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
+          },
+          {
+            from: '/blog/2021/spicepods-from-zero-to-hero',
             to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
           },
           {
@@ -406,12 +426,19 @@ const config: Config = {
             from: '/blog/what-data-informs-ai-driven-decision-making',
             to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
           },
+          {
+            from: '/blog/2022/what-data-informs-ai-driven-decision-making',
+            to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
+          },
           // 2024 blog posts
           {
             from: '/blog/adding-spice',
-            to: 'https://spice.ai/blog/adding-spice'
+            to: 'https://spice.ai/blog/adding-spice-the-next-generation-of-spice-ai-oss'
           },
-
+          {
+            from: '/blog/2024/adding-spice',
+            to: 'https://spice.ai/blog/adding-spice--the-next-generation-of-spice-ai-oss'
+          },
           {
             from: '/federated-queries',
             to: '/docs/features/query-federation'
