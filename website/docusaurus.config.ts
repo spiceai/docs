@@ -349,6 +349,14 @@ const config: Config = {
             to: 'https://spice.ai/blog'
           },
           {
+            from: '/blog/announcing-1.0-stable',
+            to: 'https://spice.ai/blog/announcing-spice-ai-open-source-1-0-stable'
+          },
+          {
+            from: '/blog/amazon-s3-vectors-with-spice',
+            to: 'https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice'
+          },
+          {
             from: '/blog/releases/v1.10-0',
             to: '/releases/v1.10.0'
           },
