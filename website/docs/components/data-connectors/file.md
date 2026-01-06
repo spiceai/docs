@@ -6,7 +6,7 @@ description: 'File Data Connector Documentation'
 
 The File Data Connector enables federated SQL queries on files stored by locally accessible filesystems. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
 
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats).
+File formats are specified using the `file_format` parameter, as described in [File Formats](/docs/components/data-connectors#file-formats).
 
 Example `spicepod.yml`
 
@@ -53,11 +53,11 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 ### `params`
 
-| Parameter name              | Description                                                                                                                                                                                                       |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats) for details. |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                  |
-| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                                                                                     |
+| Parameter name              | Description                                                                                                                                                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [File Formats](/docs/components/data-connectors#file-formats) for details. |
+| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                    |
+| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                                                     |
 
 For additional CSV, JSON, and Parquet specific parameters, see [File Formats](/docs/reference/file_format.md).
 
