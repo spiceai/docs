@@ -59,15 +59,18 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 The DynamoDB data connector supports the following configuration parameters:
 
-| Parameter Name                   | Description                                                                                                                                            |
-|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `dynamodb_aws_region`            | Required. The AWS region containing the DynamoDB table                                                                                                 |
-| `dynamodb_aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                    |
-| `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                |
-| `dynamodb_aws_session_token`     | Optional. AWS session token for authentication                                                                                                         |
-| `unnest_depth`                   | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields.                |
-| `schema_infer_max_records`       | Optional. The number of documents to use to infer the schema. Defaults to 10                                                                               |
-| `scan_segments`                  | Optional. Number of segments for `Scan` request. 'auto' by default, which will calculate number of segments based on number of the records in a table |
+| Parameter Name                   | Description                                                                                                                                                                                                                                                |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dynamodb_aws_region`            | Required. The AWS region containing the DynamoDB table                                                                                                                                                                                                     |
+| `dynamodb_aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                                                                                                                        |
+| `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                                                                                                                    |
+| `dynamodb_aws_session_token`     | Optional. AWS session token for authentication                                                                                                                                                                                                             |
+| `dynamodb_aws_auth`              | Optional. Authentication method. Use `iam_role` (default) for IAM role-based authentication or `key` for explicit access key credentials.                                                                                                                  |
+| `dynamodb_aws_iam_role_source`   | Optional. IAM role credential source (only used when `dynamodb_aws_auth: iam_role`). `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables |
+| `unnest_depth`                   | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields.                                                                                                                    |
+| `schema_infer_max_records`       | Optional. The number of documents to use to infer the schema. Defaults to 10                                                                                                                                                                               |
+| `scan_segments`                  | Optional. Number of segments for `Scan` request. 'auto' by default, which will calculate number of segments based on number of the records in a table                                                                                                      |
+| `time_format`                    | Optional. Go-style time format used for parsing/formatting timestamps. See [Time Format](#time-format)                                                                                                                                                     |
 
 ### Authentication
 
