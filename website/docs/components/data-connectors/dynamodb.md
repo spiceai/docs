@@ -74,7 +74,47 @@ The DynamoDB data connector supports the following configuration parameters:
 
 ### Authentication
 
-If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
+The DynamoDB connector supports two authentication methods controlled by the `dynamodb_aws_auth` parameter:
+
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    params:
+      dynamodb_aws_auth: iam_role | key                   # iam_role is default
+      dynamodb_aws_iam_role_source: auto | metadata | env # auto is default (only used with iam_role)
+```
+
+#### IAM Role Authentication (`dynamodb_aws_auth: iam_role`)
+
+This is the default authentication method. When using IAM role authentication, the `dynamodb_aws_iam_role_source` parameter controls which credential sources are used:
+
+| Source Value      | Description                             | Credential Sources                                                            |
+|-------------------|-----------------------------------------|-------------------------------------------------------------------------------|
+| `auto`  (default) | Uses the default AWS credential chain   | All sources listed below, in order                                            |
+| `metadata`        | Uses only instance/container metadata   | Web Identity Token, ECS Container Credentials, EC2 Instance Metadata (IMDSv2) |
+| `env`             | Uses only environment variables         | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`             |
+
+:::note
+When using `iam_role` authentication, any explicitly provided access keys (`dynamodb_aws_access_key_id`, `dynamodb_aws_secret_access_key`) are ignored.
+:::
+
+#### Key-Based Authentication (`dynamodb_aws_auth: key`)
+
+When `dynamodb_aws_auth` is set to `key`, credentials must be provided explicitly:
+
+```yaml
+datasets:
+  - from: dynamodb:my_table
+    params:
+      dynamodb_aws_auth: key
+      dynamodb_aws_access_key_id: ${secrets:aws_access_key_id}
+      dynamodb_aws_secret_access_key: ${secrets:aws_secret_access_key}
+      dynamodb_aws_session_token: ${secrets:aws_session_token}  # Optional, for temporary credentials
+```
+
+#### Default Credential Chain (`auto`)
+
+When using `dynamodb_aws_auth: iam_role` with `dynamodb_aws_iam_role_source: auto` (or when both parameters are omitted), credentials are loaded from the following sources in order:
 
 1. **Environment Variables**:
    - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
@@ -127,7 +167,7 @@ If AWS credentials are not explicitly provided in the configuration, the connect
 The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
 
 :::note[IAM Permissions]
-Regardless of the credential source, the IAM role or user must have appropriate S3 permissions (e.g., `s3:ListBucket`, `s3:GetObject`) to access the files. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
+Regardless of the credential source, the IAM role or user must have appropriate DynamoDB permissions (e.g., `dynamodb:Scan`, `dynamodb:Query`, `dynamodb:DescribeTable`) to access the tables. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
 :::
 
 ## Required IAM Permissions
@@ -456,8 +496,27 @@ datasets:
     name: users
     params:
       dynamodb_aws_region: us-west-2
+      dynamodb_aws_auth: key
       dynamodb_aws_access_key_id: ${secrets:aws_access_key_id}
       dynamodb_aws_secret_access_key: ${secrets:aws_secret_access_key}
+    acceleration:
+      enabled: true
+```
+
+### Configuration with Metadata-Only Credentials (ECS/EKS)
+
+```yaml
+version: v1
+kind: Spicepod
+name: dynamodb
+
+datasets:
+  - from: dynamodb:users
+    name: users
+    params:
+      dynamodb_aws_region: us-west-2
+      dynamodb_aws_auth: iam_role
+      dynamodb_aws_iam_role_source: metadata
     acceleration:
       enabled: true
 ```
