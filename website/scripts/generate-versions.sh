@@ -13,8 +13,8 @@ REPO_ROOT="$(dirname "$WEBSITE_DIR")"
 # The first entry is the default/latest version
 # Release branches use the format: release/<major>.<minor>
 declare -a VERSIONS=(
-  "1.11.x:release/1.11"  # Current release branch for v1.11.x docs
-  # Add more versions as needed:
+  # Add versions when release branches are created:
+  # "1.11.x:release/1.11"
   # "1.12.x:release/1.12"
 )
 
@@ -50,6 +50,13 @@ for version_entry in "${VERSIONS[@]}"; do
   git_ref="${version_entry##*:}"
   
   echo "Generating docs for $version_label from $git_ref..."
+  
+  # Verify the git ref exists
+  if ! git rev-parse --verify "$git_ref" >/dev/null 2>&1; then
+    echo "Error: Git ref '$git_ref' does not exist for version $version_label"
+    echo "Make sure the release branch exists: git checkout -b $git_ref && git push origin $git_ref"
+    exit 1
+  fi
   
   version_dir="$WEBSITE_DIR/versioned_docs/version-$version_label"
   mkdir -p "$version_dir"
