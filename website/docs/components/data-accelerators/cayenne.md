@@ -47,8 +47,10 @@ datasets:
 
 #### `params`
 
-| Parameter name                 | Description     |
-| ------------------------------ | ------ |
+| Parameter name                    | Description     |
+| --------------------------------- | --------------- |
+| `cayenne_file_path` | Path to the Cayenne data directory. Defaults to `.spice/data`. |
+| `cayenne_metadata_dir` | Path to the directory for Cayenne metadata catalog storage. When not set, metadata is stored at `.spice/data/metadata`, or `{cayenne_file_path}/metadata` if `cayenne_file_path` is specified. |
 | `cayenne_compression_strategy` | Determines the type of compression to use when accelerating datasets. Defaults to [`btrblocks`](https://www.cs.cit.tum.de/fileadmin/w00cfj/dis/papers/btrblocks.pdf). Supports `btrblocks` or [`zstd`](https://github.com/facebook/zstd). |
 | `cayenne_unsupported_type_action` | Determines what action to take when a data type that is not supported is encountered. See [`unsupported_type_action` for more information](../../reference/spicepod/datasets.md#unsupported_type_action). |
 | `cayenne_footer_cache_mb` | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans. Defaults to `128MiB`. |
