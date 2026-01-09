@@ -7,6 +7,52 @@ import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
+import * as fs from 'fs'
+import * as path from 'path'
+
+// Load versions from versions.json if it exists (generated at build time)
+const versionsPath = path.join(__dirname, 'versions.json')
+const versions: string[] = fs.existsSync(versionsPath)
+  ? JSON.parse(fs.readFileSync(versionsPath, 'utf-8'))
+  : []
+
+// Build version configuration dynamically
+const hasVersions = versions.length > 0
+const latestVersion = versions[0] // First version in the array is the latest
+
+const docsVersionConfig = hasVersions
+  ? {
+      lastVersion: latestVersion,
+      versions: {
+        current: {
+          label: 'Legacy',
+          path: 'legacy',
+          banner: 'unmaintained' as const
+        },
+        ...Object.fromEntries(
+          versions.map((version, index) => [
+            version,
+            {
+              label: `v${version.replace('.x', '')}`,
+              path: `v${version.replace('.x', '')}`,
+              banner: 'none' as const
+            }
+          ])
+        )
+      }
+    }
+  : {
+      // No versions generated - use current docs only (for local dev)
+      lastVersion: 'current',
+      versions: {
+        current: {
+          label: 'Latest',
+          path: '',
+          banner: 'none' as const
+        }
+      },
+      onlyIncludeVersions: ['current']
+    }
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -55,9 +101,10 @@ const config: Config = {
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: ({ docPath }) => {
-            return `https://github.com/spiceai/docs/edit/trunk/website/docs/${docPath}`
-          }
+          editUrl: ({ versionDocsDirPath, docPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/website/${versionDocsDirPath}/${docPath}`
+          },
+          ...docsVersionConfig
         },
         blog: {
           path: 'blog',
@@ -124,6 +171,16 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API'
         },
+        // Version dropdown is only shown when versions exist
+        ...(hasVersions
+          ? [
+              {
+                type: 'docsVersionDropdown' as const,
+                position: 'left' as const,
+                dropdownActiveClassDisabled: true
+              }
+            ]
+          : []),
         { to: 'releases', label: 'Releases', position: 'left' },
         {
           label: 'Blog',
