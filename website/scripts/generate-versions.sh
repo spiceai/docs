@@ -13,8 +13,8 @@ REPO_ROOT="$(dirname "$WEBSITE_DIR")"
 # The first entry is the default/latest version
 # Release branches use the format: release/<major>.<minor>
 declare -a VERSIONS=(
-  # Add versions when release branches are created:
-  # "1.11.x:release/1.11"
+  "1.11.x:release/1.11"
+  # Add more versions as needed:
   # "1.12.x:release/1.12"
 )
 
