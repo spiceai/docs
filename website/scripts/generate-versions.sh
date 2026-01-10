@@ -1,6 +1,14 @@
 #!/bin/bash
-# Generates versioned docs from git tags/branches at build time
+# Generates versioned docs from git release branches at build time
 # Usage: ./scripts/generate-versions.sh
+#
+# This script auto-detects release branches (release/<major>.<minor>) from git
+# and generates versioned docs for each. Trunk docs serve as "current" (unreleased).
+#
+# Version structure:
+# - current (trunk): /docs/next - unreleased docs
+# - latest release branch: /docs - default docs
+# - previous release branches: /docs/v1.11, /docs/v1.10, etc.
 
 set -e
 
@@ -8,20 +16,35 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEBSITE_DIR="$(dirname "$SCRIPT_DIR")"
 REPO_ROOT="$(dirname "$WEBSITE_DIR")"
 
-# Define versions and their corresponding git refs
-# Format: "version_label:git_ref"
-# The first entry is the default/latest version
-# Release branches use the format: release/<major>.<minor>
-declare -a VERSIONS=(
-  "1.11.x:release/1.11"
-  # Add more versions as needed:
-  # "1.12.x:release/1.12"
-)
-
-# Legacy version uses the trunk branch
-LEGACY_REF="trunk"
-
 echo "Generating versioned docs..."
+
+# Auto-detect release branches from git
+# Looks for branches matching release/<major>.<minor> pattern
+cd "$REPO_ROOT"
+
+# Get all release branches (local and remote)
+RELEASE_BRANCHES=$(git branch -a --list '*release/*' 2>/dev/null | sed 's/.*release\///' | sort -t. -k1,1n -k2,2n -u)
+
+if [ -z "$RELEASE_BRANCHES" ]; then
+  echo "No release branches found. Skipping versioned docs generation."
+  echo "[]" > "$WEBSITE_DIR/versions.json"
+  exit 0
+fi
+
+# Build versions array from release branches (sorted by version number, newest first)
+declare -a VERSIONS=()
+while IFS= read -r branch; do
+  if [[ "$branch" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+    version_label="${branch}.x"
+    VERSIONS+=("$version_label:release/$branch")
+  fi
+done <<< "$RELEASE_BRANCHES"
+
+# Sort versions by minor version number (descending - newest first)
+IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k2,2nr))
+unset IFS
+
+echo "Detected versions: ${VERSIONS[*]}"
 
 # Clean existing versioned docs
 rm -rf "$WEBSITE_DIR/versioned_docs"

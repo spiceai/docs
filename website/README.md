@@ -34,38 +34,27 @@ npm run build:local
 
 ## Versioned Documentation
 
-The documentation supports multiple versions to maintain docs for different major releases. Versioned docs are generated at build time from git refs (branches, tags, or commit SHAs) to avoid maintaining duplicate content in the repository.
+The documentation supports multiple versions to maintain docs for different releases. Versioned docs are generated at build time from git release branches to avoid maintaining duplicate content in the repository.
 
 ### How it works
 
-1. **Current docs** (`docs/`) — The working documentation, served as the "Legacy" version in production
-2. **Versioned docs** — Generated at build time by extracting docs from git refs
+1. **Current docs** (`docs/`) — The working documentation from trunk, served as "Unreleased" at `/docs/next`
+2. **Versioned docs** — Auto-generated at build time from `release/<major>.<minor>` branches
 
-The version generation script ([scripts/generate-versions.sh](scripts/generate-versions.sh)) uses `git archive` to extract docs from each configured git ref without checking out the full repository.
+The version generation script ([scripts/generate-versions.sh](scripts/generate-versions.sh)) auto-detects release branches and uses `git archive` to extract docs from each without checking out the full repository.
 
-### Creating a new version for a major release
+### Creating a new version for a release
 
-When releasing a new major version (e.g., v1.12), follow these steps:
+When releasing a new version (e.g., v1.12):
 
-1. **Create a release branch** for the new version (if not already created):
+1. **Create a release branch** for the new version:
 
    ```bash
    git checkout -b release/1.12
    git push origin release/1.12
    ```
 
-2. **Update the version configuration** in [scripts/generate-versions.sh](scripts/generate-versions.sh):
-
-   ```bash
-   declare -a VERSIONS=(
-     "1.12.x:release/1.12"    # New version (first = latest/default)
-     "1.11.x:release/1.11"    # Previous version
-   )
-   ```
-
-   The `VERSIONS` array format is `"label:git_ref"` where:
-   - `label` — The version label shown in the dropdown (e.g., `1.12.x`)
-   - `git_ref` — A release branch in the format `release/<major>.<minor>`
+2. **That's it!** The build script auto-detects release branches matching the `release/<major>.<minor>` pattern. The next build will automatically include the new version.
 
 3. **Test the build locally**:
 
@@ -74,13 +63,11 @@ When releasing a new major version (e.g., v1.12), follow these steps:
    npm run serve
    ```
 
-4. **Commit and push** the updated script.
-
 ### Version URL structure
 
-- `/docs/v1.12` — Latest version (default)
-- `/docs/v1.11` — Previous version
-- `/docs/legacy` — Pre-versioning docs from the `docs/` folder
+- `/docs` — Latest release version (default)
+- `/docs/next` — Unreleased docs from trunk
+- `/docs/v1.11` — Previous release versions
 
 ### Updating existing version docs
 
