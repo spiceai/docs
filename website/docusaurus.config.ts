@@ -193,16 +193,6 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API'
         },
-        // Version dropdown is only shown when versions exist
-        ...(hasVersions
-          ? [
-              {
-                type: 'docsVersionDropdown' as const,
-                position: 'left' as const,
-                dropdownActiveClassDisabled: true
-              }
-            ]
-          : []),
         { to: 'releases', label: 'Releases', position: 'left' },
         {
           label: 'Blog',
@@ -211,6 +201,16 @@ const config: Config = {
         },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
+        // Version dropdown is only shown when versions exist
+        ...(hasVersions
+          ? [
+              {
+                type: 'docsVersionDropdown' as const,
+                position: 'right' as const,
+                dropdownActiveClassDisabled: true
+              }
+            ]
+          : []),
         {
           label: 'Try Spice Cloud',
           href: 'https://spice.ai/login',
