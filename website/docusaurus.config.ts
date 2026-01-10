@@ -17,25 +17,26 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
+// Current docs (from trunk) are served at /docs (latest)
+// Versioned docs (from release branches) are served at /docs/v1.11, etc.
 const hasVersions = versions.length > 0
-const latestVersion = versions[0] // First version in the array is the latest
 
 const docsVersionConfig = hasVersions
   ? {
-      lastVersion: latestVersion,
+      lastVersion: 'current',
       versions: {
         current: {
-          label: 'Legacy',
-          path: 'legacy',
-          banner: 'unmaintained' as const
+          label: 'Latest',
+          path: '',
+          banner: 'none' as const
         },
         ...Object.fromEntries(
-          versions.map((version, index) => [
+          versions.map((version) => [
             version,
             {
               label: `v${version.replace('.x', '')}`,
               path: `v${version.replace('.x', '')}`,
-              banner: 'none' as const
+              banner: 'unmaintained' as const
             }
           ])
         )
