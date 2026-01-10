@@ -19,7 +19,16 @@ const versions: string[] = fs.existsSync(versionsPath)
 // Build version configuration dynamically
 // Current docs (from trunk) are served at /docs (latest)
 // Versioned docs (from release branches) are served at /docs/v1.11, etc.
+// Maintenance policy: latest + 2 previous minor versions are maintained
 const hasVersions = versions.length > 0
+
+// Extract the latest minor version number from versions array to determine maintenance status
+// Versions within (latestMinor - 2) are considered maintained
+const getMinorVersion = (v: string): number => {
+  const match = v.match(/^1\.(\d+)/)
+  return match ? parseInt(match[1], 10) : 0
+}
+const latestMinor = versions.length > 0 ? Math.max(...versions.map(getMinorVersion)) : 0
 
 const docsVersionConfig = hasVersions
   ? {
@@ -31,14 +40,19 @@ const docsVersionConfig = hasVersions
           banner: 'none' as const
         },
         ...Object.fromEntries(
-          versions.map((version) => [
-            version,
-            {
-              label: `v${version.replace('.x', '')}`,
-              path: `v${version.replace('.x', '')}`,
-              banner: 'unmaintained' as const
-            }
-          ])
+          versions.map((version) => {
+            const minor = getMinorVersion(version)
+            // Versions within latest - 2 are maintained (no banner)
+            const isMaintained = minor >= latestMinor - 2
+            return [
+              version,
+              {
+                label: `v${version.replace('.x', '')}`,
+                path: `v${version.replace('.x', '')}`,
+                banner: isMaintained ? ('none' as const) : ('unmaintained' as const)
+              }
+            ]
+          })
         )
       }
     }
