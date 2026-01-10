@@ -17,8 +17,9 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
-// Current docs (from trunk) are served at /docs (latest)
-// Versioned docs (from release branches) are served at /docs/v1.11, etc.
+// Current docs (from trunk) are served at /docs/next (unreleased)
+// Latest release docs are served at /docs (default)
+// Previous versioned docs are served at /docs/v1.11, etc.
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
 
@@ -30,25 +31,31 @@ const getMinorVersion = (v: string): number => {
 }
 const latestMinor = versions.length > 0 ? Math.max(...versions.map(getMinorVersion)) : 0
 
+// Find the latest version (highest minor) to use as the default
+const latestVersion = hasVersions
+  ? versions.reduce((latest, v) => (getMinorVersion(v) > getMinorVersion(latest) ? v : latest))
+  : null
+
 const docsVersionConfig = hasVersions
   ? {
-      lastVersion: 'current',
+      lastVersion: latestVersion!, // The latest release is the default
       versions: {
         current: {
-          label: 'Latest',
-          path: '',
-          banner: 'none' as const
+          label: 'Unreleased',
+          path: 'next',
+          banner: 'unreleased' as const
         },
         ...Object.fromEntries(
           versions.map((version) => {
             const minor = getMinorVersion(version)
+            const isLatest = version === latestVersion
             // Versions within latest - 1 are maintained (no banner)
             const isMaintained = minor >= latestMinor - 1
             return [
               version,
               {
-                label: `v${version.replace('.x', '')}`,
-                path: `v${version.replace('.x', '')}`,
+                label: isLatest ? 'Latest' : `v${version.replace('.x', '')}`,
+                path: isLatest ? '' : `v${version.replace('.x', '')}`,
                 banner: isMaintained ? ('none' as const) : ('unmaintained' as const)
               }
             ]
