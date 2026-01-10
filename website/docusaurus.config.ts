@@ -111,8 +111,10 @@ const config: Config = {
   projectName: 'docs', // Usually your repo name.
 
   onBrokenAnchors: 'throw',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+  // Warn on broken links instead of throwing to handle cross-version link issues
+  // in older release branches that may reference docs pages that don't exist in all versions
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
