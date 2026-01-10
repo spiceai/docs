@@ -1,0 +1,277 @@
+---
+title: 'Databricks Data Connector'
+sidebar_label: 'Databricks Data Connector'
+description: 'Databricks Data Connector Documentation'
+pagination_prev: null
+tags:
+  - data-connectors
+  - databricks
+  - delta-lake
+---
+
+Databricks as a connector for federated SQL query against Databricks using [Spark Connect](https://www.databricks.com/blog/2022/07/07/introducing-spark-connect-the-power-of-apache-spark-everywhere.html), directly from [Delta Lake](https://delta.io/) tables, or using the [SQL Statement Execution API](https://docs.databricks.com/aws/en/dev-tools/sql-execution-tutorial).
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table # A reference to a table in the Databricks unity catalog
+    name: my_delta_lake_table
+    params:
+      mode: delta_lake
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_token: ${secrets:my_token}
+      databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+      databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+```
+
+## Configuration
+
+### `from`
+
+The `from` field for the Databricks connector takes the form `databricks:catalog.schema.table` where `catalog.schema.table` is the fully-qualified path to the table to read from.
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: cool_dataset
+    params: ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+
+### `params`
+
+Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
+
+| Parameter Name             | Description                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                     | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
+| `databricks_endpoint`      | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
+| `databricks_sql_warehouse_id`    | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                         |
+| `databricks_cluster_id`    | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
+| `databricks_use_ssl`       | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
+| `client_timeout`           | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
+| `databricks_token`         | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
+| `databricks_client_id`     | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
+| `databricks_client_secret` | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
+
+## Authentication
+
+### Personal access token
+
+To learn more about how to set up personal access tokens, see [Databricks PAT docs](https://docs.databricks.com/aws/en/dev-tools/auth/pat).
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_cluster_id: 1234-567890-abcde123
+      databricks_token: ${secrets:DATABRICKS_TOKEN} # PAT
+```
+
+### Databricks service principal
+
+Spice supports the Machine-to-Machine (M2M) OAuth flow with service principal credentials by utilizing the `databricks_client_id` and `databricks_client_secret` parameters. The runtime will automatically refresh the token.
+
+Ensure that you grant your service principal the "Data Reader" privilege preset for the catalog and "Can Attach" cluster permissions when using Spark Connect mode.
+
+To Learn more about how to set up the service principal, see [Databricks M2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m).
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_cluster_id: 1234-567890-abcde123
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
+      databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
+```
+
+## Delta Lake object store parameters
+
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+
+### AWS S3
+
+| Parameter Name                     | Description                                                                                    |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
+| `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
+| `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
+| `databricks_aws_allow_http`        | Optional. Enables insecure HTTP connections to `databricks_aws_endpoint`. Defaults to `false`. |
+
+### Azure Blob
+
+:::info Note
+**One** of the following auth values must be provided for Azure Blob:
+
+- `databricks_azure_storage_account_key`,
+- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or
+- `databricks_azure_storage_sas_key`.
+  :::
+
+| Parameter Name                           | Description                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `databricks_azure_storage_account_name`  | The Azure Storage account name.                                        |
+| `databricks_azure_storage_account_key`   | The Azure Storage key for accessing the storage account.               |
+| `databricks_azure_storage_client_id`     | The Service Principal client ID for accessing the storage account.     |
+| `databricks_azure_storage_client_secret` | The Service Principal client secret for accessing the storage account. |
+| `databricks_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
+| `databricks_azure_storage_endpoint`      | Optional. The endpoint for the Azure Blob storage account.             |
+
+### Google Storage (GCS)
+
+| Parameter Name           | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+
+## Examples
+
+### Spark Connect
+
+```yaml
+- from: databricks:spiceai.datasets.my_spark_table # A reference to a table in the Databricks unity catalog
+  name: my_delta_lake_table
+  params:
+    mode: spark_connect
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_cluster_id: 1234-567890-abcde123
+    databricks_token: ${secrets:my_token}
+```
+
+### SQL Warehouse
+
+```yaml
+- from: databricks:spiceai.datasets.my_table # A reference to a table in the Databricks unity catalog
+  name: my_table
+  params:
+    mode: sql_warehouse
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_sql_warehouse_id: 2b4e24cff378fb24
+    databricks_token: ${secrets:my_token}
+```
+
+### Delta Lake (S3)
+
+```yaml
+- from: databricks:spiceai.datasets.my_delta_table # A reference to a table in the Databricks unity catalog
+  name: my_delta_lake_table
+  params:
+    mode: delta_lake
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_token: ${secrets:my_token}
+    databricks_aws_region: us-west-2 # Optional
+    databricks_aws_access_key_id: ${secrets:aws_access_key_id}
+    databricks_aws_secret_access_key: ${secrets:aws_secret_access_key}
+    databricks_aws_endpoint: s3.us-west-2.amazonaws.com # Optional
+```
+
+### Delta Lake (Azure Blobs)
+
+```yaml
+- from: databricks:spiceai.datasets.my_adls_table # A reference to a table in the Databricks unity catalog
+  name: my_delta_lake_table
+  params:
+    mode: delta_lake
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_token: ${secrets:my_token}
+
+    # Account Name + Key
+    databricks_azure_storage_account_name: my_account
+    databricks_azure_storage_account_key: ${secrets:my_key}
+
+    # OR Service Principal + Secret
+    databricks_azure_storage_client_id: my_client_id
+    databricks_azure_storage_client_secret: ${secrets:my_secret}
+
+    # OR SAS Key
+    databricks_azure_storage_sas_key: my_sas_key
+```
+
+### Delta Lake (GCP)
+
+```yaml
+- from: databricks:spiceai.datasets.my_gcp_table # A reference to a table in the Databricks unity catalog
+  name: my_delta_lake_table
+  params:
+    mode: delta_lake
+    databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+    databricks_token: ${secrets:my_token}
+    databricks_google_service_account_path: /path/to/service-account.json
+```
+
+## Types
+
+### mode: delta_lake
+
+The table below shows the Databricks (mode: delta_lake) data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| Databricks SQL Type | Arrow Type                            |
+| ------------------- | ------------------------------------- |
+| `STRING`            | `Utf8`                                |
+| `BIGINT`            | `Int64`                               |
+| `INT`               | `Int32`                               |
+| `SMALLINT`          | `Int16`                               |
+| `TINYINT`           | `Int8`                                |
+| `FLOAT`             | `Float32`                             |
+| `DOUBLE`            | `Float64`                             |
+| `BOOLEAN`           | `Boolean`                             |
+| `BINARY`            | `Binary`                              |
+| `DATE`              | `Date32`                              |
+| `TIMESTAMP`         | `Timestamp(Microsecond, Some("UTC"))` |
+| `TIMESTAMP_NTZ`     | `Timestamp(Microsecond, None)`        |
+| `DECIMAL`           | `Decimal128`                          |
+| `ARRAY`             | `List`                                |
+| `STRUCT`            | `Struct`                              |
+| `MAP`               | `Map`                                 |
+
+## Secrets
+
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+
+## Limitations
+
+- Databricks connector (mode: delta_lake) does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Databricks connector (mode: delta_lake) with such tables, drop the `V2Checkpoint` feature by executing the following command:
+
+  ```sql
+  ALTER TABLE <table-name> DROP FEATURE v2Checkpoint [TRUNCATE HISTORY];
+  ```
+
+  For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
+
+- When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
+
+:::warning[Memory Considerations]
+
+When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
+
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+
+- The Databricks Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
+
+:::
+
+## Cookbook
+
+- A cookbook recipe to configure Databricks as a data connector in Spice. [Spice on Databricks](https://github.com/spiceai/cookbook/tree/trunk/databricks)

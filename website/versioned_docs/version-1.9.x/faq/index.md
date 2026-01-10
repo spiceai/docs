@@ -1,0 +1,115 @@
+---
+title: 'Frequently Asked Questions'
+sidebar_label: 'FAQ'
+description: 'Get answers to common questions about Spice.ai, including its features, differences from other tools, and use cases'
+pagination_prev: null
+pagination_next: null
+sidebar_position: 2
+---
+
+## 1. What is Spice?
+
+Spice is an open-source SQL query and AI compute engine, written in Rust, for data-driven apps and agents.
+
+Spice provides four industry standard APIs in a lightweight, portable runtime (single ~140 MB binary):
+
+1. **SQL Query APIs**: Supports HTTP, Arrow Flight, Arrow Flight SQL, ODBC, JDBC, and ADBC.
+2. **OpenAI-Compatible APIs**: Provides HTTP APIs for OpenAI SDK compatibility, local model serving (CUDA/Metal accelerated), and hosted model gateway.
+3. **Iceberg Catalog REST APIs**: Offers a unified API for Iceberg Catalog.
+4. **MCP HTTP+SSE APIs**: Enables integration with external tools via Model Context Protocol (MCP) using HTTP and Server-Sent Events (SSE).
+
+Spice embeds [DataFusion](https://datafusion.apache.org/), the fastest single-node Parquet SQL query engine, and [DuckDB](https://duckdb.org), to serve secure, virtualized data views to data-intensive apps, AI, and agents.
+
+## 2. Why should I use Spice?
+
+Spice is primarily used for:
+
+- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](/docs/features/query-federation).
+- **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
+- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
+
+## 3. How is Spice different?
+
+- **Application-Centric Design:** Spice is designed for 1:1 or 1:N mappings between applications and Spice instances, making it flexible for tenant-specific or customer-specific configurations. Unlike traditional databases designed for many applications sharing one data system, Spice often runs one instance per application or tenant.
+- **Dual-Engine Acceleration:** Spice supports both OLAP (DuckDB/Arrow) and OLTP (SQLite/PostgreSQL) databases at the dataset level, providing flexibility for various query workloads.
+- **Separation of Materialization and Storage/Compute:** Spice enables data to remain close to its source while materializing working sets for fast access, reducing data movement and query latency.
+- **Deployment Flexibility:** Deployable across infrastructure tiers, including edge, on-prem, and cloud environments. Spice can run as a standalone instance, sidecar, microservice, or cluster.
+
+## 4. Can Spice handle federated queries?
+
+Yes. Spice natively supports federated queries across disparate data sources with advanced query push-down capabilities. Spice executes portions of queries directly on source databases, reducing data transfer and improving performance. [Learn More](/docs/features/query-federation).
+
+## 5. Is Spice a cache?
+
+Not solely. Spice functions as an active cache or working dataset prefetcher. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](/docs/features/caching).
+
+## 6. Is Spice a CDN for databases?
+
+Yes. Spice acts as a CDN for databases by loading and materializing datasets close to applications, reducing latency and improving query efficiency. [Read more](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
+
+## 7. How is Spice different from Trino/Presto and Dremio?
+
+Spice is purpose-built for data and AI applications and agents, designed with low-latency access, materialization, and proximity to applications. Trino/Presto and Dremio primarily target big data analytics and rely on centralized clusters. Spice's decentralized approach reduces latency, simplifies deployment, and improves efficiency.
+
+## 8. How does Spice compare to Spark?
+
+Spark excels at distributed batch processing and large-scale transformations. Spice focuses on real-time, low-latency data access and AI inference. Spice materializes data locally and supports tiered storage, optimizing performance for applications requiring fast access and high concurrency.
+
+## 9. How does Spice compare to DuckDB?
+
+DuckDB is an embedded analytics database optimized for OLAP queries. Spice integrates DuckDB for data acceleration, combining DuckDB's analytical capabilities with Spice's broader federation, multi-engine support, and flexible deployment. Spice can be considered an enterprise/production productization of DuckDB for data-intensive applications.
+
+## 10. What AI capabilities does Spice provide?
+
+Spice provides unified APIs for data and AI workflows, including model inference, embeddings, and an AI gateway supporting OpenAI, Anthropic, xAI, and Nvidia NIMs. Spice includes advanced LLM tools such as vector and hybrid search, text-to-SQL, SQL retrieval, data sampling, and context formatting.
+
+## 11. What AI model providers does Spice support?
+
+Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](/docs/features/large-language-models/index.md).
+
+## 12. What deployment options does Spice support?
+
+Spice supports multiple deployment configurations:
+
+- Standalone binary
+- Sidecar or microservice
+- Cluster deployments
+- Edge, on-prem, and cloud environments
+
+Spice Cloud Platform (SCP) provides managed, SOC 2 Type II compliant deployments. [Learn More](https://spiceai.org/docs/deployment/architectures).
+
+## 13. Where can developers find examples and recipes?
+
+The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
+
+## 14. How can developers get started quickly?
+
+Visit the [Spice.ai Getting Started Guide](/docs/getting-started/index.mdx) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
+
+## 15. What is Data-grounded AI?
+
+Data-grounded AI anchors models in accurate, current, domain-specific data rather than relying solely on pre-trained knowledge. Spice unifies enterprise data across databases, data lakes, and APIs, dynamically incorporating real-world context at inference time. This helps minimize hallucinations, reduce operational risk, and build trust in AI by delivering reliable, relevant outputs.
+
+## 16. What query engines does Spice support?
+
+Spice supports multiple query engines, including Apache Arrow, Cayenne (Vortex), DuckDB, SQLite, PostgreSQL, and DataFusion. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
+
+## 17. Does Spice support Change Data Capture (CDC)?
+
+Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../features/cdc/index.md).
+
+## 18. Can Spice integrate with existing BI tools?
+
+Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau/index.md) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
+
+## 19. How does Spice handle data privacy and compliance?
+
+Spice provides secure, auditable data access through sandboxed runtimes, secure endpoint checks, and detailed telemetry and tracing. The Spice Cloud Platform (SCP) is SOC 2 Type II compliant, meeting enterprise security and compliance requirements.
+
+## 20. Can Spice be used for real-time analytics?
+
+Yes. Spice accelerates data locally using Apache Arrow, Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
+
+## 21. How can developers contribute to Spice?
+
+Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for guidelines.
