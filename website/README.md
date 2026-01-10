@@ -38,8 +38,11 @@ The documentation supports multiple versions to maintain docs for different rele
 
 ### How it works
 
-1. **Current docs** (`docs/`) — The working documentation from trunk, served as "Unreleased" at `/docs/next`
+1. **Current docs** (`docs/`) — Working documentation from trunk, served at `/docs/trunk`
 2. **Versioned docs** — Auto-generated at build time from `release/<major>.<minor>` branches
+   - Highest version (e.g., v1.11.x) → "Next" (unreleased) at `/docs/next`
+   - Second highest (e.g., v1.10.x) → "Latest" (stable) at `/docs`
+   - Previous versions → at `/docs/v1.9`, etc.
 
 The version generation script ([scripts/generate-versions.sh](scripts/generate-versions.sh)) auto-detects release branches and uses `git archive` to extract docs from each without checking out the full repository.
 
@@ -65,9 +68,10 @@ When releasing a new version (e.g., v1.12):
 
 ### Version URL structure
 
-- `/docs` — Latest release version (default)
-- `/docs/next` — Unreleased docs from trunk
-- `/docs/v1.11` — Previous release versions
+- `/docs` — Latest stable release (default)
+- `/docs/next` — Next release (unreleased, highest version branch)
+- `/docs/trunk` — Working docs from trunk
+- `/docs/v1.9` — Previous release versions
 
 ### Updating existing version docs
 

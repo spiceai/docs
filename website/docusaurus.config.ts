@@ -17,40 +17,55 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
-// Current docs (from trunk) are served at /docs/next (unreleased)
-// Latest release docs are served at /docs (default)
-// Previous versioned docs are served at /docs/v1.11, etc.
+// Highest version (e.g., 1.11.x) is "next" (unreleased) at /docs/next
+// Second highest version (e.g., 1.10.x) is "latest" at /docs (default)
+// Previous versions are at /docs/v1.9, etc.
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
 
-// Extract the latest minor version number from versions array to determine maintenance status
-// Versions within (latestMinor - 1) are considered maintained
+// Extract the minor version number from versions to determine ordering and maintenance status
 const getMinorVersion = (v: string): number => {
   const match = v.match(/^1\.(\d+)/)
   return match ? parseInt(match[1], 10) : 0
 }
-const latestMinor = versions.length > 0 ? Math.max(...versions.map(getMinorVersion)) : 0
 
-// Find the latest version (highest minor) to use as the default
-const latestVersion = hasVersions
-  ? versions.reduce((latest, v) => (getMinorVersion(v) > getMinorVersion(latest) ? v : latest))
-  : null
+// Sort versions by minor version descending
+const sortedVersions = [...versions].sort((a, b) => getMinorVersion(b) - getMinorVersion(a))
+
+// Highest version is "next" (unreleased), second highest is "latest"
+const nextVersion = sortedVersions[0] || null
+const latestVersion = sortedVersions[1] || null
+const latestMinor = latestVersion ? getMinorVersion(latestVersion) : 0
 
 const docsVersionConfig = hasVersions
   ? {
-      lastVersion: latestVersion!, // The latest release is the default
+      lastVersion: latestVersion!, // The stable release is the default
       versions: {
         current: {
-          label: 'Unreleased',
-          path: 'next',
-          banner: 'unreleased' as const
+          label: 'Trunk',
+          path: 'trunk',
+          banner: 'unreleased' as const,
+          noIndex: true
         },
         ...Object.fromEntries(
           versions.map((version) => {
             const minor = getMinorVersion(version)
+            const isNext = version === nextVersion
             const isLatest = version === latestVersion
             // Versions within latest - 1 are maintained (no banner)
             const isMaintained = minor >= latestMinor - 1
+
+            if (isNext) {
+              return [
+                version,
+                {
+                  label: 'Next',
+                  path: 'next',
+                  banner: 'unreleased' as const
+                }
+              ]
+            }
+
             return [
               version,
               {
