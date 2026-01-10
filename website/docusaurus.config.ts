@@ -135,7 +135,7 @@ const config: Config = {
             type: 'all',
             description:
               'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
-            copyright: `Copyright © 2025 Spice AI, Inc.`,
+            copyright: `Copyright © 2021-2026 Spice AI, Inc.`,
             xslt: true
           },
           blogTitle: 'Spice.ai OSS blog',
