@@ -1,11 +1,11 @@
-import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
+import type { SidebarsConfig } from '@docusaurus/plugin-content-docs'
 
 const sidebarsCloud: SidebarsConfig = {
   cloud: [
     {
       type: 'doc',
       id: 'index',
-      label: 'Welcome to Spice.ai Cloud',
+      label: 'Welcome to Spice.ai Cloud'
     },
     {
       type: 'category',
@@ -15,15 +15,15 @@ const sidebarsCloud: SidebarsConfig = {
         {
           type: 'doc',
           id: 'getting-started/get-started/index',
-          label: 'Getting Started',
+          label: 'Getting Started'
         },
         'getting-started/get-started/portal-login',
         'getting-started/getting-started/portal-login-1',
         'getting-started/get-started/step-2-add-dataset-and-query-data',
         'getting-started/get-started/step-3-add-ai-model-and-chat-with-your-app',
         'getting-started/get-started/next-steps',
-        'getting-started/faq',
-      ],
+        'getting-started/faq'
+      ]
     },
     {
       type: 'category',
@@ -39,8 +39,8 @@ const sidebarsCloud: SidebarsConfig = {
             'features/data-acceleration/in-memory-arrow-data-accelerator',
             'features/data-acceleration/duckdb-data-accelerator',
             'features/data-acceleration/postgresql-data-accelerator',
-            'features/data-acceleration/sqlite-data-accelerator',
-          ],
+            'features/data-acceleration/sqlite-data-accelerator'
+          ]
         },
         'features/search-and-retrieval',
         'features/ai-gateway',
@@ -52,10 +52,10 @@ const sidebarsCloud: SidebarsConfig = {
           items: [
             'features/observability/index',
             'features/observability/task-history',
-            'features/observability/zipkin',
-          ],
-        },
-      ],
+            'features/observability/zipkin'
+          ]
+        }
+      ]
     },
     {
       type: 'category',
@@ -90,8 +90,8 @@ const sidebarsCloud: SidebarsConfig = {
             'building-blocks/data-connectors/sharepoint',
             'building-blocks/data-connectors/snowflake',
             'building-blocks/data-connectors/spark',
-            'building-blocks/data-connectors/spiceai',
-          ],
+            'building-blocks/data-connectors/spiceai'
+          ]
         },
         {
           type: 'category',
@@ -104,10 +104,10 @@ const sidebarsCloud: SidebarsConfig = {
             'building-blocks/model-providers/openai',
             'building-blocks/model-providers/perplexity',
             'building-blocks/model-providers/spiceai',
-            'building-blocks/model-providers/xai',
-          ],
-        },
-      ],
+            'building-blocks/model-providers/xai'
+          ]
+        }
+      ]
     },
     {
       type: 'category',
@@ -120,13 +120,13 @@ const sidebarsCloud: SidebarsConfig = {
           items: [
             'api/sql-query/index',
             'api/sql-query/http-api',
-            'api/sql-query/apache-arrow-flight-api',
-          ],
+            'api/sql-query/apache-arrow-flight-api'
+          ]
         },
         'api/search',
         'api/openai-api',
-        'api/health',
-      ],
+        'api/health'
+      ]
     },
     {
       type: 'category',
@@ -141,8 +141,8 @@ const sidebarsCloud: SidebarsConfig = {
             'portal/playground/sql-query-editor',
             'portal/playground/nsql-query',
             'portal/playground/ai-chat',
-            'portal/playground/search',
-          ],
+            'portal/playground/search'
+          ]
         },
         'portal/organizations',
         {
@@ -154,8 +154,8 @@ const sidebarsCloud: SidebarsConfig = {
             'portal/apps/secrets',
             'portal/apps/connect-github',
             'portal/apps/transfer',
-            'portal/apps/runtime',
-          ],
+            'portal/apps/runtime'
+          ]
         },
         'portal/public-apps',
         {
@@ -165,8 +165,8 @@ const sidebarsCloud: SidebarsConfig = {
             'portal/app-spicepod/index',
             'portal/app-spicepod/spicepod-configuration',
             'portal/app-spicepod/deployments',
-            'portal/app-spicepod/spice-runtime-versions',
-          ],
+            'portal/app-spicepod/spice-runtime-versions'
+          ]
         },
         'portal/datasets-and-views',
         'portal/models',
@@ -175,13 +175,10 @@ const sidebarsCloud: SidebarsConfig = {
         {
           type: 'category',
           label: 'Profile',
-          items: [
-            'portal/profile/index',
-            'portal/profile/personal-access-tokens',
-          ],
+          items: ['portal/profile/index', 'portal/profile/personal-access-tokens']
         },
-        'portal/external-data-sources',
-      ],
+        'portal/external-data-sources'
+      ]
     },
     {
       type: 'category',
@@ -192,8 +189,8 @@ const sidebarsCloud: SidebarsConfig = {
         'use-cases/database-cdn',
         'use-cases/data-lakehouse',
         'use-cases/enterprise-search',
-        'use-cases/enterprise-rag',
-      ],
+        'use-cases/enterprise-rag'
+      ]
     },
     {
       type: 'category',
@@ -203,10 +200,7 @@ const sidebarsCloud: SidebarsConfig = {
         {
           type: 'category',
           label: 'Python SDK',
-          items: [
-            'sdks/python-sdk/index',
-            'sdks/python-sdk/streaming',
-          ],
+          items: ['sdks/python-sdk/index', 'sdks/python-sdk/streaming']
         },
         {
           type: 'category',
@@ -214,24 +208,20 @@ const sidebarsCloud: SidebarsConfig = {
           items: [
             'sdks/node.js-sdk/index',
             'sdks/node.js-sdk/streaming',
-            'sdks/node.js-sdk/api-reference',
-          ],
+            'sdks/node.js-sdk/api-reference'
+          ]
         },
         'sdks/go',
         'sdks/rust-sdk/index',
         'sdks/dotnet-sdk',
-        'sdks/java-sdk',
-      ],
+        'sdks/java-sdk'
+      ]
     },
     {
       type: 'category',
       label: 'Integrations',
       collapsed: true,
-      items: [
-        'integrations/github-copilot',
-        'integrations/grafana',
-        'integrations/databricks',
-      ],
+      items: ['integrations/github-copilot', 'integrations/grafana', 'integrations/databricks']
     },
     {
       type: 'category',
@@ -241,58 +231,42 @@ const sidebarsCloud: SidebarsConfig = {
         {
           type: 'category',
           label: 'Core Concepts',
-          items: [
-            'reference/core-concepts/index',
-            'reference/core-concepts/duration-literals',
-          ],
+          items: ['reference/core-concepts/index', 'reference/core-concepts/duration-literals']
         },
         {
           type: 'link',
           label: 'SQL Reference',
-          href: '/docs/reference/sql',
+          href: '/docs/reference/sql'
         },
-        'reference/release-notes',
-      ],
+        'reference/release-notes'
+      ]
     },
     'limitations',
     {
       type: 'category',
       label: 'Pricing',
       collapsed: true,
-      items: [
-        'pricing/plans',
-        'pricing/community',
-      ],
+      items: ['pricing/plans', 'pricing/community']
     },
     {
       type: 'category',
       label: 'Support',
       collapsed: true,
-      items: [
-        'support/support',
-      ],
+      items: ['support/support']
     },
     {
       type: 'category',
       label: 'Security',
       collapsed: true,
-      items: [
-        'security/security',
-        'security/report',
-      ],
+      items: ['security/security', 'security/report']
     },
     {
       type: 'category',
       label: 'Legal',
       collapsed: true,
-      items: [
-        'legal/privacy',
-        'legal/terms',
-        'legal/terms-of-service',
-        'legal/eula',
-      ],
-    },
-  ],
-};
+      items: ['legal/privacy', 'legal/terms', 'legal/terms-of-service', 'legal/eula']
+    }
+  ]
+}
 
-export default sidebarsCloud;
+export default sidebarsCloud

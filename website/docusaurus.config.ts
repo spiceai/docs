@@ -37,14 +37,14 @@ const config: Config = {
     mdx1Compat: {
       comments: false,
       admonitions: false,
-      headingIds: false,
+      headingIds: false
     },
     anchors: {
-      maintainCase: false,
+      maintainCase: false
     },
     hooks: {
-      onBrokenMarkdownImages: 'warn',
-    },
+      onBrokenMarkdownImages: 'warn'
+    }
   },
 
   // Even if you don't use internationalization, you can use this field to set
@@ -328,8 +328,8 @@ const config: Config = {
         sidebarPath: './sidebarsCloud.ts',
         editUrl: ({ docPath }) => {
           return `https://github.com/spiceai/docs/edit/trunk/website/cloud/${docPath}`
-        },
-      },
+        }
+      }
     ],
     [
       '@docusaurus/plugin-content-blog',
@@ -412,7 +412,7 @@ const config: Config = {
             from: '/blog/ai-needs-ai-ready-data',
             to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
           },
-           {
+          {
             from: '/blog/2021/ai-needs-ai-ready-data',
             to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
           },
