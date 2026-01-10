@@ -17,11 +17,11 @@ export default function DocVersionBannerWrapper(props: Props): ReactNode {
     <>
       <DocVersionBanner {...props} />
       {isUnmaintained && (
-        <Admonition type="tip" title="Enterprise Support Available">
-          <a href="https://spice.ai/enterprise" target="_blank" rel="noopener noreferrer">
+        <Admonition type='tip' title='Enterprise Support Available'>
+          <a href='https://spice.ai/pricing' target='_blank' rel='noopener noreferrer'>
             Spice.ai Enterprise
           </a>{' '}
-          provides full support for 3 years from the release date.
+          provides full support for up to 3 years from the release date.
         </Admonition>
       )}
     </>
