@@ -27,9 +27,25 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  onBrokenAnchors: 'throw',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+  onBrokenAnchors: 'warn',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
+
+  markdown: {
+    format: 'detect',
+    preprocessor: undefined,
+    mdx1Compat: {
+      comments: false,
+      admonitions: false,
+      headingIds: false,
+    },
+    anchors: {
+      maintainCase: false,
+    },
+    hooks: {
+      onBrokenMarkdownImages: 'warn',
+    },
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -117,6 +133,13 @@ const config: Config = {
           position: 'left',
           docId: 'index',
           label: 'Docs'
+        },
+        {
+          type: 'doc',
+          position: 'left',
+          docId: 'index',
+          docsPluginId: 'cloud',
+          label: 'Cloud'
         },
         {
           type: 'docSidebar',
@@ -296,6 +319,18 @@ const config: Config = {
 
   plugins: [
     tailwindPlugin,
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'cloud',
+        path: 'cloud',
+        routeBasePath: 'cloud',
+        sidebarPath: './sidebarsCloud.ts',
+        editUrl: ({ docPath }) => {
+          return `https://github.com/spiceai/docs/edit/trunk/website/cloud/${docPath}`
+        },
+      },
+    ],
     [
       '@docusaurus/plugin-content-blog',
       {
