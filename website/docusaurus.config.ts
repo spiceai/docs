@@ -116,6 +116,24 @@ const config: Config = {
   ],
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
+    // SEO metadata configuration
+    metadata: [
+      {
+        name: 'keywords',
+        content:
+          'spice, spice.ai, sql query engine, ai compute engine, data federation, data acceleration, rag, retrieval augmented generation, arrow flight, datafusion, duckdb, rust, llm, openai compatible, mcp server'
+      },
+      { name: 'author', content: 'Spice AI, Inc.' },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'Spice.ai OSS' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'Spice.ai - SQL Query and AI Compute Engine' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:site', content: '@spice_ai' },
+      { name: 'twitter:creator', content: '@spice_ai' }
+    ],
     announcementBar: {
       content: '<a href="/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
@@ -260,6 +278,56 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 
   headTags: [
+    // Structured data for SEO (JSON-LD)
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json'
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'Spice.ai OSS',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Linux, macOS, Windows',
+        description:
+          'A portable SQL query and AI compute engine, written in Rust, for data-grounded apps and agents.',
+        url: 'https://spiceai.org',
+        downloadUrl: 'https://github.com/spiceai/spiceai/releases',
+        softwareVersion: '1.10.0',
+        author: {
+          '@type': 'Organization',
+          name: 'Spice AI, Inc.',
+          url: 'https://spice.ai'
+        },
+        license: 'https://github.com/spiceai/spiceai/blob/trunk/LICENSE',
+        programmingLanguage: 'Rust',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD'
+        }
+      })
+    },
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json'
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Spice AI, Inc.',
+        url: 'https://spice.ai',
+        logo: 'https://spiceai.org/img/logo.svg',
+        sameAs: [
+          'https://github.com/spiceai',
+          'https://x.com/spice_ai',
+          'https://www.youtube.com/@spiceai',
+          'https://www.linkedin.com/company/spiceai'
+        ]
+      })
+    },
     {
       tagName: 'link',
       attributes: {
@@ -308,6 +376,23 @@ const config: Config = {
         async: 'true',
         defer: 'true',
         src: '//js.hs-scripts.com/46107967.js'
+      }
+    },
+    // SEO: hreflang for language targeting
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'alternate',
+        hreflang: 'en',
+        href: 'https://spiceai.org'
+      }
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'alternate',
+        hreflang: 'x-default',
+        href: 'https://spiceai.org'
       }
     }
   ],
@@ -472,6 +557,41 @@ const config: Config = {
           {
             from: '/monitoring',
             to: '/docs/features/observability'
+          }
+        ]
+      }
+    ],
+    [
+      '@signalwire/docusaurus-plugin-llms-txt',
+      {
+        siteTitle: 'Spice.ai OSS',
+        siteDescription:
+          'A portable SQL query and AI compute engine, written in Rust, for data-grounded apps and agents.',
+        depth: 2,
+        logLevel: 1,
+        content: {
+          includeBlog: false,
+          includePages: true,
+          includeDocs: true,
+          enableLlmsFullTxt: true,
+          enableMarkdownFiles: false,
+          excludeRoutes: ['/tags/**', '/search', '/api/HTTP/**']
+        },
+        optionalLinks: [
+          {
+            title: 'GitHub Repository',
+            url: 'https://github.com/spiceai/spiceai',
+            description: 'Spice.ai OSS source code and issue tracker'
+          },
+          {
+            title: 'Cookbook',
+            url: 'https://github.com/spiceai/cookbook',
+            description: 'Ready-to-use recipes and examples for Spice.ai'
+          },
+          {
+            title: 'Spice Cloud Platform',
+            url: 'https://spice.ai',
+            description: 'Managed cloud platform for Spice.ai'
           }
         ]
       }

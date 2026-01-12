@@ -1,7 +1,9 @@
 ---
-title: 'Deployment'
+title: 'Spice.ai Deployment Guide'
 sidebar_label: 'Deployment'
-description: 'Deploy Spice.ai in your environment'
+description: 'Deploy Spice.ai in your environment using Docker, Kubernetes, AWS, or the Spice Cloud Platform. Learn about sidecar, microservice, tiered, and cluster deployment architectures.'
+keywords: [spice.ai, deployment, docker, kubernetes, aws, sidecar, microservice, cluster, helm, cloud platform]
+image: /img/og/spiceai.png
 sidebar_position: 11
 ---
 

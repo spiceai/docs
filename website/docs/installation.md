@@ -1,8 +1,10 @@
 ---
-title: 'Spice.ai OSS Installation'
+title: 'Install Spice.ai OSS'
 sidebar_label: 'Installation'
 sidebar_position: 0
-description: 'Instructions for installing Spice.ai OSS'
+description: 'Install Spice.ai OSS on macOS, Linux, Windows, or WSL using the install script, Homebrew, PowerShell, or direct download from GitHub releases.'
+keywords: [spice.ai, install, installation, macos, linux, windows, wsl, homebrew, download]
+image: /img/og/spiceai.png
 pagination_next: null
 ---
 
