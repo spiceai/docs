@@ -2,7 +2,9 @@
 title: 'Spice.ai Use Cases'
 sidebar_label: 'Use Cases'
 sidebar_position: 4
-description: Use cases for Spice.ai'
+description: 'Discover how to use Spice.ai for data federation, reverse-ETL, database CDN, enterprise search, RAG, and building AI-powered applications and agents.'
+keywords: [spice.ai, use cases, data federation, reverse-etl, database cdn, enterprise search, rag, ai agents, data mesh]
+image: /img/og/spiceai.png
 pagination_prev: null
 pagination_next: null
 ---

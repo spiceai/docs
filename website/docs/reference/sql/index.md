@@ -1,6 +1,9 @@
 ---
 title: 'SQL Reference'
 sidebar_label: 'SQL Reference'
+description: 'Complete SQL reference for Spice.ai including SELECT syntax, subqueries, DML statements, aggregate functions, AI functions, JSON operators, and search capabilities.'
+keywords: [spice.ai, sql reference, sql syntax, select, aggregate functions, ai functions, json, search, datafusion sql]
+image: /img/og/spiceai.png
 pagination_prev: 'reference/index'
 sidebar_position: 2
 pagination_next: null
