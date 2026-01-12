@@ -5,7 +5,6 @@ import type * as Preset from '@docusaurus/preset-classic'
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs'
 import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
-import type { Options as SitemapOptions } from '@docusaurus/plugin-sitemap'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
 
@@ -96,22 +95,12 @@ const config: Config = {
         },
         sitemap: {
           lastmod: 'date',
-          changefreq: ({ type, permalink }) => {
-            if (type === 'docs') return 'weekly'
-            if (permalink.startsWith('/releases')) return 'monthly'
-            return 'weekly'
-          },
-          priority: ({ type, permalink }) => {
-            if (permalink === '/') return 1.0
-            if (type === 'docs') return 0.8
-            if (permalink.startsWith('/releases')) return 0.6
-            if (permalink.startsWith('/cookbook')) return 0.7
-            return 0.5
-          },
+          changefreq: 'weekly',
+          priority: 0.5,
           ignorePatterns: ['/tags/**'],
           filename: 'sitemap.xml'
-        } as unknown as SitemapOptions
-      } satisfies Omit<Preset.Options, 'sitemap'> & { sitemap: SitemapOptions }
+        }
+      } satisfies Preset.Options
     ]
   ],
   themes: ['docusaurus-theme-openapi-docs'],
