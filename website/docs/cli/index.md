@@ -1,7 +1,9 @@
 ---
-title: 'Spice.ai OSS CLI documentation'
+title: 'Spice.ai CLI Reference'
 sidebar_label: 'CLI'
-description: 'Detailed documentation on the Spice.ai OSS CLI'
+description: 'Complete CLI reference for Spice.ai including commands to create, manage Spicepods, run queries, and interact with the Spice runtime.'
+keywords: [spice.ai, cli, command line, spicepod, spice run, spice sql, spice add]
+image: /img/og/spiceai.png
 sidebar_position: 13
 pagination_prev: null
 ---
