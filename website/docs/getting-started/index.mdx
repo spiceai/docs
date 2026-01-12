@@ -18,6 +18,13 @@ import TabItem from '@theme/TabItem';
   />
 </div>
 
+### Why we built on Apache DataFusion
+
+This guide is part of our Engineering at Spice AI series exploring the technologies that power our SQL query, search, and inference engine. At Spice the systems foundation is Rust and Apache Arrow; choosing Apache DataFusion — a fast, extensible query engine written in Rust and built on Arrow — aligned perfectly with that stack. DataFusion gives us a full, native pipeline (SQL → planner → optimizer → execution) without FFI or format conversions, and stable extension points for custom connectors, optimizer rules, and execution primitives.
+
+The broader industry momentum toward Rust (for example, major organizations increasing Rust adoption in core systems) reinforces the choice: Rust delivers safety, performance, and interoperability with Arrow that we need for a production-grade query engine.
+
+
 ### Follow these steps to get started with Spice
 
 Download the latest version of Spice, connect to a dataset in S3, and ask questions about the data using AI, in less than 5 minutes.
