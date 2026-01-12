@@ -282,28 +282,3 @@ workers:
 ```
 
 For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers.md).
-
-## `memory`
-
-Optional. Configures the memory engine for built-in memory tools (`store_memory`, `load_memory`).
-
-```yaml
-memory:
-  engine: mem0
-  params:
-    mem0_api_key: ${secrets:MEM0_API_KEY}
-    mem0_user_id: default-user
-```
-
-### `memory.engine`
-
-The memory engine to use. Defaults to `builtin`.
-
-- `builtin`: In-memory storage using a configured memory dataset.
-- `mem0`: External memory service via the Mem0 Platform API.
-
-### `memory.params`
-
-Engine-specific parameters, prefixed with the engine name.
-
-For detailed configuration options, see the [Memory Reference](/docs/reference/spicepod/memory.md).

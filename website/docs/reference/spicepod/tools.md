@@ -45,32 +45,3 @@ Optional. A map of key-value pairs of arbitrary environment variables to set whe
 ### `dependsOn`
 
 Optional. A list of dependencies that must be available before this tool can be used.
-
-## Mem0 Tool Parameters
-
-When using `from: mem0:memory`, the following parameters are available:
-
-| Parameter           | Type   | Required | Default               | Description                                                                             |
-| ------------------- | ------ | -------- | --------------------- | --------------------------------------------------------------------------------------- |
-| `mem0_api_key`      | secret | Yes      | -                     | Mem0 Platform API key for authentication                                                |
-| `mem0_org_id`       | string | No       | -                     | Organization ID for scoping memories                                                    |
-| `mem0_project_id`   | string | No       | -                     | Project ID for scoping memories within an organization                                  |
-| `mem0_user_id`      | string | No       | -                     | Default user ID to associate with memories. Can be overridden per-call.                 |
-| `mem0_agent_id`     | string | No       | -                     | Default agent ID to associate with memories. Useful for multi-agent systems.            |
-| `mem0_base_url`     | string | No       | `https://api.mem0.ai` | Custom API endpoint for self-hosted or enterprise deployments                           |
-| `mem0_graph_memory` | string | No       | `disabled`            | Enable graph memory for entity/relationship extraction. Values: `enabled` or `disabled` |
-
-### Example
-
-```yaml
-tools:
-  - from: mem0:memory
-    name: agent_memory
-    description: Memory tools for the AI assistant
-    params:
-      mem0_api_key: ${secrets:MEM0_API_KEY}
-      mem0_user_id: ${context:user_id}
-      mem0_graph_memory: enabled
-```
-
-For more details, see [Mem0 Memory Tool](/docs/components/tools/mem0).
