@@ -1,7 +1,9 @@
 ---
-title: 'Frequently Asked Questions'
+title: 'Spice.ai FAQ'
 sidebar_label: 'FAQ'
-description: 'Get answers to common questions about Spice.ai, including its features, differences from other tools, and use cases'
+description: 'Answers to frequently asked questions about Spice.ai including features, use cases, differences from Trino/Presto/Dremio, federated queries, caching, and AI capabilities.'
+keywords: [spice.ai, faq, frequently asked questions, trino, presto, dremio, data federation, caching, ai agents]
+image: /img/og/spiceai.png
 pagination_prev: null
 pagination_next: null
 sidebar_position: 2

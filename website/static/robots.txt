@@ -1,0 +1,26 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://spiceai.org/sitemap.xml
+
+# LLM-friendly documentation (llmstxt.org standard)
+# llms.txt: https://spiceai.org/llms.txt
+# llms-full.txt: https://spiceai.org/llms-full.txt
+
+# Crawl-delay for polite crawling (optional, respected by some bots)
+Crawl-delay: 1
+
+# Disallow search results pages
+Disallow: /search
+
+# Allow all documentation
+Allow: /docs/
+Allow: /releases/
+Allow: /cookbook/
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# Block internal/development paths (if any)
+Disallow: /api/HTTP/sidebar
