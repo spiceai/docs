@@ -9,73 +9,73 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 222.2 84% 4.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 222.2 84% 4.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 222.2 84% 4.9%;
-        --primary: 25 90% 54%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 210 40% 96.1%;
-        --secondary-foreground: 222.2 47.4% 11.2%;
-        --muted: 210 40% 96.1%;
-        --muted-foreground: 215.4 16.3% 46.9%;
-        --accent: 210 40% 96.1%;
-        --accent-foreground: 222.2 47.4% 11.2%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 214.3 31.8% 91.4%;
-        --input: 214.3 31.8% 91.4%;
-        --ring: 222.2 84% 4.9%;
-        --radius: 0.75rem;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-    }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 25 90% 54%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.75rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
 
-    .dark {
-        --background: 222.2 84% 4.9%;
-        --foreground: 210 40% 98%;
-        --card: 222.2 84% 4.9%;
-        --card-foreground: 210 40% 98%;
-        --popover: 222.2 84% 4.9%;
-        --popover-foreground: 210 40% 98%;
-        --primary: 210 40% 98%;
-        --primary-foreground: 222.2 47.4% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
-        --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 217.2 32.6% 17.5%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
-    }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
 }
 
 @layer base {
-    .tailwind * {
-        @apply border-border;
-    }
-    .tailwind {
-        @apply bg-background text-foreground;
-    }
+  .tailwind * {
+    @apply border-border;
+  }
+  .tailwind {
+    @apply bg-background text-foreground;
+  }
 }
 
 .sbdocs p {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 .markdown h1:first-child {
@@ -95,7 +95,16 @@
 }
 
 .markdown h4 {
-  --ifm-h4-font-size: 1.0rem;
+  --ifm-h4-font-size: 1rem;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  line-height: 1.3;
 }
 
 nav.menu.thin-scrollbar {
@@ -104,7 +113,6 @@ nav.menu.thin-scrollbar {
 
 /* You can override the default Infima variables here. */
 :root {
-
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
   --announcement-bar-bg: #fafbfc;
@@ -124,6 +132,12 @@ nav.menu.thin-scrollbar {
 
   /* adjust inline code paddings */
   --ifm-code-padding-horizontal: 0.3rem;
+
+  /* OpenAPI method badge colors */
+  --openapi-code-green: #49cc90;
+  --openapi-code-red: #f93e3e;
+  --openapi-code-blue: #61affe;
+  --openapi-code-orange: #fca130;
 }
 
 .theme-code-block {
@@ -153,23 +167,24 @@ pre {
   border-color: var(--ifm-color-primary) !important;
 }
 
-:root {
-  --ifm-font-family-base: 'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  --ifm-footer-background-color: #1c1917;
-}
-
 .footer--dark {
   --ifm-footer-background-color: #1c1917;
 }
 
-:root, [data-theme='light'] {
-  --ifm-color-primary: #EF5F00;        /* base orange */
-  --ifm-color-primary-dark: #CC4E00;   /* darker orange */
-  --ifm-color-primary-darker: #582D1D; /* even darker */
-  --ifm-color-primary-darkest: #7d3d00;/* darkest orange */
-  --ifm-color-primary-light: #cc6500;  /* light orange */
-  --ifm-color-primary-lighter: #d66f00;/* lighter orange */
-  --ifm-color-primary-lightest: #e78100;/* lightest orange */
+:root,
+[data-theme='light'] {
+  --ifm-font-family-base:
+    'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --ifm-footer-background-color: #1c1917;
+
+  --ifm-color-primary: #ef5f00; /* base orange */
+  --ifm-color-primary-dark: #d65500; /* darker orange */
+  --ifm-color-primary-darker: #bf4c00; /* even darker */
+  --ifm-color-primary-darkest: #9e3f00; /* darkest orange */
+  --ifm-color-primary-light: #ff7519; /* light orange */
+  --ifm-color-primary-lighter: #ff8c40; /* lighter orange */
+  --ifm-color-primary-lightest: #ffa366; /* lightest orange */
 
   --ifm-color-emphasis-200: #e7e5e4;
   --ifm-color-emphasis-300: #d6d3d1;
@@ -179,13 +194,13 @@ pre {
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 html[data-theme='dark'] {
-  --ifm-color-primary: #c25e00;        /* base orange */
-  --ifm-color-primary-dark: #b05400;   /* darker orange */
+  --ifm-color-primary: #c25e00; /* base orange */
+  --ifm-color-primary-dark: #b05400; /* darker orange */
   --ifm-color-primary-darker: #a64f00; /* even darker */
-  --ifm-color-primary-darkest: #873f00;/* darkest orange */
-  --ifm-color-primary-light: #cc6500;  /* light orange */
-  --ifm-color-primary-lighter: #d66f00;/* lighter orange */
-  --ifm-color-primary-lightest: #e78100;/* lightest orange */
+  --ifm-color-primary-darkest: #873f00; /* darkest orange */
+  --ifm-color-primary-light: #cc6500; /* light orange */
+  --ifm-color-primary-lighter: #d66f00; /* lighter orange */
+  --ifm-color-primary-lightest: #e78100; /* lightest orange */
 
   --ifm-color-emphasis-200: #292524;
   --ifm-color-emphasis-300: #44403c;
@@ -261,8 +276,7 @@ html[data-theme='dark'] {
   display: flex;
   background-color: var(--ifm-navbar-link-color);
   mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E");
-  transition: background-color var(--ifm-transition-fast)
-    var(--ifm-transition-timing-default);
+  transition: background-color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
 }
 
 .header-github-link:hover::before {

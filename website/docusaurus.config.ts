@@ -5,6 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic'
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs'
 import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
+import type { Options as SitemapOptions } from '@docusaurus/plugin-sitemap'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
 import * as fs from 'fs'
@@ -178,8 +179,25 @@ const config: Config = {
         gtag: {
           trackingID: 'G-SST0X6NS37',
           anonymizeIP: true
-        }
-      } satisfies Preset.Options
+        },
+        sitemap: {
+          lastmod: 'date',
+          changefreq: ({ type, permalink }) => {
+            if (type === 'docs') return 'weekly'
+            if (permalink.startsWith('/releases')) return 'monthly'
+            return 'weekly'
+          },
+          priority: ({ type, permalink }) => {
+            if (permalink === '/') return 1.0
+            if (type === 'docs') return 0.8
+            if (permalink.startsWith('/releases')) return 0.6
+            if (permalink.startsWith('/cookbook')) return 0.7
+            return 0.5
+          },
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml'
+        } as unknown as SitemapOptions
+      } satisfies Omit<Preset.Options, 'sitemap'> & { sitemap: SitemapOptions }
     ]
   ],
   themes: ['docusaurus-theme-openapi-docs'],
@@ -445,6 +463,14 @@ const config: Config = {
             to: 'https://spice.ai/blog'
           },
           {
+            from: '/blog/announcing-1.0-stable',
+            to: 'https://spice.ai/blog/announcing-spice-ai-open-source-1-0-stable'
+          },
+          {
+            from: '/blog/amazon-s3-vectors-with-spice',
+            to: 'https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice'
+          },
+          {
             from: '/blog/releases/v1.10-0',
             to: '/releases/v1.10.0'
           },
@@ -454,41 +480,65 @@ const config: Config = {
           },
           // 2021 blog posts
           {
+            from: '/blog/a-new-class-of-applications-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
             from: '/blog/2021/a-new-class-of-applications-that-learn-and-adapt',
             to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/ai-needs-ai-ready-data',
+            to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
           },
           {
             from: '/blog/2021/ai-needs-ai-ready-data',
             to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
           },
           {
+            from: '/blog/making-apps-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
+          },
+          {
             from: '/blog/2021/making-apps-that-learn-and-adapt',
             to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
           },
           {
-            from: '/blog/2021/q-learning-reward-is-all-you-need',
+            from: '/blog/q-learning-reward-is-all-you-need',
             to: 'https://spice.ai/blog/q-learning-reward-is-all-you-need'
+          },
+          {
+            from: '/blog/spiceais-approach-to-time-series-ai',
+            to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
           },
           {
             from: '/blog/2021/spiceais-approach-to-time-series-ai',
             to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
           },
           {
+            from: '/blog/spicepods-from-zero-to-hero',
+            to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
+          },
+          {
             from: '/blog/2021/spicepods-from-zero-to-hero',
             to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
           },
           {
-            from: '/blog/2021/teaching-apps-how-to-learn-with-spicepods',
+            from: '/blog/teaching-apps-how-to-learn-with-spicepods',
             to: 'https://spice.ai/blog/teaching-apps-how-to-learn-with-spicepods'
           },
           // 2022 blog posts
           {
-            from: '/blog/2022/adding-soft-actor-critic',
+            from: '/blog/adding-soft-actor-critic',
             to: 'https://spice.ai/blog/adding-soft-actor-critic'
           },
           {
-            from: '/blog/2022/building-on-apache-arrow-and-flight',
+            from: '/blog/building-on-apache-arrow-and-flight',
             to: 'https://spice.ai/blog/building-on-apache-arrow-and-flight'
+          },
+          {
+            from: '/blog/what-data-informs-ai-driven-decision-making',
+            to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
           },
           {
             from: '/blog/2022/what-data-informs-ai-driven-decision-making',
@@ -496,17 +546,12 @@ const config: Config = {
           },
           // 2024 blog posts
           {
+            from: '/blog/adding-spice',
+            to: 'https://spice.ai/blog/adding-spice-the-next-generation-of-spice-ai-oss'
+          },
+          {
             from: '/blog/2024/adding-spice',
-            to: 'https://spice.ai/blog/adding-spice'
-          },
-          {
-            from: '/blog/2024/announcing-1.0-stable',
-            to: 'https://spice.ai/blog/announcing-1.0-stable'
-          },
-          // 2025 blog posts
-          {
-            from: '/blog/2025/amazon-s3-vectors-with-spice',
-            to: 'https://spice.ai/blog/amazon-s3-vectors-with-spice'
+            to: 'https://spice.ai/blog/adding-spice--the-next-generation-of-spice-ai-oss'
           },
           {
             from: '/federated-queries',
