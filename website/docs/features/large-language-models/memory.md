@@ -81,6 +81,45 @@ models:
 
 This approach provides graph memory for entity relationship extraction. For full configuration options, see [Mem0 Memory Tool](/docs/components/tools/mem0).
 
+## Memory Tools
+
+When memory is configured, the following tools become available to LLMs:
+
+### `store_memory`
+
+Stores information for later recall.
+
+**Parameters:**
+
+- `thoughts` (array of strings): List of details to persist
+
+**Example tool call:**
+
+```json
+{
+  "thoughts": [
+    "User prefers dark mode",
+    "User's timezone is PST"
+  ]
+}
+```
+
+### `load_memory`
+
+Retrieves previously stored memories.
+
+**Parameters:**
+
+- `last` (string): Time interval to retrieve memories from (e.g., "1h", "30m", "1d")
+
+**Example tool call:**
+
+```json
+{
+  "last": "24h"
+}
+```
+
 ## Choosing a Memory Backend
 
 | Feature             | Builtin                       | Mem0 (via memory config)      | Mem0 (via tool connector)                                      |

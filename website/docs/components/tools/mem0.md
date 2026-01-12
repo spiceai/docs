@@ -348,9 +348,58 @@ If you see rate limit errors despite automatic retries:
 2. Provide clear, well-structured content for entity extraction
 3. Check that graph memory is enabled in your Mem0 project settings
 
+## Mem0 Tool Catalog
+
+For more granular control over memory operations, individual Mem0 tools can be configured separately:
+
+```yaml
+tools:
+  - from: mem0:add
+    name: mem0_add
+    description: Add a memory to the knowledge base
+    params:
+      mem0_api_key: ${secrets:MEM0_API_KEY}
+      mem0_user_id: user-12345
+      mem0_graph_memory: enabled
+
+  - from: mem0:search
+    name: mem0_search
+    description: Search for relevant memories
+    params:
+      mem0_api_key: ${secrets:MEM0_API_KEY}
+      mem0_user_id: user-12345
+      mem0_graph_memory: enabled
+
+  - from: mem0:get
+    name: mem0_get_all
+    description: Get all memories for the user
+    params:
+      mem0_api_key: ${secrets:MEM0_API_KEY}
+      mem0_user_id: user-12345
+
+  - from: mem0:delete
+    name: mem0_delete
+    description: Delete a memory
+    params:
+      mem0_api_key: ${secrets:MEM0_API_KEY}
+      mem0_user_id: user-12345
+```
+
+### Tool Catalog Summary
+
+| Tool          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| `mem0:add`    | Add memories from user messages                     |
+| `mem0:search` | Search memories using semantic search               |
+| `mem0:get`    | Get all memories for a user/agent                   |
+| `mem0:delete` | Delete a specific memory or all memories for a user |
+
+This approach provides finer control compared to using `mem0:memory`, which bundles all four tools together.
+
 ## Related Resources
 
 - [Mem0 Platform Documentation](https://docs.mem0.ai)
 - [Mem0 API Reference](https://docs.mem0.ai/api-reference)
 - [Graph Memory Guide](https://docs.mem0.ai/platform/features/graph-memory)
 - [Spice Tools Documentation](/docs/components/tools)
+- [Memory Reference](/docs/reference/spicepod/memory)

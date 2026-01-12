@@ -37,6 +37,10 @@ For details on tool specifications, see the [Tools Spicepod Reference](/docs/ref
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
 | [`websearch`][websearch]  | Search the web for information.                                   | -             |
 | [`mem0:memory`][mem0]     | Store, search, and retrieve memories using the Mem0 Platform.     | -             |
+| [`mem0:add`][mem0]        | Add memories from user messages using Mem0.                       | -             |
+| [`mem0:search`][mem0]     | Search memories using semantic search via Mem0.                   | -             |
+| [`mem0:get`][mem0]        | Get all memories for a user/agent from Mem0.                      | -             |
+| [`mem0:delete`][mem0]     | Delete a specific memory or all memories for a user in Mem0.      | -             |
 
 [websearch]: /docs/components/tools/websearch
 [mem0]: /docs/components/tools/mem0
