@@ -36,8 +36,10 @@ For details on tool specifications, see the [Tools Spicepod Reference](/docs/ref
 | `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`      |
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
 | [`websearch`][websearch]  | Search the web for information.                                   | -             |
+| [`mem0:memory`][mem0]     | Store, search, and retrieve memories using the Mem0 Platform.     | -             |
 
 [websearch]: /docs/components/tools/websearch
+[mem0]: /docs/components/tools/mem0
 
 ### Tool Groups
 
@@ -53,10 +55,11 @@ models:
 
 #### Available tool groups
 
-| Name         | Description                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| `auto`       | All default tools (see above table)                                                          |
-| `memory`     | Memory tools for storing and retrieving information across conversations.                    |
-| [`MCP`][mcp] | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
+| Name           | Description                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `auto`         | All default tools (see above table)                                                          |
+| `memory`       | Memory tools for storing and retrieving information across conversations.                    |
+| [`MCP`][mcp]   | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
+| [`Mem0`][mem0] | Memory tools powered by the Mem0 Platform for persistent, searchable memories.               |
 
 [mcp]: /docs/components/tools/mcp
