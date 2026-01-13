@@ -198,8 +198,6 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Alpha Status**: Spice Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
-- **No `on_conflict` Support**: Spice Cayenne does not yet support the [`on_conflict`](/docs/reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
-- **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](/docs/reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
 - **No Snapshot Support**: Spice Cayenne does not yet support [acceleration snapshots](/docs/features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **Data Types**: Some advanced data types may have limited support. Test your specific schema requirements.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. However, Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads. See [Point Lookups and Random Access](#point-lookups-and-random-access).
