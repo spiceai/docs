@@ -113,7 +113,7 @@ File formats support additional parameters for fine-grained control. Common exam
 
 For complete format options, see [File Formats Reference](/docs/reference/file_format).
 
-### Applicable Connectors
+### Applicable Connectors {#object-store-file-formats}
 
 The following data connectors support file format configuration:
 
@@ -157,7 +157,7 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
-### Document Formats
+### Document Formats {#document-support}
 
 Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 
