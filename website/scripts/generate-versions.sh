@@ -118,4 +118,9 @@ for version_entry in "${VERSIONS[@]}"; do
 EOF
 done
 
+# Apply link fixes to versioned docs
+if [ -f "$SCRIPT_DIR/fix-versioned-links.sh" ]; then
+  "$SCRIPT_DIR/fix-versioned-links.sh"
+fi
+
 echo "Done! Generated versions: ${VERSIONS[*]}"

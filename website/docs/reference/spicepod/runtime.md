@@ -304,6 +304,9 @@ This option allows you to balance disk space usage and query performance for lar
 
 ## `runtime.query.temp_directory`
 
+<!-- Backwards compatibility anchor for older versioned docs -->
+<a id="runtimetemp_directory"></a>
+
 The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml

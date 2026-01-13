@@ -157,7 +157,10 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
-### Document Formats {#document-support}
+### Document Formats {#document-formats}
+
+<!-- Backwards compatibility anchor for older versioned docs -->
+<a id="document-support"></a>
 
 Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 

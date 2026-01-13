@@ -264,7 +264,7 @@ Following these guidelines ensures that the dataset's pre-existing embeddings ar
 
 ### Chunking
 
-Spice supports chunking large text columns before embedding, which is useful for [Document Tables](/docs/components/data-connectors#document-formats). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
+Spice supports chunking large text columns before embedding, which is useful for [Document Tables](../data-connectors/index.md#document-formats). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
 
 ```yaml
 datasets:
