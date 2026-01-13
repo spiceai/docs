@@ -156,8 +156,6 @@ runtime:
     spill_compression: lz4_frame
 ```
 
-For tight memory limits, consider reducing `target_partitions` and `batch_size` to allocate more memory per partition and reduce the number of sorted runs during spilling. See the [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide) for details.
-
 ### Spill Limitations
 
 DataFusion supports spilling for several operators, but the following operations do not currently support spilling:
@@ -199,13 +197,12 @@ For a query selecting 1% of rows from a 100 GB dataset, pushdown can reduce peak
 
 ### Configuration for Memory Efficiency
 
-For memory-constrained environments, configure pushdown settings for maximum data reduction:
+For memory-constrained environments, set an appropriate memory limit and use file-based acceleration:
 
 ```yaml
 runtime:
   query:
     memory_limit: 2GiB
-    target_partitions: 4  # Fewer partitions = more memory per partition
 
 datasets:
   - from: s3://bucket/data/

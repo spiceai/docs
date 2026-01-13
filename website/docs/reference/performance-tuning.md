@@ -218,58 +218,36 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 
 ### Query Parallelism
 
-DataFusion automatically parallelizes queries across available CPU cores. The `target_partitions` setting controls the degree of parallelism:
+DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the number of CPU cores, providing maximum parallelism.
 
-```yaml
-runtime:
-  query:
-    target_partitions: 8  # Default: number of CPU cores
-```
-
-**Tuning Guidelines:**
-
-- **Default behavior**: Uses all available CPU cores for maximum parallelism
-- **Small datasets (<1 MB)**: Set to `1` to avoid repartitioning overhead. See [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide)
-- **Memory-constrained environments**: Reduce partitions to allocate more memory per partition, as memory is divided evenly among partitions when using the [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html)
+DataFusion's [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html) divides the configured `memory_limit` evenly among partitions. With more CPU cores, each partition receives less memory, which may increase spilling for memory-intensive queries.
 
 ### Join Algorithm Selection
 
 DataFusion supports multiple join algorithms and automatically selects the best one based on query statistics:
 
-| Algorithm        | Memory Usage | Best For                                                                      |
-| ---------------- | ------------ | ----------------------------------------------------------------------------- |
-| Hash Join        | Higher       | Fast execution with sufficient memory (default when `prefer_hash_join: true`) |
-| Sort-Merge Join  | Lower        | Memory-constrained environments, pre-sorted data                              |
-| Nested Loop Join | Variable     | Cross joins, non-equi joins                                                   |
+| Algorithm        | Memory Usage | Best For                                         |
+| ---------------- | ------------ | ------------------------------------------------ |
+| Hash Join        | Higher       | Fast execution with sufficient memory (default)  |
+| Sort-Merge Join  | Lower        | Memory-constrained environments, pre-sorted data |
+| Nested Loop Join | Variable     | Cross joins, non-equi joins                      |
 
-For memory-constrained workloads, set `prefer_hash_join: false` via DataFusion configuration. Hash joins are faster but consume more memory than sort-merge joins.
+DataFusion prefers hash joins by default for equi-joins. When memory is constrained and spilling occurs, hash joins may be slower than sort-merge joins due to spill overhead.
 
 ### Dynamic Filter Pushdown
 
 DataFusion pushes filters from operators (TopK, Join, Aggregate) into file scans to prune data early. This optimization is enabled by default and can skip entire row groups or files based on statistics. For example, a `SELECT * FROM t ORDER BY timestamp DESC LIMIT 10` query pushes timestamp filters down to file scans, pruning files that cannot contain top-10 candidates.
 
-### DataFusion Parquet Configuration
+### Parquet Read Optimizations
 
-DataFusion provides configuration options that control how Parquet files are read and filtered. These settings affect Parquet-backed data sources including S3, file, Iceberg, and Delta Lake connectors.
+Spice uses DataFusion's Parquet reader, which applies several optimizations automatically when reading Parquet files from S3, file, Iceberg, and Delta Lake connectors:
 
-| Setting                        | Default  | Description                                                                                         |
-| ------------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
-| `parquet.pruning`              | `true`   | Skip row groups based on min/max statistics. Disable only for debugging.                            |
-| `parquet.pushdown_filters`     | `false`  | Apply filters during Parquet decoding (late materialization). Reduces memory for selective queries. |
-| `parquet.reorder_filters`      | `false`  | Heuristically reorder filter evaluation for better performance.                                     |
-| `parquet.bloom_filter_on_read` | `true`   | Use bloom filters for equality predicates when available.                                           |
-| `parquet.enable_page_index`    | `true`   | Use Page Index to reduce I/O by skipping pages within row groups.                                   |
-| `parquet.metadata_size_hint`   | `524288` | Optimistic read size (bytes) for initial Parquet metadata fetch.                                    |
+- **Row group pruning**: Skips entire row groups (typically 128 MB) based on min/max statistics in Parquet metadata
+- **Page Index filtering**: Uses page-level min/max statistics (typically 8 KB chunks) for finer-grained pruning
+- **Bloom filter evaluation**: Checks bloom filters for equality predicates when available in Parquet files
+- **Projection pushdown**: Reads only the columns referenced in the query
 
-**Late Materialization:**
-
-When `parquet.pushdown_filters` is enabled, DataFusion applies filter predicates during Parquet decoding rather than after. This optimization materializes only the rows that pass the filter, reducing memory usage for selective queries. The tradeoff is additional CPU overhead for filter evaluation during decoding.
-
-**Page Index Benefits:**
-
-The Page Index provides min/max statistics at the page level (typically 8 KB chunks) rather than the row group level (typically 128 MB). For highly selective queries, enabling `parquet.enable_page_index` can reduce I/O by orders of magnitude compared to row group pruning alone.
-
-See [DataFusion Configuration](https://datafusion.apache.org/user-guide/configs.html) for the complete list of settings.
+These optimizations are applied automatically and require no configuration. The effectiveness depends on data layout—sorting data by frequently filtered columns maximizes row group pruning.
 
 ## File Format Filtering and Optimization
 
@@ -417,14 +395,9 @@ runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (
 
 Choose `lz4_frame` when CPU is limited and disk is abundant. Choose `uncompressed` for debugging or when spill files are rare. DataFusion uses [Arrow IPC Stream format](https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format) for spill files.
 
-### Batch Size
+### Batch Processing
 
-The `batch_size` parameter controls the number of rows processed per batch (default: 8192). Adjusting batch size affects memory usage and vectorized execution efficiency:
-
-- **Lower values** (e.g., 1024): Use less memory per partition, helpful for tight memory limits
-- **Higher values** (e.g., 16384): Better vectorized execution performance, but more memory per batch
-
-For memory-constrained queries, reduce `batch_size` to process fewer rows at a time, reducing the number of spilled sorted runs that need to be merged.
+DataFusion processes data in batches of 8192 rows by default. This batch size balances memory usage with vectorized execution efficiency. Larger batches improve CPU cache utilization and SIMD operations but consume more memory per partition.
 
 ### Temporary Directory
 
