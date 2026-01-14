@@ -94,10 +94,10 @@ datasets:
 
 Spice Cayenne supports two compression strategies, each with different performance characteristics. The [BtrBlocks](https://www.cs.cit.tum.de/fileadmin/w00cfj/dis/papers/btrblocks.pdf) compression algorithm is designed for fast analytical queries, while [zstd](https://facebook.github.io/zstd/) provides fast write performance. Additionally, `zstd` achieves better compression ratios when data contains large chunks of binary or text.
 
-| Strategy    | Compression Ratio | Scan Speed | Write Speed | Best For                                              |
-| ----------- | ----------------- | ---------- | ----------- | ----------------------------------------------------- |
-| `btrblocks` | Higher            | Faster     | Moderate    | Read-heavy analytics (default)                        |
-| `zstd`      | High              | Moderate   | Faster      | Write-heavy workloads, large binary or text data      |
+| Strategy    | Compression Ratio | Scan Speed | Write Speed | Best For                                         |
+| ----------- | ----------------- | ---------- | ----------- | ------------------------------------------------ |
+| `btrblocks` | Higher            | Faster     | Moderate    | Read-heavy analytics (default)                   |
+| `zstd`      | High              | Moderate   | Faster      | Write-heavy workloads, large binary or text data |
 
 **Example - Write-optimized configuration:**
 
