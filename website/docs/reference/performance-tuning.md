@@ -20,14 +20,14 @@ This guide provides recommendations for optimizing Spice performance across data
 
 Choose the appropriate [Data Accelerator](/docs/components/data-accelerators) based on dataset characteristics and query patterns.
 
-| Scenario                                | Recommended Accelerator    | Key Configuration                                                     |
-| --------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
-| Small datasets (<1 GB), lowest latency  | `arrow`                    | Default in-memory                                                     |
-| Medium datasets (1-100 GB), complex SQL | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
-| Large datasets (100 GB - 1+ TB)         | `cayenne`                  | Tune cache parameters                                                 |
-| Write-heavy workloads                   | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
-| Point lookups, large datasets           | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
-| Point lookups with explicit indexes     | `duckdb` or `sqlite`       | Configure indexes                                                     |
+| Scenario                                 | Recommended Accelerator    | Key Configuration                                                     |
+| ---------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
+| Small datasets (under 1 GB), low latency | `arrow`                    | Default in-memory                                                     |
+| Medium datasets (1-100 GB), complex SQL  | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
+| Large datasets (100 GB - 1+ TB)          | `cayenne`                  | Tune cache parameters                                                 |
+| Write-heavy workloads                    | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
+| Point lookups, large datasets            | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
+| Point lookups with explicit indexes      | `duckdb` or `sqlite`       | Configure indexes                                                     |
 
 ## Spice Cayenne Performance Optimization
 
@@ -83,7 +83,7 @@ The segment cache stores decompressed data. Size based on working set:
 | `btrblocks` (default) | Fastest          | Moderate          | Higher            |
 | `zstd`                | Moderate         | Faster            | High              |
 
-Choose `btrblocks` for read-heavy analytics workloads. Choose `zstd` for write-heavy or streaming ingestion.
+Choose `btrblocks` for read-heavy analytics workloads. Use `zstd` only when size on disk is the primary concern—setting `zstd` trades query performance for reduced storage size.
 
 ## DuckDB Performance Optimization
 
@@ -137,7 +137,7 @@ datasets:
         '(customer_id, created_at)': enabled
 ```
 
-Indexes consume memory and [do not spill to disk](https://duckdb.org/docs/stable/guides/performance/indexing#indexes-and-memory). Monitor memory usage when adding indexes. For more details on ART index performance, see the [ART paper](https://db.in.tum.de/~leis/papers/ART.pdf).
+Indexes consume memory and [do not spill to disk](https://duckdb.org/docs/stable/guides/performance/indexing#indexes-and-memory). Creating an index requires the entire dataset to be loaded into memory. Monitor memory usage when adding indexes. For more details on ART index performance, see the [ART paper](https://db.in.tum.de/~leis/papers/ART.pdf).
 
 ### Zone-Maps and Sorted Data
 
@@ -232,7 +232,7 @@ DataFusion supports multiple join algorithms and automatically selects the best 
 | Sort-Merge Join  | Lower        | Memory-constrained environments, pre-sorted data |
 | Nested Loop Join | Variable     | Cross joins, non-equi joins                      |
 
-DataFusion prefers hash joins by default for equi-joins. When memory is constrained and spilling occurs, hash joins may be slower than sort-merge joins due to spill overhead.
+DataFusion prefers hash joins by default for equi-joins. Hash joins do not currently support spilling, so memory-constrained environments may benefit from sort-merge joins for large datasets.
 
 ### Dynamic Filter Pushdown
 
@@ -273,7 +273,7 @@ Parquet files can include bloom filters for membership testing. For equality pre
 
 **Late Materialization (Filter Pushdown):**
 
-DataFusion supports applying filters during Parquet decoding rather than after. This optimization, called late materialization, filters rows before materializing all columns, reducing memory usage for selective queries. Configure via DataFusion settings.
+DataFusion supports applying filters during Parquet decoding rather than after. This optimization, called late materialization, filters rows before materializing all columns, reducing memory usage for selective queries.
 
 ### Iceberg
 
@@ -483,7 +483,7 @@ datasets:
 
 ### Partitioned Data
 
-For partitioned data, set `time_partition_column` for partition pruning:
+For data that has a granular time column and a separate column for partitioning (i.e. day buckets), set `time_partition_column` to the partitioning column based on time:
 
 ```yaml
 datasets:
@@ -494,6 +494,15 @@ datasets:
     acceleration:
       refresh_mode: append
 ```
+
+In this scenario, `event_date` is the day bucket used for physical partitioning (e.g., s3://bucket/events/event_date=2025-10-01/), while event_time provides the granular timestamp for precise filtering.
+
+| event_id | event_time (time_column) | event_date (time_partition_column) | event_type | user_id |
+| -------- | ------------------------ | ---------------------------------- | ---------- | ------- |
+| 8f2a-1   | 2025-10-01 08:14:22.123  | 2025-10-01                         | page_view  | u_442   |
+| 8f2a-2   | 2025-10-01 22:01:05.884  | 2025-10-01                         | click      | u_901   |
+| 9c11-a   | 2025-10-02 01:12:44.001  | 2025-10-02                         | purchase   | u_442   |
+| 9c11-b   | 2025-10-02 14:30:12.550  | 2025-10-02                         | page_view  | u_118   |
 
 ### Last-Modified Optimization
 

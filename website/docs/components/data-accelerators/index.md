@@ -46,7 +46,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 
 | Use Case                                            | Recommended Accelerator | Rationale                                               |
 | --------------------------------------------------- | ----------------------- | ------------------------------------------------------- |
-| Small datasets (<1 GB), maximum speed               | `arrow`                 | In-memory storage provides lowest latency               |
+| Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
 | Medium datasets (1-100 GB), complex SQL             | `duckdb`                | Mature SQL support with memory management               |
 | Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |

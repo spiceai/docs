@@ -34,15 +34,16 @@ Different acceleration engines have distinct memory characteristics and tuning o
 
 ### Arrow (In-Memory)
 
-The default Arrow accelerator stores all data in memory. Datasets must fit entirely in available RAM.
+The default Arrow accelerator stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
 
+- Data is stored uncompressed in Apache Arrow format
 - No configuration options for memory limits
 - Best for smaller datasets requiring maximum query speed
 - Consider switching to file-based accelerators for datasets exceeding available memory
 
 ### Spice Cayenne
 
-[Spice Cayenne](/docs/components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable in-memory caches for metadata and frequently accessed data segments.
+[Spice Cayenne](/docs/components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
 
 Spice Cayenne is DataFusion query-native, meaning all query execution adheres to the `runtime.query.memory_limit` setting. When query memory is exhausted, DataFusion spills intermediate results to disk. This architecture provides predictable memory usage while maintaining high query performance.
 
@@ -160,7 +161,7 @@ runtime:
 
 DataFusion supports spilling for several operators, but the following operations do not currently support spilling:
 
-- HashJoin ([tracking issue](https://github.com/apache/arrow-datafusion/issues/1047))
+- HashJoin ([tracking issue](https://github.com/apache/datafusion/issues/12952))
 - ExternalSorterMerge
 - RepartitionMerge
 
@@ -241,14 +242,14 @@ Spice supports multiple memory allocators, each with different performance chara
 
 | Allocator          | Docker Tag Suffix | Characteristics                                     | Best For                                   |
 | ------------------ | ----------------- | --------------------------------------------------- | ------------------------------------------ |
-| mimalloc (default) | (none)            | High performance, low fragmentation, multi-threaded | Most workloads                             |
+| snmalloc (default) | (none)            | High performance, low fragmentation, multi-threaded | Most workloads                             |
 | jemalloc           | `-jemalloc`       | Predictable performance, good memory profiling      | Memory-constrained environments, debugging |
 | System allocator   | `-sysalloc`       | Uses OS default allocator                           | Compatibility, minimal overhead            |
 
 **Usage Example:**
 
 ```bash
-# Default (mimalloc)
+# Default (snmalloc)
 docker pull spiceai/spiceai:latest
 
 # jemalloc variant
@@ -260,7 +261,7 @@ docker pull spiceai/spiceai:latest-sysalloc
 
 **Recommendations:**
 
-- Use the default (mimalloc) for most production workloads
+- Use the default (snmalloc) for most production workloads
 - Use jemalloc when memory profiling or debugging memory issues
 - Use sysalloc for maximum compatibility with system monitoring tools
 
