@@ -94,7 +94,7 @@ Data-grounded AI anchors models in accurate, current, domain-specific data rathe
 
 ## 16. What query engines does Spice support?
 
-Spice supports multiple query engines, including Apache Arrow, Cayenne (Vortex), DuckDB, SQLite, PostgreSQL, and DataFusion. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
+Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports DuckDB, SQLite, and PostgreSQL as acceleration engines. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
 
 ## 17. Does Spice support Change Data Capture (CDC)?
 
@@ -110,7 +110,7 @@ Spice provides secure, auditable data access through sandboxed runtimes, secure 
 
 ## 20. Can Spice be used for real-time analytics?
 
-Yes. Spice accelerates data locally using Apache Arrow, Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
+Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
 
 ## 21. How can developers contribute to Spice?
 

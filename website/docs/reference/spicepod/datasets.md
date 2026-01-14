@@ -270,7 +270,7 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`cayenne`](/docs/components/data-accelerators/cayenne.md) - Accelerated by the Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
+- [`cayenne`](/docs/components/data-accelerators/cayenne.md) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
 - [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
 - [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
 - [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
@@ -279,8 +279,8 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory. Not supported for the `cayenne` engine.
-- `file` - Store acceleration data in a file. Supported for `cayenne`, `duckdb` and `sqlite` acceleration engines.
+- `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
 
 ## `acceleration.snapshots`
 
