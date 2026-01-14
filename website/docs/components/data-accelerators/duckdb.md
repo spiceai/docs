@@ -136,3 +136,9 @@ For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duc
 ## Cookbook
 
 For practical examples, see the [DuckDB Data Accelerator Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/duckdb/accelerator#readme).
+
+## Related Documentation
+
+- [Performance Tuning](/docs/reference/performance-tuning.md) - Zone-maps, indexes, and optimization patterns
+- [Managing Memory Usage](/docs/reference/memory.md) - Memory configuration reference
+- [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Refresh mode configuration
