@@ -76,8 +76,14 @@ snapshots:
 
 ## Enable snapshots per dataset
 
-Each dataset opts into snapshotting through the `acceleration.snapshots` field:
+Each dataset opts into snapshotting through the `acceleration.snapshots` field. Four modes are available:
 
+- `enabled` – download snapshots on startup and write a new snapshot after each refresh.
+- `bootstrap_only` – only download snapshots; never write new ones.
+- `create_only` – write new snapshots after refreshes, but never download them on startup.
+- `disabled` – disable snapshot usage for this dataset. (Default.)
+
+Complete configuration:
 ```yaml
 acceleration:
   snapshots: enabled | disabled          # default: disabled
