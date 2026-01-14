@@ -1,7 +1,7 @@
 ---
 title: 'AWS Deployment Options'
 description: 'Guide to deploying Spice.ai applications on Amazon Web Services (AWS)'
-sidebar_label: 'Deployment'
+sidebar_label: 'AWS'
 sidebar_position: 1
 pagination_next: null
 ---
