@@ -40,7 +40,7 @@ The model type is inferred based on the model source and files. For more detail,
 Spice supports a variety of features for large language models (LLMs):
 
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/docs/features/large-language-models/tools).
-- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides.md). Use Jinja-templating to parameterise system prompts per request see [Parameterized prompts](docs/features/large-language-models/parameterized_prompts.md).
+- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides.md). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](/docs/features/large-language-models/parameterized_prompts.md).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/docs/features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/docs/features/search/vector-search).
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/docs/features/large-language-models/evals).
