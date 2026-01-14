@@ -272,6 +272,8 @@ Deploy Spice on AWS infrastructure for optimal performance and integration:
 
 - [Getting started with Amazon S3 Vectors and Spice](https://www.youtube.com/watch?v=KuWI0yDOnIU) - YouTube walkthrough
 
+- [How Spice AI operationalizes data lakes for AI using Amazon S3](https://www.youtube.com/watch?v=KuWI0yDOnIU&list=PLesJrUXEx3U-WIqfWYfha4zBkyZo9czEJ&index=2) - Spice presentation at re:Invent
+
 ### Marketplace
 
 - [Spice.ai on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-jmf6jskjvnq7i) - Deploy Spice.ai from AWS Marketplace
