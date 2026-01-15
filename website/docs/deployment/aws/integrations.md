@@ -184,6 +184,75 @@ embeddings:
       dimensions: '256'
 ```
 
+## Data Accelerators (S3 Express One Zone)
+
+Spice Cayenne data accelerator supports [AWS S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) for storing accelerated data with single-digit millisecond latency. This is ideal for latency-sensitive query workloads that require persistent storage while maintaining fast access.
+
+:::tip Storage Recommendation
+For best performance, store Cayenne data files on local NVMe storage. Use S3 Express One Zone only when persistence of accelerations is required, such as preserving accelerated data across restarts or sharing data between multiple Spice instances.
+:::
+
+| Accelerator       | Description                                                                                                                 | Documentation                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Spice Cayenne** | High-performance data accelerator using Vortex file format with S3 Express One Zone for sub-10ms latency query performance. | [Cayenne Accelerator](/docs/components/data-accelerators/cayenne) |
+
+### Why S3 Express One Zone?
+
+S3 Express One Zone directory buckets provide:
+
+- **Single-digit millisecond latency**: 10x faster than S3 Standard for first-byte latency
+- **High request throughput**: Up to 10x higher request rates than S3 Standard
+- **Cost efficiency**: Lower per-request costs for high-frequency access patterns
+- **Durability**: Same 99.999999999% (11 9s) durability as S3 Standard
+
+### Example: Cayenne with S3 Express One Zone
+
+```yaml
+datasets:
+  - from: s3://source-bucket/events/
+    name: analytics_events
+    acceleration:
+      engine: cayenne
+      enabled: true
+      mode: file
+      params:
+        # Store accelerated data in S3 Express One Zone bucket
+        cayenne_file_path: s3://my-bucket--usw2-az1--x-s3/cayenne/
+        cayenne_s3_region: us-west-2
+```
+
+### Example: Auto-generated Bucket with IAM Role
+
+```yaml
+datasets:
+  - from: postgresql://db/events
+    name: fast_events
+    acceleration:
+      engine: cayenne
+      enabled: true
+      mode: file
+      params:
+        # Auto-generates bucket: spice-{spicepod-name}-fast_events--usw2-az1--x-s3
+        cayenne_s3_zone_ids: usw2-az1
+```
+
+### Supported AWS Regions
+
+S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+
+| Zone ID Prefix | Region         |
+| -------------- | -------------- |
+| `use1`         | us-east-1      |
+| `use2`         | us-east-2      |
+| `usw1`         | us-west-1      |
+| `usw2`         | us-west-2      |
+| `euw1`         | eu-west-1      |
+| `euc1`         | eu-central-1   |
+| `apne1`        | ap-northeast-1 |
+| `apse1`        | ap-southeast-1 |
+
+See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
+
 ## Secret Management
 
 Securely store and retrieve credentials using AWS Secrets Manager.
