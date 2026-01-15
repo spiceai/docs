@@ -64,20 +64,20 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 ### `params`
 
-| Param                     | Description                                                                                        | Default                     |
-| ------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------- |
-| `endpoint`                | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. Nvidia NIM).    | `https://api.openai.com/v1` |
-| `tools`                   | Which [tools] should be made available to the model. Set to `auto` to use all available tools.     | -                           |
-| `system_prompt`           | An additional system prompt used for all chat completions to this model.                           | -                           |
-| `openai_api_key`          | The OpenAI API key.                                                                                | -                           |
-| `openai_org_id`           | The OpenAI organization ID.                                                                        | -                           |
-| `openai_project_id`       | The OpenAI project ID.                                                                             | -                           |
-| `openai_temperature`      | Set the default temperature to use on chat completions.                                            | -                           |
-| `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].              | -                           |
-| `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model. | -                           |
-| `openai_usage_tier`       | The [OpenAI usage tier](https://platform.openai.com/settings/organization/limits) for the account. This parameter sets the maximum number of concurrent requests based on OpenAI's published limits per tier. Valid values are `free`, `tier1`, `tier2`, `tier3`, `tier4`, or `tier5`. | `tier1`                     |
-| `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint using [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses). When using OpenAI-compatible providers, ensure the provider supports OpenAI's Responses API. | `disabled` |
-| `openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model.  These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`. | -                           |
+| Param                     | Description                                                                                                                                                                                                                                                                                  | Default                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `endpoint`                | The OpenAI API base endpoint. Can be overridden to use a compatible provider (i.e. NVIDIA NIM).                                                                                                                                                                                              | `https://api.openai.com/v1` |
+| `tools`                   | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                                                                                                                               | -                           |
+| `system_prompt`           | An additional system prompt used for all chat completions to this model.                                                                                                                                                                                                                     | -                           |
+| `openai_api_key`          | The OpenAI API key.                                                                                                                                                                                                                                                                          | -                           |
+| `openai_org_id`           | The OpenAI organization ID.                                                                                                                                                                                                                                                                  | -                           |
+| `openai_project_id`       | The OpenAI project ID.                                                                                                                                                                                                                                                                       | -                           |
+| `openai_temperature`      | Set the default temperature to use on chat completions.                                                                                                                                                                                                                                      | -                           |
+| `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].                                                                                                                                                                                                        | -                           |
+| `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model.                                                                                                                                                                                           | -                           |
+| `openai_usage_tier`       | The [OpenAI usage tier](https://platform.openai.com/settings/organization/limits) for the account. This parameter sets the maximum number of concurrent requests based on OpenAI's published limits per tier. Valid values are `free`, `tier1`, `tier2`, `tier3`, `tier4`, or `tier5`.       | `tier1`                     |
+| `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint using [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses). When using OpenAI-compatible providers, ensure the provider supports OpenAI's Responses API. | `disabled`                  |
+| `openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model.  These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`.                                                        | -                           |
 
 [tools]: ../../features/large-language-models/tools.md
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
@@ -110,9 +110,9 @@ models:
       openai_api_key: ${ secrets:SPICE_GROQ_API_KEY }
 ```
 
-### NVidia NIM
+### NVIDIA NIM
 
-NVidia NIM models are OpenAI compatible endpoints. Use the following configuration:
+NVIDIA NIM models are OpenAI compatible endpoints. Use the following configuration:
 
 ```yaml
 models:
@@ -123,7 +123,7 @@ models:
       openai_api_key: ${ secrets:SPICE_NIM_API_KEY }
 ```
 
-View the Spice cookbook for an example of setting up NVidia NIM with Spice [here](https://github.com/spiceai/cookbook/tree/trunk/nvidia-nim/ec2).
+View the Spice cookbook for an example of setting up NVIDIA NIM with Spice [here](https://github.com/spiceai/cookbook/tree/trunk/nvidia-nim/ec2).
 
 ### Parasail
 

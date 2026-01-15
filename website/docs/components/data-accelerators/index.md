@@ -34,11 +34,13 @@ By default, datasets are locally materialized using in-memory Arrow records.
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable               | `memory`, `file` |
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
+| `turso`    | Embedded [Turso][turso]         | Beta                 | `memory`, `file` |
 
 [cayenne]: /docs/components/data-accelerators/cayenne.md
 [duckdb]: /docs/components/data-accelerators/duckdb.md
 [postgres]: /docs/components/data-accelerators/postgres/index.md
 [sqlite]: /docs/components/data-accelerators/sqlite.md
+[turso]: /docs/components/data-accelerators/turso.md
 
 ## Choosing an Accelerator
 
@@ -51,6 +53,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
+| Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
 | External database integration                       | `postgres`              | Leverage existing PostgreSQL infrastructure             |
 
 ### Spice Cayenne vs DuckDB
@@ -80,7 +83,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md), [`sqlite`](./sqlite.md), and [`turso`](./turso.md) accelerators by specifying `mode: file`.
 
 :::
 
@@ -95,4 +98,4 @@ import DocCardList from '@theme/DocCardList';
 - [Performance Tuning](/docs/reference/performance-tuning.md) - Comprehensive optimization guide
 - [Managing Memory Usage](/docs/reference/memory.md) - Memory configuration reference
 - [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](/docs/features/data-acceleration/indexes.md) - Index configuration for DuckDB and SQLite
+- [Indexes](/docs/features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso

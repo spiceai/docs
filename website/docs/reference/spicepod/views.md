@@ -74,16 +74,15 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
 - [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
+- [`sqlite`](/docs/components/data-accelerators/sqlite.md) - Accelerated by an embedded SQLite database.
+- [`turso`](/docs/components/data-accelerators/turso.md) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory.
-- `file` - Store acceleration data in a file. Only supported for `duckdb` and `sqlite` acceleration engines.
-
-`mode` is currently only supported for the `duckdb` engine.
+- `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
 ## `acceleration.snapshots`
 

@@ -36,7 +36,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
 - `connection_pool_size`: Optional. The maximum number of connections to keep open in the connection pool. Default is 10.
 
-Configuration `params` are provided either in the `acceleration` section of a dataset.
+Configuration `params` are provided in the `acceleration` section of a dataset.
 
 ```yaml
 datasets:
@@ -78,7 +78,7 @@ datasets:
 :::warning[Limitations]
 
 - The Postgres accelerator does not support `Map` types.
-- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
+- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
 
 :::
 
