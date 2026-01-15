@@ -273,7 +273,8 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 - [`cayenne`](/docs/components/data-accelerators/cayenne.md) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
 - [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
 - [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
+- [`sqlite`](/docs/components/data-accelerators/sqlite.md) - Accelerated by an embedded SQLite database.
+- [`turso`](/docs/components/data-accelerators/turso.md) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
