@@ -35,36 +35,20 @@ While [DuckDB](/docs/components/data-accelerators/duckdb) excels for datasets up
 
 Spice Cayenne follows a lakehouse architecture inspired by [DuckLake](https://ducklake.select/), separating metadata management from data storage:
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                   Cayenne Table                             │
-│                                                             │
-│  ┌─────────────────────┐    ┌───────────────────────────┐  │
-│  │  Metastore Backend  │    │     Data Lake             │  │
-│  │  (SQLite/Turso)     │    │  (Local or S3 Express)    │  │
-│  │                     │    │                           │  │
-│  │  • Table Schemas    │    │  ├─ snapshot_001/         │  │
-│  │  • Data File Refs   │    │  │  ├─ data_001.vortex    │  │
-│  │  • Delete File Refs │    │  │  └─ data_002.vortex    │  │
-│  │  • Sequence Numbers │    │  ├─ deletions/            │  │
-│  └─────────────────────┘    │  │  └─ del_001.arrow      │  │
-│                             │  └─ ...                    │  │
-│                             └───────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
+![Spice Cayenne Architecture](/img/cayenne-architecture.png)
 
 **Key Design Principles:**
 
 - **Virtual Files**: Each "file" is a Vortex `ListingTable` at a unique directory, enabling append operations and parallel reads
 - **Lazy Statistics**: Summary statistics are loaded on-demand for query optimization
-- **Sequence-based Ordering**: Iceberg-style sequence numbers enable upsert semantics without anti-deletion tracking
+- **Sequence-based Ordering**: Iceberg-style sequence numbers enable upsert semantics without requiring separate tracking of "undeleted" records (rows that were deleted and then re-inserted)
 - **Pluggable Storage**: Data files can be stored locally or in S3 Express One Zone while metadata remains local
 
 ## Storage Recommendations
 
 For optimal performance, store Cayenne data files on NVMe storage. NVMe provides the lowest latency and highest throughput for the random access patterns that Vortex files require.
 
-Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) only when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability and the ability to share accelerated data across multiple Spice instances.
+Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
 
 ## Configuration
 
@@ -311,7 +295,7 @@ When a primary key is deleted and then re-inserted:
 
 1. The new insert gets a higher sequence number than the delete
 2. During scan, the delete doesn't apply to data with higher sequence numbers
-3. The new data is visible without explicit "anti-deletion" tracking
+3. The new data is visible without requiring separate tracking of "undeleted" records
 
 ## AWS S3 Express One Zone Storage
 
