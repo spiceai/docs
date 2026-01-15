@@ -84,7 +84,7 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 ### Choosing an `encoding`
 
-The encoding algorithm determines how cached results are compressed in memory, trading CPU for memory efficiency. Currrently supported for SQL results only.
+The encoding algorithm determines how cached results are compressed in memory, trading CPU for memory efficiency. Currently supported for SQL results only.
 
 - **`none` (Default):** Stores query results uncompressed. Uses more memory but has zero compression overhead. Best for small result sets or when memory is not a constraint.
 - **`zstd`:** Uses the [Zstandard compression algorithm](https://facebook.github.io/zstd/) to compress cached query results. Provides high compression ratios (often 50-90% reduction) with fast decompression speeds. Recommended when caching large result sets to maximize cache capacity.

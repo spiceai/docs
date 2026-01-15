@@ -26,7 +26,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 | Large datasets (`refresh_mode: append`)  | 1.5x dataset size | Memory for incremental data only                               |
 | Large datasets (`refresh_mode: changes`) | 1.5x dataset size | Depends on CDC event volume and frequency                      |
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/sqlite.md), or [Spice Cayenne](/docs/components/data-accelerators/cayenne.md), which store data on disk and support spilling.
+Memory requirements can be reduced by using file-based acceleration with [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/sqlite.md), [Turso](/docs/components/data-accelerators/turso.md), or [Spice Cayenne](/docs/components/data-accelerators/cayenne.md), which store data on disk and support spilling.
 
 ## Accelerator-Specific Memory Management
 

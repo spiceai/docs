@@ -19,7 +19,7 @@ Spice provides three distinct methods for handling embedding columns in datasets
 
 ## Configuring Embedding Models
 
-Before configuring dataset embeddings define the embedding models in the `spicepod.yaml`, for example:
+Before configuring dataset embeddings, define the embedding models in the `spicepod.yaml`. For example:
 
 ```yaml
 embeddings:

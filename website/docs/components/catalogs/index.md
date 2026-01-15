@@ -1,7 +1,7 @@
 ---
 title: 'Catalog Connectors'
 sidebar_label: 'Catalog Connectors'
-description: ''
+description: 'Connect to external catalog providers like Unity Catalog, Databricks, Iceberg, and AWS Glue for federated SQL query in Spice.'
 image: /img/og/catalog-connectors.png
 sidebar_position: 4
 pagination_prev: null
@@ -16,23 +16,23 @@ In Spice, datasets are organized hierarchically with catalogs, schemas, and tabl
 
 <img src="/img/catalog-schema-table.png" />
 
-Creating schemas and tables within the `spice` catalog is configured by the `name` field in the dataset configuration. A name with a period (`.`) will create schema, i.e. a dataset defined with `name: foo.bar` would have a full path of `spice.foo.bar`. If the name does not contain a period, the dataset will be created in the `public` schema of the `spice` catalog. For example, a dataset defined with `name: foo` would have a full path of `spice.public.foo`. Attempting to create a dataset with a name that contains a catalog name will result in an error. Adding catalogs to Spice is done via Catalog Connectors.
+Creating schemas and tables within the `spice` catalog is configured by the `name` field in the dataset configuration. A name with a period (`.`) will create a schema, i.e. a dataset defined with `name: foo.bar` would have a full path of `spice.foo.bar`. If the name does not contain a period, the dataset will be created in the `public` schema of the `spice` catalog. For example, a dataset defined with `name: foo` would have a full path of `spice.public.foo`. Attempting to create a dataset with a name that contains a catalog name will result in an error. Adding catalogs to Spice is done via Catalog Connectors.
 
 Catalog Connectors connect to external catalog providers and make their tables available for federated SQL query in Spice. Configuring accelerations for tables in external catalogs is not supported. The schema hierarchy of the external catalog is preserved in Spice.
 
 Supported Catalog Connectors include:
 
-| Name            | Description             | Status      | Protocol/Format              |
-| --------------- | ----------------------- | ----------- | ---------------------------- |
-| `unity_catalog` | Unity Catalog           | Stable      | Delta Lake                   |
-| `databricks`    | Databricks              | Beta        | Spark Connect, S3/Delta Lake |
-| `iceberg`       | Apache Iceberg          | Beta        | Parquet                      |
-| `spice.ai`      | Spice.ai Cloud Platform | Beta        | Arrow Flight                 |
-| `glue`          | AWS Glue                | Alpha       | Parquet, Iceberg             |
+| Name            | Description             | Status | Protocol/Format              |
+| --------------- | ----------------------- | ------ | ---------------------------- |
+| `unity_catalog` | Unity Catalog           | Stable | Delta Lake                   |
+| `databricks`    | Databricks              | Beta   | Spark Connect, S3/Delta Lake |
+| `iceberg`       | Apache Iceberg          | Beta   | Parquet                      |
+| `spice.ai`      | Spice.ai Cloud Platform | Beta   | Arrow Flight                 |
+| `glue`          | AWS Glue                | Alpha  | Parquet, Iceberg             |
 
 ## Catalog Connector Docs
 
-Catalog are configured using a Catalog Connector in the `catalogs` section of the Spicepod. See the specific Catalog Connector documentation for configuration details.
+Catalogs are configured using a Catalog Connector in the `catalogs` section of the Spicepod. See the specific Catalog Connector documentation for configuration details.
 
 ### `include`
 

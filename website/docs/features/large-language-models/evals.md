@@ -51,12 +51,12 @@ For complete details on the `evals` component, see the [Spicepod reference](/doc
 
 ## Running an Eval
 
-To run an eval, ensure
+To run an eval:
 
-1.  Define an `eval` component (and it's associated `dataset`).
-2.  Add a language model to the spicepod (this is the model that will be evaluated).
+1. Define an `eval` component (and its associated `dataset`).
+2. Add a language model to the spicepod (this is the model that will be evaluated).
 
-An eval can be started via the HTTP API:
+Start an eval via the HTTP API:
 
 ```shell
 curl -XPOST http://localhost:8090/v1/evals/australia \

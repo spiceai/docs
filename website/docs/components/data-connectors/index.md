@@ -18,7 +18,7 @@ Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
-| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-line              |
+| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-wire              |
 | `mysql`                            | MySQL                                 | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV, JSON           |
 | `file`                             | File                                  | Stable            | Parquet, CSV, JSON           |
@@ -156,6 +156,17 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 ```
 
 Partition pruning improves query performance by reading only the relevant files.
+| Name                                          | Parameter              | Supported | Is Document Format |
+| --------------------------------------------- | ---------------------- | --------- | ------------------ |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Markdown                                      | `file_format: md`      | ✅         | ✅                  |
+| Text                                          | `file_format: txt`     | ✅         | ✅                  |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats
 

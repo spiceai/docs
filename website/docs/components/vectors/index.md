@@ -1,7 +1,7 @@
 ---
 title: 'Vector Engines'
 sidebar_label: 'Vector Engines'
-description: ''
+description: 'Configure vector engines for efficient embedding storage and similarity search in Spice.'
 sidebar_position: 7
 pagination_prev: null
 pagination_next: null
@@ -34,7 +34,7 @@ Supported Vector engines:
 
 :::warning[Limitations]
 
-- A dataset or view must be accelerated (i.e. `.dataset[].accelerated.enabled: true`, see [docs](https://spiceai.org/docs/reference/spicepod/datasets#accelerationenabled)) for a vector engine to be provided the appropriate data to ingest.
+- A dataset or view must be accelerated (i.e. `datasets[].acceleration.enabled: true`, see [docs](/docs/reference/spicepod/datasets#accelerationenabled)) for a vector engine to be provided the appropriate data to ingest.
 
   :::
 
