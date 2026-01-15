@@ -1,13 +1,16 @@
 ---
 title: 'Monitoring'
 sidebar_label: 'Monitoring'
-description: 'Monitoring Spice.ai deployments'
+description: 'Monitor Spice.ai deployments with Datadog, Grafana, Prometheus, and Zipkin integrations.'
 sidebar_position: 12
+pagination_prev: null
+pagination_next: null
 ---
 
-![](/img/features/observability.png)
+![Spice.ai Monitoring](/img/features/observability.png)
 
-Learn how to monitor Spice.ai deployments.
+Spice provides integration with monitoring systems for production deployments:
 
-- [Datadog](datadog/index.md)
-- [Grafana & Prometheus](grafana/index.md)
+- [Datadog](datadog/index.md) - Enterprise monitoring and analytics
+- [Grafana & Prometheus](grafana/index.md) - Open source metrics and visualization
+- [Zipkin](zipkin/index.md) - Distributed tracing

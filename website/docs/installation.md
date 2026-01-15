@@ -159,9 +159,9 @@ The Spice CLI will automatically detect and download the appropriate runtime bin
 
 **Steps**:
 
-1. GPUs with Cuda compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series, ...).
-1. Ensure both Cuda and associated Nvidia drivers are installed. Requires CUDA version 12.2 or higher
-1. Ensure Nvidia binaries are in your path:
+1. GPUs with CUDA compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series).
+1. Ensure both CUDA and associated NVIDIA drivers are installed. Requires CUDA version 12.2 or higher.
+1. Ensure NVIDIA binaries are in your path:
 
 ```shell
 export PATH=$PATH:/usr/local/cuda/bin
@@ -173,7 +173,7 @@ export PATH=$PATH:/usr/local/cuda/bin
 make install-with-models-cuda
 ```
 
-This ensures CUDA devices are selected on model load, and CUDA-specifiy kernels used when possible.
+This ensures CUDA devices are selected on model load, and CUDA-specific kernels are used when possible.
 
 #### Metal Support
 
@@ -191,4 +191,4 @@ xcode-select --install
 make install-with-models-metal
 ```
 
-Similarily, this ensures Metal devices are selected on model load, and Metal-specific kernels used when possible.
+Similarly, this ensures Metal devices are selected on model load, and Metal-specific kernels are used when possible.
