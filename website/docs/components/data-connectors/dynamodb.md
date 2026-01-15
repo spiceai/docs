@@ -621,8 +621,9 @@ datasets:
 
 #### Acceleration Parameters
 
-- **`snapshots_trigger`** - Determines type of trigger for creating snapshots. Supported values are `stream_batches` and `time_interval`.
-- **`snapshots_trigger_threshold`** - Threshold value for snapshot creation. The format depends on the `snapshots_trigger` type:
+- **`snapshots`** - Optional. Controls snapshots behavior. Supported values are `disabled` (default), `enabled`, `create_only`, `bootstrap_only`.
+- **`snapshots_trigger`** - Optional. Determines type of trigger for creating snapshots. Supported values are `time_interval` (default) and `stream_batches`.
+- **`snapshots_trigger_threshold`** - Optional. Threshold value for snapshot creation. The format depends on the `snapshots_trigger` type:
    - When `snapshots_trigger` is `stream_batches`: a raw integer specifying the number of batches (e.g., `100`, `1000`).
    - When `snapshots_trigger` is `time_interval`: an integer with a time unit suffix (e.g., `10m`, `30s`, `1h`).
 
@@ -671,20 +672,14 @@ datasets:
         engine: duckdb
         mode: file
         refresh_mode: changes
-        on_conflict:
-           (id, version): upsert
-        params:
-           snapshots_trigger: stream_batches
-           snapshots_trigger_threshold: 5  # Create snapshot every 5 batch updates
+        snapshots: enabled
+        snapshots_trigger: stream_batches
+        snapshots_trigger_threshold: 5  # Create snapshots every 5 batch updates
      metrics:
      - name: shards_active
-       enabled: true
      - name: records_consumed_total
-       enabled: true
      - name: lag_ms
-       enabled: true
      - name: errors_transient_total
-       enabled: true
 ```
 
 ## Cookbooks
