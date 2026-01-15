@@ -90,6 +90,7 @@ acceleration:
   snapshots_trigger: <trigger_mode>      # see trigger modes below
   snapshots_trigger_threshold: <value>   # threshold for time_interval or stream_batches
   snapshots_compaction: enabled | disabled  # default: disabled (DuckDB only)
+  snapshots_reset_expiry_on_load: enabled | disabled  # default: disabled (DuckDB only with Caching refresh mode)
 ```
 
 ### Snapshot triggers
@@ -202,6 +203,23 @@ acceleration:
 Compaction is only available for the DuckDB acceleration engine.
 :::
 
+### Snapshot Resetting Expiry on Load
+
+When using `Caching` refresh mode with DuckDB-based acceleration, you can enable `snapshots_reset_expiry_on_load` to extend the data's expiry to `now() + TTL` each time a snapshot is loaded.
+
+```yaml
+acceleration:
+  enabled: true
+  engine: duckdb
+  mode: file
+  refresh_mode: caching
+  snapshots: enabled
+  snapshots_reset_expiry_on_load: enabled
+  params:
+    caching_ttl: 1m
+    caching_stale_while_revalidate_ttl: 1m
+```
+
 ## Complete example
 
 ```yaml
@@ -256,4 +274,4 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
-For the full reference, see [`snapshots` in the Spicepod specification](/docs/reference/spicepod/index.md#snapshots) and [`acceleration.snapshots`](/docs/reference/spicepod/datasets.md#accelerationsnapshots).
+For the full reference, see [`snapshots` in the Spicepod specification](/docs/reference/spicepod/index.md#snapshots) and [`acceleration.snapshots`](/docs/reference/spicepod/datasets.md#accelerationsnapshots).    
