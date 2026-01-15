@@ -325,8 +325,6 @@ Go's format uses specific reference values that must appear exactly as shown:
 | Microseconds | `.000000`       | `.999999` (trailing zeros trimmed)    |
 | Nanoseconds  | `.000000000`    | `.999999999` (trailing zeros trimmed) |
 
-:::
-
 ## Unnesting
 
 Consider the following document:
