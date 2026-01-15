@@ -621,7 +621,12 @@ datasets:
 
 #### Acceleration Parameters
 
-- **`snapshots_trigger_threshold`** - Determines how frequently snapshots are created during streaming. A value of `5` means a snapshot is created every 5 batch updates. Snapshots enable faster recovery and better query performance but consume additional storage.
+- **`snapshots_trigger`** - Determines type of trigger for creating snapshots. Supported values are `stream_batches` and `time_interval`.
+- **`snapshots_trigger_threshold`** - Threshold value for snapshot creation. The format depends on the `snapshots_trigger` type:
+   - When `snapshots_trigger` is `stream_batches`: a raw integer specifying the number of batches (e.g., `100`, `1000`).
+   - When `snapshots_trigger` is `time_interval`: an integer with a time unit suffix (e.g., `10m`, `30s`, `1h`).
+
+See [Acceleration snapshots](../../features/data-acceleration/snapshots.md) for more details.
 
 ### Metrics
 
@@ -669,6 +674,7 @@ datasets:
         on_conflict:
            (id, version): upsert
         params:
+           snapshots_trigger: stream_batches
            snapshots_trigger_threshold: 5  # Create snapshot every 5 batch updates
      metrics:
      - name: shards_active

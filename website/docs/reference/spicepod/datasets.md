@@ -295,6 +295,42 @@ Supported values:
 
 Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots.md).
 
+## `acceleration.snapshots_trigger`
+
+Optional. Controls when Spice creates new snapshots. The available triggers depend on the dataset's refresh mode.
+
+**For batch-based datasets** (`refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with `time_column`):
+
+- `refresh_complete` (default) – Create a snapshot after each data refresh completes.
+- `time_interval` – Create snapshots at a fixed time interval specified by `snapshots_trigger_threshold`.
+
+**For stream-based datasets** (`refresh_mode: changes`, or `refresh_mode: append` without `time_column`):
+
+- `time_interval` (default) – Create snapshots at a fixed time interval. Defaults to `10m` if `snapshots_trigger_threshold` is not specified.
+- `stream_batches` – Create a snapshot after a specified number of batches are processed.
+
+See [Acceleration snapshots](../../features/data-acceleration/snapshots.md) for more details.
+
+## `acceleration.snapshots_trigger_threshold`
+
+Optional. The threshold value for snapshot creation, interpreted based on the configured `snapshots_trigger`:
+
+- When `snapshots_trigger: time_interval` – A duration specifying how often to create snapshots (e.g., `10m`, `1h`). Defaults to `10m` for stream-based datasets.
+- When `snapshots_trigger: stream_batches` – An integer specifying the number of batch updates after which to create a snapshot.
+
+Not applicable when `snapshots_trigger: refresh_complete`.
+
+## `acceleration.snapshots_compaction`
+
+Optional. Enable database compaction before uploading snapshots. Only supported for the `duckdb` acceleration engine. Defaults to `disabled`.
+
+When enabled, Spice uses DuckDB's internal compaction mechanism (`COPY DATABASE`) to optimize the database file before uploading, reducing snapshot size and improving bootstrap performance.
+
+Supported values:
+
+- `enabled` – Compact the database before creating each snapshot.
+- `disabled` (default) – Upload snapshots without compaction.
+
 ## `acceleration.refresh_mode`
 
 Optional. How to refresh the dataset. The following values are supported:
@@ -401,31 +437,6 @@ datasets:
 ```
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
-
-## `acceleration.params.snapshots_create_interval`
-
-Optional. The interval at which snapshots are created for the accelerated dataset. Only applicable when `acceleration.snapshots` is set to `enabled` or `create_only`. Defaults to creating snapshots only after each refresh.
-
-When configured, Spice writes a new snapshot at the specified interval in addition to writing snapshots after refreshes. This is useful for datasets that use `refresh_mode: caching` where there is no refresh interval.
-
-**Example**:
-
-```yaml
-datasets:
-  - from: https://api.example.com
-    name: my_data
-    acceleration:
-      enabled: true
-      engine: duckdb
-      mode: file
-      refresh_mode: caching
-      snapshots: enabled
-      params:
-        snapshots_create_interval: 60s # Create a snapshot every 60 seconds
-        duckdb_file: /nvme/my_data.db
-```
-
-See [Duration](../duration/index.md) and [Acceleration Snapshots](../../features/data-acceleration/snapshots.md) for more details.
 
 ## `acceleration.refresh_sql`
 
@@ -611,27 +622,6 @@ The possible conflict resolution strategies are:
 - `drop` - Drop the data when the primary key constraint is violated.
 
 See [Constraints](../../features/data-acceleration/constraints.md)
-
-## `acceleration.snapshots_trigger_threshold`
-
-Optional. Specify how frequently snapshots are created during streaming operations. Only applicable when using `refresh_mode: changes` and `refresh_mode: append` without `time_column`.
-
-The `snapshots_trigger_threshold` field is an integer that determines after how many batch updates a snapshot should be created. For example, a value of `5` means a snapshot will be created every 5 batch updates.
-
-```yaml
-datasets:
-  - from: dynamodb:my_table
-    name: orders_stream
-    acceleration:
-      enabled: true
-      refresh_mode: changes
-      on_conflict:
-        (id, version): upsert
-      params:
-        snapshots_trigger_threshold: 5 # Create snapshot every 5 batch updates
-```
-
-See [Snapshots](../../features/data-acceleration/snapshots.md)
 
 ```yaml
 datasets:
