@@ -46,7 +46,7 @@ The default Arrow accelerator stores all data in memory uncompressed. Datasets m
 When using the optional [hash index](/docs/features/data-acceleration/hash-index), additional memory is required:
 
 | Component    | Memory per Row |
-|--------------|----------------|
+| ------------ | -------------- |
 | Hash slot    | 16 bytes       |
 | Bloom filter | ~1.25 bytes    |
 | **Total**    | ~17.25 bytes   |
