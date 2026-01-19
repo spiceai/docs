@@ -26,27 +26,105 @@ A distributed Spice cluster consists of two components:
 
 The scheduler holds the cluster-wide configuration for a Spicepod, while executors connect to the scheduler to receive work.
 
+### Network Ports
+
+Spice separates public and internal cluster traffic across different ports:
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 50051 | Flight SQL | Public query endpoint |
+| 8090 | HTTP API | Public REST API |
+| 9090 | Prometheus | Metrics endpoint |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced) |
+
+Internal cluster services are isolated on port 50052 with mTLS enforced by default.
+
+## Secure Cluster Communication (mTLS)
+
+Distributed query cluster mode uses mutual TLS (mTLS) for secure communication between schedulers and executors. Internal cluster communication includes highly privileged RPC calls like fetching Spicepod configuration and expanding secrets. mTLS ensures only authenticated nodes can join the cluster and access sensitive data.
+
+### Certificate Requirements
+
+Each node in the cluster requires:
+
+- A CA certificate (`ca.crt`) trusted by all nodes
+- A node certificate with the node's advertise address in the Subject Alternative Names (SANs)
+- A private key for the node certificate
+
+Production deployments should use the organization's PKI infrastructure to generate certificates with proper SANs for each node.
+
+### Development Certificates
+
+For local development and testing, the Spice CLI provides commands to generate self-signed certificates:
+
+```bash
+# Initialize CA and generate CA certificate
+spice cluster tls init
+
+# Generate certificate for the scheduler node
+spice cluster tls add scheduler1
+
+# Generate certificate for an executor node
+spice cluster tls add executor1
+```
+
+Certificates are stored in `~/.spice/pki/` by default.
+
+:::warning
+CLI-generated certificates are not intended for production use. Production deployments should use certificates issued by the organization's PKI or a trusted certificate authority.
+:::
+
+### Insecure Mode
+
+For local development and testing, mTLS can be disabled using the `--allow-insecure-connections` flag:
+
+```bash
+spiced --role scheduler --allow-insecure-connections
+```
+
+:::warning
+Do not use `--allow-insecure-connections` in production environments. This flag disables authentication and encryption for internal cluster communication.
+:::
+
 ## Getting Started
 
 Cluster deployment typically starts with a scheduler instance, followed by one or more executors that register with the scheduler.
+
+The following examples use CLI-generated development certificates. For production, substitute certificates from your organization's PKI.
+
+### Generate Development Certificates
+
+```bash
+spice cluster tls init
+spice cluster tls add scheduler1
+spice cluster tls add executor1
+```
 
 ### Start the Scheduler
 
 The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`:
 
 ```bash
-# Start scheduler
-spiced --cluster-mode scheduler --flight 0.0.0.0:50051
+spiced --role scheduler \
+  --flight 0.0.0.0:50051 \
+  --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
+  --node-mtls-certificate-file ~/.spice/pki/scheduler1.crt \
+  --node-mtls-key-file ~/.spice/pki/scheduler1.key
 ```
 
 ### Start Executors
 
-Executors need the scheduler's Flight URI to register and pull work. The executors do not require a `spicepod.yaml` to be present, it will fetch the configuration from the coordinator. Each executor automatically selects a free port if the default is unavailable:
+Executors connect to the scheduler's internal cluster port (50052) to register and pull work. Executors do not require a `spicepod.yaml`; they fetch the configuration from the scheduler. Each executor automatically selects a free port if the default is unavailable:
 
 ```bash
-# Start executor
-spiced --cluster-mode executor --scheduler-url spiced://localhost:50051
+spiced --role executor \
+  --scheduler-address https://scheduler1:50052 \
+  --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
+  --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
+  --node-mtls-key-file ~/.spice/pki/executor1.key
 ```
+
+Specifying `--scheduler-address` implies `--role executor`.
 
 ## Query Execution
 
