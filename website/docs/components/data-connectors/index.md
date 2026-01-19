@@ -18,7 +18,7 @@ Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
-| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-line              |
+| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-wire              |
 | `mysql`                            | MySQL                                 | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV, JSON           |
 | `file`                             | File                                  | Stable            | Parquet, CSV, JSON           |
@@ -29,6 +29,7 @@ Supported Data Connectors include:
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
+| `dynamodb`                         | DynamoDB                              | Release Candidate |                              |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
@@ -49,8 +50,8 @@ Supported Data Connectors include:
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
-| `dynamodb`                         | DynamoDB                              | Release Candidate |                              |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
+| `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
@@ -156,6 +157,17 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 ```
 
 Partition pruning improves query performance by reading only the relevant files.
+| Name                                          | Parameter              | Supported | Is Document Format |
+| --------------------------------------------- | ---------------------- | --------- | ------------------ |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Markdown                                      | `file_format: md`      | ✅         | ✅                  |
+| Text                                          | `file_format: txt`     | ✅         | ✅                  |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}
 

@@ -11,9 +11,9 @@ Acceleration data can be refreshed (updated) by:
 
 - **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api.mdx).
 
-- **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
+- **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-interval).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/features/cdc/index.md).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/docs/features/cdc/index.md).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 

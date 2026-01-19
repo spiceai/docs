@@ -365,7 +365,7 @@ service:
 
 resources:
   limits:
-    cpu: 1000m
+    # cpu: 1000m  # Do not set CPU limits - can cause throttling
     memory: 2Gi
   requests:
     cpu: 500m
