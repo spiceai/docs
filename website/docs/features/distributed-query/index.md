@@ -35,7 +35,7 @@ Spice separates public and internal cluster traffic across different ports:
 | 50051 | Flight SQL | Public query endpoint |
 | 8090 | HTTP API | Public REST API |
 | 9090 | Prometheus | Metrics endpoint |
-| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced) |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced, by default) |
 
 Internal cluster services are isolated on port 50052 with mTLS enforced by default.
 
