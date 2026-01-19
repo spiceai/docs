@@ -29,6 +29,7 @@ Supported Data Connectors include:
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
+| `dynamodb`                         | DynamoDB                              | Release Candidate |                              |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
@@ -49,8 +50,8 @@ Supported Data Connectors include:
 | `clickhouse`                       | Clickhouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
-| `dynamodb`                         | DynamoDB                              | Release Candidate |                              |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
+| `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
