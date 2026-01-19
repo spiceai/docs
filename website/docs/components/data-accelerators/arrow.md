@@ -32,11 +32,32 @@ datasets:
       engine: arrow
 ```
 
+## Hash Index
+
+:::warning[Experimental]
+Hash index is an experimental feature available in Spice v1.11.0-rc.2 and later.
+:::
+
+The In-Memory Arrow Data Accelerator supports an optional [hash index](/docs/features/data-acceleration/hash-index) for O(1) point lookups on primary key columns. To enable, set `hash_index: enabled` in the dataset params:
+
+```yaml
+datasets:
+  - from: s3://bucket/orders.parquet
+    name: orders
+    acceleration:
+      engine: arrow
+      primary_key: order_id
+    params:
+      hash_index: enabled
+```
+
+See [Hash Index](/docs/features/data-acceleration/hash-index) for configuration details, supported data types, and performance characteristics.
+
 ## Limitations
 
 - The In-Memory Arrow Data Accelerator does not support persistent storage. Data is stored in-memory and will be lost when the Spice runtime is stopped.
 - The In-Memory Arrow Data Accelerator does not support `Decimal256` (76 digits), as it exceeds Arrow's maximum Decimal width of 38 digits.
-- The In-Memory Arrow Data Accelerator does not support [indexes](/docs/features/data-acceleration/indexes).
+- The In-Memory Arrow Data Accelerator does not support traditional [indexes](/docs/features/data-acceleration/indexes), but does support [hash indexes](/docs/features/data-acceleration/hash-index) (experimental) for point lookups.
 - The In-Memory Arrow Data Accelerator only supports primary-key [constraints](/docs/features/data-acceleration/constraints), not `unique` constraints.
 - With Arrow acceleration, mathematical operations like `value1 / value2` are treated as integer division if the values are integers. For example, `1 / 2` will result in 0 instead of the expected 0.5. Use casting to FLOAT to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)` (or `CAST(1 AS FLOAT) / 2`).
 

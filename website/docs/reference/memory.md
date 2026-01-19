@@ -41,6 +41,18 @@ The default Arrow accelerator stores all data in memory uncompressed. Datasets m
 - Best for smaller datasets requiring maximum query speed
 - Consider switching to file-based accelerators for datasets exceeding available memory
 
+**Hash Index Memory (Experimental, v1.11.0-rc.2+):**
+
+When using the optional [hash index](/docs/features/data-acceleration/hash-index), additional memory is required:
+
+| Component    | Memory per Row |
+| ------------ | -------------- |
+| Hash slot    | 16 bytes       |
+| Bloom filter | ~1.25 bytes    |
+| **Total**    | ~17.25 bytes   |
+
+For a 10 million row dataset with hash index enabled, expect ~165 MB additional memory overhead.
+
 ### Spice Cayenne
 
 [Spice Cayenne](/docs/components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
