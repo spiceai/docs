@@ -40,13 +40,8 @@ const latestMinor = latestVersion ? getMinorVersion(latestVersion) : 0
 const docsVersionConfig = hasVersions
   ? {
       lastVersion: latestVersion!, // The stable release is the default
+      onlyIncludeVersions: versions, // Exclude 'current' (trunk) from the dropdown
       versions: {
-        current: {
-          label: 'Trunk',
-          path: 'trunk',
-          banner: 'unreleased' as const,
-          noIndex: true
-        },
         ...Object.fromEntries(
           versions.map((version) => {
             const minor = getMinorVersion(version)
@@ -59,7 +54,7 @@ const docsVersionConfig = hasVersions
               return [
                 version,
                 {
-                  label: 'Next',
+                  label: `Next (v${version.replace('.x', '')})`,
                   path: 'next',
                   banner: 'unreleased' as const
                 }
@@ -69,7 +64,9 @@ const docsVersionConfig = hasVersions
             return [
               version,
               {
-                label: isLatest ? 'Latest' : `v${version.replace('.x', '')}`,
+                label: isLatest
+                  ? `Latest (v${version.replace('.x', '')})`
+                  : `v${version.replace('.x', '')}`,
                 path: isLatest ? '' : `v${version.replace('.x', '')}`,
                 banner: isMaintained ? ('none' as const) : ('unmaintained' as const)
               }
