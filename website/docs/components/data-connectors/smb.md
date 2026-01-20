@@ -6,7 +6,7 @@ description: 'SMB Data Connector Documentation'
 
 SMB (Server Message Block) is a network file sharing protocol that provides shared access to files, printers, and serial ports. It is commonly used in Windows environments for network shares but is also supported on Linux (via Samba) and macOS.
 
-The SMB Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#file-formats) stored on SMB/CIFS network shares.
+The SMB Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
 
 ## Quickstart
 
@@ -53,6 +53,9 @@ from: smb://fileserver/data/sales/
 
 # Connect to share root
 from: smb://fileserver/data/
+
+# Using IP address
+from: smb://192.168.1.100/share/data.parquet
 ```
 
 ### `name`
@@ -96,9 +99,12 @@ datasets:
     name: reports
     params:
       file_format: csv
+      csv_has_header: true
       smb_user: DOMAIN\username
       smb_pass: ${secrets:smb_pass}
 ```
+
+The domain can be specified as `DOMAIN\user` or `user@domain`.
 
 ### Reading a Single File
 
@@ -211,7 +217,32 @@ datasets:
       smb_pass: ${secrets:smb_pass}
     acceleration:
       enabled: true
+      engine: duckdb
       refresh_check_interval: 1h
+```
+
+Acceleration is recommended for frequently queried data, as SMB operations involve network round-trips for directory listing and file reads.
+
+### TPC-H Benchmark Example
+
+For benchmark configurations with multiple related tables, use YAML anchors to avoid repeating parameters:
+
+```yaml
+datasets:
+  - from: smb://192.168.1.100/data/benchmarks/tpch/customer.parquet
+    name: customer
+    params: &smb_params
+      file_format: parquet
+      smb_user: ${secrets:smb_user}
+      smb_pass: ${secrets:smb_pass}
+
+  - from: smb://192.168.1.100/data/benchmarks/tpch/lineitem.parquet
+    name: lineitem
+    params: *smb_params
+
+  - from: smb://192.168.1.100/data/benchmarks/tpch/orders.parquet
+    name: orders
+    params: *smb_params
 ```
 
 ## Secrets
@@ -230,6 +261,14 @@ datasets:
 
 For detailed information, refer to the [secret stores documentation](/docs/components/secret-stores).
 
+## Limitations
+
+The SMB connector is read-only. Write operations such as `put`, `delete`, and `copy` are not supported.
+
+Only username/password authentication is supported. Kerberos and NTLM ticket-based authentication are not available.
+
+Direct network access to the SMB server is required; proxy connections are not supported. The firewall must permit SMB traffic (port 445 by default).
+
 ## Troubleshooting
 
 ### Connection Timeouts
@@ -241,13 +280,16 @@ params:
   client_timeout: 120s
 ```
 
+Verify network connectivity to the server and check that firewall rules permit port 445.
+
 ### Authentication Failures
 
 Common causes of authentication failures:
 
-- **Domain not specified**: For domain-joined servers, include the domain: `DOMAIN\username`
+- **Domain not specified**: For domain-joined servers, include the domain: `DOMAIN\username` or `username@domain`
 - **Incorrect credentials**: Verify username and password are correctly stored in your secret store
 - **Permission denied**: Ensure the user has read access to the share and files
+- **Account locked**: Check if the SMB account is not locked on the server
 
 ### Share Access Errors
 
@@ -256,7 +298,16 @@ If you receive "share not found" errors:
 - Verify the share name is correct (share names are case-insensitive on Windows)
 - Ensure the share exists and is accessible from the network where Spice is running
 - Check firewall rules: SMB uses TCP port 445
+- Confirm the user has permission to access the share
 
 ### File Format Errors
 
 When connecting to a directory, ensure `file_format` is specified and matches the actual file types in the directory. Spice expects all files in a directory to have the same format.
+
+### Debug Logging
+
+Enable debug logging to diagnose SMB connection issues:
+
+```bash
+RUST_LOG=runtime_object_store::store::smb=debug spiced
+```
