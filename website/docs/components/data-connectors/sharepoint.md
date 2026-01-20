@@ -46,7 +46,7 @@ Returns
 ````
 
 :::warning[Limitations]
-The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Support](/docs/components/data-connectors/index.md#document-support)).
+The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Formats](./index.md#document-formats)).
 :::
 
 ## Configuration

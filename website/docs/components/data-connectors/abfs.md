@@ -12,7 +12,7 @@ The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files st
 
 When a folder path is provided, all the contained files will be loaded.
 
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats).
+File formats are specified using the `file_format` parameter, as described in [File Formats](./index.md#file-formats).
 
 ```yaml
 datasets:
@@ -64,21 +64,21 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 
 #### Basic parameters
 
-| Parameter name              | Description                                                                                                                                                                                                     |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats) for details. |
-| `abfs_account`              | Azure storage account name                                                                                                                                                                                      |
-| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                                                                                    |
-| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                                                                            |
-| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                                                                            |
-| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                                                                                        |
-| `abfs_proxy_url`            | Proxy URL                                                                                                                                                                                                       |
-| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                                                                                    |
-| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                                                                               |
-| `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                                                                    |
-| `allow_http`                | Allow insecure HTTP connections                                                                                                                                                                                 |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                |
-| `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                                                                               |
+| Parameter name              | Description                                                                                                                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [File Formats](./index.md#file-formats) for details. |
+| `abfs_account`              | Azure storage account name                                                                                                                                  |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                                |
+| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                        |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                        |
+| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                                    |
+| `abfs_proxy_url`            | Proxy URL                                                                                                                                                   |
+| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                                |
+| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                           |
+| `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                |
+| `allow_http`                | Allow insecure HTTP connections                                                                                                                             |
+| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                            |
+| `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                              |
 
 #### Authentication parameters
 
@@ -144,7 +144,7 @@ spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
 
 ## Supported file formats
 
-Specify the file format using `file_format` parameter. More details in [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats).
+Specify the file format using `file_format` parameter. More details in [File Formats](./index.md#file-formats).
 
 ## Examples
 
