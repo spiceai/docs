@@ -114,7 +114,7 @@ File formats support additional parameters for fine-grained control. Common exam
 
 For complete format options, see [File Formats Reference](/docs/reference/file_format).
 
-### Applicable Connectors
+### Applicable Connectors {#object-store-file-formats}
 
 The following data connectors support file format configuration:
 
@@ -169,7 +169,10 @@ Partition pruning improves query performance by reading only the relevant files.
 | PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
-### Document Formats
+### Document Formats {#document-formats}
+
+<!-- Backwards compatibility anchor for older versioned docs -->
+<a id="document-support"></a>
 
 Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 

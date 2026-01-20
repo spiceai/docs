@@ -7,6 +7,86 @@ import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
+import * as fs from 'fs'
+import * as path from 'path'
+
+// Load versions from versions.json if it exists (generated at build time)
+const versionsPath = path.join(__dirname, 'versions.json')
+const versions: string[] = fs.existsSync(versionsPath)
+  ? JSON.parse(fs.readFileSync(versionsPath, 'utf-8'))
+  : []
+
+// Build version configuration dynamically
+// Highest version (e.g., 1.11.x) is "next" (unreleased) at /docs/next
+// Second highest version (e.g., 1.10.x) is "latest" at /docs (default)
+// Previous versions are at /docs/v1.9, etc.
+// Maintenance policy: latest + 1 previous minor versions are maintained
+const hasVersions = versions.length > 0
+
+// Extract the minor version number from versions to determine ordering and maintenance status
+const getMinorVersion = (v: string): number => {
+  const match = v.match(/^1\.(\d+)/)
+  return match ? parseInt(match[1], 10) : 0
+}
+
+// Sort versions by minor version descending
+const sortedVersions = [...versions].sort((a, b) => getMinorVersion(b) - getMinorVersion(a))
+
+// Highest version is "next" (unreleased), second highest is "latest"
+const nextVersion = sortedVersions[0] || null
+const latestVersion = sortedVersions[1] || null
+const latestMinor = latestVersion ? getMinorVersion(latestVersion) : 0
+
+const docsVersionConfig = hasVersions
+  ? {
+      lastVersion: latestVersion!, // The stable release is the default
+      onlyIncludeVersions: versions, // Exclude 'current' (trunk) from the dropdown
+      versions: {
+        ...Object.fromEntries(
+          versions.map((version) => {
+            const minor = getMinorVersion(version)
+            const isNext = version === nextVersion
+            const isLatest = version === latestVersion
+            // Versions within latest - 1 are maintained (no banner)
+            const isMaintained = minor >= latestMinor - 1
+
+            if (isNext) {
+              return [
+                version,
+                {
+                  label: `Next (v${version.replace('.x', '')})`,
+                  path: 'next',
+                  banner: 'unreleased' as const
+                }
+              ]
+            }
+
+            return [
+              version,
+              {
+                label: isLatest
+                  ? `Latest (v${version.replace('.x', '')})`
+                  : `v${version.replace('.x', '')}`,
+                path: isLatest ? '' : `v${version.replace('.x', '')}`,
+                banner: isMaintained ? ('none' as const) : ('unmaintained' as const)
+              }
+            ]
+          })
+        )
+      }
+    }
+  : {
+      // No versions generated - use current docs only (for local dev)
+      lastVersion: 'current',
+      versions: {
+        current: {
+          label: 'Latest',
+          path: '',
+          banner: 'none' as const
+        }
+      },
+      onlyIncludeVersions: ['current']
+    }
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -27,9 +107,11 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  onBrokenAnchors: 'throw',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+  // Warn on broken anchors and links instead of throwing to handle cross-version link issues
+  // in older release branches that may reference docs pages or anchors that don't exist in all versions
+  onBrokenAnchors: 'warn',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -55,9 +137,10 @@ const config: Config = {
           path: 'docs',
           sidebarPath: 'sidebars.ts',
           docItemComponent: '@theme/ApiItem',
-          editUrl: ({ docPath }) => {
-            return `https://github.com/spiceai/docs/edit/trunk/website/docs/${docPath}`
-          }
+          editUrl: ({ versionDocsDirPath, docPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/website/${versionDocsDirPath}/${docPath}`
+          },
+          ...docsVersionConfig
         },
         blog: {
           path: 'blog',
@@ -73,7 +156,7 @@ const config: Config = {
             type: 'all',
             description:
               'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
-            copyright: `Copyright © 2025 Spice AI, Inc.`,
+            copyright: `Copyright © 2021-2026 Spice AI, Inc.`,
             xslt: true
           },
           blogTitle: 'Spice.ai OSS blog',
@@ -157,6 +240,16 @@ const config: Config = {
         },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
+        // Version dropdown is only shown when versions exist
+        ...(hasVersions
+          ? [
+              {
+                type: 'docsVersionDropdown' as const,
+                position: 'right' as const,
+                dropdownActiveClassDisabled: true
+              }
+            ]
+          : []),
         {
           label: 'Try Spice Cloud',
           href: 'https://spice.ai/login',
