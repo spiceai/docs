@@ -91,6 +91,7 @@ acceleration:
   snapshots_trigger_threshold: <value>   # threshold for time_interval or stream_batches
   snapshots_compaction: enabled | disabled  # default: disabled (DuckDB only)
   snapshots_reset_expiry_on_load: enabled | disabled  # default: disabled (DuckDB only with Caching refresh mode)
+  snapshots_creation_policy: always | on_change  # default: on_change
 ```
 
 ### Snapshot triggers
@@ -218,6 +219,20 @@ acceleration:
   params:
     caching_ttl: 1m
     caching_stale_while_revalidate_ttl: 1m
+```
+
+### Snapshot Creation Policy
+
+By default, snapshots are only created if there was a change since the last snapshot. You can change this behavior to always create a snapshot by setting `snapshots_creation_policy` to `always`.
+
+```yaml
+acceleration:
+  enabled: true
+  engine: duckdb
+  mode: file
+  refresh_mode: caching
+  snapshots: enabled
+  snapshots_creation_policy: always
 ```
 
 ## Complete example
