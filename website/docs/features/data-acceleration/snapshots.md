@@ -55,7 +55,7 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 ## Configure snapshot storage
 
-Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to a folder on S3 or the local filesystem. When the location is an S3 bucket, the configuration accepts any S3 dataset parameters under `params`.
+Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to an S3 directory. The configuration accepts any S3 dataset parameters under `params`.
 
 ```yaml
 snapshots:
