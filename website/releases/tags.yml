@@ -310,6 +310,10 @@ s3:
   label: 's3'
   permalink: '/s3'
   description: 'Amazon S3 storage service topics and usage'
+scylladb:
+  label: 'scylladb'
+  permalink: '/scylladb'
+  description: 'ScyllaDB database topics and usage'
 sdk:
   label: 'sdk'
   permalink: '/sdk'
