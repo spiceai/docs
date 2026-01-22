@@ -260,7 +260,6 @@ runtime:
 ### HA Considerations
 
 - **Object store latency** – The object store is accessed during scheduler coordination. Use a low-latency object store (e.g., S3 Express One Zone) for best performance.
-- **Async queries recommended** – Synchronous queries cannot survive scheduler failure mid-execution. For maximum reliability, use the async query API.
 
 :::info Object Store Requirements
 The object store must support conditional writes (S3 ETags). Most S3-compatible stores support this, including AWS S3, MinIO, and Google Cloud Storage (with S3 compatibility mode).
