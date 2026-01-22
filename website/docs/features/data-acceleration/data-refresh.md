@@ -216,7 +216,7 @@ curl -i -X PATCH \
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.
 
-For the complete reference, view the `refresh_sql` section of [datasets](/docs/reference/spicepod/datasets.md#accelerationrefresh_sql).
+For the complete reference, view the `refresh_sql` section of [datasets](/docs/reference/spicepod/datasets#accelerationrefresh_sql).
 
 :::warning[Limitations]
 
@@ -224,6 +224,7 @@ For the complete reference, view the `refresh_sql` section of [datasets](/docs/r
 - Running queries while using refresh SQL will not fallback to the source if any query returns more than zero rows, even when querying against columns that are not explicitly filtered by the refresh SQL. This may result in queries returning partial data, depending on the filters applied in the refresh SQL.
 - Refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
 - Refresh SQL modifications made via API are temporary and will revert after a runtime restart.
+- Not supported by [DynamoDB Streams Data Connector](/docs/components/data-connectors/dynamodb#streams).
 
 :::
 
