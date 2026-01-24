@@ -98,11 +98,11 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary qu
 
 ## 17. Does Spice support Change Data Capture (CDC)?
 
-Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../features/cdc).
+Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](/docs/features/cdc).
 
 ## 18. Can Spice integrate with existing BI tools?
 
-Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
+Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](/docs/clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
 ## 19. How does Spice handle data privacy and compliance?
 

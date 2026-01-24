@@ -74,7 +74,7 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime).
+The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](/docs/reference/spicepod/runtime).
 
 ## `metadata`
 
@@ -93,7 +93,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](./datasets) referenced by relative path.
+A Spicepod can contain one or more [datasets](/docs/reference/spicepod/datasets) referenced by relative path.
 
 **Example**
 
@@ -118,7 +118,7 @@ datasets:
 
 ## `snapshots` {#snapshots}
 
-Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](./datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
+Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](/docs/reference/spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
 
 ```yaml
 snapshots:
@@ -174,7 +174,7 @@ models:
 
 ## `embeddings`
 
-A Spicepod can contain one or more [embeddings](./embeddings) referenced by relative path.
+A Spicepod can contain one or more [embeddings](/docs/reference/spicepod/embeddings) referenced by relative path.
 
 **Example**
 
@@ -195,7 +195,7 @@ embeddings:
 
 ## `evals`
 
-A Spicepod can contain one or more [evaluations](./evals) referenced by relative path.
+A Spicepod can contain one or more [evaluations](/docs/reference/spicepod/evals) referenced by relative path.
 
 **Example**
 
@@ -243,7 +243,7 @@ views:
 
 ## `workers`
 
-A Spicepod can contain one or more [workers](./workers) defining configurable units of compute.
+A Spicepod can contain one or more [workers](/docs/reference/spicepod/workers) defining configurable units of compute.
 
 **Example**
 

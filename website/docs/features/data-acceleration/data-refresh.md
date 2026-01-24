@@ -9,7 +9,7 @@ pagination_next: null
 
 Acceleration data can be refreshed (updated) by:
 
-- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api).
+- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh).
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-interval).
 

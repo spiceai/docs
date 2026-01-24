@@ -107,11 +107,9 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  // Warn on broken anchors and links instead of throwing to handle cross-version link issues
-  // in older release branches that may reference docs pages or anchors that don't exist in all versions
-  onBrokenAnchors: 'warn',
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenAnchors: 'throw',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you

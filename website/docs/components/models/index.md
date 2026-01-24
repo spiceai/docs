@@ -21,16 +21,16 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[openai]: ./openai.md
-[bedrock]: ./bedrock.md
-[file]: /components/embeddings/local.md
-[hf]: ./huggingface.md
-[spice]: ./spiceai.md
-[azure]: ./azure.md
-[ant]: ./anthropic.md
-[google]: ./google.md
-[xai]: ./xai.md
-[databricks]: ./databricks.md
+[openai]: /docs/components/models/openai
+[bedrock]: /docs/components/models/bedrock
+[file]: /docs/components/models/filesystem
+[hf]: /docs/components/models/huggingface
+[spice]: /docs/components/models/spiceai
+[azure]: /docs/components/models/azure
+[ant]: /docs/components/models/anthropic
+[google]: /docs/components/models/google
+[xai]: /docs/components/models/xai
+[databricks]: /docs/components/models/databricks
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](/docs/reference/models).
 
@@ -91,7 +91,7 @@ The following examples demonstrate how to configure and use various models or mo
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai).
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](/docs/components/models/openai).
 
 Example `spicepod.yml`:
 
@@ -166,7 +166,7 @@ models:
 
 ### Example: Serving a Local Model
 
-To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem).
+To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](/docs/components/models/filesystem).
 
 ```yaml
 models:
@@ -254,7 +254,7 @@ curl -X POST http://localhost:8090/v1/chat/completions \
   }'
 ```
 
-Refer to the [Create Chat Completion API documentation](/docs/api/HTTP/post-chat-completions.api) for more details on making chat completion requests.
+Refer to the [Create Chat Completion API documentation](/docs/api/HTTP/post-chat-completions) for more details on making chat completion requests.
 
 import DocCardList from '@theme/DocCardList';
 

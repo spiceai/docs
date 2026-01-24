@@ -86,7 +86,7 @@ Optional. The mode of acceleration. The following values are supported:
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./index#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_view.db`).
+Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](/docs/reference/spicepod#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_view.db`).
 
 Supported values:
 

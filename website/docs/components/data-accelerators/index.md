@@ -77,13 +77,13 @@ Both [Spice Cayenne](/docs/components/data-accelerators/cayenne) and [DuckDB](/d
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](/docs/reference/datatypes/accelerators).
 
 :::warning[Memory Considerations]
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb), [`sqlite`](./sqlite), and [`turso`](./turso) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](/docs/components/data-accelerators/duckdb), [`sqlite`](/docs/components/data-accelerators/sqlite), and [`turso`](/docs/components/data-accelerators/turso) accelerators by specifying `mode: file`.
 
 :::
 

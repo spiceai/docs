@@ -80,4 +80,4 @@ securityContext:
 
 ### Debugging sandbox container
 
-To debug issues with the sandbox container, see the [Debugging Sandbox Container](/docs/troubleshooting/index#debugging-sandbox-container) section of the troubleshooting guide.
+To debug issues with the sandbox container, see the [Debugging Sandbox Container](/docs/troubleshooting#debugging-sandbox-container) section of the troubleshooting guide.

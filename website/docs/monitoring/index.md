@@ -11,6 +11,6 @@ pagination_next: null
 
 Spice provides integration with monitoring systems for production deployments:
 
-- [Datadog](datadog) - Enterprise monitoring and analytics
-- [Grafana & Prometheus](grafana) - Open source metrics and visualization
-- [Zipkin](zipkin) - Distributed tracing
+- [Datadog](/docs/monitoring/datadog) - Enterprise monitoring and analytics
+- [Grafana & Prometheus](/docs/monitoring/grafana) - Open source metrics and visualization
+- [Zipkin](/docs/monitoring/zipkin) - Distributed tracing
