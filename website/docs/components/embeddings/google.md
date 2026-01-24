@@ -33,4 +33,4 @@ embeddings:
 
 See [Google AI Embedding Models](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding) for a list of supported embedding models.
 
-For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](/docs/features/search/vector-search.md).
+For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](/docs/features/search/vector-search).

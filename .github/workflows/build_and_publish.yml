@@ -77,3 +77,57 @@ jobs:
         run: |
           curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
             --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
+
+  link-check:
+    runs-on: ubuntu-latest
+    name: Check Links
+    needs: deploy
+    if: ${{ github.ref == 'refs/heads/trunk' || github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install lychee
+        run: |
+          curl -sLO https://github.com/lycheeverse/lychee/releases/download/v0.18.1/lychee-v0.18.1-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf lychee-v0.18.1-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv lychee /usr/local/bin/
+
+      - name: Get deployment URL
+        id: get_url
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/trunk" ]]; then
+            echo "url=https://spiceai.org" >> $GITHUB_OUTPUT
+          else
+            # For PRs, use the branch-specific Cloudflare preview URL
+            BRANCH_SLUG=$(echo "${{ github.head_ref }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+            echo "url=https://${BRANCH_SLUG}.spiceai-org-website.pages.dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check links
+        run: |
+          lychee \
+            --base "${{ steps.get_url.outputs.url }}" \
+            --exclude 'localhost' \
+            --exclude '127.0.0.1' \
+            --exclude 'github.com/.*/edit/' \
+            --exclude 'twitter.com' \
+            --exclude 'x.com' \
+            --exclude 'reddit.com' \
+            --exclude 'linkedin.com' \
+            --exclude 'algolia.com' \
+            --exclude 'crawler.algolia.com' \
+            --accept '200,204,301,302,403' \
+            --timeout 30 \
+            --max-retries 3 \
+            --no-progress \
+            "${{ steps.get_url.outputs.url }}/docs" \
+            "${{ steps.get_url.outputs.url }}/releases" || true
+
+      - name: Check internal links in build
+        working-directory: website
+        run: |
+          # Check for any remaining .md links in the built output that would 404
+          if grep -r '\.md"' build/ --include="*.html" 2>/dev/null | grep -v 'github.com' | grep -v 'githubusercontent'; then
+            echo "Warning: Found .md file references in built HTML that may cause 404 errors"
+            grep -r '\.md"' build/ --include="*.html" 2>/dev/null | grep -v 'github.com' | grep -v 'githubusercontent' | head -20
+          fi

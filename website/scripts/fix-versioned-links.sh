@@ -65,4 +65,9 @@ find "$VERSIONED_DOCS/version-1.5.x" -path "*/deployment/kubernetes/index.md" -e
 find "$VERSIONED_DOCS/version-1.6.x" -path "*/features/observability/index.md" -exec sed -i 's|\[Grafana\](/docs/clients/grafana)|[Grafana](../../clients/grafana/index.md)|g' {} \;
 find "$VERSIONED_DOCS/version-1.6.x" -path "*/features/observability/index.md" -exec sed -i 's|\[Datadog\](/docs/clients/datadog)|[Datadog](../../clients/datadog/index.md)|g' {} \;
 
+# Remove .md extensions from all links in versioned docs
+# Docusaurus with versioning doesn't handle .md extensions in links
+echo "Removing .md extensions from versioned docs links..."
+"$SCRIPT_DIR/fix-md-links.sh" "$VERSIONED_DOCS"
+
 echo "Done fixing versioned docs links"

@@ -20,7 +20,7 @@ Unlike complex streaming platforms (e.g., Apache Flink) that require extensive i
 
 ## Example
 
-A gaming platform processes live player activity from Kafka streams to power in-game leaderboards and personalized challenges, while using hybrid search to enable players to research game strategies by querying unstructured content (e.g., guides, forums) and structured metadata. This unified approach bypasses the infrastructure overhead of separate streaming pipelines and search engines, enhancing player engagement and feature delivery. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) demonstrates real-time data processing and search patterns adaptable to such use cases.
+A gaming platform processes live player activity from Kafka streams to power in-game leaderboards and personalized challenges, while using hybrid search to enable players to research game strategies by querying unstructured content (e.g., guides, forums) and structured metadata. This unified approach bypasses the infrastructure overhead of separate streaming pipelines and search engines, enhancing player engagement and feature delivery. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README) demonstrates real-time data processing and search patterns adaptable to such use cases.
 
 ## Benefits
 
@@ -30,7 +30,7 @@ A gaming platform processes live player activity from Kafka streams to power in-
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](/features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](/features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
-- **Vector and Hybrid Search**: [Documentation](/features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
-- **Observability**: [Documentation](/features/observability/index.md).
+- **Federated SQL Queries**: [Documentation](/docs/features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Data Acceleration**: [Documentation](/docs/features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Vector and Hybrid Search**: [Documentation](/docs/features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **Observability**: [Documentation](/docs/features/observability).

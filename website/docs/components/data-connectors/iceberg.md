@@ -10,7 +10,7 @@ tags:
 
 The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
 
-When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](/docs/components/catalogs/iceberg.md) or [AWS Glue Catalog Connector](/docs/components/catalogs/glue.md) instead of configuring individual datasets.
+When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](/docs/components/catalogs/iceberg) or [AWS Glue Catalog Connector](/docs/components/catalogs/glue) instead of configuring individual datasets.
 
 Iceberg catalogs can be of several types:
 
@@ -36,7 +36,7 @@ datasets:
 
 The `from` field specifies the Iceberg table to connect to, in the format `iceberg:<table_path>`. The `table_path` is the URL to the Iceberg table in the catalog provider.
 For REST Catalogs, use the format `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>/tables/<table_name>`.
-For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](/docs/components/data-connectors/glue.md) for connecting to Iceberg tables managed by Glue for a better experience.
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](/docs/components/data-connectors/glue) for connecting to Iceberg tables managed by Glue for a better experience.
 
 Example (REST Catalog):
 
@@ -74,7 +74,7 @@ datasets:
 
 ### `name`
 
-The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
 
 Example:
 

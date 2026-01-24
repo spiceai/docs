@@ -26,7 +26,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 | Large datasets (`refresh_mode: append`)  | 1.5x dataset size | Memory for incremental data only                               |
 | Large datasets (`refresh_mode: changes`) | 1.5x dataset size | Depends on CDC event volume and frequency                      |
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB](/docs/components/data-accelerators/duckdb.md), [SQLite](/docs/components/data-accelerators/sqlite.md), [Turso](/docs/components/data-accelerators/turso.md), or [Spice Cayenne](/docs/components/data-accelerators/cayenne.md), which store data on disk and support spilling.
+Memory requirements can be reduced by using file-based acceleration with [DuckDB](/docs/components/data-accelerators/duckdb), [SQLite](/docs/components/data-accelerators/sqlite), [Turso](/docs/components/data-accelerators/turso), or [Spice Cayenne](/docs/components/data-accelerators/cayenne), which store data on disk and support spilling.
 
 ## Accelerator-Specific Memory Management
 
@@ -55,7 +55,7 @@ For a 10 million row dataset with hash index enabled, expect ~165 MB additional 
 
 ### Spice Cayenne
 
-[Spice Cayenne](/docs/components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
+[Spice Cayenne](/docs/components/data-accelerators/cayenne) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
 
 Spice Cayenne is DataFusion query-native, meaning all query execution adheres to the `runtime.query.memory_limit` setting. When query memory is exhausted, DataFusion spills intermediate results to disk. This architecture provides predictable memory usage while maintaining high query performance.
 
@@ -89,7 +89,7 @@ datasets:
 
 ### DuckDB
 
-[DuckDB](/docs/components/data-accelerators/duckdb.md) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
+[DuckDB](/docs/components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
 
 **Memory Configuration Parameters:**
 
@@ -118,7 +118,7 @@ datasets:
 
 ### SQLite
 
-[SQLite](/docs/components/data-accelerators/sqlite.md) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
+[SQLite](/docs/components/data-accelerators/sqlite) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
 
 ## Refresh Modes and Memory Implications
 
@@ -380,15 +380,15 @@ Use observability tools to monitor and profile memory usage regularly. Spice exp
 - Accelerator cache hit rates
 - Data refresh memory consumption
 
-See [Observability](/docs/features/observability/index.md) for configuration details.
+See [Observability](/docs/features/observability) for configuration details.
 
 ## Related Documentation
 
 **Spice Documentation:**
 
-- [Performance Tuning](./performance-tuning.md) - Comprehensive guide to optimizing Spice performance
+- [Performance Tuning](./performance-tuning) - Comprehensive guide to optimizing Spice performance
 - [Data Accelerators](/docs/components/data-accelerators) - Accelerator configuration reference
-- [Runtime Configuration](./spicepod/runtime.md) - Runtime parameter reference
+- [Runtime Configuration](./spicepod/runtime) - Runtime parameter reference
 
 **External References:**
 

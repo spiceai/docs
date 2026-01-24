@@ -22,7 +22,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](/docs/reference/spicepod/datasets.md).
+For the complete reference specification see [datasets](/docs/reference/spicepod/datasets).
 
 Supported Vector engines:
 

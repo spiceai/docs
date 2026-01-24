@@ -12,7 +12,7 @@ tags:
   - configuration
 ---
 
-Spice supports defining system prompts for Large Language Models (LLM)s in the [spicepod](/docs/features/large-language-models/parameter_overrides.md#system-prompt).
+Spice supports defining system prompts for Large Language Models (LLM)s in the [spicepod](/docs/features/large-language-models/parameter_overrides#system-prompt).
 
 **Example**:
 ```yaml

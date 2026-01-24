@@ -78,13 +78,13 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md) or any of the following keywords that are reserved by MySQL:
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords) or any of the following keywords that are reserved by MySQL:
 
 - `PARTITION`
 
 ### `params`
 
-The MySQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mysql_conn_string}`.
+The MySQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:my_mysql_conn_string}`.
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

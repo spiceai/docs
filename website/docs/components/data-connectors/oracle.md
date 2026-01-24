@@ -74,7 +74,7 @@ SELECT COUNT(*) FROM products;
 
 ### `params`
 
-The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
+The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -198,4 +198,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README.md)
+- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README)

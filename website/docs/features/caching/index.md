@@ -10,7 +10,7 @@ tags: [caching]
 
 Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
 
-Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh.md#behavior-on-zero-results).
+Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh#behavior-on-zero-results).
 
 The cache uses a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) replacement policy. You can configure the cache to set an item expiration duration, which defaults to 1 second.
 
@@ -76,7 +76,7 @@ The hashing algorithm determines how cache keys are hashed before being stored, 
 
 - **`xxh3` (Default):** Uses the [XXH3](https://cyan4973.github.io/xxHash/) algorithm for hashing the cache keys. XXH3 is a fast, non-cryptographic hash algorithm that provides high performance and good distribution. It is suitable for scenarios where speed is critical and cryptographic security is not required.
 - **`siphash`:** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
-- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
+- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
 - **`blake3`:** Uses the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function. BLAKE3 is a fast, parallelizable hash function that provides cryptographic security while maintaining high performance. It is suitable for scenarios requiring both speed and cryptographic guarantees.
 - **`xxh32`, `xxh64`, `xxh128`:** Variants of the XXH hashing algorithm with different output sizes. These algorithms offer a balance between speed and collision resistance, with larger hash sizes providing better collision resistance at the cost of performance.
 
@@ -385,7 +385,7 @@ date: Thu, 24 Jul 2025 14:21:32 GMT
 
 ## Metrics
 
-Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](/docs/features/observability/index.md). The following metrics are available for each cache type:
+Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](/docs/features/observability). The following metrics are available for each cache type:
 
 | Metric                   | Type    | Description                                                |
 | ------------------------ | ------- | ---------------------------------------------------------- |
