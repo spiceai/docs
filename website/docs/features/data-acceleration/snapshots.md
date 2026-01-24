@@ -101,10 +101,10 @@ The `snapshots_trigger` setting controls when Spice creates new snapshots. The a
 
 Datasets using `refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with a `time_column` support the following triggers:
 
-| Trigger | Description |
-|---------|-------------|
+| Trigger            | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
 | `refresh_complete` | Create a snapshot after each data refresh completes. (Default.) |
-| `time_interval` | Create snapshots at a fixed time interval. |
+| `time_interval`    | Create snapshots at a fixed time interval.                      |
 
 Example with default trigger:
 
@@ -143,9 +143,9 @@ datasets:
 
 Datasets using `refresh_mode: changes`, or `refresh_mode: append` without a `time_column`, support the following triggers:
 
-| Trigger | Description |
-|---------|-------------|
-| `time_interval` | Create snapshots at a fixed time interval. (Default: 10m.) |
+| Trigger          | Description                                                          |
+| ---------------- | -------------------------------------------------------------------- |
+| `time_interval`  | Create snapshots at a fixed time interval. (Default: 10m.)           |
 | `stream_batches` | Create a snapshot after a specified number of batches are processed. |
 
 Example with time-based trigger (default):
