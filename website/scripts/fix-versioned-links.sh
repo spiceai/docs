@@ -77,6 +77,12 @@ find "$VERSIONED_DOCS/version-1.5.x" -path "*/deployment/kubernetes/index.md" -e
 find "$VERSIONED_DOCS/version-1.6.x" -path "*/features/observability/index.md" -exec bash -c 'run_sed "s|\[Grafana\](/docs/clients/grafana)|[Grafana](../../clients/grafana)|g" "$0"' {} \;
 find "$VERSIONED_DOCS/version-1.6.x" -path "*/features/observability/index.md" -exec bash -c 'run_sed "s|\[Datadog\](/docs/clients/datadog)|[Datadog](../../clients/datadog)|g" "$0"' {} \;
 
+# Fix MDX syntax issues in versioned docs
+# The {#anchor} syntax in headings causes MDX compilation errors
+# Remove custom anchor syntax from headings - Docusaurus generates anchors automatically
+echo "Fixing MDX syntax issues in versioned docs..."
+find "$VERSIONED_DOCS" -name "*.md" -exec bash -c 'run_sed "s/ {#[^}]*}//g" "$0"' {} \;
+
 # Remove .md extensions from all links in versioned docs
 # Docusaurus with versioning doesn't handle .md extensions in links
 echo "Removing .md extensions from versioned docs links..."
