@@ -53,6 +53,36 @@ The timestamp is recorded in UTC using ISO 8601 without punctuation.
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.
 :::
 
+## Snapshot creation events
+
+This section describes exactly when Spice creates new snapshots.
+
+### Initial snapshot
+
+The Spice runtime must be fully ready before any snapshots are created. Once the runtime reaches the ready state, an initial snapshot is always created. No snapshots are created before this moment.
+
+### Trigger activation
+
+After the initial snapshot, all configured triggers begin counting from this point. This includes interval-based triggers (which start their timers), batch-based triggers (which start counting batches), and refresh-based triggers (which begin responding to refresh completions).
+
+### Snapshot policies
+
+The `snapshots_creation_policy` setting determines whether a trigger event actually results in a new snapshot.
+
+#### Policy: `always`
+
+When the policy is set to `always`, every trigger event creates a snapshot regardless of whether the underlying data has changed
+
+#### Policy: `on_change`
+
+When the policy is set to `on_change`, Spice only creates a snapshot when one of the following conditions is met:
+
+1. **New data arrived** – Data has been written to the acceleration since the last snapshot was created.
+2. **Missing metadata file** – The metadata file does not exist in object storage. A snapshot is created regardless of whether new data has arrived.
+3. **Missing snapshot file** – The metadata file exists, but no snapshot file exists in object storage. A snapshot is created regardless of whether new data has arrived.
+
+The `on_change` policy helps reduce storage costs and I/O overhead by avoiding redundant snapshots when data remains unchanged, while still ensuring snapshots exist when the object storage state is incomplete.
+
 ## Configure snapshot storage
 
 Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to an S3 directory. The configuration accepts any S3 dataset parameters under `params`.
