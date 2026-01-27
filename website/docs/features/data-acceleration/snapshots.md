@@ -59,7 +59,7 @@ This section describes exactly when Spice creates new snapshots.
 
 ### Initial snapshot
 
-The Spice runtime must be fully ready before any snapshots are created. Once the runtime reaches the ready state, an initial snapshot is always created. No snapshots are created before this moment.
+The Spice runtime must be fully ready before any snapshots are created. Once the runtime reaches the ready state, an initial snapshot is created (unless it was bootstrapped). No snapshots are created before this moment.
 
 ### Trigger activation
 
