@@ -35,9 +35,9 @@ Where:
 - `<catalog_connector>`: The Catalog Connector to use to connect to the dataset
 
   Currently supported catalog connectors:
-  - [`spice.ai`](/docs/components/catalogs/spiceai.md)
-  - [`databricks`](/docs/components/catalogs/databricks.md)
-  - [`unity_catalog`](/docs/components/catalogs/unity-catalog.md)
+  - [`spice.ai`](../../components/catalogs/spiceai.md)
+  - [`databricks`](../../components/catalogs/databricks.md)
+  - [`unity_catalog`](../../components/catalogs/unity-catalog.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 

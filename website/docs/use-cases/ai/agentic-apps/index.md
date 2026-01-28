@@ -20,7 +20,7 @@ Unlike generic AI agent frameworks (e.g., AutoGen, CrewAI) that often lack seaml
 
 ## Example
 
-A SaaS customer success platform deploys a Spice.ai-powered agent to automate ticket resolution by querying real-time user data from PostgreSQL, historical support interactions from Databricks, and unstructured knowledge base articles via hybrid search. The agent uses LLM inference to generate personalized responses and escalate critical issues, reducing resolution time compared to manual processes or generic AI agents lacking deep data integration. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) and [Vector-Based Search documentation](/docs/features/search/index.md) guide implementation of data access and search for agentic workflows.
+A SaaS customer success platform deploys a Spice.ai-powered agent to automate ticket resolution by querying real-time user data from PostgreSQL, historical support interactions from Databricks, and unstructured knowledge base articles via hybrid search. The agent uses LLM inference to generate personalized responses and escalate critical issues, reducing resolution time compared to manual processes or generic AI agents lacking deep data integration. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) and [Vector-Based Search documentation](../../features/search/index.md) guide implementation of data access and search for agentic workflows.
 
 ## Benefits
 
