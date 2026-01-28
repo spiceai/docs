@@ -542,6 +542,7 @@ datasets:
 :::note
 
 - Time-based retention (`retention_period`) and custom SQL retention (`retention_sql`) can be used independently or together. When both are configured, both retention policies will be applied during each retention check.
+- Retention check runs both on `retention_check_interval` (if configured) and after each refresh cycle.
 
 :::
 
