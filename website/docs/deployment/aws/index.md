@@ -8,7 +8,7 @@ pagination_next: null
 
 Spice.ai provides multiple deployment options on Amazon Web Services (AWS), enabling data and AI applications to run on AWS's elastic infrastructure. Whether using virtual machines, container orchestration, or managed services, Spice deploys to meet requirements for performance, scalability, and cost efficiency.
 
-For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](/docs/deployment/aws/integrations).
+For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](./integrations).
 
 ## Benefits of Deploying on AWS
 
@@ -139,8 +139,8 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ### Documentation
 
-- [AWS Integrations](/docs/deployment/aws/integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
-- [AWS Secrets Manager Secret Store](/docs/components/secret-stores/aws-secrets-manager)
+- [AWS Integrations](./integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
+- [AWS Secrets Manager Secret Store](../../components/secret-stores/aws-secrets-manager)
 
 ### AWS Blog Posts
 

@@ -6,7 +6,7 @@ description: 'SMB Data Connector Documentation'
 
 SMB (Server Message Block) is a network file sharing protocol that provides shared access to files, printers, and serial ports. It is commonly used in Windows environments for network shares but is also supported on Linux (via Samba) and macOS.
 
-The SMB Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
+The SMB Data Connector enables federated SQL query across [supported file formats](../data-connectors#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
 
 ## Quickstart
 
@@ -60,15 +60,15 @@ from: smb://192.168.1.100/share/data.parquet
 
 ### `name`
 
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
 | Parameter Name              | Description                                                                                                 |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors#file-formats). |
-| `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_user}`.             |
-| `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_pass}`.             |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats). |
+| `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores/) syntax: `${secrets:smb_user}`.             |
+| `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores/) syntax: `${secrets:smb_pass}`.             |
 | `smb_port`                  | SMB server port. Default: `445`.                                                                            |
 | `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                       |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.               |
@@ -259,7 +259,7 @@ datasets:
       smb_pass: ${secrets:smb_password}
 ```
 
-For detailed information, refer to the [secret stores documentation](/docs/components/secret-stores).
+For detailed information, refer to the [secret stores documentation](../secret-stores/).
 
 ## Limitations
 

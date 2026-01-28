@@ -41,7 +41,7 @@ There are two types of indexes that can be specified in a Spicepod:
 
 :::warning[Limitations]
 
-Traditional indexes are not supported for the in-memory Arrow or [Spice Cayenne](/docs/components/data-accelerators/cayenne) acceleration engines. Use [DuckDB](/docs/components/data-accelerators/duckdb), [SQLite](/docs/components/data-accelerators/sqlite), [Turso](/docs/components/data-accelerators/turso) (when MVCC is disabled), or [PostgreSQL](/docs/components/data-accelerators/postgres) as the acceleration engine to enable indexing.
+Traditional indexes are not supported for the in-memory Arrow or [Spice Cayenne](../../components/data-accelerators/cayenne) acceleration engines. Use [DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [Turso](../../components/data-accelerators/turso) (when MVCC is disabled), or [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine to enable indexing.
 
 For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc.2+) for O(1) point lookups on primary key columns.
 
@@ -49,6 +49,6 @@ For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc
 
 :::tip[Spice Cayenne Point Lookup Performance]
 
-While Spice Cayenne does not support traditional indexes, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](/docs/components/data-accelerators/cayenne#point-lookups-and-random-access) for details.
+While Spice Cayenne does not support traditional indexes, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](../../components/data-accelerators/cayenne#point-lookups-and-random-access) for details.
 
 :::

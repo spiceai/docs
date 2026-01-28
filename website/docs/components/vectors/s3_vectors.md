@@ -336,7 +336,7 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
 
 ### `metrics`
 
-Spice supports the following [S3 Vector engine metrics](/docs/features/observability/component_metrics):
+Spice supports the following [S3 Vector engine metrics](../../features/observability/component_metrics):
 
 | Metric Name                                       | Type      | Description                                                               |
 | ------------------------------------------------- | --------- | ------------------------------------------------------------------------- |

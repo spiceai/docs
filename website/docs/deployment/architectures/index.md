@@ -11,9 +11,9 @@ pagination_next: null
 
 Spice supports multiple deployment architectures:
 
-- [Sidecar Deployment](/docs/deployment/architectures/sidecar) - Deploy alongside applications
-- [Microservice Deployment (Single or Multiple Replicas)](/docs/deployment/architectures/microservice) - Standalone service deployment
-- [Tiered Deployment](/docs/deployment/architectures/tiered) - Edge, application, and cloud tiers
-- [Cloud-Hosted in the Spice Cloud Platform](/docs/deployment/architectures/hosted) - Managed cloud deployment
-- [Sharded Deployment](/docs/deployment/architectures/sharded) - Horizontal data partitioning
-- [Cluster Deployment (Spice.ai Enterprise)](/docs/deployment/architectures/cluster) - Distributed cluster architecture
+- [Sidecar Deployment](./sidecar) - Deploy alongside applications
+- [Microservice Deployment (Single or Multiple Replicas)](./microservice) - Standalone service deployment
+- [Tiered Deployment](./tiered) - Edge, application, and cloud tiers
+- [Cloud-Hosted in the Spice Cloud Platform](./hosted) - Managed cloud deployment
+- [Sharded Deployment](./sharded) - Horizontal data partitioning
+- [Cluster Deployment (Spice.ai Enterprise)](./cluster) - Distributed cluster architecture

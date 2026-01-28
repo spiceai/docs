@@ -93,7 +93,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                   |
 | --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](/docs/reference/file_format#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
+| [CSV](../../reference/file_format#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
 | JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
@@ -112,7 +112,7 @@ File formats support additional parameters for fine-grained control. Common exam
 | `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
 | `csv_quote`      | CSV        | Quote character for fields containing delimiters |
 
-For complete format options, see [File Formats Reference](/docs/reference/file_format).
+For complete format options, see [File Formats Reference](../../reference/file_format).
 
 ### Applicable Connectors {#object-store-file-formats}
 
@@ -160,7 +160,7 @@ Partition pruning improves query performance by reading only the relevant files.
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](/docs/reference/file_format#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [CSV](../../reference/file_format#csv)     | `file_format: csv`     | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |

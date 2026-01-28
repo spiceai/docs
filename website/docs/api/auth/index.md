@@ -26,7 +26,7 @@ runtime:
         - 1234567890 # Or specify the API key directly
 ```
 
-To learn more about secrets, see [Secret Stores](/docs/components/secret-stores).
+To learn more about secrets, see [Secret Stores](../../components/secret-stores/).
 
 :::info
 

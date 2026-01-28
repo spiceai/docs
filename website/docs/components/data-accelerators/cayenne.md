@@ -29,7 +29,7 @@ Spice Cayenne uses Vortex as its storage format, providing significant performan
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance. For performance benchmarks, see [bench.vortex.dev](https://bench.vortex.dev/).
 
-While [DuckDB](/docs/components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Spice Cayenne with Vortex is designed to scale beyond these limits.
+While [DuckDB](./duckdb) excels for datasets up to approximately 1TB, Spice Cayenne with Vortex is designed to scale beyond these limits.
 
 ## Architecture
 
@@ -506,7 +506,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Alpha Status**: Spice Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
-- **No Snapshot Support**: Spice Cayenne does not yet support [acceleration snapshots](/docs/features/data-acceleration/snapshots) for bootstrapping from object storage.
+- **No Snapshot Support**: Spice Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `Map`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
@@ -576,9 +576,9 @@ datasets:
 
 **Spice Documentation:**
 
-- [Performance Tuning](/docs/reference/performance-tuning) - Comprehensive performance optimization guide
-- [Managing Memory Usage](/docs/reference/memory) - Memory configuration reference
-- [Data Acceleration](/docs/features/data-acceleration) - Data acceleration overview
+- [Performance Tuning](../../reference/performance-tuning) - Comprehensive performance optimization guide
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Acceleration](../../features/data-acceleration) - Data acceleration overview
 
 **External References:**
 

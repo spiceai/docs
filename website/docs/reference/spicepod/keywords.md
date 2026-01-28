@@ -26,7 +26,7 @@ These keywords apply to all data connectors:
 
 These data connectors have reserved keywords beyond the ones mentioned above.
 
-- [ClickHouse Keywords](/docs/components/data-connectors/clickhouse#name)
-- [Snowflake Keywords](/docs/components/data-connectors/snowflake#name)
-- [Microsoft SQL Server Keywords](/docs/components/data-connectors/mssql#name)
-- [MySQL Keywords](/docs/components/data-connectors/mysql#name)
+- [ClickHouse Keywords](../../components/data-connectors/clickhouse#name)
+- [Snowflake Keywords](../../components/data-connectors/snowflake#name)
+- [Microsoft SQL Server Keywords](../../components/data-connectors/mssql#name)
+- [MySQL Keywords](../../components/data-connectors/mysql#name)

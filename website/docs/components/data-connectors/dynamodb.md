@@ -53,7 +53,7 @@ datasets:
 SELECT COUNT(*) FROM my_users;
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -590,7 +590,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using DynamoDB Streams **requires** [acceleration](/docs/components/data-accelerators) with `refresh_mode: changes`.
+Using DynamoDB Streams **requires** [acceleration](../data-accelerators/) with `refresh_mode: changes`.
 
 :::
 

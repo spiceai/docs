@@ -35,9 +35,9 @@ Where:
 - `<catalog_connector>`: The Catalog Connector to use to connect to the dataset
 
   Currently supported catalog connectors:
-  - [`spice.ai`](/docs/components/catalogs/spiceai)
-  - [`databricks`](/docs/components/catalogs/databricks)
-  - [`unity_catalog`](/docs/components/catalogs/unity-catalog)
+  - [`spice.ai`](../../components/catalogs/spiceai)
+  - [`databricks`](../../components/catalogs/databricks)
+  - [`unity_catalog`](../../components/catalogs/unity-catalog)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -79,7 +79,7 @@ Optional. The `include` field is used to specify which tables to include from th
 Optional. Specifies the access level for the catalog. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](/docs/tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](../../tags/write).
 
 ## `params`
 

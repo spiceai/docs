@@ -13,83 +13,83 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 
 ## Table of Contents
 
-### [SELECT Syntax](/docs/reference/sql/select)
+### [SELECT Syntax](./select)
 
-- [WITH Clause](/docs/reference/sql/select#with-clause)
-- [SELECT Clause](/docs/reference/sql/select#select-clause)
-- [FROM Clause](/docs/reference/sql/select#from-clause)
-- [WHERE Clause](/docs/reference/sql/select#where-clause)
-- [JOIN Clause](/docs/reference/sql/select#join-clause)
-- [GROUP BY Clause](/docs/reference/sql/select#group-by-clause)
-- [HAVING Clause](/docs/reference/sql/select#having-clause)
-- [QUALIFY Clause](/docs/reference/sql/select#qualify-clause)
-- [UNION Clause](/docs/reference/sql/select#union-clause)
-- [ORDER BY Clause](/docs/reference/sql/select#order-by-clause)
-- [LIMIT Clause](/docs/reference/sql/select#limit-clause)
-- [EXCLUDE and EXCEPT Clause](/docs/reference/sql/select#exclude-and-except-clause)
+- [WITH Clause](./select#with-clause)
+- [SELECT Clause](./select#select-clause)
+- [FROM Clause](./select#from-clause)
+- [WHERE Clause](./select#where-clause)
+- [JOIN Clause](./select#join-clause)
+- [GROUP BY Clause](./select#group-by-clause)
+- [HAVING Clause](./select#having-clause)
+- [QUALIFY Clause](./select#qualify-clause)
+- [UNION Clause](./select#union-clause)
+- [ORDER BY Clause](./select#order-by-clause)
+- [LIMIT Clause](./select#limit-clause)
+- [EXCLUDE and EXCEPT Clause](./select#exclude-and-except-clause)
 
-### [Subqueries](/docs/reference/sql/subqueries)
+### [Subqueries](./subqueries)
 
-- [Subquery Operators](/docs/reference/sql/subqueries#subquery-operators)
-- [SELECT Clause Subqueries](/docs/reference/sql/subqueries#select-clause-subqueries)
-- [FROM Clause Subqueries](/docs/reference/sql/subqueries#from-clause-subqueries)
-- [WHERE Clause Subqueries](/docs/reference/sql/subqueries#where-clause-subqueries)
-- [HAVING Clause Subqueries](/docs/reference/sql/subqueries#having-clause-subqueries)
-- [Subquery Categories](/docs/reference/sql/subqueries#subquery-categories)
+- [Subquery Operators](./subqueries#subquery-operators)
+- [SELECT Clause Subqueries](./subqueries#select-clause-subqueries)
+- [FROM Clause Subqueries](./subqueries#from-clause-subqueries)
+- [WHERE Clause Subqueries](./subqueries#where-clause-subqueries)
+- [HAVING Clause Subqueries](./subqueries#having-clause-subqueries)
+- [Subquery Categories](./subqueries#subquery-categories)
 
-### [EXPLAIN](/docs/reference/sql/explain)
+### [EXPLAIN](./explain)
 
-- [EXPLAIN ANALYZE](/docs/reference/sql/explain#explain-analyze)
+- [EXPLAIN ANALYZE](./explain#explain-analyze)
 
-### [Information Schema](/docs/reference/sql/information_schema)
+### [Information Schema](./information_schema)
 
-- [SHOW TABLES](/docs/reference/sql/information_schema#show-tables)
-- [SHOW COLUMNS](/docs/reference/sql/information_schema#show-columns)
-- [SHOW ALL (configuration options)](/docs/reference/sql/information_schema#show-all-configuration-options)
+- [SHOW TABLES](./information_schema#show-tables)
+- [SHOW COLUMNS](./information_schema#show-columns)
+- [SHOW ALL (configuration options)](./information_schema#show-all-configuration-options)
 
-### [AI Functions](/docs/reference/sql/ai)
+### [AI Functions](./ai)
 
-- [ai (LLM Text Generation)](/docs/reference/sql/ai#ai)
-- [embed (Vector Embeddings)](/docs/reference/sql/ai#embed)
+- [ai (LLM Text Generation)](./ai#ai)
+- [embed (Vector Embeddings)](./ai#embed)
 
-### [Operators and Literals](/docs/reference/sql/operators)
+### [Operators and Literals](./operators)
 
-- [Numerical Operators](/docs/reference/sql/operators#numerical-operators)
-- [Comparison Operators](/docs/reference/sql/operators#comparison-operators)
-- [Logical Operators](/docs/reference/sql/operators#logical-operators)
-- [Bitwise Operators](/docs/reference/sql/operators#bitwise-operators)
-- [Type Casting Operators](/docs/reference/sql/operators#type-casting-operators)
-- [Other Operators](/docs/reference/sql/operators#other-operators)
-- [Literals](/docs/reference/sql/operators#literals)
+- [Numerical Operators](./operators#numerical-operators)
+- [Comparison Operators](./operators#comparison-operators)
+- [Logical Operators](./operators#logical-operators)
+- [Bitwise Operators](./operators#bitwise-operators)
+- [Type Casting Operators](./operators#type-casting-operators)
+- [Other Operators](./operators#other-operators)
+- [Literals](./operators#literals)
 
-### [Scalar Functions](/docs/reference/sql/scalar_functions)
+### [Scalar Functions](./scalar_functions)
 
-- [Math Functions](/docs/reference/sql/scalar_functions#math-functions)
-- [Conditional Functions](/docs/reference/sql/scalar_functions#conditional-functions)
-- [String Functions](/docs/reference/sql/scalar_functions#string-functions)
-- [Binary String Functions](/docs/reference/sql/scalar_functions#binary-string-functions)
-- [Regular Expression Functions](/docs/reference/sql/scalar_functions#regular-expression-functions)
-- [Time and Date Functions](/docs/reference/sql/scalar_functions#time-and-date-functions)
-- [Array Functions](/docs/reference/sql/scalar_functions#array-functions)
-- [Struct Functions](/docs/reference/sql/scalar_functions#struct-functions)
-- [Map Functions](/docs/reference/sql/scalar_functions#map-functions)
-- [Hashing Functions](/docs/reference/sql/scalar_functions#hashing-functions)
-- [Union Functions](/docs/reference/sql/scalar_functions#union-functions)
-- [Other Functions](/docs/reference/sql/scalar_functions#other-functions)
+- [Math Functions](./scalar_functions#math-functions)
+- [Conditional Functions](./scalar_functions#conditional-functions)
+- [String Functions](./scalar_functions#string-functions)
+- [Binary String Functions](./scalar_functions#binary-string-functions)
+- [Regular Expression Functions](./scalar_functions#regular-expression-functions)
+- [Time and Date Functions](./scalar_functions#time-and-date-functions)
+- [Array Functions](./scalar_functions#array-functions)
+- [Struct Functions](./scalar_functions#struct-functions)
+- [Map Functions](./scalar_functions#map-functions)
+- [Hashing Functions](./scalar_functions#hashing-functions)
+- [Union Functions](./scalar_functions#union-functions)
+- [Other Functions](./scalar_functions#other-functions)
 
 Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`, and `parse_url` follow the semantics documented in the [Spark SQL built-in function reference](https://spark.apache.org/docs/latest/api/sql/index.html).
 
-### [Aggregate Functions](/docs/reference/sql/aggregate_functions)
+### [Aggregate Functions](./aggregate_functions)
 
-- [Filter Clause](/docs/reference/sql/aggregate_functions#filter-clause)
-- [WITHIN GROUP / Ordered-set Aggregates](/docs/reference/sql/aggregate_functions#within-group--ordered-set-aggregates)
-- [General Aggregate Functions](/docs/reference/sql/aggregate_functions#general-functions)
-- [Statistical Aggregate Functions](/docs/reference/sql/aggregate_functions#statistical-functions)
-- [Approximate Aggregate Functions](/docs/reference/sql/aggregate_functions#approximate-functions)
+- [Filter Clause](./aggregate_functions#filter-clause)
+- [WITHIN GROUP / Ordered-set Aggregates](./aggregate_functions#within-group--ordered-set-aggregates)
+- [General Aggregate Functions](./aggregate_functions#general-functions)
+- [Statistical Aggregate Functions](./aggregate_functions#statistical-functions)
+- [Approximate Aggregate Functions](./aggregate_functions#approximate-functions)
 
 ### Window Functions
 
-Window functions perform calculations across sets of rows related to the current row. Spice supports window functions using the `OVER` clause with aggregate and ranking functions. See [Aggregate Functions](/docs/reference/sql/aggregate_functions) for functions that support the `OVER` clause, including `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, and `NTH_VALUE`.
+Window functions perform calculations across sets of rows related to the current row. Spice supports window functions using the `OVER` clause with aggregate and ranking functions. See [Aggregate Functions](./aggregate_functions) for functions that support the `OVER` clause, including `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, and `NTH_VALUE`.
 
 **Example:**
 
@@ -102,29 +102,29 @@ SELECT
 FROM employees;
 ```
 
-### [JSON Functions and Operators](/docs/reference/sql/json)
+### [JSON Functions and Operators](./json)
 
-- [JSON Functions](/docs/reference/sql/json#json-functions)
-- [JSON Operators](/docs/reference/sql/json#json-operators)
-- [Usage Examples](/docs/reference/sql/json#usage-examples)
+- [JSON Functions](./json#json-functions)
+- [JSON Operators](./json#json-operators)
+- [Usage Examples](./json#usage-examples)
 
-### [Search](/docs/reference/sql/search)
+### [Search](./search)
 
-- [Vector Search (`vector_search`)](/docs/reference/sql/search#vector-search-vector_search)
-- [Full-Text Search (`text_search`)](/docs/reference/sql/search#full-text-search-text_search)
-- [Lexical Search: LIKE, =, and Regex](/docs/reference/sql/search#lexical-search-like--and-regex)
+- [Vector Search (`vector_search`)](./search#vector-search-vector_search)
+- [Full-Text Search (`text_search`)](./search#full-text-search-text_search)
+- [Lexical Search: LIKE, =, and Regex](./search#lexical-search-like--and-regex)
 
-### [Prepared Statements](/docs/reference/sql/prepared_statements)
+### [Prepared Statements](./prepared_statements)
 
-- [Positional Arguments](/docs/reference/sql/prepared_statements#positional-arguments)
+- [Positional Arguments](./prepared_statements#positional-arguments)
 
-### [DML (Data Manipulation Language)](/docs/reference/sql/dml)
+### [DML (Data Manipulation Language)](./dml)
 
-- [INSERT Statement](/docs/reference/sql/dml#insert)
+- [INSERT Statement](./dml#insert)
 
 ### Data Types
 
-Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference](/docs/reference/datatypes). Common SQL types include:
+Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference](../datatypes). Common SQL types include:
 
 | SQL Type          | Description                         |
 | ----------------- | ----------------------------------- |
