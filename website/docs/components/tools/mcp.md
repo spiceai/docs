@@ -106,4 +106,4 @@ tools:
     description: Provides geocoding and mapping capabilities.
 ```
 
-For more details, see the [MCP Tools Reference(../../reference/spicepod/tools).
+For more details, see the [MCP Tools Reference](../../reference/spicepod/tools).

@@ -20,7 +20,7 @@ Unlike traditional reporting tools (e.g., Tableau, Power BI) or generic RAG fram
 
 ## Example
 
-A health-tech company generates real-time HIPAA compliance reports by combining structured patient data from PostgreSQL with unstructured audit logs and regulatory guidelines from cloud storage. The AI Gateway produces narrative summaries highlighting potential violations and actionable recommendations, delivered to compliance officers in minutes. This outperforms static BI dashboards and generic RAG tools lacking real-time integration and regulatory context, ensuring faster, more accurate compliance decisions. The [Vector-Based Search documentation(../../../features/search/vector-search.md) provides guidance for implementing VSS in RAG workflows.
+A health-tech company generates real-time HIPAA compliance reports by combining structured patient data from PostgreSQL with unstructured audit logs and regulatory guidelines from cloud storage. The AI Gateway produces narrative summaries highlighting potential violations and actionable recommendations, delivered to compliance officers in minutes. This outperforms static BI dashboards and generic RAG tools lacking real-time integration and regulatory context, ensuring faster, more accurate compliance decisions. The [Vector-Based Search documentation](../../../features/search/vector-search.md) provides guidance for implementing VSS in RAG workflows.
 
 ## Benefits
 

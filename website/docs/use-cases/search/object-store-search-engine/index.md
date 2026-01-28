@@ -20,7 +20,7 @@ Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that require 
 
 ## Example
 
-A security operations platform uses Spice.ai to search S3-stored network logs and threat intelligence data, combining semantic VSS for identifying emerging threat patterns with BM25 for precise log entry retrieval. This enables rapid incident analysis without moving data to a centralized index, reducing costs and ensuring compliance compared to ETL-dependent search engines. The [Vector-Based Search documentation(../../../features/search/index.md) and [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) provide guidance for implementing hybrid search on object stores.
+A security operations platform uses Spice.ai to search S3-stored network logs and threat intelligence data, combining semantic VSS for identifying emerging threat patterns with BM25 for precise log entry retrieval. This enables rapid incident analysis without moving data to a centralized index, reducing costs and ensuring compliance compared to ETL-dependent search engines. The [Vector-Based Search documentation](../../../features/search/) and [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) provide guidance for implementing hybrid search on object stores.
 
 ## Benefits
 
@@ -30,7 +30,7 @@ A security operations platform uses Spice.ai to search S3-stored network logs an
 
 ### Learn More
 
-- **Vector and Hybrid Search**: [Documentation(../../../features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
-- **Federated SQL Queries**: [Documentation(../../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation(../../../features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
-- **Observability**: [Documentation(../../../features/observability/index.md).
+- **Vector and Hybrid Search**: [Documentation](../../../features/search/) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation/) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Data Acceleration**: [Documentation](../../../features/data-acceleration/) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Observability**: [Documentation](../../../features/observability/).

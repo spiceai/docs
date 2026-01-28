@@ -78,7 +78,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by MySQL:
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by MySQL:
 
 - `PARTITION`
 
@@ -102,7 +102,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 
 ### `metrics`
 
-The MySQL data connector supports the following optional [component metrics(../../features/observability/component_metrics):
+The MySQL data connector supports the following optional [component metrics](../../features/observability/component_metrics):
 
 | Metric Name | Type | Description |
 | ----------- | ---- | ----------- |
@@ -257,7 +257,7 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation(../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide(../secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
 
 ## Cookbook
 

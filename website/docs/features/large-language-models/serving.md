@@ -23,8 +23,8 @@ models:
 
 ## Filesystem
 
-Models can be hosted on a local filesystem and referenced directly in the configuration. For more details, see the [Filesystem Model Component(../../components/models/filesystem.md).
+Models can be hosted on a local filesystem and referenced directly in the configuration. For more details, see the [Filesystem Model Component](../../components/models/filesystem.md).
 
 ## Hugging Face
 
-Spice integrates with Hugging Face, enabling you to use a wide range of pre-trained models. For more information, see the [Hugging Face Model Component(../../components/models/huggingface.md).
+Spice integrates with Hugging Face, enabling you to use a wide range of pre-trained models. For more information, see the [Hugging Face Model Component](../../components/models/huggingface.md).

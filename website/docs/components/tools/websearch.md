@@ -29,7 +29,7 @@ The `from` field specifies the tool to use. For the Web Search Tool, use `websea
 The `name` field specifies the name of the tool. This name is used:
 
 - To reference the tool in the model's `params.tools` field
-- To make HTTP requests to the tool via the [API(../../api/HTTP/post), i.e. `v1/tools/{name}`
+- To make HTTP requests to the tool via the [API](../../api/http/), i.e. `v1/tools/{name}`
 - Provided to any language model that uses the tool
 
 ### `description`

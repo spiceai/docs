@@ -147,7 +147,7 @@ SpiceClient client = SpiceClient.builder()
 
 #### Accelerated dataset refresh
 
-Use `refresh` method to perform [Accelerated Dataset(../../components/data-accelerators) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
+Use `refresh` method to perform [Accelerated Dataset](../../components/data-accelerators/) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
 
 ```java
 SpiceClient client = SpiceClient.builder()

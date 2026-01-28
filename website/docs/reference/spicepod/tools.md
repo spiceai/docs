@@ -4,7 +4,7 @@ sidebar_label: 'Tools'
 description: 'Tools YAML reference'
 ---
 
-Tools define functions that can be invoked within the Spice runtime, either directly or by a [language model(../../features/large-language-models) (LLMs). These tools provide access to different functionalities and can be customized in the `tools` section of `spicepod.yaml`.
+Tools define functions that can be invoked within the Spice runtime, either directly or by a [language model](../../features/large-language-models/) (LLMs). These tools provide access to different functionalities and can be customized in the `tools` section of `spicepod.yaml`.
 
 ## `tools`
 
@@ -28,7 +28,7 @@ A unique identifier for this tool.
 
 ### `from`
 
-Defines the source of the tool, or the specific built-in tool to customise. See [Available Tools(../../components/tools#available-tools) for a list of available tools.
+Defines the source of the tool, or the specific built-in tool to customise. See [Available Tools](../../components/tools/#available-tools) for a list of available tools.
 
 ### `description`
 

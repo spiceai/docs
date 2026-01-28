@@ -26,7 +26,7 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 

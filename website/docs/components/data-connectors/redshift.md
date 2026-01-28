@@ -134,9 +134,9 @@ Redshift types are mapped to PostgreSQL types. See the [PostgreSQL connector doc
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For details, see the [secret stores documentation(../secret-stores) and [using referenced secrets guide(../secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For details, see the [secret stores documentation](../secret-stores/) and [using referenced secrets guide](../secret-stores/#using-secrets).
 
 ## References
 
 - [Amazon Redshift Documentation](https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html)
-- [PostgreSQL Connector Documentation(./postgres)
+- [PostgreSQL Connector Documentation](./postgres/)

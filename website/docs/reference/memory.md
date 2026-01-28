@@ -13,7 +13,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Effective memory management is essential for maintaining optimal performance and stability in Spice deployments. This guide outlines recommendations and best practices for managing memory usage across different [Data Accelerators(../../components/data-accelerators).
+Effective memory management is essential for maintaining optimal performance and stability in Spice deployments. This guide outlines recommendations and best practices for managing memory usage across different [Data Accelerators](../../components/data-accelerators/).
 
 ## General Memory Recommendations
 
@@ -26,7 +26,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 | Large datasets (`refresh_mode: append`)  | 1.5x dataset size | Memory for incremental data only                               |
 | Large datasets (`refresh_mode: changes`) | 1.5x dataset size | Depends on CDC event volume and frequency                      |
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB(../../components/data-accelerators/duckdb.md), [SQLite(../../components/data-accelerators/sqlite.md), [Turso(../../components/data-accelerators/turso.md), or [Spice Cayenne(../../components/data-accelerators/cayenne.md), which store data on disk and support spilling.
+Memory requirements can be reduced by using file-based acceleration with [DuckDB](../../components/data-accelerators/duckdb.md), [SQLite](../../components/data-accelerators/sqlite.md), [Turso](../../components/data-accelerators/turso.md), or [Spice Cayenne](../../components/data-accelerators/cayenne.md), which store data on disk and support spilling.
 
 ## Accelerator-Specific Memory Management
 
@@ -43,7 +43,7 @@ The default Arrow accelerator stores all data in memory uncompressed. Datasets m
 
 **Hash Index Memory (Experimental, v1.11.0-rc.2+):**
 
-When using the optional [hash index(../../features/data-acceleration/hash-index), additional memory is required:
+When using the optional [hash index](../../features/data-acceleration/hash-index), additional memory is required:
 
 | Component    | Memory per Row |
 | ------------ | -------------- |
@@ -55,7 +55,7 @@ For a 10 million row dataset with hash index enabled, expect ~165 MB additional 
 
 ### Spice Cayenne
 
-[Spice Cayenne(../../components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
+[Spice Cayenne](../../components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
 
 Spice Cayenne is DataFusion query-native, meaning all query execution adheres to the `runtime.query.memory_limit` setting. When query memory is exhausted, DataFusion spills intermediate results to disk. This architecture provides predictable memory usage while maintaining high query performance.
 
@@ -89,7 +89,7 @@ datasets:
 
 ### DuckDB
 
-[DuckDB(../../components/data-accelerators/duckdb.md) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
+[DuckDB](../../components/data-accelerators/duckdb.md) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
 
 **Memory Configuration Parameters:**
 
@@ -118,7 +118,7 @@ datasets:
 
 ### SQLite
 
-[SQLite(../../components/data-accelerators/sqlite.md) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
+[SQLite](../../components/data-accelerators/sqlite.md) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
 
 ## Refresh Modes and Memory Implications
 
@@ -339,9 +339,9 @@ Total Memory = Runtime Overhead + Accelerator Memory + Query Memory Limit + Cach
 - Larger `max_size` values improve hit rates but consume more memory
 - Shorter `item_ttl` values reduce memory usage but may decrease hit rates
 - Use `stale_while_revalidate_ttl` to serve stale results while refreshing in the background
-- Monitor cache hit rates via [observability metrics(../../features/observability) to tune configuration
+- Monitor cache hit rates via [observability metrics](../../features/observability/) to tune configuration
 
-See [Caching(../../features/caching) for complete cache configuration options.
+See [Caching](../../features/caching/) for complete cache configuration options.
 
 ## Kubernetes Memory Configuration
 
@@ -380,14 +380,14 @@ Use observability tools to monitor and profile memory usage regularly. Spice exp
 - Accelerator cache hit rates
 - Data refresh memory consumption
 
-See [Observability(../../features/observability/index.md) for configuration details.
+See [Observability](../../features/observability/) for configuration details.
 
 ## Related Documentation
 
 **Spice Documentation:**
 
 - [Performance Tuning](./performance-tuning.md) - Comprehensive guide to optimizing Spice performance
-- [Data Accelerators(../../components/data-accelerators) - Accelerator configuration reference
+- [Data Accelerators](../../components/data-accelerators/) - Accelerator configuration reference
 - [Runtime Configuration](./spicepod/runtime.md) - Runtime parameter reference
 
 **External References:**
