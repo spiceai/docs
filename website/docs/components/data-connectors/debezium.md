@@ -85,11 +85,11 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 The connector supports the following optional [component metrics](../../features/observability/component_metrics):
 
-| Metric Name              | Type    | Description                                                                                       |
-|--------------------------|---------|---------------------------------------------------------------------------------------------------|
-| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                               |
-| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                                     |
-| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed)              |
+| Metric Name              | Type    | Description                                                                          |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
+| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                  |
+| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                        |
+| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed) |
 
 These metrics are not enabled by default, enable them by setting the `metrics` parameter:
 
@@ -116,12 +116,12 @@ Using the Debezium connector **requires** [acceleration](../data-accelerators/) 
 
 The following settings are required:
 
-| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
+| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
 | `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
-| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                                                                         |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                                                               |
+| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
+| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
 
 ## Secrets
 

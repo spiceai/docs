@@ -118,8 +118,8 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_signing_region`       | The region to use when signing the request for SigV4. Defaults to the region in the catalog URL if available.                                                                                        |
 | `iceberg_signing_name`         | The name to use when signing the request for SigV4. Default: `glue`.                                                                                                                                 |
 | `iceberg_s3_endpoint`          | Configure an alternative endpoint for the S3 service. This can be any S3-compatible object storage service (e.g., Minio, R2).                                                                        |
-| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                         |
-| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                     |
+| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                    |
+| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                |
 | `iceberg_s3_session_token`     | Configure the static session token used for S3 storage.                                                                                                                                              |
 | `iceberg_s3_region`            | The AWS S3 region to use.                                                                                                                                                                            |
 | `iceberg_s3_role_session_name` | An optional identifier for the assumed role session for auditing purposes.                                                                                                                           |
@@ -237,15 +237,15 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `s3:ListBucket` | Required. Allows scanning all objects from the bucket |
-| `s3:GetObject` | Required. Allows fetching objects |
-| `glue:GetCatalog` | Required. Retrieve metadata about the specified catalog. |
+| Permission          | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
+| `s3:GetObject`      | Required. Allows fetching objects                              |
+| `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
-| `glue:GetDatabase` | Required. Retrieve metadata about the specified database. |
-| `glue:GetTable` | Required. Retrieve metadata about the specified table. |
-| `glue:GetTables` | Required. List the tables available in the current database. |
+| `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
+| `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
+| `glue:GetTables`    | Required. List the tables available in the current database.   |
 
 ## Cookbook
 

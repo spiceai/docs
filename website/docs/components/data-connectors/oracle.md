@@ -76,43 +76,43 @@ SELECT COUNT(*) FROM products;
 
 The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
-| Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Parameter Name             | Description                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `oracle_connection_string` | The connection string to use to connect to the Oracle server. This can be a TNS alias from `tnsnames.ora` for local mTLS/Wallet connections or an [Easy Connect](https://download.oracle.com/ocomdocs/global/Oracle-Net-Easy-Connect-Plus.pdf) string. |
-| `oracle_host`              | The hostname or IP address of the Oracle Database instance. Required when not using `oracle_connection_string`.                                                                                                                                                                                                                                                                                                                                                                                              |
-| `oracle_port`              | Optional. The port of the Oracle Database server. Default: `1521`                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `oracle_username`          | The Oracle username. Required.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `oracle_password`          | The password to connect with. Required.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `oracle_service_name`      | The Oracle Database service name to connect to. Default: `XEPDB1`                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `oracle_wallet_sso_cert`   | The base64-encoded `cwallet.sso` (wallet auto-login certificate) to use for mTLS authentication with Oracle Cloud.                                                                                                                                                                                                                                                                                                                                           |
-| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate.                                                                                                                                                                                                                                                                                                                               |
+| `oracle_host`              | The hostname or IP address of the Oracle Database instance. Required when not using `oracle_connection_string`.                                                                                                                                        |
+| `oracle_port`              | Optional. The port of the Oracle Database server. Default: `1521`                                                                                                                                                                                      |
+| `oracle_username`          | The Oracle username. Required.                                                                                                                                                                                                                         |
+| `oracle_password`          | The password to connect with. Required.                                                                                                                                                                                                                |
+| `oracle_service_name`      | The Oracle Database service name to connect to. Default: `XEPDB1`                                                                                                                                                                                      |
+| `oracle_wallet_sso_cert`   | The base64-encoded `cwallet.sso` (wallet auto-login certificate) to use for mTLS authentication with Oracle Cloud.                                                                                                                                     |
+| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate.                                                                                         |
 
 ## Types
 
 The table below shows the Oracle data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| Oracle Type    | Arrow Type                                                                 |
-| -------------- | -------------------------------------------------------------------------- |
-| `ROWID`        | `Utf8`                                                                    |
-| `CHAR`         | `Utf8`                                                                    |
-| `NCHAR`        | `Utf8`                                                                    |
-| `VARCHAR2`     | `Utf8`                                                                    |
-| `NVARCHAR2`    | `Utf8`                                                                    |
-| `LONG`         | `Utf8`                                                                    |
-| `CLOB`         | `LargeUtf8`                                                               |
-| `NCLOB`        | `LargeUtf8`                                                               |
-| `NUMBER`       | `Int64` for integer types (scale=0, precision≤18), otherwise `Decimal128` |
-| `FLOAT`        | `Float32` for precision≤24, otherwise `Float64`                          |
-| `BINARY_FLOAT` | `Float32`                                                                 |
-| `BINARY_DOUBLE`| `Float64`                                                                 |
-| `BOOLEAN`      | `Boolean`                                                                 |
-| `DATE`         | `Date32`                                                                  |
-| `TIMESTAMP`    | `Timestamp(Second)` for precision=0, otherwise `Timestamp(Nanosecond)`    |
-| `TIMESTAMP WITH TIME ZONE` | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
+| Oracle Type                      | Arrow Type                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `ROWID`                          | `Utf8`                                                                           |
+| `CHAR`                           | `Utf8`                                                                           |
+| `NCHAR`                          | `Utf8`                                                                           |
+| `VARCHAR2`                       | `Utf8`                                                                           |
+| `NVARCHAR2`                      | `Utf8`                                                                           |
+| `LONG`                           | `Utf8`                                                                           |
+| `CLOB`                           | `LargeUtf8`                                                                      |
+| `NCLOB`                          | `LargeUtf8`                                                                      |
+| `NUMBER`                         | `Int64` for integer types (scale=0, precision≤18), otherwise `Decimal128`        |
+| `FLOAT`                          | `Float32` for precision≤24, otherwise `Float64`                                  |
+| `BINARY_FLOAT`                   | `Float32`                                                                        |
+| `BINARY_DOUBLE`                  | `Float64`                                                                        |
+| `BOOLEAN`                        | `Boolean`                                                                        |
+| `DATE`                           | `Date32`                                                                         |
+| `TIMESTAMP`                      | `Timestamp(Second)` for precision=0, otherwise `Timestamp(Nanosecond)`           |
+| `TIMESTAMP WITH TIME ZONE`       | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
 | `TIMESTAMP WITH LOCAL TIME ZONE` | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
-| `RAW`          | `Binary`                                                                  |
-| `LONG RAW`     | `Binary`                                                                  |
-| `BLOB`         | `LargeBinary`                                                             |
+| `RAW`                            | `Binary`                                                                         |
+| `LONG RAW`                       | `Binary`                                                                         |
+| `BLOB`                           | `LargeBinary`                                                                    |
 
 :::note
 

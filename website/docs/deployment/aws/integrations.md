@@ -320,11 +320,11 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
 
 Deploy Spice on AWS infrastructure for optimal performance and integration:
 
-| Option         | Description                                         | Documentation               |
-| -------------- | --------------------------------------------------- | --------------------------- |
-| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment](.)   |
-| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment](.)   |
-| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment](.)   |
+| Option         | Description                                         | Documentation       |
+| -------------- | --------------------------------------------------- | ------------------- |
+| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment](.) |
+| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment](.) |
+| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment](.) |
 
 ## Resources
 

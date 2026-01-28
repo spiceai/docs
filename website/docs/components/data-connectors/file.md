@@ -53,11 +53,11 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-| Parameter name              | Description                                                                                                                                                                         |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parameter name              | Description                                                                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [File Formats](./#file-formats) for details. |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                    |
-| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                                                     |
+| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                      |
+| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                       |
 
 For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format).
 

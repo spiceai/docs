@@ -68,11 +68,11 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 
 ### `params`
 
-| Parameter Name              | Description                                                                                                 |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats). |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                       |
-| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.               |
+| Parameter Name              | Description                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                 |
+| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                         |
+| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`. |
 
 ## Examples
 

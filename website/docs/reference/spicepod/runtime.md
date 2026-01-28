@@ -347,12 +347,12 @@ Enables or disables runtime telemetry collection. Defaults to `true`.
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
-| Parameter name  | Optional | Default | Description                                                                                          |
-| --------------- | -------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                       |
-| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).     |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).            |
-| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                      |
+| Parameter name  | Optional | Default | Description                                                                                      |
+| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                   |
+| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below). |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).        |
+| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                  |
 
 **Protocol inference:**
 
