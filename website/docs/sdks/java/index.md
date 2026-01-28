@@ -131,7 +131,7 @@ ArrowReader reader = client.queryWithParams(
     Param.decimal128(new BigDecimal("99.99"), 10, 2));
 ```
 
-For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries.mdx).
+For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries).
 
 ### Memory Configuration
 
@@ -147,7 +147,7 @@ SpiceClient client = SpiceClient.builder()
 
 #### Accelerated dataset refresh
 
-Use `refresh` method to perform [Accelerated Dataset](/docs/components/data-accelerators) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
+Use `refresh` method to perform [Accelerated Dataset](../../components/data-accelerators) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
 
 ```java
 SpiceClient client = SpiceClient.builder()

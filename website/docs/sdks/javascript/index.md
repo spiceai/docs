@@ -17,7 +17,7 @@ import TabItem from '@theme/TabItem';
 [github.com/spiceai/spice.js](https://github.com/spiceai/spice.js)
 
 :::note[Parameterized Queries]
-Parameterized query support is coming soon. See [Parameterized Queries](../../features/query-federation/parameterized-queries.mdx) for more information.
+Parameterized query support is coming soon. See [Parameterized Queries](../../features/query-federation/parameterized-queries) for more information.
 :::
 
 ### Install

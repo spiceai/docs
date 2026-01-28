@@ -107,9 +107,10 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  // Warn on broken anchors and links instead of throwing to handle cross-version link issues
-  // in older release branches that may reference docs pages or anchors that don't exist in all versions
   onBrokenAnchors: 'warn',
+  // Use 'warn' instead of 'throw' because versioned docs from older branches
+  // may contain broken links that cannot be fixed retroactively.
+  // The build will still warn about broken links so they can be reviewed.
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 

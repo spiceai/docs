@@ -18,7 +18,7 @@ This guide provides recommendations for optimizing Spice performance across data
 
 ## Accelerator Selection
 
-Choose the appropriate [Data Accelerator](/docs/components/data-accelerators) based on dataset characteristics and query patterns.
+Choose the appropriate [Data Accelerator](../components/data-accelerators) based on dataset characteristics and query patterns.
 
 | Scenario                                 | Recommended Accelerator    | Key Configuration                                                     |
 | ---------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
@@ -32,7 +32,7 @@ Choose the appropriate [Data Accelerator](/docs/components/data-accelerators) ba
 
 ## Spice Cayenne Performance Optimization
 
-[Spice Cayenne](/docs/components/data-accelerators/cayenne.md) uses the [Vortex](https://github.com/vortex-data/vortex) columnar format for high-performance analytics on large datasets.
+[Spice Cayenne](../components/data-accelerators/cayenne) uses the [Vortex](https://github.com/vortex-data/vortex) columnar format for high-performance analytics on large datasets.
 
 ### Point Lookups and Random Access
 
@@ -75,7 +75,7 @@ The segment cache stores decompressed data. Size based on working set:
 
 - Estimate the volume of frequently accessed data
 - Cache hits avoid decompression overhead
-- Monitor cache hit rates via [observability metrics](/docs/features/observability)
+- Monitor cache hit rates via [observability metrics](../features/observability)
 
 ### Compression Strategy
 
@@ -88,7 +88,7 @@ Choose `btrblocks` for read-heavy analytics workloads. Use `zstd` only when size
 
 ## DuckDB Performance Optimization
 
-[DuckDB](/docs/components/data-accelerators/duckdb.md) provides mature SQL support with sophisticated query optimization.
+[DuckDB](../components/data-accelerators/duckdb) provides mature SQL support with sophisticated query optimization.
 
 ### Memory Configuration
 
@@ -591,7 +591,7 @@ Monitor key performance metrics:
 - `dataset_load_state` - Acceleration status
 - Cache hit rates
 
-See [Observability](/docs/features/observability/index.md) for metric configuration.
+See [Observability](../features/observability) for metric configuration.
 
 ## Performance Checklist
 
@@ -610,12 +610,12 @@ Use this checklist when optimizing Spice deployments:
 
 **Spice Documentation:**
 
-- [Managing Memory Usage](./memory.md) - Memory configuration reference
-- [Data Accelerators](/docs/components/data-accelerators) - Accelerator documentation
-- [Spice Cayenne Data Accelerator](/docs/components/data-accelerators/cayenne.md) - Spice Cayenne-specific tuning
-- [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md) - DuckDB-specific tuning
-- [Caching](/docs/features/caching) - Cache configuration
-- [Observability](/docs/features/observability) - Metrics and monitoring
+- [Managing Memory Usage](./memory) - Memory configuration reference
+- [Data Accelerators](../components/data-accelerators) - Accelerator documentation
+- [Spice Cayenne Data Accelerator](../components/data-accelerators/cayenne) - Spice Cayenne-specific tuning
+- [DuckDB Data Accelerator](../components/data-accelerators/duckdb) - DuckDB-specific tuning
+- [Caching](../features/caching) - Cache configuration
+- [Observability](../features/observability) - Metrics and monitoring
 
 **External References:**
 

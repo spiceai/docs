@@ -15,25 +15,25 @@ spice [command] [--help]
 
 ### Full Command Reference
 
-| Command                                            | Description                                                         |
-| -------------------------------------------------- | --------------------------------------------------------------------|
-| [add](/docs/cli/reference/add)               | Add Pod - adds a pod to the project                                 |
-| [catalogs](/docs/cli/reference/catalogs)     | List [catalogs](/docs/components/catalogs) loaded by the Spice runtime   |
-| [completion](/docs/cli/reference/completion) | Generate the autocompletion script for the specified shell          |
-| [dataset](/docs/cli/reference/dataset)       | Dataset operations                                                  |
-| [datasets](/docs/cli/reference/datasets)     | Lists datasets loaded by the Spice runtime                          |
-| help                                               | Help about any command                                              |
-| [init](/docs/cli/reference/init)             | Initialize Pod - initializes a new pod in the project               |
-| [login](/docs/cli/reference/login)           | Login to the Spice.ai Platform                                                  |
-| [models](/docs/cli/reference/models)         | Lists models loaded by the Spice runtime                            |
-| [pods](/docs/cli/reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
-| [refresh](/docs/cli/reference/refresh)       | Refreshes an accelerated dataset loaded by the Spice runtime          |
-| [run](/docs/cli/reference/run)               | Run Spice - starts the Spice runtime, installing if necessary |
-| [search](/docs/cli/reference/search)         | Perform embeddings-based searches across |
-| [sql](/docs/cli/reference/sql)               | Start an interactive SQL query session against the Spice runtime |
-| [status](/docs/cli/reference/status)         | Spice runtime status                                                |
-| [upgrade](/docs/cli/reference/upgrade)       | Upgrades the Spice CLI to the latest release                        |
-| [version](/docs/cli/reference/version)       | Spice CLI version                                                   |
+| Command                       | Description                                                             |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| [add](./add.md)               | Add Pod - adds a pod to the project                                     |
+| [catalogs](./catalogs.md)     | List [catalogs](../../components/catalogs/) loaded by the Spice runtime |
+| [completion](./completion.md) | Generate the autocompletion script for the specified shell              |
+| [dataset](./dataset.md)       | Dataset operations                                                      |
+| [datasets](./datasets.md)     | Lists datasets loaded by the Spice runtime                              |
+| help                          | Help about any command                                                  |
+| [init](./init.md)             | Initialize Pod - initializes a new pod in the project                   |
+| [login](./login.md)           | Login to the Spice.ai Platform                                          |
+| [models](./models.md)         | Lists models loaded by the Spice runtime                                |
+| [pods](./pods.md)             | Lists Spicepods loaded by the Spice runtime                             |
+| [refresh](./refresh.md)       | Refreshes an accelerated dataset loaded by the Spice runtime            |
+| [run](./run.md)               | Run Spice - starts the Spice runtime, installing if necessary           |
+| [search](./search.md)         | Perform embeddings-based searches across                                |
+| [sql](./sql.md)               | Start an interactive SQL query session against the Spice runtime        |
+| [status](./status.md)         | Spice runtime status                                                    |
+| [upgrade](./upgrade.md)       | Upgrades the Spice CLI to the latest release                            |
+| [version](./version.md)       | Spice CLI version                                                       |
 
 ### Command Flags
 

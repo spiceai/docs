@@ -88,7 +88,7 @@ Spice resource requirements, particularly memory, are highly dependent on worklo
 | `refresh_mode: full`   | 2.5x the dataset size |
 | `refresh_mode: append` | 1.5x the dataset size |
 
-See [Memory Management and Best Pratices](memory.md) for a detailed guide on memory considerations.
+See [Memory Management and Best Pratices](memory) for a detailed guide on memory considerations.
 
 ## Additional Considerations
 

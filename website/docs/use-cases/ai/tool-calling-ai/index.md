@@ -20,7 +20,7 @@ Unlike generic tool-calling frameworks (e.g., OpenAI Functions) that rely on ext
 
 ## Example
 
-A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment tool, enabling an LLM to generate real-time fraud alerts by combining transaction data (via federated queries from Databricks) with the tool’s risk scoring outputs. This delivers faster, more accurate fraud detection than generic AI agents reliant on external APIs, reducing financial losses and improving regulatory compliance. The [Spice.ai MCP documentation](/docs/features/large-language-models/mcp.md) provides detailed setup guidance for implementing MCP server workflows.
+A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment tool, enabling an LLM to generate real-time fraud alerts by combining transaction data (via federated queries from Databricks) with the tool's risk scoring outputs. This delivers faster, more accurate fraud detection than generic AI agents reliant on external APIs, reducing financial losses and improving regulatory compliance. The [Spice.ai MCP documentation](../../../features/large-language-models/mcp) provides detailed setup guidance for implementing MCP server workflows.
 
 ## Benefits
 
@@ -30,6 +30,6 @@ A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment
 
 ### Learn More
 
-- **MCP Documentation**: [Documentation](/docs/features/large-language-models/mcp.md).
-- **Federated SQL Queries**: [Documentation](/features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **AI Gateway**: [Documentation](/features/large-language-models/index.md) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
+- **MCP Documentation**: [Documentation](../../../features/large-language-models/mcp).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **AI Gateway**: [Documentation](../../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).

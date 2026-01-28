@@ -31,7 +31,7 @@ catalogs:
 
 ## `from`
 
-The `from` field is used to specify the catalog provider. For Unity Catalog, use `unity_catalog:<catalog_path>`. The `catalog_path` is the URL to the [`getCatalog`](https://github.com/unitycatalog/unitycatalog/blob/main/api/Apis/CatalogsApi.md) endpoint of the Unity Catalog API. It should be formatted as `https://<unity_catalog_host>/api/2.1/unity-catalog/catalogs/<catalog_name>`.
+The `from` field is used to specify the catalog provider. For Unity Catalog, use `unity_catalog:<catalog_path>`. The `catalog_path` is the URL to the [`getCatalog`](https://github.com/unitycatalog/unitycatalog/blob/main/api/Apis/CatalogsApi) endpoint of the Unity Catalog API. It should be formatted as `https://<unity_catalog_host>/api/2.1/unity-catalog/catalogs/<catalog_name>`.
 
 ## `name`
 

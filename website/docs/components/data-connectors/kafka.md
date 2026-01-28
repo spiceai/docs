@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](/docs/components/data-accelerators/index.md). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
+The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../data-accelerators/). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
 
 ```yaml
 datasets:
@@ -75,7 +75,7 @@ SELECT COUNT(*) FROM orders;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -84,24 +84,24 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 | `kafka_bootstrap_servers`                     | **Required**. A list of host/port pairs for establishing the initial Kafka cluster connection. The client will use all servers, regardless of the bootstrapping servers specified here. This list only affects the initial hosts used to discover the full server set and should be formatted as `host1:port1,host2:port2,...`. |
 | `kafka_security_protocol`                     | Security protocol for Kafka connections. Default: `SASL_SSL`. Options: <ul><li>`PLAINTEXT`</li><li>`SSL`</li><li>`SASL_PLAINTEXT`</li><li>`SASL_SSL`</li></ul>                                                                                                                                                                  |
 | `kafka_sasl_mechanism`                        | SASL (Simple Authentication and Security Layer) authentication mechanism. Default: `SCRAM-SHA-512`. Options: <ul><li>`PLAIN`</li><li>`SCRAM-SHA-256`</li><li>`SCRAM-SHA-512`</li></ul>                                                                                                                                          |
-| `kafka_sasl_username`                         | SASL username. Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.                                                                                                                                                                                                                                        |
-| `kafka_sasl_password`                         | SASL password. Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.                                                                                                                                                                                                                                        |
+| `kafka_sasl_username`                         | SASL username. Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.                                                                                                                                                                                                                                         |
+| `kafka_sasl_password`                         | SASL password. Required if `kafka_security_protocol` is `SASL_PLAINTEXT` or `SASL_SSL`.                                                                                                                                                                                                                                         |
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
-| `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                            |
+| `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                                      |
 | `schema_infer_max_records`                    | Number of Kafka messages to sample for schema inference. Default: `1`. Increase if your data has optional fields or varying structure.                                                                                                                                                                                          |
 | `flatten_json`                                | Set `true` to flatten nested structs in JSON as separate columns.                                                                                                                                                                                                                                                               |
 
 ### `metrics`
 
-The connector supports the following optional [component metrics](/docs/features/observability/component_metrics):
+The connector supports the following optional [component metrics](../../features/observability/component_metrics):
 
-| Metric Name              | Type    | Description                                                                                       |
-|--------------------------|---------|---------------------------------------------------------------------------------------------------|
-| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                               |
-| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                                     |
-| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed)              |
+| Metric Name              | Type    | Description                                                                          |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
+| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                  |
+| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                        |
+| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed) |
 
 These metrics are not enabled by default, enable them by setting the `metrics` parameter:
 
@@ -122,18 +122,18 @@ datasets:
 
 :::warning
 
-Using the Kafka connector **requires** [acceleration](/docs/components/data-accelerators/index.md) with `refresh_mode: append` enabled.
+Using the Kafka connector **requires** [acceleration](../data-accelerators/) with `refresh_mode: append` enabled.
 
 :::
 
 The following settings are required:
 
-| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](/docs/components/data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](/docs/components/data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](/docs/components/data-accelerators/postgres/index.md) as the acceleration engine.</li></ul> |
-| `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                                                                 |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, allowing it to resume from the last known state instead of re-processing all messages.                                                                                                |
+| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
+| `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                        |
+| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, allowing it to resume from the last known state instead of re-processing all messages.                                                        |
 
 ## Data Format Support
 
@@ -141,8 +141,8 @@ The Kafka connector currently supports JSON-formatted messages. Schema is automa
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
 
 ## Cookbook
 
-- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README.md).
+- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README).
