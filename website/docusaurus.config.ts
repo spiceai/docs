@@ -355,7 +355,7 @@ const config: Config = {
       appId: '0SP8I8JTL8',
       apiKey: '72f66fe334ccd3c7db696a123d68735c',
       indexName: 'spiceai',
-      contextualSearch: false
+      contextualSearch: true
     }
   } satisfies Preset.ThemeConfig,
 
