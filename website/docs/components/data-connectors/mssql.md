@@ -54,7 +54,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+<<<<<<< HEAD
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by Microsoft SQL Server:
+=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords) or any of the following keywords that are reserved by Microsoft SQL Server:
+>>>>>>> origin/trunk
 
 - `OUTER`
 - `SET`

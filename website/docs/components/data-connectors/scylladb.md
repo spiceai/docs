@@ -59,11 +59,19 @@ SELECT COUNT(*) FROM app_users;
 +----------+
 ```
 
+<<<<<<< HEAD
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+
+### `params`
+
+The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
+=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
 The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
+>>>>>>> origin/trunk
 
 | Parameter Name        | Description                                                        | Required | Default |
 | --------------------- | ------------------------------------------------------------------ | -------- | ------- |
@@ -291,4 +299,8 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 - [ScyllaDB Documentation](https://docs.scylladb.com/)
 - [ScyllaDB CQL Reference](https://opensource.docs.scylladb.com/stable/cql/)
+<<<<<<< HEAD
+- [Data Acceleration](../../features/data-acceleration/)
+=======
 - [Data Acceleration](../../features/data-acceleration)
+>>>>>>> origin/trunk

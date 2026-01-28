@@ -5,7 +5,11 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
+<<<<<<< HEAD
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](./index.md#file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+=======
 The HTTP(s) Data Connector enables federated SQL query across [supported file formats](./#file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+>>>>>>> origin/trunk
 
 ```yaml
 datasets:
@@ -63,7 +67,11 @@ datasets:
 
 The `from` field specifies the HTTP(s) endpoint and can be configured in two ways:
 
+<<<<<<< HEAD
+1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](./index.md#file-formats).
+=======
 1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](./#file-formats).
+>>>>>>> origin/trunk
 
    ```yaml
    from: https://example.com/data/report.csv
@@ -102,7 +110,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+<<<<<<< HEAD
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+>>>>>>> origin/trunk
 
 ### `params`
 

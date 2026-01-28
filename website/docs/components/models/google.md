@@ -29,7 +29,14 @@ See [Google AI Models](https://ai.google.dev/gemini-api/docs/models/gemini) for 
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options:
 
+<<<<<<< HEAD
+- [Tools](../../features/large-language-models/tools.md)
+- [Memory](../../features/large-language-models/memory.md)
+- [Evals](../../features/large-language-models/evals.md)
+- [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
+=======
 - [Tools](../../features/large-language-models/tools)
 - [Memory](../../features/large-language-models/memory)
 - [Evals](../../features/large-language-models/evals)
 - [Parameter overrides](../../features/large-language-models/parameter_overrides)
+>>>>>>> origin/trunk

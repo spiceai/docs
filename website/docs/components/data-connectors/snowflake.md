@@ -31,7 +31,11 @@ A Snowflake fully qualified table name (database.schema.table). For instance `sn
 
 ### `name`
 
+<<<<<<< HEAD
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by Snowflake:
+=======
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords) or any of the following keywords that are reserved by Snowflake:
+>>>>>>> origin/trunk
 
 - `START`
 - `CONNECT`
@@ -48,9 +52,11 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `snowflake_role`                   | Optional, specifies the role to use for accessing Snowflake data                                                |
 | `snowflake_account`                | Required, specifies the Snowflake account-identifier                                                            |
 | `snowflake_username`               | Required, specifies the Snowflake username to use for accessing Snowflake data                                  |
+| `snowflake_auth_type`              | Optional, specifies the authentication type: `snowflake` (default, password-based) or `keypair`                 |
 | `snowflake_password`               | Optional, specifies the Snowflake password to use for accessing Snowflake data                                  |
-| `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key                                                           |
-| `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase                                                        |
+| `snowflake_private_key`            | Optional, specifies the Snowflake private key content as a string (for key-pair auth)                           |
+| `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key file (for key-pair auth)                                  |
+| `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase (for encrypted keys)                                   |
 
 ## Auth
 
@@ -67,11 +73,17 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
     SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
     spice run
-    # Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    # Key-pair using private key file (the `<private-key-passphrase>` is optional, used for encrypted keys only)
     SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
     SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
-    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    spice run
+    # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
+    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     ```
 
@@ -126,15 +138,22 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
       --from-literal=username='<username>' \
       --from-literal=password='<password>'
 
-    # Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    # Key-pair using private key file (the `<private-key-passphrase>` is optional, used for encrypted keys only)
     kubectl create secret generic snowflake \
       --from-literal=account='<account-identifier>' \
       --from-literal=username='<username>' \
-      --from-literal=snowflake_private_key_path='<path-to-private-key>' \
-      --from-literal=snowflake_private_key_passphrase='<private-key-passphrase>'
+      --from-literal=private_key_path='<path-to-private-key>' \
+      --from-literal=private_key_passphrase='<private-key-passphrase>'
+
+    # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
+    kubectl create secret generic snowflake \
+      --from-literal=account='<account-identifier>' \
+      --from-literal=username='<username>' \
+      --from-file=private_key='<path-to-private-key>' \
+      --from-literal=private_key_passphrase='<private-key-passphrase>'
     ```
 
-    `spicepod.yaml`
+    `spicepod.yaml` (password-based)
     ```yaml
     version: v1
     kind: Spicepod
@@ -150,11 +169,36 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
         params:
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
-          snowflake_username: ${snowflake.username}
-          snowflake_password: ${snowflake.password}
-          snowflake_account: ${snowflake.account}
+          snowflake_username: ${snowflake:username}
+          snowflake_password: ${snowflake:password}
+          snowflake_account: ${snowflake:account}
     ```
 
+<<<<<<< HEAD
+    `spicepod.yaml` (key-pair with private key content from secret)
+    ```yaml
+    version: v1
+    kind: Spicepod
+    name: spice-app
+
+    secrets:
+      - from: kubernetes:snowflake
+        name: snowflake
+
+    datasets:
+      - from: snowflake:DATABASE.SCHEMA.TABLE
+        name: table
+        params:
+          snowflake_warehouse: COMPUTE_WH
+          snowflake_role: accountadmin
+          snowflake_auth_type: keypair
+          snowflake_username: ${snowflake:username}
+          snowflake_private_key: ${snowflake:private_key}
+          snowflake_account: ${snowflake:account}
+   ` ```
+
+=======
+>>>>>>> origin/trunk
     Learn more about [Kubernetes Secret Store](../secret-stores/kubernetes/).
 
   </TabItem>
@@ -167,13 +211,13 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     -a spiced -s spice_snowflake_password\
     -w <password>
 
-    # Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
+    # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
     security add-generic-password -l "Snowflake Secret" \
-    -a spiced -s spice_snowflake_snowflake_private_key_path\
-    -w $(echo -n '<path-to-private-key>' | base64)
+    -a spiced -s spice_snowflake_private_key\
+    -w $(cat '<path-to-private-key>')
     ```
 
-    `spicepod.yaml`
+    `spicepod.yaml` (key-pair)
     ```yaml
     version: v1
     kind: Spicepod
@@ -189,8 +233,9 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
         params:
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
+          snowflake_auth_type: keypair
           snowflake_username: user_name
-          snowflake_password: ${keyring:spice_snowflake_password}
+          snowflake_private_key: ${keyring:spice_snowflake_private_key}
           snowflake_account: account_identifier
     ```
 

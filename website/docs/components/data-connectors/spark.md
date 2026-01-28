@@ -22,7 +22,11 @@ datasets:
 
 - `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI. Refer to [spark connect client connection string](https://github.com/apache/spark/blob/master/connector/connect/docs/client-connection-string) for parameters in URI.
 
+<<<<<<< HEAD
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+>>>>>>> origin/trunk
 
 ### Auth Examples
 

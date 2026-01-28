@@ -139,8 +139,13 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ### Documentation
 
+<<<<<<< HEAD
+- [AWS Integrations](./integrations.md) - Complete list of AWS data connectors, AI models, vector stores, and secrets
+- [AWS Secrets Manager Secret Store](../../components/secret-stores/aws-secrets-manager/)
+=======
 - [AWS Integrations](./integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
 - [AWS Secrets Manager Secret Store](../../components/secret-stores/aws-secrets-manager)
+>>>>>>> origin/trunk
 
 ### AWS Blog Posts
 

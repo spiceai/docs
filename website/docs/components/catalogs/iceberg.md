@@ -14,7 +14,11 @@ tags:
 
 The Iceberg Catalog Connector helps connect Spice to an [Apache Iceberg](https://iceberg.apache.org/) catalog, making Iceberg tables and schemas available for federated SQL queries. Every Iceberg table must be registered in a catalog, which manages table metadata and access. Using a catalog connector is the recommended approach for working with multiple Iceberg datasets, as it helps organize tables and schemas efficiently and mirrors the structure of the source catalog provider.
 
+<<<<<<< HEAD
+For connecting to a single Iceberg table, see the [Iceberg Data Connector documentation](../data-connectors/iceberg.md). For AWS Glue-based catalogs, see the [AWS Glue Catalog Connector documentation](./glue.md).
+=======
 For connecting to a single Iceberg table, see the [Iceberg Data Connector documentation](../data-connectors/iceberg). For AWS Glue-based catalogs, see the [AWS Glue Catalog Connector documentation](./glue).
+>>>>>>> origin/trunk
 
 Iceberg catalogs can be of several types:
 
@@ -48,7 +52,11 @@ catalogs:
       iceberg_s3_role_session_name: my-session # Optional. Session name to use when assuming the IAM role.
       iceberg_s3_connect_timeout: 60 # Optional. Connection timeout for the S3-compatible endpoint (default: 60).
 
+<<<<<<< HEAD
+  # AWS Glue Catalog (see also the [AWS Glue Catalog Connector documentation](./glue.md))
+=======
   # AWS Glue Catalog (see also the [AWS Glue Catalog Connector documentation](./glue))
+>>>>>>> origin/trunk
   - from: iceberg:https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/123456789012/namespaces
     name: glue
     params:
@@ -59,7 +67,11 @@ catalogs:
 
 The `from` field specifies the catalog provider. For Iceberg, use `iceberg:<namespace_path>`, where `namespace_path` is the URL to the Iceberg namespace in the catalog provider. The format is `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>`.
 
+<<<<<<< HEAD
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Catalog Connector](./glue.md) for connecting to Iceberg tables managed by Glue for a better experience.
+=======
 For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Catalog Connector](./glue) for connecting to Iceberg tables managed by Glue for a better experience.
+>>>>>>> origin/trunk
 
 The selected namespace must have sub-namespaces where the tables are stored.
 
@@ -93,7 +105,11 @@ A valid `from` value would be `iceberg:https://iceberg-catalog-host.com/v1/names
 
 For loading a multi-part namespace, separate the namespace parts with the `%1F` character. For example, `/v1/namespaces/unity%1Fvery%1Fnested` would load the `foobar` table from the `unity/very/nested/namespace` namespace as `<name>.namespace.foobar`.
 
+<<<<<<< HEAD
+To connect to a single Iceberg table directly, see the [Iceberg Data Connector documentation](../data-connectors/iceberg.md).
+=======
 To connect to a single Iceberg table directly, see the [Iceberg Data Connector documentation](../data-connectors/iceberg).
+>>>>>>> origin/trunk
 
 ## `name`
 

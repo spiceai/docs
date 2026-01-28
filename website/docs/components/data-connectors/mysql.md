@@ -78,7 +78,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+<<<<<<< HEAD
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by MySQL:
+=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords) or any of the following keywords that are reserved by MySQL:
+>>>>>>> origin/trunk
 
 - `PARTITION`
 
