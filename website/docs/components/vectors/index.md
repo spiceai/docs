@@ -30,7 +30,7 @@ Supported Vector engines:
 | ------------------------- | -------------- |
 | [`s3_vectors`][s3vectors] | AWS S3 vectors |
 
-[s3vectors]: /docs/components/vectors/s3_vectors.md
+[s3vectors]: /docs/components/vectors/s3_vectors
 
 :::warning[Limitations]
 
