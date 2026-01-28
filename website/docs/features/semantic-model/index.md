@@ -13,7 +13,7 @@ Semantic data models in Spice are defined using the `datasets[*].columns` config
 
 ### Large Language Models (LLMs)
 
-The semantic model is automatically used by [Spice Models](/docs/reference/spicepod/models.md) as context to produce more accurate and context-aware AI responses.
+The semantic model is automatically used by [Spice Models](../../reference/spicepod/models.md) as context to produce more accurate and context-aware AI responses.
 
 ## Defining a Semantic Model
 
@@ -51,7 +51,7 @@ Datasets can be defined with the following metadata:
 - `instructions`: Optional. Instructions to provide to a language model when using this dataset.
 - `reference_url_template`: Optional. A URL template for citation links.
 
-For detailed `metadata` configuration, see the [Dataset Reference](/docs/reference/spicepod/datasets.md#metadata)
+For detailed `metadata` configuration, see the [Dataset Reference](../../reference/spicepod/datasets.md#metadata)
 
 ## Column Definitions
 
@@ -60,4 +60,4 @@ Each column in the dataset can be defined with the following attributes:
 - `description`: Optional. A description of the column's contents and purpose.
 - `embeddings`: Optional. Vector embeddings configuration for this column.
 
-For detailed `columns` configuration, see the [Dataset Reference](/docs/reference/spicepod/datasets.md#columns)
+For detailed `columns` configuration, see the [Dataset Reference](../../reference/spicepod/datasets.md#columns)

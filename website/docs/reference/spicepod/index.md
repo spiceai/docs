@@ -32,7 +32,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/docs/components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](../../components/secret-stores).
 
 ### `secrets.from`
 
@@ -50,10 +50,10 @@ Where:
 
   Currently supported secret stores:
 
-  - [`env`](/docs/components/secret-stores/env/index.md)
-  - [`kubernetes`](/docs/components/secret-stores/kubernetes/index.md)
-  - [`keyring`](/docs/components/secret-stores/keyring/index.md)
-  - [`aws-secrets-manager`](/docs/components/secret-stores/aws-secrets-manager/index.md)
+  - [`env`](../../components/secret-stores/env/index.md)
+  - [`kubernetes`](../../components/secret-stores/kubernetes/index.md)
+  - [`keyring`](../../components/secret-stores/keyring/index.md)
+  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager/index.md)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 
@@ -249,4 +249,4 @@ workers:
           weight: 1
 ```
 
-For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers.md).
+For a complete specification of worker configuration, see the [Workers Reference](../../reference/spicepod/workers.md).
