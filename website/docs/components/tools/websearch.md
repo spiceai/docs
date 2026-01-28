@@ -24,14 +24,16 @@ The `from` field is used to specify the tool to use. For the Web Search Tool, us
 
 The `name` field is used to specify the name of the tool. This name is used:
  - To reference the tool in the model's `params.tools` field
- - To make HTTP requests to the tool via the [API](/docs/api/HTTP/post), i.e. `v1/tools/{name}`.
+ - To make HTTP requests to the tool via the [API](../../api/HTTP/post), i.e. `v1/tools/{name}`.
  - Provided to any language model that uses the tool.
 
 ## `description`
 
 The `description` field is used to provide a description of the tool. This description is provided to any language model that uses the tool.
 
-## `params`
+- To reference the tool in the model's `params.tools` field
+- To make HTTP requests to the tool via the [API(../../api/HTTP/post), i.e. `v1/tools/{name}`
+- Provided to any language model that uses the tool
 
 The `params` field is used to ... The following parameters are supported:
  - `engine`: The search engine to use. Possible values:

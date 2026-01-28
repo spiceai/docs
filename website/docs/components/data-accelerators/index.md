@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](/docs/reference/spicepod/datasets.md).
+For the complete reference specification, see [datasets](../../reference/spicepod/datasets.md).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -37,10 +37,44 @@ Supported Data Accelerators include:
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
 
-[cayenne]: /docs/components/data-accelerators/cayenne.md
-[duckdb]: /docs/components/data-accelerators/duckdb.md
-[postgres]: /docs/components/data-accelerators/postgres/index.md
-[sqlite]: /docs/components/data-accelerators/sqlite.md
+[cayenne]: ./cayenne.md
+[duckdb]: ./duckdb.md
+[postgres]: ./postgres/index.md
+[sqlite]: ./sqlite.md
+[turso]: ./turso.md
+
+## Choosing an Accelerator
+
+Select the appropriate accelerator based on dataset size, query patterns, and resource constraints:
+
+| Use Case                                            | Recommended Accelerator | Rationale                                               |
+| --------------------------------------------------- | ----------------------- | ------------------------------------------------------- |
+| Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
+| Medium datasets (1-100 GB), complex SQL             | `duckdb`                | Mature SQL support with memory management               |
+| Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
+| Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
+| Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
+| Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
+| External database integration                       | `postgres`              | Leverage existing PostgreSQL infrastructure             |
+
+### Spice Cayenne vs DuckDB
+
+Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based acceleration, but differ in architecture and performance characteristics:
+
+**Choose Spice Cayenne when:**
+
+- Datasets exceed ~1 TB
+- Multi-file data ingestion is required (e.g., partitioned S3 data)
+- Lower memory overhead is preferred
+- Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
+- Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
+
+**Choose DuckDB when:**
+
+- Datasets are under ~1 TB
+- Complex SQL features are required (window functions, CTEs)
+- Existing DuckDB tooling integration is beneficial
+- Explicit index control is required
 
 ## Data Types
 
@@ -59,3 +93,10 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 import DocCardList from '@theme/DocCardList';
 
 <DocCardList />
+
+## Related Documentation
+
+- [Performance Tuning](../../reference/performance-tuning.md) - Comprehensive optimization guide
+- [Managing Memory Usage](../../reference/memory.md) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
+- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso

@@ -60,7 +60,23 @@ The following OpenAI-compatible parameters are supported and passed in the reque
 
 See [Parameter Overrides](https://spiceai.org/docs/features/large-language-models/parameter_overrides) for details.
 
-## Example Configuration
+#### Model Parameters
+
+These parameters control model behavior and are passed in the request payload:
+
+| Parameter       | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `maxTokens`     | Maximum number of tokens to generate.                           |
+| `temperature`   | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
+| `topP`          | Nucleus sampling probability (0.0 to 1.0).                      |
+| `topK`          | Number of highest probability tokens to consider.               |
+| `stopSequences` | Sequences that stop generation when encountered.                |
+
+See [Parameter Overrides(../../features/large-language-models/parameter_overrides) for details on setting default values.
+
+## Examples
+
+### Basic Configuration
 
 ```yaml
 models:
@@ -158,9 +174,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 | `bedrock:InvokeModel`                   | Required. Used to invoke the text model.                          |
 | `bedrock:InvokeModelWithResponseStream` | Required. Used to invoke the text model with streaming responses. |
 
-## References
-
-- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/)
-- [GuardrailConfiguration API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_GuardrailConfiguration.html)
-- [SpiceAI Bedrock Embeddings](https://spiceai.org/docs/components/embeddings/bedrock)
-- [Parameter Overrides](https://spiceai.org/docs/features/large-language-models/parameter_overrides)
+- [Amazon Bedrock Embeddings(../embeddings/bedrock) - Use Bedrock for text embeddings
+- [Parameter Overrides(../../features/large-language-models/parameter_overrides) - Set default model parameters
+- [Amazon Bedrock User Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/) - AWS documentation
+- [Bedrock Model IDs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) - Available models and inference profiles

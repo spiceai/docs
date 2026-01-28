@@ -53,7 +53,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](/docs/features/caching/index.md).
+The search results cache section specifies runtime search cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -68,7 +68,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.embeddings`
 
-The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](/docs/features/caching/index.md).
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -83,7 +83,7 @@ The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -136,7 +136,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls/index.md).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS(../../api/tls/index.md).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -153,7 +153,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/docs/components/secret-stores).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets(../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -185,7 +185,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/docs/components/secret-stores).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets(../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -282,7 +282,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](/docs/reference/memory.md).
+For detailed memory information, see [Memory(../memory.md).
 
 ## `runtime.query.spill_compression`
 
@@ -324,7 +324,7 @@ runtime:
 
 ## `runtime.telemetry`
 
-The telemetry section configures runtime telemetry collection and export. [Learn more](/docs/features/observability).
+The telemetry section configures runtime telemetry collection and export. [Learn more(../../features/observability).
 
 ```yaml
 runtime:
@@ -348,7 +348,7 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | --------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
 | `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                  |
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](/docs/reference/duration/index.md). |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration(../duration/index.md). |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                 |
 
 **Protocol inference:**
@@ -409,7 +409,7 @@ Following metrics are disabled by default:
 - `dataset_acceleration_refresh_lag_ms`
 - `dataset_acceleration_ingestion_lag_ms`
 
-For details about these metrics, see [Observability](/docs/features/observability/index.md).
+For details about these metrics, see [Observability(../../features/observability/index.md).
 
 ```yaml
 runtime:
@@ -420,4 +420,78 @@ runtime:
     - name: dataset_acceleration_refresh_lag_ms
       enabled: false
     - name: dataset_acceleration_ingestion_lag_ms
+```
+
+## `runtime.scheduler`
+
+Configures shared state for [high availability distributed query(../../features/distributed-query/index.md#high-availability) clusters. When configured, multiple schedulers can coordinate via a shared object store.
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster
+    params:
+      region: us-east-1
+```
+
+### `runtime.scheduler.state_location`
+
+The S3 URI for shared cluster state. This is required to enable HA mode with multiple schedulers.
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster
+```
+
+### `runtime.scheduler.params`
+
+Optional parameters for S3 authentication and configuration.
+
+| Parameter        | Description                                           | Default    |
+| ---------------- | ----------------------------------------------------- | ---------- |
+| `region`         | AWS region for the S3 bucket                          | -          |
+| `endpoint`       | Custom S3-compatible endpoint URL                     | -          |
+| `auth`           | Authentication method: `iam_role` or `key`            | `iam_role` |
+| `key`            | AWS access key ID (when `auth: key`)                  | -          |
+| `secret`         | AWS secret access key (when `auth: key`)              | -          |
+| `session_token`  | AWS session token for temporary credentials           | -          |
+| `client_timeout` | S3 client timeout                                     | -          |
+| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
+
+Example with IAM role authentication (default):
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster
+    params:
+      region: us-east-1
+```
+
+Example with explicit credentials:
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster
+    params:
+      region: us-east-1
+      auth: key
+      key: ${secrets:aws_access_key}
+      secret: ${secrets:aws_secret_key}
+```
+
+Example with a custom S3-compatible endpoint (e.g., MinIO):
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster
+    params:
+      endpoint: http://minio.local:9000
+      auth: key
+      key: ${secrets:minio_access_key}
+      secret: ${secrets:minio_secret_key}
+      allow_http: true
 ```

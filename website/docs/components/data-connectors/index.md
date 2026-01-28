@@ -69,19 +69,104 @@ If a file is provided, the file format will be inferred, and `params.file_format
 
 File formats currently supported are:
 
+```yaml
+datasets:
+  - from: s3://bucket/data/sales/
+    name: sales
+    params:
+      file_format: parquet
+```
+
+When connecting to a **specific file**, the format is inferred from the file extension:
+
+```yaml
+datasets:
+  - from: sftp://files.example.com/reports/quarterly.parquet
+    name: quarterly_report
+```
+
+### Supported Formats
+
+| Name                                          | Parameter              | Status  | Description                                   |
+| --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
+| [CSV(../../reference/file_format.md#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
+| JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)  |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)            |
+| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)    |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)        |
+
+### Format-Specific Parameters
+
+File formats support additional parameters for fine-grained control. Common examples include:
+
+| Parameter        | Applies To | Description                                      |
+| ---------------- | ---------- | ------------------------------------------------ |
+| `csv_has_header` | CSV        | Whether the first row contains column headers    |
+| `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
+| `csv_quote`      | CSV        | Quote character for fields containing delimiters |
+
+For complete format options, see [File Formats Reference(../../reference/file_format).
+
+### Applicable Connectors {#object-store-file-formats}
+
+The following data connectors support file format configuration:
+
+| Connector Type               | Connectors                             |
+| ---------------------------- | -------------------------------------- |
+| **Object Stores**            | S3, Azure Blob (ABFS), GCS, HTTP/HTTPS |
+| **Network-Attached Storage** | FTP, SFTP, SMB, NFS                    |
+| **Local Storage**            | File                                   |
+
+### Hive Partitioning
+
+File-based connectors support Hive-style partitioning, which extracts partition columns from folder names. Enable with `hive_partitioning_enabled: true`.
+
+Given a folder structure:
+
+```text
+/data/
+  year=2024/
+    month=01/
+      data.parquet
+    month=02/
+      data.parquet
+```
+
+Configure the dataset:
+
+```yaml
+datasets:
+  - from: s3://bucket/data/
+    name: partitioned_data
+    params:
+      file_format: parquet
+      hive_partitioning_enabled: true
+```
+
+Query with partition filters:
+
+```sql
+SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
+```
+
+Partition pruning improves query performance by reading only the relevant files.
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](/docs/reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
-| Markdown                                      | `file_format: md`      | ✅        | ✅                 |
-| Text                                          | `file_format: txt`     | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                 |
-| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                 |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [CSV(../../reference/file_format.md#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Markdown                                      | `file_format: md`      | ✅         | ✅                  |
+| Text                                          | `file_format: txt`     | ✅         | ✅                  |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
-File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](/docs/reference/file_format)
+File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](../../reference/file_format)
 
 If a format is a document format, each file will be treated as a document, as per [document support](#document-support) below.
 

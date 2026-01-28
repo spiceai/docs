@@ -37,11 +37,11 @@ views:
 
 ## `name`
 
-The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword(../spicepod/keywords.md).
 
 ## `description`
 
-The description of the view. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+The description of the view. Used as part of the [Semantic Data Model(../../features/semantic-model/index.md).
 
 ## `ready_state`
 
@@ -72,9 +72,10 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
+- [`duckdb`(../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`(../../components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`(../../components/data-accelerators/sqlite.md) - Accelerated by an embedded SQLite database.
+- [`turso`(../../components/data-accelerators/turso.md) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
@@ -115,7 +116,7 @@ See [Duration](../duration/index.md)
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` views without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](/docs/reference/cron.md).
+See the [cron schedule reference(../cron.md).
 
 ## `acceleration.refresh_sql`
 
@@ -318,7 +319,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model(../../features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -391,7 +392,7 @@ Only applicable if `vectors.enabled` is both defined and `true`.
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model(../../features/semantic-model/index.md).
 
 ```yaml
 views:
@@ -411,7 +412,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](/docs/components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`(../../components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 

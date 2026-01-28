@@ -9,7 +9,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Effective memory management is essential for maintaining optimal performance and stability in Spice.ai Open Source deployments. This guide outlines recommendations and best practices for managing memory usage.
+Effective memory management is essential for maintaining optimal performance and stability in Spice deployments. This guide outlines recommendations and best practices for managing memory usage across different [Data Accelerators(../../components/data-accelerators).
 
 ## General Memory Recommendations
 
@@ -21,7 +21,99 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
   - `refresh_mode: append`: 1.5x dataset size.
   - `refresh_mode: changes`: Primarily influenced by CDC event volume and frequency; 1.5x dataset size is a reasonable estimate.
 
-When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md).
+Memory requirements can be reduced by using file-based acceleration with [DuckDB(../../components/data-accelerators/duckdb.md), [SQLite(../../components/data-accelerators/sqlite.md), [Turso(../../components/data-accelerators/turso.md), or [Spice Cayenne(../../components/data-accelerators/cayenne.md), which store data on disk and support spilling.
+
+## Accelerator-Specific Memory Management
+
+Different acceleration engines have distinct memory characteristics and tuning options.
+
+### Arrow (In-Memory)
+
+The default Arrow accelerator stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
+
+- Data is stored uncompressed in Apache Arrow format
+- No configuration options for memory limits
+- Best for smaller datasets requiring maximum query speed
+- Consider switching to file-based accelerators for datasets exceeding available memory
+
+**Hash Index Memory (Experimental, v1.11.0-rc.2+):**
+
+When using the optional [hash index(../../features/data-acceleration/hash-index), additional memory is required:
+
+| Component    | Memory per Row |
+| ------------ | -------------- |
+| Hash slot    | 16 bytes       |
+| Bloom filter | ~1.25 bytes    |
+| **Total**    | ~17.25 bytes   |
+
+For a 10 million row dataset with hash index enabled, expect ~165 MB additional memory overhead.
+
+### Spice Cayenne
+
+[Spice Cayenne(../../components/data-accelerators/cayenne.md) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
+
+Spice Cayenne is DataFusion query-native, meaning all query execution adheres to the `runtime.query.memory_limit` setting. When query memory is exhausted, DataFusion spills intermediate results to disk. This architecture provides predictable memory usage while maintaining high query performance.
+
+**Memory Configuration Parameters:**
+
+| Parameter                  | Default | Description                                                                                                                                  |
+| -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`  | `128`   | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans by caching file metadata. |
+| `cayenne_segment_cache_mb` | `256`   | Size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.                   |
+
+**Memory Usage Guidelines:**
+
+- Base memory: ~500 MB for runtime overhead
+- Footer cache: 128 MB default, increase for datasets with many files
+- Segment cache: 256 MB default, increase for workloads with repeated scans on the same data
+- Query execution memory: Depends on query complexity and concurrency
+
+**Example Configuration:**
+
+```yaml
+datasets:
+  - from: s3://my-bucket/large-dataset/
+    name: large_dataset
+    acceleration:
+      engine: cayenne
+      mode: file
+      params:
+        cayenne_footer_cache_mb: 256
+        cayenne_segment_cache_mb: 512
+```
+
+### DuckDB
+
+[DuckDB(../../components/data-accelerators/duckdb.md) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
+
+**Memory Configuration Parameters:**
+
+| Parameter             | Default           | Description                            |
+| --------------------- | ----------------- | -------------------------------------- |
+| `duckdb_memory_limit` | 80% of system RAM | Maximum memory for the DuckDB instance |
+
+**Memory Usage Guidelines:**
+
+- Set `duckdb_memory_limit` to control memory per DuckDB instance
+- DuckDB indexes do not support spilling and may consume significant memory
+- Allocate at least 30% additional container/machine memory for the runtime process
+
+**Example Configuration:**
+
+```yaml
+datasets:
+  - from: postgres:analytics.orders
+    name: orders
+    acceleration:
+      engine: duckdb
+      mode: file
+      params:
+        duckdb_memory_limit: 4GB
+```
+
+### SQLite
+
+[SQLite(../../components/data-accelerators/sqlite.md) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
 
 ## Refresh Modes and Memory Implications
 
@@ -48,10 +140,200 @@ DataFusion supports spilling for several operators, but not all operations are c
 
 ## Embedded Data Accelerators
 
-Spice.ai integrates with embedded accelerators like [SQLite](/docs/components/data-accelerators/sqlite.md) and [DuckDB](/docs/components/data-accelerators/duckdb.md), each with unique memory considerations:
+Spice.ai integrates with embedded accelerators like [SQLite](../../components/data-accelerators/sqlite.md) and [DuckDB](../../components/data-accelerators/duckdb.md), each with unique memory considerations:
 
-- **SQLite**: Lightweight and efficient for smaller datasets. Does not support intermediate spilling; datasets must fit in memory or use application-level paging.
-- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md) for more details.
+Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors. DataFusion writes spill files using the [Arrow IPC Stream format](https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format).
+
+**Spill Compression:**
+
+The `runtime.query.spill_compression` parameter controls how spill files are compressed:
+
+| Value            | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `zstd` (default) | High compression ratio, reduces disk usage     |
+| `lz4_frame`      | Faster compression/decompression, larger files |
+| `uncompressed`   | No compression overhead, largest files         |
+
+```yaml
+runtime:
+  query:
+    memory_limit: 4GiB
+    spill_compression: lz4_frame
+```
+
+### Spill Limitations
+
+DataFusion supports spilling for several operators, but the following operations do not currently support spilling:
+
+- HashJoin ([tracking issue](https://github.com/apache/datafusion/issues/12952))
+- ExternalSorterMerge
+- RepartitionMerge
+
+Queries using these operators that exceed memory limits may fail. Monitor query patterns and allocate sufficient memory for workloads that rely on these operators.
+
+## Predicate Pushdown and Memory Reduction
+
+Predicate pushdown reduces memory consumption by filtering data early in the query execution pipeline. Rather than reading all data and filtering afterward, Spice pushes filter predicates to the data source, reducing the volume of data materialized in memory.
+
+### How Pushdown Reduces Memory
+
+| Stage            | Without Pushdown | With Pushdown      |
+| ---------------- | ---------------- | ------------------ |
+| Read from source | All rows         | Matching rows only |
+| Decompress       | Full row groups  | Pruned row groups  |
+| Materialize      | Entire dataset   | Filtered subset    |
+| Process          | Full scan        | Reduced scan       |
+
+For a query selecting 1% of rows from a 100 GB dataset, pushdown can reduce peak memory from tens of gigabytes to hundreds of megabytes.
+
+### Pushdown Techniques by Format
+
+**Parquet and Parquet-backed sources (Iceberg, Delta Lake):**
+
+- **Row group pruning**: Skips entire row groups (typically 128 MB) based on min/max statistics
+- **Page Index**: Skips individual pages (typically 8 KB) within row groups
+- **Bloom filters**: Skips row groups for equality predicates
+- **Late materialization**: Filters during decoding, reducing columns materialized
+
+**Vortex (Spice Cayenne):**
+
+- **Segment pruning**: Skips segments based on per-segment min/max statistics
+- **Compute push-down**: Evaluates predicates on compressed data, reducing decompression overhead
+
+### Configuration for Memory Efficiency
+
+For memory-constrained environments, set an appropriate memory limit and use file-based acceleration:
+
+```yaml
+runtime:
+  query:
+    memory_limit: 2GiB
+
+datasets:
+  - from: s3://bucket/data/
+    name: filtered_data
+    acceleration:
+      engine: cayenne  # Segment pruning + compute push-down
+      mode: file
+```
+
+Sorting data by frequently filtered columns maximizes pushdown effectiveness. When data is sorted, entire segments or row groups have non-overlapping value ranges, enabling efficient pruning.
+
+### Memory Impact of Data Layout
+
+| Data Layout             | Pushdown Effectiveness | Memory Impact      |
+| ----------------------- | ---------------------- | ------------------ |
+| Sorted by filter column | Excellent              | Minimal data read  |
+| Clustered (Z-ordered)   | Good                   | Moderate data read |
+| Random                  | Limited                | Most data read     |
+
+For time-series data, sort by timestamp. For multi-tenant data, consider sorting by tenant_id or clustering by (tenant_id, timestamp).
+
+## Embedded Data Accelerator Comparison
+
+| Accelerator   | Storage        | Query Memory Control         | Memory Spilling | Best For                                  |
+| ------------- | -------------- | ---------------------------- | --------------- | ----------------------------------------- |
+| Arrow         | Memory only    | `runtime.query.memory_limit` | Yes             | Small datasets, maximum speed             |
+| Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Large datasets (1TB+), scalable analytics |
+| DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Medium datasets, complex queries          |
+| SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
+
+Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter.
+
+## Memory Allocators
+
+Spice supports multiple memory allocators, each with different performance characteristics. The allocator is selected at build time and available through different Docker image tags.
+
+| Allocator          | Docker Tag Suffix | Characteristics                                     | Best For                                   |
+| ------------------ | ----------------- | --------------------------------------------------- | ------------------------------------------ |
+| snmalloc (default) | (none)            | High performance, low fragmentation, multi-threaded | Most workloads                             |
+| jemalloc           | `-jemalloc`       | Predictable performance, good memory profiling      | Memory-constrained environments, debugging |
+| System allocator   | `-sysalloc`       | Uses OS default allocator                           | Compatibility, minimal overhead            |
+
+**Usage Example:**
+
+```bash
+# Default (snmalloc)
+docker pull spiceai/spiceai:latest
+
+# jemalloc variant
+docker pull spiceai/spiceai:latest-jemalloc
+
+# System allocator variant
+docker pull spiceai/spiceai:latest-sysalloc
+```
+
+**Recommendations:**
+
+- Use the default (snmalloc) for most production workloads
+- Use jemalloc when memory profiling or debugging memory issues
+- Use sysalloc for maximum compatibility with system monitoring tools
+
+## Results Cache Memory
+
+Spice maintains in-memory caches for SQL query results, search results, and embeddings. These caches consume memory in addition to accelerator and query execution memory.
+
+### Cache Memory Configuration
+
+| Cache Type       | Default Max Size | Description                                |
+| ---------------- | ---------------- | ------------------------------------------ |
+| `sql_results`    | 128 MiB          | Caches SQL query results                   |
+| `search_results` | 128 MiB          | Caches vector and full-text search results |
+| `embeddings`     | 128 MiB          | Caches embedding model responses           |
+
+**Example Configuration:**
+
+```yaml
+runtime:
+  caching:
+    sql_results:
+      enabled: true
+      max_size: 512MiB
+      item_ttl: 5m
+      eviction_policy: tiny_lfu
+    search_results:
+      enabled: true
+      max_size: 256MiB
+      item_ttl: 1m
+    embeddings:
+      enabled: true
+      max_size: 256MiB
+      item_ttl: 10m
+```
+
+### Cache Eviction Policies
+
+| Policy          | Description              | Performance                                 |
+| --------------- | ------------------------ | ------------------------------------------- |
+| `lru` (default) | Least Recently Used      | Good general-purpose hit rates              |
+| `tiny_lfu`      | TinyLFU admission policy | Higher hit rates for skewed access patterns |
+
+TinyLFU maintains frequency information to admit only items likely to be accessed again, resulting in higher hit rates for workloads with varying query frequency patterns.
+
+### Cache Memory Impact
+
+When sizing memory, account for cache allocations:
+
+```text
+Total Memory = Runtime Overhead + Accelerator Memory + Query Memory Limit + Cache Memory
+```
+
+**Example calculation:**
+
+- Runtime overhead: 500 MB
+- Spice Cayenne caches: 384 MB (128 MB footer + 256 MB segment)
+- Query memory limit: 4 GB
+- Results caches: 1 GB (512 MB SQL + 256 MB search + 256 MB embeddings)
+- **Total: ~6 GB minimum**
+
+### Cache Performance Considerations
+
+- Larger `max_size` values improve hit rates but consume more memory
+- Shorter `item_ttl` values reduce memory usage but may decrease hit rates
+- Use `stale_while_revalidate_ttl` to serve stale results while refreshing in the background
+- Monitor cache hit rates via [observability metrics(../../features/observability) to tune configuration
+
+See [Caching(../../features/caching) for complete cache configuration options.
 
 ## Kubernetes Memory Configuration
 
@@ -76,4 +358,23 @@ spec:
 
 Use observability tools to monitor and profile memory usage regularly. This helps identify and resolve potential bottlenecks promptly.
 
-By following these guidelines, developers can manage memory resources effectively, ensuring Spice.ai deployments remain performant, stable, and reliable.
+- Query execution memory usage
+- Accelerator cache hit rates
+- Data refresh memory consumption
+
+See [Observability(../../features/observability/index.md) for configuration details.
+
+## Related Documentation
+
+**Spice Documentation:**
+
+- [Performance Tuning](./performance-tuning.md) - Comprehensive guide to optimizing Spice performance
+- [Data Accelerators(../../components/data-accelerators) - Accelerator configuration reference
+- [Runtime Configuration](./spicepod/runtime.md) - Runtime parameter reference
+
+**External References:**
+
+- [Apache DataFusion](https://datafusion.apache.org/) - Query execution engine used by Spice
+- [DataFusion Memory Usage](https://datafusion.apache.org/user-guide/configs.html#runtime-configuration-settings) - DataFusion runtime memory configuration
+- [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide) - Memory-limited query optimization
+- [DuckDB Memory Management](https://duckdb.org/docs/operations_manual/limits.html) - DuckDB memory limits documentation

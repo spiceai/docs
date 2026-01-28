@@ -28,7 +28,7 @@ Cayenne uses Vortex as its storage format, providing significant performance adv
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance.
 
-While [DuckDB](/docs/components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Cayenne with Vortex is designed to scale beyond these limits.
+While [DuckDB](./duckdb) excels for datasets up to approximately 1TB, Spice Cayenne with Vortex is designed to scale beyond these limits.
 
 For detailed Vortex performance benchmarks, visit [bench.vortex.dev](https://bench.vortex.dev).
 
@@ -62,9 +62,9 @@ Consider the following limitations when using Cayenne acceleration:
 
 - **Alpha Status**: Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
-- **No `on_conflict` Support**: Cayenne does not yet support the [`on_conflict`](/docs/reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
-- **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](/docs/reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
-- **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](/docs/features/data-acceleration/snapshots) for bootstrapping from object storage.
+- **No `on_conflict` Support**: Cayenne does not yet support the [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
+- **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
+- **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **Data Types**: Some advanced data types may have limited support. Test your specific schema requirements.
 - **Index Support**: Index capabilities are still being developed. Check release notes for the latest supported features.
 
@@ -90,9 +90,34 @@ Cayenne manages memory efficiently through columnar storage and selective cachin
 
 Cayenne stores data in a columnar format optimized for analytical queries. Ensure adequate disk space for:
 
-- Acceleration storage
-- Temporary files during query execution
-- Metadata and catalog information
+- **Acceleration data**: Compressed Vortex files (typically 30-50% of raw data size with btrblocks)
+- **Metadata**: SQLite database for catalog and statistics (~10 MB per 1000 files)
+- **Temporary files**: Query spill files during complex operations
+
+### CPU
+
+Query performance scales with available CPU cores. Vortex's columnar format supports parallel decompression and scanning across multiple threads. Allocate sufficient CPU for:
+
+- Query execution parallelism
+- Data refresh and compression operations
+- Concurrent query workloads
+
+## Limitations
+
+Consider the following limitations when using Spice Cayenne acceleration:
+
+- **Alpha Status**: Spice Cayenne is in active development. Configuration options may change between releases.
+- **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
+- **No Snapshot Support**: Spice Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
+- **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
+- **Unsupported Data Types**: `Interval`, `Duration`, `Map`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
+- **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
+- **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
+- **No File Compaction**: Automatic file compaction to reclaim space from deleted rows is not yet available.
+
+:::warning ALPHA SOFTWARE
+As an Alpha feature, Spice Cayenne should be thoroughly tested in development environments before production deployment. Monitor release notes for updates, breaking changes, and new capabilities.
+:::
 
 ## Example Spicepod
 
@@ -114,3 +139,23 @@ datasets:
       refresh_mode: full
       refresh_check_interval: 1h
 ```
+
+## Related Documentation
+
+**Spice Documentation:**
+
+- [Performance Tuning](../../reference/performance-tuning) - Comprehensive performance optimization guide
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Acceleration](../../features/data-acceleration) - Data acceleration overview
+
+**External References:**
+
+- [Apache DataFusion](https://datafusion.apache.org/) - Query execution engine
+- [DataFusion Configuration](https://datafusion.apache.org/user-guide/configs.html) - DataFusion settings and tuning
+- [Vortex Project](https://github.com/vortex-data/vortex) - Columnar file format
+- [Vortex Benchmarks](https://bench.vortex.dev/) - Performance benchmarks
+- [FSST Paper](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf) - Fast Static Symbol Table compression
+- [FastLanes Paper](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf) - High-performance integer encoding
+- [ALP Paper](https://ir.cwi.nl/pub/33334/33334.pdf) - Adaptive floating-point compression
+- [BtrBlocks Paper](https://www.cs.cit.tum.de/fileadmin/w00cfj/dis/papers/btrblocks.pdf) - Compression algorithm
+- [AWS S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) - Low-latency object storage

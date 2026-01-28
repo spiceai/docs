@@ -11,13 +11,13 @@ Spice supports query federation, enabling you to join, combine, and query data u
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
-For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
+For a full list of supported sources, see [Data Connectors(../../components/data-connectors/index.md).
 
 ## Getting Started
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index.mdx).
+**Step 1.** Install Spice by following the [installation instructions(../../getting-started/index.mdx).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
@@ -144,7 +144,7 @@ Time: 0.011524375 seconds. 1 rows.
 
 While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/docs/components/data-accelerators/index.md), resulting in significant performance gains.
+Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators(../../components/data-accelerators/index.md). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
 :::warning[Limitations]
 
@@ -152,3 +152,10 @@ To improve query performance, step 9 demonstrates the same query executed agains
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
 
 :::
+
+## Related Topics
+
+- [Distributed Query(../distributed-query) - Scale queries across multiple nodes
+- [Results Caching(../caching) - Cache query results for improved performance
+- [Arrow Flight SQL API(../../api/arrow-flight-sql) - High-performance query protocol
+- [ADBC(../../api/adbc) - Arrow Database Connectivity

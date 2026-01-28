@@ -38,7 +38,7 @@ In this example, full-text search indexing is enabled on both the `title` and `b
 
 After enabling indexing, you can perform searches using the HTTP API endpoint `/v1/search`. Results will be ranked based on the relevance to your keyword query across indexed columns (`title` and `body` in this example).
 
-For details on using this endpoint, see the [API reference for `/v1/search`](/docs/api/HTTP/post-search).
+For details on using this endpoint, see the [API reference for `/v1/search`(../../api/HTTP/post-search).
 
 ## Searching with SQL
 

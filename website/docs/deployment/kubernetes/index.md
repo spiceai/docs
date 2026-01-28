@@ -187,7 +187,7 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 
 ## Environment Variables and Secrets
 
-Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](/docs/components/secret-stores/env/index.md).
+Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store(../../components/secret-stores/env/index.md).
 
 ```yaml
 additionalEnv:

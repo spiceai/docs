@@ -5,7 +5,7 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
-The HTTP(s) Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](../../components/data-connectors/index.md#object-store-file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
 
 ```yaml
 datasets:
@@ -63,7 +63,7 @@ datasets:
 
 The `from` field specifies the HTTP(s) endpoint and can be configured in two ways:
 
-1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](/docs/components/data-connectors/index.md#object-store-file-formats).
+1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](../../components/data-connectors/index.md#object-store-file-formats).
 
    ```yaml
    from: https://example.com/data/report.csv
@@ -102,7 +102,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -149,7 +149,7 @@ Clients querying Spice will receive this header and can:
 2. Between 10-20 seconds, serve stale data while fetching fresh data in the background.
 3. After 20 seconds, fetch fresh data before serving the next request.
 
-The stale-while-revalidate behavior in Spice is controlled by the `stale_while_revalidate_ttl` parameter in the [caching configuration](/docs/features/caching#stale-while-revalidate). When `stale_while_revalidate_ttl` is set to `0` (default), stale data will not be served. When set to a non-zero value, Spice serves stale cache entries while revalidating in the background.
+The stale-while-revalidate behavior in Spice is controlled by the `stale_while_revalidate_ttl` parameter in the [caching configuration(../../features/caching#stale-while-revalidate). When `stale_while_revalidate_ttl` is set to `0` (default), stale data will not be served. When set to a non-zero value, Spice serves stale cache entries while revalidating in the background.
 
 ## Advanced Features
 
@@ -447,7 +447,7 @@ This example demonstrates:
 
 ### Processing JSON Responses
 
-APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions](/docs/reference/sql/json) to process and transform JSON responses directly in SQL queries.
+APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions(../../reference/sql/json) to process and transform JSON responses directly in SQL queries.
 
 #### Extracting Fields from JSON
 
@@ -516,7 +516,7 @@ FROM tvmaze
 WHERE request_path = '/shows/82';
 ```
 
-For more details on available JSON functions including `json_get`, `json_get_str`, `json_get_int`, `json_get_bool`, and others, refer to the [JSON functions reference](/docs/reference/sql/json).
+For more details on available JSON functions including `json_get`, `json_get_str`, `json_get_int`, `json_get_bool`, and others, refer to the [JSON functions reference(../../reference/sql/json).
 
 ### Refresh SQL with Dynamic Filters
 
@@ -641,4 +641,4 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation(../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide(../secret-stores#using-secrets).

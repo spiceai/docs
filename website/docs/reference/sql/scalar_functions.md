@@ -2871,7 +2871,77 @@ Union functions help work with union (variant) data types, such as extracting th
 
 ## Other Functions
 
-Additional scalar functions include type casting, type inspection, and version reporting. Functions such as `arrow_cast`, `arrow_typeof`, and `version` are available.
+Additional scalar functions include type casting, type inspection, and version reporting.
+
+### `arrow_cast`
+
+Casts an expression to a specific Arrow data type. Use this function when you need precise control over the target Arrow type, such as specifying timestamp precision.
+
+```sql
+arrow_cast(expression, arrow_type)
+```
+
+#### Arguments
+
+- **expression**: The value to cast.
+- **arrow_type**: A string specifying the target Arrow type (e.g., `'Int32'`, `'Utf8'`, `'Timestamp(Second, None)'`).
+
+#### Example
+
+```sql
+> SELECT arrow_cast(now(), 'Timestamp(Second, None)') AS now_seconds;
++---------------------+
+| now_seconds         |
++---------------------+
+| 2024-01-15T10:30:45 |
++---------------------+
+
+> SELECT arrow_cast('123', 'Int64') AS num;
++-----+
+| num |
++-----+
+| 123 |
++-----+
+```
+
+See [Data Types Reference(../datatypes) for supported Arrow types.
+
+### `arrow_typeof`
+
+Returns the Arrow data type of the given expression as a string.
+
+```sql
+arrow_typeof(expression)
+```
+
+#### Arguments
+
+- **expression**: Any SQL expression.
+
+#### Example
+
+```sql
+> SELECT arrow_typeof(1);
++------------------------+
+| arrow_typeof(Int64(1)) |
++------------------------+
+| Int64                  |
++------------------------+
+
+> SELECT arrow_typeof(now());
++-------------------------------+
+| arrow_typeof(now())           |
++-------------------------------+
+| Timestamp(Nanosecond, None)   |
++-------------------------------+
+
+> SELECT arrow_typeof(interval '1 month');
++------------------------------+
+| arrow_typeof(...)            |
++------------------------------+
+| Interval(MonthDayNano)       |
++------------------------------+
+```
 
 ### `ai`
 
@@ -2928,7 +2998,7 @@ LIMIT 10;
 
 #### Configuration
 
-Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](/docs/features/large-language-models) for configuration details.
+Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models(../../features/large-language-models) for configuration details.
 
 ```yaml
 models:

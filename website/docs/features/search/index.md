@@ -37,8 +37,8 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](/docs/components/embeddings)
-- [Performing Vector Search](/docs/features/search/vector-search)
+- [Configure Embeddings(../../components/embeddings)
+- [Performing Vector Search(../search/vector-search)
 
 **Example SQL Vector Search:**
 
@@ -50,7 +50,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](/docs/features/search/vector-search#sql-udtf).
+For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF(../search/vector-search#sql-udtf).
 
 ### Full-Text Search
 
@@ -74,7 +74,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#searching-with-sql).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF(../search/full-text#searching-with-sql).
 
 ### Hybrid Search with RRF
 
@@ -97,6 +97,6 @@ ORDER BY fused_score DESC
 LIMIT 5
 ```
 
-For complete RRF syntax and parameters, see [Search SQL Reference](/docs/reference/sql/search#reciprocal-rank-fusion-rrf).
+For complete RRF syntax and parameters, see [Search SQL Reference(../../reference/sql/search#reciprocal-rank-fusion-rrf).
 
 <DocCardList />

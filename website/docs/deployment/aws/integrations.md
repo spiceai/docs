@@ -18,21 +18,21 @@ Data connectors federate SQL queries across AWS data sources without data moveme
 
 | Connector                    | Description                                                                                                                                     | Documentation                                                            |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Amazon S3**                | Query Parquet, CSV, and JSON files stored in S3 buckets. Supports private buckets with IAM authentication and S3-compatible storage like MinIO. | [S3 Data Connector](/docs/components/data-connectors/s3)                 |
-| **Amazon S3 Tables**         | Query Iceberg tables in [Amazon S3 Tables](https://aws.amazon.com/s3/features/tables/) using the Glue connector with S3 Tables catalog format.  | [Glue Data Connector](/docs/components/data-connectors/glue)             |
-| **Amazon DynamoDB**          | Federated SQL queries on DynamoDB tables with automatic schema inference.                                                                       | [DynamoDB Data Connector](/docs/components/data-connectors/dynamodb)     |
-| **Amazon DynamoDB Streams**  | Real-time CDC streaming of table changes via [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html). | [DynamoDB Data Connector](/docs/components/data-connectors/dynamodb)     |
-| **Amazon Redshift**          | Connect to Redshift clusters using the PostgreSQL-compatible connector.                                                                         | [Redshift Data Connector](/docs/components/data-connectors/redshift)     |
-| **Amazon Aurora PostgreSQL** | Connect to Aurora PostgreSQL clusters using the PostgreSQL connector.                                                                           | [PostgreSQL Data Connector](/docs/components/data-connectors/postgres)   |
-| **Amazon Aurora MySQL**      | Connect to Aurora MySQL clusters using the MySQL connector.                                                                                     | [MySQL Data Connector](/docs/components/data-connectors/mysql)           |
-| **Amazon RDS PostgreSQL**    | Connect to RDS PostgreSQL instances using the PostgreSQL connector.                                                                             | [PostgreSQL Data Connector](/docs/components/data-connectors/postgres)   |
-| **Amazon RDS MySQL**         | Connect to RDS MySQL instances using the MySQL connector.                                                                                       | [MySQL Data Connector](/docs/components/data-connectors/mysql)           |
-| **Amazon MSK**               | Stream data from [Amazon MSK](https://aws.amazon.com/msk/) (Managed Streaming for Apache Kafka) topics using the Kafka connector.               | [Kafka Data Connector](/docs/components/data-connectors/kafka)           |
-| **Debezium (Amazon MSK)**    | Change Data Capture (CDC) from databases via Debezium running on Amazon MSK for real-time dataset updates.                                      | [Debezium Data Connector](/docs/components/data-connectors/debezium)     |
-| **AWS Glue Data Catalog**    | Query Iceberg tables registered in AWS Glue.                                                                                                    | [Glue Data Connector](/docs/components/data-connectors/glue)             |
-| **Apache Iceberg (AWS)**     | Query Iceberg tables stored in S3 with Glue or REST catalog metadata.                                                                           | [Iceberg Data Connector](/docs/components/data-connectors/iceberg)       |
-| **Delta Lake (S3)**          | Query Delta Lake tables stored in Amazon S3.                                                                                                    | [Delta Lake Data Connector](/docs/components/data-connectors/delta-lake) |
-| **AWS Athena (ODBC)**        | Connect to Athena using the ODBC connector with Athena SQL dialect support.                                                                     | [ODBC Data Connector](/docs/components/data-connectors/odbc)             |
+| **Amazon S3**                | Query Parquet, CSV, and JSON files stored in S3 buckets. Supports private buckets with IAM authentication and S3-compatible storage like MinIO. | [S3 Data Connector(../../components/data-connectors/s3)                 |
+| **Amazon S3 Tables**         | Query Iceberg tables in [Amazon S3 Tables](https://aws.amazon.com/s3/features/tables/) using the Glue connector with S3 Tables catalog format.  | [Glue Data Connector(../../components/data-connectors/glue)             |
+| **Amazon DynamoDB**          | Federated SQL queries on DynamoDB tables with automatic schema inference.                                                                       | [DynamoDB Data Connector(../../components/data-connectors/dynamodb)     |
+| **Amazon DynamoDB Streams**  | Real-time CDC streaming of table changes via [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html). | [DynamoDB Data Connector(../../components/data-connectors/dynamodb)     |
+| **Amazon Redshift**          | Connect to Redshift clusters using the PostgreSQL-compatible connector.                                                                         | [Redshift Data Connector(../../components/data-connectors/redshift)     |
+| **Amazon Aurora PostgreSQL** | Connect to Aurora PostgreSQL clusters using the PostgreSQL connector.                                                                           | [PostgreSQL Data Connector(../../components/data-connectors/postgres)   |
+| **Amazon Aurora MySQL**      | Connect to Aurora MySQL clusters using the MySQL connector.                                                                                     | [MySQL Data Connector(../../components/data-connectors/mysql)           |
+| **Amazon RDS PostgreSQL**    | Connect to RDS PostgreSQL instances using the PostgreSQL connector.                                                                             | [PostgreSQL Data Connector(../../components/data-connectors/postgres)   |
+| **Amazon RDS MySQL**         | Connect to RDS MySQL instances using the MySQL connector.                                                                                       | [MySQL Data Connector(../../components/data-connectors/mysql)           |
+| **Amazon MSK**               | Stream data from [Amazon MSK](https://aws.amazon.com/msk/) (Managed Streaming for Apache Kafka) topics using the Kafka connector.               | [Kafka Data Connector(../../components/data-connectors/kafka)           |
+| **Debezium (Amazon MSK)**    | Change Data Capture (CDC) from databases via Debezium running on Amazon MSK for real-time dataset updates.                                      | [Debezium Data Connector(../../components/data-connectors/debezium)     |
+| **AWS Glue Data Catalog**    | Query Iceberg tables registered in AWS Glue.                                                                                                    | [Glue Data Connector(../../components/data-connectors/glue)             |
+| **Apache Iceberg (AWS)**     | Query Iceberg tables stored in S3 with Glue or REST catalog metadata.                                                                           | [Iceberg Data Connector(../../components/data-connectors/iceberg)       |
+| **Delta Lake (S3)**          | Query Delta Lake tables stored in Amazon S3.                                                                                                    | [Delta Lake Data Connector(../../components/data-connectors/delta-lake) |
+| **AWS Athena (ODBC)**        | Connect to Athena using the ODBC connector with Athena SQL dialect support.                                                                     | [ODBC Data Connector(../../components/data-connectors/odbc)             |
 
 ### Example: Amazon S3
 
@@ -73,7 +73,7 @@ Catalog connectors provide schema discovery and unified access to tables in AWS 
 
 | Connector            | Description                                                                       | Documentation                                            |
 | -------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| **AWS Glue Catalog** | Discover and query tables from AWS Glue Data Catalog with glob pattern filtering. | [Glue Catalog Connector](/docs/components/catalogs/glue) |
+| **AWS Glue Catalog** | Discover and query tables from AWS Glue Data Catalog with glob pattern filtering. | [Glue Catalog Connector(../../components/catalogs/glue) |
 
 ### Example: Glue Catalog
 
@@ -93,7 +93,7 @@ Spice integrates with [Amazon Bedrock](https://aws.amazon.com/bedrock/) for larg
 
 | Provider           | Supported Models                                                         | Documentation                                     |
 | ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------- |
-| **Amazon Bedrock** | Amazon Nova (Micro, Lite, Pro, Premier), cross-region inference profiles | [Bedrock Models](/docs/components/models/bedrock) |
+| **Amazon Bedrock** | Amazon Nova (Micro, Lite, Pro, Premier), cross-region inference profiles | [Bedrock Models(../../components/models/bedrock) |
 
 ### Example: Amazon Nova
 
@@ -125,7 +125,7 @@ Generate vector embeddings using Amazon Bedrock embedding models for semantic se
 
 | Provider           | Supported Models                                                         | Documentation                                             |
 | ------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------- |
-| **Amazon Bedrock** | Amazon Titan Embeddings, Amazon Nova Multimodal Embeddings, Cohere Embed | [Bedrock Embeddings](/docs/components/embeddings/bedrock) |
+| **Amazon Bedrock** | Amazon Titan Embeddings, Amazon Nova Multimodal Embeddings, Cohere Embed | [Bedrock Embeddings(../../components/embeddings/bedrock) |
 
 ### Example: Amazon Titan Embeddings
 
@@ -157,7 +157,7 @@ embeddings:
 
 | Engine                | Description                                                                                                                  | Documentation                                            |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| **Amazon S3 Vectors** | Sub-second similarity queries on billions of vectors with up to 90% cost reduction compared to traditional vector databases. | [S3 Vectors Engine](/docs/components/vectors/s3_vectors) |
+| **Amazon S3 Vectors** | Sub-second similarity queries on billions of vectors with up to 90% cost reduction compared to traditional vector databases. | [S3 Vectors Engine(../../components/vectors/s3_vectors) |
 
 ### Example: S3 Vectors with Bedrock Embeddings
 
@@ -184,13 +184,82 @@ embeddings:
       dimensions: '256'
 ```
 
+## Data Accelerators (S3 Express One Zone)
+
+Spice Cayenne data accelerator supports [AWS S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) for storing accelerated data with single-digit millisecond latency. This is ideal for latency-sensitive query workloads that require persistent storage while maintaining fast access.
+
+:::tip Storage Recommendation
+For best performance, store Cayenne data files on local NVMe storage. Use S3 Express One Zone only when persistence of accelerations is required, such as preserving accelerated data across restarts or sharing data between multiple Spice instances.
+:::
+
+| Accelerator       | Description                                                                                                                 | Documentation                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Spice Cayenne** | High-performance data accelerator using Vortex file format with S3 Express One Zone for sub-10ms latency query performance. | [Cayenne Accelerator(../../components/data-accelerators/cayenne) |
+
+### Why S3 Express One Zone?
+
+S3 Express One Zone directory buckets provide:
+
+- **Single-digit millisecond latency**: 10x faster than S3 Standard for first-byte latency
+- **High request throughput**: Up to 10x higher request rates than S3 Standard
+- **Cost efficiency**: Lower per-request costs for high-frequency access patterns
+- **Durability**: Same 99.999999999% (11 9s) durability as S3 Standard
+
+### Example: Cayenne with S3 Express One Zone
+
+```yaml
+datasets:
+  - from: s3://source-bucket/events/
+    name: analytics_events
+    acceleration:
+      engine: cayenne
+      enabled: true
+      mode: file
+      params:
+        # Store accelerated data in S3 Express One Zone bucket
+        cayenne_file_path: s3://my-bucket--usw2-az1--x-s3/cayenne/
+        cayenne_s3_region: us-west-2
+```
+
+### Example: Auto-generated Bucket with IAM Role
+
+```yaml
+datasets:
+  - from: postgresql://db/events
+    name: fast_events
+    acceleration:
+      engine: cayenne
+      enabled: true
+      mode: file
+      params:
+        # Auto-generates bucket: spice-{spicepod-name}-fast_events--usw2-az1--x-s3
+        cayenne_s3_zone_ids: usw2-az1
+```
+
+### Supported AWS Regions
+
+S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+
+| Zone ID Prefix | Region         |
+| -------------- | -------------- |
+| `use1`         | us-east-1      |
+| `use2`         | us-east-2      |
+| `usw1`         | us-west-1      |
+| `usw2`         | us-west-2      |
+| `euw1`         | eu-west-1      |
+| `euc1`         | eu-central-1   |
+| `apne1`        | ap-northeast-1 |
+| `apse1`        | ap-southeast-1 |
+
+See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
+
 ## Secret Management
 
 Securely store and retrieve credentials using AWS Secrets Manager.
 
 | Store                   | Description                                           | Documentation                                                             |
 | ----------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
-| **AWS Secrets Manager** | Read secrets from AWS Secrets Manager by secret name. | [AWS Secrets Manager](/docs/components/secret-stores/aws-secrets-manager) |
+| **AWS Secrets Manager** | Read secrets from AWS Secrets Manager by secret name. | [AWS Secrets Manager(../../components/secret-stores/aws-secrets-manager) |
 
 ### Example: Using Secrets Manager
 
@@ -253,9 +322,9 @@ Deploy Spice on AWS infrastructure for optimal performance and integration:
 
 | Option         | Description                                         | Documentation                          |
 | -------------- | --------------------------------------------------- | -------------------------------------- |
-| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment](/docs/deployment/aws) |
-| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment](/docs/deployment/aws) |
-| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment](/docs/deployment/aws) |
+| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment(../aws) |
+| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment(../aws) |
+| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment(../aws) |
 
 ## Resources
 

@@ -34,4 +34,4 @@ embeddings:
       api_key: ${ secrets:SPICE_MISTRAL_API_KEY }
 ```
 
-For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](/docs/features/search/vector-search.md).
+For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation(../../features/search/vector-search.md).

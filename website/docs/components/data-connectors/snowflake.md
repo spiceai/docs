@@ -31,7 +31,7 @@ A Snowflake fully qualified table name (database.schema.table). For instance `sn
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md) or any of the following keywords that are reserved by Snowflake:
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by Snowflake:
 
 - `START`
 - `CONNECT`
@@ -54,7 +54,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 ## Auth
 
-The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores](/docs/components/secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
+The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication that must be configured using `spice login snowflake` or using [Secrets Stores(../secret-stores). Login requires the account identifier ('orgname-accountname' format) - use [Finding the organization and account name for an account](https://docs.snowflake.com/en/user-guide/admin-account-identifier#finding-the-organization-and-account-name-for-an-account) instructions.
 
 <img width="800" src="/img/snowflake/ui-snowsight-account-identifier.png" />
 
@@ -114,7 +114,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_account: ${env:SPICE_SNOWFLAKE_ACCOUNT}
     ```
 
-    Learn more about [Env Secret Store](/docs/components/secret-stores/env).
+    Learn more about [Env Secret Store(../secret-stores/env).
 
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
@@ -155,7 +155,29 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_account: ${snowflake.account}
     ```
 
-    Learn more about [Kubernetes Secret Store](/docs/components/secret-stores/kubernetes).
+    `spicepod.yaml` (key-pair with private key content from secret)
+    ```yaml
+    version: v1
+    kind: Spicepod
+    name: spice-app
+
+    secrets:
+      - from: kubernetes:snowflake
+        name: snowflake
+
+    datasets:
+      - from: snowflake:DATABASE.SCHEMA.TABLE
+        name: table
+        params:
+          snowflake_warehouse: COMPUTE_WH
+          snowflake_role: accountadmin
+          snowflake_auth_type: keypair
+          snowflake_username: ${snowflake:username}
+          snowflake_private_key: ${snowflake:private_key}
+          snowflake_account: ${snowflake:account}
+   ` ```
+
+    Learn more about [Kubernetes Secret Store(../secret-stores/kubernetes).
 
   </TabItem>
   <TabItem value="keyring" label="Keyring">
@@ -194,7 +216,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_account: account_identifier
     ```
 
-    Learn more about [Keyring Secret Store](/docs/components/secret-stores/keyring).
+    Learn more about [Keyring Secret Store(../secret-stores/keyring).
 
   </TabItem>
 </Tabs>
@@ -219,7 +241,7 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation(../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide(../secret-stores#using-secrets).
 
 ## Cookbook
 

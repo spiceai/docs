@@ -99,4 +99,20 @@ Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`
 
 - [INSERT Statement](dml.md#insert)
 
+### Data Types
+
+Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference(../datatypes/index.md). Common SQL types include:
+
+| SQL Type          | Description                         |
+| ----------------- | ----------------------------------- |
+| `INT`, `BIGINT`   | Integer types                       |
+| `FLOAT`, `DOUBLE` | Floating-point types                |
+| `VARCHAR`, `TEXT` | String types                        |
+| `BOOLEAN`         | Boolean type                        |
+| `TIMESTAMP`       | Timestamp with nanosecond precision |
+| `DATE`            | Date type                           |
+| `DECIMAL`         | Arbitrary precision numeric         |
+
+Use `CAST(expression AS type)` or `expression::type` to convert between types.
+
 Refer to each section for detailed syntax, supported features, and examples.
