@@ -11,7 +11,7 @@ Spice supports flexible deployment options ranging from a single binary to fully
 
 ## Deployment Architectures
 
-- [Overview](/docs/deployment/architectures/index.md)
+- [Overview(../architectures/index.md)
 - [Sidecar Deployment](architectures/sidecar.md)
 - [Microservice Deployment (Single or Multiple Replicas)](architectures/microservice.md)
 - [Tiered Deployment](architectures/tiered.md)

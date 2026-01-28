@@ -80,7 +80,7 @@ datasets:
         turso_mvcc: enabled
 ```
 
-Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets#acceleration) for additional supported fields.
+Refer to the [datasets configuration reference](../../reference/spicepod/datasets#acceleration) for additional supported fields.
 
 ## Timestamp Storage
 
@@ -145,7 +145,7 @@ datasets:
         '(created_at, status)': unique
 ```
 
-See [Indexes](/docs/features/data-acceleration/indexes.md) for more details.
+See [Indexes](../../features/data-acceleration/indexes.md) for more details.
 
 ### Connection Pooling
 
@@ -209,7 +209,7 @@ cargo build --features turso
 
 ## Related Documentation
 
-- [Data Acceleration](/docs/features/data-acceleration) - Data acceleration overview
-- [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](/docs/features/data-acceleration/indexes.md) - Index configuration
-- [SQLite Data Accelerator](/docs/components/data-accelerators/sqlite.md) - Alternative SQLite-based acceleration
+- [Data Acceleration](../../features/data-acceleration) - Data acceleration overview
+- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
+- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration
+- [SQLite Data Accelerator](./sqlite.md) - Alternative SQLite-based acceleration

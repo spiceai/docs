@@ -72,7 +72,7 @@ These parameters control model behavior and are passed in the request payload:
 | `topK`          | Number of highest probability tokens to consider.               |
 | `stopSequences` | Sequences that stop generation when encountered.                |
 
-See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides) for details on setting default values.
+See [Parameter Overrides(../../features/large-language-models/parameter_overrides) for details on setting default values.
 
 ## Examples
 
@@ -195,7 +195,7 @@ The IAM role or user needs permissions to invoke Bedrock models:
 
 ## Related Resources
 
-- [Amazon Bedrock Embeddings](/docs/components/embeddings/bedrock) - Use Bedrock for text embeddings
-- [Parameter Overrides](/docs/features/large-language-models/parameter_overrides) - Set default model parameters
+- [Amazon Bedrock Embeddings(../embeddings/bedrock) - Use Bedrock for text embeddings
+- [Parameter Overrides(../../features/large-language-models/parameter_overrides) - Set default model parameters
 - [Amazon Bedrock User Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/) - AWS documentation
 - [Bedrock Model IDs](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) - Available models and inference profiles

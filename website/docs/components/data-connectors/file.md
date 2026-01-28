@@ -49,7 +49,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -59,7 +59,7 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                              |
 | `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                               |
 
-For additional CSV, JSON, and Parquet specific parameters, see [File Formats](/docs/reference/file_format.md).
+For additional CSV, JSON, and Parquet specific parameters, see [File Formats(../../reference/file_format.md).
 
 ## Trigger data refresh on file change
 

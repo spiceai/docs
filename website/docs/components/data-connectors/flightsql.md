@@ -26,7 +26,7 @@ The `from` field takes the form `flightsql:dataset` where `dataset` is the fully
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -38,4 +38,4 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation(../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide(../secret-stores#using-secrets).

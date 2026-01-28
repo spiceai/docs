@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification, see [datasets](/docs/reference/spicepod/datasets.md).
+For the complete reference specification, see [datasets](../../reference/spicepod/datasets.md).
 
 By default, datasets are locally materialized using in-memory Arrow records.
 
@@ -30,17 +30,17 @@ By default, datasets are locally materialized using in-memory Arrow records.
 | Name       | Description                     | Status               | Engine Modes     |
 | ---------- | ------------------------------- | -------------------- | ---------------- |
 | `arrow`    | In-Memory Arrow Records         | Stable               | `memory`         |
-| `cayenne`  | [Spice Cayenne][cayenne]        | Alpha (v1.9.0-rc.1+) | `file`           |
+| `cayenne`  | [Spice Cayenne][cayenne]        | Beta                 | `file`           |
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable               | `memory`, `file` |
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
 | `turso`    | Embedded [Turso][turso]         | Beta                 | `memory`, `file` |
 
-[cayenne]: /docs/components/data-accelerators/cayenne.md
-[duckdb]: /docs/components/data-accelerators/duckdb.md
-[postgres]: /docs/components/data-accelerators/postgres/index.md
-[sqlite]: /docs/components/data-accelerators/sqlite.md
-[turso]: /docs/components/data-accelerators/turso.md
+[cayenne]: ./cayenne.md
+[duckdb]: ./duckdb.md
+[postgres]: ./postgres/index.md
+[sqlite]: ./sqlite.md
+[turso]: ./turso.md
 
 ## Choosing an Accelerator
 
@@ -58,7 +58,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 
 ### Spice Cayenne vs DuckDB
 
-Both [Spice Cayenne](/docs/components/data-accelerators/cayenne.md) and [DuckDB](/docs/components/data-accelerators/duckdb.md) support file-based acceleration, but differ in architecture and performance characteristics:
+Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based acceleration, but differ in architecture and performance characteristics:
 
 **Choose Spice Cayenne when:**
 
@@ -95,7 +95,7 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Performance Tuning](/docs/reference/performance-tuning.md) - Comprehensive optimization guide
-- [Managing Memory Usage](/docs/reference/memory.md) - Memory configuration reference
-- [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](/docs/features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso
+- [Performance Tuning](../../reference/performance-tuning.md) - Comprehensive optimization guide
+- [Managing Memory Usage](../../reference/memory.md) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
+- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso

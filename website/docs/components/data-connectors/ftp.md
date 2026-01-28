@@ -6,7 +6,7 @@ description: 'FTP/SFTP Data Connector Documentation'
 
 FTP (File Transfer Protocol) and SFTP (SSH File Transfer Protocol) are network protocols for transferring files between a client and server. FTP transmits data in plain text, while SFTP provides encrypted file transfer over SSH, making it the preferred choice for secure environments.
 
-The FTP/SFTP Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#file-formats) stored on FTP/SFTP servers.
+The FTP/SFTP Data Connector enables federated SQL query across [supported file formats(./index.md#file-formats) stored on FTP/SFTP servers.
 
 ## Quickstart
 
@@ -69,7 +69,7 @@ from: ftp://ftp.example.com/exports/reports/
 
 ### `name`
 
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -77,7 +77,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 
 | Parameter Name              | Description                                                                                                          |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors/index.md#file-formats). |
+| `file_format`               | Required when connecting to a directory. See [File Formats(./index.md#file-formats). |
 | `ftp_user`                  | Username for FTP authentication.                                                                                     |
 | `ftp_pass`                  | Password for FTP authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:my_ftp_pass}`.          |
 | `ftp_port`                  | FTP server port. Default: `21`.                                                                                      |
@@ -88,7 +88,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 
 | Parameter Name              | Description                                                                                                          |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors/index.md#file-formats). |
+| `file_format`               | Required when connecting to a directory. See [File Formats(./index.md#file-formats). |
 | `sftp_user`                 | Username for SFTP authentication.                                                                                    |
 | `sftp_pass`                 | Password for SFTP authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:my_sftp_pass}`.        |
 | `sftp_port`                 | SFTP server port. Default: `22`.                                                                                     |
@@ -255,7 +255,7 @@ datasets:
       sftp_pass: ${secrets:sftp_password}
 ```
 
-For detailed information, refer to the [secret stores documentation](/docs/components/secret-stores).
+For detailed information, refer to the [secret stores documentation(../secret-stores).
 
 ## Troubleshooting
 

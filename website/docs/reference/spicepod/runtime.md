@@ -53,7 +53,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](/docs/features/caching/index.md).
+The search results cache section specifies runtime search cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -68,7 +68,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.embeddings`
 
-The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](/docs/features/caching/index.md).
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -83,7 +83,7 @@ The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching/index.md).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more(../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -136,7 +136,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls/index.md).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS(../../api/tls/index.md).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -153,7 +153,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/docs/components/secret-stores).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets(../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -185,7 +185,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/docs/components/secret-stores).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets(../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -282,7 +282,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](/docs/reference/memory.md).
+For detailed memory information, see [Memory(../memory.md).
 
 ## `runtime.query.spill_compression`
 
@@ -327,7 +327,7 @@ runtime:
 
 ## `runtime.telemetry`
 
-The telemetry section configures runtime telemetry collection and export. [Learn more](/docs/features/observability).
+The telemetry section configures runtime telemetry collection and export. [Learn more(../../features/observability).
 
 ```yaml
 runtime:
@@ -351,7 +351,7 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | --------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
 | `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                  |
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](/docs/reference/duration/index.md). |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration(../duration/index.md). |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                 |
 
 **Protocol inference:**
@@ -412,7 +412,7 @@ Following metrics are disabled by default:
 - `dataset_acceleration_refresh_lag_ms`
 - `dataset_acceleration_ingestion_lag_ms`
 
-For details about these metrics, see [Observability](/docs/features/observability/index.md).
+For details about these metrics, see [Observability(../../features/observability/index.md).
 
 ```yaml
 runtime:
@@ -427,7 +427,7 @@ runtime:
 
 ## `runtime.scheduler`
 
-Configures shared state for [high availability distributed query](/docs/features/distributed-query/index.md#high-availability) clusters. When configured, multiple schedulers can coordinate via a shared object store.
+Configures shared state for [high availability distributed query(../../features/distributed-query/index.md#high-availability) clusters. When configured, multiple schedulers can coordinate via a shared object store.
 
 ```yaml
 runtime:
