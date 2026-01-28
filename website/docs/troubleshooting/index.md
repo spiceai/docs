@@ -119,7 +119,7 @@ The `task_history` table also includes start and end times, including execution 
 +-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
 ```
 
-For more information, view the [task history documentation](../reference/task_history.md)
+For more information, view the [task history documentation](../../reference/task_history.md)
 
 ## Logging Additional Captured Output
 
@@ -187,7 +187,7 @@ ORDER BY execution_duration_ms DESC
 LIMIT 5;
 ```
 
-Plans are captured asynchronously after query completion, ensuring query execution proceeds without blocking. For more details, view the [task history documentation](../reference/task_history.md#sql-query-plan-capture).
+Plans are captured asynchronously after query completion, ensuring query execution proceeds without blocking. For more details, view the [task history documentation](../../reference/task_history.md#sql-query-plan-capture).
 
 ## SQL Explain Plans
 

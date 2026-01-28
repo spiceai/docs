@@ -43,7 +43,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `partition_mode` (string, default: `files`): Controls how partitioned data is stored. Can only be used with `partition_by`. Set to `tables` to store partitions as separate tables within a single DuckDB database, improving resource usage through single shared connection pool for all partitions. Default `files` mode creates separate database files per partition with individual connection pools and generally faster query performance.
 - `duckdb_partitioned_write_flush_threshold` (integer, default: `122880`): The number of rows buffered per partition before flushing data to acceleration storage. Only applicable when using `partition_mode: tables`. Using a larger value can improve write performance but requires more memory.
 
-Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets.md#acceleration) for additional supported fields.
+Refer to the [datasets configuration reference](../../reference/spicepod/datasets.md#acceleration) for additional supported fields.
 
 ### Example Configuration
 
@@ -128,7 +128,7 @@ Use this parameter when:
 - Handling workloads that frequently spill to disk.
 - Distributing swap and data I/O operations across multiple storage volumes.
 
-For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/runtime.md#runtimequerytemp_directory).
+For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime.md#runtimequerytemp_directory).
 
 For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
 

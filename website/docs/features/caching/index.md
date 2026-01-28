@@ -10,7 +10,7 @@ tags: [caching]
 
 Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
 
-Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](/docs/features/data-acceleration/data-refresh.md#behavior-on-zero-results).
+Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](../../features/data-acceleration/data-refresh.md#behavior-on-zero-results).
 
 The cache uses a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) replacement policy. You can configure the cache to set an item expiration duration, which defaults to 1 second.
 
@@ -372,7 +372,7 @@ date: Thu, 24 Jul 2025 14:21:32 GMT
 
 ## Metrics
 
-Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](/docs/features/observability/index.md). The following metrics are available for each cache type:
+Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](../../features/observability/index.md). The following metrics are available for each cache type:
 
 | Metric                   | Type    | Description                                                |
 | ------------------------ | ------- | ---------------------------------------------------------- |

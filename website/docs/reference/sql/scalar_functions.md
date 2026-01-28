@@ -2928,7 +2928,7 @@ LIMIT 10;
 
 #### Configuration
 
-Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](/docs/features/large-language-models) for configuration details.
+Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](../../features/large-language-models) for configuration details.
 
 ```yaml
 models:

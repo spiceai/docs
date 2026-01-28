@@ -28,7 +28,7 @@ Cayenne uses Vortex as its storage format, providing significant performance adv
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance.
 
-While [DuckDB](/docs/components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Cayenne with Vortex is designed to scale beyond these limits.
+While [DuckDB](../../components/data-accelerators/duckdb) excels for datasets up to approximately 1TB, Cayenne with Vortex is designed to scale beyond these limits.
 
 For detailed Vortex performance benchmarks, visit [bench.vortex.dev](https://bench.vortex.dev).
 
@@ -62,9 +62,9 @@ Consider the following limitations when using Cayenne acceleration:
 
 - **Alpha Status**: Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
-- **No `on_conflict` Support**: Cayenne does not yet support the [`on_conflict`](/docs/reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
-- **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](/docs/reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
-- **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](/docs/features/data-acceleration/snapshots) for bootstrapping from object storage.
+- **No `on_conflict` Support**: Cayenne does not yet support the [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
+- **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
+- **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **Data Types**: Some advanced data types may have limited support. Test your specific schema requirements.
 - **Index Support**: Index capabilities are still being developed. Check release notes for the latest supported features.
 
