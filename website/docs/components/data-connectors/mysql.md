@@ -96,27 +96,27 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `mysql_sslmode`           | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `mysql_sslrootcert`       | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul> |
-| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul>                                                                                                                                                                   |
+| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### `metrics`
 
 The MySQL data connector supports the following optional [component metrics](../../features/observability/component_metrics):
 
-| Metric Name | Type | Description |
-| ----------- | ---- | ----------- |
-| `connection_count` | Gauge | Gauge of active connections to the database server |
-| `connections_in_pool` | Gauge | Gauge of active connections that are idling in the pool |
-| `active_wait_requests` | Gauge | Gauge of requests that are waiting for a connection to be returned to the pool |
-| `create_failed` | Counter | Counter of connections that failed to be created |
-| `discarded_superfluous_connection` | Counter | Counter of connections that were closed because there were already enough idle connections in the pool |
-| `discarded_unestablished_connection` | Counter | Counter of connections that were closed because they could not be established |
-| `dirty_connection_return` | Counter | Counter of connections that were returned to the pool but were dirty (ie. open transactions, pending queries, etc) |
-| `discarded_expired_connection` | Counter | Counter of connections that were discarded because they were expired by the pool constraints (i.e. TTL expired) |
-| `resetting_connection` | Counter | Counter of connections that were reset |
-| `discarded_error_during_cleanup` | Counter | Counter of connections that were discarded because they returned an error during cleanup |
-| `connection_returned_to_pool` | Counter | Counter of connections that were returned to the pool |
+| Metric Name                          | Type    | Description                                                                                                        |
+| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------ |
+| `connection_count`                   | Gauge   | Gauge of active connections to the database server                                                                 |
+| `connections_in_pool`                | Gauge   | Gauge of active connections that are idling in the pool                                                            |
+| `active_wait_requests`               | Gauge   | Gauge of requests that are waiting for a connection to be returned to the pool                                     |
+| `create_failed`                      | Counter | Counter of connections that failed to be created                                                                   |
+| `discarded_superfluous_connection`   | Counter | Counter of connections that were closed because there were already enough idle connections in the pool             |
+| `discarded_unestablished_connection` | Counter | Counter of connections that were closed because they could not be established                                      |
+| `dirty_connection_return`            | Counter | Counter of connections that were returned to the pool but were dirty (ie. open transactions, pending queries, etc) |
+| `discarded_expired_connection`       | Counter | Counter of connections that were discarded because they were expired by the pool constraints (i.e. TTL expired)    |
+| `resetting_connection`               | Counter | Counter of connections that were reset                                                                             |
+| `discarded_error_during_cleanup`     | Counter | Counter of connections that were discarded because they returned an error during cleanup                           |
+| `connection_returned_to_pool`        | Counter | Counter of connections that were returned to the pool                                                              |
 
 These metrics are not enabled by default, enable them by setting the `metrics` parameter:
 

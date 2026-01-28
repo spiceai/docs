@@ -257,8 +257,8 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 Securely store and retrieve credentials using AWS Secrets Manager.
 
-| Store                   | Description                                           | Documentation                                                             |
-| ----------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| Store                   | Description                                           | Documentation                                                              |
+| ----------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
 | **AWS Secrets Manager** | Read secrets from AWS Secrets Manager by secret name. | [AWS Secrets Manager](../../components/secret-stores/aws-secrets-manager/) |
 
 ### Example: Using Secrets Manager
@@ -320,11 +320,11 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
 
 Deploy Spice on AWS infrastructure for optimal performance and integration:
 
-| Option         | Description                                         | Documentation                          |
-| -------------- | --------------------------------------------------- | -------------------------------------- |
-| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment](../aws/)              |
-| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment](../aws/)              |
-| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment](../aws/)              |
+| Option         | Description                                         | Documentation             |
+| -------------- | --------------------------------------------------- | ------------------------- |
+| **Amazon EKS** | Kubernetes orchestration with Helm chart deployment | [AWS Deployment](../aws/) |
+| **Amazon ECS** | Container service with Fargate or EC2 launch types  | [AWS Deployment](../aws/) |
+| **Amazon EC2** | Direct deployment with Docker or binary             | [AWS Deployment](../aws/) |
 
 ## Resources
 

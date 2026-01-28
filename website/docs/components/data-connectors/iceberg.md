@@ -108,8 +108,8 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_oauth2_server_url`    | URL of the OAuth2 server tokens endpoint for the client credential flow.                                                                                                                       |
 | `iceberg_s3_endpoint`          | S3-compatible endpoint where the Iceberg table data is stored.                                                                                                                                 |
 | `iceberg_s3_region`            | Region of the S3-compatible endpoint.                                                                                                                                                          |
-| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                         |
-| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                     |
+| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                              |
+| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                          |
 | `iceberg_s3_session_token`     | Session token for the S3-compatible endpoint.                                                                                                                                                  |
 | `iceberg_s3_role_arn`          | ARN of the IAM role to assume when accessing the S3-compatible endpoint.                                                                                                                       |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role.                                                                                                                                                |
@@ -221,15 +221,15 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `s3:ListBucket` | Required. Allows scanning all objects from the bucket |
-| `s3:GetObject` | Required. Allows fetching objects |
-| `glue:GetCatalog` | Required. Retrieve metadata about the specified catalog. |
+| Permission          | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
+| `s3:GetObject`      | Required. Allows fetching objects                              |
+| `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
-| `glue:GetDatabase` | Required. Retrieve metadata about the specified database. |
-| `glue:GetTable` | Required. Retrieve metadata about the specified table. |
-| `glue:GetTables` | Required. List the tables available in the current database. |
+| `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
+| `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
+| `glue:GetTables`    | Required. List the tables available in the current database.   |
 
 ## Examples
 

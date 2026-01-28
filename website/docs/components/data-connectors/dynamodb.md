@@ -28,9 +28,9 @@ datasets:
 
 The `from` field should specify the DynamoDB table name:
 
-| `from`           | Description                                        |
-| ---------------- | ------------------------------------------------- |
-| `dynamodb:table` | Read data from a DynamoDB table named `table`     |
+| `from`           | Description                                   |
+| ---------------- | --------------------------------------------- |
+| `dynamodb:table` | Read data from a DynamoDB table named `table` |
 
 :::note
 If an expected table is not found, verify the `dynamodb_aws_region` parameter. DynamoDB tables are region-specific.
@@ -60,7 +60,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 The DynamoDB data connector supports the following configuration parameters:
 
 | Parameter Name                   | Description                                                                                                                                                                                                                                                |
-|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `dynamodb_aws_region`            | Required. The AWS region containing the DynamoDB table                                                                                                                                                                                                     |
 | `dynamodb_aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                                                                                                                        |
 | `dynamodb_aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles                                                                                                                    |
@@ -88,11 +88,11 @@ datasets:
 
 This is the default authentication method. When using IAM role authentication, the `dynamodb_aws_iam_role_source` parameter controls which credential sources are used:
 
-| Source Value      | Description                             | Credential Sources                                                            |
-|-------------------|-----------------------------------------|-------------------------------------------------------------------------------|
-| `auto`  (default) | Uses the default AWS credential chain   | All sources listed below, in order                                            |
-| `metadata`        | Uses only instance/container metadata   | Web Identity Token, ECS Container Credentials, EC2 Instance Metadata (IMDSv2) |
-| `env`             | Uses only environment variables         | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`             |
+| Source Value      | Description                           | Credential Sources                                                            |
+| ----------------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| `auto`  (default) | Uses the default AWS credential chain | All sources listed below, in order                                            |
+| `metadata`        | Uses only instance/container metadata | Web Identity Token, ECS Container Credentials, EC2 Instance Metadata (IMDSv2) |
+| `env`             | Uses only environment variables       | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`             |
 
 :::note
 When using `iam_role` authentication, any explicitly provided access keys (`dynamodb_aws_access_key_id`, `dynamodb_aws_secret_access_key`) are ignored.
@@ -196,7 +196,7 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 ### Permission Details
 
 | Permission               | Purpose                                                           |
-|--------------------------|-------------------------------------------------------------------|
+| ------------------------ | ----------------------------------------------------------------- |
 | `dynamodb:Scan`          | Required. Allows reading all items from the table                 |
 | `dynamodb:Query`         | Required. Allows reading items from the table using partition key |
 | `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information   |
@@ -275,19 +275,19 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 The table below shows the DynamoDB data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| DynamoDB Type | Description | Arrow Type                           | Notes                                                                                                                               |
-|---------------|-------------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `Bool`        | Boolean     | `Boolean`                            |                                                                                                                                     |
-| `S`           | String      | `Utf8`                               |                                                                                                                                     |
-| `S`           | String      | `Timestamp(Millisecond)`             | Naive timestamp if it matches `time_format` without timezone                                                                        |
-| `S`           | String      | `Timestamp(Millisecond, <timezone>)` | Timezone-aware timestamp if it matches `time_format` with timezone                                                                  |
-| `Ss`          | String Set  | `List<Utf8>`                         |                                                                                                                                     |
-| `N`           | Number      | `Int64` \| `Float64`                 |                                                                                                                                     |
-| `Ns`          | Number Set  | `List<Int64\|Float64>`               |                                                                                                                                     |
-| `B`           | Binary      | `Binary`                             |                                                                                                                                     |
-| `Bs`          | Binary Set  | `List<Binary>`                       |                                                                                                                                     |
-| `L`           | List        | `List<Utf8>`                         | DynamoDB arrays can be heterogeneous e.g. `[1, "foo", true]`, Arrow arrays must be homogeneous - use strings to preserve all data   |
-| `M`           | Map         | `Utf8` or Unflattened                | Depending on `unnest_depth` value                                                                                                   |
+| DynamoDB Type | Description | Arrow Type                           | Notes                                                                                                                             |
+| ------------- | ----------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Bool`        | Boolean     | `Boolean`                            |                                                                                                                                   |
+| `S`           | String      | `Utf8`                               |                                                                                                                                   |
+| `S`           | String      | `Timestamp(Millisecond)`             | Naive timestamp if it matches `time_format` without timezone                                                                      |
+| `S`           | String      | `Timestamp(Millisecond, <timezone>)` | Timezone-aware timestamp if it matches `time_format` with timezone                                                                |
+| `Ss`          | String Set  | `List<Utf8>`                         |                                                                                                                                   |
+| `N`           | Number      | `Int64` \| `Float64`                 |                                                                                                                                   |
+| `Ns`          | Number Set  | `List<Int64\|Float64>`               |                                                                                                                                   |
+| `B`           | Binary      | `Binary`                             |                                                                                                                                   |
+| `Bs`          | Binary Set  | `List<Binary>`                       |                                                                                                                                   |
+| `L`           | List        | `List<Utf8>`                         | DynamoDB arrays can be heterogeneous e.g. `[1, "foo", true]`, Arrow arrays must be homogeneous - use strings to preserve all data |
+| `M`           | Map         | `Utf8` or Unflattened                | Depending on `unnest_depth` value                                                                                                 |
 
 ## Time format
 
@@ -298,7 +298,7 @@ Once Spice is able to parse a timestamp, it will convert it to a `Timestamp(Mill
 This parameter uses Go-style time formatting, which uses a reference time of `Mon Jan 2 15:04:05 MST 2006`.
 
 | Format Pattern                  | Example Value                   | Description                                |
-|---------------------------------|---------------------------------|--------------------------------------------|
+| ------------------------------- | ------------------------------- | ------------------------------------------ |
 | `2006-01-02T15:04:05Z07:00`     | `2024-03-15T14:30:00Z`          | ISO8601 / RFC3339 with timezone (default)  |
 | `2006-01-02T15:04:05.999Z07:00` | `2024-03-15T14:30:00.123-07:00` | ISO8601 with milliseconds and timezone     |
 | `2006-01-02T15:04:05`           | `2024-03-15T14:30:00`           | ISO8601 without timezone (naive timestamp) |
@@ -311,7 +311,7 @@ This parameter uses Go-style time formatting, which uses a reference time of `Mo
 Go's format uses specific reference values that must appear exactly as shown:
 
 | Component    | Reference Value | Alternatives                          |
-|--------------|-----------------|---------------------------------------|
+| ------------ | --------------- | ------------------------------------- |
 | Year         | `2006`          | `06` (2-digit)                        |
 | Month        | `01`            | `1`, `Jan`, `January`                 |
 | Day          | `02`            | `2`                                   |
@@ -399,7 +399,7 @@ datasets:
 Given a DynamoDB table with this schema:
 
 | Column | Type   |
-|--------|--------|
+| ------ | ------ |
 | PK     | String |
 | SK     | String |
 | Foo    | Map    |
@@ -409,7 +409,7 @@ Given a DynamoDB table with this schema:
 The configuration above produces:
 
 | Column    | Type                                   |
-|-----------|----------------------------------------|
+| --------- | -------------------------------------- |
 | PK        | String                                 |
 | SK        | String                                 |
 | Baz       | String                                 |
@@ -631,12 +631,12 @@ See [Acceleration snapshots](../../features/data-acceleration/snapshots.md) for 
 
 The following [Component Metrics](../../features/observability/component_metrics.md) are provided for monitoring streaming performance and health:
 
-| Metric                   | Type    | Description                                                                 |
-|--------------------------|---------|-----------------------------------------------------------------------------|
-| `shards_active`          | Gauge   | Current number of active shards in the stream                               |
-| `records_consumed_total` | Counter | Total number of records consumed from the stream                            |
-| `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time   |
-| `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream  |
+| Metric                   | Type    | Description                                                                |
+| ------------------------ | ------- | -------------------------------------------------------------------------- |
+| `shards_active`          | Gauge   | Current number of active shards in the stream                              |
+| `records_consumed_total` | Counter | Total number of records consumed from the stream                           |
+| `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time  |
+| `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream |
 
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
