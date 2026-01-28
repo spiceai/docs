@@ -107,9 +107,10 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  // Warn on broken anchors and links instead of throwing to handle cross-version link issues
-  // in older release branches that may reference docs pages or anchors that don't exist in all versions
   onBrokenAnchors: 'warn',
+  // Use 'warn' instead of 'throw' because versioned docs from older branches
+  // may contain broken links that cannot be fixed retroactively.
+  // The build will still warn about broken links so they can be reviewed.
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
@@ -207,7 +208,7 @@ const config: Config = {
       { name: 'twitter:creator', content: '@spice_ai' }
     ],
     announcementBar: {
-      content: '<a href="/releases/v1.10.0">Spice.ai OSS v1.10.0</a> is now available! ⚡',
+      content: '<a href="/releases/v1.10.4">Spice.ai OSS v1.10.4</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -355,7 +356,7 @@ const config: Config = {
       appId: '0SP8I8JTL8',
       apiKey: '72f66fe334ccd3c7db696a123d68735c',
       indexName: 'spiceai',
-      contextualSearch: false
+      contextualSearch: true
     }
   } satisfies Preset.ThemeConfig,
 

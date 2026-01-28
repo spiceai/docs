@@ -31,21 +31,33 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 - Linux: `/opt/tableau/tableau_driver/jdbc`
 - Start or restart Tableau
 
+<<<<<<< HEAD
 [Full instruction](../../clients/tableau/)
+=======
+[Full instruction](../../clients/tableau)
+>>>>>>> origin/trunk
 
 **JetBrains DataGrip**:
 
 - In Database Explorer menu, select "+" and choose "Driver"
 - Follow the steps to add the JDBC `.jar` file
 
+<<<<<<< HEAD
 [Full instruction](../../clients/jetbrains-datagrip/)
+=======
+[Full instruction](../../clients/jetbrains-datagrip)
+>>>>>>> origin/trunk
 
 **DBeaver**:
 
 - In the DBeaver application menu bar, open the "Database" menu and choose: "Driver Manager"
 - Click the "New" button and follow instructions to add JDBC `.jar` file.
 
+<<<<<<< HEAD
 [Full instruction](../../clients/dbeaver/)
+=======
+[Full instruction](../../clients/dbeaver)
+>>>>>>> origin/trunk
 
 ## Configure JDBC connection
 

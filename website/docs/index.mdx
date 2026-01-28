@@ -44,7 +44,7 @@ Spice is primarily used for:
 
 - **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](https://spiceai.org/docs/features/query-federation).
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
-- **Enterprise Search**: Keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search for structured and unstructured data. [Learn More](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README.md).
+- **Enterprise Search**: Keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search for structured and unstructured data. [Learn More](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README).
 - **AI Apps and Agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://spiceai.org/docs/use-cases/rag).
 
 :::info[Watch 🎥]
@@ -129,24 +129,24 @@ Limited = Partial or restricted support
 
 ### Data-Grounded Agentic AI Applications
 
-- **OpenAI-Compatible API**: Connect to hosted models (OpenAI, Anthropic, xAI) or deploy locally (Llama, NVIDIA NIM). [AI Gateway Recipe](https://github.com/spiceai/cookbook/blob/trunk/openai_sdk/README.md)
-- **Federated Data Access**: Query using SQL and NSQL (text-to-SQL) across databases, data warehouses, and data lakes with advanced query push-down. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md)
-- **Search and RAG**: Perform keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search (VSS) integrated into SQL queries using `vector_search` and `text_search`. Supports multi-column vector search with reciprocal rank fusion. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README.md)
-- **LLM Memory and Observability**: Store and retrieve history and context for AI agents with visibility into data flows, model performance, and traces. [LLM Memory Recipe](https://github.com/spiceai/cookbook/blob/trunk/llm-memory/README.md) | [Observability Documentation](https://spiceai.org/docs/features/observability)
+- **OpenAI-Compatible API**: Connect to hosted models (OpenAI, Anthropic, xAI) or deploy locally (Llama, NVIDIA NIM). [AI Gateway Recipe](https://github.com/spiceai/cookbook/blob/trunk/openai_sdk/README)
+- **Federated Data Access**: Query using SQL and NSQL (text-to-SQL) across databases, data warehouses, and data lakes with advanced query push-down. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README)
+- **Search and RAG**: Perform keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search (VSS) integrated into SQL queries using `vector_search` and `text_search`. Supports multi-column vector search with reciprocal rank fusion. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README)
+- **LLM Memory and Observability**: Store and retrieve history and context for AI agents with visibility into data flows, model performance, and traces. [LLM Memory Recipe](https://github.com/spiceai/cookbook/blob/trunk/llm-memory/README) | [Observability Documentation](https://spiceai.org/docs/features/observability)
 
 ### Database CDN and Query Mesh
 
-- **Data Acceleration**: Co-locate materialized datasets in Arrow, SQLite, or DuckDB for sub-second queries. [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md)
-- **Resiliency and Local Dataset Replication**: Maintain availability with local replicas of critical datasets. [Local Dataset Replication Recipe](https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md)
-- **Responsive Dashboards**: Enable fast, real-time analytics for frontends and BI tools. [Sales BI Dashboard Demo](https://github.com/spiceai/cookbook/blob/trunk/sales-bi/README.md)
-- **Simplified Legacy Migration**: Unify legacy systems with modern infrastructure via federated SQL querying. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md)
+- **Data Acceleration**: Co-locate materialized datasets in Arrow, SQLite, or DuckDB for sub-second queries. [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README)
+- **Resiliency and Local Dataset Replication**: Maintain availability with local replicas of critical datasets. [Local Dataset Replication Recipe](https://github.com/spiceai/cookbook/blob/trunk/localpod/README)
+- **Responsive Dashboards**: Enable fast, real-time analytics for frontends and BI tools. [Sales BI Dashboard Demo](https://github.com/spiceai/cookbook/blob/trunk/sales-bi/README)
+- **Simplified Legacy Migration**: Unify legacy systems with modern infrastructure via federated SQL querying. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README)
 
 ### Retrieval-Augmented Generation (RAG)
 
-- **Unified Search with Vector Similarity**: Perform efficient vector similarity search across structured and unstructured data, with native support for Amazon S3 Vectors for petabyte-scale storage and querying. Supports distance metrics like cosine similarity, Euclidean distance, or dot product. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README.md)
+- **Unified Search with Vector Similarity**: Perform efficient vector similarity search across structured and unstructured data, with native support for Amazon S3 Vectors for petabyte-scale storage and querying. Supports distance metrics like cosine similarity, Euclidean distance, or dot product. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README)
 - **Semantic Knowledge Layer**: Define a semantic context model to enrich data for AI. [Semantic Model Documentation](./features/semantic-model/)
-- **Text-to-SQL**: Convert natural language queries into SQL using built-in NSQL and sampling tools. [Text-to-SQL Recipe](https://github.com/spiceai/cookbook/blob/trunk/text-to-sql/README.md)
-- **Model and Data Evaluations**: Assess model performance and data quality with integrated evaluation tools. [Language Model Evaluations Recipe](https://github.com/spiceai/cookbook/blob/trunk/evals/README.md)
+- **Text-to-SQL**: Convert natural language queries into SQL using built-in NSQL and sampling tools. [Text-to-SQL Recipe](https://github.com/spiceai/cookbook/blob/trunk/text-to-sql/README)
+- **Model and Data Evaluations**: Assess model performance and data quality with integrated evaluation tools. [Language Model Evaluations Recipe](https://github.com/spiceai/cookbook/blob/trunk/evals/README)
 
 ## FAQ
 
@@ -170,12 +170,12 @@ See more demos on [YouTube](https://www.youtube.com/playlist?list=PLesJrUXEx3U9a
 
 ### Intelligent Applications and Agents
 
-Spice enables developers to build data-grounded AI applications and agents by co-locating data and ML models with applications. Read more about the vision for [intelligent AI-driven applications](./intelligent-applications/).
+Spice enables developers to build data-grounded AI applications and agents by co-locating data and ML models with applications. Read more about the vision for [intelligent AI-driven applications](./use-cases/).
 
 ### Connect with Us
 
 - Build with Spice and share feedback at [hey@spice.ai](mailto:hey@spice.ai), [Slack](https://spiceai.org/slack), [X](https://twitter.com/spice_ai), or [LinkedIn](https://www.linkedin.com/company/74148478).
 - [File an issue](https://github.com/spiceai/spiceai/issues/new) for bugs or issues.
 - Join our team ([We're hiring!](https://spice.ai/careers)).
-- Contribute code or documentation ([CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md)).
+- Contribute code or documentation ([CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING)).
 - ⭐️ Star the [Spice.ai repo](https://github.com/spiceai/spiceai) to show support!

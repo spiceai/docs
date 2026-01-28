@@ -13,7 +13,7 @@ tags:
 
 Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.
 
-For a list of available tools, or how to define additional tools, see [Tool Components](../../components/tools/).
+For a list of available tools, or how to define additional tools, see [Tool Components](../../components/tools).
 
 ### Example: Specifying Tools for a Model
 
@@ -34,7 +34,7 @@ models:
     tools: auto # Use all default tools
 ```
 
-For details on tool groups, see [Tool Components](../../components/tools/#tool-groups).
+For details on tool groups, see [Tool Components](../../components/tools#tool-groups).
 
 ### Example: Specifying tools and tool groups
 

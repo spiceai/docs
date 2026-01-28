@@ -23,7 +23,11 @@ datasets:
 
 :::warning[Limitations]
 
+<<<<<<< HEAD
 1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](../../features/data-acceleration/) for full federation support**.
+=======
+1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](../../features/data-acceleration) for full federation support**.
+>>>>>>> origin/trunk
 2. The Oracle connector does not support filter push-down optimization for datetime columns. Filtering on these columns is performed in-memory after data retrieval.
 3. The following Oracle data types are not currently supported; columns with these types will be ignored: `INTERVAL YEAR TO MONTH` (Code 182), `INTERVAL DAY TO SECOND` (Code 183), `UROWID` (Code 208), `BFILE` (Code 114), `JSON` (Code 119).
 
@@ -74,7 +78,7 @@ SELECT COUNT(*) FROM products;
 
 ### `params`
 
-The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
+The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
 | Parameter Name             | Description                                                                                                                                                                                                                                            |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -198,4 +202,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README.md)
+- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README)

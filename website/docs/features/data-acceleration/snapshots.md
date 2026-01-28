@@ -53,39 +53,9 @@ The timestamp is recorded in UTC using ISO 8601 without punctuation.
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.
 :::
 
-## Snapshot creation events
-
-This section describes exactly when Spice creates new snapshots.
-
-### Initial snapshot
-
-The Spice runtime must be fully ready before any snapshots are created. Once the runtime reaches the ready state, an initial snapshot is created (unless it was bootstrapped). No snapshots are created before this moment.
-
-### Trigger activation
-
-After the initial snapshot, all configured triggers begin counting from this point. This includes interval-based triggers (which start their timers), batch-based triggers (which start counting batches), and refresh-based triggers (which begin responding to refresh completions).
-
-### Snapshot policies
-
-The `snapshots_creation_policy` setting determines whether a trigger event actually results in a new snapshot.
-
-#### Policy: `always`
-
-When the policy is set to `always`, every trigger event creates a snapshot regardless of whether the underlying data has changed
-
-#### Policy: `on_change`
-
-When the policy is set to `on_change`, Spice only creates a snapshot when one of the following conditions is met:
-
-1. **New data arrived** – Data has been written to the acceleration since the last snapshot was created.
-2. **Missing metadata file** – The metadata file does not exist in object storage. A snapshot is created regardless of whether new data has arrived.
-3. **Missing snapshot file** – The metadata file exists, but no snapshot file exists in object storage. A snapshot is created regardless of whether new data has arrived.
-
-The `on_change` policy helps reduce storage costs and I/O overhead by avoiding redundant snapshots when data remains unchanged, while still ensuring snapshots exist when the object storage state is incomplete.
-
 ## Configure snapshot storage
 
-Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to an S3 directory. The configuration accepts any S3 dataset parameters under `params`.
+Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to a folder on S3 or the local filesystem. When the location is an S3 bucket, the configuration accepts any S3 dataset parameters under `params`.
 
 ```yaml
 snapshots:
@@ -121,7 +91,6 @@ acceleration:
   snapshots_trigger_threshold: <value>   # threshold for time_interval or stream_batches
   snapshots_compaction: enabled | disabled  # default: disabled (DuckDB only)
   snapshots_reset_expiry_on_load: enabled | disabled  # default: disabled (DuckDB only with Caching refresh mode)
-  snapshots_creation_policy: always | on_change  # default: on_change
 ```
 
 ### Snapshot triggers
@@ -243,25 +212,12 @@ acceleration:
   enabled: true
   engine: duckdb
   mode: file
+  refresh_mode: caching
   snapshots: enabled
   snapshots_reset_expiry_on_load: enabled
   params:
     caching_ttl: 1m
     caching_stale_while_revalidate_ttl: 1m
-```
-
-### Snapshot Creation Policy
-
-By default, snapshots are only created if there was a change since the last snapshot. You can change this behavior to always create a snapshot by setting `snapshots_creation_policy` to `always`.
-
-```yaml
-acceleration:
-  enabled: true
-  engine: duckdb
-  mode: file
-  refresh_mode: caching
-  snapshots: enabled
-  snapshots_creation_policy: always
 ```
 
 ## Complete example
@@ -307,7 +263,7 @@ datasets:
 ```
 
 :::info Readiness with append refreshes
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh.md#fast-cold-starts-with-snapshots) for additional context.
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
 :::
 
 ## Best practices
@@ -318,4 +274,4 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
-For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod/index.md#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets.md#accelerationsnapshots).
+For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).

@@ -10,7 +10,7 @@ pagination_next: null
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
 
-A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne, DuckDB, or SQLite. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](/features/data-acceleration/data-refresh.md).
+A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne, DuckDB, or SQLite. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](../../features/data-acceleration/data-refresh).
 
 Dataset acceleration is enabled by setting the acceleration configuration:
 
@@ -21,7 +21,11 @@ datasets:
       enabled: true
 ```
 
+<<<<<<< HEAD
 For the complete reference specification, see [datasets](../../reference/spicepod/datasets.md).
+=======
+For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
+>>>>>>> origin/trunk
 
 By default, datasets are locally materialized using in-memory Arrow records.
 
@@ -38,7 +42,11 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 [cayenne]: ./cayenne.md
 [duckdb]: ./duckdb.md
+<<<<<<< HEAD
 [postgres]: ./postgres/index.md
+=======
+[postgres]: ./postgres/
+>>>>>>> origin/trunk
 [sqlite]: ./sqlite.md
 [turso]: ./turso.md
 
@@ -77,7 +85,7 @@ Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based 
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators.md).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators).
 
 :::warning[Memory Considerations]
 
@@ -95,7 +103,14 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
+<<<<<<< HEAD
 - [Performance Tuning](../../reference/performance-tuning.md) - Comprehensive optimization guide
 - [Managing Memory Usage](../../reference/memory.md) - Memory configuration reference
 - [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
 - [Indexes](../../features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso
+=======
+- [Performance Tuning](../../reference/performance-tuning) - Comprehensive optimization guide
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
+>>>>>>> origin/trunk

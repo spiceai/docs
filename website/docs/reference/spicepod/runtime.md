@@ -10,7 +10,7 @@ The `runtime` section specifies configuration settings for the Spice runtime.
 
 ### `runtime.auth.api-key`
 
-Spice supports adding optional authentication to its API endpoints via configurable API keys. [Learn more](../../api/auth/index.md).
+Spice supports adding optional authentication to its API endpoints via configurable API keys. [Learn more](../../api/auth).
 
 ```yaml
 runtime:
@@ -33,31 +33,6 @@ API key authentication supports the following configuration parameters:
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
 
-## `runtime.params`
-
-Runtime parameters provide configuration options for optional runtime features.
-
-### `runtime.params.url_tables`
-
-Enables URL table support for querying object store files directly using URLs without pre-registering datasets. [Learn more](../../features/query-federation/url-tables.md).
-
-```yaml
-runtime:
-  params:
-    url_tables: enabled
-```
-
-When enabled, queries can reference object store URLs directly as table names:
-
-```sql
-SELECT * FROM 's3://my-bucket/data.parquet' LIMIT 10
-```
-
-| Value     | Description                       |
-| --------- | --------------------------------- |
-| `enabled` | Enable URL table support          |
-| (unset)   | URL tables are disabled (default) |
-
 ## `runtime.caching`
 
 This setting specifies cache settings for supported Runtime components:
@@ -78,7 +53,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching/).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -93,7 +68,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.embeddings`
 
-The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](../../features/caching/).
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -108,7 +83,7 @@ The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching/).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -144,7 +119,7 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 
 - **`xxh3` (Default):** Uses the [XXH3](https://cyan4973.github.io/xxHash/) algorithm for hashing the cache keys. XXH3 is a fast, non-cryptographic hash algorithm that provides high performance and good distribution. It is suitable for scenarios where speed is critical and cryptographic security is not required.
 - **`siphash`:** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
-- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
+- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
 - **`blake3`:** Uses the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function. BLAKE3 is a fast, parallelizable hash function that provides cryptographic security while maintaining high performance. It is suitable for scenarios requiring both speed and cryptographic guarantees.
 - **`xxh32`, `xxh64`, `xxh128`:** Variants of the XXH hashing algorithm with different output sizes. These algorithms offer a balance between speed and collision resistance, with larger hash sizes providing better collision resistance at the cost of performance.
 
@@ -161,7 +136,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls/).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -178,7 +153,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores/).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -210,7 +185,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores/).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -242,7 +217,7 @@ runtime:
 
 ## `runtime.task_history`
 
-The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history.md).
+The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history).
 
 ```yaml
 runtime:
@@ -307,7 +282,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](../memory.md).
+For detailed memory information, see [Memory](../memory).
 
 ## `runtime.query.spill_compression`
 
@@ -332,7 +307,7 @@ This option allows you to balance disk space usage and query performance for lar
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
 
 ```yaml
 runtime:
@@ -352,7 +327,7 @@ runtime:
 
 ## `runtime.telemetry`
 
-The telemetry section configures runtime telemetry collection and export. [Learn more](../../features/observability/).
+The telemetry section configures runtime telemetry collection and export. [Learn more](../../features/observability).
 
 ```yaml
 runtime:
@@ -376,7 +351,7 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
 | `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                   |
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below). |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration/).       |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).        |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                  |
 
 **Protocol inference:**
@@ -437,7 +412,7 @@ Following metrics are disabled by default:
 - `dataset_acceleration_refresh_lag_ms`
 - `dataset_acceleration_ingestion_lag_ms`
 
-For details about these metrics, see [Observability](../../features/observability/).
+For details about these metrics, see [Observability](../../features/observability).
 
 ```yaml
 runtime:
@@ -448,78 +423,4 @@ runtime:
     - name: dataset_acceleration_refresh_lag_ms
       enabled: false
     - name: dataset_acceleration_ingestion_lag_ms
-```
-
-## `runtime.scheduler`
-
-Configures shared state for [high availability distributed query](../../features/distributed-query/#high-availability) clusters. When configured, multiple schedulers can coordinate via a shared object store.
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-```
-
-### `runtime.scheduler.state_location`
-
-The S3 URI for shared cluster state. This is required to enable HA mode with multiple schedulers.
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-```
-
-### `runtime.scheduler.params`
-
-Optional parameters for S3 authentication and configuration.
-
-| Parameter        | Description                                     | Default    |
-| ---------------- | ----------------------------------------------- | ---------- |
-| `region`         | AWS region for the S3 bucket                    | -          |
-| `endpoint`       | Custom S3-compatible endpoint URL               | -          |
-| `auth`           | Authentication method: `iam_role` or `key`      | `iam_role` |
-| `key`            | AWS access key ID (when `auth: key`)            | -          |
-| `secret`         | AWS secret access key (when `auth: key`)        | -          |
-| `session_token`  | AWS session token for temporary credentials     | -          |
-| `client_timeout` | S3 client timeout                               | -          |
-| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint | `false`    |
-
-Example with IAM role authentication (default):
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-```
-
-Example with explicit credentials:
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-      auth: key
-      key: ${secrets:aws_access_key}
-      secret: ${secrets:aws_secret_key}
-```
-
-Example with a custom S3-compatible endpoint (e.g., MinIO):
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      endpoint: http://minio.local:9000
-      auth: key
-      key: ${secrets:minio_access_key}
-      secret: ${secrets:minio_secret_key}
-      allow_http: true
 ```

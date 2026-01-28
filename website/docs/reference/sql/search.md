@@ -242,7 +242,7 @@ Returns rows where the column exactly matches the value.
 
 ### Regex Filtering
 
-Spice SQL does not support the `~` or `!~` operators for regular expression matching. Instead, use scalar functions such as `regexp_like`, `regexp_match`, and `regexp_replace` for regex-based filtering. For details and examples, see the [Scalar Functions documentation](../sql/scalar_functions#regular-expression-functions).
+Spice SQL does not support the `~` or `!~` operators for regular expression matching. Instead, use scalar functions such as `regexp_like`, `regexp_match`, and `regexp_replace` for regex-based filtering. For details and examples, see the [Scalar Functions documentation](./scalar_functions#regular-expression-functions).
 
 #### Example
 
@@ -252,4 +252,4 @@ SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 
 ---
 
-For more on hybrid and advanced search, see [Search Functionality](../../features/search/) and [Vector-Based Search](../../features/search/vector-search)
+For more on hybrid and advanced search, see [Search Functionality](../../features/search) and [Vector-Based Search](../../features/search/vector-search)

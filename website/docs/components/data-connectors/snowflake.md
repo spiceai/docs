@@ -31,7 +31,11 @@ A Snowflake fully qualified table name (database.schema.table). For instance `sn
 
 ### `name`
 
+<<<<<<< HEAD
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md) or any of the following keywords that are reserved by Snowflake:
+=======
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords) or any of the following keywords that are reserved by Snowflake:
+>>>>>>> origin/trunk
 
 - `START`
 - `CONNECT`
@@ -170,6 +174,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_account: ${snowflake:account}
     ```
 
+<<<<<<< HEAD
     `spicepod.yaml` (key-pair with private key content from secret)
     ```yaml
     version: v1
@@ -192,6 +197,8 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
           snowflake_account: ${snowflake:account}
    ` ```
 
+=======
+>>>>>>> origin/trunk
     Learn more about [Kubernetes Secret Store](../secret-stores/kubernetes/).
 
   </TabItem>

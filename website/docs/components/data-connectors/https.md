@@ -5,7 +5,11 @@ description: 'HTTP(s) Data Connector Documentation'
 pagination_prev: null
 ---
 
+<<<<<<< HEAD
 The HTTP(s) Data Connector enables federated SQL query across [supported file formats](./index.md#file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+=======
+The HTTP(s) Data Connector enables federated SQL query across [supported file formats](./#file-formats) stored at an HTTP(s) endpoint. The connector supports dynamic query and data refresh through SQL-based filtering.
+>>>>>>> origin/trunk
 
 ```yaml
 datasets:
@@ -63,7 +67,11 @@ datasets:
 
 The `from` field specifies the HTTP(s) endpoint and can be configured in two ways:
 
+<<<<<<< HEAD
 1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](./index.md#file-formats).
+=======
+1. **Direct URL to a file**: A complete URL pointing to a specific [supported file](./#file-formats).
+>>>>>>> origin/trunk
 
    ```yaml
    from: https://example.com/data/report.csv
@@ -102,7 +110,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
+<<<<<<< HEAD
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+=======
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+>>>>>>> origin/trunk
 
 ### `params`
 
@@ -112,7 +124,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `http_port`                | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                                                                                               |
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                     |
-| `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                            |
+| `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                    |
 | `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                                                                                                       |
 | `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                  |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                          |

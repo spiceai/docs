@@ -44,6 +44,6 @@ models:
 
 For more details on using vector search, embeddings, and model providers, refer to the following documentation:
 
-- [Vector-Based Search](../../../features/search/vector-search.md)
-- [Embedding Models](../../../components/embeddings/)
-- [Model Providers](../../../components/models/)
+- [Vector-Based Search](../../../features/search/vector-search)
+- [Embedding Models](../../../components/embeddings)
+- [Model Providers](../../../components/models)

@@ -7,15 +7,7 @@ description: 'Learn how to add/configure constraints on local acceleration table
 
 Constraints enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality and configure behavior for data updates that violate constraints.
 
-## Default Behavior
-
-By default, Spice automatically uses constraints from the federated table when creating an accelerated table. This includes primary keys and unique indexes defined on the source table. When a primary key is detected from the federated table, Spice automatically configures `on_conflict: upsert` behavior for that primary key, enabling seamless data updates.
-
-## Overriding Federated Constraints
-
-You can override the federated constraints by explicitly defining `primary_key` or `indexes` in the acceleration configuration. When you define a custom `primary_key`, Spice will also automatically create `on_conflict: upsert` behavior for that primary key.
-
-Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
+Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
 If multiple rows in the incoming data violate any constraint, the entire incoming batch of data will be dropped.
 
@@ -28,29 +20,10 @@ datasets:
     acceleration:
       enabled: true
       engine: sqlite
-      primary_key: hash # Override federated constraints with a primary key on the `hash` column
+      primary_key: hash # Define a primary key on the `hash` column
       indexes:
         '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
 ```
-
-## Custom Conflict Handling
-
-You can also provide custom `on_conflict` behavior, which will override the automatic upsert behavior for primary keys. See [Handling conflicts](#handling-conflicts) for configuration options.
-
-:::warning[Important: Using refresh_sql]
-When using `acceleration.refresh_sql`, federated constraints are **not** used. This means that for accelerations that rely on upsert behavior (such as [Debezium Data Connector](../../components/data-connectors/debezium)), you **must** explicitly provide the `acceleration.primary_key` parameter to ensure proper data synchronization.
-
-```yaml
-datasets:
-  - from: debezium:my_table
-    name: my_table
-    acceleration:
-      enabled: true
-      engine: sqlite
-      primary_key: id  # Required when using refresh_sql or CDC sources
-      refresh_sql: SELECT * FROM my_table WHERE updated_at > '{{ last_refresh }}'
-```
-:::
 
 ## Column References
 
@@ -82,7 +55,6 @@ datasets:
       indexes:
         '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
       on_conflict:
-        # Custom on_conflict behavior overrides the automatic upsert for primary keys.
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert

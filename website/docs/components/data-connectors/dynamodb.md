@@ -53,7 +53,11 @@ datasets:
 SELECT COUNT(*) FROM my_users;
 ```
 
+<<<<<<< HEAD
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+=======
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+>>>>>>> origin/trunk
 
 ### `params`
 
@@ -625,11 +629,15 @@ datasets:
    - When `snapshots_trigger` is `stream_batches`: a raw integer specifying the number of batches (e.g., `100`, `1000`).
    - When `snapshots_trigger` is `time_interval`: an integer with a time unit suffix (e.g., `10m`, `30s`, `1h`).
 
+<<<<<<< HEAD
 See [Acceleration snapshots](../../features/data-acceleration/snapshots.md) for more details.
+=======
+See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
+>>>>>>> origin/trunk
 
 ### Metrics
 
-The following [Component Metrics](../../features/observability/component_metrics.md) are provided for monitoring streaming performance and health:
+The following [Component Metrics](../../features/observability/component_metrics) are provided for monitoring streaming performance and health:
 
 | Metric                   | Type    | Description                                                                |
 | ------------------------ | ------- | -------------------------------------------------------------------------- |

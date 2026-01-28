@@ -23,7 +23,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 
 [openai]: ./openai.md
 [bedrock]: ./bedrock.md
-[file]: /components/embeddings/local.md
+[file]: ./filesystem.md
 [hf]: ./huggingface.md
 [spice]: ./spiceai.md
 [azure]: ./azure.md
@@ -32,24 +32,40 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [xai]: ./xai.md
 [databricks]: ./databricks.md
 
+<<<<<<< HEAD
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models.md).
 
 \*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
 The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../../reference/spicepod/models.md).
+=======
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models).
+
+\*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
+
+The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../../reference/spicepod/models).
+>>>>>>> origin/trunk
 
 ## Features
 
 Spice supports a variety of features for large language models (LLMs):
 
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](../../features/large-language-models/tools).
+<<<<<<< HEAD
 - **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides.md). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](../../features/large-language-models/parameterized_prompts.md).
+=======
+- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](../../features/large-language-models/parameterized_prompts).
+>>>>>>> origin/trunk
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../../features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../../features/search/vector-search).
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).
 - **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](../../features/large-language-models/serving).
 
+<<<<<<< HEAD
 For more details, refer to the [Large Language Models documentation](../../features/large-language-models/).
+=======
+For more details, refer to the [Large Language Models documentation](../../features/large-language-models).
+>>>>>>> origin/trunk
 
 ## Model Provider Prefix
 
@@ -111,7 +127,11 @@ models:
 
 ### Example: Using an OpenAI Model with Tools
 
+<<<<<<< HEAD
 To specify tools for an OpenAI model, include them in the `params.tools` field. For more details, see the [Tools documentation](../../features/large-language-models/tools.md).
+=======
+To specify tools for an OpenAI model, include them in the `params.tools` field. For more details, see the [Tools documentation](../../features/large-language-models/tools).
+>>>>>>> origin/trunk
 
 ```yaml
 models:
@@ -123,7 +143,11 @@ models:
 
 ### Example: Adding Memory to a Model
 
+<<<<<<< HEAD
 To enable memory tools for a model, define a `store` memory dataset and specify `memory` in the model's `tools` parameter. For more details, see the [Memory documentation](../../features/large-language-models/memory.md).
+=======
+To enable memory tools for a model, define a `store` memory dataset and specify `memory` in the model's `tools` parameter. For more details, see the [Memory documentation](../../features/large-language-models/memory).
+>>>>>>> origin/trunk
 
 ```yaml
 datasets:
@@ -140,7 +164,11 @@ models:
 
 ### Example: Setting Default Parameter Overrides
 
+<<<<<<< HEAD
 To set default overrides for parameters, use the [model provider prefix](#model-provider-prefix) followed by the parameter name. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides.md).
+=======
+To set default overrides for parameters, use the [model provider prefix](#model-provider-prefix) followed by the parameter name. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides).
+>>>>>>> origin/trunk
 
 ```yaml
 models:
@@ -153,7 +181,11 @@ models:
 
 ### Example: Configuring a System Prompt
 
+<<<<<<< HEAD
 To configure an additional system prompt, use the `system_prompt` parameter. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides.md).
+=======
+To configure an additional system prompt, use the `system_prompt` parameter. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides).
+>>>>>>> origin/trunk
 
 ```yaml
 models:
@@ -254,7 +286,11 @@ curl -X POST http://localhost:8090/v1/chat/completions \
   }'
 ```
 
+<<<<<<< HEAD
 Refer to the [Create Chat Completion API documentation](../../api/HTTP/post-chat-completions.api.mdx) for more details on making chat completion requests.
+=======
+Refer to the [Create Chat Completion API documentation](../../api/HTTP/post-chat-completions) for more details on making chat completion requests.
+>>>>>>> origin/trunk
 
 import DocCardList from '@theme/DocCardList';
 

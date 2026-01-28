@@ -38,11 +38,15 @@ The `from` field takes the form of `graphql:your-graphql-endpoint`.
 
 ### `name`
 
+<<<<<<< HEAD
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+=======
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+>>>>>>> origin/trunk
 
 ### `params`
 
-The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
+The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
 
 | Parameter Name       | Description                                                                                                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
