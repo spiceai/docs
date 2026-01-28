@@ -33,6 +33,31 @@ API key authentication supports the following configuration parameters:
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
 
+## `runtime.params`
+
+Runtime parameters provide configuration options for optional runtime features.
+
+### `runtime.params.url_tables`
+
+Enables URL table support for querying object store files directly using URLs without pre-registering datasets. [Learn more](../../features/query-federation/url-tables.md).
+
+```yaml
+runtime:
+  params:
+    url_tables: enabled
+```
+
+When enabled, queries can reference object store URLs directly as table names:
+
+```sql
+SELECT * FROM 's3://my-bucket/data.parquet' LIMIT 10
+```
+
+| Value     | Description                          |
+| --------- | ------------------------------------ |
+| `enabled` | Enable URL table support             |
+| (unset)   | URL tables are disabled (default)    |
+
 ## `runtime.caching`
 
 This setting specifies cache settings for supported Runtime components:
