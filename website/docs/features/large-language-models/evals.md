@@ -47,7 +47,7 @@ Where:
 - `dataset` is a dataset component.
 - `scorers` is a list of scoring methods.
 
-For complete details on the `evals` component, see the [Spicepod reference](/docs/reference/spicepod/evals).
+For complete details on the `evals` component, see the [Spicepod reference](../../reference/spicepod/evals).
 
 ## Running an Eval
 

@@ -28,7 +28,7 @@ datasets:
           enabled: true
 ```
 
-Search results (from `v1/search`) will retrieve results based on the keyword similarity of fields `title` & `body`. For more details, see the [API reference for /v1/search](/docs/api/HTTP/post-search).
+Search results (from `v1/search`) will retrieve results based on the keyword similarity of fields `title` & `body`. For more details, see the [API reference for /v1/search](../../api/HTTP/post-search).
 
 ### SQL UDTF
 The full text search index can also be used to perform search in SQL, via a user-defined table function (UDTF).

@@ -22,7 +22,7 @@ Click "Load".
 
 ## Kubernetes
 
-View the [Kubernetes](/docs/deployment/kubernetes) deployment guide for configuring the Prometheus Operator to scrape metrics from the Spice instances in Kubernetes.
+View the [Kubernetes](../deployment/kubernetes) deployment guide for configuring the Prometheus Operator to scrape metrics from the Spice instances in Kubernetes.
 
 ## Prometheus
 
