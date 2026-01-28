@@ -8,7 +8,7 @@
 # Version structure:
 # - current (trunk): /docs/next - unreleased docs
 # - latest release branch: /docs - default docs
-# - previous release branches: /docs/v1.11, /docs/v1.10, etc.
+# - previous release branches: /docs/v2.0, /docs/v1.11, etc.
 
 set -e
 
@@ -40,8 +40,8 @@ while IFS= read -r branch; do
   fi
 done <<< "$RELEASE_BRANCHES"
 
-# Sort versions by minor version number (descending - newest first)
-IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k2,2nr))
+# Sort versions by semver (major desc, then minor desc) - newest first
+IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k1,1nr -k2,2nr))
 unset IFS
 
 echo "Detected versions: ${VERSIONS[*]}"

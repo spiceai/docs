@@ -35,9 +35,23 @@ datasets:
 
 ## Overview
 
-Upon startup, Spice fetches all messages for the specified topic using a uniquely generated consumer group. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, allowing Spice to resume without reprocessing all historical data.
+Upon startup, Spice subscribes to the specified topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, allowing Spice to resume without reprocessing all historical data.
 
 Schema is automatically inferred from the first available topic message in JSON format. The connector creates the appropriate table schema for acceleration based on the detected data structure.
+
+## Consumer Group Management
+
+The Kafka connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, allowing Spice to track consumption progress.
+
+**Default behavior:** When no `kafka_consumer_group_id` is specified, Spice automatically generates a unique consumer group ID and stores it in the acceleration metadata. On subsequent restarts, Spice retrieves and reuses this stored consumer group ID to maintain offset tracking and resume consumption from where it left off.
+
+**Custom consumer group:** If you specify a custom `kafka_consumer_group_id`, Spice stores this ID in the acceleration metadata. The same consumer group must be used on subsequent restarts. If no acceleration data exists and a custom consumer group is provided, Spice will reset its position to the oldest available offset and begin consuming from the start of the topic.
+
+**Consumer group mismatch error:** Spice will return an error if a restart is attempted with a different consumer group than what is stored in the acceleration metadata. This applies to both auto-generated and custom consumer group IDs. This safeguard prevents data inconsistency that could occur from mixing offsets between different consumer groups.
+
+To resolve a consumer group mismatch, either:
+- Use the same consumer group ID as stored in the acceleration
+- Reset the acceleration data to start fresh with a new consumer group
 
 ## Configuration
 
