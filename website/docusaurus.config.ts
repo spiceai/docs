@@ -17,9 +17,9 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
-// Highest version (e.g., 1.11.x) is "next" (unreleased) at /docs/next
-// Second highest version (e.g., 1.10.x) is "latest" at /docs (default)
-// Previous versions are at /docs/v1.9, etc.
+// Highest version (e.g., 2.0.x) is "next" (unreleased) at /docs/next
+// Second highest version (e.g., 1.11.x) is "latest" at /docs (default)
+// Previous versions are at /docs/v1.10, etc.
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
 

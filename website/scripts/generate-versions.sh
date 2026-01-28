@@ -8,7 +8,7 @@
 # Version structure:
 # - current (trunk): /docs/next - unreleased docs
 # - latest release branch: /docs - default docs
-# - previous release branches: /docs/v1.11, /docs/v1.10, etc.
+# - previous release branches: /docs/v2.0, /docs/v1.11, etc.
 
 set -e
 
