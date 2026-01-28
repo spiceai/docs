@@ -81,19 +81,19 @@ Where:
 - `<data_connector>`: The Data Connector to use to connect to the dataset
 
   Currently supported data connectors:
-  - [`spiceai`](/docs/components/data-connectors/spiceai.md)
-  - [`dremio`](/docs/components/data-connectors/dremio.md)
-  - [`spark`](/docs/components/data-connectors/spark.md)
-  - [`databricks`](/docs/components/data-connectors/databricks.md)
-  - [`s3`](/docs/components/data-connectors/s3.md)
-  - [`postgres`](/docs/components/data-connectors/postgres/index.md)
-  - [`mysql`](/docs/components/data-connectors/mysql.md)
-  - [`flightsql`](/docs/components/data-connectors/flightsql.md)
-  - [`snowflake`](/docs/components/data-connectors/snowflake.md)
-  - [`ftp`, `sftp`](/docs/components/data-connectors/ftp.md)
-  - [`http`, `https`](/docs/components/data-connectors/https.md)
-  - [`clickhouse`](/docs/components/data-connectors/clickhouse.md)
-  - [`graphql`](/docs/components/data-connectors/graphql.md)
+  - [`spiceai`](../../components/data-connectors/spiceai.md)
+  - [`dremio`](../../components/data-connectors/dremio.md)
+  - [`spark`](../../components/data-connectors/spark.md)
+  - [`databricks`](../../components/data-connectors/databricks.md)
+  - [`s3`](../../components/data-connectors/s3.md)
+  - [`postgres`](../../components/data-connectors/postgres/index.md)
+  - [`mysql`](../../components/data-connectors/mysql.md)
+  - [`flightsql`](../../components/data-connectors/flightsql.md)
+  - [`snowflake`](../../components/data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](../../components/data-connectors/ftp.md)
+  - [`http`, `https`](../../components/data-connectors/https.md)
+  - [`clickhouse`](../../components/data-connectors/clickhouse.md)
+  - [`graphql`](../../components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -128,18 +128,18 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `access`
 
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](/docs/tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../tags/write).
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -270,9 +270,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
+- [`duckdb`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`
 
@@ -313,7 +313,7 @@ See [Duration](../duration/index.md)
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](/docs/reference/cron.md).
+See the [cron schedule reference](../../reference/cron.md).
 
 ## `acceleration.refresh_sql`
 
@@ -439,7 +439,7 @@ datasets:
       mysql_pass: ${secrets:MYSQL_PASS}
 ```
 
-For detailed information about metrics available for specific components, see the [component metrics documentation](/docs/features/observability/component_metrics).
+For detailed information about metrics available for specific components, see the [component metrics documentation](../../features/observability/component_metrics).
 
 ## `acceleration.indexes`
 
@@ -544,7 +544,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -678,7 +678,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ```yaml
 datasets:
@@ -698,7 +698,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](/docs/components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`](../../components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 

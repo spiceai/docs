@@ -20,7 +20,7 @@ Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that lack sea
 
 ## Example
 
-A finserv firm enables traders to search a knowledge base combining structured transaction data from Databricks with unstructured compliance documents from cloud storage. Hybrid search retrieves relevant regulations semantically (via vector search) and precise contract terms (via BM25), streamlining compliance checks and reducing research time compared to siloed search tools. This improves operational efficiency and regulatory adherence. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) and [Vector-Based Search documentation](/docs/features/search/index.md) provide implementation guidance for hybrid search workflows.
+A finserv firm enables traders to search a knowledge base combining structured transaction data from Databricks with unstructured compliance documents from cloud storage. Hybrid search retrieves relevant regulations semantically (via vector search) and precise contract terms (via BM25), streamlining compliance checks and reducing research time compared to siloed search tools. This improves operational efficiency and regulatory adherence. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) and [Vector-Based Search documentation](../../features/search/index.md) provide implementation guidance for hybrid search workflows.
 
 ## Benefits
 
