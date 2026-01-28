@@ -89,11 +89,7 @@ SELECT COUNT(*) FROM orders;
 +----------+
 ```
 
-<<<<<<< HEAD
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
->>>>>>> origin/trunk
 
 ### `params`
 
@@ -107,11 +103,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
-<<<<<<< HEAD
-| `kafka_consumer_group_id`                     | Kafka consumer group ID to use. If not set, a unique ID will be generated automatically. The consumer group ID (whether auto-generated or custom) is stored in the acceleration metadata and must remain consistent across restarts. See [Consumer Group Management](#consumer-group-management) for details.                   |
-=======
 | `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                                      |
->>>>>>> origin/trunk
 | `schema_infer_max_records`                    | Number of Kafka messages to sample for schema inference. Default: `1`. Increase if your data has optional fields or varying structure.                                                                                                                                                                                          |
 | `flatten_json`                                | Set `true` to flatten nested structs in JSON as separate columns.                                                                                                                                                                                                                                                               |
 
@@ -150,21 +142,12 @@ Using the Kafka connector **requires** [acceleration](../data-accelerators/) wit
 
 The following settings are required:
 
-<<<<<<< HEAD
-| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                       |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                           |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres/) as the acceleration engine.</li></ul> |
-| `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                               |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset (including the consumer group ID), allowing it to resume from the last known state instead of re-processing all messages.                             |
-=======
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
 | `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                        |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, allowing it to resume from the last known state instead of re-processing all messages.                                                        |
->>>>>>> origin/trunk
 
 ## Data Format Support
 

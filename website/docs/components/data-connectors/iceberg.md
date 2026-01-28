@@ -10,11 +10,7 @@ tags:
 
 The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
 
-<<<<<<< HEAD
-When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg.md) or [AWS Glue Catalog Connector](../catalogs/glue.md) instead of configuring individual datasets.
-=======
 When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg) or [AWS Glue Catalog Connector](../catalogs/glue) instead of configuring individual datasets.
->>>>>>> origin/trunk
 
 Iceberg catalogs can be of several types:
 
@@ -40,11 +36,7 @@ datasets:
 
 The `from` field specifies the Iceberg table to connect to, in the format `iceberg:<table_path>`. The `table_path` is the URL to the Iceberg table in the catalog provider.
 For REST Catalogs, use the format `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>/tables/<table_name>`.
-<<<<<<< HEAD
-For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](./glue.md) for connecting to Iceberg tables managed by Glue for a better experience.
-=======
 For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](./glue) for connecting to Iceberg tables managed by Glue for a better experience.
->>>>>>> origin/trunk
 
 Example (REST Catalog):
 
@@ -82,11 +74,7 @@ datasets:
 
 ### `name`
 
-<<<<<<< HEAD
-The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-=======
 The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords).
->>>>>>> origin/trunk
 
 Example:
 

@@ -6,11 +6,7 @@ description: 'File Data Connector Documentation'
 
 The File Data Connector enables federated SQL queries on files stored by locally accessible filesystems. It supports querying individual files or entire directories, where all child files within the directory will be loaded and queried.
 
-<<<<<<< HEAD
-File formats are specified using the `file_format` parameter, as described in [File Formats](./index.md#file-formats).
-=======
 File formats are specified using the `file_format` parameter, as described in [File Formats](./#file-formats).
->>>>>>> origin/trunk
 
 Example `spicepod.yml`
 
@@ -53,19 +49,6 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-<<<<<<< HEAD
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-
-### `params`
-
-| Parameter name              | Description                                                                                                                                                   |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data file format. Required if the format cannot be inferred from the `from` path. Refer to [File Formats](./index.md#file-formats) for details. |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                              |
-| `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                               |
-
-For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format.md).
-=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
@@ -77,7 +60,6 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                       |
 
 For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format).
->>>>>>> origin/trunk
 
 ## Trigger data refresh on file change
 

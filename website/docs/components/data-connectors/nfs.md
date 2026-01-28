@@ -64,11 +64,7 @@ from: nfs://192.168.1.100/data/reports/quarterly.parquet
 
 ### `name`
 
-<<<<<<< HEAD
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-=======
 The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords).
->>>>>>> origin/trunk
 
 ### `params`
 

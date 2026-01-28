@@ -145,11 +145,7 @@ datasets:
         '(created_at, status)': unique
 ```
 
-<<<<<<< HEAD
-See [Indexes](../../features/data-acceleration/indexes.md) for more details.
-=======
 See [Indexes](../../features/data-acceleration/indexes) for more details.
->>>>>>> origin/trunk
 
 ### Connection Pooling
 
@@ -214,12 +210,6 @@ cargo build --features turso
 ## Related Documentation
 
 - [Data Acceleration](../../features/data-acceleration) - Data acceleration overview
-<<<<<<< HEAD
-- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration
-- [SQLite Data Accelerator](./sqlite.md) - Alternative SQLite-based acceleration
-=======
 - [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
 - [Indexes](../../features/data-acceleration/indexes) - Index configuration
 - [SQLite Data Accelerator](./sqlite) - Alternative SQLite-based acceleration
->>>>>>> origin/trunk

@@ -139,8 +139,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## References
 
 - [Amazon Redshift Documentation](https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html)
-<<<<<<< HEAD
-- [PostgreSQL Connector Documentation](./postgres/)
-=======
 - [PostgreSQL Connector Documentation](./postgres)
->>>>>>> origin/trunk

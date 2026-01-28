@@ -24,11 +24,7 @@ The Spice.ai Cloud Platform dataset URI. To query a dataset in a public Spice.ai
 
 #### `name`
 
-<<<<<<< HEAD
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-=======
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
->>>>>>> origin/trunk
 
 ### `params`
 
