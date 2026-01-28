@@ -23,19 +23,26 @@ const versions: string[] = fs.existsSync(versionsPath)
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
 
-// Extract the minor version number from versions to determine ordering and maintenance status
-const getMinorVersion = (v: string): number => {
-  const match = v.match(/^1\.(\d+)/)
-  return match ? parseInt(match[1], 10) : 0
+// Extract major and minor version numbers from versions to determine ordering and maintenance status
+const getVersion = (v: string): { major: number; minor: number } => {
+  const match = v.match(/^(\d+)\.(\d+)/)
+  return match
+    ? { major: parseInt(match[1], 10), minor: parseInt(match[2], 10) }
+    : { major: 0, minor: 0 }
 }
 
-// Sort versions by minor version descending
-const sortedVersions = [...versions].sort((a, b) => getMinorVersion(b) - getMinorVersion(a))
+// Sort versions by semver (major desc, then minor desc)
+const sortedVersions = [...versions].sort((a, b) => {
+  const vA = getVersion(a)
+  const vB = getVersion(b)
+  if (vB.major !== vA.major) return vB.major - vA.major
+  return vB.minor - vA.minor
+})
 
 // Highest version is "next" (unreleased), second highest is "latest"
 const nextVersion = sortedVersions[0] || null
 const latestVersion = sortedVersions[1] || null
-const latestMinor = latestVersion ? getMinorVersion(latestVersion) : 0
+const latestVer = latestVersion ? getVersion(latestVersion) : { major: 0, minor: 0 }
 
 const docsVersionConfig = hasVersions
   ? {
@@ -44,11 +51,13 @@ const docsVersionConfig = hasVersions
       versions: {
         ...Object.fromEntries(
           versions.map((version) => {
-            const minor = getMinorVersion(version)
+            const ver = getVersion(version)
             const isNext = version === nextVersion
             const isLatest = version === latestVersion
-            // Versions within latest - 1 are maintained (no banner)
-            const isMaintained = minor >= latestMinor - 1
+            // Versions within same major and latest minor - 1 are maintained (no banner)
+            const isMaintained =
+              ver.major > latestVer.major ||
+              (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1)
 
             if (isNext) {
               return [

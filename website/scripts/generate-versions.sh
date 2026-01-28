@@ -40,8 +40,8 @@ while IFS= read -r branch; do
   fi
 done <<< "$RELEASE_BRANCHES"
 
-# Sort versions by minor version number (descending - newest first)
-IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k2,2nr))
+# Sort versions by semver (major desc, then minor desc) - newest first
+IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k1,1nr -k2,2nr))
 unset IFS
 
 echo "Detected versions: ${VERSIONS[*]}"
