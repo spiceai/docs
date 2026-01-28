@@ -6,11 +6,7 @@ description: 'SMB Data Connector Documentation'
 
 SMB (Server Message Block) is a network file sharing protocol that provides shared access to files, printers, and serial ports. It is commonly used in Windows environments for network shares but is also supported on Linux (via Samba) and macOS.
 
-<<<<<<< HEAD
-The SMB Data Connector enables federated SQL query across [supported file formats](./index.md#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
-=======
 The SMB Data Connector enables federated SQL query across [supported file formats](../data-connectors#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
->>>>>>> origin/trunk
 
 ## Quickstart
 
@@ -64,20 +60,6 @@ from: smb://192.168.1.100/share/data.parquet
 
 ### `name`
 
-<<<<<<< HEAD
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-
-### `params`
-
-| Parameter Name              | Description                                                                                              |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                            |
-| `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:smb_user}`. |
-| `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:smb_pass}`. |
-| `smb_port`                  | SMB server port. Default: `445`.                                                                         |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                    |
-| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.            |
-=======
 The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
@@ -90,7 +72,6 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `smb_port`                  | SMB server port. Default: `445`.                                                                 |
 | `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                            |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.    |
->>>>>>> origin/trunk
 
 ## Examples
 

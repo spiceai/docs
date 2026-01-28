@@ -44,11 +44,7 @@ SELECT COUNT(*) FROM lineitem;
 +----------+
 ```
 
-<<<<<<< HEAD
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
-=======
 The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
->>>>>>> origin/trunk
 
 ### `params`
 

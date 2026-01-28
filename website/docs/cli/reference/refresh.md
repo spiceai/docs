@@ -18,13 +18,8 @@ spice refresh [dataset] [flags]
 #### Flags
 
 - `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
-<<<<<<< HEAD
-- `--refresh-sql`  SQL used to refresh the dataset, see [Refresh SQL docs](../../features/data-acceleration/data-refresh.md#refresh-sql).
-- `--refresh-mode`  Refresh mode to use, see [Refresh Modes docs](../../features/data-acceleration/data-refresh.md#refresh-modes).
-=======
 - `--refresh-sql`  SQL used to refresh the dataset, see [Refresh SQL docs](../../features/data-acceleration/data-refresh#refresh-sql).
 - `--refresh-mode`  Refresh mode to use, see [Refresh Modes docs](../../features/data-acceleration/data-refresh#refresh-modes).
->>>>>>> origin/trunk
 - `-h`, `--help`   Print this help message
 
 ### Examples

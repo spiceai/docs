@@ -21,11 +21,7 @@ datasets:
       enabled: true
 ```
 
-<<<<<<< HEAD
-For the complete reference specification, see [datasets](../../reference/spicepod/datasets.md).
-=======
 For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
->>>>>>> origin/trunk
 
 By default, datasets are locally materialized using in-memory Arrow records.
 
@@ -42,11 +38,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 [cayenne]: ./cayenne.md
 [duckdb]: ./duckdb.md
-<<<<<<< HEAD
-[postgres]: ./postgres/index.md
-=======
 [postgres]: ./postgres/
->>>>>>> origin/trunk
 [sqlite]: ./sqlite.md
 [turso]: ./turso.md
 
@@ -103,14 +95,7 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-<<<<<<< HEAD
-- [Performance Tuning](../../reference/performance-tuning.md) - Comprehensive optimization guide
-- [Managing Memory Usage](../../reference/memory.md) - Memory configuration reference
-- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso
-=======
 - [Performance Tuning](../../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../../reference/memory) - Memory configuration reference
 - [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
 - [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
->>>>>>> origin/trunk

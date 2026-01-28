@@ -6,11 +6,7 @@ pagination_next: null
 description: 'spice chat CLI documentation'
 ---
 
-<<<<<<< HEAD
-Start an interactive or one-shot chat with a [model](../../components/models/index.md) registered in the Spice runtime.
-=======
 Start an interactive or one-shot chat with a [model](../../components/models/) registered in the Spice runtime.
->>>>>>> origin/trunk
 
 ## Requirements
 

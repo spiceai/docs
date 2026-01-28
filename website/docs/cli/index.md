@@ -45,11 +45,7 @@ The runtime is downloaded and installed automatically upon first run of `spice r
 
 ## Getting started
 
-<<<<<<< HEAD
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started/).
-=======
 For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started).
->>>>>>> origin/trunk
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 
@@ -92,11 +88,7 @@ spice upgrade
 ```
 
 :::note
-<<<<<<< HEAD
-Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](./#install) script.
-=======
 Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](#install) script.
->>>>>>> origin/trunk
 :::
 
 ## Uninstall
