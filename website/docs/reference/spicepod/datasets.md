@@ -270,11 +270,11 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`cayenne`(../../components/data-accelerators/cayenne.md) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
-- [`duckdb`(../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`(../../components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`(../../components/data-accelerators/sqlite.md) - Accelerated by an embedded SQLite database.
-- [`turso`(../../components/data-accelerators/turso.md) - Accelerated by an embedded Turso (libSQL) database (Beta).
+- [`cayenne`](../../components/data-accelerators/cayenne.md) - Accelerated by Spice Cayenne (Vortex) engine (Beta).
+- [`duckdb`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/sqlite.md) - Accelerated by an embedded SQLite database.
+- [`turso`](../../components/data-accelerators/turso.md) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
