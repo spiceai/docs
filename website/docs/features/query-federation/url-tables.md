@@ -184,7 +184,7 @@ JOIN 's3://my-bucket/products.parquet' s ON o.product_id = s.id
 
 ## Related Topics
 
-- [S3 Data Connector](../../components/data-connectors/s3.md) - Register S3 datasets with full configuration options
-- [Azure BlobFS Data Connector](../../components/data-connectors/abfs.md) - Register Azure datasets with full configuration options
+- [S3 Data Connector](../../components/data-connectors/s3) - Register S3 datasets with full configuration options
+- [Azure BlobFS Data Connector](../../components/data-connectors/abfs) - Register Azure datasets with full configuration options
 - [Query Federation](./) - Learn about federated queries across multiple sources
-- [Data Acceleration](../../components/data-accelerators/) - Accelerate query performance with local caching
+- [Data Acceleration](../../components/data-accelerators) - Accelerate query performance with local caching

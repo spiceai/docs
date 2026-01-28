@@ -58,7 +58,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 
 ### Spice Cayenne vs DuckDB
 
-Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based acceleration, but differ in architecture and performance characteristics:
+Both [Spice Cayenne](./cayenne) and [DuckDB](./duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
 
 **Choose Spice Cayenne when:**
 
@@ -83,7 +83,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md), [`sqlite`](./sqlite.md), and [`turso`](./turso.md) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb), [`sqlite`](./sqlite), and [`turso`](./turso) accelerators by specifying `mode: file`.
 
 :::
 
