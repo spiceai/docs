@@ -59,11 +59,11 @@ SELECT COUNT(*) FROM app_users;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
 
 ### `params`
 
-The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
+The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
 
 | Parameter Name        | Description                                                        | Required | Default |
 | --------------------- | ------------------------------------------------------------------ | -------- | ------- |

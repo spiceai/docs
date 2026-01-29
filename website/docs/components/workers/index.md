@@ -73,4 +73,4 @@ The vision for workers includes support for dynamic serverless compute, enabling
 
 ## Further Reading
 
-For a complete specification of worker configuration, routing rules, and available options, refer to the [Spicepod Workers Reference](/docs/reference/spicepod/workers.md).
+For a complete specification of worker configuration, routing rules, and available options, refer to the [Spicepod Workers Reference](/docs/reference/spicepod/workers).

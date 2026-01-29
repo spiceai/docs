@@ -24,7 +24,7 @@ embeddings:
 Supported models include:
 
 - All models tagged as [text-embeddings-inference](https://huggingface.co/models?other=text-embeddings-inference) on Huggingface
-- Any Huggingface repository with the correct files to be loaded as a [local embedding model](/docs/components/embeddings/local.md).
+- Any Huggingface repository with the correct files to be loaded as a [local embedding model](/docs/components/embeddings/local).
 
 With the same semantics as [language models](/docs/components/models/huggingface#access-tokens), `spice` can run private HuggingFace embedding models:
 

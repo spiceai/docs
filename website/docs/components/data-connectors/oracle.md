@@ -74,7 +74,7 @@ SELECT COUNT(*) FROM products;
 
 ### `params`
 
-The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
+The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

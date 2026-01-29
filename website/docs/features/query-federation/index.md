@@ -17,7 +17,7 @@ Spice provides a high-performance SQL query engine built on Apache DataFusion, s
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
-For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
+For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index).
 
 ## Query Methods
 
@@ -79,7 +79,7 @@ SELECT * FROM my_table LIMIT 10;
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index.mdx).
+**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
@@ -206,7 +206,7 @@ Time: 0.011524375 seconds. 1 rows.
 
 The query in step 8 returns results from federated remote data sources, but performance is affected by network latency and data transfer overhead.
 
-Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](/docs/components/data-accelerators/index.md). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
+Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](/docs/components/data-accelerators/index). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
 :::warning[Limitations]
 

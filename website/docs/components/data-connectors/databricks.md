@@ -54,11 +54,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
 
 ### `params`
 
-Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
+Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:my_token}`.
 
 | Parameter Name             | Description                                                                                                                                                                                                                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -109,7 +109,7 @@ datasets:
 
 ## Delta Lake object store parameters
 
-Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 ### AWS S3
 
@@ -266,7 +266,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 - The Databricks Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 

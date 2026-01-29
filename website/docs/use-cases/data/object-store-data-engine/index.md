@@ -30,6 +30,6 @@ A finserv platform queries transaction logs stored in S3, combines them with rea
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](/docs/features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](/docs/features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
-- **Observability**: [Documentation](/docs/features/observability/index.md).
+- **Federated SQL Queries**: [Documentation](/docs/features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Data Acceleration**: [Documentation](/docs/features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Observability**: [Documentation](/docs/features/observability/index).

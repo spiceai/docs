@@ -26,7 +26,7 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
 
 ### `params`
 
@@ -124,7 +124,7 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 :::warning[Limitations]
 
 - GitHub has a limitation in the Search API where it may return more stale data than the standard API used in the default query mode.
-- GitHub has a limitation in the Search API where it only returns a maximum of 1000 results for a query. Use [append mode acceleration](/features/data-acceleration/data-refresh.md) to retrieve more results over time. See the [append example](#append-example) for pull requests.
+- GitHub has a limitation in the Search API where it only returns a maximum of 1000 results for a query. Use [append mode acceleration](/features/data-acceleration/data-refresh) to retrieve more results over time. See the [append example](#append-example) for pull requests.
 
 :::
 

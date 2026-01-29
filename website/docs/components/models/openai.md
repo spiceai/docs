@@ -79,15 +79,15 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint using [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses). When using OpenAI-compatible providers, ensure the provider supports OpenAI's Responses API. | `disabled`                  |
 | `openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model.  These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`.                                                        | -                           |
 
-[tools]: ../../features/large-language-models/tools.md
+[tools]: ../../features/large-language-models/tools
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
-- [Tools](../../features/large-language-models/tools.md)
-- [Memory](../../features/large-language-models/memory.md)
-- [Evals](../../features/large-language-models/evals.md)
-- [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
+- [Tools](../../features/large-language-models/tools)
+- [Memory](../../features/large-language-models/memory)
+- [Evals](../../features/large-language-models/evals)
+- [Parameter overrides](../../features/large-language-models/parameter_overrides)
 
 ## Supported OpenAI Compatible Providers
 

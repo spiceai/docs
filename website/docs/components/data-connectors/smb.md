@@ -60,15 +60,15 @@ from: smb://192.168.1.100/share/data.parquet
 
 ### `name`
 
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
 
 ### `params`
 
 | Parameter Name              | Description                                                                                                          |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors/index.md#file-formats). |
-| `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:smb_user}`.             |
-| `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores/index.md) syntax: `${secrets:smb_pass}`.             |
+| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors/index#file-formats). |
+| `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores/index) syntax: `${secrets:smb_user}`.             |
+| `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores/index) syntax: `${secrets:smb_pass}`.             |
 | `smb_port`                  | SMB server port. Default: `445`.                                                                                     |
 | `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                                |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                        |

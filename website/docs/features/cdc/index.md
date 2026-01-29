@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](../data-acceleration/index.md) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
+Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](../data-acceleration/index) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
 
 ## Benefits
 
@@ -25,7 +25,7 @@ The startup time for CDC-accelerated datasets may be longer than for non-CDC-acc
 
 :::tip
 
-It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](/docs/components/data-accelerators/duckdb.md)/[`SQLite`](/docs/components/data-accelerators/sqlite.md) or [`PostgreSQL`](/docs/components/data-accelerators/postgres/index.md)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](/docs/components/data-accelerators/duckdb)/[`SQLite`](/docs/components/data-accelerators/sqlite) or [`PostgreSQL`](/docs/components/data-accelerators/postgres/index)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
 
 :::
 
@@ -33,7 +33,7 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
 
-Currently, the only supported data connector is [Debezium](/docs/components/data-connectors/debezium.md).
+Currently, the only supported data connector is [Debezium](/docs/components/data-connectors/debezium).
 
 ## Example
 

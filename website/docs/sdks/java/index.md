@@ -131,7 +131,7 @@ ArrowReader reader = client.queryWithParams(
     Param.decimal128(new BigDecimal("99.99"), 10, 2));
 ```
 
-For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries.mdx).
+For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries).
 
 ### Memory Configuration
 

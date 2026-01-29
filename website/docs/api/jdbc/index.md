@@ -68,7 +68,7 @@ Spice has [TLS support](/docs/api/tls). For testing or non-production use cases 
 
 ### Authentication
 
-If [API Key authentication](/docs/api/auth/index.md) is enabled, the API key can be provided in the JDBC connection URL as a query parameter:
+If [API Key authentication](/docs/api/auth/index) is enabled, the API key can be provided in the JDBC connection URL as a query parameter:
 
 `jdbc:arrow-flight-sql://{host}:{port}?user=&password=<enter-api-key-here>`
 

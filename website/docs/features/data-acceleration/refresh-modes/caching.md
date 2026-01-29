@@ -635,17 +635,17 @@ Choose one approach:
 
 ## Limitations
 
-- Currently only available for HTTP-based datasets using the [HTTPS connector](/docs/components/data-connectors/https.md). Future releases will extend support to arbitrary queries from any data source.
+- Currently only available for HTTP-based datasets using the [HTTPS connector](/docs/components/data-connectors/https). Future releases will extend support to arbitrary queries from any data source.
 - Requires `acceleration.enabled: true`
 - When no `primary_key` is specified, cache keys default to request metadata fields (`request_path`, `request_query`, `request_body`)
 - On-demand refresh via `/v1/datasets/:name/acceleration/refresh` API triggers a new refresh for all cache keys defined in `refresh_sql`
 
 ## Related Documentation
 
-- [HTTPS Data Connector](/docs/components/data-connectors/https.md) - Detailed HTTP connector configuration
-- [Data Refresh](/docs/features/data-acceleration/data-refresh.md) - Overview of all refresh modes
-- [Refresh SQL](/docs/features/data-acceleration/data-refresh.md#refresh-sql) - Using SQL to control refresh behavior
-- [Special Metadata Fields](/docs/components/data-connectors/https.md#special-metadata-fields) - HTTP request metadata fields
+- [HTTPS Data Connector](/docs/components/data-connectors/https) - Detailed HTTP connector configuration
+- [Data Refresh](/docs/features/data-acceleration/data-refresh) - Overview of all refresh modes
+- [Refresh SQL](/docs/features/data-acceleration/data-refresh#refresh-sql) - Using SQL to control refresh behavior
+- [Special Metadata Fields](/docs/components/data-connectors/https#special-metadata-fields) - HTTP request metadata fields
 - [Data Accelerators](/docs/components/data-accelerators) - Acceleration engines for cache persistence
-- [DuckDB Accelerator](/docs/components/data-accelerators/duckdb.md) - DuckDB acceleration engine
-- [SQLite Accelerator](/docs/components/data-accelerators/sqlite.md) - SQLite acceleration engine
+- [DuckDB Accelerator](/docs/components/data-accelerators/duckdb) - DuckDB acceleration engine
+- [SQLite Accelerator](/docs/components/data-accelerators/sqlite) - SQLite acceleration engine

@@ -9,11 +9,11 @@ pagination_next: null
 
 Acceleration data can be refreshed (updated) by:
 
-- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api.mdx).
+- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api).
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-interval).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/docs/features/cdc/index.md).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/docs/features/cdc).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 
@@ -32,7 +32,7 @@ Spice supports four modes to refresh/update local data from a connected data sou
 
 Learn more about each mode:
 
-- [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching.md)
+- [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching)
 
 Example:
 
@@ -47,7 +47,7 @@ datasets:
 
 ### Append
 
-Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](/docs/reference/spicepod/datasets.md#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
+Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](/docs/reference/spicepod/datasets#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
 
 E.g.
 
@@ -62,7 +62,7 @@ datasets:
 ```
 
 :::info Readiness with snapshots
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots.md). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
 :::
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/docs/reference/spicepod/datasets#accelerationrefresh_append_overlap).
@@ -123,18 +123,18 @@ datasets:
 ```
 
 :::info
-Appending modified files is only supported for datasets that support setting the [file format parameter](/docs/reference/file_format.md), such as `s3://`, `abfs://`, `file://`, etc.
+Appending modified files is only supported for datasets that support setting the [file format parameter](/docs/reference/file_format), such as `s3://`, `abfs://`, `file://`, etc.
 :::
 
 ### Changes (CDC)
 
-Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](/docs/features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/docs/components/data-connectors/debezium.md).
+Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](/docs/features/cdc) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/docs/components/data-connectors/debezium).
 
 ### Caching
 
 The `caching` refresh mode is designed for HTTP-based datasets where request metadata acts as cache keys. This mode is particularly useful for API responses that return multiple rows for a single request, such as search results or dynamic content endpoints.
 
-See [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching.md) for detailed documentation and examples.
+See [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching) for detailed documentation and examples.
 
 ## Ready State
 
@@ -164,7 +164,7 @@ datasets:
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots.md) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 
@@ -216,7 +216,7 @@ curl -i -X PATCH \
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.
 
-For the complete reference, view the `refresh_sql` section of [datasets](/docs/reference/spicepod/datasets.md#accelerationrefresh_sql).
+For the complete reference, view the `refresh_sql` section of [datasets](/docs/reference/spicepod/datasets#accelerationrefresh_sql).
 
 :::warning[Limitations]
 
@@ -439,7 +439,7 @@ datasets:
       refresh_cron: '0 12 * * 1-5'
 ```
 
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron.md).
+This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron).
 
 The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
 

@@ -32,7 +32,7 @@ Choose the appropriate [Data Accelerator](/docs/components/data-accelerators) ba
 
 ## Spice Cayenne Performance Optimization
 
-[Spice Cayenne](/docs/components/data-accelerators/cayenne.md) uses the [Vortex](https://github.com/vortex-data/vortex) columnar format for high-performance analytics on large datasets.
+[Spice Cayenne](/docs/components/data-accelerators/cayenne) uses the [Vortex](https://github.com/vortex-data/vortex) columnar format for high-performance analytics on large datasets.
 
 ### Point Lookups and Random Access
 
@@ -88,7 +88,7 @@ Choose `btrblocks` for read-heavy analytics workloads. Use `zstd` only when size
 
 ## DuckDB Performance Optimization
 
-[DuckDB](/docs/components/data-accelerators/duckdb.md) provides mature SQL support with sophisticated query optimization.
+[DuckDB](/docs/components/data-accelerators/duckdb) provides mature SQL support with sophisticated query optimization.
 
 ### Memory Configuration
 
@@ -591,7 +591,7 @@ Monitor key performance metrics:
 - `dataset_load_state` - Acceleration status
 - Cache hit rates
 
-See [Observability](/docs/features/observability/index.md) for metric configuration.
+See [Observability](/docs/features/observability) for metric configuration.
 
 ## Performance Checklist
 
@@ -610,10 +610,10 @@ Use this checklist when optimizing Spice deployments:
 
 **Spice Documentation:**
 
-- [Managing Memory Usage](./memory.md) - Memory configuration reference
+- [Managing Memory Usage](./memory) - Memory configuration reference
 - [Data Accelerators](/docs/components/data-accelerators) - Accelerator documentation
-- [Spice Cayenne Data Accelerator](/docs/components/data-accelerators/cayenne.md) - Spice Cayenne-specific tuning
-- [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb.md) - DuckDB-specific tuning
+- [Spice Cayenne Data Accelerator](/docs/components/data-accelerators/cayenne) - Spice Cayenne-specific tuning
+- [DuckDB Data Accelerator](/docs/components/data-accelerators/duckdb) - DuckDB-specific tuning
 - [Caching](/docs/features/caching) - Cache configuration
 - [Observability](/docs/features/observability) - Metrics and monitoring
 

@@ -68,4 +68,4 @@ var data = await client.Query(
 );
 ```
 
-For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries.mdx).
+For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries).
