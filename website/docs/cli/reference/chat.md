@@ -35,7 +35,7 @@ spice chat [flags] [<message>]
 - `--model <string>` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
 - `--temperature <float32>` Model temperature used for chat request. Default: `1.0`.
 - `--user-agent <string>` Custom `User-Agent` header sent with every request.
-- `--responses` Direct all chats to the `/v1/responses` endpoint, which exposes configured models that support [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses) and enables access to [OpenAI-hosted tools](https://platform.openai.com/docs/guides/tools). To learn more about Spice's support for OpenAI's Responses API, view the [OpenAI model provider documentation](/components/models/openai.md) or the [Azure OpenAI model provider documentation](/components/models/azure.md).
+- `--responses` Direct all chats to the `/v1/responses` endpoint, which exposes configured models that support [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses) and enables access to [OpenAI-hosted tools](https://platform.openai.com/docs/guides/tools). To learn more about Spice's support for OpenAI's Responses API, view the [OpenAI model provider documentation](../../components/models/openai.md) or the [Azure OpenAI model provider documentation](../../components/models/azure.md).
 
 ## Examples
 
