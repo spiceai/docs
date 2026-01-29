@@ -30,6 +30,6 @@ A health-tech platform implements a data mesh to enable clinical teams to access
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Data Acceleration**: [Documentation](../../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
-- **Observability**: [Documentation](../../../features/observability).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Observability**: [Documentation](../../../features/observability/index.md).
