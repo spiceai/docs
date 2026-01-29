@@ -30,6 +30,6 @@ A SaaS project management platform caches user task data and project states loca
 
 ### Learn More
 
-- **Data Acceleration**: [Documentation](/features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
-- **Federated SQL Queries**: [Documentation](/features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Observability**: [Documentation](/features/observability/index.md).
+- **Data Acceleration**: [Documentation](/features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Federated SQL Queries**: [Documentation](/features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Observability**: [Documentation](/features/observability/index).

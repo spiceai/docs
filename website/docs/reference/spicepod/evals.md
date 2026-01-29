@@ -40,4 +40,4 @@ The [dataset](../../reference/spicepod/datasets) to use for this evaluation. Mus
 
 A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](../../reference/spicepod/models) outputs will be measured against an expected result.
 
-A full list of scorers can be found [here](../../features/large-language-models/evals.md#eval-scorers).
+A full list of scorers can be found [here](../../features/large-language-models/evals#eval-scorers).

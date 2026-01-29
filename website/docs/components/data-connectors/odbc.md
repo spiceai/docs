@@ -112,7 +112,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -158,7 +158,7 @@ datasets:
 
 ## Building Spice with ODBC
 
-ODBC support is not included in the released binaries. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
+ODBC support is not included in the released binaries. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
 
 Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
 
@@ -327,7 +327,7 @@ datasets:
       odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
 ```
 
-See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
+See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README) for more help on getting started with ODBC and Postgres.
 
 ## Secrets
 

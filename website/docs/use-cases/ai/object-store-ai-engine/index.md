@@ -20,7 +20,7 @@ Unlike traditional data platforms (e.g., Snowflake, BigQuery) or separate search
 
 ## Example
 
-A security operations platform uses Spice.ai to query object-store data (e.g., S3-stored network logs), perform hybrid search to identify threat patterns (semantic via VSS, precise via BM25), and run LLM inference to generate real-time threat intelligence reports. This unified workflow detects anomalies in minutes without moving data to a centralized warehouse, outperforming traditional platforms requiring complex ETL pipelines and separate AI tools. The [Vector-Based Search documentation](../../features/search/index.md) and [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) provide guidance for implementing search and query workflows on object stores.
+A security operations platform uses Spice.ai to query object-store data (e.g., S3-stored network logs), perform hybrid search to identify threat patterns (semantic via VSS, precise via BM25), and run LLM inference to generate real-time threat intelligence reports. This unified workflow detects anomalies in minutes without moving data to a centralized warehouse, outperforming traditional platforms requiring complex ETL pipelines and separate AI tools. The [Vector-Based Search documentation](../../features/search/index) and [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README) provide guidance for implementing search and query workflows on object stores.
 
 ## Benefits
 
@@ -30,7 +30,7 @@ A security operations platform uses Spice.ai to query object-store data (e.g., S
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Vector and Hybrid Search**: [Documentation](../../features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
-- **AI Gateway**: [Documentation](../../features/large-language-models/index.md) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration/index.md)
+- **Federated SQL Queries**: [Documentation](../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Vector and Hybrid Search**: [Documentation](../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **AI Gateway**: [Documentation](../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration/index)

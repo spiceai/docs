@@ -89,7 +89,7 @@ SELECT COUNT(*) FROM emails;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -124,4 +124,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## Cookbook
 
 - A cookbook recipe to configure IMAP as a data connector in Spice. [IMAP Data Connector](https://github.com/spiceai/cookbook/tree/trunk/imap/#readme)
-- A cookbook recipe to configure IMAP with Outlook using OAuth authentication as a data connector in Spice. [Connecting to an Outlook mailbox](https://github.com/spiceai/cookbook/tree/trunk/imap/outlook.md)
+- A cookbook recipe to configure IMAP with Outlook using OAuth authentication as a data connector in Spice. [Connecting to an Outlook mailbox](https://github.com/spiceai/cookbook/tree/trunk/imap/outlook)

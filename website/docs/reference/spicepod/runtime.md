@@ -29,7 +29,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching/index.md).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -44,7 +44,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching/index.md).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -77,7 +77,7 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 ### Choosing a `hashing_algorithm`
 
 - **`siphash` (Default):** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
-- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with a `plan` `cache_key_type`.
+- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with a `plan` `cache_key_type`.
 
 Consider using `ahash` if maximum performance is most important, or where hashing DoS attacks are unlikely or a low risk. More information on the security mechanisms of AHash are available [in the AHash documentation](https://github.com/tkaitchuck/aHash/wiki/How-aHash-is-resists-DOS-attacks).
 
@@ -92,7 +92,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls/index.md).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -173,7 +173,7 @@ runtime:
 
 ## `runtime.task_history`
 
-The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history.md).
+The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history).
 
 ```yaml
 runtime:
@@ -233,11 +233,11 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](../../reference/memory.md).
+For detailed memory information, see [Memory](../../reference/memory).
 
 ## `runtime.temp_directory`
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
 
 ```yaml
 runtime:

@@ -71,7 +71,7 @@ File formats currently supported are:
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](../../reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
+| [CSV](../../reference/file_format#csv)     | `file_format: csv`     | ✅        | ❌                 |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
