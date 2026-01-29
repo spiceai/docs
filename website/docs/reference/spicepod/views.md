@@ -37,11 +37,11 @@ views:
 
 ## `name`
 
-The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
 ## `description`
 
-The description of the view. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
+The description of the view. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `ready_state`
 
@@ -72,9 +72,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded SQLite database.
+- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
 
 ## `acceleration.mode`
 
@@ -96,7 +96,7 @@ Supported values:
 - `create_only` – Write snapshots after refreshes but never download them on startup.
 - `disabled` (default) – Do not use snapshots for this view.
 
-Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/view=<view>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots.md).
+Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/view=<view>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots).
 
 ## `acceleration.refresh_mode`
 
@@ -109,13 +109,13 @@ Optional. How to refresh the view. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` views without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_cron`
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` views without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](../../reference/cron.md).
+See the [cron schedule reference](../cron).
 
 ## `acceleration.refresh_sql`
 
@@ -136,7 +136,7 @@ Optional. A duration to filter view refresh source queries to recent data (durat
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -146,7 +146,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -189,7 +189,7 @@ Optional. The retention period for the view. Combine with `time_column` and `tim
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.retention_sql`
 
@@ -205,7 +205,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_jitter_enabled`
 
@@ -223,7 +223,7 @@ The `indexes` field is a map where the key is the column reference and the value
 
 A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Indexes](../../features/data-acceleration/indexes.md)
+See [Indexes](../../features/data-acceleration/indexes)
 
 ```yaml
 views:
@@ -243,7 +243,7 @@ Optional. Specify the primary key constraint on the locally accelerated table. N
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Constraints](../../features/data-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints)
 
 ```yaml
 views:
@@ -272,7 +272,7 @@ The possible conflict resolution strategies are:
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
-See [Constraints](../../features/data-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints)
 
 ```yaml
 views:
@@ -318,7 +318,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `columns[*].embeddings`
 
@@ -391,7 +391,7 @@ Only applicable if `vectors.enabled` is both defined and `true`.
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
+Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ```yaml
 views:
@@ -411,7 +411,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](../../components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 
