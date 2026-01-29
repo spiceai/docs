@@ -18,27 +18,27 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local.md
-[hf]: ./huggingface.md
-[spice]: ./spiceai.md
-[openai]: ./openai.md
-[azure]: ./azure.md
-[ant]: ./anthropic.md
-[xai]: ./xai.md
-[databricks]: ./databricks.md
+[file]: /components/embeddings/local
+[hf]: ./huggingface
+[spice]: ./spiceai
+[openai]: ./openai
+[azure]: ./azure
+[ant]: ./anthropic
+[xai]: ./xai
+[databricks]: ./databricks
 
-Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models.md).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models).
 
 \*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
-The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../../reference/spicepod/models.md).
+The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../../reference/spicepod/models).
 
 ## Features
 
 Spice supports a variety of features for large language models (LLMs):
 
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](../../features/large-language-models/tools).
-- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides.md). Use Jinja-templating to parameterise system prompts per request see [Parameterized prompts](docs/features/large-language-models/parameterized_prompts.md).
+- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides). Use Jinja-templating to parameterise system prompts per request see [Parameterized prompts](../../features/large-language-models/parameterized_prompts).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../../features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../../features/search/vector-search).
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).
@@ -84,7 +84,7 @@ The following examples demonstrate how to configure and use various models or mo
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai.md).
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai).
 
 Example `spicepod.yml`:
 
@@ -104,7 +104,7 @@ models:
 
 ### Example: Using an OpenAI Model with Tools
 
-To specify tools for an OpenAI model, include them in the `params.tools` field. For more details, see the [Tools documentation](../../features/large-language-models/tools.md).
+To specify tools for an OpenAI model, include them in the `params.tools` field. For more details, see the [Tools documentation](../../features/large-language-models/tools).
 
 ```yaml
 models:
@@ -116,7 +116,7 @@ models:
 
 ### Example: Adding Memory to a Model
 
-To enable memory tools for a model, define a `store` memory dataset and specify `memory` in the model's `tools` parameter. For more details, see the [Memory documentation](../../features/large-language-models/memory.md).
+To enable memory tools for a model, define a `store` memory dataset and specify `memory` in the model's `tools` parameter. For more details, see the [Memory documentation](../../features/large-language-models/memory).
 
 ```yaml
 datasets:
@@ -133,7 +133,7 @@ models:
 
 ### Example: Setting Default Parameter Overrides
 
-To set default overrides for parameters, use the [model provider prefix](#model-provider-prefix) followed by the parameter name. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides.md).
+To set default overrides for parameters, use the [model provider prefix](#model-provider-prefix) followed by the parameter name. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides).
 
 ```yaml
 models:
@@ -146,7 +146,7 @@ models:
 
 ### Example: Configuring a System Prompt
 
-To configure an additional system prompt, use the `system_prompt` parameter. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides.md).
+To configure an additional system prompt, use the `system_prompt` parameter. For more details, see the [Parameter Overrides documentation](../../features/large-language-models/parameter_overrides).
 
 ```yaml
 models:
@@ -159,7 +159,7 @@ models:
 
 ### Example: Serving a Local Model
 
-To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem.md).
+To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem).
 
 ```yaml
 models:

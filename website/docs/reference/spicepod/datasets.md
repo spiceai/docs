@@ -306,7 +306,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_cron`
 
@@ -333,7 +333,7 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -343,7 +343,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_retry_enabled`
 

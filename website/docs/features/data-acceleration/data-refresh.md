@@ -13,7 +13,7 @@ Acceleration data can be refreshed (updated) by:
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/features/cdc/index.md).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/features/cdc).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 
@@ -57,7 +57,7 @@ datasets:
 ```
 
 :::info Readiness with snapshots
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots.md). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
 :::
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap).
@@ -118,12 +118,12 @@ datasets:
 ```
 
 :::info
-Appending modified files is only supported for datasets that support setting the [file format parameter](../../reference/file_format.md), such as `s3://`, `abfs://`, `file://`, etc.
+Appending modified files is only supported for datasets that support setting the [file format parameter](../../reference/file_format), such as `s3://`, `abfs://`, `file://`, etc.
 :::
 
 ### Changes (CDC)
 
-Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../../features/cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium.md).
+Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../../features/cdc) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium).
 
 ## Ready State
 
@@ -153,7 +153,7 @@ datasets:
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots.md) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 
@@ -428,7 +428,7 @@ datasets:
       refresh_cron: "0 12 * * 1-5"
 ```
 
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](../../reference/cron.md).
+This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](../../reference/cron).
 
 The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
 

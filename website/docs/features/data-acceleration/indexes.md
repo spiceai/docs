@@ -36,11 +36,11 @@ There are two types of indexes that can be specified in a Spicepod:
 
 - `enabled`: Creates a standard index on the specified column(s).
   - Similar to specifying `CREATE INDEX my_index ON my_table (my_column)`.
-- `unique`: Creates a unique index on the specified column(s). See [Constraints](./constraints.md) for more information on working with unique constraints on locally accelerated tables.
+- `unique`: Creates a unique index on the specified column(s). See [Constraints](./constraints) for more information on working with unique constraints on locally accelerated tables.
   - Similar to specifying `CREATE UNIQUE INDEX my_index ON my_table (my_column)`.
 
 :::warning[Limitations]
 
-Indexes are not supported for the in-memory Arrow or [Cayenne](../../components/data-accelerators/cayenne.md) acceleration engines. Use [DuckDB](../../components/data-accelerators/duckdb.md), [SQLite](../../components/data-accelerators/duckdb.md), or [PostgreSQL](../../components/data-accelerators/postgres/index.md) as the acceleration engine to enable indexing.
+Indexes are not supported for the in-memory Arrow or [Cayenne](../../components/data-accelerators/cayenne) acceleration engines. Use [DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), or [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine to enable indexing.
 
 :::

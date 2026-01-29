@@ -372,7 +372,7 @@ date: Thu, 24 Jul 2025 14:21:32 GMT
 
 ## Metrics
 
-Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](../../features/observability/index.md). The following metrics are available for each cache type:
+Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](../../features/observability). The following metrics are available for each cache type:
 
 | Metric                   | Type    | Description                                                |
 | ------------------------ | ------- | ---------------------------------------------------------- |

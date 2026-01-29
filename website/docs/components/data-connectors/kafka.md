@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators/index.md). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
+The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
 
 ```yaml
 datasets:
@@ -73,7 +73,7 @@ SELECT COUNT(*) FROM orders;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -120,7 +120,7 @@ datasets:
 
 :::warning
 
-Using the Kafka connector **requires** [acceleration](../../components/data-accelerators/index.md) with `refresh_mode: append` enabled.
+Using the Kafka connector **requires** [acceleration](../../components/data-accelerators) with `refresh_mode: append` enabled.
 
 :::
 
@@ -129,7 +129,7 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb.md) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite.md) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres/index.md) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                                                                 |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, allowing it to resume from the last known state instead of re-processing all messages.                                                                                                |
 
