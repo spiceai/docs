@@ -13,7 +13,7 @@ Acceleration data can be refreshed (updated) by:
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/features/cdc/index).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](../cdc/index.md).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 

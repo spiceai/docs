@@ -1,0 +1,74 @@
+---
+id: post-sql
+title: "SQL Query"
+description: "Execute a SQL query and return the results."
+sidebar_label: "SQL Query"
+hide_title: true
+hide_table_of_contents: true
+api: eJztWG1v2zYQ/isEvyRFFEUvfpO+pVm6BUiXNnEGDEngstLZ5kaTCkk5MTz/9+Eou5FsNX3bsBaYvsS5O97dc3c88riklk0MTW/o1dtzeufRHEymeWG5kjSlp4+QlRYII1dvz8l9CXpBmMyJBltqSewUiAZTCmv8W3krh1NuCMi8UFxawoRQD4aUBrQhVhFYK9uo4mBIzjVkVizIWKsZYZL8Mhy+IRruSzDWJ8Mp1CxzQwygYkMKwbgkFh4t4Rs/3BryXuULn3pUFaAZwjjLaUoLZezI3Avq0YJpNgMLGmEvqWQzoCk9zjIoLPUoR9xTYDlouh0OdGes9IxZosYb9IWSBjyiJCBxjxWF4JmzfPSHUXKP7OcwZqWwL7wmdy5z3xQ8A8Z9cy/8eXjgFnhkD4EdZWa+R5Re/+cQ7yEyRMo15DS1ugSPmmwKM0bTJbWLArEYq7mc0NXqrhIGY1+qfIESTTxPoX1KD/VopqQFaVF+Gw3SPthbeRQe2awQ4Mj3AlWenp+eDEk6VoockJAcX2GcRkyaBxfQevSXdKwUTTvharXy6BPKhpFtUDWbG2NsPtm3yjIxYjNVSgy0I/HiiZDh3/3whUcKZgzICeiRo5FXlxevyWwxsuy9APLz5cX1G/Ly9x2xi8ufTi/bGMdXJ+T87PXZkMQUcTTT4whVjTjEURA8l4d1EnJiyiwDY8alEIsvSMkmWkxrhuu4hRnaXdXjdrOkx7/9vL/B7NcCRdPYD/pR1E2SfhgnvX4Se1vC9UDTNOr6cdQfhL0kTjrdXjfqevTk4vrX4f6ZtL3OfvgCdYadXhdz34gcTYOV97wrcT+MelE0GHR6gyDo9j/hS8+Pgm4UB51Ot9PvJEmvxZcoHAz6cdLiTfgpb/phP4yDKAzjKAkG3c4nvEn8bhT0ukkSB0kcxEGnxZtO0A2DuMWZaHW32ROZmX/2jrj9KIBb6m0z6/469pZ7jrbl2S29lbsl0lIFVc4DlN7JYkuiNmkJccFOoFtiuY5cRL+uddxKUvsODp/5vozZLn3QtPcXeS5RbfxmrpzATrYcdSdfaO6/RrtTMQ3ubvXUl2Id1aUDsvt9BwC3i7wBcKfe68yq8p8I4fcJcHtTNgDu7M8as9qpdenvASC2g8+4jT1z4dHqYdOt4/otbMxB5M3L5ccOFY/mzLLRuk+9EorZXod6VJZCoDBNx0wY8GjOMzviOU2DzW8zUjoHd89wMnh4tZprnEr/jsHtY61pxdG/2cb2CfnP2cCDFnX9fzH6US5Gbl7otN2kz+ScCZ7XhkalyYwJnNogJ1wWpW1ep7/i7nCqtdJEA8u5nFRmUsLXlq+Hrw4HxODYJTOgztVuu6sWtGSCGNBz0ARQ6zf7di3hsYDMOrAtBojKslJj9VdRnIGdqs2E7OYzO6UpPZqHR9W4XC2u2lmpccSbWlukR0dCZUxMlbHpIEiCnVn5HNkkhzkIVcxwbK80+eREyTGflBrIA7dT8u7wEDW+8ynOqwayUnO7cPZYwUd/Av6+Qx6XY+Xgc+uw6lJaPoPWMd218pw8iQiegTSucW/aZMGyKRxGPjrPc5CWjznoJmflUYRfKQ79MPSDw1IaV9jIxLDNmKypxdJ7izWx7dfyKbU/8sPKuvhqtbnyqspYrqvnhs5DrJx7gS9KWCJIWy7fMwPXWqxWSHaWMbMenTPNq6Z9g714/fiCBeCST0+qsB0O0TKKi9LNuNuDMLapasWH15yPy97Vav/NxdWQevT9+pFkpnJXXuwBX1vYA02pe1DC1W6Id7QlFUxOSjZB2Uonfn8D+MzJ4g==
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"SQL Query"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/sql"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Execute a SQL query and return the results.
+
+This endpoint allows users to execute SQL queries directly from an HTTP request. The SQL query is sent as plain text in the request body.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"Accept","in":"header","description":"The format of the response, one of 'application/json' (default), 'application/vnd.spiceai.sql.v1+json', 'text/csv' or 'text/plain'.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"SQL query to execute","content":{"application/json":{"schema":{},"example":{"sql":"SELECT :foo + 1 AS the_answer","parameters":{"foo":41}}},"text/plain":{"schema":{"type":"string"},"example":"SELECT avg(total_amount), avg(tip_amount), count(1), passenger_count FROM my_table GROUP BY passenger_count ORDER BY passenger_count ASC LIMIT 3"}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"SQL query executed successfully","content":{"application/json":{"schema":{"type":"array","items":{}},"example":[{"AVG(my_table.tip_amount)":3.072259971396793,"AVG(my_table.total_amount)":25.327816939456525,"COUNT(Int64(1))":31465,"passenger_count":0},{"AVG(my_table.tip_amount)":3.3712622884680057,"AVG(my_table.total_amount)":26.205230445474996,"COUNT(Int64(1))":2188739,"passenger_count":1},{"AVG(my_table.tip_amount)":3.7171302113290854,"AVG(my_table.total_amount)":29.520659930930304,"COUNT(Int64(1))":405103,"passenger_count":2}]},"text/csv":{"schema":{"type":"string"},"example":"\"AVG(my_table.tip_amount)\",\"AVG(my_table.total_amount)\",\"COUNT(Int64(1))\",\"passenger_count\"\n3.072259971396793,25.327816939456525,31465,0\n3.3712622884680057,26.205230445474996,2188739,1\n3.7171302113290854,29.520659930930304,405103,2"},"text/plain":{"schema":{"type":"string"},"example":"\n            +----------------------------+----------------------------+----------------+---------------------+\n            | \"AVG(my_table.tip_amount)\"  | \"AVG(my_table.total_amount)\" | \"COUNT(Int64(1))\" | \"passenger_count\"   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.072259971396793           | 25.327816939456525         | 31465          | 0                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.3712622884680057          | 26.205230445474996         | 2188739        | 1                   |\n            +----------------------------+----------------------------+----------------+---------------------+\n            | 3.7171302113290854          | 29.520659930930304         | 405103         | 2                   |\n            +----------------------------+----------------------------+----------------+---------------------+"},"application/vnd.spiceai.sql.v1+json":{"schema":{},"example":{"row_count":3,"schema":{"fields":[{"name":"AVG(my_table.tip_amount)","data_type":"Float64","nullable":false,"dict_id":0,"dict_is_ordered":false},{"name":"AVG(my_table.total_amount)","data_type":"Float64","nullable":false,"dict_id":0,"dict_is_ordered":false},{"name":"COUNT(Int64(1))","data_type":"Int64","nullable":false,"dict_id":0,"dict_is_ordered":false},{"name":"passenger_count","data_type":"Int64","nullable":false,"dict_id":0,"dict_is_ordered":false}]},"data":[{"AVG(my_table.tip_amount)":3.072259971396793,"AVG(my_table.total_amount)":25.327816939456525,"COUNT(Int64(1))":31465,"passenger_count":0},{"AVG(my_table.tip_amount)":3.3712622884680057,"AVG(my_table.total_amount)":26.205230445474996,"COUNT(Int64(1))":2188739,"passenger_count":1},{"AVG(my_table.tip_amount)":3.7171302113290854,"AVG(my_table.total_amount)":29.520659930930304,"COUNT(Int64(1))":405103,"passenger_count":2}]}}}},"400":{"description":"Invalid SQL query or malformed input","content":{"text/plain":{"schema":{"type":"string"},"example":"Error reading query: invalid UTF-8 sequence"}}},"500":{"description":"Internal server error","content":{"text/plain":{"schema":{"type":"string"},"example":"Unexpected internal server error occurred"}}}}}
+>
+  
+</StatusCodes>
+
+
+      
