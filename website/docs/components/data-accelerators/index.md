@@ -10,7 +10,7 @@ pagination_next: null
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
 
-A Data Accelerator will query/fetch data from a connected data source and store/update it locally in an embedded acceleration engine, such as DuckDB or SQLite. To set data refresh behavior, such as refreshing data on an interval see [Data Refresh](/features/data-acceleration/data-refresh.md).
+A Data Accelerator will query/fetch data from a connected data source and store/update it locally in an embedded acceleration engine, such as DuckDB or SQLite. To set data refresh behavior, such as refreshing data on an interval see [Data Refresh](/features/data-acceleration/data-refresh).
 
 Dataset acceleration is enabled by setting the acceleration configuration. E.g.
 
@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification, see [datasets](../../reference/spicepod/datasets.md).
+For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -37,11 +37,10 @@ Supported Data Accelerators include:
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
 
-[cayenne]: ./cayenne.md
-[duckdb]: ./duckdb.md
-[postgres]: ./postgres/index.md
-[sqlite]: ./sqlite.md
-[turso]: ./turso.md
+[cayenne]: ./cayenne
+[duckdb]: ./duckdb
+[postgres]: ./postgres
+[sqlite]: ./sqlite
 
 ## Choosing an Accelerator
 
@@ -54,12 +53,11 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
-| Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
 | External database integration                       | `postgres`              | Leverage existing PostgreSQL infrastructure             |
 
 ### Spice Cayenne vs DuckDB
 
-Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based acceleration, but differ in architecture and performance characteristics:
+Both [Spice Cayenne](./cayenne) and [DuckDB](./duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
 
 **Choose Spice Cayenne when:**
 
@@ -78,13 +76,13 @@ Both [Spice Cayenne](./cayenne.md) and [DuckDB](./duckdb.md) support file-based 
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators.md).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators).
 
 :::warning[Memory Considerations]
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb.md) and [`sqlite`](./sqlite.md) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb) and [`sqlite`](./sqlite) accelerators by specifying `mode: file`.
 
 :::
 
@@ -96,7 +94,6 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Performance Tuning](../../reference/performance-tuning.md) - Comprehensive optimization guide
-- [Managing Memory Usage](../../reference/memory.md) - Memory configuration reference
-- [Data Refresh](../../features/data-acceleration/data-refresh.md) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes.md) - Index configuration for DuckDB, SQLite, and Turso
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB and SQLite
