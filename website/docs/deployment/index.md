@@ -9,17 +9,17 @@ Learn how to deploy Spice.ai in your environment.
 
 ## Deployment Architectures
 
-- [Overview](../deployment/architectures/index.md)
-- [Sidecar Deployment](architectures/sidecar.md)
-- [Microservice Deployment (Single or Multiple Replicas)](architectures/microservice.md)
-- [Tiered Deployment](architectures/tiered.md)
-- [Cloud-Hosted in the Spice Cloud Platform](architectures/hosted.md)
-- [Sharded Deployment](architectures/sharded.md)
-- [Cluster Deployment (Spice.ai Enterprise)](architectures/cluster.md)
+- [Overview](../deployment/architectures/index)
+- [Sidecar Deployment](architectures/sidecar)
+- [Microservice Deployment (Single or Multiple Replicas)](architectures/microservice)
+- [Tiered Deployment](architectures/tiered)
+- [Cloud-Hosted in the Spice Cloud Platform](architectures/hosted)
+- [Sharded Deployment](architectures/sharded)
+- [Cluster Deployment (Spice.ai Enterprise)](architectures/cluster)
 
 ## Deployment Guides
 
-- [Kubernetes (Helm)](kubernetes/index.md)
-- [Docker](docker/index.md)
-- [Spice Cloud](cloud/index.md)
-- [AWS](aws/index.md)
+- [Kubernetes (Helm)](kubernetes/index)
+- [Docker](docker/index)
+- [Spice Cloud](cloud/index)
+- [AWS](aws/index)

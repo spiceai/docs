@@ -15,7 +15,7 @@ tags:
 
 Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index.md).
+Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index).
 
 Spice supports various model sources and formats to provide embedding components:
 
@@ -28,12 +28,12 @@ Spice supports various model sources and formats to provide embedding components
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock               | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local.md
-[hf]:  /components/embeddings/huggingface.md
-[openai]: /components/embeddings/openai.md
-[azure]: /components/embeddings/azure.md
-[databricks]: /components/embeddings/databricks.md
-[bedrock]: /components/embeddings/bedrock.md
+[file]: /components/embeddings/local
+[hf]:  /components/embeddings/huggingface
+[openai]: /components/embeddings/openai
+[azure]: /components/embeddings/azure
+[databricks]: /components/embeddings/databricks
+[bedrock]: /components/embeddings/bedrock
 
 ## Overview
 
@@ -99,7 +99,7 @@ datasets:
               overlap_size: 32
 ```
 
-Refer to the [embeddings](../../reference/spicepod/embeddings.md) and [datasets](../../reference/spicepod/datasets.md#embeddings) Spicepod reference for more details on configuring embeddings for datasets.
+Refer to the [embeddings](../../reference/spicepod/embeddings) and [datasets](../../reference/spicepod/datasets#embeddings) Spicepod reference for more details on configuring embeddings for datasets.
 
 ## Embedding Methods
 
@@ -126,14 +126,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](../../components/data-accelerators/index.md). The only change required for this it to set up the data accelerator. For example, just add
+To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](../../components/data-accelerators/index). The only change required for this it to set up the data accelerator. For example, just add
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index.md).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index).
 
 **Full example:**
 
@@ -244,7 +244,7 @@ To ensure compatibility, these table columns must adhere to the following constr
 
 1. **Underlying Column Presence:**
 
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
+   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators) .
 
 2. **Embeddings Column Naming Convention:**
 
@@ -252,7 +252,7 @@ To ensure compatibility, these table columns must adhere to the following constr
 
 3. **Embeddings Column Data Type:**
 
-   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
+   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
      2. If the column is [**chunked**](#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 

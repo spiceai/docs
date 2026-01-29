@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 Installation options for Spice.ai OSS
 
-For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/index.md).
+For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/index).
 
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>

@@ -9,7 +9,7 @@ pagination_next: null
 
 ## Accessing data across multiple, disparate data sources
 
-Perform [federated SQL queries](/features/query-federation/index.md) across databases, data warehouses, and data lakes using [Data Connectors](../../components/data-connectors).
+Perform [federated SQL queries](/features/query-federation/index) across databases, data warehouses, and data lakes using [Data Connectors](../../components/data-connectors).
 
 ## Migrating from legacy data systems
 

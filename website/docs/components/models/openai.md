@@ -72,15 +72,15 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].              | -                           |
 | `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model. | -                           |
 
-[tools]: ../../features/large-language-models/tools.md
+[tools]: ../../features/large-language-models/tools
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
-- [Tools](../../features/large-language-models/tools.md)
-- [Memory](../../features/large-language-models/memory.md)
-- [Evals](../../features/large-language-models/evals.md)
-- [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
+- [Tools](../../features/large-language-models/tools)
+- [Memory](../../features/large-language-models/memory)
+- [Evals](../../features/large-language-models/evals)
+- [Parameter overrides](../../features/large-language-models/parameter_overrides)
 
 ## Supported OpenAI Compatible Providers
 

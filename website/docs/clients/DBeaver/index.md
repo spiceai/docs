@@ -35,7 +35,7 @@ pagination_next: null
    1. In the "Driver Name" field - enter: `Apache Arrow Flight SQL`
    1. In the "URL Template" field - enter: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`
 
-   - If [API key authentication](../../api/auth/index.md) is enabled, the URL template should be: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true&user=&password=<enter-api-key-here>` - where `<enter-api-key-here>` is the API key value
+   - If [API key authentication](../../api/auth/index) is enabled, the URL template should be: `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true&user=&password=<enter-api-key-here>` - where `<enter-api-key-here>` is the API key value
 
    1. In the "Driver Type" drop-down box - choose: "SQLite"
    1. Select "No authentication"
