@@ -4,7 +4,7 @@ sidebar_label: 'Workers'
 description: 'Workers YAML reference'
 ---
 
-Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Currently, workers define how one or more [llms](../models.md) can be combined into a logically single model.
+Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Currently, workers define how one or more [llms](../models) can be combined into a logically single model.
 
 ## `workers`
 
@@ -56,7 +56,7 @@ Additional details about the worker, useful for displaying to users and providin
 
 ### `cron`
 
-Specifies a cron schedule to automatically run the worker at the specified times. The worker action controls the behavior of the schedule. See the [cron schedule reference(../cron.md) for more information on cron schedules.
+Specifies a cron schedule to automatically run the worker at the specified times. The worker action controls the behavior of the schedule. See the [cron schedule reference](../cron) for more information on cron schedules.
 
 #### `cron` with a `load_balance` action
 

@@ -13,7 +13,7 @@ Semantic data models in Spice are defined using the `datasets[*].columns` config
 
 ### Large Language Models (LLMs)
 
-The semantic model is automatically used by [Spice Models(../../reference/spicepod/models.md) as context to produce more accurate and context-aware AI responses.
+The semantic model is automatically used by [Spice Models](../../reference/spicepod/models) as context to produce more accurate and context-aware AI responses.
 
 ## Defining a Semantic Model
 

@@ -65,11 +65,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md)
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords)
 
 ### `params`
 
-The MongoDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_mongodb_conn_string}`.
+The MongoDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:my_mongodb_conn_string}`.
 
 | Parameter Name                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

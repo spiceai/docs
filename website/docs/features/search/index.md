@@ -62,7 +62,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Full-Text Search Docs](./full-text.md)
+- [Full-Text Search Docs](./full-text)
 
 **Example SQL Full-Text Search:**
 

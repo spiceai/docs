@@ -40,7 +40,7 @@ Spice supports complex searches by utilizing embeddings. Both local and remote e
 
 To run a vector search, embeddings must be defined for the relevant columns in your dataset. Once configured, similarity searches can be performed using the defined embeddings.
 
-For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation(../search/vector-search.md).
+For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](../search/vector-search).
 
 ## Generating Embeddings in Queries
 

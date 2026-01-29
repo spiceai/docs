@@ -9,11 +9,11 @@ pagination_next: null
 
 Acceleration data can be refreshed (updated) by:
 
-- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API(../../api/HTTP/post-dataset-refresh.api.mdx).
+- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](../../api/HTTP/post-dataset-refresh.api).
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture(../cdc/index.md).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](../cdc/index).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 
@@ -32,7 +32,7 @@ Spice supports four modes to refresh/update local data from a connected data sou
 
 Learn more about each mode:
 
-- [Caching Mode(../data-acceleration/refresh-modes/caching.md)
+- [Caching Mode](../data-acceleration/refresh-modes/caching)
 
 Example:
 
@@ -123,18 +123,18 @@ datasets:
 ```
 
 :::info
-Appending modified files is only supported for datasets that support setting the [file format parameter(../../reference/file_format.md), such as `s3://`, `abfs://`, `file://`, etc.
+Appending modified files is only supported for datasets that support setting the [file format parameter](../../reference/file_format), such as `s3://`, `abfs://`, `file://`, etc.
 :::
 
 ### Changes (CDC)
 
-Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)(../cdc/index.md) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector(../../components/data-connectors/debezium.md).
+Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../cdc/index) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium).
 
 ### Caching
 
 The `caching` refresh mode is designed for HTTP-based datasets where request metadata acts as cache keys. This mode is particularly useful for API responses that return multiple rows for a single request, such as search results or dynamic content endpoints.
 
-See [Caching Mode(../data-acceleration/refresh-modes/caching.md) for detailed documentation and examples.
+See [Caching Mode](../data-acceleration/refresh-modes/caching) for detailed documentation and examples.
 
 ## Ready State
 
@@ -440,7 +440,7 @@ datasets:
       refresh_cron: '0 12 * * 1-5'
 ```
 
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference(../../reference/cron.md).
+This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](../../reference/cron).
 
 The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
 
