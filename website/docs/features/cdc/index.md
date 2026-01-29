@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Change Data Capture (CDC) captures changed rows from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](../data-acceleration/index) datasets up-to-date in real time with the source data. It is efficient because it only transfers the changed rows instead of re-fetching the entire dataset.
+Change Data Capture (CDC) captures changed rows from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](../data-acceleration/index.md) datasets up-to-date in real time with the source data. It is efficient because it only transfers the changed rows instead of re-fetching the entire dataset.
 
 ## Benefits
 
@@ -19,7 +19,7 @@ Consider a fraud detection application that needs to determine whether a pending
 
 ## Considerations
 
-When configuring datasets to be accelerated with CDC, ensure that the [data connector](../../components/data-connectors) supports CDC and can return a stream of row-level changes. See the [Supported Data Connectors](#supported-data-connectors) section for more information.
+When configuring datasets to be accelerated with CDC, ensure that the [data connector](../../components/data-connectors/index.md) supports CDC and can return a stream of row-level changes. See the [Supported Data Connectors](#supported-data-connectors) section for more information.
 
 The startup time for CDC-accelerated datasets may be longer than for non-CDC-accelerated datasets due to the initial synchronization.
 

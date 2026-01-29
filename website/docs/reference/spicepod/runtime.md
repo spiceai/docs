@@ -173,7 +173,7 @@ runtime:
 
 ## `runtime.task_history`
 
-The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history).
+The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history.md).
 
 ```yaml
 runtime:
@@ -237,7 +237,7 @@ For detailed memory information, see [Memory](../../reference/memory).
 
 ## `runtime.temp_directory`
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml
 runtime:

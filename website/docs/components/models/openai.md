@@ -88,7 +88,7 @@ Spice supports several OpenAI compatible providers. Specify the appropriate endp
 
 ### Azure OpenAI
 
-Follow [Azure AI Models](./azure) instructions.
+Follow [Azure AI Models](./azure.md) instructions.
 
 ### Groq
 

@@ -84,7 +84,7 @@ The following examples demonstrate how to configure and use various models or mo
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai).
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai.md).
 
 Example `spicepod.yml`:
 
