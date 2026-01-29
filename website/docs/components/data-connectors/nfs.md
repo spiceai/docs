@@ -6,7 +6,7 @@ description: 'NFS Data Connector Documentation'
 
 NFS (Network File System) is a distributed file system protocol that provides transparent remote access to shared files across networks. Originally developed by Sun Microsystems, it is widely used in Unix/Linux environments for sharing files between systems.
 
-The NFS Data Connector enables federated SQL query across [supported file formats](/docs/components/data-connectors/index.md#file-formats) stored on NFS exports.
+The NFS Data Connector enables federated SQL query across [supported file formats](./#file-formats) stored on NFS exports.
 
 :::note[Platform Support]
 The NFS Data Connector is available on Linux and macOS. It is not supported on Windows.
@@ -64,15 +64,15 @@ from: nfs://192.168.1.100/data/reports/quarterly.parquet
 
 ### `name`
 
-The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
-| Parameter Name              | Description                                                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](/docs/components/data-connectors/index#file-formats). |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                                |
-| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                        |
+| Parameter Name              | Description                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                 |
+| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                         |
+| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`. |
 
 ## Examples
 

@@ -37,11 +37,11 @@ views:
 
 ## `name`
 
-The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The name of the view. Used to reference the view in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
 ## `description`
 
-The description of the view. Used as part of the [Semantic Data Model](/docs/features/semantic-model).
+The description of the view. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `ready_state`
 
@@ -72,10 +72,10 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](/docs/components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
-- [`postgres`](/docs/components/data-accelerators/postgres) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
-- [`turso`](/docs/components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
+- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
+- [`turso`](../../components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
@@ -86,7 +86,7 @@ Optional. The mode of acceleration. The following values are supported:
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./index#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_view.db`).
+Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_view.db`).
 
 Supported values:
 
@@ -114,7 +114,7 @@ See [Duration](../duration)
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` views without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](/docs/reference/cron).
+See the [cron schedule reference](../cron).
 
 ## `acceleration.refresh_sql`
 
@@ -317,7 +317,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/docs/features/semantic-model).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `columns[*].embeddings`
 
@@ -390,7 +390,7 @@ Only applicable if `vectors.enabled` is both defined and `true`.
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model](/docs/features/semantic-model).
+Optional. Additional key-value metadata for the view. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ```yaml
 views:
@@ -410,7 +410,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](/docs/components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 

@@ -12,7 +12,7 @@ The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files st
 
 When a folder path is provided, all the contained files will be loaded.
 
-File formats are specified using the `file_format` parameter, as described in [File Formats](./index.md#file-formats).
+File formats are specified using the `file_format` parameter, as described in [File Formats](./#file-formats).
 
 ```yaml
 datasets:
@@ -58,27 +58,27 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
 #### Basic parameters
 
-| Parameter name              | Description                                                                                                                                                 |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [File Formats](./index.md#file-formats) for details. |
-| `abfs_account`              | Azure storage account name                                                                                                                                  |
-| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                                |
-| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                        |
-| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                        |
-| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                                    |
-| `abfs_proxy_url`            | Proxy URL                                                                                                                                                   |
-| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                                |
-| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                           |
-| `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                |
-| `allow_http`                | Allow insecure HTTP connections                                                                                                                             |
-| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                            |
-| `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                              |
+| Parameter name              | Description                                                                                                                                         |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [File Formats](./#file-formats) for details. |
+| `abfs_account`              | Azure storage account name                                                                                                                          |
+| `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                        |
+| `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                |
+| `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                            |
+| `abfs_proxy_url`            | Proxy URL                                                                                                                                           |
+| `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                        |
+| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                   |
+| `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                        |
+| `allow_http`                | Allow insecure HTTP connections                                                                                                                     |
+| `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                    |
+| `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                      |
 
 #### Authentication parameters
 
@@ -136,7 +136,7 @@ Configure access token authentication by setting the `abfs_bearer_token` paramet
 2. Under the application's `API permissions`, add the permission: `Azure Storage - user_impersonation`.
 3. Under the applications's `Authentication`, add `http://localhost` as Mobile and desktop applications redirect URI.
 4. Grant the user read access to the storage account under `Access Control (IAM)`, this can typically be done using the `Storage Blob Data Reader` built-in role.
-5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](/docs/cli/reference/login) documentation for more details.
+5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](../../cli/reference/login) documentation for more details.
 
 ```shell
 spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
@@ -144,7 +144,7 @@ spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
 
 ## Supported file formats
 
-Specify the file format using `file_format` parameter. More details in [File Formats](./index.md#file-formats).
+Specify the file format using `file_format` parameter. More details in [File Formats](./#file-formats).
 
 ## Examples
 
@@ -208,4 +208,4 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).

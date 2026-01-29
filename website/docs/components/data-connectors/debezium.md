@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](/docs/features/cdc/index) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
+[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../../features/cdc) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
 
 ```yaml
 datasets:
@@ -34,6 +34,24 @@ datasets:
       refresh_mode: changes # Optional. If specified, this is required to be set to `changes` - any other value is an error.
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
+
+## Overview
+
+Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, allowing Spice to resume without reprocessing all historical change events.
+
+## Consumer Group Management
+
+The Debezium connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, allowing Spice to track consumption progress.
+
+**Default behavior:** When no `kafka_consumer_group_id` is specified, Spice automatically generates a unique consumer group ID and stores it in the acceleration metadata. On subsequent restarts, Spice retrieves and reuses this stored consumer group ID to maintain offset tracking and resume consumption from where it left off.
+
+**Custom consumer group:** If you specify a custom `kafka_consumer_group_id`, Spice stores this ID in the acceleration metadata. The same consumer group must be used on subsequent restarts. If no acceleration data exists and a custom consumer group is provided, Spice will reset its position to the oldest available offset and begin consuming from the start of the topic.
+
+**Consumer group mismatch error:** Spice will return an error if a restart is attempted with a different consumer group than what is stored in the acceleration metadata. This applies to both auto-generated and custom consumer group IDs. This safeguard prevents data inconsistency that could occur from mixing offsets between different consumer groups.
+
+To resolve a consumer group mismatch, either:
+- Use the same consumer group ID as stored in the acceleration
+- Reset the acceleration data to start fresh with a new consumer group
 
 ## Configuration
 
@@ -63,7 +81,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -79,17 +97,17 @@ The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keyword
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
-| `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                                      |
+| `kafka_consumer_group_id`                     | Kafka consumer group ID to use. If not set, a unique ID will be generated automatically. The consumer group ID (whether auto-generated or custom) is stored in the acceleration metadata and must remain consistent across restarts. See [Consumer Group Management](#consumer-group-management) for details.                   |
 
 ### `metrics`
 
-The connector supports the following optional [component metrics](/docs/features/observability/component_metrics):
+The connector supports the following optional [component metrics](../../features/observability/component_metrics):
 
-| Metric Name              | Type    | Description                                                                                       |
-|--------------------------|---------|---------------------------------------------------------------------------------------------------|
-| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                               |
-| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                                     |
-| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed)              |
+| Metric Name              | Type    | Description                                                                          |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
+| `bytes_consumed_total`   | Counter | Total number of bytes consumed from the Kafka topic                                  |
+| `records_consumed_total` | Counter | Total number of records (messages) consumed from Kafka topics                        |
+| `records_lag`            | Gauge   | Total consumer lag across all topic partitions (number of messages not yet consumed) |
 
 These metrics are not enabled by default, enable them by setting the `metrics` parameter:
 
@@ -110,22 +128,22 @@ datasets:
 
 :::warning
 
-Using the Debezium connector **requires** [acceleration](/docs/components/data-accelerators/index) to be enabled.
+Using the Debezium connector **requires** [acceleration](../data-accelerators) to be enabled.
 
 :::
 
 The following settings are required:
 
-| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](/docs/components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](/docs/components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](/docs/components/data-accelerators/postgres/index) as the acceleration engine.</li></ul> |
-| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                                                                         |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                                                               |
+| Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
+| `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
+| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## Cookbook
 

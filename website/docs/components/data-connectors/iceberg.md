@@ -10,7 +10,7 @@ tags:
 
 The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
 
-When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](/docs/components/catalogs/iceberg) or [AWS Glue Catalog Connector](/docs/components/catalogs/glue) instead of configuring individual datasets.
+When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg) or [AWS Glue Catalog Connector](../catalogs/glue) instead of configuring individual datasets.
 
 Iceberg catalogs can be of several types:
 
@@ -36,7 +36,7 @@ datasets:
 
 The `from` field specifies the Iceberg table to connect to, in the format `iceberg:<table_path>`. The `table_path` is the URL to the Iceberg table in the catalog provider.
 For REST Catalogs, use the format `http[s]://<iceberg_catalog_host>/v1/{prefix}/namespaces/<namespace_name>/tables/<table_name>`.
-For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](/docs/components/data-connectors/glue) for connecting to Iceberg tables managed by Glue for a better experience.
+For AWS Glue catalogs, the URL format is `https://glue.<region>.amazonaws.com/iceberg/v1/catalogs/<account_id>/namespaces`, where `<account_id>` is the AWS account ID. While possible to connect to Iceberg tables hosted by Glue using this generic connector, it is recommended to instead use the [AWS Glue Data Connector](./glue) for connecting to Iceberg tables managed by Glue for a better experience.
 
 Example (REST Catalog):
 
@@ -74,7 +74,7 @@ datasets:
 
 ### `name`
 
-The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords).
+The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 Example:
 
@@ -108,8 +108,8 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_oauth2_server_url`    | URL of the OAuth2 server tokens endpoint for the client credential flow.                                                                                                                       |
 | `iceberg_s3_endpoint`          | S3-compatible endpoint where the Iceberg table data is stored.                                                                                                                                 |
 | `iceberg_s3_region`            | Region of the S3-compatible endpoint.                                                                                                                                                          |
-| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                         |
-| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                                                                                                                     |
+| `iceberg_s3_access_key_id`     | The AWS access key ID to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                              |
+| `iceberg_s3_secret_access_key` | The AWS secret access key to use for S3 storage. If not provided, credentials will be loaded from environment variables or IAM roles.                                                          |
 | `iceberg_s3_session_token`     | Session token for the S3-compatible endpoint.                                                                                                                                                  |
 | `iceberg_s3_role_arn`          | ARN of the IAM role to assume when accessing the S3-compatible endpoint.                                                                                                                       |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role.                                                                                                                                                |
@@ -221,15 +221,15 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `s3:ListBucket` | Required. Allows scanning all objects from the bucket |
-| `s3:GetObject` | Required. Allows fetching objects |
-| `glue:GetCatalog` | Required. Retrieve metadata about the specified catalog. |
+| Permission          | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
+| `s3:GetObject`      | Required. Allows fetching objects                              |
+| `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
-| `glue:GetDatabase` | Required. Retrieve metadata about the specified database. |
-| `glue:GetTable` | Required. Retrieve metadata about the specified table. |
-| `glue:GetTables` | Required. List the tables available in the current database. |
+| `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
+| `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
+| `glue:GetTables`    | Required. List the tables available in the current database.   |
 
 ## Examples
 
@@ -311,7 +311,7 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## Limitations
 

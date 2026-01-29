@@ -33,7 +33,7 @@ from: file:models/llms/llama3.2-1b-instruct/
 | Param           | Description                                                                                                                                                                             |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseek` |
-| `tools`         | Which [tools](../../features/large-language-models/tools) should be made available to the model. Set to `auto` to use all available tools.                                           |
+| `tools`         | Which [tools](../../features/large-language-models/tools) should be made available to the model. Set to `auto` to use all available tools.                                              |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                |
 | `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template).                         |
 
@@ -140,6 +140,6 @@ models:
 
 :::warning[Limitations]
 
-- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](/installation#metal-support) and [CUDA](/installation#cuda-support) for accelerated inference.
+- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](../../installation#metal-support) and [CUDA](../../installation#cuda-support) for accelerated inference.
 
 :::

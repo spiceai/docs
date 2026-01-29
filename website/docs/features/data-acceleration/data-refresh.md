@@ -9,11 +9,11 @@ pagination_next: null
 
 Acceleration data can be refreshed (updated) by:
 
-- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](/docs/api/HTTP/post-dataset-refresh.api).
+- **API**: POST to `/v1/datasets/:name/acceleration/refresh`. See [Refresh Dataset HTTP API](../../api/HTTP/post-dataset-refresh).
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-interval).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](/docs/features/cdc).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](../cdc).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 
@@ -32,7 +32,7 @@ Spice supports four modes to refresh/update local data from a connected data sou
 
 Learn more about each mode:
 
-- [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching)
+- [Caching Mode](./refresh-modes/caching)
 
 Example:
 
@@ -47,7 +47,7 @@ datasets:
 
 ### Append
 
-Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](/docs/reference/spicepod/datasets#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
+Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](../../reference/spicepod/datasets#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
 
 E.g.
 
@@ -65,7 +65,7 @@ datasets:
 Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
 :::
 
-If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](/docs/reference/spicepod/datasets#accelerationrefresh_append_overlap).
+If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap).
 
 #### `time_partition_column`
 
@@ -123,18 +123,18 @@ datasets:
 ```
 
 :::info
-Appending modified files is only supported for datasets that support setting the [file format parameter](/docs/reference/file_format), such as `s3://`, `abfs://`, `file://`, etc.
+Appending modified files is only supported for datasets that support setting the [file format parameter](../../reference/file_format), such as `s3://`, `abfs://`, `file://`, etc.
 :::
 
 ### Changes (CDC)
 
-Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](/docs/features/cdc) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](/docs/components/data-connectors/debezium).
+Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../cdc) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium).
 
 ### Caching
 
 The `caching` refresh mode is designed for HTTP-based datasets where request metadata acts as cache keys. This mode is particularly useful for API responses that return multiple rows for a single request, such as search results or dynamic content endpoints.
 
-See [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching) for detailed documentation and examples.
+See [Caching Mode](./refresh-modes/caching) for detailed documentation and examples.
 
 ## Ready State
 
@@ -144,9 +144,9 @@ See [Caching Mode](/docs/features/data-acceleration/refresh-modes/caching) for d
 | Required                    | No        |
 | Default Value               | `on_load` |
 
-By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](/docs/api/HTTP/ready) is used in production deployments to control when queries are sent to the Spice runtime.
+By default, Spice will return an error for queries against an accelerated dataset that is still loading its initial data. The endpoint [`/v1/ready`](../../api/HTTP/ready) is used in production deployments to control when queries are sent to the Spice runtime.
 
-The ready state for an accelerated dataset can be configured using the [`ready_state`](/docs/reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
+The ready state for an accelerated dataset can be configured using the [`ready_state`](../../reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
 
 - `ready_state: on_load`: Default. The dataset is considered ready after the initial load of the accelerated data. For file-based accelerated datasets that have existing data, this will be ready immediately. Queries against this dataset before the data is loaded will return an error.
 - `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Queries against this dataset before the data is loaded will automatically fallback to the federated source. Once the data is loaded, queries will be served from the acceleration.
@@ -216,7 +216,7 @@ curl -i -X PATCH \
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.
 
-For the complete reference, view the `refresh_sql` section of [datasets](/docs/reference/spicepod/datasets#accelerationrefresh_sql).
+For the complete reference, view the `refresh_sql` section of [datasets](../../reference/spicepod/datasets#accelerationrefresh_sql).
 
 :::warning[Limitations]
 
@@ -354,7 +354,7 @@ datasets:
       refresh_on_startup: always
 ```
 
-For the complete reference, view the `refresh_on_startup` section of [datasets](/docs/reference/spicepod/datasets.md#accelerationrefresh_on_startup).
+For the complete reference, view the `refresh_on_startup` section of [datasets](../../reference/spicepod/datasets#accelerationrefresh_on_startup).
 
 ## Refresh Interval
 
@@ -364,7 +364,7 @@ For the complete reference, view the `refresh_on_startup` section of [datasets](
 | Required                    | No               |
 | Default Value               | Unset            |
 
-The [`refresh_check_interval`](/docs/reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
+The [`refresh_check_interval`](../../reference/spicepod/datasets#accelerationrefresh_check_interval) parameter controls how often the accelerated dataset is refreshed.
 
 Example:
 
@@ -425,7 +425,7 @@ On-demand refresh always initiates a new refresh, terminating any in-progress re
 | Required                    | No               |
 | Default Value               | Unset            |
 
-The [`refresh_cron`](/docs/reference/spicepod/datasets#accelerationrefresh_cron) parameter supports specifying a cron schedule which controls when datasets refresh.
+The [`refresh_cron`](../../reference/spicepod/datasets#accelerationrefresh_cron) parameter supports specifying a cron schedule which controls when datasets refresh.
 
 Example:
 
@@ -439,7 +439,7 @@ datasets:
       refresh_cron: '0 12 * * 1-5'
 ```
 
-This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](/docs/reference/cron).
+This configuration will refresh `taxi_trips` data at midday every weekday. For more information about cron schedules, see the [cron schedule reference](../../reference/cron).
 
 The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_check_interval` parameter.
 
@@ -454,7 +454,7 @@ The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_
 
 By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using a [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.
 
-Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](/docs/reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](/docs/reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
+Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](../../reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](../../reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
 
 Example: Disable retries
 
@@ -495,7 +495,7 @@ Accelerated datasets can be configured to automatically evict data using two dif
 
 Automatically evict time-series data exceeding a retention period by setting a retention policy based on the configured `time_column` and `acceleration.retention_period`.
 
-The policy is set using the [`acceleration.retention_check_enabled`](/docs/reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](/docs/reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](/docs/reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](/docs/reference/spicepod/datasets#time_column) and [`time_format`](/docs/reference/spicepod/datasets#time_format) dataset parameters.
+The policy is set using the [`acceleration.retention_check_enabled`](../../reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](../../reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](../../reference/spicepod/datasets#time_column) and [`time_format`](../../reference/spicepod/datasets#time_format) dataset parameters.
 
 When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
 
@@ -516,7 +516,7 @@ datasets:
 
 ### Custom SQL-based Retention
 
-Evict data from an acceleration based on custom filter predicates using the [`acceleration.retention_sql`](/docs/reference/spicepod/datasets#accelerationretention_sql) parameter. This is useful for scenarios like soft-deleting rows in append datasets or removing data based on complex business logic.
+Evict data from an acceleration based on custom filter predicates using the [`acceleration.retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) parameter. This is useful for scenarios like soft-deleting rows in append datasets or removing data based on complex business logic.
 
 The `retention_sql` parameter takes the form of a `DELETE FROM <table> WHERE <predicates>` statement.
 
@@ -576,8 +576,8 @@ In the configuration above:
 
 Refresh jitter configuration:
 
-- [`refresh_jitter_enabled`](/docs/reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
-- [`refresh_jitter_max`](/docs/reference/spicepod/datasets#accelerationrefresh_jitter_max)
+- [`refresh_jitter_enabled`](../../reference/spicepod/datasets#accelerationrefresh_jitter_enabled)
+- [`refresh_jitter_max`](../../reference/spicepod/datasets#accelerationrefresh_jitter_max)
 
 ## Configuration Examples
 

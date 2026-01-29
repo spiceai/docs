@@ -17,25 +17,32 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
-// Highest version (e.g., 1.11.x) is "next" (unreleased) at /docs/next
-// Second highest version (e.g., 1.10.x) is "latest" at /docs (default)
-// Previous versions are at /docs/v1.9, etc.
+// Highest version (e.g., 2.0.x) is "next" (unreleased) at /docs/next
+// Second highest version (e.g., 1.11.x) is "latest" at /docs (default)
+// Previous versions are at /docs/v1.10, etc.
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
 
-// Extract the minor version number from versions to determine ordering and maintenance status
-const getMinorVersion = (v: string): number => {
-  const match = v.match(/^1\.(\d+)/)
-  return match ? parseInt(match[1], 10) : 0
+// Extract major and minor version numbers from versions to determine ordering and maintenance status
+const getVersion = (v: string): { major: number; minor: number } => {
+  const match = v.match(/^(\d+)\.(\d+)/)
+  return match
+    ? { major: parseInt(match[1], 10), minor: parseInt(match[2], 10) }
+    : { major: 0, minor: 0 }
 }
 
-// Sort versions by minor version descending
-const sortedVersions = [...versions].sort((a, b) => getMinorVersion(b) - getMinorVersion(a))
+// Sort versions by semver (major desc, then minor desc)
+const sortedVersions = [...versions].sort((a, b) => {
+  const vA = getVersion(a)
+  const vB = getVersion(b)
+  if (vB.major !== vA.major) return vB.major - vA.major
+  return vB.minor - vA.minor
+})
 
 // Highest version is "next" (unreleased), second highest is "latest"
 const nextVersion = sortedVersions[0] || null
 const latestVersion = sortedVersions[1] || null
-const latestMinor = latestVersion ? getMinorVersion(latestVersion) : 0
+const latestVer = latestVersion ? getVersion(latestVersion) : { major: 0, minor: 0 }
 
 const docsVersionConfig = hasVersions
   ? {
@@ -44,11 +51,13 @@ const docsVersionConfig = hasVersions
       versions: {
         ...Object.fromEntries(
           versions.map((version) => {
-            const minor = getMinorVersion(version)
+            const ver = getVersion(version)
             const isNext = version === nextVersion
             const isLatest = version === latestVersion
-            // Versions within latest - 1 are maintained (no banner)
-            const isMaintained = minor >= latestMinor - 1
+            // Versions within same major and latest minor - 1 are maintained (no banner)
+            const isMaintained =
+              ver.major > latestVer.major ||
+              (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1)
 
             if (isNext) {
               return [
@@ -107,11 +116,14 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  // Warn on broken anchors and links instead of throwing to handle cross-version link issues
-  // in older release branches that may reference docs pages or anchors that don't exist in all versions
   onBrokenAnchors: 'warn',
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn'
+    }
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -207,7 +219,7 @@ const config: Config = {
       { name: 'twitter:creator', content: '@spice_ai' }
     ],
     announcementBar: {
-      content: '<a href="/releases/v1.10.4">Spice.ai OSS v1.10.4</a> is now available! ⚡',
+      content: '<a href="/releases/v1.11.0">Spice.ai OSS v1.11.0</a> is now available! ⚡',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -355,7 +367,7 @@ const config: Config = {
       appId: '0SP8I8JTL8',
       apiKey: '72f66fe334ccd3c7db696a123d68735c',
       indexName: 'spiceai',
-      contextualSearch: false
+      contextualSearch: true
     }
   } satisfies Preset.ThemeConfig,
 

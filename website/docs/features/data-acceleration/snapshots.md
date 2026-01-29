@@ -101,10 +101,10 @@ The `snapshots_trigger` setting controls when Spice creates new snapshots. The a
 
 Datasets using `refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with a `time_column` support the following triggers:
 
-| Trigger | Description |
-|---------|-------------|
+| Trigger            | Description                                                     |
+| ------------------ | --------------------------------------------------------------- |
 | `refresh_complete` | Create a snapshot after each data refresh completes. (Default.) |
-| `time_interval` | Create snapshots at a fixed time interval. |
+| `time_interval`    | Create snapshots at a fixed time interval.                      |
 
 Example with default trigger:
 
@@ -143,9 +143,9 @@ datasets:
 
 Datasets using `refresh_mode: changes`, or `refresh_mode: append` without a `time_column`, support the following triggers:
 
-| Trigger | Description |
-|---------|-------------|
-| `time_interval` | Create snapshots at a fixed time interval. (Default: 10m.) |
+| Trigger          | Description                                                          |
+| ---------------- | -------------------------------------------------------------------- |
+| `time_interval`  | Create snapshots at a fixed time interval. (Default: 10m.)           |
 | `stream_batches` | Create a snapshot after a specified number of batches are processed. |
 
 Example with time-based trigger (default):
@@ -274,4 +274,4 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
-For the full reference, see [`snapshots` in the Spicepod specification](/docs/reference/spicepod/index#snapshots) and [`acceleration.snapshots`](/docs/reference/spicepod/datasets#accelerationsnapshots).
+For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).

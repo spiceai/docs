@@ -53,7 +53,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](/docs/features/caching).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -68,7 +68,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.embeddings`
 
-The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](/docs/features/caching).
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -83,7 +83,7 @@ The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](/docs/features/caching).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -119,7 +119,7 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 
 - **`xxh3` (Default):** Uses the [XXH3](https://cyan4973.github.io/xxHash/) algorithm for hashing the cache keys. XXH3 is a fast, non-cryptographic hash algorithm that provides high performance and good distribution. It is suitable for scenarios where speed is critical and cryptographic security is not required.
 - **`siphash`:** Uses the SipHash1-3 algorithm for hashing the cache keys, the [default hashing algorithm of Rust](https://github.com/rust-lang/rust/commit/db1b1919baba8be48d997d9f70a6a5df7e31612a). This hashing algorithm is a secure algorithm that implements verified protections against ["hash flooding"](https://v8.dev/blog/hash-flooding) denial of service (DoS) attacks. Reasonably performant, and provides a high level of security.
-- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme.md#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
+- **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
 - **`blake3`:** Uses the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function. BLAKE3 is a fast, parallelizable hash function that provides cryptographic security while maintaining high performance. It is suitable for scenarios requiring both speed and cryptographic guarantees.
 - **`xxh32`, `xxh64`, `xxh128`:** Variants of the XXH hashing algorithm with different output sizes. These algorithms offer a balance between speed and collision resistance, with larger hash sizes providing better collision resistance at the cost of performance.
 
@@ -136,7 +136,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](/docs/api/tls).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -153,7 +153,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](/docs/components/secret-stores).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -185,7 +185,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](/docs/components/secret-stores).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -282,7 +282,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](/docs/reference/memory).
+For detailed memory information, see [Memory](../memory).
 
 ## `runtime.query.spill_compression`
 
@@ -327,7 +327,7 @@ runtime:
 
 ## `runtime.telemetry`
 
-The telemetry section configures runtime telemetry collection and export. [Learn more](/docs/features/observability).
+The telemetry section configures runtime telemetry collection and export. [Learn more](../../features/observability).
 
 ```yaml
 runtime:
@@ -347,12 +347,12 @@ Enables or disables runtime telemetry collection. Defaults to `true`.
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
-| Parameter name  | Optional | Default | Description                                                                                                              |
-| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                           |
-| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                         |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](/docs/reference/duration).                   |
-| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                          |
+| Parameter name  | Optional | Default | Description                                                                                      |
+| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                   |
+| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below). |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).        |
+| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                  |
 
 **Protocol inference:**
 
@@ -412,7 +412,7 @@ Following metrics are disabled by default:
 - `dataset_acceleration_refresh_lag_ms`
 - `dataset_acceleration_ingestion_lag_ms`
 
-For details about these metrics, see [Observability](/docs/features/observability).
+For details about these metrics, see [Observability](../../features/observability).
 
 ```yaml
 runtime:

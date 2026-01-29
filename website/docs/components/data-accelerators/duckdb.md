@@ -44,7 +44,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_partitioned_write_flush_threshold` (integer, default: `122880`): The number of rows buffered per partition before flushing data to acceleration storage. Only applicable when using `partition_mode: tables`. Using a larger value can improve write performance but requires more memory.
 - `optimizer_duckdb_aggregate_pushdown` (string, default: `disabled`): Enables aggregate pushdown optimization to execute supported aggregate queries directly in DuckDB. Set to `enabled` to push down aggregations for improved query performance on supported functions like `count`, `sum`, `avg`, `min`, and `max`. Requires `query_federation` to be `disabled`.
 
-Refer to the [datasets configuration reference](/docs/reference/spicepod/datasets#acceleration) for additional supported fields.
+Refer to the [datasets configuration reference](../../reference/spicepod/datasets#acceleration) for additional supported fields.
 
 ### Example Configuration
 
@@ -129,7 +129,7 @@ Use this parameter when:
 - Handling workloads that frequently spill to disk.
 - Distributing swap and data I/O operations across multiple storage volumes.
 
-For more details, refer to the [runtime parameters documentation](/docs/reference/spicepod/runtime#runtimequerytemp_directory).
+For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime#runtimequerytemp_directory).
 
 For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
 
@@ -139,6 +139,6 @@ For practical examples, see the [DuckDB Data Accelerator Cookbook Recipe](https:
 
 ## Related Documentation
 
-- [Performance Tuning](/docs/reference/performance-tuning) - Zone-maps, indexes, and optimization patterns
-- [Managing Memory Usage](/docs/reference/memory) - Memory configuration reference
-- [Data Refresh](/docs/features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Performance Tuning](../../reference/performance-tuning) - Zone-maps, indexes, and optimization patterns
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
