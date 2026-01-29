@@ -91,7 +91,7 @@ The following examples demonstrate how to configure and use various models or mo
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai.md).
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai).
 
 Example `spicepod.yml`:
 
@@ -166,7 +166,7 @@ models:
 
 ### Example: Serving a Local Model
 
-To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem.md).
+To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem).
 
 ```yaml
 models:
