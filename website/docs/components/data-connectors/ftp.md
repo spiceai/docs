@@ -79,7 +79,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | --------------------------- | --------------------------------------------------------------------------------------------------- |
 | `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                       |
 | `ftp_user`                  | Username for FTP authentication.                                                                    |
-| `ftp_pass`                  | Password for FTP authentication. Use [secrets](../secret-stores/) syntax: `${secrets:my_ftp_pass}`. |
+| `ftp_pass`                  | Password for FTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_ftp_pass}`. |
 | `ftp_port`                  | FTP server port. Default: `21`.                                                                     |
 | `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                               |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.       |
@@ -90,7 +90,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                         |
 | `sftp_user`                 | Username for SFTP authentication.                                                                     |
-| `sftp_pass`                 | Password for SFTP authentication. Use [secrets](../secret-stores/) syntax: `${secrets:my_sftp_pass}`. |
+| `sftp_pass`                 | Password for SFTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_sftp_pass}`. |
 | `sftp_port`                 | SFTP server port. Default: `22`.                                                                      |
 | `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                 |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.         |
@@ -255,7 +255,7 @@ datasets:
       sftp_pass: ${secrets:sftp_password}
 ```
 
-For detailed information, refer to the [secret stores documentation](../secret-stores/).
+For detailed information, refer to the [secret stores documentation](../secret-stores).
 
 ## Troubleshooting
 

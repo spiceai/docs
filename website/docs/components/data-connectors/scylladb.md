@@ -63,7 +63,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
+The ScyllaDB data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:scylladb_pass}`.
 
 | Parameter Name        | Description                                                        | Required | Default |
 | --------------------- | ------------------------------------------------------------------ | -------- | ------- |
@@ -285,7 +285,7 @@ The following SQL operations cannot be pushed down to ScyllaDB and are performed
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## See Also
 

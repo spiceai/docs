@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../data-accelerators/). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
+The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../data-accelerators). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
 
 ```yaml
 datasets:
@@ -136,7 +136,7 @@ datasets:
 
 :::warning
 
-Using the Kafka connector **requires** [acceleration](../data-accelerators/) with `refresh_mode: append` enabled.
+Using the Kafka connector **requires** [acceleration](../data-accelerators) with `refresh_mode: append` enabled.
 
 :::
 
@@ -155,7 +155,7 @@ The Kafka connector currently supports JSON-formatted messages. Schema is automa
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## Cookbook
 
