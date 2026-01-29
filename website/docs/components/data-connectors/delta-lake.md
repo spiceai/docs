@@ -51,11 +51,11 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
-Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 | Parameter Name   | Description                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------- |

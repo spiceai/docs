@@ -17,12 +17,12 @@ Spice supports **full OpenTelemetry observability**, helping with detailed track
 
 ## Configuring Language Models
 
-Spice supports a variety of LLMs (see [Model Providers](../../components/models/index.md)).
+Spice supports a variety of LLMs (see [Model Providers](../../components/models)).
 
 ### Core Features
 
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](../../features/large-language-models/tools).
-- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../../api/HTTP/post-chat-completions). See [Parameter Overrides](../../features/large-language-models/parameter_overrides.md).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../../api/HTTP/post-chat-completions). See [Parameter Overrides](../../features/large-language-models/parameter_overrides).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../../features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../../features/search/vector-search).
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).

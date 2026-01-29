@@ -52,7 +52,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -63,7 +63,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `file_format`               | Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](../../components/data-connectors/index.md#object-store-file-formats). |
 | `ftp_port`                  | Optional, specifies the port of the FTP server. Default is 21. E.g. `ftp_port: 21`                                                                                                                  |
 | `ftp_user`                  | The username for the FTP server. E.g. `ftp_user: my-ftp-user`                                                                                                                                       |
-| `ftp_pass`                  | The password for the FTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_ftp_pass}`.                            |
+| `ftp_pass`                  | The password for the FTP server. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_ftp_pass}`.                            |
 | `client_timeout`            | Optional. Specifies timeout for FTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for FTP client.                                                             |
 | `hive_partitioning_enabled` | Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                          |
 
@@ -74,7 +74,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `file_format`               | Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](../../components/data-connectors/index.md#object-store-file-formats). |
 | `sftp_port`                 | Optional, specifies the port of the SFTP server. Default is 22. E.g. `sftp_port: 22`                                                                                                                |
 | `sftp_user`                 | The username for the SFTP server. E.g. `sftp_user: my-sftp-user`                                                                                                                                    |
-| `sftp_pass`                 | The password for the SFTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_sftp_pass}`.                          |
+| `sftp_pass`                 | The password for the SFTP server. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_sftp_pass}`.                          |
 | `client_timeout`            | Optional. Specifies timeout for SFTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for SFTP client.                                                           |
 | `hive_partitioning_enabled` | Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                          |
 

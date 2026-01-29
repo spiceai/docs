@@ -15,7 +15,7 @@ tags:
 
 Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models/index.md).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models).
 
 Spice supports a variety of embedding model sources and formats:
 
@@ -101,7 +101,7 @@ datasets:
               overlap_size: 32
 ```
 
-See the [embeddings](../../reference/spicepod/embeddings.md) and [datasets](../../reference/spicepod/datasets.md#embeddings) reference for more details.
+See the [embeddings](../../reference/spicepod/embeddings) and [datasets](../../reference/spicepod/datasets#embeddings) reference for more details.
 
 ## Embedding Methods
 
@@ -128,14 +128,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators/index.md). Enable this by adding:
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators). Enable this by adding:
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index.md).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators).
 
 **Full example:**
 
@@ -245,7 +245,7 @@ embeddings:
 To ensure compatibility, embedding columns must meet these requirements:
 
 1. **Underlying Column:**
-   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md).
+   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators).
 2. **Naming Convention:**
    - The embedding column must be named `<column_name>_embedding` (e.g., `review_embedding` for a `review` column).
 3. **Data Type:**

@@ -65,7 +65,7 @@ Spice provides unified APIs for data and AI workflows, including model inference
 
 ## 11. What AI model providers does Spice support?
 
-Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](../../features/large-language-models/index.md).
+Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](../../features/large-language-models).
 
 ## 12. What deployment options does Spice support?
 
@@ -96,11 +96,11 @@ Spice supports multiple query engines, including Apache Arrow, DuckDB, SQLite, P
 
 ## 17. Does Spice support Change Data Capture (CDC)?
 
-Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../../features/cdc/index.md).
+Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../../features/cdc).
 
 ## 18. Can Spice integrate with existing BI tools?
 
-Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau/index.md) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
+Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
 ## 19. How does Spice handle data privacy and compliance?
 

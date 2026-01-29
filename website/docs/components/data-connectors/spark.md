@@ -22,11 +22,11 @@ datasets:
 
 - `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI. Refer to [spark connect client connection string](https://github.com/apache/spark/blob/master/connector/connect/docs/client-connection-string.md) for parameters in URI.
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### Auth Examples
 
-Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
+Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
 
 Check [Secrets Stores](../../components/secret-stores) for more details.
 
