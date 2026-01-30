@@ -57,4 +57,4 @@ The response will include all enabled component metrics in Prometheus format, wi
 
 ## Component-Specific Metrics
 
-For detailed information about metrics available for specific components, view all [components that expose metrics](../tags/component-metrics).
+For detailed information about metrics available for specific components, view all [components that expose metrics](../tags/component-metrics.md).

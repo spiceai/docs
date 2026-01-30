@@ -31,21 +31,21 @@ Follow the instructions specific to your application for adding a custom JDBC dr
 - Linux: `/opt/tableau/tableau_driver/jdbc`
 - Start or restart Tableau
 
-[Full instruction](../clients/tableau)
+[Full instruction](../clients/tableau.md)
 
 **JetBrains DataGrip**:
 
 - In Database Explorer menu, select "+" and choose "Driver"
 - Follow the steps to add the JDBC `.jar` file
 
-[Full instruction](../clients/jetbrains-datagrip)
+[Full instruction](../clients/jetbrains-datagrip/index.md)
 
 **DBeaver**:
 
 - In the DBeaver application menu bar, open the "Database" menu and choose: "Driver Manager"
 - Click the "New" button and follow instructions to add JDBC `.jar` file.
 
-[Full instruction](../clients/dbeaver)
+[Full instruction](../clients/dbeaver/index.md)
 
 ## Configure JDBC connection
 
@@ -62,7 +62,7 @@ For example:
 
 :::info
 
-Spice has [TLS support](../../api/tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
+Spice has [TLS support](../../api/tls.md). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
 
 :::
 

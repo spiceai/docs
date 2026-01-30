@@ -81,19 +81,19 @@ Where:
 - `<data_connector>`: The Data Connector to use to connect to the dataset
 
   Currently supported data connectors:
-  - [`spiceai`](../../components/data-connectors/spiceai)
-  - [`dremio`](../../components/data-connectors/dremio)
-  - [`spark`](../../components/data-connectors/spark)
-  - [`databricks`](../../components/data-connectors/databricks)
-  - [`s3`](../../components/data-connectors/s3)
-  - [`postgres`](../../components/data-connectors/postgres)
-  - [`mysql`](../../components/data-connectors/mysql)
-  - [`flightsql`](../../components/data-connectors/flightsql)
-  - [`snowflake`](../../components/data-connectors/snowflake)
-  - [`ftp`, `sftp`](../../components/data-connectors/ftp)
-  - [`http`, `https`](../../components/data-connectors/https)
-  - [`clickhouse`](../../components/data-connectors/clickhouse)
-  - [`graphql`](../../components/data-connectors/graphql)
+  - [`spiceai`](../../components/data-connectors/spiceai.md)
+  - [`dremio`](../../components/data-connectors/dremio.md)
+  - [`spark`](../../components/data-connectors/spark.md)
+  - [`databricks`](../../components/data-connectors/databricks.md)
+  - [`s3`](../../components/data-connectors/s3.md)
+  - [`postgres`](../../components/data-connectors/postgres.md)
+  - [`mysql`](../../components/data-connectors/mysql.md)
+  - [`flightsql`](../../components/data-connectors/flightsql.md)
+  - [`snowflake`](../../components/data-connectors/snowflake.md)
+  - [`ftp`, `sftp`](../../components/data-connectors/ftp.md)
+  - [`http`, `https`](../../components/data-connectors/https.md)
+  - [`clickhouse`](../../components/data-connectors/clickhouse.md)
+  - [`graphql`](../../components/data-connectors/graphql.md)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -128,18 +128,18 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](../spicepod/keywords).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](../spicepod/keywords.md).
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `access`
 
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../tags/write.md).
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -200,8 +200,8 @@ The following values are supported:
 
 Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
-- [DuckDB](../../components/data-connectors/duckdb)
-- [PostgreSQL](../../components/data-connectors/postgres)
+- [DuckDB](../../components/data-connectors/duckdb.md)
+- [PostgreSQL](../../components/data-connectors/postgres.md)
 
 :::
 
@@ -270,9 +270,9 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
-- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded Sqlite database.
+- [`duckdb`](../../components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres.md) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/sqlite.md) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`
 
@@ -294,7 +294,7 @@ Supported values:
 - `create_only` – Write snapshots after refreshes but never download them on startup.
 - `disabled` (default) – Do not use snapshots for this dataset.
 
-Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots).
+Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots.md).
 
 ## `acceleration.refresh_mode`
 
@@ -307,13 +307,13 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_cron`
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](../cron).
+See the [cron schedule reference](../cron.md).
 
 ## `acceleration.refresh_sql`
 
@@ -334,7 +334,7 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -344,7 +344,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -387,7 +387,7 @@ Optional. The retention period for the dataset. Combine with `time_column` and `
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.retention_sql`
 
@@ -403,7 +403,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_jitter_enabled`
 
@@ -439,7 +439,7 @@ datasets:
       mysql_pass: ${secrets:MYSQL_PASS}
 ```
 
-For detailed information about metrics available for specific components, see the [component metrics documentation](../../features/observability/component_metrics).
+For detailed information about metrics available for specific components, see the [component metrics documentation](../../features/observability/component_metrics.md).
 
 ## `acceleration.indexes`
 
@@ -449,7 +449,7 @@ The `indexes` field is a map where the key is the column reference and the value
 
 A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Indexes](../../features/data-acceleration/indexes)
+See [Indexes](../../features/data-acceleration/indexes.md)
 
 ```yaml
 datasets:
@@ -469,7 +469,7 @@ Optional. Specify the primary key constraint on the locally accelerated table. N
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Constraints](../../features/data-acceleration/constraints)
+See [Constraints](../../features/data-acceleration/constraints.md)
 
 ```yaml
 datasets:
@@ -494,11 +494,11 @@ Only a single `on_conflict` target can be specified, unless all `on_conflict` ta
 The possible conflict resolution strategies are:
 
 - `upsert` - Upsert the incoming data when the primary key constraint is violated.
-- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
-- `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
+- `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints.md#advanced-upsert-options).
+- `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints.md#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
-See [Constraints](../../features/data-acceleration/constraints)
+See [Constraints](../../features/data-acceleration/constraints.md)
 
 ```yaml
 datasets:
@@ -544,7 +544,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -678,7 +678,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ```yaml
 datasets:
@@ -698,7 +698,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`](../../components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 
