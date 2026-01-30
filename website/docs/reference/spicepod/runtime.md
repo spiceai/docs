@@ -29,7 +29,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -44,7 +44,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching/index.md).
 
 ```yaml
 runtime:
@@ -92,7 +92,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls.md).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -109,7 +109,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores/index.md).
 
 ```yaml
 runtime:
@@ -141,7 +141,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores/index.md).
 
 ```yaml
 runtime:
@@ -173,7 +173,7 @@ runtime:
 
 ## `runtime.task_history`
 
-The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history).
+The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history.md).
 
 ```yaml
 runtime:
@@ -233,11 +233,11 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](../../reference/memory).
+For detailed memory information, see [Memory](../../reference/memory.md).
 
 ## `runtime.temp_directory`
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory.md) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb.md).
 
 ```yaml
 runtime:

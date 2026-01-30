@@ -52,7 +52,7 @@ datasets:
 SELECT COUNT(*) FROM my_users;
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 

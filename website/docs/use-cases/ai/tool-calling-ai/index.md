@@ -20,7 +20,7 @@ Unlike generic tool-calling frameworks (e.g., OpenAI Functions) that rely on ext
 
 ## Example
 
-A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment tool, enabling an LLM to generate real-time fraud alerts by combining transaction data (via federated queries from Databricks) with the tool’s risk scoring outputs. This delivers faster, more accurate fraud detection than generic AI agents reliant on external APIs, reducing financial losses and improving regulatory compliance. The [Spice.ai MCP documentation](../../features/large-language-models/mcp) provides detailed setup guidance for implementing MCP server workflows.
+A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment tool, enabling an LLM to generate real-time fraud alerts by combining transaction data (via federated queries from Databricks) with the tool’s risk scoring outputs. This delivers faster, more accurate fraud detection than generic AI agents reliant on external APIs, reducing financial losses and improving regulatory compliance. The [Spice.ai MCP documentation](../../features/large-language-models/mcp.md) provides detailed setup guidance for implementing MCP server workflows.
 
 ## Benefits
 

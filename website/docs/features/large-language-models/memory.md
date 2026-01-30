@@ -16,7 +16,7 @@ Spice provides memory persistence tools that help language models store and retr
 
 ## Enabling Memory Tools
 
-To enable memory tools for Spice models, define a `store` [memory](../../components/data-connectors/memory) dataset and specify `memory` in the model's `tools` parameter.
+To enable memory tools for Spice models, define a `store` [memory](../../components/data-connectors/memory.md) dataset and specify `memory` in the model's `tools` parameter.
 
 ### Example: Enabling Memory Tools
 
@@ -33,4 +33,4 @@ models:
       tools: memory, sql # Can be combined with other tool groups
 ```
 
-For more information on tools, see [Tool components](../../components/tools).
+For more information on tools, see [Tool components](../../components/tools/index.md).

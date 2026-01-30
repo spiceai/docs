@@ -39,7 +39,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_memory_limit` (string, default: none): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
 - `duckdb_preserve_insertion_order` (boolean, default: `true`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
 
-Refer to the [datasets configuration reference](../../reference/spicepod/datasets#acceleration) for additional supported fields.
+Refer to the [datasets configuration reference](../../reference/spicepod/datasets.md#acceleration) for additional supported fields.
 
 ### Example Configuration
 
@@ -123,7 +123,7 @@ Use this parameter when:
 - Handling workloads that frequently spill to disk.
 - Distributing swap and data I/O operations across multiple storage volumes.
 
-For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime#runtimetemp_directory).
+For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime.md#runtimetemp_directory).
 
 For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
 

@@ -23,7 +23,7 @@ datasets:
 
 :::warning[Limitations]
 
-1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](../../features/data-acceleration) for full federation support**.
+1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](../../features/data-acceleration/index.md) for full federation support**.
 2. The Oracle connector does not support filter push-down optimization for datetime columns. Filtering on these columns is performed in-memory after data retrieval.
 3. The following Oracle data types are not currently supported; columns with these types will be ignored: `INTERVAL YEAR TO MONTH` (Code 182), `INTERVAL DAY TO SECOND` (Code 183), `UROWID` (Code 208), `BFILE` (Code 114), `JSON` (Code 119).
 
@@ -74,7 +74,7 @@ SELECT COUNT(*) FROM products;
 
 ### `params`
 
-The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
+The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
 | Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -194,7 +194,7 @@ The Oracle data connector requires the Oracle Instant Client or Oracle Database 
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index.md). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).
 
 ## Cookbook
 

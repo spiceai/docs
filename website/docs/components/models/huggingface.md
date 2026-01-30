@@ -108,7 +108,7 @@ For more details on authentication, see [access tokens](#access-tokens).
 
 :::warning[Limitations]
 
-- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](../../installation#metal-support) and [CUDA](../../installation#cuda-support) for accelerated inference.
+- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](../../installation.md#metal-support) and [CUDA](../../installation.md#cuda-support) for accelerated inference.
 - ML models currently only support ONNX file format.
   :::
 

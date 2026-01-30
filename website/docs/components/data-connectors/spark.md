@@ -22,13 +22,13 @@ datasets:
 
 - `spark_remote`: A [spark remote](https://spark.apache.org/docs/latest/spark-connect-overview.html#set-sparkremote-environment-variable) connection URI. Refer to [spark connect client connection string](https://github.com/apache/spark/blob/master/connector/connect/docs/client-connection-string) for parameters in URI.
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### Auth Examples
 
-Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
+Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
 
-Check [Secrets Stores](../../components/secret-stores) for more details.
+Check [Secrets Stores](../../components/secret-stores/index.md) for more details.
 
 <Tabs>
   <TabItem value="env" label="Env">
@@ -61,7 +61,7 @@ Check [Secrets Stores](../../components/secret-stores) for more details.
           spark_remote: ${env:SPICE_SPARK_REMOTE}
     ```
 
-    Learn more about [Env Secret Store](../../components/secret-stores/env).
+    Learn more about [Env Secret Store](../../components/secret-stores/env.md).
 
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
@@ -87,7 +87,7 @@ Check [Secrets Stores](../../components/secret-stores) for more details.
           spark_remote: ${spark:spark_remote}
     ```
 
-    Learn more about [Kubernetes Secret Store](../../components/secret-stores/kubernetes).
+    Learn more about [Kubernetes Secret Store](../../components/secret-stores/kubernetes.md).
 
   </TabItem>
   <TabItem value="keyring" label="Keyring">
@@ -116,7 +116,7 @@ Check [Secrets Stores](../../components/secret-stores) for more details.
           spark_remote: ${keyring:spice_spark_remote}
     ```
 
-    Learn more about [Keyring Secret Store](../../components/secret-stores/keyring).
+    Learn more about [Keyring Secret Store](../../components/secret-stores/keyring.md).
 
   </TabItem>
 </Tabs>

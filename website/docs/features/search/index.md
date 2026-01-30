@@ -36,8 +36,8 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](../../components/embeddings)
-- [Performing Vector Search](../../features/search/vector-search)
+- [Configure Embeddings](../../components/embeddings/index.md)
+- [Performing Vector Search](../../features/search/vector-search.md)
 
 **Example SQL Vector Search:**
 
@@ -49,7 +49,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](../../features/search/vector-search#sql-udtf).
+For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](../../features/search/vector-search.md#sql-udtf).
 
 ### Full-Text Search
 
@@ -61,7 +61,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Full-Text Search Docs](./full-text)
+- [Full-Text Search Docs](./full-text.md)
 
 **Example SQL Full-Text Search:**
 
@@ -73,6 +73,6 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](../../features/search/full-text#searching-with-sql).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](../../features/search/full-text.md#searching-with-sql).
 
 <DocCardList />

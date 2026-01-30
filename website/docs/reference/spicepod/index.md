@@ -32,7 +32,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](../../components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](../../components/secret-stores/index.md).
 
 ### `secrets.from`
 
@@ -50,10 +50,10 @@ Where:
 
   Currently supported secret stores:
 
-  - [`env`](../../components/secret-stores/env)
-  - [`kubernetes`](../../components/secret-stores/kubernetes)
-  - [`keyring`](../../components/secret-stores/keyring)
-  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager)
+  - [`env`](../../components/secret-stores/env.md)
+  - [`kubernetes`](../../components/secret-stores/kubernetes.md)
+  - [`keyring`](../../components/secret-stores/keyring.md)
+  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager.md)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 
@@ -75,7 +75,7 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime).
+The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime.md).
 
 ## `metadata`
 
@@ -94,7 +94,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](./datasets) referenced by relative path.
+A Spicepod can contain one or more [datasets](./datasets.md) referenced by relative path.
 
 **Example**
 
@@ -119,7 +119,7 @@ datasets:
 
 ## `models`
 
-A Spicepod can contain one or more [models](./models) referenced by relative path.
+A Spicepod can contain one or more [models](./models.md) referenced by relative path.
 
 **Example**
 
@@ -142,7 +142,7 @@ models:
 
 ## `embeddings`
 
-A Spicepod can contain one or more [embeddings](./embeddings) referenced by relative path.
+A Spicepod can contain one or more [embeddings](./embeddings.md) referenced by relative path.
 
 **Example**
 
@@ -163,7 +163,7 @@ embeddings:
 
 ## `evals`
 
-A Spicepod can contain one or more [evaluations](./evals) referenced by relative path.
+A Spicepod can contain one or more [evaluations](./evals.md) referenced by relative path.
 
 **Example**
 
@@ -211,7 +211,7 @@ views:
 
 ## `workers`
 
-A Spicepod can contain one or more [workers](./workers) defining configurable units of compute.
+A Spicepod can contain one or more [workers](./workers.md) defining configurable units of compute.
 
 **Example**
 
@@ -249,4 +249,4 @@ workers:
           weight: 1
 ```
 
-For a complete specification of worker configuration, see the [Workers Reference](../../reference/spicepod/workers).
+For a complete specification of worker configuration, see the [Workers Reference](../../reference/spicepod/workers.md).

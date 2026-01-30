@@ -6,7 +6,7 @@ description: 'Evaluations YAML reference'
 
 A Spicepod can contain one or more evaluations (evals) referenced by relative path.
 
-To learn about evals, including what they are and how to run them in Spice, refer to the [Evals documentation](../../features/large-language-models/evals).
+To learn about evals, including what they are and how to run them in Spice, refer to the [Evals documentation](../../features/large-language-models/evals.md).
 
 
 # `evals`
@@ -34,10 +34,10 @@ Optional. A human-readable description explaining the purpose of this evaluation
 
 ## `dataset`
 
-The [dataset](../../reference/spicepod/datasets) to use for this evaluation. Must reference a valid dataset defined in the Spicepod configuration.
+The [dataset](../../reference/spicepod/datasets.md) to use for this evaluation. Must reference a valid dataset defined in the Spicepod configuration.
 
 ## `scorers`
 
-A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](../../reference/spicepod/models) outputs will be measured against an expected result.
+A list of scoring methods to apply during the evaluation. Each scorer defines how a [model's](../../reference/spicepod/models.md) outputs will be measured against an expected result.
 
-A full list of scorers can be found [here](../../features/large-language-models/evals#eval-scorers).
+A full list of scorers can be found [here](../../features/large-language-models/evals.md#eval-scorers).

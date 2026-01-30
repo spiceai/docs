@@ -1544,7 +1544,7 @@ array_contains(array, element)
 +----------------------------------------+
 ```
 
-**Note**: For array-to-array containment operations, use the [`@>` operator](./operators#op_arr_contains).
+**Note**: For array-to-array containment operations, use the [`@>` operator](./operators.md#op_arr_contains).
 
 ### `array_dims`
 

@@ -78,7 +78,7 @@ runtime:
     key: ${secrets:tls_key}
 ```
 
-To learn more about secrets, see [Secret Stores](../../components/secret-stores).
+To learn more about secrets, see [Secret Stores](../../components/secret-stores/index.md).
 
 :::info
 
