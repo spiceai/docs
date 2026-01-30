@@ -20,7 +20,7 @@ Unlike traditional reporting tools (e.g., Tableau, Power BI) or generic RAG fram
 
 ## Example
 
-A health-tech company generates real-time HIPAA compliance reports by combining structured patient data from PostgreSQL with unstructured audit logs and regulatory guidelines from cloud storage. The AI Gateway produces narrative summaries highlighting potential violations and actionable recommendations, delivered to compliance officers in minutes. This outperforms static BI dashboards and generic RAG tools lacking real-time integration and regulatory context, ensuring faster, more accurate compliance decisions. The [Vector-Based Search documentation](../../../features/search/vector-search.md) provides guidance for implementing VSS in RAG workflows.
+A health-tech company generates real-time HIPAA compliance reports by combining structured patient data from PostgreSQL with unstructured audit logs and regulatory guidelines from cloud storage. The AI Gateway produces narrative summaries highlighting potential violations and actionable recommendations, delivered to compliance officers in minutes. This outperforms static BI dashboards and generic RAG tools lacking real-time integration and regulatory context, ensuring faster, more accurate compliance decisions. The [Vector-Based Search documentation](../../../features/search/vector-search) provides guidance for implementing VSS in RAG workflows.
 
 ## Benefits
 
@@ -30,7 +30,7 @@ A health-tech company generates real-time HIPAA compliance reports by combining 
 
 ### Learn More
 
-- **Vector Similarity Search**: [Documentation](../../../features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
-- **AI Gateway**: [Documentation](../../../features/large-language-models/index.md) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Semantic Model**: [Documentation](../../../features/semantic-model/index.md).
+- **Vector Similarity Search**: [Documentation](../../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **AI Gateway**: [Documentation](../../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Semantic Model**: [Documentation](../../../features/semantic-model/index).
