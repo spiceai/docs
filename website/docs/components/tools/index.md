@@ -4,9 +4,9 @@ sidebar_label: 'LLM Tools'
 description: 'Overview of supported LLM tools (function calling) and how to define new tools'
 ---
 
-A tool is a function or operation that can be called directly or by a [language model](../../features/large-language-models/index.md) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
+A tool is a function or operation that can be called directly or by a [language model](../../features/large-language-models/index) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
 
-For details about providing LLMs tool access, see [Language Model Tools](../../features/large-language-models/tools.md).
+For details about providing LLMs tool access, see [Language Model Tools](../../features/large-language-models/tools).
 
 **Example**
 
@@ -20,7 +20,7 @@ tools:
       perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
 ```
 
-For details on tool specifications, see the [Tools Spicepod Reference](../../reference/spicepod/tools.md).
+For details on tool specifications, see the [Tools Spicepod Reference](../../reference/spicepod/tools).
 
 ### Available Tools
 
@@ -37,7 +37,7 @@ For details on tool specifications, see the [Tools Spicepod Reference](../../ref
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
 | [`websearch`][websearch]  | Search the web for information.                                   | -             |
 
-[websearch]: /docs/components/tools/websearch
+[websearch]: ./websearch
 
 ### Tool Groups
 
@@ -59,4 +59,4 @@ models:
 | `memory`     | Memory tools for storing and retrieving information across conversations.                    |
 | [`MCP`][mcp] | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
 
-[mcp]: /docs/components/tools/mcp
+[mcp]: ./mcp

@@ -9,9 +9,9 @@ Learn how to deploy Spice.ai in your environment.
 
 ## Deployment Architectures
 
-- [Overview](../deployment/architectures/index.md)
-- [Sidecar Deployment](architectures/sidecar.md)
-- [Microservice Deployment (Single or Multiple Replicas)](architectures/microservice.md)
+- [Overview](../deployment/architectures/index)
+- [Sidecar Deployment](architectures/sidecar)
+- [Microservice Deployment (Single or Multiple Replicas)](architectures/microservice)
 - [Tiered Deployment](architectures/tiered)
 - [Cloud-Hosted in the Spice Cloud Platform](architectures/hosted)
 - [Sharded Deployment](architectures/sharded)

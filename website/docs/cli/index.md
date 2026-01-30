@@ -36,7 +36,7 @@ After installing the Spice CLI for the first time, ensure you've got the correct
 
 ## Getting started
 
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started/index.md).
+For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started).
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 
@@ -68,7 +68,7 @@ Common commands are:
 | spice help    | Help about any command                                        |
 | spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
-See [Spice CLI command reference](../cli/reference/index.md) for the full list of available commands.
+See [Spice CLI command reference](./reference) for the full list of available commands.
 
 ## Updating
 
@@ -79,7 +79,7 @@ spice upgrade
 ```
 
 :::note
-Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](../cli/index.md#install) script.
+Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](#install) script.
 :::
 
 ## Uninstall

@@ -13,8 +13,8 @@ Spice can be monitored using the [Spice Prometheus-compatible Metrics Endpoint](
 
 Monitoring clients configuration:
 
-- [Grafana](../clients/grafana.md)
-- [Datadog](../clients/datadog.md)
+- [Grafana](../clients/grafana)
+- [Datadog](../clients/datadog)
 
 ## Spice Metrics Endpoint Configuration
 
@@ -118,6 +118,6 @@ dataset_active_count{engine="duckdb"} 1
 
 :::note Component Metrics
 
-In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../../components/data-connectors/mysql.md#metrics). See [Component Metrics](../../features/observability/component_metrics.md) for more information.
+In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../../components/data-connectors/mysql.md#metrics). See [Component Metrics](../../features/observability/component_metrics) for more information.
 
 :::

@@ -10,7 +10,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 
 ## Table of Contents
 
-### [SELECT Syntax](select.md)
+### [SELECT Syntax](select)
 
 - [WITH Clause](select.md#with-clause)
 - [SELECT Clause](select.md#select-clause)
@@ -24,7 +24,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [LIMIT Clause](select.md#limit-clause)
 - [EXCLUDE and EXCEPT Clause](select.md#exclude-and-except-clause)
 
-### [Subqueries](subqueries.md)
+### [Subqueries](subqueries)
 
 - [Subquery Operators](subqueries.md#subquery-operators)
 - [SELECT Clause Subqueries](subqueries.md#select-clause-subqueries)
@@ -33,17 +33,17 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [HAVING Clause Subqueries](subqueries.md#having-clause-subqueries)
 - [Subquery Categories](subqueries.md#subquery-categories)
 
-### [EXPLAIN](explain.md)
+### [EXPLAIN](explain)
 
 - [EXPLAIN ANALYZE](explain.md#explain-analyze)
 
-### [Information Schema](information_schema.md)
+### [Information Schema](information_schema)
 
 - [SHOW TABLES](information_schema.md#show-tables)
 - [SHOW COLUMNS](information_schema.md#show-columns)
 - [SHOW ALL (configuration options)](information_schema.md#show-all-configuration-options)
 
-### [Operators and Literals](operators.md)
+### [Operators and Literals](operators)
 
 - [Numerical Operators](operators.md#numerical-operators)
 - [Comparison Operators](operators.md#comparison-operators)
@@ -51,7 +51,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Bitwise Operators](operators.md#bitwise-operators)
 - [Other Operators](operators.md#other-operators)
 
-### [Scalar Functions](scalar_functions.md)
+### [Scalar Functions](scalar_functions)
 
 - [Math Functions](scalar_functions.md#math-functions)
 - [Conditional Functions](scalar_functions.md#conditional-functions)
@@ -66,13 +66,13 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Union Functions](scalar_functions.md#union-functions)
 - [Other Functions](scalar_functions.md#other-functions)
 
-### [Search](search.md)
+### [Search](search)
 
 - [Vector Search (`vector_search`)](search.md#vector-search-vector_search)
 - [Full-Text Search (`text_search`)](search.md#full-text-search-text_search)
 - [Lexical Search: LIKE, =, and Regex](search.md#lexical-search-like--and-regex)
 
-### [Prepared Statements](prepared_statements.md)
+### [Prepared Statements](prepared_statements)
 
 - [Positional Arguments](prepared_statements.md#positional-arguments)
 

@@ -15,7 +15,7 @@ tags:
 
 Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models/index.md).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models/index).
 
 Spice supports a variety of embedding model sources and formats:
 
@@ -29,13 +29,13 @@ Spice supports a variety of embedding model sources and formats:
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock          | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
 
-[file]: /components/embeddings/local.md
-[hf]: /components/embeddings/huggingface.md
-[model2vec]: /components/embeddings/model2vec.md
-[openai]: /components/embeddings/openai.md
-[azure]: /components/embeddings/azure.md
-[databricks]: /components/embeddings/databricks.md
-[bedrock]: /components/embeddings/bedrock.md
+[file]: ./local
+[hf]: ./huggingface
+[model2vec]: ./model2vec
+[openai]: ./openai
+[azure]: ./azure
+[databricks]: ./databricks
+[bedrock]: ./bedrock
 
 ## Overview
 
@@ -128,14 +128,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators/index.md). Enable this by adding:
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators/index). Enable this by adding:
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index.md).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index).
 
 **Full example:**
 
@@ -245,7 +245,7 @@ embeddings:
 To ensure compatibility, embedding columns must meet these requirements:
 
 1. **Underlying Column:**
-   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md).
+   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators).
 2. **Naming Convention:**
    - The embedding column must be named `<column_name>_embedding` (e.g., `review_embedding` for a `review` column).
 3. **Data Type:**

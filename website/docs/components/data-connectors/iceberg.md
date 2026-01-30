@@ -6,7 +6,7 @@ description: 'Connect to and query Apache Iceberg tables'
 
 The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
 
-When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../../components/catalogs/iceberg.md) or [AWS Glue Catalog Connector](../../components/catalogs/glue.md) instead of configuring individual datasets.
+When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../../components/catalogs/iceberg) or [AWS Glue Catalog Connector](../../components/catalogs/glue) instead of configuring individual datasets.
 
 Iceberg catalogs can be of several types:
 
@@ -70,7 +70,7 @@ datasets:
 
 ### `name`
 
-The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 Example:
 
@@ -307,7 +307,7 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index.md). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).
 
 ## Limitations
 

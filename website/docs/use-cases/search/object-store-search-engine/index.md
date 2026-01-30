@@ -33,4 +33,4 @@ A security operations platform uses Spice.ai to search S3-stored network logs an
 - **Vector and Hybrid Search**: [Documentation](../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
 - **Federated SQL Queries**: [Documentation](../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
 - **Data Acceleration**: [Documentation](../../features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
-- **Observability**: [Documentation](../../features/observability/index.md).
+- **Observability**: [Documentation](../../features/observability/index).

@@ -18,16 +18,17 @@ Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
-| `postgres`                         | PostgreSQL, Amazon Redshift           | Stable            | PostgreSQL-line              |
-| `mysql`                            | MySQL                                 | Stable            |                              |
-| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
-| `file`                             | File                                  | Stable            | Parquet, CSV                 |
-| `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
-| `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
-| `spice.ai`                         | [Spice.ai OSS & Cloud][spiceai]       | Stable            | Arrow Flight                 |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Stable            | S3/Delta Lake                |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
+| `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
+| `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
+| `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `postgres`                         | PostgreSQL                            | Stable            |                              |
+| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
+| `mysql`                            | MySQL                                 | Stable            |                              |
+| `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
+| `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
@@ -37,6 +38,9 @@ Supported Data Connectors include:
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
+| `clickhouse`                       | Clickhouse                            | Alpha             |                              |
+| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `glue`                             | [Glue][glue]                          | Alpha             | Iceberg, Parquet, CSV        |
 | `http`, `https`                    | HTTP(s)                               | Alpha             | Parquet, CSV                 |
@@ -44,9 +48,6 @@ Supported Data Connectors include:
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Alpha             | Unstructured UTF-8 documents |
-| `clickhouse`                       | Clickhouse                            | Alpha             |                              |
-| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
-| `dynamodb`                         | DynamoDB                              | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 | `mongodb`                          | MongoDB                               | Roadmap           |                              |
 
@@ -70,17 +71,17 @@ File formats currently supported are:
 
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](../../reference/file_format.md#csv)     | `file_format: csv`     | ✅        | ❌                 |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
-| Markdown                                      | `file_format: md`      | ✅        | ✅                 |
-| Text                                          | `file_format: txt`     | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                 |
-| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                 |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [CSV](../../reference/file_format.md#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Markdown                                      | `file_format: md`      | ✅         | ✅                  |
+| Text                                          | `file_format: txt`     | ✅         | ✅                  |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
-File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](../../reference/file_format.md)
+File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](../../reference/file_format)
 
 If a format is a document format, each file will be treated as a document, as per [document support](#document-support) below.
 

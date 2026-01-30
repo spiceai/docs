@@ -49,7 +49,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -63,7 +63,7 @@ For CSV-specific parameters, see [CSV Parameters](../../reference/file_format.md
 
 ## Trigger data refresh on file change
 
-In addition to standard [Data Refresh](../../features/data-acceleration/data-refresh.md), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
+In addition to standard [Data Refresh](../../features/data-acceleration/data-refresh), a data refresh can also be triggered when the source file is modified. The File Data Connector uses a file system watcher to be notified the file has changed. The file watcher is disabled by default and can be enabled by setting the `file_watcher` parameter to `enabled` in the acceleration parameters.
 
 ```yaml
 datasets:
@@ -80,7 +80,7 @@ When the file is modified, the acceleration will be refreshed and will include t
 
 ## Types
 
-Refer to [Object Store Data Types](../../reference/datatypes/object_store.md) for data type mapping from object store files to arrow data type.
+Refer to [Object Store Data Types](../../reference/datatypes/object_store) for data type mapping from object store files to arrow data type.
 
 ## Examples
 
@@ -118,7 +118,7 @@ datasets:
 
 When using the File Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 :::
 

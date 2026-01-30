@@ -82,12 +82,12 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 [tools]: ../../features/large-language-models/tools
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
 
-See [Large Language Models](../../features/large-language-models/index.md) for additional configuration options.
+See [Large Language Models](../../features/large-language-models/index) for additional configuration options.
 
-- [Tools](../../features/large-language-models/tools.md)
-- [Memory](../../features/large-language-models/memory.md)
-- [Evals](../../features/large-language-models/evals.md)
-- [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
+- [Tools](../../features/large-language-models/tools)
+- [Memory](../../features/large-language-models/memory)
+- [Evals](../../features/large-language-models/evals)
+- [Parameter overrides](../../features/large-language-models/parameter_overrides)
 
 ## Supported OpenAI Compatible Providers
 
@@ -95,7 +95,7 @@ Spice supports several OpenAI compatible providers. Specify the appropriate endp
 
 ### Azure OpenAI
 
-Follow [Azure AI Models](./azure.md) instructions.
+Follow [Azure AI Models](./azure) instructions.
 
 ### Groq
 

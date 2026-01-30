@@ -46,7 +46,7 @@ Returns
 ````
 
 :::warning[Limitations]
-The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Support](../../components/data-connectors/index.md#document-support)).
+The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Support](./index#document-support)).
 :::
 
 ## Configuration
@@ -58,7 +58,7 @@ The sharepoint connector does not yet support creating a dataset from a single f
 | `sharepoint_client_id`     | **Yes**   | The client ID of the Azure AD (Entra) application                                                                                                |
 | `sharepoint_tenant_id`     | **Yes**   | The tenant ID of the Azure AD (Entra) application.                                                                                               |
 | `sharepoint_client_secret` | Optional  | For service principal authentication. The client secret of the Azure AD (Entra) application.                                                     |
-| `sharepoint_bearer_token`  | Optional  | For user authentication. The bearer access token obtained from the OAuth2 flow (see `spice login sharepoint` [docs](../cli/reference/login.md)). |
+| `sharepoint_bearer_token`  | Optional  | For user authentication. The bearer access token obtained from the OAuth2 flow (see `spice login sharepoint` [docs](../cli/reference/login)). |
 
 :::note
 Only one of `sharepoint_client_secret` or `sharepoint_bearer_token` is allowed.
@@ -143,7 +143,7 @@ spice login sharepoint --tenant-id $TENANT_ID --client-id f2b3116e-b4c4-464f-80e
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index.md). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index#using-secrets).
 
 ## Cookbook
 

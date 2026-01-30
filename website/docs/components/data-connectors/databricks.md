@@ -54,23 +54,23 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
-Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
+Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:my_token}`.
 
-| Parameter Name             | Description                                                                                                                                                                                                                                                                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                     | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
-| `databricks_endpoint`      | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
-| `databricks_sql_warehouse_id`    | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                         |
-| `databricks_cluster_id`    | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
-| `databricks_use_ssl`       | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
-| `client_timeout`           | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
-| `databricks_token`         | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
-| `databricks_client_id`     | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
-| `databricks_client_secret` | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
+| Parameter Name                | Description                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                        | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
+| `databricks_endpoint`         | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
+| `databricks_sql_warehouse_id` | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                           |
+| `databricks_cluster_id`       | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
+| `databricks_use_ssl`          | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
+| `client_timeout`              | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
+| `databricks_token`            | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
+| `databricks_client_id`        | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
+| `databricks_client_secret`    | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
 
 ## Authentication
 
@@ -109,7 +109,7 @@ datasets:
 
 ## Delta Lake object store parameters
 
-Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 ### AWS S3
 
@@ -248,7 +248,7 @@ The table below shows the Databricks (mode: delta_lake) data types supported, al
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index.md). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index#using-secrets).
 
 ## Limitations
 
@@ -266,7 +266,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 When using the Databricks (mode: delta_lake) Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 - The Databricks Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 
