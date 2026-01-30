@@ -12,7 +12,7 @@ tags:
 
 ## Running Spice.ai as a Docker Container
 
-For information on using Helm deployment, refer to the [Deploy Spice.ai in Kubernetes using Helm](./kubernetes/) section.
+For information on using Helm deployment, refer to the [Deploy Spice.ai in Kubernetes using Helm](/docs/deployment/kubernetes) section.
 
 Use the [`spiceai/spiceai` Docker image](https://hub.docker.com/r/spiceai/spiceai/tags) to run Spice.ai as a Docker container:
 

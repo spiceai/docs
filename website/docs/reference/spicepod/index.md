@@ -32,7 +32,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores(../../components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/docs/components/secret-stores).
 
 ### `secrets.from`
 
@@ -49,10 +49,10 @@ Where:
 - `<secret_store>`: The Secret Store to use
 
   Currently supported secret stores:
-  - [`env`](../../components/secret-stores/env/index)
-  - [`kubernetes`](../../components/secret-stores/kubernetes/index)
-  - [`keyring`](../../components/secret-stores/keyring/index)
-  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager/index)
+  - [`env`](/docs/components/secret-stores/env)
+  - [`kubernetes`](/docs/components/secret-stores/kubernetes)
+  - [`keyring`](/docs/components/secret-stores/keyring)
+  - [`aws-secrets-manager`](/docs/components/secret-stores/aws-secrets-manager)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 
@@ -74,7 +74,7 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime).
+The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](/docs/reference/spicepod/runtime).
 
 ## `metadata`
 
@@ -93,7 +93,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](./datasets) referenced by relative path.
+A Spicepod can contain one or more [datasets](/docs/reference/spicepod/datasets) referenced by relative path.
 
 **Example**
 
@@ -118,7 +118,7 @@ datasets:
 
 ## `snapshots` {#snapshots}
 
-Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](./datasets.md#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
+Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](/docs/reference/spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
 
 ```yaml
 snapshots:
@@ -147,11 +147,11 @@ Controls what happens when Spice cannot load the most recent snapshot on startup
 
 ### `snapshots.params`
 
-Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`.
+Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](/docs/components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`.
 
 ## `models`
 
-A Spicepod can contain one or more [models](./models) referenced by relative path.
+A Spicepod can contain one or more [models](/docs/reference/spicepod/models) referenced by relative path.
 
 **Example**
 
@@ -174,7 +174,7 @@ models:
 
 ## `embeddings`
 
-A Spicepod can contain one or more [embeddings](./embeddings) referenced by relative path.
+A Spicepod can contain one or more [embeddings](/docs/reference/spicepod/embeddings) referenced by relative path.
 
 **Example**
 
@@ -195,7 +195,7 @@ embeddings:
 
 ## `evals`
 
-A Spicepod can contain one or more [evaluations](./evals) referenced by relative path.
+A Spicepod can contain one or more [evaluations](/docs/reference/spicepod/evals) referenced by relative path.
 
 **Example**
 
@@ -243,7 +243,7 @@ views:
 
 ## `workers`
 
-A Spicepod can contain one or more [workers](./workers) defining configurable units of compute.
+A Spicepod can contain one or more [workers](/docs/reference/spicepod/workers) defining configurable units of compute.
 
 **Example**
 
@@ -281,4 +281,4 @@ workers:
           weight: 1
 ```
 
-For a complete specification of worker configuration, see the [Workers Reference](../spicepod/workers).
+For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers).

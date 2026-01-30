@@ -10,7 +10,7 @@ pagination_next: null
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
 
-A Data Accelerator will query/fetch data from a connected data source and store/update it locally in an embedded acceleration engine, such as DuckDB or SQLite. To set data refresh behavior, such as refreshing data on an interval see [Data Refresh](../../features/data-acceleration/data-refresh.md).
+A Data Accelerator will query/fetch data from a connected data source and store/update it locally in an embedded acceleration engine, such as DuckDB or SQLite. To set data refresh behavior, such as refreshing data on an interval see [Data Refresh](/docs/features/data-acceleration/data-refresh).
 
 Dataset acceleration is enabled by setting the acceleration configuration. E.g.
 
@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
+For the complete reference specification, see [datasets](/docs/reference/spicepod/datasets).
 
 By default, datasets will be locally materialized using in-memory Arrow records.
 
@@ -37,10 +37,10 @@ Supported Data Accelerators include:
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
 
-[cayenne]: ./cayenne
-[duckdb]: ./duckdb
-[postgres]: ./postgres
-[sqlite]: ./sqlite
+[cayenne]: /docs/components/data-accelerators/cayenne
+[duckdb]: /docs/components/data-accelerators/duckdb
+[postgres]: /docs/components/data-accelerators/postgres
+[sqlite]: /docs/components/data-accelerators/sqlite
 
 ## Choosing an Accelerator
 
@@ -57,7 +57,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 
 ### Spice Cayenne vs DuckDB
 
-Both [Spice Cayenne](./cayenne) and [DuckDB](./duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
+Both [Spice Cayenne](/docs/components/data-accelerators/cayenne) and [DuckDB](/docs/components/data-accelerators/duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
 
 **Choose Spice Cayenne when:**
 
@@ -76,13 +76,13 @@ Both [Spice Cayenne](./cayenne) and [DuckDB](./duckdb) support file-based accele
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](/docs/reference/datatypes/accelerators).
 
 :::warning[Memory Considerations]
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb) and [`sqlite`](./sqlite) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](/docs/components/data-accelerators/duckdb) and [`sqlite`](/docs/components/data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 :::
 
@@ -94,6 +94,6 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
-- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB and SQLite
+- [Managing Memory Usage](/docs/reference/memory) - Memory configuration reference
+- [Data Refresh](/docs/features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Indexes](/docs/features/data-acceleration/indexes) - Index configuration for DuckDB and SQLite

@@ -38,7 +38,7 @@ Queries execute asynchronously, processing LLM calls in parallel across rows for
 
 ### Configuration
 
-Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models(../../features/large-language-models) for detailed configuration.
+Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](../../features/large-language-models/) for detailed configuration.
 
 ```yaml
 models:
@@ -50,7 +50,7 @@ models:
 
 ### Task History
 
-Each `ai()` function invocation creates an `ai` task in the [task_history(../task_history) table, which tracks execution time, input prompts, outputs, and errors.
+Each `ai()` function invocation creates an `ai` task in the [task_history](../task_history) table, which tracks execution time, input prompts, outputs, and errors.
 
 ### Examples
 
@@ -137,7 +137,7 @@ Returns a list of floating-point values representing the embedding vector. For a
 
 ### Configuration
 
-Embedding models must be configured in `spicepod.yaml`. See [Embeddings(../../features/embeddings) for configuration details.
+Embedding models must be configured in `spicepod.yaml`. See [Embeddings](../../features/embeddings/) for configuration details.
 
 ```yaml
 embeddings:
@@ -182,7 +182,7 @@ LIMIT 1000;
 
 For more information on configuring and using AI models, see:
 
-- [Large Language Models(../../features/large-language-models)
-- [Embeddings(../../features/embeddings)
-- [Vector Search(../../features/search/vector-search)
-- [Task History(../task_history)
+- [Large Language Models](../../features/large-language-models/)
+- [Embeddings](../../features/embeddings/)
+- [Vector Search](../../features/search/vector-search)
+- [Task History](../task_history)

@@ -45,4 +45,4 @@ A trace in Spice represents a completed task (such as a SQL query, AI chat compl
 +----------------------------------+------------------+---------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
 ```
 
-For more details, see [task_history(../../reference/task_history).
+For more details, see [task_history](/docs/reference/task_history).

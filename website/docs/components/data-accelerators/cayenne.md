@@ -144,9 +144,8 @@ datasets:
 
 **Spice Documentation:**
 
-- [Performance Tuning](../../reference/performance-tuning) - Comprehensive performance optimization guide
 - [Managing Memory Usage](../../reference/memory) - Memory configuration reference
-- [Data Acceleration](../../features/data-acceleration) - Data acceleration overview
+- [Data Acceleration](../../features/data-acceleration/) - Data acceleration overview
 
 **External References:**
 

@@ -81,19 +81,19 @@ Where:
 - `<data_connector>`: The Data Connector to use to connect to the dataset
 
   Currently supported data connectors:
-  - [`spiceai`](../../components/data-connectors/spiceai)
-  - [`dremio`](../../components/data-connectors/dremio)
-  - [`spark`](../../components/data-connectors/spark)
-  - [`databricks`](../../components/data-connectors/databricks)
-  - [`s3`](../../components/data-connectors/s3)
-  - [`postgres`](../../components/data-connectors/postgres/index)
-  - [`mysql`](../../components/data-connectors/mysql)
-  - [`flightsql`](../../components/data-connectors/flightsql)
-  - [`snowflake`](../../components/data-connectors/snowflake)
-  - [`ftp`, `sftp`](../../components/data-connectors/ftp)
-  - [`http`, `https`](../../components/data-connectors/https)
-  - [`clickhouse`](../../components/data-connectors/clickhouse)
-  - [`graphql`](../../components/data-connectors/graphql)
+  - [`spiceai`](/docs/components/data-connectors/spiceai)
+  - [`dremio`](/docs/components/data-connectors/dremio)
+  - [`spark`](/docs/components/data-connectors/spark)
+  - [`databricks`](/docs/components/data-connectors/databricks)
+  - [`s3`](/docs/components/data-connectors/s3)
+  - [`postgres`](/docs/components/data-connectors/postgres)
+  - [`mysql`](/docs/components/data-connectors/mysql)
+  - [`flightsql`](/docs/components/data-connectors/flightsql)
+  - [`snowflake`](/docs/components/data-connectors/snowflake)
+  - [`ftp`, `sftp`](/docs/components/data-connectors/ftp)
+  - [`http`, `https`](/docs/components/data-connectors/https)
+  - [`clickhouse`](/docs/components/data-connectors/clickhouse)
+  - [`graphql`](/docs/components/data-connectors/graphql)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -128,18 +128,18 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](../spicepod/keywords).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/).
 
 ## `access`
 
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors(../../tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write).
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -201,7 +201,7 @@ The following values are supported:
 Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb)
-- [PostgreSQL](../../components/data-connectors/postgres/index)
+- [PostgreSQL](../../components/data-connectors/postgres/)
 
 :::
 
@@ -272,9 +272,8 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../components/data-accelerators/postgres/index) - Accelerated by a Postgres database.
+- [`postgres`](../../components/data-accelerators/postgres/) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
-- [`turso`](../../components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
@@ -285,7 +284,7 @@ Optional. The mode of acceleration. The following values are supported:
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./index.md#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](./#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -309,7 +308,7 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.refresh_cron`
 
@@ -341,7 +340,7 @@ datasets:
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.params.caching_stale_while_revalidate_ttl`
 
@@ -370,7 +369,7 @@ datasets:
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.params.caching_stale_if_error`
 
@@ -422,7 +421,7 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.refresh_append_overlap`
 
@@ -432,7 +431,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -475,7 +474,7 @@ Optional. The retention period for the dataset. Combine with `time_column` and `
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.retention_sql`
 
@@ -491,7 +490,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration/index)
+Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
 ## `acceleration.refresh_jitter_enabled`
 
@@ -527,7 +526,7 @@ datasets:
       mysql_pass: ${secrets:MYSQL_PASS}
 ```
 
-For detailed information about metrics available for specific components, see the [component metrics documentation(../../features/observability/component_metrics).
+For detailed information about metrics available for specific components, see the [component metrics documentation](../../features/observability/component_metrics).
 
 ## `acceleration.indexes`
 
@@ -653,7 +652,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/).
 
 ## `columns[*].embeddings`
 
@@ -787,7 +786,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model).
 
 ```yaml
 datasets:

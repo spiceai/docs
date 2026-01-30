@@ -2904,7 +2904,7 @@ arrow_cast(expression, arrow_type)
 +-----+
 ```
 
-See [Data Types Reference(../datatypes) for supported Arrow types.
+See [Data Types Reference](../datatypes/) for supported Arrow types.
 
 ### `arrow_typeof`
 
@@ -2998,7 +2998,7 @@ LIMIT 10;
 
 #### Configuration
 
-Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models(../../features/large-language-models) for configuration details.
+Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](../../features/large-language-models/) for configuration details.
 
 ```yaml
 models:

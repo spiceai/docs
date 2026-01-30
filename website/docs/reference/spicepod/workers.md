@@ -56,7 +56,7 @@ Additional details about the worker, useful for displaying to users and providin
 
 ### `cron`
 
-Specifies a cron schedule to automatically run the worker at the specified times. The worker action controls the behavior of the schedule. See the [cron schedule reference](../cron) for more information on cron schedules.
+Specifies a cron schedule to automatically run the worker at the specified times. The worker action controls the behavior of the schedule. See the [cron schedule reference](../cron.md) for more information on cron schedules.
 
 #### `cron` with a `load_balance` action
 
