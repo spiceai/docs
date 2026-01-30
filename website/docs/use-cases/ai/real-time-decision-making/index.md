@@ -30,9 +30,9 @@ A ride-sharing app optimizes driver assignments in milliseconds by combining rea
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) for an example.
-- **AI Gateway**: [Documentation](../../../features/large-language-models/index.md) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md) for details.
-- **Vector Search**: [Documentation](../../../features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
-- **Semantic Model**: [Documentation](../../../features/semantic-model/index.md).
-- **Observability**: [Documentation](../../../features/observability/index.md).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README) for an example.
+- **AI Gateway**: [Documentation](../../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README) for details.
+- **Vector Search**: [Documentation](../../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **Semantic Model**: [Documentation](../../../features/semantic-model/index).
+- **Observability**: [Documentation](../../../features/observability/index).

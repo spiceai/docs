@@ -20,7 +20,7 @@ Unlike traditional data platforms (e.g., Snowflake, Redshift) that centralize da
 
 ## Example
 
-A health-tech platform implements a data mesh to enable clinical teams to access real-time patient data from PostgreSQL, research datasets from Databricks, and regulatory guidelines from cloud storage, all through a unified SQL interface. This empowers teams to develop patient-centric applications, such as real-time treatment recommendation systems, without relying on centralized data teams, improving agility and compliance compared to monolithic data warehouses. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) demonstrates unified data access patterns for such scenarios.
+A health-tech platform implements a data mesh to enable clinical teams to access real-time patient data from PostgreSQL, research datasets from Databricks, and regulatory guidelines from cloud storage, all through a unified SQL interface. This empowers teams to develop patient-centric applications, such as real-time treatment recommendation systems, without relying on centralized data teams, improving agility and compliance compared to monolithic data warehouses. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README) demonstrates unified data access patterns for such scenarios.
 
 ## Benefits
 
@@ -30,6 +30,6 @@ A health-tech platform implements a data mesh to enable clinical teams to access
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index.md) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
-- **Observability**: [Documentation](../../../features/observability/index.md).
+- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Observability**: [Documentation](../../../features/observability/index).

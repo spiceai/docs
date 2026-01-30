@@ -4,7 +4,7 @@ sidebar_label: 'Datadog'
 description: 'Monitoring Spice with Datadog'
 ---
 
-Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Spice Metrics Endpoint](../../features/observability/index.md) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
+Spice can be monitored with [Datadog](https://www.datadoghq.com/) using the [Spice Metrics Endpoint](../../features/observability/index) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Datadog Agent Configuration
 

@@ -13,9 +13,9 @@ Learn how to define and augment datasets with embedding columns for advanced sea
 
 Spice provides three distinct methods for handling embedding columns in datasets:
 
-1. **[Just-in-Time (JIT) Embeddings](../../components/embeddings/index.md#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
-2. **[Accelerated Embeddings](../../components/embeddings/index.md#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-3. **[Passthrough Embeddings](../../components/embeddings/index.md#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
+1. **[Just-in-Time (JIT) Embeddings](../../components/embeddings/index#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
+2. **[Accelerated Embeddings](../../components/embeddings/index#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
+3. **[Passthrough Embeddings](../../components/embeddings/index#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
 
@@ -32,7 +32,7 @@ embeddings:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 ```
 
-See [Embedding components](../../components/embeddings/index.md) for more information on embedding models.
+See [Embedding components](../../components/embeddings/index) for more information on embedding models.
 
 ## Vector Searches
 
@@ -40,8 +40,8 @@ Spice supports complex searches by utilizing embeddings. Both local and remote e
 
 To run a vector search, embeddings must be defined for the relevant columns in your dataset. Once configured, similarity searches can be performed using the defined embeddings.
 
-For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](../../features/search/vector-search.md).
+For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](../../features/search/vector-search).
 
 ## Generating Embeddings in Queries
 
-The [`embed()` scalar function](../../reference/sql/scalar_functions.md#embed) allows you to generate embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.
+The [`embed()` scalar function](../../reference/sql/scalar_functions#embed) allows you to generate embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.

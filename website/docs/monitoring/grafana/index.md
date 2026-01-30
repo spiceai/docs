@@ -4,7 +4,7 @@ sidebar_label: 'Grafana & Prometheus'
 description: 'Monitoring Spice instances with Grafana & Prometheus'
 ---
 
-Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](../../features/observability/index.md) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
+Spice can be monitored with [Grafana](https://grafana.com/grafana/) using the [Spice Metrics Endpoint](../../features/observability/index) and pre-built dashboards available in the [Spice repository](https://github.com/spiceai/spiceai/tree/trunk/monitoring).
 
 ## Import Grafana Dashboard
 
@@ -20,7 +20,7 @@ Click "Load".
 
 ## Kubernetes
 
-View the [Kubernetes](../deployment/kubernetes/index.md) deployment guide for configuring the Prometheus Operator to scrape metrics from the Spice instances in Kubernetes.
+View the [Kubernetes](../deployment/kubernetes/index) deployment guide for configuring the Prometheus Operator to scrape metrics from the Spice instances in Kubernetes.
 
 ## Prometheus
 
