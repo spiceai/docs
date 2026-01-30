@@ -101,7 +101,7 @@ datasets:
               overlap_size: 32
 ```
 
-See the [embeddings](../../reference/spicepod/embeddings) and [datasets](../../reference/spicepod/datasets#embeddings) reference for more details.
+See the [embeddings](../../reference/spicepod/embeddings.md) and [datasets](../../reference/spicepod/datasets.md#embeddings) reference for more details.
 
 ## Embedding Methods
 
@@ -128,14 +128,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators). Enable this by adding:
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators/index.md). Enable this by adding:
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index.md).
 
 **Full example:**
 

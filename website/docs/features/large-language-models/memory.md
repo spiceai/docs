@@ -33,4 +33,4 @@ models:
       tools: memory, sql # Can be combined with other tool groups
 ```
 
-For more information on tools, see [Tool components](../../components/tools).
+For more information on tools, see [Tool components](../../components/tools/index.md).

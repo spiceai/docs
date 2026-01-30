@@ -61,7 +61,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -108,7 +108,7 @@ datasets:
 
 :::warning
 
-Using the Debezium connector **requires** [acceleration](../../components/data-accelerators) to be enabled.
+Using the Debezium connector **requires** [acceleration](../../components/data-accelerators/index.md) to be enabled.
 
 :::
 

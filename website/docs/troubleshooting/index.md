@@ -55,7 +55,7 @@ Example `--very-verbose` output:
 2025-02-07T00:26:21.426981Z TRACE runtime::accelerated_table::refresh_task: [refresh] Received 10 rows for dataset: emails
 ```
 
-For more information, view the [tracing documentation](../cli/tracing)
+For more information, view the [tracing documentation](../cli/tracing.md)
 
 ## Use `spice trace` for task tracing
 

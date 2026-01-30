@@ -57,7 +57,7 @@ datasets:
 ```
 
 :::info Readiness with snapshots
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots.md). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
 :::
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap).
@@ -153,7 +153,7 @@ datasets:
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots.md) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 

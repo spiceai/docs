@@ -74,7 +74,7 @@ datasets:
 
 ### `name`
 
-The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The `name` field sets the table name within Spice. This name is used to reference the dataset in SQL queries. The name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 Example:
 

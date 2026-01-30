@@ -59,7 +59,7 @@ ORDER BY score DESC
 LIMIT 2;
 ```
 
-See [Vector-Based Search](../../features/search/vector-search) for configuration and advanced usage.
+See [Vector-Based Search](../../features/search/vector-search.md) for configuration and advanced usage.
 
 ---
 
@@ -94,7 +94,7 @@ ORDER BY score DESC
 LIMIT 5;
 ```
 
-See [Full-Text Search](../../features/search/full-text) for configuration and details.
+See [Full-Text Search](../../features/search/full-text.md) for configuration and details.
 
 ---
 
@@ -252,4 +252,4 @@ SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 
 ---
 
-For more on hybrid and advanced search, see [Search Functionality](../../features/search) and [Vector-Based Search](../../features/search/vector-search)
+For more on hybrid and advanced search, see [Search Functionality](../../features/search/index.md) and [Vector-Based Search](../../features/search/vector-search.md)

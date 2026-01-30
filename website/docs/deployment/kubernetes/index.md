@@ -187,7 +187,7 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 
 ## Environment Variables and Secrets
 
-Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](../../components/secret-stores/env).
+Add extra environment variables using the `additionalEnv` property. This can be useful when combining with the [Environment Secret Store](../../components/secret-stores/env/index.md).
 
 ```yaml
 additionalEnv:
@@ -213,7 +213,7 @@ Further reading:
 
 ## Monitoring
 
-The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../monitoring/grafana). To enable this feature, set the `monitoring.podMonitor.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
+The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../monitoring/grafana/index.md). To enable this feature, set the `monitoring.podMonitor.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
 
 <details>
   <summary>Install the Prometheus Operator</summary>
@@ -237,7 +237,7 @@ Deploy the Spice.ai Helm chart with monitoring enabled:
 helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitor.enabled=true
 ```
 
-Once the monitoring is enabled, import the [Spice Grafana dashboard](../../monitoring/grafana) to visualize the Spice.ai metrics.
+Once the monitoring is enabled, import the [Spice Grafana dashboard](../../monitoring/grafana/index.md) to visualize the Spice.ai metrics.
 
 ### Health and Readiness
 

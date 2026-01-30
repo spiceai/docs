@@ -30,7 +30,7 @@ spice version [flags]
  To upgrade, run "spice upgrade".
  ```
 
-Learn more about upgrading the Spice CLI and runtime using `spice upgrade` [here.](../cli/reference/upgrade)
+Learn more about upgrading the Spice CLI and runtime using `spice upgrade` [here.](../cli/reference/upgrade.md)
 
 
 **Latest Version**:

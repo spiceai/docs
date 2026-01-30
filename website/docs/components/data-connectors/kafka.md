@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
+The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators/index.md). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
 
 ```yaml
 datasets:
@@ -73,7 +73,7 @@ SELECT COUNT(*) FROM orders;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -120,7 +120,7 @@ datasets:
 
 :::warning
 
-Using the Kafka connector **requires** [acceleration](../../components/data-accelerators) with `refresh_mode: append` enabled.
+Using the Kafka connector **requires** [acceleration](../../components/data-accelerators/index.md) with `refresh_mode: append` enabled.
 
 :::
 

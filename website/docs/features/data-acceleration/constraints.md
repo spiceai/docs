@@ -7,7 +7,7 @@ description: 'Learn how to add/configure constraints on local acceleration table
 
 Constraints enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality and configure behavior for data updates that violate constraints.
 
-Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
+Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes.md) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
 If multiple rows in the incoming data violate any constraint, the entire incoming batch of data will be dropped.
 

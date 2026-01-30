@@ -9,7 +9,7 @@ tags:
   - models
 ---
 
-Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](../../features/search)).
+Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](../../features/search/index.md)).
 
 <img width="740" alt="ai-gateway" src="https://github.com/user-attachments/assets/4a45cd62-ebfc-4a73-956d-661f1ab44cd8" />
 
@@ -17,7 +17,7 @@ Spice supports **full OpenTelemetry observability**, helping with detailed track
 
 ## Configuring Language Models
 
-Spice supports a variety of LLMs (see [Model Providers](../../components/models)).
+Spice supports a variety of LLMs (see [Model Providers](../../components/models/index.md)).
 
 ### Core Features
 
@@ -29,7 +29,7 @@ Spice supports a variety of LLMs (see [Model Providers](../../components/models)
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).
 - **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](../../features/large-language-models/serving).
 
-For API usage, refer to the [API Documentation](../api).
+For API usage, refer to the [API Documentation](../api/index.md).
 
 import DocCardList from '@theme/DocCardList';
 

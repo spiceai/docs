@@ -49,7 +49,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -59,7 +59,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                  |
 | `schema_source_path`        | Specifies the path used to infer the dataset schema. Default to the most recently modified file                                                                                                                     |
 
-For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format).
+For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format.md).
 
 ## Trigger data refresh on file change
 
@@ -80,7 +80,7 @@ When the file is modified, the acceleration will be refreshed and will include t
 
 ## Types
 
-Refer to [Object Store Data Types](../../reference/datatypes/object_store) for data type mapping from object store files to arrow data type.
+Refer to [Object Store Data Types](../../reference/datatypes/object_store.md) for data type mapping from object store files to arrow data type.
 
 ## Examples
 
@@ -118,7 +118,7 @@ datasets:
 
 When using the File Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb.md) and [`sqlite`](../data-accelerators/sqlite.md) accelerators by specifying `mode: file`.
 
 :::
 

@@ -128,11 +128,11 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords.md).
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `access`
 
@@ -306,13 +306,13 @@ Optional. How to refresh the dataset. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_cron`
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](../cron).
+See the [cron schedule reference](../cron.md).
 
 ## `acceleration.refresh_sql`
 
@@ -333,7 +333,7 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -343,7 +343,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -386,7 +386,7 @@ Optional. The retention period for the dataset. Combine with `time_column` and `
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.retention_sql`
 
@@ -402,7 +402,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration)
+See [Duration](../duration.md)
 
 ## `acceleration.refresh_jitter_enabled`
 
@@ -543,7 +543,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ## `columns[*].embeddings`
 
@@ -677,7 +677,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index.md).
 
 ```yaml
 datasets:

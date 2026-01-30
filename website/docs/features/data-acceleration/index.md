@@ -6,17 +6,17 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](../../components/data-connectors) and storing it locally in a [Data Accelerator](../../components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring deployments maintain the latest data locally for querying.
+Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](../../components/data-connectors/index.md) and storing it locally in a [Data Accelerator](../../components/data-accelerators/index.md) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring deployments maintain the latest data locally for querying.
 
 ![Spice.ai Open Source Query Federation with Acceleration](/img/features/data-acceleration.png)
 
 ## Benefits
 
-Local data acceleration stores data alongside the application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](../../components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes) can be applied to speed up certain queries.
+Local data acceleration stores data alongside the application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](../../components/data-accelerators/index.md) used, data can also be stored in-memory, further reducing query times. [Indexes](./indexes.md) can be applied to speed up certain queries.
 
-Locally accelerated datasets can also have [primary key constraints](./constraints) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
+Locally accelerated datasets can also have [primary key constraints](./constraints.md) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
 
-[Acceleration snapshots](./snapshots) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
+[Acceleration snapshots](./snapshots.md) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
 ## Example Use Case
 
@@ -61,4 +61,4 @@ spice sql
 select * from taxi_trips;
 ```
 
-[Learn more about Data Accelerators](../../components/data-accelerators) for faster access.
+[Learn more about Data Accelerators](../../components/data-accelerators/index.md) for faster access.

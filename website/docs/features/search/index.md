@@ -37,7 +37,7 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](../../components/embeddings)
+- [Configure Embeddings](../../components/embeddings/index.md)
 - [Performing Vector Search](../../features/search/vector-search)
 
 **Example SQL Vector Search:**
@@ -62,7 +62,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Full-Text Search Docs](./full-text)
+- [Full-Text Search Docs](./full-text.md)
 
 **Example SQL Full-Text Search:**
 
