@@ -58,7 +58,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 
@@ -136,7 +136,7 @@ Configure access token authentication by setting the `abfs_bearer_token` paramet
 2. Under the application's `API permissions`, add the permission: `Azure Storage - user_impersonation`.
 3. Under the applications's `Authentication`, add `http://localhost` as Mobile and desktop applications redirect URI.
 4. Grant the user read access to the storage account under `Access Control (IAM)`, this can typically be done using the `Storage Blob Data Reader` built-in role.
-5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](../cli/reference/login) documentation for more details.
+5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](../../cli/reference/login.md) documentation for more details.
 
 ```shell
 spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
@@ -208,4 +208,4 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index.md). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index.md#using-secrets).

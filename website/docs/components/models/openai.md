@@ -16,7 +16,7 @@ models:
     params:
       openai_api_key: ${ secrets:OPENAI_API_KEY } # Required for official OpenAI models
       tools: auto # Optional. Connect the model to datasets via SQL query/vector search tools
-      system_prompt: 'You are a helpful assistant.' # Optional.
+      system_prompt: "You are a helpful assistant." # Optional.
 
       # Optional parameters
       endpoint: https://api.openai.com/v1 # Override to use a compatible provider (i.e. NVidia NIM)
@@ -25,11 +25,7 @@ models:
 
       # Override default chat completion request parameters
       openai_temperature: 0.1
-      openai_response_format: { 'type': 'json_object' }
-
-      # OpenAI Responses API configuration
-      responses_api: enabled
-      openai_responses_tools: web_search, code_interpreter
+      openai_response_format: { "type": "json_object" }
 ```
 
 ## Configuration
@@ -75,19 +71,16 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_temperature`      | Set the default temperature to use on chat completions.                                            | -                           |
 | `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].              | -                           |
 | `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model. | -                           |
-| `openai_usage_tier`       | The [OpenAI usage tier](https://platform.openai.com/settings/organization/limits) for the account. This parameter sets the maximum number of concurrent requests based on OpenAI's published limits per tier. Valid values are `free`, `tier1`, `tier2`, `tier3`, `tier4`, or `tier5`. | `tier1`                     |
-| `responses_api`           | `enabled` or `disabled`. Whether to enable invoking this model from the `/v1/responses` HTTP endpoint using [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses). When using OpenAI-compatible providers, ensure the provider supports OpenAI's Responses API. | `disabled` |
-| `openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model.  These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`. | -                           |
 
-[tools]: ../../features/large-language-models/tools.md
+[tools]: ../../features/large-language-models/tools
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
 
-See [Large Language Models](../../features/large-language-models) for additional configuration options.
+See [Large Language Models](../../features/large-language-models/index.md) for additional configuration options.
 
-- [Tools](../../features/large-language-models/tools)
-- [Memory](../../features/large-language-models/memory)
-- [Evals](../../features/large-language-models/evals)
-- [Parameter overrides](../../features/large-language-models/parameter_overrides)
+- [Tools](../../features/large-language-models/tools.md)
+- [Memory](../../features/large-language-models/memory.md)
+- [Evals](../../features/large-language-models/evals.md)
+- [Parameter overrides](../../features/large-language-models/parameter_overrides.md)
 
 ## Supported OpenAI Compatible Providers
 
@@ -95,7 +88,7 @@ Spice supports several OpenAI compatible providers. Specify the appropriate endp
 
 ### Azure OpenAI
 
-Follow [Azure AI Models](./azure) instructions.
+Follow [Azure AI Models](./azure.md) instructions.
 
 ### Groq
 

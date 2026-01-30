@@ -21,7 +21,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
   - `refresh_mode: append`: 1.5x dataset size.
   - `refresh_mode: changes`: Primarily influenced by CDC event volume and frequency; 1.5x dataset size is a reasonable estimate.
 
-When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](../../components/data-accelerators/duckdb).
+When using DuckDB persistent storage and disk-spilling memory requirements can be reduced. See [DuckDB Data Accelerator](../../components/data-accelerators/duckdb.md).
 
 ## Refresh Modes and Memory Implications
 
@@ -35,8 +35,8 @@ Refresh modes affect memory usage as follows:
 
 Spice.ai uses DataFusion as its query execution engine. By default, DataFusion does not enforce strict memory limits, which can lead to unbounded usage. Spice.ai addresses this through:
 
-- **Memory Limit**: The `runtime.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk, helping prevent out-of-memory errors and maintain query stability. See [Spicepod Configuration](spicepod/runtime#runtimememory_limit) for details.
-- **Memory Budgeting**: Limits memory per query execution. Queries exceeding the limit return an error. See [Spicepod Configuration](spicepod) for details.
+- **Memory Limit**: The `runtime.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk, helping prevent out-of-memory errors and maintain query stability. See [Spicepod Configuration](spicepod/runtime.md#runtimememory_limit) for details.
+- **Memory Budgeting**: Limits memory per query execution. Queries exceeding the limit return an error. See [Spicepod Configuration](spicepod/index.md) for details.
 - **Spill-to-Disk**: Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors.
 
 DataFusion supports spilling for several operators, but not all operations are currently supported. Notably, the following operations do not support spilling:
@@ -47,10 +47,10 @@ DataFusion supports spilling for several operators, but not all operations are c
 
 ## Embedded Data Accelerators
 
-Spice.ai integrates with embedded accelerators like [SQLite](../../components/data-accelerators/sqlite) and [DuckDB](../../components/data-accelerators/duckdb), each with unique memory considerations:
+Spice.ai integrates with embedded accelerators like [SQLite](../../components/data-accelerators/sqlite.md) and [DuckDB](../../components/data-accelerators/duckdb.md), each with unique memory considerations:
 
 - **SQLite**: Lightweight and efficient for smaller datasets. Does not support intermediate spilling; datasets must fit in memory or use application-level paging.
-- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](../../components/data-accelerators/duckdb) for more details.
+- **DuckDB**: Designed for larger datasets and complex queries. Manages memory through streaming execution, intermediate spilling, and buffer management. See [DuckDB Data Accelerator](../../components/data-accelerators/duckdb.md) for more details.
 
 ## Kubernetes Memory Configuration
 

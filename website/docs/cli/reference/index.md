@@ -17,23 +17,23 @@ spice [command] [--help]
 
 | Command                                            | Description                                                         |
 | -------------------------------------------------- | --------------------------------------------------------------------|
-| [add](../cli/reference/add)               | Add Pod - adds a pod to the project                                 |
-| [catalogs](../cli/reference/catalogs)     | List [catalogs](../../components/catalogs) loaded by the Spice runtime   |
-| [completion](../cli/reference/completion) | Generate the autocompletion script for the specified shell          |
-| [dataset](../cli/reference/dataset)       | Dataset operations                                                  |
-| [datasets](../cli/reference/datasets)     | Lists datasets loaded by the Spice runtime                          |
+| [add](./add.md)               | Add Pod - adds a pod to the project                                 |
+| [catalogs](./catalogs.md)     | List [catalogs](../../components/catalogs/index.md) loaded by the Spice runtime   |
+| [completion](./completion.md) | Generate the autocompletion script for the specified shell          |
+| [dataset](./dataset.md)       | Dataset operations                                                  |
+| [datasets](./datasets.md)     | Lists datasets loaded by the Spice runtime                          |
 | help                                               | Help about any command                                              |
-| [init](../cli/reference/init)             | Initialize Pod - initializes a new pod in the project               |
-| [login](../cli/reference/login)           | Login to the Spice.ai Platform                                                  |
-| [models](../cli/reference/models)         | Lists models loaded by the Spice runtime                            |
-| [pods](../cli/reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
-| [refresh](../cli/reference/refresh)       | Refreshes an accelerated dataset loaded by the Spice runtime          |
-| [run](../cli/reference/run)               | Run Spice - starts the Spice runtime, installing if necessary |
-| [search](../cli/reference/search)         | Perform embeddings-based searches across |
-| [sql](../cli/reference/sql)               | Start an interactive SQL query session against the Spice runtime |
-| [status](../cli/reference/status)         | Spice runtime status                                                |
-| [upgrade](../cli/reference/upgrade)       | Upgrades the Spice CLI to the latest release                        |
-| [version](../cli/reference/version)       | Spice CLI version                                                   |
+| [init](./init.md)             | Initialize Pod - initializes a new pod in the project               |
+| [login](./login.md)           | Login to the Spice.ai Platform                                                  |
+| [models](./models.md)         | Lists models loaded by the Spice runtime                            |
+| [pods](./pods.md)             | Lists Spicepods loaded by the Spice runtime                         |
+| [refresh](./refresh.md)       | Refreshes an accelerated dataset loaded by the Spice runtime          |
+| [run](./run.md)               | Run Spice - starts the Spice runtime, installing if necessary |
+| [search](./search.md)         | Perform embeddings-based searches across |
+| [sql](./sql.md)               | Start an interactive SQL query session against the Spice runtime |
+| [status](./status.md)         | Spice runtime status                                                |
+| [upgrade](./upgrade.md)       | Upgrades the Spice CLI to the latest release                        |
+| [version](./version.md)       | Spice CLI version                                                   |
 
 ### Command Flags
 

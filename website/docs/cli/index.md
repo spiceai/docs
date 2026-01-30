@@ -2,7 +2,7 @@
 title: 'Spice.ai OSS CLI documentation'
 sidebar_label: 'CLI'
 description: 'Detailed documentation on the Spice.ai OSS CLI'
-sidebar_position: 13
+sidebar_position: 12
 pagination_prev: null
 ---
 
@@ -36,7 +36,7 @@ After installing the Spice CLI for the first time, ensure you've got the correct
 
 ## Getting started
 
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started).
+For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started/index.md).
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 
@@ -68,7 +68,7 @@ Common commands are:
 | spice help    | Help about any command                                        |
 | spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
-See [Spice CLI command reference](../cli/reference) for the full list of available commands.
+See [Spice CLI command reference](./reference/index.md) for the full list of available commands.
 
 ## Updating
 
@@ -79,7 +79,7 @@ spice upgrade
 ```
 
 :::note
-Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](../cli#install) script.
+Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](./index.md#install) script.
 :::
 
 ## Uninstall

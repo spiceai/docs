@@ -52,7 +52,7 @@ SELECT COUNT(*) FROM cool_dataset;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords.md).
 
 ### `params`
 
