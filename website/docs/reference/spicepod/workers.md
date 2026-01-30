@@ -4,7 +4,7 @@ sidebar_label: 'Workers'
 description: 'Workers YAML reference'
 ---
 
-Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Currently, workers define how one or more [llms](../models.md) can be combined into a logically single model.
+Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Currently, workers define how one or more [llms](../models) can be combined into a logically single model.
 
 ## `workers`
 
