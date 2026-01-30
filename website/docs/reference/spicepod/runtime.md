@@ -344,12 +344,12 @@ Enables or disables runtime telemetry collection. Defaults to `true`.
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
-| Parameter name  | Optional | Default | Description                                                                                                     |
-| --------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
-| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                  |
-| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                |
+| Parameter name  | Optional | Default | Description                                                                                           |
+| --------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                        |
+| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).      |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a duration string (e.g., `10m`, `1h`). |
-| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                 |
+| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                       |
 
 **Protocol inference:**
 
@@ -448,16 +448,16 @@ runtime:
 
 Optional parameters for S3 authentication and configuration.
 
-| Parameter        | Description                                           | Default    |
-| ---------------- | ----------------------------------------------------- | ---------- |
-| `region`         | AWS region for the S3 bucket                          | -          |
-| `endpoint`       | Custom S3-compatible endpoint URL                     | -          |
-| `auth`           | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `key`            | AWS access key ID (when `auth: key`)                  | -          |
-| `secret`         | AWS secret access key (when `auth: key`)              | -          |
-| `session_token`  | AWS session token for temporary credentials           | -          |
-| `client_timeout` | S3 client timeout                                     | -          |
-| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
+| Parameter        | Description                                     | Default    |
+| ---------------- | ----------------------------------------------- | ---------- |
+| `region`         | AWS region for the S3 bucket                    | -          |
+| `endpoint`       | Custom S3-compatible endpoint URL               | -          |
+| `auth`           | Authentication method: `iam_role` or `key`      | `iam_role` |
+| `key`            | AWS access key ID (when `auth: key`)            | -          |
+| `secret`         | AWS secret access key (when `auth: key`)        | -          |
+| `session_token`  | AWS session token for temporary credentials     | -          |
+| `client_timeout` | S3 client timeout                               | -          |
+| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint | `false`    |
 
 Example with IAM role authentication (default):
 
