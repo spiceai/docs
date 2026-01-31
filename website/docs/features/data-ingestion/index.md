@@ -12,7 +12,7 @@ tags:
 
 Data can be ingested by the Spice runtime into a Data Connector using the following methods:
 
-1. **SQL Statements** – Write data directly to [write-capable connectors(../../tags/write) using standard SQL syntax.
+1. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL syntax.
 2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
 
 Data ingestion is useful for scenarios such as collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
@@ -23,14 +23,14 @@ Spice supports writing data to **compatible data connectors** using standard SQL
 
 ### Write-Capable Connectors
 
-Data connectors that support write operations are tagged as [write(../../tags/write):
+Data connectors that support write operations are tagged as [write](../tags/write):
 
-- **[Apache Iceberg(../../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector(../../components/catalogs/iceberg)
-- **[AWS Glue(../../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector(../../components/catalogs/glue)
+- **[Apache Iceberg](../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](../components/catalogs/iceberg)
+- **[AWS Glue](../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](../components/catalogs/glue)
 
 ### Configuration for Write Operations
 
-To enable write operations, configure your dataset or catalog with [read_write access(../../reference/spicepod/datasets#access):
+To enable write operations, configure your dataset or catalog with [read_write access](../reference/spicepod/datasets#access):
 
 ```yaml
 datasets:
@@ -54,7 +54,7 @@ FROM source_table
 WHERE condition = 'filter';
 ```
 
-For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation(../../reference/sql/dml#insert).
+For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](../reference/sql/dml#insert).
 
 ## OpenTelemetry Data Ingestion
 
@@ -111,7 +111,7 @@ SMART data will be available in the `smart_attribute_raw_value` dataset in Spice
 
 :::warning[Current Limitations]
 
-- Write Support: Only selected [write-capable connectors and catalogs(../../tags/write) support write operations.
+- Write Support: Only selected [write-capable connectors and catalogs](../tags/write) support write operations.
 - Only Spice.ai replication is supported for OpenTelemetry ingestion
 
 :::

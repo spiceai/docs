@@ -12,7 +12,7 @@ The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files st
 
 When a folder path is provided, all the contained files will be loaded.
 
-File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](../../components/data-connectors/index.md#object-store-file-formats).
+File formats are specified using the `file_format` parameter, as described in [Object Store File Formats](./#object-store-file-formats).
 
 ```yaml
 datasets:
@@ -66,7 +66,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 | Parameter name              | Description                                                                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [Object Store File Formats](../../components/data-connectors/index.md#object-store-file-formats) for details. |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [Object Store File Formats](./#object-store-file-formats) for details. |
 | `abfs_account`              | Azure storage account name                                                                                                                                                                                      |
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                                                                                    |
 | `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                                                                            |
@@ -144,7 +144,7 @@ spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID
 
 ## Supported file formats
 
-Specify the file format using `file_format` parameter. More details in [Object Store File Formats](../../components/data-connectors/index.md#object-store-file-formats).
+Specify the file format using `file_format` parameter. More details in [Object Store File Formats](./#object-store-file-formats).
 
 ## Examples
 

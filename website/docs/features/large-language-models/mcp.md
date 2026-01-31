@@ -103,4 +103,4 @@ tools:
       API_KEY: your_api_key
 ```
 
-For more details, see the [MCP Tools Reference(../../components/tools/mcp).
+For more details, see the [MCP Tools Reference](../../components/tools/mcp).

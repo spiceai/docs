@@ -24,12 +24,12 @@ models:
 
 ## Filesystem
 
-Models can be hosted on a local filesystem and referenced directly in the configuration. For more details, see the [Filesystem Model Component](/docs/components/models/filesystem).
+Models can be hosted on a local filesystem and referenced directly in the configuration. For more details, see the [Filesystem Model Component](../components/models/filesystem).
 
 ## Hugging Face
 
-Spice integrates with Hugging Face, enabling you to use a wide range of pre-trained models. For more information, see the [Hugging Face Model Component](/docs/components/models/huggingface).
+Spice integrates with Hugging Face, enabling you to use a wide range of pre-trained models. For more information, see the [Hugging Face Model Component](../components/models/huggingface).
 
 ## Spice Cloud Platform
 
-The Spice Cloud platform provides a scalable environment for training, hosting, and managing your models. For further details, see the [Spice Cloud Platform Model Component](/docs/components/models/spiceai).
+The Spice Cloud platform provides a scalable environment for training, hosting, and managing your models. For further details, see the [Spice Cloud Platform Model Component](../components/models/spiceai).

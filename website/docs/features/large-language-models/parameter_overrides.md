@@ -14,7 +14,7 @@ tags:
 
 ### Chat Completion Parameter Overrides
 
-The [`v1/chat/completion`(../../api/HTTP/post-chat-completions) endpoint is compatible with OpenAI's API. It supports a subset of request body parameters defined in the [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice helps configure different defaults for these request parameters.
+The [`v1/chat/completion`](../../api/HTTP/post-chat-completions) endpoint is compatible with OpenAI's API. It supports a subset of request body parameters defined in the [OpenAI reference documentation](https://platform.openai.com/docs/api-reference/chat/create). Spice helps configure different defaults for these request parameters.
 
 Supported parameters:
 
@@ -43,11 +43,11 @@ Supported parameters:
 
 :::warning[Deprecated Default Overrides Parameters]
 
-The `openai_` prefix is deprecated for non-OpenAI model providers. Use the [model provider prefix](../../components/models/index.md#model-provider-prefix) instead.
+The `openai_` prefix is deprecated for non-OpenAI model providers. Use the [model provider prefix](../../components/models#model-provider-prefix) instead.
 
 :::
 
-To specify a default override for a parameter, use the [model provider prefix](../../components/models/index.md#model-provider-prefix) followed by the parameter name. For example, to set the `temperature` parameter to `0.1` for all requests with this model for Hugging Face model, use `hf_temperature: 0.1`. A `temperature` parameter in the request body will still override the default.
+To specify a default override for a parameter, use the [model provider prefix](../../components/models#model-provider-prefix) followed by the parameter name. For example, to set the `temperature` parameter to `0.1` for all requests with this model for Hugging Face model, use `hf_temperature: 0.1`. A `temperature` parameter in the request body will still override the default.
 
 ```yaml
 models:
@@ -102,7 +102,7 @@ models:
         Write everything in Haiku like a pirate
 ```
 
-Any request to [HTTP `v1/chat/completion`(../../api/HTTP/post-chat-completions) will include the configured system prompt.
+Any request to [HTTP `v1/chat/completion`](../../api/HTTP/post-chat-completions) will include the configured system prompt.
 
 ### Example: Enforcing default structured output and using system prompt
 

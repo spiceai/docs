@@ -69,7 +69,7 @@ curl -X POST http://localhost:8090/v1/search \
   }'
 ```
 
-For detailed API documentation, see [Search API Reference(../../api/HTTP/post-search).
+For detailed API documentation, see [Search API Reference](../../api/HTTP/post-search).
 
 ## Retrieving Full Documents
 

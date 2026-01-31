@@ -108,7 +108,7 @@ datasets:
 ```
 
 :::info Readiness with append refreshes
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh.md#fast-cold-starts-with-snapshots) for additional context.
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
 :::
 
 ## Best practices
@@ -117,4 +117,4 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
-For the full reference, see [`snapshots` in the Spicepod specification(../../reference/spicepod/index.md#snapshots) and [`acceleration.snapshots`(../../reference/spicepod/datasets.md#accelerationsnapshots).    
+For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).    

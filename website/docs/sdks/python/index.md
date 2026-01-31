@@ -10,7 +10,7 @@ pagination_next: null
 [github.com/spiceai/spicepy](https://github.com/spiceai/spicepy)
 
 :::note[Parameterized Queries]
-Native parameterized query support in spicepy is coming soon. For parameterized queries, use ADBC directly. See [ADBC](/docs/api/adbc) for more information.
+Native parameterized query support in spicepy is coming soon. For parameterized queries, use ADBC directly. See [ADBC](../api/arrow-flight-sql) for more information.
 :::
 
 ### Install

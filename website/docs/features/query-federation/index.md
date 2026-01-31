@@ -11,13 +11,13 @@ Spice supports query federation, enabling you to join, combine, and query data u
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
-For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors).
+For a full list of supported sources, see [Data Connectors](../components/data-connectors).
 
 ## Getting Started
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started).
+**Step 1.** Install Spice by following the [installation instructions](../getting-started).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
@@ -144,7 +144,7 @@ Time: 0.011524375 seconds. 1 rows.
 
 While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
 
-Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](/docs/components/data-accelerators). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
+Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](../components/data-accelerators). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
 :::warning[Limitations]
 
@@ -155,7 +155,7 @@ Step 9 demonstrates the same query executed against locally materialized dataset
 
 ## Related Topics
 
-- [Distributed Query](/docs/features/distributed-query) - Scale queries across multiple nodes
-- [Results Caching](/docs/features/caching) - Cache query results for improved performance
-- [Arrow Flight SQL API](/docs/api/arrow-flight-sql) - High-performance query protocol
-- [ADBC](/docs/api/adbc) - Arrow Database Connectivity
+- [Distributed Query](distributed-query) - Scale queries across multiple nodes
+- [Results Caching](caching) - Cache query results for improved performance
+- [Arrow Flight SQL API](../api/arrow-flight-sql) - High-performance query protocol
+- [ADBC](../api/adbc) - Arrow Database Connectivity

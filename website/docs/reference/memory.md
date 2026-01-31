@@ -127,10 +127,10 @@ Refresh modes affect memory usage as follows:
 
 Spice.ai uses DataFusion as its query execution engine. By default, DataFusion does not enforce strict memory limits, which can lead to unbounded usage. Spice.ai addresses this through:
 
-- **Memory Limit**: The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk, helping prevent out-of-memory errors and maintain query stability. See [Spicepod Configuration](spicepod/runtime.md#runtimequerymemory_limit) for details.
+- **Memory Limit**: The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk, helping prevent out-of-memory errors and maintain query stability. See [Spicepod Configuration](spicepod/runtime#runtimequerymemory_limit) for details.
 - **Memory Budgeting**: Limits memory per query execution. Queries exceeding the limit return an error. See [Spicepod Configuration](spicepod) for details.
 - **Spill-to-Disk**: Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors.
-- **Spill File Compression**: The `runtime.query.spill_compression` parameter controls how spill files are compressed during query execution. By default, Spice.ai uses Zstandard (`zstd`) compression, which offers a high compression ratio and helps reduce disk usage when queries spill intermediate data. See [Spicepod Configuration](spicepod/runtime.md#runtimequeryspill_compression) for details.
+- **Spill File Compression**: The `runtime.query.spill_compression` parameter controls how spill files are compressed during query execution. By default, Spice.ai uses Zstandard (`zstd`) compression, which offers a high compression ratio and helps reduce disk usage when queries spill intermediate data. See [Spicepod Configuration](spicepod/runtime#runtimequeryspill_compression) for details.
 
 DataFusion supports spilling for several operators, but not all operations are currently supported. Notably, the following operations do not support spilling:
 

@@ -400,7 +400,7 @@ datasets:
       refresh_check_interval: 60s
 ```
 
-See [Caching Mode](../../features/data-acceleration/refresh-modes/caching.md#stale-if-error-behavior) for detailed behavior.
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) for detailed behavior.
 
 ## `acceleration.refresh_sql`
 

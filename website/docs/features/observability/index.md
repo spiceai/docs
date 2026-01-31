@@ -17,9 +17,9 @@ Spice provides monitoring and observability through three mechanisms:
 
 ### Monitoring Integrations
 
-- [Datadog(../monitoring/datadog)
-- [Grafana & Prometheus(../monitoring/grafana)
-- [Zipkin(../monitoring/zipkin)
+- [Datadog](../monitoring/datadog)
+- [Grafana & Prometheus](../monitoring/grafana)
+- [Zipkin](../monitoring/zipkin)
 
 ## Prometheus Metrics Endpoint
 
@@ -126,7 +126,7 @@ runtime:
 
 When `metrics` is empty or omitted, all available metrics are exported.
 
-For full configuration details, see the [runtime.telemetry reference(../../reference/spicepod/runtime#runtimetelemetry).
+For full configuration details, see the [runtime.telemetry reference](../reference/spicepod/runtime#runtimetelemetry).
 
 ## Available Metrics
 
@@ -140,10 +140,10 @@ Spice exposes the following metrics. All metrics include relevant labels (dimens
 | `catalog_load_errors`<br/>_(count)_                                  | Number of errors loading the catalog provider.                                                                                                                                                    |
 | `catalog_load_state`<br/>_(gauge)_                                   | Status of the catalog provider. 0=Initializing, 1=Ready, 2=Disabled, 3=Error, 4=Refreshing, 5=ShuttingDown.                                                                                       |
 | `component_metric_registered_count`<br/>_(gauge)_                    | Number of currently registered component metrics.                                                                                                                                                 |
-| `dataset_acceleration_ingestion_lag_ms`<br/>_(gauge)_                | Lag between the current wall-clock time and the maximum time_column value after the refresh operation, in milliseconds. [Disabled by default(../../reference/spicepod/runtime.md#runtimemetrics) |
-| `dataset_acceleration_last_refresh_time_ms`<br/>_(gauge)_            | Unix timestamp in milliseconds when the last refresh completed. [Disabled by default(../../reference/spicepod/runtime.md#runtimemetrics)                                                         |
-| `dataset_acceleration_max_timestamp_after_refresh_ms`<br/>_(gauge)_  | Maximum value of the dataset's time_column after the refresh operation, in milliseconds. [Disabled by default(../../reference/spicepod/runtime.md#runtimemetrics)                                |
-| `dataset_acceleration_max_timestamp_before_refresh_ms`<br/>_(gauge)_ | Maximum value of the dataset's time_column before the refresh operation, in milliseconds. [Disabled by default(../../reference/spicepod/runtime.md#runtimemetrics)                               |
+| `dataset_acceleration_ingestion_lag_ms`<br/>_(gauge)_                | Lag between the current wall-clock time and the maximum time_column value after the refresh operation, in milliseconds. [Disabled by default](../reference/spicepod/runtime#runtimemetrics) |
+| `dataset_acceleration_last_refresh_time_ms`<br/>_(gauge)_            | Unix timestamp in milliseconds when the last refresh completed. [Disabled by default](../reference/spicepod/runtime#runtimemetrics)                                                         |
+| `dataset_acceleration_max_timestamp_after_refresh_ms`<br/>_(gauge)_  | Maximum value of the dataset's time_column after the refresh operation, in milliseconds. [Disabled by default](../reference/spicepod/runtime#runtimemetrics)                                |
+| `dataset_acceleration_max_timestamp_before_refresh_ms`<br/>_(gauge)_ | Maximum value of the dataset's time_column before the refresh operation, in milliseconds. [Disabled by default](../reference/spicepod/runtime#runtimemetrics)                               |
 | `dataset_acceleration_refresh_data_fetches_skipped`<br/>_(count)_    | Number of refresh data fetches skipped due to unchanged file metadata.                                                                                                                            |
 | `dataset_acceleration_refresh_duration_ms`<br/>_(histogram)_         | Duration in milliseconds to load a full or appended refresh data.                                                                                                                                 |
 | `dataset_acceleration_refresh_errors`<br/>_(count)_                  | Number of errors refreshing the dataset.                                                                                                                                                          |
@@ -234,6 +234,6 @@ Spice exposes the following metrics. All metrics include relevant labels (dimens
 
 :::note Component Metrics
 
-In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics(../../components/data-connectors/mysql/#metrics). See [Component Metrics(../observability/component_metrics) for more information.
+In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../components/data-connectors/mysql#metrics). See [Component Metrics](observability/component_metrics) for more information.
 
 :::

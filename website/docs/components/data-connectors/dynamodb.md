@@ -53,7 +53,7 @@ datasets:
 SELECT COUNT(*) FROM my_users;
 ```
 
-The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword(../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -436,7 +436,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using DynamoDB Streams **requires** [acceleration(../data-accelerators/index.md) with `refresh_mode: changes`.
+Using DynamoDB Streams **requires** [acceleration(../data-accelerators/index) with `refresh_mode: changes`.
 
 :::
 
@@ -478,7 +478,7 @@ datasets:
 
 ### Metrics
 
-The following [Component Metrics](../../features/observability/component_metrics.md) are provided for monitoring streaming performance and health:
+The following [Component Metrics](../../features/observability/component_metrics) are provided for monitoring streaming performance and health:
 
 | Metric                   | Type    | Description                                                                 |
 |--------------------------|---------|-----------------------------------------------------------------------------|

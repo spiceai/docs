@@ -68,7 +68,7 @@ Common commands are:
 | spice help    | Help about any command                                        |
 | spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
-See [Spice CLI command reference](./reference/index.md) for the full list of available commands.
+See [Spice CLI command reference](reference) for the full list of available commands.
 
 ## Updating
 

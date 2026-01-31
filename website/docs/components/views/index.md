@@ -37,7 +37,7 @@ views:
 
 - `name`: The view's identifier, used for referencing in queries.
 - `sql`: The SQL query defining the view, supporting joins, subqueries, and aggregations.
-- `acceleration`: Views can be [locally accelerated(../../features/data-acceleration).
+- `acceleration`: Views can be [locally accelerated](../features/data-acceleration).
 
 ## Limitations and Considerations
 
