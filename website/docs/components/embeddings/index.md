@@ -29,13 +29,13 @@ Spice supports a variety of embedding model sources and formats:
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock          | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
 
-[file]: /components/embeddings/local.md
-[hf]: /components/embeddings/huggingface.md
-[model2vec]: /components/embeddings/model2vec.md
-[openai]: /components/embeddings/openai.md
-[azure]: /components/embeddings/azure.md
-[databricks]: /components/embeddings/databricks.md
-[bedrock]: /components/embeddings/bedrock.md
+[file]: embeddings/local
+[hf]: embeddings/huggingface
+[model2vec]: embeddings/model2vec
+[openai]: embeddings/openai
+[azure]: embeddings/azure
+[databricks]: embeddings/databricks
+[bedrock]: embeddings/bedrock
 
 ## Overview
 
@@ -70,8 +70,8 @@ embeddings:
 
 Embedding models can be used via:
 
-- An OpenAI-compatible [endpoint](../../api/HTTP/post-embeddings)
-- Augmenting a dataset with column-level [embeddings](../../reference/spicepod/datasets.md#embeddings) for vector-based [search functionality](../../features/search/index.md#vector-search)
+- An OpenAI-compatible [endpoint](../api/HTTP/post-embeddings)
+- Augmenting a dataset with column-level [embeddings](../reference/spicepod/datasets#embeddings) for vector-based [search functionality](../features/search#vector-search)
 
 ### Configuring Embedding Columns on Datasets
 
@@ -101,7 +101,7 @@ datasets:
               overlap_size: 32
 ```
 
-See the [embeddings](../../reference/spicepod/embeddings.md) and [datasets](../../reference/spicepod/datasets.md#embeddings) reference for more details.
+See the [embeddings](../reference/spicepod/embeddings) and [datasets](../reference/spicepod/datasets#embeddings) reference for more details.
 
 ## Embedding Methods
 
@@ -128,14 +128,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../../components/data-accelerators/index.md). Enable this by adding:
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](data-accelerators). Enable this by adding:
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index.md).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](data-accelerators).
 
 **Full example:**
 
@@ -155,7 +155,7 @@ datasets:
 
 ### Passthrough Embeddings
 
-If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](../../reference/spicepod#views)).
+If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](../reference/spicepod#views)).
 
 **Example:**
 
@@ -245,7 +245,7 @@ embeddings:
 To ensure compatibility, embedding columns must meet these requirements:
 
 1. **Underlying Column:**
-   - The original column must exist and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md).
+   - The original column must exist and be of `string` [Arrow data type](../reference/datatypes/accelerators).
 2. **Naming Convention:**
    - The embedding column must be named `<column_name>_embedding` (e.g., `review_embedding` for a `review` column).
 3. **Data Type:**
@@ -262,7 +262,7 @@ Following these guidelines ensures that the dataset's pre-existing embeddings ar
 
 ### Chunking
 
-Spice supports chunking large text columns before embedding, which is useful for [Document Tables](../../components/data-connectors/index.md#document-support). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
+Spice supports chunking large text columns before embedding, which is useful for [Document Tables](data-connectors#document-support). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
 
 ```yaml
 datasets:
@@ -279,11 +279,11 @@ datasets:
               target_chunk_size: 512
 ```
 
-The `body` column will be split into chunks of about 512 tokens, preserving sentence and semantic boundaries. See the [API reference](../../reference/spicepod/datasets#columns-embeddings-chunking) for details.
+The `body` column will be split into chunks of about 512 tokens, preserving sentence and semantic boundaries. See the [API reference](../reference/spicepod/datasets#columns-embeddings-chunking) for details.
 
 #### Row Identifiers
 
-The `row_id` field specifies which column(s) uniquely identify each row, similar to a primary key. This is important for chunked embeddings, so that operations (e.g., [`v1/search`](../../api/HTTP/post-search)) can map multiple chunked vectors to a single row. Set `row_id` in `columns[*].embeddings[*].row_id`.
+The `row_id` field specifies which column(s) uniquely identify each row, similar to a primary key. This is important for chunked embeddings, so that operations (e.g., [`v1/search`](../api/HTTP/post-search)) can map multiple chunked vectors to a single row. Set `row_id` in `columns[*].embeddings[*].row_id`.
 
 ```yaml
 datasets:

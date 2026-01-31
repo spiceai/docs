@@ -79,7 +79,7 @@ Optional. The `include` field is used to specify which tables to include from th
 Optional. Specifies the access level for the catalog. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](../tags/write.md).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](../../tags/write).
 
 ## `params`
 

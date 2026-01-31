@@ -6,7 +6,7 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-Spice currently supports CSV, JSON, and Parquet data file-formats for data connectors that can read files from a file system or cloud object storage (i.e. [`s3://`](../../components/data-connectors/s3), [`abfs://`](../../components/data-connectors/abfs), [`file://`](../../components/data-connectors/file), etc.). Support for Iceberg and other file-formats are on the roadmap.
+Spice currently supports CSV, JSON, and Parquet data file-formats for data connectors that can read files from a file system or cloud object storage (i.e. [`s3://`](../components/data-connectors/s3), [`abfs://`](../components/data-connectors/abfs), [`file://`](../components/data-connectors/file), etc.). Support for Iceberg and other file-formats are on the roadmap.
 
 The parameters supported for specific file-formats are detailed on this page.
 
