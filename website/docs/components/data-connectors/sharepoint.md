@@ -58,7 +58,7 @@ The sharepoint connector does not yet support creating a dataset from a single f
 | `sharepoint_client_id`     | **Yes**   | The client ID of the Azure AD (Entra) application                                                                                                |
 | `sharepoint_tenant_id`     | **Yes**   | The tenant ID of the Azure AD (Entra) application.                                                                                               |
 | `sharepoint_client_secret` | Optional  | For service principal authentication. The client secret of the Azure AD (Entra) application.                                                     |
-| `sharepoint_bearer_token`  | Optional  | For user authentication. The bearer access token obtained from the OAuth2 flow (see `spice login sharepoint` [docs](../cli/reference/login)). |
+| `sharepoint_bearer_token`  | Optional  | For user authentication. The bearer access token obtained from the OAuth2 flow (see `spice login sharepoint` [docs](../../cli/reference/login)). |
 
 :::note
 Only one of `sharepoint_client_secret` or `sharepoint_bearer_token` is allowed.

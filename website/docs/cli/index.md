@@ -36,7 +36,7 @@ After installing the Spice CLI for the first time, ensure you've got the correct
 
 ## Getting started
 
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started/index.md).
+For getting started with Spice using the Spice CLI, see the [Getting Started Guide](getting-started).
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 

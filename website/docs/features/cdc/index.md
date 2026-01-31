@@ -25,7 +25,7 @@ The startup time for CDC-accelerated datasets may be longer than for non-CDC-acc
 
 :::tip
 
-It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](../../components/data-accelerators/duckdb)/[`SQLite`](../../components/data-accelerators/sqlite) or [`PostgreSQL`](../../components/data-accelerators/postgres)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](../components/data-accelerators/duckdb)/[`SQLite`](../components/data-accelerators/sqlite) or [`PostgreSQL`](../components/data-accelerators/postgres)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
 
 :::
 
@@ -33,7 +33,7 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
 
-Currently, the only supported data connector is [Debezium](../../components/data-connectors/debezium).
+Currently, the only supported data connector is [Debezium](../components/data-connectors/debezium).
 
 ## Example
 

@@ -109,7 +109,7 @@ Optional. How to refresh the view. The following values are supported:
 
 Optional. How often data should be refreshed. For `append` views without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_cron`
 
@@ -136,7 +136,7 @@ Optional. A duration to filter view refresh source queries to recent data (durat
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -146,7 +146,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -189,7 +189,7 @@ Optional. The retention period for the view. Combine with `time_column` and `tim
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration.md)
+See [Duration](../duration)
 
 ## `acceleration.retention_sql`
 
@@ -205,7 +205,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_jitter_enabled`
 

@@ -23,12 +23,12 @@ Spice supports writing data to **compatible data connectors** using standard SQL
 
 Data connectors that support write operations are tagged as [write](../tags/write):
 
-- **[Apache Iceberg](../../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](../../components/catalogs/iceberg)
-- **[AWS Glue](../../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](../../components/catalogs/glue)
+- **[Apache Iceberg](../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](../components/catalogs/iceberg)
+- **[AWS Glue](../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](../components/catalogs/glue)
 
 ### Configuration for Write Operations
 
-To enable write operations, configure your dataset or catalog with [read_write access](../../reference/spicepod/datasets#access):
+To enable write operations, configure your dataset or catalog with [read_write access](../reference/spicepod/datasets#access):
 
 ```yaml
 datasets:
@@ -52,7 +52,7 @@ FROM source_table
 WHERE condition = 'filter';
 ```
 
-For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](../../reference/sql/dml#insert).
+For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](../reference/sql/dml#insert).
 
 ## OpenTelemetry Data Ingestion
 

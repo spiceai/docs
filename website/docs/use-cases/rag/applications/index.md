@@ -14,5 +14,5 @@ Spice enables developers to combine structured data via SQL queries and unstruct
 For more details on using vector search, embeddings, and model providers, refer to the following documentation:
 
 - [Vector-Based Search](../../features/search/vector-search)
-- [Embedding Models](../../components/embeddings/index.md)
-- [Model Providers](../../components/models/index.md)
+- [Embedding Models](../../components/embeddings)
+- [Model Providers](../../components/models)

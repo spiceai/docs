@@ -18,20 +18,20 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local
-[hf]: ./huggingface
-[spice]: ./spiceai
-[openai]: ./openai
-[azure]: ./azure
-[ant]: ./anthropic
-[xai]: ./xai
-[databricks]: ./databricks
+[file]: /docs/components/embeddings/local
+[hf]: models/huggingface
+[spice]: models/spiceai
+[openai]: models/openai
+[azure]: models/azure
+[ant]: models/anthropic
+[xai]: models/xai
+[databricks]: models/databricks
 
-Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models/index.md).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../reference/models).
 
 \*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
-The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../../reference/spicepod/models.md).
+The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../reference/spicepod/models).
 
 ## Features
 

@@ -30,7 +30,7 @@ A security operations platform uses Spice.ai to query object-store data (e.g., S
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation/index.md) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Vector and Hybrid Search**: [Documentation](../../features/search/index.md) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
-- **AI Gateway**: [Documentation](../../features/large-language-models/index.md) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration/index.md)
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Vector and Hybrid Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
+- **AI Gateway**: [Documentation](../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration)

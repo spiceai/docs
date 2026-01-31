@@ -141,6 +141,6 @@ dataset_active_count{engine="duckdb"} 1
 
 :::note Component Metrics
 
-In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../../components/data-connectors/mysql/#metrics). See [Component Metrics](../../features/observability/component_metrics) for more information.
+In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../components/data-connectors/mysql#metrics). See [Component Metrics](observability/component_metrics) for more information.
 
 :::
