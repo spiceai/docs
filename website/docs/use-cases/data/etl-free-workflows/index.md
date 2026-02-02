@@ -30,6 +30,6 @@ A fintech firm migrates from an Oracle database to a cloud-native stack, queryin
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Data Acceleration**: [Documentation](../../../features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
-- **Observability**: [Documentation](../../../features/observability/index).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration/index) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Observability**: [Documentation](../../features/observability/index).
