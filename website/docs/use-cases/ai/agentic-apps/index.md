@@ -30,8 +30,8 @@ A SaaS customer success platform deploys a Spice.ai-powered agent to automate ti
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Vector and Hybrid Search**: [Documentation](../../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
-- **AI Gateway**: [Documentation](../../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
-- **Semantic Model**: [Documentation](../../../features/semantic-model/index).
-- **Observability**: [Documentation](../../../features/observability/index).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Vector and Hybrid Search**: [Documentation](../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **AI Gateway**: [Documentation](../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Semantic Model**: [Documentation](../../features/semantic-model/index).
+- **Observability**: [Documentation](../../features/observability/index).
