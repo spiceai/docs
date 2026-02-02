@@ -11,13 +11,13 @@ Spice supports query federation, enabling you to join, combine, and query data u
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
-For a full list of supported sources, see [Data Connectors](../../components/data-connectors/index).
+For a full list of supported sources, see [Data Connectors](../components/data-connectors).
 
 ## Getting Started
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](../getting-started/index.mdx).
+**Step 1.** Install Spice by following the [installation instructions](getting-started).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
