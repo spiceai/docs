@@ -18,33 +18,33 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /docs/components/models/filesystem
-[hf]: /docs/components/models/huggingface
-[spice]: /docs/components/models/spiceai
-[openai]: /docs/components/models/openai
-[azure]: /docs/components/models/azure
-[ant]: /docs/components/models/anthropic
-[xai]: /docs/components/models/xai
-[databricks]: /docs/components/models/databricks
+[file]: models/filesystem
+[hf]: models/huggingface
+[spice]: models/spiceai
+[openai]: models/openai
+[azure]: models/azure
+[ant]: models/anthropic
+[xai]: models/xai
+[databricks]: models/databricks
 
-Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](/docs/reference/models).
+Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../reference/models).
 
 \*LLM Format(s) may require additional files (e.g., `tokenizer_config.json`).
 
-The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](/docs/reference/spicepod/models).
+The model type is inferred based on the model source and files. For more detail, refer to the `model` [reference specification](../reference/spicepod/models).
 
 ## Features
 
 Spice supports a variety of features for large language models (LLMs):
 
-- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](/docs/features/large-language-models/tools).
-- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](/docs/api/HTTP/post-chat-completions.api.mdx) parameters. See [Parameter Overrides](/docs/features/large-language-models/parameter_overrides). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](/docs/features/large-language-models/parameterized_prompts).
-- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](/docs/features/large-language-models/memory).
-- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](/docs/features/search/vector-search).
-- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](/docs/features/large-language-models/evals).
-- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](/docs/features/large-language-models/serving).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](../features/large-language-models/tools).
+- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../features/large-language-models/parameter_overrides). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](../features/large-language-models/parameterized_prompts).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../features/large-language-models/memory).
+- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../features/search/vector-search).
+- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../features/large-language-models/evals).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](../features/large-language-models/serving).
 
-For more details, refer to the [Large Language Models documentation](/docs/features/large-language-models).
+For more details, refer to the [Large Language Models documentation](../features/large-language-models).
 
 ## Model Provider Prefix
 
