@@ -37,7 +37,7 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](../../components/embeddings)
+- [Configure Embeddings](../components/embeddings)
 - [Performing Vector Search](./vector-search)
 
 **Example SQL Vector Search:**
@@ -103,6 +103,6 @@ ORDER BY fused_score DESC
 LIMIT 5
 ```
 
-For complete RRF syntax and parameters, see [Search SQL Reference](../../reference/sql/search#reciprocal-rank-fusion-rrf).
+For complete RRF syntax and parameters, see [Search SQL Reference](../reference/sql/search#reciprocal-rank-fusion-rrf).
 
 <DocCardList />

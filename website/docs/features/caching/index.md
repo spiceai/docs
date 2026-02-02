@@ -10,7 +10,7 @@ tags: [caching]
 
 Spice supports in-memory caching for SQL query results and search results, which are both enabled by default when querying or searching via the HTTP (`/v1/sql`, `/v1/search`) and Arrow Flight APIs.
 
-Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](../data-acceleration/data-refresh#behavior-on-zero-results).
+Results caching improves performance for repeated requests and non-accelerated results, such as refresh data returned [on zero results](data-acceleration/data-refresh#behavior-on-zero-results).
 
 The cache uses a [least-recently-used (LRU)](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) replacement policy. You can configure the cache to set an item expiration duration, which defaults to 1 second.
 
@@ -201,7 +201,7 @@ When using a dataset with `refresh_mode: caching`, you cannot configure both the
 Choose one approach:
 
 - **Results cache SWR**: Configure `runtime.caching.sql_results.stale_while_revalidate_ttl` for SQL query results caching
-- **Caching accelerator SWR**: Configure `acceleration.params.caching_stale_while_revalidate_ttl` for [HTTP-based dataset caching](../data-acceleration/refresh-modes/caching)
+- **Caching accelerator SWR**: Configure `acceleration.params.caching_stale_while_revalidate_ttl` for [HTTP-based dataset caching](data-acceleration/refresh-modes/caching)
 
 :::
 
@@ -385,7 +385,7 @@ date: Thu, 24 Jul 2025 14:21:32 GMT
 
 ## Metrics
 
-Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](../observability). The following metrics are available for each cache type:
+Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint](observability). The following metrics are available for each cache type:
 
 | Metric                   | Type    | Description                                                |
 | ------------------------ | ------- | ---------------------------------------------------------- |
