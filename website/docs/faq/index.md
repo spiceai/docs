@@ -84,7 +84,7 @@ The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 qu
 
 ## 14. How can developers get started quickly?
 
-Visit the [Spice.ai Getting Started Guide](../getting-started/index) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
+Visit the [Spice.ai Getting Started Guide](getting-started) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
 
 ## 15. What is Data-grounded AI?
 

@@ -21,7 +21,7 @@ datasets:
 
 ```
 
-For the complete reference specification see [datasets](../../reference/spicepod/datasets).
+For the complete reference specification see [datasets](../reference/spicepod/datasets).
 
 Supported Vector engines:
 
@@ -29,7 +29,7 @@ Supported Vector engines:
 | ------------------------- | -------------- |
 | [`s3_vectors`][s3vectors] | AWS S3 vectors |
 
-[s3vectors]: /docs/components/vectors/s3_vectors
+[s3vectors]: vectors/s3_vectors
 
 ## Vector Engine Docs
 
