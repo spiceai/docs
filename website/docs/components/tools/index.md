@@ -37,7 +37,7 @@ For details on tool specifications, see the [Tools Spicepod Reference](../../ref
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
 | [`websearch`][websearch]  | Search the web for information.                                   | -             |
 
-[websearch]: /docs/components/tools/websearch
+[websearch]: tools/websearch
 
 ### Tool Groups
 
@@ -59,4 +59,4 @@ models:
 | `memory`     | Memory tools for storing and retrieving information across conversations.                    |
 | [`MCP`][mcp] | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
 
-[mcp]: /docs/components/tools/mcp
+[mcp]: tools/mcp

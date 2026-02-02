@@ -7,7 +7,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](../data-acceleration) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
+Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](data-acceleration) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
 
 ## Benefits
 
@@ -19,13 +19,13 @@ Consider a fraud detection application that needs to determine whether a pending
 
 ## Considerations
 
-When configuring datasets to be accelerated with CDC, ensure that the [data connector](../../components/data-connectors) supports CDC and can return a stream of row-level changes. See the [Supported Data Connectors](#supported-data-connectors) section for more information.
+When configuring datasets to be accelerated with CDC, ensure that the [data connector](../components/data-connectors) supports CDC and can return a stream of row-level changes. See the [Supported Data Connectors](#supported-data-connectors) section for more information.
 
 The startup time for CDC-accelerated datasets may be longer than for non-CDC-accelerated datasets due to the initial synchronization.
 
 :::tip
 
-It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](../../components/data-accelerators/duckdb)/[`SQLite`](../../components/data-accelerators/sqlite) or [`PostgreSQL`](../../components/data-accelerators/postgres)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](../components/data-accelerators/duckdb)/[`SQLite`](../components/data-accelerators/sqlite) or [`PostgreSQL`](../components/data-accelerators/postgres)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
 
 :::
 
@@ -33,7 +33,7 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
 
-Currently, the only supported data connector is [Debezium](../../components/data-connectors/debezium).
+Currently, the only supported data connector is [Debezium](../components/data-connectors/debezium).
 
 ## Example
 

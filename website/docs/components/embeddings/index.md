@@ -15,7 +15,7 @@ tags:
 
 Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](models).
 
 Spice supports a variety of embedding model sources and formats:
 
@@ -30,14 +30,14 @@ Spice supports a variety of embedding model sources and formats:
 | [`bedrock`][bedrock]       | Models deployed on Amazon Bedrock       | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
 
-[file]: ./local
-[hf]: ./huggingface
-[model2vec]: ./model2vec
-[openai]: ./openai
-[azure]: ./azure
-[google]: ./google
-[databricks]: ./databricks
-[bedrock]: ./bedrock
+[file]: embeddings/local
+[hf]: embeddings/huggingface
+[model2vec]: embeddings/model2vec
+[openai]: embeddings/openai
+[azure]: embeddings/azure
+[google]: embeddings/google
+[databricks]: embeddings/databricks
+[bedrock]: embeddings/bedrock
 
 ## Overview
 
@@ -130,14 +130,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To speed up queries, embeddings can be precomputed and stored in a [data accelerator](../data-accelerators). Enable this by adding:
+To speed up queries, embeddings can be precomputed and stored in a [data accelerator](data-accelerators). Enable this by adding:
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../data-accelerators).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](data-accelerators).
 
 **Full example:**
 
@@ -264,7 +264,7 @@ Following these guidelines ensures that the dataset's pre-existing embeddings ar
 
 ### Chunking
 
-Spice supports chunking large text columns before embedding, which is useful for [Document Tables](../data-connectors#document-formats). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
+Spice supports chunking large text columns before embedding, which is useful for [Document Tables](data-connectors#document-formats). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
 
 ```yaml
 datasets:

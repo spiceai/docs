@@ -21,16 +21,16 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[openai]: ./openai.md
-[bedrock]: ./bedrock.md
-[file]: ./filesystem.md
-[hf]: ./huggingface.md
-[spice]: ./spiceai.md
-[azure]: ./azure.md
-[ant]: ./anthropic.md
-[google]: ./google.md
-[xai]: ./xai.md
-[databricks]: ./databricks.md
+[openai]: models/openai
+[bedrock]: models/bedrock
+[file]: models/filesystem
+[hf]: models/huggingface
+[spice]: models/spiceai
+[azure]: models/azure
+[ant]: models/anthropic
+[google]: models/google
+[xai]: models/xai
+[databricks]: models/databricks
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models).
 
@@ -91,7 +91,7 @@ The following examples demonstrate how to configure and use various models or mo
 
 ### Example: Configuring an OpenAI Model
 
-To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](./openai).
+To use a language model hosted on OpenAI (or compatible), specify the `openai` path and model ID in `from`. For more details, see [OpenAI Model Provider](models/openai).
 
 Example `spicepod.yml`:
 
@@ -166,7 +166,7 @@ models:
 
 ### Example: Serving a Local Model
 
-To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem).
+To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](models/filesystem).
 
 ```yaml
 models:
