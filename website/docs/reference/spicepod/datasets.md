@@ -87,7 +87,7 @@ Where:
   - [`spark`](../../components/data-connectors/spark)
   - [`databricks`](../../components/data-connectors/databricks)
   - [`s3`](../../components/data-connectors/s3)
-  - [`postgres`](../../components/data-connectors/postgres/index)
+  - [`postgres`](../../components/data-connectors/postgres)
   - [`mysql`](../../components/data-connectors/mysql)
   - [`flightsql`](../../components/data-connectors/flightsql)
   - [`snowflake`](../../components/data-connectors/snowflake)
@@ -184,7 +184,7 @@ The following values are supported:
 Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb)
-- [PostgreSQL](../../components/data-connectors/postgres/index)
+- [PostgreSQL](../../components/data-connectors/postgres)
 
 :::
 
@@ -254,7 +254,7 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../components/data-accelerators/postgres/index) - Accelerated by a Postgres database.
+- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded Sqlite database.
 
 ## `acceleration.mode`

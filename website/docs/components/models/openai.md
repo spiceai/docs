@@ -82,7 +82,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 [tools]: ../../features/large-language-models/tools
 [structured outputs]: https://platform.openai.com/docs/guides/structured-outputs
 
-See [Large Language Models](../../features/large-language-models/index) for additional configuration options.
+See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
 - [Tools](../../features/large-language-models/tools)
 - [Memory](../../features/large-language-models/memory)

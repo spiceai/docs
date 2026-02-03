@@ -26,9 +26,9 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### Auth Examples
 
-Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores/index) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
+Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
 
-Check [Secrets Stores](../../components/secret-stores/index) for more details.
+Check [Secrets Stores](../../components/secret-stores) for more details.
 
 <Tabs>
   <TabItem value="env" label="Env">
@@ -61,7 +61,7 @@ Check [Secrets Stores](../../components/secret-stores/index) for more details.
           spark_remote: ${env:SPICE_SPARK_REMOTE}
     ```
 
-    Learn more about [Env Secret Store](../../components/secret-stores/env/index).
+    Learn more about [Env Secret Store](../../components/secret-stores/env).
 
   </TabItem>
   <TabItem value="k8s" label="Kubernetes">
@@ -87,7 +87,7 @@ Check [Secrets Stores](../../components/secret-stores/index) for more details.
           spark_remote: ${spark:spark_remote}
     ```
 
-    Learn more about [Kubernetes Secret Store](../../components/secret-stores/kubernetes/index).
+    Learn more about [Kubernetes Secret Store](../../components/secret-stores/kubernetes).
 
   </TabItem>
   <TabItem value="keyring" label="Keyring">
@@ -116,7 +116,7 @@ Check [Secrets Stores](../../components/secret-stores/index) for more details.
           spark_remote: ${keyring:spice_spark_remote}
     ```
 
-    Learn more about [Keyring Secret Store](../../components/secret-stores/keyring/index).
+    Learn more about [Keyring Secret Store](../../components/secret-stores/keyring).
 
   </TabItem>
 </Tabs>

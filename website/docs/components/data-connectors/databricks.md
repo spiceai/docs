@@ -58,7 +58,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:my_token}`.
+Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_token}`.
 
 | Parameter Name                | Description                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -109,7 +109,7 @@ datasets:
 
 ## Delta Lake object store parameters
 
-Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 ### AWS S3
 
@@ -248,7 +248,7 @@ The table below shows the Databricks (mode: delta_lake) data types supported, al
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores/index#using-secrets).
 
 ## Limitations
 

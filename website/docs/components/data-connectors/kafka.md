@@ -5,7 +5,7 @@ description: 'Kafka Data Connector Documentation'
 pagination_prev: null
 ---
 
-The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators/index). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
+The Kafka Data Connector enables direct acceleration of data from [Apache Kafka](https://kafka.apache.org/) topics using `refresh_mode: append` [acceleration](../../components/data-accelerators). This allows seamless integration with existing Kafka-based event streaming infrastructure for real-time data acceleration and analytics.
 
 ```yaml
 datasets:
@@ -89,7 +89,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 :::warning
 
-Using the Kafka connector **requires** [acceleration](../../components/data-accelerators/index) with `refresh_mode: append` enabled.
+Using the Kafka connector **requires** [acceleration](../../components/data-accelerators) with `refresh_mode: append` enabled.
 
 :::
 
@@ -98,7 +98,7 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres/index) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                                                                 |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, allowing it to resume from the last known state instead of re-processing all messages.                                                                                                |
 
@@ -108,7 +108,7 @@ The Kafka connector currently supports JSON-formatted messages. Schema is automa
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
 
 ## Cookbook
 

@@ -13,7 +13,7 @@ Acceleration data can be refreshed (updated) by:
 
 - **Interval**: Time-based refresh interval. See [Refresh Interval](#refresh-on-demand).
 
-- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](../cdc/index).
+- **Change Data Capture (CDC)**: CDC from a database using Debezium. See [Change Data Capture](../cdc).
 
 - **Push**: Spice-to-Spice Push over Apache Arrow DoExchange.
 
@@ -119,7 +119,7 @@ Appending modified files is only supported for datasets that support setting the
 
 ### Changes (CDC)
 
-Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../../features/cdc/index) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium).
+Datasets configured with acceleration `refresh_mode: changes` requires a [Change Data Capture (CDC)](../../features/cdc) supported data connector. Initial CDC support in Spice is supported by the [Debezium data connector](../../components/data-connectors/debezium).
 
 ## Ready State
 

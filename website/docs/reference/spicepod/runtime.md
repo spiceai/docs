@@ -29,7 +29,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching/index).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -44,7 +44,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching/index).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -109,7 +109,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores/index).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -141,7 +141,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores/index).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:

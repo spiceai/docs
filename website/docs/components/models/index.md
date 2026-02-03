@@ -44,7 +44,7 @@ Spice supports a variety of features for large language models (LLMs):
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).
 - **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](../../features/large-language-models/serving).
 
-For more details, refer to the [Large Language Models documentation](../../features/large-language-models/index).
+For more details, refer to the [Large Language Models documentation](../../features/large-language-models).
 
 ## Model Provider Prefix
 

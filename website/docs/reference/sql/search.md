@@ -122,4 +122,4 @@ SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 
 ---
 
-For more on hybrid and advanced search, see [Search Functionality](../../features/search/index) and [Vector-Based Search](../../features/search/vector-search).
+For more on hybrid and advanced search, see [Search Functionality](../../features/search) and [Vector-Based Search](../../features/search/vector-search).

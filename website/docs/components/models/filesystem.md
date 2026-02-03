@@ -37,7 +37,7 @@ from: file:models/llms/llama3.2-1b-instruct/
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                |
 | `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template).                         |
 
-See [Large Language Models](../../features/large-language-models/index) for additional configuration options.
+See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
 - [Tools](../../features/large-language-models/tools)
 - [Memory](../../features/large-language-models/memory)
