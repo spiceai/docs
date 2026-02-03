@@ -86,7 +86,7 @@ Where:
   - [`spark`](../../components/data-connectors/spark)
   - [`databricks`](../../components/data-connectors/databricks)
   - [`s3`](../../components/data-connectors/s3)
-  - [`postgres`](../../components/data-connectors/postgres/index)
+  - [`postgres`](../../components/data-connectors/postgres)
   - [`mysql`](../../components/data-connectors/mysql)
   - [`flightsql`](../../components/data-connectors/flightsql)
   - [`snowflake`](../../components/data-connectors/snowflake)
@@ -132,7 +132,7 @@ The name of the dataset. Used to reference the dataset in the pod manifest, as w
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `time_column`
 
@@ -183,7 +183,7 @@ The following values are supported:
 Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
 - [DuckDB](../../components/data-connectors/duckdb)
-- [PostgreSQL](../../components/data-connectors/postgres/index)
+- [PostgreSQL](../../components/data-connectors/postgres)
 
 :::
 
@@ -513,7 +513,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `columns[*].embeddings`
 
@@ -647,7 +647,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model/index).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ```yaml
 datasets:

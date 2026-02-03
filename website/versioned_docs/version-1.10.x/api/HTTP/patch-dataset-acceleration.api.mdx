@@ -1,0 +1,75 @@
+---
+id: patch-dataset-acceleration
+title: "Update Refresh SQL"
+description: "Update the refresh SQL for a dataset's acceleration."
+sidebar_label: "Update Refresh SQL"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVl1v2zYU/SvEfekWKLITdMCqhwFZmqEDUmx1U+zBNRxavLLYUqRKXtkxBP334erDlmMv2LDHzS+2xcvLw3MOj1gDyXWAZA5vJcmAFGARgcKQel2SdhYS+FQqSSgoR+Ex8xhy8fHDvcicF1KobtqrIGSaokEveVb82X62D7kOAq0qnbYkpDFuG9pZFTfUdt22fOx7LsM38yhK6WWBhP7F9kKS8JUlXWDM66BIc2nXKHQQFxeERem89LuLCyGtElttjPC4QU+CXLdoKHWKpVPxrjCPQmGmrR46c4HFp/0SwmMg6SmGCFzZQ/hVQQKlpDRf9hiXY4QQwX4rTG8NVhYISfcVgbbd9Byes8274SLhshZJ352Rt7whw/D4rdIeFSTkK4wgpDkWEpIaaFfyMoG8tmtomkVXjIF+dmrHFafLdX1Vq2ogSVigpVaAEYBXYVCfAaTOElrifrIsjU7bXU++BG5an+Jxqy+YErPimULSGHh0pP2heD6gj8BWxpwa8hhnFVDtwQ4QxVvMZGUo7BU/slkoMdWZRiW0bYf3foCmiYA0GUZ9M1J01rEITQT4JIuSC55tAD7e3d/dPogL8cvst/cCKV96TNHScmVc+jWIP97dze5E+2dpq2KFXvwkrqZTaHjVY1HbB6F0NnRUXU+n59Ubn8mtDHs1Q5WmGEJWGbOLGfbr6evzHQ5sDGbjPtaxByqr/o3chz3NocAQ5BpZz2MXDAMn9j13Nvpi0Y2shhjxGCpDw6Hxg1gjMd93E2c9qc+E3GMYgvCMfAdGmlawH85JcmOFtoTeSiMC+g16gd47L1yaVt6jEttcGzwOwZGG/zG2+2MlMqkNqlj8Y/pG1MWtLk0EBVLu9gHdZjHlkMBkczXpLR4mNadsM3mW2t2aXWRXng91TlQmk4lxqTS5C5T8OH0zPSHrnoeFwg0aV7a51HWKxa2zmV5XHsVWUy4eLy+542MMnM0B08pr2rXryVIvvyL/XvAY6z07ZPfdX6XOkPX8Vslcq2svQv8CO6tsm3hKHEqMTpGVSvbvqptSpjleXse8Xa3QEqeEPx5pImDCusZX8Zv4mh+VLlAh7ahZf4uYHTn9CFZ9MP7/d47RnaM/pYRPNCmN1JYJbr1Z98aew+aK2RyucBEk/T3jyN2LCNjAXF/XKxnwkzdNw4+/Vehb30WwkV7LFdtnXoPSgX8rSDJpAr4g2HezPnu+F3/rBnN2U/1DaXfAQEzF/yCC9lB0RmoWTQQ5SsU+nNf90G2H4/KBGxymnqRnEw0z+NVe0ou1i1GQ/H7zcPsOIlj1l6jCqfaAyS3Hrtx2OF1LTHez4Wc1GGnXVZd0XVP+/AnlfQZc
+sidebar_class_name: "patch api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update Refresh SQL"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"/v1/datasets/{name}/acceleration"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Update the refresh SQL for a dataset's acceleration.
+
+This endpoint allows for updating the `refresh_sql` parameter for a dataset's acceleration at runtime.
+The change is **temporary** and will revert to the `spicepod.yml` definition at the next runtime restart.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"The name of the dataset to update.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"The updated SQL statement for the dataset's refresh.","content":{"application/json":{"schema":{"type":"object","properties":{"refresh_sql":{"type":["string","null"],"description":"SQL statement used for the refresh. Defaults to the `refresh_sql` specified in the spicepod."}},"title":"AccelerationRequest"},"example":{"refresh_sql":"SELECT * FROM eth_recent_blocks WHERE block_number > 100"}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"The refresh SQL was updated successfully."},"404":{"description":"The specified dataset was not found","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset eth_recent_blocks not found"}}}},"500":{"description":"An internal server error occurred while updating the refresh SQL","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Request failed. An internal server error occurred while updating refresh SQL."}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

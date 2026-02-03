@@ -1,0 +1,72 @@
+---
+id: generate-package
+title: "Generate Package"
+description: "This endpoint generates a zip package from a specified GitHub source."
+sidebar_label: "Generate Package"
+hide_title: true
+hide_table_of_contents: true
+api: eJytVt1v2zYQ/1eIe1oB2bLTFtiEokBWDFmBYQu67CkIbJo6S2wokiVPTlRB//twlPzVuA/F5ieBPB7v93FH90CyilDcww1aDNLAQwYlRhW0J+0sFHBX6yjQlt5pS6JKYYRRSPFVe+GlepQVim1wjZAielR6q7EUN5p+bzciujYonEMGzvNB7ezHEgrY51lNCSCDgF9ajPSrKzso+m+quJVBNkgYouA4HbAU5A7lCCmOiZSzhJY4ifTeaJWuzT9HztRDVDU2kr+o8wgFuM1nVDRVwJmZDwYEGXi+NzIrPjAC0hj5aNo+pogUtK3gJXd4ToTwkmqhraAaxdaFRpJYV5rqdlP0LlRD3gf0bsj7WMsh7zl8RW4VvVboXTnvZGOGNQyHyi7AOK/hWjxiN9tJ06JopBduK1zak0b4I6s/4byaZ/tiVuQe0a5fQQayLPUYfnvGwDny4UBQ96dsLkYMQwakyfDazaTb7Sjap1F6zoLPsvEcs+cYJnqazoUqbzrmJ5cbtbx6/eZtfkYMnLJyCoSz1H415b7jpXScixpOdafQYlqI3tk4wrhaLC75cfT93oCliK1SGOO2Nab7vgm/an/RgzIEycc04Zmo2hJWGCCD0S3j0usryKDRVjdtA8ViOOUN3m20laFL7bnVBsUezftRgzeX8Hy0O2l0KaYmPHHGDzTUuXwYggsnqdes51psNZoymyZFJ6QYhdo3iLRcBIVudKT44eZ4NYn69jJMwsDOjxh2GMRY439FeG1Fa/HZo2IjpFXhlGoDe2oYy2mQaseTz7tIyahUQwH5bplPkyvmezNBBmN9PJl7aIOBAmoiX+S5cUqa2kUqfl78snjR7X/wtihxh8b5Bi1NSOfig7NbXbUBxZOmWqxnM864nsPwwNepNmjq0n3S69Uj8vcD7zEJn46z+bcXDXoYfofmY8Dabl0y8tTyobWkG7w4I5OCpTiGGK3QxnSJlQ0fv/ZS1Ti7mjNmXaIlfmfC+c6QAbM2Jl7Ol8v5YtbaSHJjMI0oF6mR9iTtfhCJ28PzcVZef7TG//YSTq1N+Ey5N1JbLi2J3E+2uIfdMvE5GgOyw3vJLxGrzzF9v5ER/wlmGHj5S4shiZbBTgadMLOEGdQoS6bqvoekK3wYMc3uuBION20aQt9af8j2J66VQk/fieWhxk45ePz2r7/vIIPN9JQ3rkwOkE/8yMonKCD9IeDDadiltR6MtFXLIhQwXs+/fwEqAQZ+
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Generate Package"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/packages/generate"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint generates a zip package from a specified GitHub source.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"Parameters required to generate a package","content":{"application/json":{"schema":{"type":"object","required":["from","params"],"properties":{"from":{"type":"string","description":"The GitHub source path in the format `github:{org}/{repo}/{sha}/{path_to_spicepod.yaml}`"},"params":{"type":"object","description":"A key-value map of optional parameters (e.g., `github_token`)","additionalProperties":{"type":"string"},"propertyNames":{"type":"string"}}},"title":"GeneratePackageRequest"},"example":{"from":"github:myorg/myrepo/abc12345/spicepod.yaml","params":{"github_token":"ghp_exampleToken12345"}}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Package generated successfully","content":{"application/zip":{"schema":{"type":"array","items":{"type":"integer","format":"int32","minimum":0}},"example":"<binary zip file response>"}}},"400":{"description":"Invalid request parameters","content":{"application/json":{"schema":{},"example":{"error":"Invalid `from` field, specify a github source and retry (e.g. github:{org}/{repo}/{sha}/{path_to_spicepod.yaml})"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

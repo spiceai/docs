@@ -1,0 +1,72 @@
+---
+id: get-catalogs
+title: "List Catalogs"
+description: "List Catalogs"
+sidebar_label: "List Catalogs"
+hide_title: true
+hide_table_of_contents: true
+api: eJydVNtu2zAM/RWBL9sAxUkLbNj8VnQXFOjT0D2lQavITKxOllSJThsY/veBinNrAgzbkw2RPDw8vHRAapmgnMJXRSohJZhJ8AGjIuPdTQUlLJEetCJl/TKBhKCiapAwclgHTjUIJSyib0CCcVDCc4txDRIqTDqawEBQwndjOUhsocR8LZJvo0bxHotlIcW7FIxGZd59KEBCxOfWRKygXCibUELSNTYKyg5oHZA5J4rGLUGCa62FWd/POCwF7xImdrycTPhzTOTWJBJ+IQ5q0t4ROmJfFYI1Olc/fkoc0J1kBj9/Qk1HJKdbCbIgMwkhsoxkNkyycQ8wMO8H91NDL4EMWX663vD8ORR2Q9hwIL6qJrDDdIsOg35bEvuHfsZ4+EpjnVZnK9oT2uHCvWNcyVj3boCSw/feQc8kP55T+MYRRqesSBhXGAXG6KPwWrcxYiVeamNRhOg1pmTc8n86cUi0g5wASrhyonX4GlATVn9NSzXuU/d9rufMqFzv2TVItR92Iq8C1VDCeHUxPihhU/RmO9pooYSaKJTjsfVa2donKj9PvkxOFuSWzaLCFVofGnQ0yFeIa+8WZtlGFC+GavE4GjHiYwE88Al1Gw2tcz4VzMNv5P8Z24xb+NzkYZRi68g0eJL6rkaRG1uJvYs1Gl3K+g7jdBWUrnF0WTB5U6EjszAYjy29BC5/A3xRfComo9YlUnOLbAs+UaPcAepbkY+o7QY0T2+wyjhGybp2QwOmsLrg0dlCzCSwymzourlK+CvavufnzWVioSqTmNH+urzJupvDf75bZ/nmnmwvxErZll1y+1YqmqwNt0xCjapiRafdEHOlNQY6iDpZC0bZDeaPb3fQ938A5xgBnA==
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Catalogs"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/catalogs"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+List Catalogs
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"from","in":"query","description":"Filters catalogs by source (e.g., 'spiceai').","required":false,"schema":{"type":["string","null"]}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of catalogs","content":{"application/json":{"schema":{"type":"object","required":["from","name"],"properties":{"from":{"type":"string"},"name":{"type":"string"}},"title":"CatalogResponseItem"},"example":[{"from":"spiceai","name":"spiceai"}]},"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name\nspiceai,spiceai\n"}}},"500":{"description":"Internal server error occurred while processing catalogs","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred while processing the catalogs"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

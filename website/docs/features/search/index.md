@@ -37,7 +37,7 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](../../components/embeddings/index)
+- [Configure Embeddings](../../components/embeddings)
 - [Performing Vector Search](../../features/search/vector-search)
 
 **Example SQL Vector Search:**

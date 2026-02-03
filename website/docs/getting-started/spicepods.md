@@ -103,4 +103,4 @@ Learn more at [Models](../../reference/spicepod/models).
 
 Spice.ai supports various secret stores to manage sensitive information such as API keys or database credentials. Supported secret store types include environment variables, files, AWS Secrets Manager, Kubernetes secrets, and keyrings.
 
-Learn more at [Secret Stores](../../components/secret-stores/index)
+Learn more at [Secret Stores](../../components/secret-stores)

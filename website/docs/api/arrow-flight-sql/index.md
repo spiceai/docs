@@ -20,4 +20,4 @@ Spice implements the Flight SQL protocol, enabling querying of the datasets conf
 
 ## Authentication
 
-API Key authentication is supported for the Arrow Flight SQL endpoint. For more details, see [API Key Authentication](../../api/auth/index).
+API Key authentication is supported for the Arrow Flight SQL endpoint. For more details, see [API Key Authentication](../../api/auth).

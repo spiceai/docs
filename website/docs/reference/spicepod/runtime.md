@@ -30,7 +30,7 @@ Runtime caches support common configuration parameters:
 
 ### `runtime.caching.search_results`
 
-The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching/index).
+The search results cache section specifies runtime search cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -45,7 +45,7 @@ The search results cache supports the common cache configuration parameters.
 
 ### `runtime.caching.embeddings`
 
-The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](../../features/caching/index).
+The embeddings cache section specifies runtime embeddings requests cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -60,7 +60,7 @@ The embeddings cache supports the common cache configuration parameters.
 
 ### `runtime.caching.sql_results`
 
-The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching/index).
+The SQL results cache section specifies runtime SQL query cache configuration. [Learn more](../../features/caching).
 
 ```yaml
 runtime:
@@ -108,7 +108,7 @@ runtime:
 
 ## `runtime.tls`
 
-The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls/index).
+The TLS section specifies the configuration for enabling Transport Layer Security (TLS) for all endpoints exposed by the runtime. [Learn more about enabling TLS](../../api/tls).
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
@@ -125,7 +125,7 @@ runtime:
 
 ### `runtime.tls.certificate`
 
-The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores/index).
+The TLS certificate to use for securing the runtime endpoints. The certificate can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
@@ -157,7 +157,7 @@ runtime:
 
 ### `runtime.tls.key`
 
-The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores/index).
+The TLS key to use for securing the runtime endpoints. The key can also come from [secrets](../../components/secret-stores).
 
 ```yaml
 runtime:
