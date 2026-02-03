@@ -18,7 +18,7 @@ spice [command] [--help]
 | Command                                            | Description                                                         |
 | -------------------------------------------------- | --------------------------------------------------------------------|
 | [add](./add)               | Add Pod - adds a pod to the project                                 |
-| [catalogs](./catalogs)     | List [catalogs](../../components/catalogs/index) loaded by the Spice runtime   |
+| [catalogs](./catalogs)     | List [catalogs](../../components/catalogs) loaded by the Spice runtime   |
 | [completion](./completion) | Generate the autocompletion script for the specified shell          |
 | [dataset](./dataset)       | Dataset operations                                                  |
 | [datasets](./datasets)     | Lists datasets loaded by the Spice runtime                          |

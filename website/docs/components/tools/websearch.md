@@ -43,7 +43,7 @@ The `params` field is used to ... The following parameters are supported:
 
 ## Perplexity
 To define a Perplexity search engine, use the following parameters:
- - `perplexity_auth_token` (required):  The authentication token for the Perplexity API. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_perplexity_auth_token}`. To get an authentication token, see Perplexity's [Getting Started](https://docs.perplexity.ai/guides/getting-started).
+ - `perplexity_auth_token` (required):  The authentication token for the Perplexity API. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_perplexity_auth_token}`. To get an authentication token, see Perplexity's [Getting Started](https://docs.perplexity.ai/guides/getting-started).
  - `perplexity_return_images` (default: false): Determines whether or not a request should return images.
  - `perplexity_return_related_questions` (default: false): Determines whether or not a request should return related questions.
   - `perplexity_search_domain_filter`: Given a list of domains, limit the citations used by the online model to URLs from the specified domains. Currently limited to only 3 domains for whitelisting and blacklisting. For blacklisting add a - to the beginning of the domain string.

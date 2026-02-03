@@ -17,7 +17,7 @@ Spice supports **full OpenTelemetry observability**, helping with detailed track
 
 ## Configuring Language Models
 
-Spice supports a variety of LLMs (see [Model Providers](../../components/models/index)).
+Spice supports a variety of LLMs (see [Model Providers](../../components/models)).
 
 ### Core Features
 

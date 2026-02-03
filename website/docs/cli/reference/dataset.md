@@ -31,8 +31,8 @@ When running `spice dataset configure`, Spice will prompt for four inputs:
 
 1.  The name of the dataset, labelled by `(1)` below.
 2.  The description of the dataset, labelled by `(2)` below.
-3.  The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](../../components/data-connectors/index.md) to see possible values for this field. Note: Spice may prompt for a file format if necessary, as shown in the example below.
-4.  Whether or not to enable acceleration for this dataset, labelled by `(4)`. The default value for this input is `y`, enabling acceleration for this dataset. Learn more about acceleration in the [dataset acceleration reference](../../components/data-accelerators/index.md).
+3.  The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](../../components/data-connectors) to see possible values for this field. Note: Spice may prompt for a file format if necessary, as shown in the example below.
+4.  Whether or not to enable acceleration for this dataset, labelled by `(4)`. The default value for this input is `y`, enabling acceleration for this dataset. Learn more about acceleration in the [dataset acceleration reference](../../components/data-accelerators).
 
 ```shell
 > spice dataset configure

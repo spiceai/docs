@@ -50,10 +50,10 @@ Where:
 
   Currently supported secret stores:
 
-  - [`env`](../../components/secret-stores/env/index)
-  - [`kubernetes`](../../components/secret-stores/kubernetes/index)
-  - [`keyring`](../../components/secret-stores/keyring/index)
-  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager/index)
+  - [`env`](../../components/secret-stores/env)
+  - [`kubernetes`](../../components/secret-stores/kubernetes)
+  - [`keyring`](../../components/secret-stores/keyring)
+  - [`aws-secrets-manager`](../../components/secret-stores/aws-secrets-manager)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 

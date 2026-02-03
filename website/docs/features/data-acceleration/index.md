@@ -6,7 +6,7 @@ sidebar_position: 2
 pagination_prev: null
 ---
 
-Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](../../components/data-connectors/index) and storing it locally in a [Data Accelerator](../../components/data-accelerators/index) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
+Datasets and views can be locally accelerated by the Spice runtime, pulling data from any [Data Connector](../../components/data-connectors) and storing it locally in a [Data Accelerator](../../components/data-accelerators) for faster access. The data can be kept up-to-date in real-time or on a refresh schedule, ensuring you always have the latest data locally for querying.
 
 ![Spice.ai Open Source Query Federation with Acceleration](/img/features/data-acceleration.png)
 
@@ -59,4 +59,4 @@ spice sql
 select * from taxi_trips;
 ```
 
-[Learn more about Data Accelerators](../../components/data-accelerators/index) for faster access.
+[Learn more about Data Accelerators](../../components/data-accelerators) for faster access.

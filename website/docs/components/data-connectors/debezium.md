@@ -5,7 +5,7 @@ description: 'Debezium Data Connector Documentation'
 pagination_prev: null
 ---
 
-[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../../features/cdc/index) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
+[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../../features/cdc) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
 
 ```yaml
 datasets:
@@ -79,7 +79,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 :::warning
 
-Using the Debezium connector **requires** [acceleration](../../components/data-accelerators/index) to be enabled.
+Using the Debezium connector **requires** [acceleration](../../components/data-accelerators) to be enabled.
 
 :::
 
@@ -88,7 +88,7 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                                                              |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres/index) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../../components/data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                                                                         |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                                                               |
 

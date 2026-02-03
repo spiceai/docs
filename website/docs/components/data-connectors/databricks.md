@@ -58,7 +58,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:my_token}`.
+Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_token}`.
 
 | Parameter Name             | Description                                                                                                                                                                                                                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -109,7 +109,7 @@ datasets:
 
 ## Delta Lake object store parameters
 
-Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/index.md) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
+Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
 
 ### AWS S3
 

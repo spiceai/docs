@@ -26,7 +26,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### Auth Examples
 
-Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
+Spark clusters configured to accept authenticated requests should not set `spark_remote` as an inline dataset param, as it will contain sensitive data. For this case, use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:my_spark_remote}`.
 
 Check [Secrets Stores](../../components/secret-stores) for more details.
 

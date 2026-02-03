@@ -15,7 +15,7 @@ tags:
 
 Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models/index.md).
+Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models).
 
 Spice supports various model sources and formats to provide embedding components:
 
@@ -126,14 +126,14 @@ embeddings:
 
 ### Accelerated Embeddings
 
-To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](../../components/data-accelerators/index). The only change required for this it to set up the data accelerator. For example, just add
+To improve query performance, column embeddings can be precomputed, and stored in any [data accelerator](../../components/data-accelerators). The only change required for this it to set up the data accelerator. For example, just add
 
 ```yaml
 acceleration:
   enabled: true
 ```
 
-to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators/index).
+to the dataset configuration. All other data accelerator configurations are optional, but can be applied as per their respective [documentation](../../components/data-accelerators).
 
 **Full example:**
 

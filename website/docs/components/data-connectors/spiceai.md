@@ -28,7 +28,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 ### `params`
 
-The Spice.ai Cloud Platform data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:SPICEAI_API_KEY}`.
+The Spice.ai Cloud Platform data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:SPICEAI_API_KEY}`.
 
 | Parameter Name    | Description                                          |
 | ----------------- | ---------------------------------------------------- |
