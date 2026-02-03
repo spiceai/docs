@@ -646,6 +646,6 @@ Choose one approach:
 - [Data Refresh](../data-refresh) - Overview of all refresh modes
 - [Refresh SQL](../data-refresh#refresh-sql) - Using SQL to control refresh behavior
 - [Special Metadata Fields](../../../components/data-connectors/https#special-metadata-fields) - HTTP request metadata fields
-- [Data Accelerators](../../../components/data-accelerators/index) - Acceleration engines for cache persistence
+- [Data Accelerators](../../../components/data-accelerators) - Acceleration engines for cache persistence
 - [DuckDB Accelerator](../../../components/data-accelerators/duckdb) - DuckDB acceleration engine
 - [SQLite Accelerator](../../../components/data-accelerators/sqlite) - SQLite acceleration engine
