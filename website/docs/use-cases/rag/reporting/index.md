@@ -30,7 +30,7 @@ A health-tech company generates real-time HIPAA compliance reports by combining 
 
 ### Learn More
 
-- **Vector Similarity Search**: [Documentation](../../features/search/index) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
-- **AI Gateway**: [Documentation](../../features/large-language-models/index) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
-- **Federated SQL Queries**: [Documentation](../../features/query-federation/index) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Semantic Model**: [Documentation](../../features/semantic-model/index).
+- **Vector Similarity Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **AI Gateway**: [Documentation](../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Semantic Model**: [Documentation](../../features/semantic-model).
