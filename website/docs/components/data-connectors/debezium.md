@@ -8,7 +8,7 @@ tags:
   - component-metrics
 ---
 
-[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../../features/cdc/index) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
+[Debezium](https://debezium.io/) is an open-source platform that enables [Change Data Capture (CDC)](../../features/cdc) for efficient real-time updates of locally accelerated datasets. Spice supports connecting to a Kafka topic managed by Debezium to keep datasets up-to-date with the source data.
 
 ```yaml
 datasets:
@@ -108,7 +108,7 @@ datasets:
 
 :::warning
 
-Using the Debezium connector **requires** [acceleration](../../components/data-accelerators/index) to be enabled.
+Using the Debezium connector **requires** [acceleration](../../components/data-accelerators) to be enabled.
 
 :::
 
@@ -123,7 +123,7 @@ The following settings are required:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores/index). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../../components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../../components/secret-stores#using-secrets).
 
 ## Cookbook
 
