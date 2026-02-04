@@ -247,6 +247,10 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 
+## Write Support
+
+This catalog supports [data ingestion](../../features/data-ingestion) using [SQL INSERT statements](../../reference/sql/dml#insert). Configure with `access: read_write` to enable writes.
+
 ## Cookbook
 
 - A cookbook recipe to configure Iceberg as a catalog connector in Spice. [Iceberg Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme)
