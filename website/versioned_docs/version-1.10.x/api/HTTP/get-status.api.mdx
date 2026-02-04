@@ -1,0 +1,72 @@
+---
+id: get-status
+title: "Check Runtime Status"
+description: "Return the status of all connections (http, flight, metrics, opentelemetry) in the runtime."
+sidebar_label: "Check Runtime Status"
+hide_title: true
+hide_table_of_contents: true
+api: eJy1VlFv2zYQ/ivEPTUAI9vZhiZ6C5KuCBAUQ5LuJTJaRjpbbCVSJU9uPUP/fThSsqXZQfewPVkmj9/dfd/dkTsgtfaQPsN7NOhUBUsJBfrc6Ya0NZDCA1LrjKAShSdFrRd2JVRVidwagzlbefGmJGqkWFV6XZIUNZLTuZfCNmgIK+SF7ZnQEce1hnSNCUiwDTrFGHcFpLBG+hSdgIRGOVUjoeP4dmBUjZDCyrpaEUjQHNy3Ft0W/hnyU4ki2nGswSP6xhqPUqCmEp3I4Iu3JgNh+Tv3mwwScYsr1VbkBdm9AQfp8FurHRaQrlTlUYLPS6wVpDugbcNReXLarEECmrZmOvkwSAZmRklTxWa/x+C7bsmgMSTPMBfzOf9M07jXPiRwILpXAJme3BpCQ3xMNU2l80DjLDhOd8chKucUU6UJaz9aty9fMKdJls+RbM6maKw2vNvLspTQOBaNdIx8b3KCjGNVButBl1FqbzBZJ1J8fLhnTe7+EKooHHp/Bp3sxf83HtjydfQMuFAz4K9YrPG7L9j4Z1K0GYQA+vSPNHqatEV0WjfWoKHB5wOqYivFndGkVaX/0mYtxa326qXCQop3zlknBVKenIF8taDGx0FCAAUJAw5ICEBha+XQl9HusWyJtFnf2u9mXIk3Q5SPMbGuG+8NtN0iKV3FXfyh6ob3D73IXI6rJK6ks9ni4m0yT+bJIr2cX84P1ZP2cXfy0M9BhZ+gXM3nE5QJGSOwXsYp2ofZ9fjsnrHRuYniP4nl118Wb8d4kfZuyQTiD5pxy5/qv17RMZPBvRycyQiZmTBLTzIpA32Z6efsSZ7kmJzMDKP4w+xaDqlnZpLwMQ7nKPvEWPvfTo2nsM89tuFpYNY8NW8e/5yOpkBJUyl9eiidIuU13C6EUiOVtr8rwiVBJaQw2yxm+4vDo9sMt0brqoOIlc1VVVpP6eX8an40Pu55WxS4wco2NXdwRErEjTUrvW4diu+aSvH5/JwRPyfAg9xj3jpN2+BPNfrTV+TvJe9ps7Ih3b61+pvv5OTyjc6xEAeTSudofJh7fZ1eNyov8fwi4eB1gYb0SqOb7nQSOP0IvEiukgteaqynWpkR2E2J+VfxEN2Jx4G9SWC7g5b/80OgL4hRvXQyqrfrRX6GzWJyEbGSvLzbvSiPH13Vdbwc3wQsRjG0+nBvv5rbf/1iOJlNqIvDA2ajqpaNQhFtlNMcaygcCSWqgnV93vWnrvMcm/GpozufUfbN8f7dE3Td37eQVIU=
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check Runtime Status"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/status"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Return the status of all connections (http, flight, metrics, opentelemetry) in the runtime.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"format","in":"query","description":"The format of the response, either \"json\" or \"csv\". Defaults to \"json\".","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of connection statuses","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","required":["name","endpoint","status"],"properties":{"endpoint":{"type":"string","description":"The endpoint of the connection (e.g., URL or IP address)"},"name":{"type":"string","description":"The name of the connection (e.g., \"http\", \"flight\", \"metrics\", \"opentelemetry\")"},"status":{"description":"The status of the component (e.g., Ready, Initializing, Disabled, Error, etc.)","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing","ShuttingDown"],"title":"ComponentStatus"}},"title":"ConnectionDetails"}},"example":[{"name":"http","endpoint":"http://127.0.0.1:8080","status":"Ready"},{"name":"flight","endpoint":"http://127.0.0.1:9000","status":"Initializing"},{"name":"metrics","endpoint":"N/A","status":"Disabled"},{"name":"opentelemetry","endpoint":"http://127.0.0.1:4317","status":"Error"}]},"text/csv":{"schema":{"type":"string"},"example":"name,endpoint,status\nhttp,http://127.0.0.1:8080,Ready\nflight,http://127.0.0.1:9000,Initializing\nmetrics,N/A,Disabled\nopentelemetry,http://127.0.0.1:4317,Error"}}},"500":{"description":"Error converting to CSV","content":{"text/plain":{"schema":{"type":"string"},"example":"Error converting to CSV"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

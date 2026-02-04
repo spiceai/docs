@@ -1,0 +1,72 @@
+---
+id: get-models
+title: "List Models"
+description: "List all models, both machine learning and language models, available in the runtime."
+sidebar_label: "List Models"
+hide_title: true
+hide_table_of_contents: true
+api: eJy1Vttu4zYQ/RVinjYAfUmwBVq9BbvbwsVuA+zlyTFiWhpbs6VILUnZcQ39ezGkLNuJkxot+mSLHJ45czlD7iColYdsCrcTmEko0OeO6kDWQAYfyQehtBaVLVB7KRY2lKJSeUkGhUblDJmVUKYQWplVo1bYm6q1Iq0WGgUZEUoUrjGBKhyCBFujU+xjUkAGKwwP6RRIqJVTFQZ0TGoHRlUIGSytq1QACcS0fjTotvCU7NcSRbITdpk8oq+t8Sje4HA1lGL+3VszF9aJee7X8yum4vBHQw4LyJZKe5Tg8xIrBdkOwrZm3z44MiuQgKapOFOMAhJyv+aMBQqazX5NFNtW9qx9UKHxr7OeLEVwDUpBJtdNgT4yTyc5DlR5mXLa57GL6jL2C2s1KgNtO2PzdNSzwc14zD9nKm6XXRXZ5e9f7v4Qff5zawKawAdVXWvKYxlHMSXZ7rl7u/iOeThhOj0sFioozmHtuCMCJWJx9QChnFOcNwpY+X+CpoLba79jNwaLh8X2vA+P4Qhv2jsyjdZ84qnDrhHac423xxPKe5uTCliIDYVShJJ8yqYUtBTKbBmAinMN9hyWG2nfzRGED3fhXQTAFicA4o3SG7X1Yh4/51cRcZ+nizC9bVyOYulsJTYl5eUR+kZ5oa0qsOhFZ2s0iuZSzH1NOSpKPjtxZDuwBu+WUe2d71gA1tEZ370wjiLqHDlUxZb9kKFAStNfZFb8jc5ZN78C+aKkJ0cnQMJnRgIJ78nzBOOe+sAYcWvp0JfJ7kvZhEBm9d5uzPEseGer2ho04UsKsp217WH3rkZzO/mUyvlKPV8487kTMScRH1VVs8GuRwFNvtcWJ5XijK3D4O1BGhmkbjouPaRCdUeTOLgSh1JBzHCsTAQN+BgGWC2wKMisBqpQg/H45iIvAzIBnVH6xN00QXYLg2uu2PHCDSf5KZuUW3wMI57I54bQQbh9vuDeUCETT7lnJ/dMZPJxb2LaZJJvIi5ldHtvzgd/YtsHKe+fBCZPw7qHPSq0HM1P50bzpAMTHt0anYhdLWyeN87xtClJo6idzdF7vpX7K/XSmX3aTxEeMrita2FsEL2osGCSTLPCUNruBo9Xdyghg9H6etT7TlzTXd44DRmUIdTZaKRtrnRpfch+Hv8yfjZnPvK2KHCN2tYVmtBFPRTvrFnSqnGY5ut8MGDE+RD4gvOYN47CNvpTNT38ifx/xntkljY2RSep7j1yfsTxpCrEwURTjqy5rL/cb2uVlzi4GTJ5KtAEWhK6051WAoefgK+Hb9NSbX2olDkCi9fup33STvjsDvX7395jnU6iiGqtyDDLWK5dV9UprFmNXV1nErh0vLzbLZTHb063LS+nRw5nv9jPzv3T5MWo/t3D7SznWO7Da3GtdMNG6TK5mNB/e5O9Qqx/EB6IzfjDETOLjSqhRFVwH0133anbPMf6OJxnKmaUXoy/ffgKbfs3RvoQxA==
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Models"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/models"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+List all models, both machine learning and language models, available in the runtime.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"format","in":"query","description":"The format of the response (e.g., `json` or `csv`).","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}},{"name":"status","in":"query","description":"If true, includes the status of each model in the response.","required":false,"schema":{"type":"boolean"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of models in JSON format","content":{"application/json":{"schema":{"type":"object","required":["object","data"],"properties":{"data":{"type":"array","items":{"type":"object","required":["id","object","owned_by"],"properties":{"datasets":{"type":["array","null"],"items":{"type":"string"},"description":"The datasets associated with this model, if any"},"id":{"type":"string","description":"The name of the model"},"object":{"type":"string","description":"The type of the model (always `model`)"},"owned_by":{"type":"string","description":"The source from which the model was loaded (e.g., `openai`, `spiceai`)"},"status":{"oneOf":[{"type":"null"},{"description":"The status of the model (e.g., `ready`, `initializing`, `error`)","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing","ShuttingDown"],"title":"ComponentStatus"}]}},"title":"OpenAIModel"}},"object":{"type":"string"}},"title":"OpenAIModelResponse"},"example":{"object":"list","data":[{"id":"gpt-4","object":"model","owned_by":"openai","datasets":null,"status":"ready"},{"id":"text-embedding-ada-002","object":"model","owned_by":"openai-internal","datasets":["text-dataset-1","text-dataset-2"],"status":"ready"}]}},"text/csv":{"schema":{"type":"string"},"example":"\nid,object,owned_by,datasets,status\ngpt-4,model,openai,,ready\ntext-embedding-ada-002,model,openai-internal,\"text-dataset-1,text-dataset-2\",ready\n"}}},"500":{"description":"Internal server error occurred while processing models","content":{"application/json":{"schema":{},"example":{"error":"App not initialized"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      
