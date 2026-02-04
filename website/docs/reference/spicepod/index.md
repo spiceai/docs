@@ -75,7 +75,7 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime).
+The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](spicepod/runtime).
 
 ## `metadata`
 
@@ -94,7 +94,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](./datasets) referenced by relative path.
+A Spicepod can contain one or more [datasets](spicepod/datasets) referenced by relative path.
 
 **Example**
 
@@ -119,7 +119,7 @@ datasets:
 
 ## `models`
 
-A Spicepod can contain one or more [models](./models) referenced by relative path.
+A Spicepod can contain one or more [models](spicepod/models) referenced by relative path.
 
 **Example**
 
@@ -142,7 +142,7 @@ models:
 
 ## `embeddings`
 
-A Spicepod can contain one or more [embeddings](./embeddings) referenced by relative path.
+A Spicepod can contain one or more [embeddings](spicepod/embeddings) referenced by relative path.
 
 **Example**
 
@@ -163,7 +163,7 @@ embeddings:
 
 ## `evals`
 
-A Spicepod can contain one or more [evaluations](./evals) referenced by relative path.
+A Spicepod can contain one or more [evaluations](spicepod/evals) referenced by relative path.
 
 **Example**
 
@@ -211,7 +211,7 @@ views:
 
 ## `workers`
 
-A Spicepod can contain one or more [workers](./workers) defining configurable units of compute.
+A Spicepod can contain one or more [workers](spicepod/workers) defining configurable units of compute.
 
 **Example**
 
