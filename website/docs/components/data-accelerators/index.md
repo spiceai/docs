@@ -95,7 +95,7 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Performance Tuning](../../reference/performance-tuning) - Comprehensive optimization guide
+- [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../../reference/memory) - Memory configuration reference
 - [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
 - [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso

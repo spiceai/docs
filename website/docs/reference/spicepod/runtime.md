@@ -282,7 +282,7 @@ runtime:
 
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
-For detailed memory information, see [Memory](../../memory).
+For detailed memory information, see [Memory](../memory).
 
 ## `runtime.query.spill_compression`
 
@@ -307,7 +307,7 @@ This option allows you to balance disk space usage and query performance for lar
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../../memory) and the [DuckDB Data Accelerator documentation](../../../components/data-accelerators/duckdb).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
 
 ```yaml
 runtime:
