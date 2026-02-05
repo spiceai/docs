@@ -15,7 +15,7 @@ tags:
 
 Embedding models convert raw text into numerical representations that can be used by machine learning models. Spice supports running embedding models locally or using remote services such as OpenAI or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](../models).
+Embeddings are used for vector-based and similarity search, like document retrieval. For chat-based large language models, refer to [Model Providers](models).
 
 Spice supports various model sources and formats to provide embedding components:
 
@@ -28,12 +28,12 @@ Spice supports various model sources and formats to provide embedding components
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock               | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local
-[hf]:  /components/embeddings/huggingface
-[openai]: /components/embeddings/openai
-[azure]: /components/embeddings/azure
-[databricks]: /components/embeddings/databricks
-[bedrock]: /components/embeddings/bedrock
+[file]: embeddings/local
+[hf]:  embeddings/huggingface
+[openai]: embeddings/openai
+[azure]: embeddings/azure
+[databricks]: embeddings/databricks
+[bedrock]: embeddings/bedrock
 
 ## Overview
 

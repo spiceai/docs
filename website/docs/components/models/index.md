@@ -18,14 +18,14 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local
-[hf]: ./huggingface
-[spice]: ./spiceai
-[openai]: ./openai
-[azure]: ./azure
-[ant]: ./anthropic
-[xai]: ./xai
-[databricks]: ./databricks
+[file]: embeddings/local
+[hf]: models/huggingface
+[spice]: models/spiceai
+[openai]: models/openai
+[azure]: models/azure
+[ant]: models/anthropic
+[xai]: models/xai
+[databricks]: models/databricks
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../../reference/models).
 
@@ -38,7 +38,7 @@ The model type is inferred based on the model source and files. For more detail,
 Spice supports a variety of features for large language models (LLMs):
 
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](../../features/large-language-models/tools).
-- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides). Use Jinja-templating to parameterise system prompts per request see [Parameterized prompts](docs/features/large-language-models/parameterized_prompts).
+- **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../../features/large-language-models/parameter_overrides). Use Jinja-templating to parameterise system prompts per request see [Parameterized prompts](../features/large-language-models/parameterized_prompts).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../../features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../../features/search/vector-search).
 - **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../../features/large-language-models/evals).
@@ -159,7 +159,7 @@ models:
 
 ### Example: Serving a Local Model
 
-To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](./filesystem).
+To serve a model from the local filesystem, specify the `from` path as `file` and provide the local path. For more details, see [Filesystem Model Provider](models/filesystem).
 
 ```yaml
 models:
@@ -247,7 +247,7 @@ curl -X POST http://localhost:8090/v1/chat/completions \
   }'
 ```
 
-Refer to the [Create Chat Completion API documentation](../../api/HTTP/post-chat-completions.api) for more details on making chat completion requests.
+Refer to the [Create Chat Completion API documentation](../api/HTTP/post-chat-completions.api.mdx) for more details on making chat completion requests.
 
 import DocCardList from '@theme/DocCardList';
 

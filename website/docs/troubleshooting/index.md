@@ -119,7 +119,7 @@ The `task_history` table also includes start and end times, including execution 
 +-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
 ```
 
-For more information, view the [task history documentation](../../reference/task_history)
+For more information, view the [task history documentation](reference/task_history)
 
 ## Logging Additional Captured Output
 

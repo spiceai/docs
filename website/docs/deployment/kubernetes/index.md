@@ -213,7 +213,7 @@ Further reading:
 
 ## Monitoring
 
-The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../../clients/grafana). To enable this feature, set the `monitoring.podMonitor.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
+The Spice Helm chart includes compatibility with the [Prometheus Operator](https://prometheus-operator.dev/) for collecting Prometheus metrics that can be visualized in the [Spice Grafana dashboard](../clients/grafana). To enable this feature, set the `monitoring.podMonitor.enabled` value to `true`. This will create a `PodMonitor` resource for the Spice.ai pods that will configure Prometheus to scrape metrics from the Spice.ai pods.
 
 <details>
   <summary>Install the Prometheus Operator</summary>
@@ -237,7 +237,7 @@ Deploy the Spice.ai Helm chart with monitoring enabled:
 helm upgrade --install spiceai spiceai/spiceai --set monitoring.podMonitor.enabled=true
 ```
 
-Once the monitoring is enabled, import the [Spice Grafana dashboard](../../clients/grafana) to visualize the Spice.ai metrics.
+Once the monitoring is enabled, import the [Spice Grafana dashboard](../clients/grafana) to visualize the Spice.ai metrics.
 
 ### Health and Readiness
 
