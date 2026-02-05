@@ -144,7 +144,7 @@ Time: 0.011524375 seconds. 1 rows.
 
 While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](../../components/data-accelerators), resulting in significant performance gains.
+To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](../components/data-accelerators), resulting in significant performance gains.
 
 :::warning[Limitations]
 

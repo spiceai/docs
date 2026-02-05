@@ -68,7 +68,7 @@ Common commands are:
 | spice help    | Help about any command                                        |
 | spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
-See [Spice CLI command reference](./reference) for the full list of available commands.
+See [Spice CLI command reference](cli/reference) for the full list of available commands.
 
 ## Updating
 
@@ -79,7 +79,7 @@ spice upgrade
 ```
 
 :::note
-Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](./index#install) script.
+Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](cli#install) script.
 :::
 
 ## Uninstall
