@@ -217,7 +217,7 @@ Step 9 demonstrates the same query executed against locally materialized dataset
 
 ## Related Topics
 
-- [Distributed Query](../distributed-query) - Scale queries across multiple nodes
-- [Results Caching](../caching) - Cache query results for improved performance
+- [Distributed Query](distributed-query) - Scale queries across multiple nodes
+- [Results Caching](caching) - Cache query results for improved performance
 - [Arrow Flight SQL API](../api/arrow-flight-sql) - High-performance query protocol
 - [ADBC](../api/adbc) - Arrow Database Connectivity
