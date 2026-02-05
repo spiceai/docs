@@ -8,3 +8,4 @@ website/public
 .wrangler
 
 .env
+website/versions.json
