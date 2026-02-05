@@ -90,4 +90,4 @@ async fn main() {
 }
 ```
 
-For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries).
+For more details, see [Parameterized Queries](../features/query-federation/parameterized-queries).

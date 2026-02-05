@@ -47,7 +47,7 @@ models:
       tools: websearch # configure the model to use the websearch tool.
 ```
 
-These models can then be invoked via an interactive REPL through [`spice chat`](../../cli/reference/chat) or via the OpenAI-compatible `/v1/chat/completions` HTTP endpoint. To learn more about the `websearch` tool, refer to [the reference](../../components/tools/websearch).
+These models can then be invoked via an interactive REPL through [`spice chat`](../cli/reference/chat) or via the OpenAI-compatible `/v1/chat/completions` HTTP endpoint. To learn more about the `websearch` tool, refer to [the reference](../components/tools/websearch).
 
 ## Web Search Through OpenAI Hosted Tools
 
@@ -102,7 +102,7 @@ Here are some of the latest news updates as of August 30, 2025:
 Please note that news developments are ongoing, and it's advisable to consult multiple sources for the most current information.
 ```
 
-To invoke this model, use [`spice chat --responses`](../../cli/reference/chat) for an interactive REPL or the OpenAI-compatible `/v1/responses` HTTP endpoint in the runtime. To learn more about configuring models provided by OpenAI, view [the reference](../../components/models/openai).
+To invoke this model, use [`spice chat --responses`](../cli/reference/chat) for an interactive REPL or the OpenAI-compatible `/v1/responses` HTTP endpoint in the runtime. To learn more about configuring models provided by OpenAI, view [the reference](../components/models/openai).
 
 ## References
 
