@@ -17,7 +17,7 @@ For a full list of supported sources, see [Data Connectors](../components/data-c
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](getting-started).
+**Step 1.** Install Spice by following the [installation instructions](../getting-started).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 

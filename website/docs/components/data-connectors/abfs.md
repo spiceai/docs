@@ -136,7 +136,7 @@ Configure access token authentication by setting the `abfs_bearer_token` paramet
 2. Under the application's `API permissions`, add the permission: `Azure Storage - user_impersonation`.
 3. Under the applications's `Authentication`, add `http://localhost` as Mobile and desktop applications redirect URI.
 4. Grant the user read access to the storage account under `Access Control (IAM)`, this can typically be done using the `Storage Blob Data Reader` built-in role.
-5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](../cli/reference/login) documentation for more details.
+5. Obtain the `abfs_bearer_token` using the following command. The `abfs_bearer_token`, `abfs_client_id`, `abfs_tenant_id` will be automatically filled in environment secret after login. Refere to [`spice login`](../../cli/reference/login) documentation for more details.
 
 ```shell
 spice login abfs --tenant-id $TENANT_ID --client-id $CLIENT_ID

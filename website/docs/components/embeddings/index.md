@@ -15,7 +15,7 @@ tags:
 
 Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](models).
 
 Spice supports a variety of embedding model sources and formats:
 
@@ -29,13 +29,13 @@ Spice supports a variety of embedding model sources and formats:
 | [`bedrock`][bedrock]       | Models deployed on AWS Bedrock          | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
 
-[file]: ./local
-[hf]: ./huggingface
-[model2vec]: ./model2vec
-[openai]: ./openai
-[azure]: ./azure
-[databricks]: ./databricks
-[bedrock]: ./bedrock
+[file]: embeddings/local
+[hf]: embeddings/huggingface
+[model2vec]: embeddings/model2vec
+[openai]: embeddings/openai
+[azure]: embeddings/azure
+[databricks]: embeddings/databricks
+[bedrock]: embeddings/bedrock
 
 ## Overview
 
@@ -71,7 +71,7 @@ embeddings:
 Embedding models can be used via:
 
 - An OpenAI-compatible [endpoint](../../api/HTTP/post-embeddings.api.mdx)
-- Augmenting a dataset with column-level [embeddings](../../reference/spicepod/datasets.md#embeddings) for vector-based [search functionality](../../features/search/index#vector-search)
+- Augmenting a dataset with column-level [embeddings](../../reference/spicepod/datasets.md#embeddings) for vector-based [search functionality](../../features/search/index.md#vector-search)
 
 ### Configuring Embedding Columns on Datasets
 
