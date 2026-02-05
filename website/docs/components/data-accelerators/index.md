@@ -38,7 +38,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 [cayenne]: ./cayenne.md
 [duckdb]: ./duckdb.md
-[postgres]: ./postgres/
+[postgres]: data-accelerators/postgres/
 [sqlite]: ./sqlite.md
 [turso]: ./turso.md
 
