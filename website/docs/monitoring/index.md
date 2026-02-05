@@ -9,5 +9,5 @@ sidebar_position: 12
 
 Learn how to monitor Spice.ai deployments.
 
-- [Datadog](datadog)
-- [Grafana & Prometheus](grafana)
+- [Datadog](monitoring/datadog)
+- [Grafana & Prometheus](monitoring/grafana)

@@ -18,7 +18,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
-[file]: /components/embeddings/local
+[file]: embeddings/local
 [hf]: models/huggingface
 [spice]: models/spiceai
 [openai]: models/openai

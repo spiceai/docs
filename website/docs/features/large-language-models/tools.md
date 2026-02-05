@@ -34,7 +34,7 @@ models:
     tools: auto # Use all default tools
 ```
 
-For details on tool groups, see [Tool Components](../../components/tools/index#tool-groups).
+For details on tool groups, see [Tool Components](../../components/tools/index.md#tool-groups).
 
 ### Example: Specifying tools and tool groups
 

@@ -13,9 +13,9 @@ Learn how to define and augment datasets with embedding columns for advanced sea
 
 Spice provides three distinct methods for handling embedding columns in datasets:
 
-1. **[Just-in-Time (JIT) Embeddings](../../components/embeddings/index#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
-2. **[Accelerated Embeddings](../../components/embeddings/index#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-3. **[Passthrough Embeddings](../../components/embeddings/index#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
+1. **[Just-in-Time (JIT) Embeddings](../../components/embeddings/index.md#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
+2. **[Accelerated Embeddings](../../components/embeddings/index.md#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
+3. **[Passthrough Embeddings](../../components/embeddings/index.md#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
 

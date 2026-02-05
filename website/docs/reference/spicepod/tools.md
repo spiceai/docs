@@ -28,7 +28,7 @@ A unique identifier for this tool.
 
 ### `from`
 
-Defines the source of the tool, or the specific built-in tool to customise. See [Available Tools](../../components/tools/index#available-tools) for a list of available tools.
+Defines the source of the tool, or the specific built-in tool to customise. See [Available Tools](../../components/tools/index.md#available-tools) for a list of available tools.
 
 ### `description`
 

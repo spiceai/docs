@@ -15,7 +15,7 @@ tags:
 
 Embedding models transform raw text into numerical vectors that machine learning models can use. Spice supports running embedding models locally or via hosted services such as OpenAI, Amazon Bedrock, Databricks MosaicAI, or [la Plateforme](https://console.mistral.ai/).
 
-Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](../models).
+Embeddings enable vector-based and similarity search, such as document retrieval. For chat-based large language models, see [Model Providers](models).
 
 Spice supports a variety of embedding model sources and formats:
 
@@ -71,7 +71,7 @@ embeddings:
 Embedding models can be used via:
 
 - An OpenAI-compatible [endpoint](../../api/HTTP/post-embeddings.api.mdx)
-- Augmenting a dataset with column-level [embeddings](../../reference/spicepod/datasets#embeddings) for vector-based [search functionality](../../features/search/index#vector-search)
+- Augmenting a dataset with column-level [embeddings](../../reference/spicepod/datasets#embeddings) for vector-based [search functionality](../../features/search/index.md#vector-search)
 
 ### Configuring Embedding Columns on Datasets
 
@@ -155,7 +155,7 @@ datasets:
 
 ### Passthrough Embeddings
 
-If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](../../reference/spicepod/index#views)).
+If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](../../reference/spicepod/index.md#views)).
 
 **Example:**
 
@@ -262,7 +262,7 @@ Following these guidelines ensures that the dataset's pre-existing embeddings ar
 
 ### Chunking
 
-Spice supports chunking large text columns before embedding, which is useful for [Document Tables](../../components/data-connectors/index#document-support). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
+Spice supports chunking large text columns before embedding, which is useful for [Document Tables](../../components/data-connectors/index.md#document-support). Chunking helps return only the most relevant text during search. Configure chunking in the embedding config:
 
 ```yaml
 datasets:
