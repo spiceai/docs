@@ -247,7 +247,7 @@ curl -X POST http://localhost:8090/v1/chat/completions \
   }'
 ```
 
-Refer to the [Create Chat Completion API documentation](../api/HTTP/post-chat-completions.api.mdx) for more details on making chat completion requests.
+Refer to the [Create Chat Completion API documentation](../../api/HTTP/post-chat-completions.api.mdx) for more details on making chat completion requests.
 
 import DocCardList from '@theme/DocCardList';
 
