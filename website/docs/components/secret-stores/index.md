@@ -10,7 +10,7 @@ pagination_next: null
 
 A Secret Store is a location where `secrets` are stored and can be used to store sensitive data, like passwords, tokens, and secret keys.
 
-Spice supports secret stores: [`env`](./env), [`kubernetes`](./kubernetes), [`keyring`](./keyring) and [`aws_secrets_manager`](./aws-secrets-manager). The `env` secret store is loaded by default.
+Spice supports secret stores: [`env`](secret-stores/env), [`kubernetes`](secret-stores/kubernetes), [`keyring`](secret-stores/keyring) and [`aws_secrets_manager`](secret-stores/aws-secrets-manager). The `env` secret store is loaded by default.
 
 ### Default
 
