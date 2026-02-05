@@ -22,7 +22,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification see [datasets](../../reference/spicepod/datasets).
+For the complete reference specification see [datasets](../reference/spicepod/datasets).
 
 Supported Vector engines:
 
@@ -30,11 +30,11 @@ Supported Vector engines:
 | ------------------------- | -------------- |
 | [`s3_vectors`][s3vectors] | AWS S3 vectors |
 
-[s3vectors]: /docs/components/vectors/s3_vectors
+[s3vectors]: vectors/s3_vectors
 
 :::warning[Limitations]
 
-- A dataset or view must be accelerated (i.e. `datasets[].acceleration.enabled: true`, see [docs](../../reference/spicepod/datasets#accelerationenabled)) for a vector engine to be provided the appropriate data to ingest.
+- A dataset or view must be accelerated (i.e. `datasets[].acceleration.enabled: true`, see [docs](../reference/spicepod/datasets#accelerationenabled)) for a vector engine to be provided the appropriate data to ingest.
 
   :::
 
