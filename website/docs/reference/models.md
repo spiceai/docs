@@ -8,7 +8,7 @@ hide_table_of_contents: true
 
 This document presents the evaluation report for various Large-Language-Models (LLMs) graded by Spice AI. The models are assessed based on their basic capabilities, quality of tool calls, and accuracy of output when integrated with Spice.
 
-For more details on how model grades are evaluated in Spice, refer to the [model grading criteria](https://github.com/spiceai/spiceai/blob/f6039123028209e20469b342791fa85d52b7771e/docs/criteria/models/grading.md).
+For more details on how model grades are evaluated in Spice, refer to the [model grading criteria](https://github.com/spiceai/spiceai/blob/f6039123028209e20469b342791fa85d52b7771e/docs/criteria/models/grading).
 
 | Model                                           | Spice Grade | Model Provider | Context Window<br/ >Max Output Tokens | Chat Completion | Response Format<br />(Structued Outputs) | Tools | Recursive<br />Tool Calling | Reasoning | Streaming | Model Release Date | Spice Version |
 | ----------------------------------------------- | ----------- | -------------- | ------------------------------------- | --------------- | ---------------------------------------- | ----- | --------------------------- | --------- | --------- | ------------------ | ------------- |

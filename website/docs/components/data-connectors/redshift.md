@@ -5,7 +5,7 @@ sidebar_label: 'Redshift Data Connector'
 sidebar_position: 10
 ---
 
-Amazon Redshift is a columnar OLAP database compatible with PostgreSQL. To connect Redshift to Spice, use the [PostgreSQL data connector](./postgres/index.md) and specify the Redshift cluster connection parameters.
+Amazon Redshift is a columnar OLAP database compatible with PostgreSQL. To connect Redshift to Spice, use the [PostgreSQL data connector](./postgres) and specify the Redshift cluster connection parameters.
 
 ## Configuration
 
@@ -130,13 +130,13 @@ datasets:
 
 ## Supported Types
 
-Redshift types are mapped to PostgreSQL types. See the [PostgreSQL connector documentation](./postgres/index.md) for details on supported types and configuration.
+Redshift types are mapped to PostgreSQL types. See the [PostgreSQL connector documentation](./postgres) for details on supported types and configuration.
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For details, see the [secret stores documentation](/docs/components/secret-stores) and [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For details, see the [secret stores documentation](../secret-stores) and [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## References
 
 - [Amazon Redshift Documentation](https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html)
-- [PostgreSQL Connector Documentation](/docs/components/data-connectors/postgres)
+- [PostgreSQL Connector Documentation](./postgres)

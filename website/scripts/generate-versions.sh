@@ -2,13 +2,13 @@
 # Generates versioned docs from git release branches at build time
 # Usage: ./scripts/generate-versions.sh
 #
-# This script auto-detects release branches (release/<major>.<minor>) from git
-# and generates versioned docs for each. Trunk docs serve as "current" (unreleased).
+# This script reads versions from versions.json (manually managed) and
+# generates versioned docs for each. Trunk docs serve as "current" (unreleased).
 #
 # Version structure:
 # - current (trunk): /docs/next - unreleased docs
 # - latest release branch: /docs - default docs
-# - previous release branches: /docs/v1.11, /docs/v1.10, etc.
+# - previous release branches: /docs/v2.0, /docs/v1.11, etc.
 
 set -e
 
@@ -18,54 +18,38 @@ REPO_ROOT="$(dirname "$WEBSITE_DIR")"
 
 echo "Generating versioned docs..."
 
-# Auto-detect release branches from git
-# Looks for branches matching release/<major>.<minor> pattern
 cd "$REPO_ROOT"
 
-# Get all release branches (local and remote)
-RELEASE_BRANCHES=$(git branch -a --list '*release/*' 2>/dev/null | sed 's/.*release\///' | sort -t. -k1,1n -k2,2n -u)
+# Read versions from manually managed versions.json
+VERSIONS_FILE="$WEBSITE_DIR/versions.json"
+if [ ! -f "$VERSIONS_FILE" ]; then
+  echo "Error: versions.json not found. Please create it manually."
+  echo "Example: [\"2.0.x\", \"1.11.x\", \"1.10.x\"]"
+  exit 1
+fi
 
-if [ -z "$RELEASE_BRANCHES" ]; then
-  echo "No release branches found. Skipping versioned docs generation."
-  echo "[]" > "$WEBSITE_DIR/versions.json"
+# Parse versions.json and build VERSIONS array
+# Format: version_label:git_ref (e.g., "1.11.x:release/1.11")
+declare -a VERSIONS=()
+while IFS= read -r version_label; do
+  # Extract version number from label (e.g., "1.11.x" -> "1.11")
+  version_num="${version_label%.x}"
+  git_ref="release/$version_num"
+  VERSIONS+=("$version_label:$git_ref")
+done < <(jq -r '.[]' "$VERSIONS_FILE")
+
+if [ ${#VERSIONS[@]} -eq 0 ]; then
+  echo "No versions found in versions.json. Skipping versioned docs generation."
   exit 0
 fi
 
-# Build versions array from release branches (sorted by version number, newest first)
-declare -a VERSIONS=()
-while IFS= read -r branch; do
-  if [[ "$branch" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
-    version_label="${branch}.x"
-    VERSIONS+=("$version_label:release/$branch")
-  fi
-done <<< "$RELEASE_BRANCHES"
-
-# Sort versions by minor version number (descending - newest first)
-IFS=$'\n' VERSIONS=($(for v in "${VERSIONS[@]}"; do echo "$v"; done | sort -t. -k2,2nr))
-unset IFS
-
-echo "Detected versions: ${VERSIONS[*]}"
+echo "Versions from versions.json: ${VERSIONS[*]}"
 
 # Clean existing versioned docs
 rm -rf "$WEBSITE_DIR/versioned_docs"
 rm -rf "$WEBSITE_DIR/versioned_sidebars"
 mkdir -p "$WEBSITE_DIR/versioned_docs"
 mkdir -p "$WEBSITE_DIR/versioned_sidebars"
-
-# Generate versions.json
-VERSIONS_JSON="["
-first=true
-for version_entry in "${VERSIONS[@]}"; do
-  version_label="${version_entry%%:*}"
-  if [ "$first" = true ]; then
-    first=false
-  else
-    VERSIONS_JSON+=", "
-  fi
-  VERSIONS_JSON+="\"$version_label\""
-done
-VERSIONS_JSON+="]"
-echo "$VERSIONS_JSON" > "$WEBSITE_DIR/versions.json"
 
 # Generate versioned docs from git refs
 for version_entry in "${VERSIONS[@]}"; do

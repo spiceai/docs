@@ -26,7 +26,7 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
@@ -124,7 +124,7 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 :::warning[Limitations]
 
 - GitHub has a limitation in the Search API where it may return more stale data than the standard API used in the default query mode.
-- GitHub has a limitation in the Search API where it only returns a maximum of 1000 results for a query. Use [append mode acceleration](/features/data-acceleration/data-refresh.md) to retrieve more results over time. See the [append example](#append-example) for pull requests.
+- GitHub has a limitation in the Search API where it only returns a maximum of 1000 results for a query. Use [append mode acceleration](../../features/data-acceleration/data-refresh) to retrieve more results over time. See the [append example](#append-example) for pull requests.
 
 :::
 
@@ -279,29 +279,29 @@ datasets:
 
 #### Schema
 
-| Column Name     | Data Type                                                       | Is Nullable |
-| --------------- | --------------------------------------------------------------- | ----------- |
-| additions       | Int64                                                           | YES         |
-| assignees       | List(Utf8)                                                      | YES         |
-| author          | Utf8                                                            | YES         |
-| body            | Utf8                                                            | YES         |
-| changed_files   | Int64                                                           | YES         |
-| closed_at       | Timestamp                                                       | YES         |
-| comments_count  | Int64                                                           | YES         |
-| commits_count   | Int64                                                           | YES         |
-| created_at      | Timestamp                                                       | YES         |
-| deletions       | Int64                                                           | YES         |
-| discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         |
-| hashes          | List(Utf8)                                                      | YES         |
-| id              | Utf8                                                            | YES         |
-| labels          | List(Utf8)                                                      | YES         |
-| merged_at       | Timestamp                                                       | YES         |
-| number          | Int64                                                           | YES         |
-| review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp))   | YES         | 
-| reviews_count   | Int64                                                           | YES         |
-| state           | Utf8                                                            | YES         |
-| title           | Utf8                                                            | YES         |
-| url             | Utf8                                                            | YES         |
+| Column Name     | Data Type                                                     | Is Nullable |
+| --------------- | ------------------------------------------------------------- | ----------- |
+| additions       | Int64                                                         | YES         |
+| assignees       | List(Utf8)                                                    | YES         |
+| author          | Utf8                                                          | YES         |
+| body            | Utf8                                                          | YES         |
+| changed_files   | Int64                                                         | YES         |
+| closed_at       | Timestamp                                                     | YES         |
+| comments_count  | Int64                                                         | YES         |
+| commits_count   | Int64                                                         | YES         |
+| created_at      | Timestamp                                                     | YES         |
+| deletions       | Int64                                                         | YES         |
+| discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp)) | YES         |
+| hashes          | List(Utf8)                                                    | YES         |
+| id              | Utf8                                                          | YES         |
+| labels          | List(Utf8)                                                    | YES         |
+| merged_at       | Timestamp                                                     | YES         |
+| number          | Int64                                                         | YES         |
+| review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp)) | YES         |
+| reviews_count   | Int64                                                         | YES         |
+| state           | Utf8                                                          | YES         |
+| title           | Utf8                                                          | YES         |
+| url             | Utf8                                                          | YES         |
 
 **Note**: The `discussion` and `review_comments` columns are only included in the schema when the `github_include_comments` parameter is set accordingly.
 
