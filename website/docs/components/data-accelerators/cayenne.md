@@ -506,7 +506,6 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Beta Status**: Spice Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
-- **No Snapshot Support**: Spice Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `Map`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
