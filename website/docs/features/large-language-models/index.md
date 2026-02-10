@@ -22,12 +22,12 @@ Spice supports a variety of LLMs (see [Model Providers](../components/models)).
 ### Core Features
 
 - **SQL Integration**: Invoke LLMs directly within SQL queries using the `ai()` function for text generation tasks. See [SQL Reference: ai function](../reference/sql/scalar_functions#ai).
-- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](large-language-models/tools).
-- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../api/HTTP/post-chat-completions). See [Parameter Overrides](large-language-models/parameter_overrides).
-- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](large-language-models/memory).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](./tools).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../api/HTTP/post-chat-completions). See [Parameter Overrides](./parameter_overrides).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](./memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](search/vector-search).
-- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](large-language-models/evals).
-- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](large-language-models/serving).
+- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](./evals).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](./serving).
 
 For API usage, refer to the [API Documentation](../api).
 

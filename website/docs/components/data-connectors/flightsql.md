@@ -30,11 +30,11 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 ### `params`
 
-| Parameter name       | Description                                                                                                                                                                                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                 |
-| `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                    |
-| `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
+| Parameter name       | Description                                                                                                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                |
+| `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                   |
+| `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
 
 ## Cookie Middleware
 
@@ -42,4 +42,4 @@ The Flight SQL connector includes built-in cookie middleware that automatically 
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).

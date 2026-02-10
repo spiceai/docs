@@ -25,11 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-<<<<<<< HEAD
-          fetch-depth: 0  # Fetch all history for all branches (needed for versioned docs)
-=======
           fetch-depth: 0 # Fetch all history for all branches (needed for versioned docs)
->>>>>>> origin/trunk
 
       - uses: actions/setup-node@v4
         with:

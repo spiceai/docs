@@ -40,21 +40,21 @@ The documentation supports multiple versions to maintain docs for different rele
 
 1. **Current docs** (`docs/`) — Working documentation from trunk, served at `/docs/trunk`
 2. **Versioned docs** — Auto-generated at build time from `release/<major>.<minor>` branches
-   - Highest version (e.g., v1.11.x) → "Next" (unreleased) at `/docs/next`
-   - Second highest (e.g., v1.10.x) → "Latest" (stable) at `/docs`
-   - Previous versions → at `/docs/v1.9`, etc.
+   - Highest version (e.g., v2.0.x) → "Next" (unreleased) at `/docs/next`
+   - Second highest (e.g., v1.11.x) → "Latest" (stable) at `/docs`
+   - Previous versions → at `/docs/v1.10`, etc.
 
 The version generation script ([scripts/generate-versions.sh](scripts/generate-versions.sh)) auto-detects release branches and uses `git archive` to extract docs from each without checking out the full repository.
 
 ### Creating a new version for a release
 
-When releasing a new version (e.g., v1.12):
+When releasing a new version (e.g., v2.1):
 
 1. **Create a release branch** for the new version:
 
    ```bash
-   git checkout -b release/1.12
-   git push origin release/1.12
+   git checkout -b release/2.1
+   git push origin release/2.1
    ```
 
 2. **That's it!** The build script auto-detects release branches matching the `release/<major>.<minor>` pattern. The next build will automatically include the new version.
@@ -71,17 +71,17 @@ When releasing a new version (e.g., v1.12):
 - `/docs` — Latest stable release (default)
 - `/docs/next` — Next release (unreleased, highest version branch)
 - `/docs/trunk` — Working docs from trunk
-- `/docs/v1.9` — Previous release versions
+- `/docs/v1.10` — Previous release versions
 
 ### Updating existing version docs
 
 To update docs for a released version, push changes directly to the corresponding release branch:
 
 ```bash
-git checkout release/1.12
+git checkout release/2.1
 # Make changes
-git commit -m "Update docs for v1.12.x"
-git push origin release/1.12
+git commit -m "Update docs for v2.1.x"
+git push origin release/2.1
 ```
 
 The next build will pick up the updated docs from the release branch.
