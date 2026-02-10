@@ -129,6 +129,39 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                                                                                              |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`. |
 
+## Response Schema
+
+Each row returned by the HTTP connector includes the following columns:
+
+| Column Name      | Type                          | Nullable | Description                                                                                           |
+| ---------------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `request_path`   | `Utf8`                        | Yes      | The URL path used for the request. See [Special Metadata Fields](#special-metadata-fields).           |
+| `request_query`  | `Utf8`                        | Yes      | The query parameters used for the request. See [Special Metadata Fields](#special-metadata-fields).   |
+| `request_body`   | `Utf8`                        | Yes      | The request body used for the request. See [Special Metadata Fields](#special-metadata-fields).       |
+| `content`        | `Utf8`                        | No       | The response body content.                                                                            |
+| `response_status`| `UInt16`                      | No       | The HTTP status code of the response (e.g. `200`, `404`, `500`).                                      |
+| `fetched_at`     | `Timestamp(Nanosecond)`       | Yes      | The timestamp when the response was fetched.                                                          |
+
+### HTTP Status Code Handling
+
+The connector treats all HTTP responses as queryable data, not just successful ones:
+
+- **2xx/3xx responses**: Returned as data and cached normally.
+- **4xx responses** (e.g. `404 Not Found`): Returned as data and cached normally. This allows querying for error responses from APIs.
+- **5xx responses** (e.g. `500 Internal Server Error`): Retried with backoff (up to `max_retries`), then returned as data. **5xx responses are excluded from the cache** to prevent transient server errors from polluting cached results.
+
+Use the `response_status` column to filter or inspect the status of responses:
+
+```sql
+-- Get only successful responses
+SELECT content FROM my_api WHERE request_path = '/users' AND response_status = 200;
+
+-- Check for error responses
+SELECT request_path, response_status, content
+FROM my_api
+WHERE response_status >= 400;
+```
+
 ## HTTP Response Headers
 
 When querying HTTP(s) datasets, Spice respects standard HTTP caching headers in responses. The connector supports the following cache-related response headers:
@@ -637,7 +670,7 @@ datasets:
 
 - **Connection Pooling**: The connector maintains up to 10 idle connections per host by default
 - **Retry Overhead**: With the default 3 retries and Fibonacci backoff, failed requests may take several seconds before returning an error
-- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters
+- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters. 5xx responses are excluded from cache to prevent transient errors from polluting cached results
 
 ## Secrets
 
