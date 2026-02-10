@@ -179,7 +179,7 @@ JOIN 's3://my-bucket/products.parquet' s ON o.product_id = s.id
 
 - **Schema Inference**: The schema is inferred from the files at query time. For best performance with large datasets, consider registering datasets in the Spicepod.
 - **File Format Detection**: File formats are automatically inferred from file extensions. Supported formats include Parquet, CSV, and JSON.
-- **Performance**: URL tables query data directly from the object store without local acceleration. For frequently accessed data or performance-critical queries, register datasets with [data acceleration](../../components/data-accelerators/).
+- **Performance**: URL tables query data directly from the object store without local acceleration. For frequently accessed data or performance-critical queries, register datasets with [data acceleration](../../components/data-accelerators).
 - **Authentication Scope**: URL table queries use environment-level credentials. For queries requiring different credentials per source, register datasets with explicit authentication parameters.
 
 ## Related Topics

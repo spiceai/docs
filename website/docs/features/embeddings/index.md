@@ -32,7 +32,7 @@ embeddings:
       openai_api_key: ${ secrets:SPICE_OPENAI_API_KEY }
 ```
 
-See [Embedding components](../components/embeddings/) for more information on embedding models.
+See [Embedding components](../components/embeddings) for more information on embedding models.
 
 ## Vector Searches
 

@@ -45,7 +45,7 @@ The runtime is downloaded and installed automatically upon first run of `spice r
 
 ## Getting started
 
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](getting-started).
+For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started).
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 
