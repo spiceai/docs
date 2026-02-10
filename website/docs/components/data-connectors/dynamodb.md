@@ -629,7 +629,6 @@ datasets:
 
 See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
 
-
 ### Metrics
 
 The following [Component Metrics](../../features/observability/component_metrics) are provided for monitoring streaming performance and health:
