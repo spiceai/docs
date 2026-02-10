@@ -629,27 +629,6 @@ datasets:
 
 See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
 
-### Lag Expiration Behavior
-
-When using DynamoDB Streams, the connector maintains an offset to track its position in the stream. If the connector falls behind beyond the DynamoDB Streams shard retention period, the offset expires and is no longer valid. The `lag_exceeds_shard_retention_behavior` parameter controls how the connector handles this scenario.
-
-```yaml
-datasets:
-  - from: dynamodb:my_table
-    name: my_table
-    params:
-      lag_exceeds_shard_retention_behavior: error  # error | ready_before_load | ready_after_load
-    acceleration:
-      enabled: true
-      engine: duckdb
-      refresh_mode: changes
-```
-
-| Value                | Description                                                                                                                                                                                            |
-| -------------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `error` (default)    | Returns an error and the table never becomes Ready. Use this when data consistency is critical and manual intervention is preferred over automatic recovery.                                           |
-| `ready_before_load`  | The table becomes Ready immediately before re-initiliazation begins. Queries are served from the existing (stale) data while the table goes through the process of re-initialization in the background. |
-| `ready_after_load`   | Performs a full table re-initiliazation. The table becomes Ready after re-initiliazation process is complete.                                                                                          |
 
 ### Metrics
 
