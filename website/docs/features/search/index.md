@@ -50,7 +50,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](./vector-search#sql-udtf).
+For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](search/vector-search#sql-udtf).
 
 ### Full-Text Search
 
@@ -62,7 +62,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Full-Text Search Docs](./full-text)
+- [Full-Text Search Docs](search/full-text)
 
 **Example SQL Full-Text Search:**
 
@@ -74,7 +74,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](./full-text#searching-with-sql).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](search/full-text#searching-with-sql).
 
 ### Hybrid Search with RRF
 
