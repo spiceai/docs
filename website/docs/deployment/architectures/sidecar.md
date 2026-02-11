@@ -32,5 +32,11 @@ Run the Spice Runtime in a separate container or process on the same machine as 
 - Keeping the architecture simple without additional services or load balancers is preferred.
 - Performance and latency are prioritized over cost and complexity.
 
-**Example Use Case**  
+**Not Ideal When**
+
+- Many applications need access to the same datasets — each sidecar independently ingests and accelerates data, increasing load on data sources. Consider [Microservice](./microservice) or [Hybrid](./hybrid) instead.
+- Cost efficiency is the priority — resource duplication across pods adds up at scale. Consider [Microservice](./microservice) or [Hosted](./hosted).
+- Centralized data management is required — sidecars operate independently with no shared state. Consider [Hybrid](./hybrid) or [Cluster](./cluster).
+
+**Example Use Case**
 A real-time trading bot or a data-intensive application that relies on immediate feedback, where minimal latency is critical. Both containers in the same pod ensure very fast data exchange.

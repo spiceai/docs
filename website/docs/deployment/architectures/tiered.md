@@ -31,5 +31,11 @@ A hybrid approach combining sidecar deployments for performance-critical tasks a
 - The system can handle the operational complexity of running multiple deployment patterns.
 - Balancing performance and latency with cost and complexity is the goal.
 
-**Example Use Case**  
+**Not Ideal When**
+
+- All workloads have similar latency requirements — the complexity of mixing two patterns isn't justified. Use [Sidecar](./sidecar) if everything needs low-latency, or [Microservice](./microservice) if shared access is sufficient.
+- The team cannot manage two deployment patterns simultaneously — operational overhead is significant. Consider [Microservice](./microservice) or [Hosted](./hosted) for simplicity.
+- Centralized data ingestion and acceleration are needed — the microservice tier doesn't provide cluster-level features. Consider [Hybrid](./hybrid) or [Cluster](./cluster).
+
+**Example Use Case**
 A logistics application that calculates routing decisions in real time (sidecar) while a microservice component processes aggregated data for periodic analysis or re-training models.

@@ -208,6 +208,18 @@ The query in step 8 returns results from federated remote data sources, but perf
 
 Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](../components/data-accelerators). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
+```mermaid
+flowchart LR
+    Q["SQL Query"] --> Router["Query Planner"]
+
+    Router -->|"Federated"| Net["Network"]
+    Net --> Remote["Remote Source (S3, Dremio, ...)"]
+    Remote -->|"~1s+ latency"| R1["Results"]
+
+    Router -->|"Accelerated"| Local["Local Accelerator"]
+    Local -->|"~10ms latency"| R2["Results"]
+```
+
 :::warning[Limitations]
 
 - **Query Performance:** Without acceleration, federated queries will be slower than local queries due to network latency and data transfer.

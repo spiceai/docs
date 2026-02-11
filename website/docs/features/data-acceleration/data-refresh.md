@@ -30,6 +30,21 @@ Spice supports four modes to refresh/update local data from a connected data sou
 | `changes` | Apply incremental changes                            | Customer order lifecycle table                                   |
 | `caching` | Read-through caching for SQL queries                 | API search results or dynamic content endpoints                  |
 
+```mermaid
+flowchart TD
+    Source["Data Source"] --> Mode{"Refresh Mode?"}
+
+    Mode -->|"full"| Full["Replace entire dataset"]
+    Mode -->|"append"| Append["Add new rows (time_column > max)"]
+    Mode -->|"changes"| CDC["Apply row-level INSERT/UPDATE/DELETE via CDC"]
+    Mode -->|"caching"| Cache["Fetch on query miss, cache result"]
+
+    Full --> Acc["Local Accelerator"]
+    Append --> Acc
+    CDC --> Acc
+    Cache --> Acc
+```
+
 Learn more about each mode:
 
 - [Caching Mode](./refresh-modes/caching)

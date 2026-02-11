@@ -31,5 +31,11 @@ The Spice Runtime operates as an independent microservice. Multiple replicas may
 - Heavy or varying traffic is anticipated, requiring independent scaling of the Spice Runtime.
 - Resiliency and redundancy are prioritized over simplicity.
 
-**Example Use Case**  
-A large organization where multiple services (recommendations, analytics, etc.) need to share AI insights. A centralized Spice Runtime microservice cluster helps separate teams consume AI outputs without duplicating efforts.
+**Not Ideal When**
+
+- Ultra-low-latency is required — the network hop between app and Spice adds latency compared to loopback. Consider [Sidecar](./sidecar) or [Hybrid](./hybrid).
+- Applications need sub-millisecond reads for hot data — a local cache is faster. Consider [Sidecar](./sidecar) or [Hybrid](./hybrid) for caching with centralized management.
+- The deployment is small-scale with a single application — the added infrastructure of service discovery and load balancing may not be justified. Consider [Sidecar](./sidecar).
+
+**Example Use Case**
+A large organization where multiple services (recommendations, analytics, etc.) share a centralized Spice Runtime. Separate teams consume data and query outputs without duplicating ingestion or acceleration efforts.

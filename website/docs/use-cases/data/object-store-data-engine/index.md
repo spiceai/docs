@@ -9,6 +9,14 @@ pagination_next: null
 
 Spice.ai federates, accelerates, and queries object-store data for financial services (finserv) applications, enabling real-time data access without the need for centralized data warehouses, streamlining workflows and ensuring compliance.
 
+```mermaid
+flowchart LR
+    S3["S3 / Azure Blob"] -->|"Direct query"| Spice["Spice Runtime"]
+    PG["PostgreSQL"] -->|"Federated"| Spice
+    Spice -->|"Accelerate hot data"| Acc["Local Cache"]
+    Acc -->|"Low-latency SQL"| App["Application"]
+```
+
 Unlike traditional data platforms (e.g., Snowflake, BigQuery) that rely on costly data ingestion into centralized repositories, Spice.ai’s federated query engine and data acceleration capabilities operate directly on object stores (e.g., S3, Azure Blob) alongside other sources, reducing infrastructure overhead and latency. This makes it ideal for finserv applications demanding fast, secure, and compliant data access for operational workflows, outperforming solutions dependent on complex ETL pipelines.
 
 ## Why Spice.ai?

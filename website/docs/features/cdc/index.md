@@ -9,6 +9,23 @@ pagination_next: null
 
 Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](data-acceleration) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
 
+```mermaid
+sequenceDiagram
+    participant DB as Source Database
+    participant Log as Transaction Log
+    participant Deb as Debezium
+    participant K as Kafka
+    participant Spice as Spice Runtime
+    participant Acc as Local Accelerator
+
+    DB->>Log: INSERT / UPDATE / DELETE
+    Log->>Deb: Capture change events
+    Deb->>K: Publish change stream
+    K->>Spice: Consume changes
+    Spice->>Acc: Apply row-level changes
+    Note over Acc: Data is always current
+```
+
 ## Benefits
 
 Using locally accelerated datasets configured with CDC enables Spice to provide high-performance accelerated queries and efficient real-time updates.

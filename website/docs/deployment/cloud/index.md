@@ -7,6 +7,16 @@ sidebar_position: 5
 
 The Spice Cloud Platform is a managed, cloud-hosted solution designed for deploying data and AI applications and agents. It provides a secure and efficient compute environment powered by Spice.ai OSS, offering building blocks including high-speed SQL queries, LLM inference, vector search, and retrieval-augmented generation (RAG).
 
+```mermaid
+flowchart LR
+    Dev["Developer"] -->|"Configure"| Portal["Spice Cloud Portal"]
+    Portal -->|"Deploy"| Runtime["Managed Spice Runtime"]
+    Runtime --> SQL["SQL Queries"]
+    Runtime --> AI["LLM Inference"]
+    Runtime --> Search["Vector Search"]
+    Runtime --> RAG["RAG"]
+```
+
 ## Benefits of the Spice.ai Cloud Platform
 
 - **Simplified Deployment**: Focus on creating data and AI applications without the complexity of managing infrastructure.

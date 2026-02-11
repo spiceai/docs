@@ -11,6 +11,15 @@ Use Spice to access data across various data sources for Retrieval-Augmented-Gen
 
 Spice enables developers to combine structured data via SQL queries and unstructured data through built-in vector similarity search. This combined data can then be fed to large language models (LLMs) through a native AI gateway, enhancing the models' ability to generate accurate and contextually relevant responses.
 
+```mermaid
+flowchart LR
+    Docs["Documents (S3)"] -->|"Embed"| Spice["Spice Runtime"]
+    DB["Structured Data"] -->|"SQL"| Spice
+    Spice -->|"Vector Search"| Context["Retrieved Context"]
+    Context --> LLM["LLM (AI Gateway)"]
+    LLM -->|"Grounded response"| App["Application"]
+```
+
 ## Example Configuration
 
 The following `spicepod.yaml` configures a dataset with vector embeddings and an OpenAI model for RAG:

@@ -120,6 +120,7 @@ const config: Config = {
   onBrokenLinks: 'throw',
 
   markdown: {
+    mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'throw'
     }
@@ -198,7 +199,7 @@ const config: Config = {
       } satisfies Preset.Options
     ]
   ],
-  themes: ['docusaurus-theme-openapi-docs'],
+  themes: ['docusaurus-theme-openapi-docs', '@docusaurus/theme-mermaid'],
   themeConfig: {
     // SEO metadata configuration
     metadata: [

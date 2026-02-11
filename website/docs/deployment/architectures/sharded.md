@@ -2,7 +2,7 @@
 title: 'Sharded'
 sidebar_label: 'Sharded'
 description: 'Deploying Spice with shards'
-sidebar_position: 4
+sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---
@@ -30,5 +30,11 @@ The Spice Runtime instances can be sharded based on specific criteria, such as b
 - The application can benefit from tailored configurations for different logical partitions.
 - The complexity of managing multiple instances can be handled.
 
-**Example Use Case**  
+**Not Ideal When**
+
+- Queries need to span across shards — each shard operates independently with no cross-shard query capability. Consider [Cluster](./cluster) for distributed query across nodes.
+- The sharding key is difficult to define or data distribution is highly uneven — hotspots will negate the benefits. Consider [Microservice](./microservice) with replicas instead.
+- Operational simplicity is a priority — managing many independent instances adds significant complexity. Consider [Microservice](./microservice) or [Hosted](./hosted).
+
+**Example Use Case**
 A multi-tenant application where each customer has a dedicated Spice Runtime instance. This helps ensure that heavy usage by one customer does not impact others, and allows for customer-specific optimizations.

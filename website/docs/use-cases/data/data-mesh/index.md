@@ -9,6 +9,25 @@ pagination_next: null
 
 Spice.ai enables unified data access across disparate sources for health-tech/healthcare applications, fostering a data mesh architecture that empowers domain teams with decentralized, real-time data ownership and access.
 
+```mermaid
+flowchart TB
+    subgraph Sources["Data Sources"]
+        PG["PostgreSQL"]
+        DB["Databricks"]
+        CS["Cloud Storage"]
+    end
+
+    Sources --> Spice["Spice Runtime (Federated SQL + Governance)"]
+
+    subgraph Teams["Domain Teams"]
+        T1["Clinical"]
+        T2["Research"]
+        T3["Compliance"]
+    end
+
+    Spice --> Teams
+```
+
 Unlike traditional data platforms (e.g., Snowflake, Redshift) that centralize data management and create bottlenecks for domain-specific teams, Spice.ai’s federated query engine and data acceleration support a data mesh approach, allowing health-tech teams to access and manage data autonomously while maintaining governance and performance. This reduces complexity and enhances agility compared to monolithic data warehouse solutions.
 
 ## Why Spice.ai?

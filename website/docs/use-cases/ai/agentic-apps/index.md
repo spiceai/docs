@@ -9,6 +9,15 @@ pagination_next: null
 
 Spice.ai builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making to enhance user experiences and operational efficiency.
 
+```mermaid
+flowchart LR
+    Agent["AI Agent"] -->|"SQL Query"| Spice["Spice Runtime"]
+    Agent -->|"Hybrid Search"| Spice
+    Spice -->|"Context"| LLM["LLM (AI Gateway)"]
+    LLM -->|"Reasoning"| Agent
+    Agent -->|"Action"| App["SaaS Application"]
+```
+
 Unlike generic AI agent frameworks (e.g., AutoGen, CrewAI) that often lack seamless integration with enterprise data or real-time capabilities, Spice.ai combines federated data access, hybrid search, and AI inference to deliver autonomous agents that operate with enterprise-grade governance and low-latency performance. This makes it ideal for SaaS platforms requiring dynamic, context-driven automation in customer-facing workflows.
 
 ## Why Spice.ai?
