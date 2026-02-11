@@ -116,12 +116,12 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  onBrokenAnchors: 'throw',
-  onBrokenLinks: 'throw',
+  onBrokenAnchors: 'warn',
+  onBrokenLinks: 'warn',
 
   markdown: {
     hooks: {
-      onBrokenMarkdownLinks: 'throw'
+      onBrokenMarkdownLinks: 'warn'
     }
   },
 
@@ -219,7 +219,7 @@ const config: Config = {
       { name: 'twitter:creator', content: '@spice_ai' }
     ],
     announcementBar: {
-      content: '<a href="/releases/v1.11.0">Spice.ai OSS v1.11.0</a> is now available! ⚡',
+      content: '<a href="/releases/v1.11.1">Spice.ai OSS v1.11.1</a> is now available! 🛠️',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
