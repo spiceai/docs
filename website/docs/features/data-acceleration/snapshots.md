@@ -30,10 +30,6 @@ datasets:
 
 Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB or SQLite) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
 
-:::info Preview
-Acceleration snapshots are available in preview.
-:::
-
 ## How it works
 
 - On startup, Spice checks whether the file supplied in `acceleration.params` (for example `duckdb_file`) exists.
