@@ -234,6 +234,6 @@ Spice exposes the following metrics. All metrics include relevant labels (dimens
 
 :::note Component Metrics
 
-In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../components/data-connectors/mysql/#metrics). See [Component Metrics](./component_metrics) for more information.
+In addition to these core metrics, individual components can expose their own metrics. For example, the MySQL data connector exposes [connection pool metrics](../components/data-connectors/mysql/#metrics). See [Component Metrics](/docs/features/observability/component_metrics) for more information.
 
 :::

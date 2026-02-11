@@ -4,7 +4,7 @@ sidebar_label: 'LLM Tools'
 description: 'Overview of supported LLM tools (function calling) and how to define new tools'
 ---
 
-A tool is a function or operation that can be called directly or by a [language model](../../features/large-language-models) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
+A tool is a function or operation that can be called directly or by a [language model](/docs/features/large-language-models) (LLMs). The Spice runtime has several tools available by default, giving LLMs access to various parts of the runtime. Tools can also be added or configured by the user by declaring them in the `tools` section of `spicepod.yaml`.
 
 For details about providing LLMs tool access, see [Language Model Tools](../features/large-language-models/tools).
 
