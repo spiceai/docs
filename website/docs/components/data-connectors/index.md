@@ -93,7 +93,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                   |
 | --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](/docs/reference/file_format#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
+| [CSV](../../reference/file_format.md#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
 | JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |

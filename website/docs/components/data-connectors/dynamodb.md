@@ -629,6 +629,13 @@ datasets:
 
 See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
 
+#### Lag Expiration Behavior
+
+Lag expiration occurs when the stream lag exceeds the DynamoDB Streams shard retention period (24 hours). The `lag_exceeds_shard_retention_behavior` parameter controls how the connector responds:
+
+- **`error`** (default) — Returns an error when lag exceeds shard retention, requiring manual intervention.
+- **`reinitialize`** — Automatically re-initializes the stream by re-scanning the DynamoDB table and resuming from the latest stream position.
+
 ### Metrics
 
 The following [Component Metrics](../../features/observability/component_metrics) are provided for monitoring streaming performance and health:
