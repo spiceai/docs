@@ -69,9 +69,9 @@ The `text_search()` function has the following signature:
 
 ```sql
 text_search(
-  table STRING,              -- Dataset name (required)
+  table IDENTIFIER,          -- Dataset name (required, unquoted)
   query STRING,              -- Keyword or phrase to search (required)
-  col STRING,                -- Specific column to search (required if dataset has multiple indexed columns)
+  col IDENTIFIER,            -- Column name to search (required if dataset has multiple indexed columns, unquoted)
   limit INTEGER,             -- Maximum results returned (optional, defaults to 1000)
   include_score BOOLEAN      -- Include relevance scores in results (optional, defaults to TRUE)
 )

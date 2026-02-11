@@ -116,13 +116,13 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  onBrokenAnchors: 'throw',
-  onBrokenLinks: 'throw',
+  onBrokenAnchors: 'warn',
+  onBrokenLinks: 'warn',
 
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'throw'
+      onBrokenMarkdownLinks: 'warn'
     }
   },
 

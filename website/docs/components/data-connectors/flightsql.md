@@ -36,6 +36,10 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                   |
 | `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
 
+## Cookie Middleware
+
+The Flight SQL connector includes built-in cookie middleware that automatically handles `Set-Cookie` headers from the server and attaches `Cookie` headers on subsequent requests. This enables transparent session affinity when connecting through load balancers (e.g. AWS ALB) that rely on sticky cookies for routing. No additional configuration is required.
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
