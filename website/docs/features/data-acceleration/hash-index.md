@@ -30,8 +30,8 @@ datasets:
     acceleration:
       engine: arrow
       primary_key: order_id
-    params:
-      hash_index: enabled
+      params:
+        hash_index: enabled
 ```
 
 ### Configuration Options
