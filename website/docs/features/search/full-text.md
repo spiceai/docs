@@ -80,4 +80,4 @@ RETURNS TABLE                -- Original table columns plus an optional FLOAT co
 
 By default, `text_search` retrieves up to 1000 results. To adjust this, specify the `limit` parameter in the function call.
 
-Use this function to integrate robust full-text search directly into your data workflows with minimal setup.
+Use this function to integrate full-text search directly into your data workflows.
