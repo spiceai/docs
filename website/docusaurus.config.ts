@@ -17,8 +17,8 @@ const versions: string[] = fs.existsSync(versionsPath)
   : []
 
 // Build version configuration dynamically
-// Highest version (e.g., 2.0.x) is "next" (unreleased) at /docs/next
-// Second highest version (e.g., 1.11.x) is "latest" at /docs (default)
+// Trunk docs (current) are "Next" at /docs/next
+// Highest version in versions.json (e.g., 1.11.x) is "Latest" at /docs (default)
 // Previous versions are at /docs/v1.10, etc.
 // Maintenance policy: latest + 1 previous minor versions are maintained
 const hasVersions = versions.length > 0
@@ -39,36 +39,28 @@ const sortedVersions = [...versions].sort((a, b) => {
   return vB.minor - vA.minor
 })
 
-// Highest version is "next" (unreleased), second highest is "latest"
-const nextVersion = sortedVersions[0] || null
-const latestVersion = sortedVersions[1] || null
+// Highest version is "latest", trunk (current) is "next"
+const latestVersion = sortedVersions[0] || null
 const latestVer = latestVersion ? getVersion(latestVersion) : { major: 0, minor: 0 }
 
 const docsVersionConfig = hasVersions
   ? {
       lastVersion: latestVersion!, // The stable release is the default
-      onlyIncludeVersions: versions, // Exclude 'current' (trunk) from the dropdown
+      onlyIncludeVersions: [...versions, 'current'],
       versions: {
+        current: {
+          label: 'Next',
+          path: 'next',
+          banner: 'unreleased' as const
+        },
         ...Object.fromEntries(
           versions.map((version) => {
             const ver = getVersion(version)
-            const isNext = version === nextVersion
             const isLatest = version === latestVersion
             // Versions within same major and latest minor - 1 are maintained (no banner)
             const isMaintained =
               ver.major > latestVer.major ||
               (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1)
-
-            if (isNext) {
-              return [
-                version,
-                {
-                  label: `Next (v${version.replace('.x', '')})`,
-                  path: 'next',
-                  banner: 'unreleased' as const
-                }
-              ]
-            }
 
             return [
               version,
@@ -116,12 +108,12 @@ const config: Config = {
   organizationName: 'spiceai', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
-  onBrokenAnchors: 'warn',
-  onBrokenLinks: 'warn',
+  onBrokenAnchors: 'throw',
+  onBrokenLinks: 'throw',
 
   markdown: {
     hooks: {
-      onBrokenMarkdownLinks: 'warn'
+      onBrokenMarkdownLinks: 'throw'
     }
   },
 

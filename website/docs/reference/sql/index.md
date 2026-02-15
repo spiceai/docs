@@ -124,7 +124,7 @@ FROM employees;
 
 ### Data Types
 
-Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference](../datatypes). Common SQL types include:
+Spice uses Apache Arrow data types internally. For data type compatibility with accelerators, see [Data Type Reference](datatypes). Common SQL types include:
 
 | SQL Type          | Description                         |
 | ----------------- | ----------------------------------- |

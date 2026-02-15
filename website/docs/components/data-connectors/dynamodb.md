@@ -590,7 +590,7 @@ The DynamoDB Data Connector integrates with [DynamoDB Streams](https://docs.aws.
 
 :::warning
 
-Using DynamoDB Streams **requires** [acceleration](../data-accelerators) with `refresh_mode: changes`.
+Using DynamoDB Streams **requires** [acceleration](../data-accelerators/) with `refresh_mode: changes`.
 
 :::
 
@@ -613,11 +613,9 @@ datasets:
 
 #### Dataset Parameters
 
-- **`ready_lag`** - Defines the maximum lag threshold before the dataset is reported as "Ready". Once the stream lag falls below this value, queries can be executed against the dataset. Default is `2s`
+- **`ready_lag`** - Defines the maximum lag threshold before the dataset is reported as "Ready". Once the stream lag falls below this value, queries can be executed against the dataset. Default behavior reports ready immediately after bootstrap completes.
 
 - **`scan_interval`** - Controls the polling frequency for checking new records in the DynamoDB stream. Lower values provide more real-time updates but increase API calls. Higher values reduce API usage but may introduce additional latency.
-
-- **`lag_exceeds_shard_retention_behavior`** - Controls how the connector handles lag expiration, which occurs when the stream lag exceeds the DynamoDB Streams shard retention period. Default: `error`. See [Lag Expiration Behavior](#lag-expiration-behavior) for details.
 
 #### Acceleration Parameters
 
@@ -629,28 +627,6 @@ datasets:
 
 See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
 
-### Lag Expiration Behavior
-
-When using DynamoDB Streams, the connector maintains an offset to track its position in the stream. If the connector falls behind beyond the DynamoDB Streams shard retention period, the offset expires and is no longer valid. The `lag_exceeds_shard_retention_behavior` parameter controls how the connector handles this scenario.
-
-```yaml
-datasets:
-  - from: dynamodb:my_table
-    name: my_table
-    params:
-      lag_exceeds_shard_retention_behavior: error  # error | ready_before_load | ready_after_load
-    acceleration:
-      enabled: true
-      engine: duckdb
-      refresh_mode: changes
-```
-
-| Value                | Description                                                                                                                                                                                            |
-| -------------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `error` (default)    | Returns an error and the table never becomes Ready. Use this when data consistency is critical and manual intervention is preferred over automatic recovery.                                           |
-| `ready_before_load`  | The table becomes Ready immediately before re-initiliazation begins. Queries are served from the existing (stale) data while the table goes through the process of re-initialization in the background. |
-| `ready_after_load`   | Performs a full table re-initiliazation. The table becomes Ready after re-initiliazation process is complete.                                                                                          |
-
 ### Metrics
 
 The following [Component Metrics](../../features/observability/component_metrics) are provided for monitoring streaming performance and health:
@@ -661,7 +637,6 @@ The following [Component Metrics](../../features/observability/component_metrics
 | `records_consumed_total` | Counter | Total number of records consumed from the stream                           |
 | `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time  |
 | `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream |
-| `reinitializations_on_lag_exceeds_shard_retention_total` | Counter | Total number of re-initializations triggered when stream lag exceeds shard retention. See [Lag Expiration Behavior](#lag-expiration-behavior). |
 
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
@@ -676,7 +651,6 @@ datasets:
    - name: records_consumed_total
    - name: lag_ms
    - name: errors_transient_total
-   - name: reinitializations_on_lag_exceeds_shard_retention_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
@@ -704,7 +678,6 @@ datasets:
      - name: records_consumed_total
      - name: lag_ms
      - name: errors_transient_total
-     - name: reinitializations_on_lag_exceeds_shard_retention_total
 ```
 
 :::warning[Limitations]
