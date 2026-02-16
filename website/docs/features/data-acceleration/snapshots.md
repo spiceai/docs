@@ -271,3 +271,10 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
 For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).
+
+:::warning[Limitations]
+
+- Only datasets are supported for snapshots. Views are not supported.
+- When using Cayenne accelerations, snapshots are supported only when one dataset is configured per spicepod.
+
+:::

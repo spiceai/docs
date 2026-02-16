@@ -38,7 +38,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 [cayenne]: ./cayenne.md
 [duckdb]: ./duckdb.md
-[postgres]: ./postgres/
+[postgres]: data-accelerators/postgres
 [sqlite]: ./sqlite.md
 [turso]: ./turso.md
 
@@ -68,7 +68,7 @@ flowchart TD
 
 ### Arrow vs Spice Cayenne
 
-[Arrow](./arrow) and [Spice Cayenne](./cayenne) are the primary accelerators, optimized for different workloads:
+[Arrow](data-accelerators/arrow) and [Spice Cayenne](data-accelerators/cayenne) are the primary accelerators, optimized for different workloads:
 
 **Choose Arrow when:**
 
@@ -92,7 +92,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](./duckdb), [`sqlite`](./sqlite), and [`turso`](./turso) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](data-accelerators/duckdb), [`sqlite`](data-accelerators/sqlite), and [`turso`](data-accelerators/turso) accelerators by specifying `mode: file`.
 
 :::
 

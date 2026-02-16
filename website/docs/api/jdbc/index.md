@@ -62,13 +62,13 @@ For example:
 
 :::info
 
-Spice has [TLS support](../tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
+Spice has [TLS support](tls). For testing or non-production use cases for Spice without TLS, the following JDBC connection URL will bypass TLS `jdbc:arrow-flight-sql://{host}:{port}?useEncryption=false&disableCertificateVerification=true`.
 
 :::
 
 ### Authentication
 
-If [API Key authentication](../auth) is enabled, the API key can be provided in the JDBC connection URL as a query parameter:
+If [API Key authentication](auth) is enabled, the API key can be provided in the JDBC connection URL as a query parameter:
 
 `jdbc:arrow-flight-sql://{host}:{port}?user=&password=<enter-api-key-here>`
 

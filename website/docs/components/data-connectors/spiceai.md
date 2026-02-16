@@ -11,7 +11,7 @@ The [Spice.ai](https://spice.ai/) Data Connector enables federated SQL query acr
 
 ### Secrets
 
-Secrets will be written to a `.env` file by using the `spice login` command and logging in with an active Spice AI account. Learn more about the [Env Secret Store](../secret-stores/env).
+Secrets will be written to a `.env` file by using the `spice login` command and logging in with an active Spice AI account. Learn more about the [Env Secret Store](../secret-stores/env/).
 
 - `api_key`: A Spice.ai API key.
 - `token`: An active personal access token that is configured when logging in to spice via `spice login`.
@@ -28,7 +28,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 ### `params`
 
-The Spice.ai Cloud Platform data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the secret from a secret store, e.g. `${secrets:SPICEAI_API_KEY}`.
+The Spice.ai Cloud Platform data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:SPICEAI_API_KEY}`.
 
 | Parameter Name    | Description                                          |
 | ----------------- | ---------------------------------------------------- |

@@ -11,18 +11,18 @@ Spice supports flexible deployment options ranging from a single binary to fully
 
 ## Deployment Architectures
 
-- [Overview](./architectures)
-- [Sidecar Deployment](./architectures/sidecar)
-- [Microservice Deployment (Single or Multiple Replicas)](./architectures/microservice)
-- [Tiered Deployment](./architectures/tiered)
-- [Hybrid Deployment](./architectures/hybrid)
-- [Cloud-Hosted in the Spice Cloud Platform](./architectures/hosted)
-- [Sharded Deployment](./architectures/sharded)
-- [Cluster Deployment (Spice.ai Enterprise)](./architectures/cluster)
+- [Overview](deployment/architectures)
+- [Sidecar Deployment](deployment/architectures/sidecar)
+- [Microservice Deployment (Single or Multiple Replicas)](deployment/architectures/microservice)
+- [Tiered Deployment](deployment/architectures/tiered)
+- [Hybrid Deployment](deployment/architectures/hybrid)
+- [Cloud-Hosted in the Spice Cloud Platform](deployment/architectures/hosted)
+- [Sharded Deployment](deployment/architectures/sharded)
+- [Cluster Deployment (Spice.ai Enterprise)](deployment/architectures/cluster)
 
 ## Deployment Guides
 
-- [Kubernetes (Helm)](./kubernetes)
-- [Docker](./docker)
-- [Spice Cloud](./cloud)
-- [AWS](./aws)
+- [Kubernetes (Helm)](deployment/kubernetes)
+- [Docker](deployment/docker)
+- [Spice Cloud](deployment/cloud)
+- [AWS](deployment/aws)

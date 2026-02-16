@@ -23,7 +23,7 @@ flowchart TB
     Spice --> Secrets["Secrets Manager"]
 ```
 
-For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](./integrations).
+For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](aws/integrations).
 
 ## Benefits of Deploying on AWS
 
@@ -154,8 +154,8 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ### Documentation
 
-- [AWS Integrations](./integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
-- [AWS Secrets Manager Secret Store](../../components/secret-stores/aws-secrets-manager)
+- [AWS Integrations](aws/integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
+- [AWS Secrets Manager Secret Store](../components/secret-stores/aws-secrets-manager)
 
 ### AWS Blog Posts
 

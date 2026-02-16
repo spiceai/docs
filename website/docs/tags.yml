@@ -46,6 +46,10 @@ blob-storage:
   label: 'Blob Storage'
   permalink: '/blob-storage'
   description: 'Object storage services and blob data access.'
+"cache control":
+  label: 'Cache Control'
+  permalink: '/cache-control-policy'
+  description: 'Cache control headers and directives.'
 cache-control:
   label: 'Cache Control'
   permalink: '/cache-control'
@@ -54,22 +58,22 @@ caching:
   label: 'Caching'
   permalink: '/caching'
   description: 'Data caching strategies and performance optimization.'
-cayenne:
-  label: 'Cayenne'
-  permalink: '/cayenne'
-  description: 'Cayenne (Vortex) data accelerator built on Vortex columnar format.'
 catalogs:
   label: 'Catalogs'
   permalink: '/catalogs'
   description: 'Data catalog connectors and metadata management.'
-clickhouse:
-  label: 'ClickHouse'
-  permalink: '/clickhouse'
-  description: 'ClickHouse OLAP database integration.'
+cayenne:
+  label: 'Cayenne'
+  permalink: '/cayenne'
+  description: 'Cayenne (Vortex) data accelerator built on Vortex columnar format.'
 cli:
   label: 'CLI'
   permalink: '/cli'
   description: 'Spice command-line interface commands and usage.'
+clickhouse:
+  label: 'ClickHouse'
+  permalink: '/clickhouse'
+  description: 'ClickHouse OLAP database integration.'
 component-metrics:
   label: 'Component Metrics'
   permalink: '/component-metrics'
@@ -82,14 +86,22 @@ configuration:
   label: 'Configuration'
   permalink: '/configuration'
   description: 'System configuration files and runtime settings.'
+csharp:
+  label: 'C#'
+  permalink: '/csharp'
+  description: 'C# programming language topics.'
+data-accelerators:
+  label: 'Data Accelerators'
+  permalink: '/data-accelerators'
+  description: 'Data acceleration engines for high-performance query execution.'
+data-connector:
+  label: 'Data Connector'
+  permalink: '/data-connector'
+  description: 'Data connector tools and integrations.'
 data-connectors:
   label: 'Data Connectors'
   permalink: '/data-connectors'
   description: 'Data source connectors and integration patterns.'
-write:
-  label: 'Write'
-  permalink: '/write'
-  description: 'Data connectors and catalogs that support write operations.'
 data-lake:
   label: 'Data Lake'
   permalink: '/data-lake'
@@ -98,10 +110,6 @@ data-refresh:
   label: 'Data Refresh'
   permalink: '/data-refresh'
   description: 'Automated data refresh and synchronization mechanisms.'
-data-accelerators:
-  label: 'Data Accelerators'
-  permalink: '/data-accelerators'
-  description: 'Data acceleration engines for high-performance query execution.'
 databricks:
   label: 'Databricks'
   permalink: '/databricks'
@@ -142,6 +150,10 @@ docker:
   label: 'Docker'
   permalink: '/docker'
   description: 'Docker containerization and deployment configurations.'
+dotnet:
+  label: '.NET'
+  permalink: '/dotnet'
+  description: '.NET framework topics.'
 dremio:
   label: 'Dremio'
   permalink: '/dremio'
@@ -198,6 +210,14 @@ glue:
   label: 'Glue'
   permalink: '/glue'
   description: 'AWS Glue ETL service and data catalog integration.'
+go:
+  label: 'Go'
+  permalink: '/go'
+  description: 'Go programming language topics.'
+golang:
+  label: 'Golang'
+  permalink: '/golang'
+  description: 'Go (Golang) programming language topics.'
 grafana:
   label: 'Grafana'
   permalink: '/grafana'
@@ -206,14 +226,14 @@ graphql:
   label: 'GraphQL'
   permalink: '/graphql'
   description: 'GraphQL API data connectors and query language support.'
-huggingface:
-  label: 'Hugging Face'
-  permalink: '/huggingface'
-  description: 'Hugging Face model hub and transformer model integration.'
 https:
   label: 'HTTPS'
   permalink: '/https'
   description: 'HTTPS data connectors and secure web API access.'
+huggingface:
+  label: 'Hugging Face'
+  permalink: '/huggingface'
+  description: 'Hugging Face model hub and transformer model integration.'
 iceberg:
   label: 'Iceberg'
   permalink: '/iceberg'
@@ -226,6 +246,18 @@ integration:
   label: 'Integration'
   permalink: '/integration'
   description: 'Third-party system integrations and connectivity patterns.'
+introduction:
+  label: 'Introduction'
+  permalink: '/introduction'
+  description: 'Introductory guides and getting started.'
+java:
+  label: 'Java'
+  permalink: '/java'
+  description: 'Java programming language topics.'
+javascript:
+  label: 'JavaScript'
+  permalink: '/javascript'
+  description: 'JavaScript programming language topics.'
 jdbc:
   label: 'JDBC'
   permalink: '/jdbc'
@@ -234,18 +266,22 @@ jetbrains-datagrip:
   label: 'JetBrains DataGrip'
   permalink: '/jetbrains-datagrip'
   description: 'JetBrains DataGrip IDE database tool integration.'
-keyring:
-  label: 'Keyring'
-  permalink: '/keyring'
-  description: 'Operating system keyring integration for secure credential storage.'
 kafka:
   label: 'Kafka'
   permalink: '/kafka'
   description: 'Apache Kafka event streaming platform integration.'
+keyring:
+  label: 'Keyring'
+  permalink: '/keyring'
+  description: 'Operating system keyring integration for secure credential storage.'
 kubernetes:
   label: 'Kubernetes'
   permalink: '/kubernetes'
   description: 'Kubernetes orchestration and secret management.'
+libsql:
+  label: 'libSQL'
+  permalink: '/libsql'
+  description: 'libSQL database topics.'
 llm:
   label: 'LLM'
   permalink: '/llm'
@@ -294,6 +330,10 @@ mysql:
   label: 'MySQL'
   permalink: '/mysql'
   description: 'MySQL relational database integration.'
+nodejs:
+  label: 'Node.js'
+  permalink: '/nodejs'
+  description: 'Node.js runtime environment topics.'
 nosql:
   label: 'NoSQL'
   permalink: '/nosql'
@@ -314,6 +354,10 @@ openai:
   label: 'OpenAI'
   permalink: '/openai'
   description: 'OpenAI API integration and GPT model access.'
+oracle:
+  label: 'Oracle'
+  permalink: '/oracle'
+  description: 'Documentation related to Oracle database integration.'
 overrides:
   label: 'Overrides'
   permalink: '/overrides'
@@ -334,14 +378,14 @@ persistence:
   label: 'Persistence'
   permalink: '/persistence'
   description: 'Data persistence and durable storage mechanisms.'
-oracle:
-  label: 'Oracle'
-  permalink: '/oracle'
-  description: 'Documentation related to Oracle database integration.'
 postgres:
   label: 'Postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database integration and configuration.'
+python:
+  label: 'Python'
+  permalink: '/python'
+  description: 'Python programming language topics.'
 query:
   label: 'Query'
   permalink: '/query'
@@ -354,6 +398,10 @@ relational:
   label: 'Relational'
   permalink: '/relational'
   description: 'Relational database systems and SQL operations.'
+"results caching":
+  label: 'Results Caching'
+  permalink: '/results-caching-feature'
+  description: 'Query results caching configuration.'
 results-caching:
   label: 'Results Caching'
   permalink: '/results-caching'
@@ -362,14 +410,30 @@ runtime:
   label: 'Runtime'
   permalink: '/runtime'
   description: 'Runtime behavior and execution environment.'
+rust:
+  label: 'Rust'
+  permalink: '/rust'
+  description: 'Rust programming language topics.'
 s3:
   label: 'S3'
   permalink: '/s3'
   description: 'Amazon S3 object storage integration.'
+s3-express:
+  label: 'S3 Express'
+  permalink: '/s3-express'
+  description: 'Amazon S3 Express One Zone storage.'
 sandbox:
   label: 'Sandbox'
   permalink: '/sandbox'
   description: 'Sandbox environments and isolated testing.'
+scylladb:
+  label: 'ScyllaDB'
+  permalink: '/scylladb'
+  description: 'ScyllaDB database integration.'
+sdk:
+  label: 'SDK'
+  permalink: '/sdk'
+  description: 'Software Development Kit topics and usage.'
 search:
   label: 'Search'
   permalink: '/search'
@@ -398,6 +462,10 @@ spicepod:
   label: 'Spicepod'
   permalink: '/spicepod'
   description: 'Spicepod configuration files, manifest syntax, and package management.'
+spicepods:
+  label: 'Spicepods'
+  permalink: '/spicepods'
+  description: 'Spicepod configuration and usage.'
 sql:
   label: 'SQL'
   permalink: '/sql'
@@ -414,6 +482,10 @@ troubleshooting:
   label: 'Troubleshooting'
   permalink: '/troubleshooting'
   description: 'Problem diagnosis and resolution guides.'
+turso:
+  label: 'Turso'
+  permalink: '/turso'
+  description: 'Turso data accelerator integration.'
 unity-catalog:
   label: 'Unity Catalog'
   permalink: '/unity-catalog'
@@ -426,6 +498,10 @@ vortex:
   label: 'Vortex'
   permalink: '/vortex'
   description: 'Vortex columnar file format and storage engine.'
+write:
+  label: 'Write'
+  permalink: '/write'
+  description: 'Data connectors and catalogs that support write operations.'
 yaml:
   label: 'YAML'
   permalink: '/yaml'
