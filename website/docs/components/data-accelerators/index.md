@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
+For the complete reference specification, see [datasets](../reference/spicepod/datasets).
 
 By default, datasets are locally materialized using in-memory Arrow records.
 
@@ -95,7 +95,7 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Performance Tuning](../../reference/performance-tuning) - Comprehensive optimization guide
-- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
-- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
+- [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
+- [Managing Memory Usage](../reference/memory) - Memory configuration reference
+- [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
