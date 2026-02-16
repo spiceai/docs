@@ -2,10 +2,18 @@ abfs:
   label: 'abfs'
   permalink: '/abfs'
   description: 'Azure Blob File System related topics and usage'
+"accelerated datasets":
+  label: 'Accelerated Datasets'
+  permalink: '/accelerated-datasets'
+  description: 'Accelerated Datasets related topics and usage.'
 acceleration:
   label: 'acceleration'
   permalink: '/acceleration'
   description: 'Topics related to acceleration techniques and tools'
+accelerators:
+  label: 'Accelerators'
+  permalink: '/accelerators'
+  description: 'Accelerators related topics and usage.'
 adbc:
   label: 'adbc'
   permalink: '/adbc'
@@ -22,22 +30,50 @@ announcement:
   label: 'announcement'
   permalink: '/announcements'
   description: 'Announcements about Spice.ai OSS'
+anthropic:
+  label: 'Anthropic'
+  permalink: '/anthropic'
+  description: 'Anthropic related topics and usage.'
 api:
   label: 'api'
   permalink: '/api'
   description: 'Application Programming Interface related topics and discussions'
+apis:
+  label: 'APIs'
+  permalink: '/apis'
+  description: 'APIs related topics and usage.'
+"array filter":
+  label: 'Array Filter'
+  permalink: '/array-filter'
+  description: 'Array Filter related topics and usage.'
 arrow:
   label: 'arrow'
   permalink: '/arrow'
   description: 'Apache Arrow topics and usage'
+"arrow flight":
+  label: 'Arrow Flight'
+  permalink: '/arrow-flight'
+  description: 'Arrow Flight related topics and usage.'
 aws:
   label: 'aws'
   permalink: '/aws'
   description: 'Amazon Web Services related topics and usage'
+"aws iam":
+  label: 'AWS IAM'
+  permalink: '/aws-iam'
+  description: 'AWS IAM related topics and usage.'
+awsglue:
+  label: 'AWS Glue'
+  permalink: '/awsglue'
+  description: 'AWS Glue related topics and usage.'
 azure:
   label: 'azure'
   permalink: '/azure'
   description: 'Microsoft Azure related topics and usage'
+"azure blob":
+  label: 'Azure Blob'
+  permalink: '/azure-blob'
+  description: 'Azure Blob related topics and usage.'
 ballista:
   label: 'ballista'
   permalink: '/ballista'
@@ -46,26 +82,86 @@ bedrock:
   label: 'bedrock'
   permalink: '/bedrock'
   description: 'Amazon Bedrock related topics and usage'
+benchmarking:
+  label: 'Benchmarking'
+  permalink: '/benchmarking'
+  description: 'Benchmarking related topics and usage.'
+"beta milestone":
+  label: 'Beta Milestone'
+  permalink: '/beta-milestone'
+  description: 'Beta Milestone related topics and usage.'
+"beta release":
+  label: 'Beta Release'
+  permalink: '/beta-release'
+  description: 'Beta Release related topics and usage.'
+blobs:
+  label: 'Blobs'
+  permalink: '/blobs'
+  description: 'Blobs related topics and usage.'
+cache:
+  label: 'Cache'
+  permalink: '/cache'
+  description: 'Cache related topics and usage.'
 caching:
   label: 'caching'
   permalink: '/caching'
   description: 'Results Cache related topics and usage'
+"catalog providers":
+  label: 'Catalog Providers'
+  permalink: '/catalog-providers'
+  description: 'Catalog Providers related topics and usage.'
+"categorical data":
+  label: 'Categorical Data'
+  permalink: '/categorical-data'
+  description: 'Categorical Data related topics and usage.'
 cayenne:
   label: 'cayenne'
   permalink: '/cayenne'
   description: 'Cayenne (Vortex) data accelerator related topics and usage'
+"change data capture":
+  label: 'Change Data Capture'
+  permalink: '/change-data-capture'
+  description: 'Change Data Capture related topics and usage.'
+chunking:
+  label: 'Chunking'
+  permalink: '/chunking'
+  description: 'Chunking related topics and usage.'
 cli:
   label: 'cli'
   permalink: '/cli'
   description: 'Command Line Interface related topics and usage'
+"cli sql":
+  label: 'CLI SQL'
+  permalink: '/cli-sql'
+  description: 'CLI SQL related topics and usage.'
+clickhouse:
+  label: 'ClickHouse'
+  permalink: '/clickhouse'
+  description: 'ClickHouse related topics and usage.'
+"client sdk":
+  label: 'Client SDK'
+  permalink: '/client-sdk'
+  description: 'Client SDK related topics and usage.'
 cloud:
   label: 'cloud'
   permalink: '/cloud'
   description: 'Cloud computing, cloud storage, or cloud-based services related topics and usage'
+commits:
+  label: 'Commits'
+  permalink: '/commits'
+  description: 'Commits related topics and usage.'
 configuration:
   label: 'configuration'
   permalink: '/configuration'
   description: 'Configuration settings and guides'
+connector:
+  label: 'Connector'
+  permalink: '/connector'
+  description: 'Connector related topics and usage.'
+constraints:
+  label: 'Constraints'
+  permalink: '/constraints'
+  description: 'Constraints related topics and usage.'
 cron:
   label: 'cron'
   permalink: '/cron'
@@ -78,14 +174,50 @@ cuda:
   label: 'cuda'
   permalink: '/cuda'
   description: 'Compute Unified Device Architecture related topics and usage'
-data-connector:
-  label: 'data-connector'
-  permalink: '/data-connectors'
-  description: 'Data connector tools and integrations'
+dashboard:
+  label: 'Dashboard'
+  permalink: '/dashboard'
+  description: 'Dashboard related topics and usage.'
+data:
+  label: 'Data'
+  permalink: '/data'
+  description: 'Data related topics and usage.'
+"data accelerator":
+  label: 'Data Accelerator'
+  permalink: '/data-accelerator'
+  description: 'Data Accelerator related topics and usage.'
+"data catalog tables":
+  label: 'Data Catalog Tables'
+  permalink: '/data-catalog-tables'
+  description: 'Data Catalog Tables related topics and usage.'
+"data integrity":
+  label: 'Data Integrity'
+  permalink: '/data-integrity'
+  description: 'Data Integrity related topics and usage.'
+"data processors":
+  label: 'Data Processors'
+  permalink: '/data-processors'
+  description: 'Data Processors related topics and usage.'
+"data refresh":
+  label: 'Data Refresh'
+  permalink: '/data-refresh'
+  description: 'Data Refresh related topics and usage.'
+"data refresh retries":
+  label: 'Data Refresh Retries'
+  permalink: '/data-refresh-retries'
+  description: 'Data Refresh Retries related topics and usage.'
+data-acceleration:
+  label: 'Data Acceleration'
+  permalink: '/data-acceleration'
+  description: 'Data Acceleration related topics and usage.'
 data-accelerators:
   label: 'data-accelerators'
   permalink: '/data-accelerators'
   description: 'Data accelerator technologies and implementations'
+data-connector:
+  label: 'data-connector'
+  permalink: '/data-connectors'
+  description: 'Data connector tools and integrations'
 databricks:
   label: 'databricks'
   permalink: '/databricks'
@@ -94,6 +226,26 @@ datafusion:
   label: 'datafusion'
   permalink: '/datafusion'
   description: 'DataFusion query engine related topics and usage'
+datalake:
+  label: 'Datalake'
+  permalink: '/datalake'
+  description: 'Datalake related topics and usage.'
+"dataset schema":
+  label: 'Dataset Schema'
+  permalink: '/dataset-schema'
+  description: 'Dataset Schema related topics and usage.'
+dataspaces:
+  label: 'Dataspaces'
+  permalink: '/dataspaces'
+  description: 'Dataspaces related topics and usage.'
+"debezium connector":
+  label: 'Debezium Connector'
+  permalink: '/debezium-connector'
+  description: 'Debezium Connector related topics and usage.'
+"debezium kafka":
+  label: 'Debezium Kafka'
+  permalink: '/debezium-kafka'
+  description: 'Debezium Kafka related topics and usage.'
 deepseek:
   label: 'deepseek'
   permalink: '/deepseek'
@@ -130,6 +282,10 @@ dynamodb:
   label: 'dynamodb'
   permalink: '/dynamodb'
   description: 'DynamoDB database topics and usage'
+embedding:
+  label: 'Embedding'
+  permalink: '/embedding'
+  description: 'Embedding related topics and usage.'
 embeddinggemma:
   label: 'embeddinggemma'
   permalink: '/embeddinggemma'
@@ -142,14 +298,54 @@ engineering:
   label: 'engineering'
   permalink: '/engineering'
   description: 'Spice AI engineering team posts'
+"error handling":
+  label: 'Error Handling'
+  permalink: '/error-handling'
+  description: 'Error Handling related topics and usage.'
+"error messages":
+  label: 'Error Messages'
+  permalink: '/error-messages'
+  description: 'Error Messages related topics and usage.'
 evaluation:
   label: 'evaluation'
   permalink: '/evaluations'
   description: 'Evaluation methods and metrics'
+"federated datasets":
+  label: 'Federated Datasets'
+  permalink: '/federated-datasets'
+  description: 'Federated Datasets related topics and usage.'
+"federated query push-down":
+  label: 'Federated Query Push Down'
+  permalink: '/federated-query-push-down'
+  description: 'Federated Query Push Down related topics and usage.'
+"federated sql":
+  label: 'Federated Sql'
+  permalink: '/federated-sql'
+  description: 'Federated Sql related topics and usage.'
+filesystem:
+  label: 'Filesystem'
+  permalink: '/filesystem'
+  description: 'Filesystem related topics and usage.'
 filesystem-hosted:
   label: 'filesystem-hosted'
   permalink: '/filesystem-hosted'
   description: 'Filesystem-Hosted topics and usage'
+flight-sql:
+  label: 'Flight SQL'
+  permalink: '/flight-sql'
+  description: 'Flight SQL related topics and usage.'
+flightsql:
+  label: 'FlightSQL'
+  permalink: '/flightsql'
+  description: 'FlightSQL related topics and usage.'
+FTP:
+  label: 'FTP'
+  permalink: '/ftp'
+  description: 'FTP related topics and usage.'
+full-text-search:
+  label: 'Full-Text Search'
+  permalink: '/full-text-search'
+  description: 'Full-Text Search related topics and usage.'
 gcp:
   label: 'gcp'
   permalink: '/gcp'
@@ -162,10 +358,30 @@ glue:
   label: 'glue'
   permalink: '/glue'
   description: 'AWS Glue related topics and usage'
+gospice:
+  label: 'GoSpice'
+  permalink: '/gospice'
+  description: 'GoSpice related topics and usage.'
+"gospice sdk":
+  label: 'GoSpice SDK'
+  permalink: '/gospice-sdk'
+  description: 'GoSpice SDK related topics and usage.'
 gpu:
   label: 'gpu'
   permalink: '/gpu'
   description: 'Graphics Processing Unit related topics and usage'
+grafana:
+  label: 'Grafana'
+  permalink: '/grafana'
+  description: 'Grafana related topics and usage.'
+"Grafana dashboard":
+  label: 'Grafana Dashboard'
+  permalink: '/grafana-dashboard'
+  description: 'Grafana Dashboard related topics and usage.'
+graphql:
+  label: 'GraphQL'
+  permalink: '/graphql'
+  description: 'GraphQL related topics and usage.'
 hadoop:
   label: 'hadoop'
   permalink: '/hadoop'
@@ -178,6 +394,10 @@ helm:
   label: 'helm'
   permalink: '/helm'
   description: 'Helm Chart related topics and usage'
+hot-reload:
+  label: 'Hot Reload'
+  permalink: '/hot-reload'
+  description: 'Hot Reload related topics and usage.'
 huggingface:
   label: 'huggingface'
   permalink: '/huggingface'
@@ -190,6 +410,22 @@ iceberg:
   label: 'iceberg'
   permalink: '/iceberg'
   description: 'Iceberg Catalong Connector related topics and usage'
+"iceberg catalog":
+  label: 'Iceberg Catalog'
+  permalink: '/iceberg-catalog'
+  description: 'Iceberg Catalog related topics and usage.'
+indexes:
+  label: 'Indexes'
+  permalink: '/indexes'
+  description: 'Indexes related topics and usage.'
+"java sdk":
+  label: 'Java SDK'
+  permalink: '/java-sdk'
+  description: 'Java SDK related topics and usage.'
+jdbc:
+  label: 'JDBC'
+  permalink: '/jdbc'
+  description: 'JDBC related topics and usage.'
 json:
   label: 'json'
   permalink: '/json'
@@ -202,10 +438,26 @@ language-models:
   label: 'language-model'
   permalink: '/language-models'
   description: 'Language models and their applications'
+"llm model":
+  label: 'LLM Model'
+  permalink: '/llm-model'
+  description: 'LLM Model related topics and usage.'
+llm-tool:
+  label: 'LLM Tool'
+  permalink: '/llm-tool'
+  description: 'LLM Tool related topics and usage.'
 llm-tools:
   label: 'llm-tool'
   permalink: '/llm-tools'
   description: 'Tools for working with large language models'
+localpod:
+  label: 'LocalPod'
+  permalink: '/localpod'
+  description: 'LocalPod related topics and usage.'
+logging:
+  label: 'Logging'
+  permalink: '/logging'
+  description: 'Logging related topics and usage.'
 machine-learning:
   label: 'machine-learning'
   permalink: '/machine-learning'
@@ -222,10 +474,22 @@ metal:
   label: 'metal'
   permalink: '/metal'
   description: 'Graphics and compute API created by Apple for M-Series on macOS'
+metrics:
+  label: 'Metrics'
+  permalink: '/metrics'
+  description: 'Metrics related topics and usage.'
+"microsoft 365":
+  label: 'Microsoft 365'
+  permalink: '/microsoft-365'
+  description: 'Microsoft 365 related topics and usage.'
 model2vec:
   label: 'model2vec'
   permalink: '/model2vec'
   description: 'Model2Vec topics and usage'
+models:
+  label: 'Models'
+  permalink: '/models'
+  description: 'Models related topics and usage.'
 mongodb:
   label: 'mongodb'
   permalink: '/mongodb'
@@ -234,6 +498,14 @@ monitoring:
   label: 'monitoring'
   permalink: '/monitoring'
   description: 'Monitoring tools and practices'
+"ms sql":
+  label: 'MS SQL'
+  permalink: '/ms-sql'
+  description: 'MS SQL related topics and usage.'
+"ms sql server":
+  label: 'MS SQL Server'
+  permalink: '/ms-sql-server'
+  description: 'MS SQL Server related topics and usage.'
 mysql:
   label: 'mysql'
   permalink: '/mysql'
@@ -246,10 +518,30 @@ nsql:
   label: 'nsql'
   permalink: '/nsql'
   description: 'Natural Language SQL (NSQL) topics and usage'
+"nsql cli":
+  label: 'NSQL CLI'
+  permalink: '/nsql-cli'
+  description: 'NSQL CLI related topics and usage.'
+observability:
+  label: 'Observability'
+  permalink: '/observability'
+  description: 'Observability related topics and usage.'
+odbc:
+  label: 'ODBC'
+  permalink: '/odbc'
+  description: 'ODBC related topics and usage.'
+"odbc connector":
+  label: 'Odbc Connector'
+  permalink: '/odbc-connector'
+  description: 'Odbc Connector related topics and usage.'
 on-prem:
   label: 'on-prem'
   permalink: '/on-prem'
   description: 'On-premises infrastructure and usage'
+onedrive:
+  label: 'Onedrive'
+  permalink: '/onedrive'
+  description: 'Onedrive related topics and usage.'
 openai:
   label: 'openai'
   permalink: '/openai'
@@ -258,15 +550,31 @@ opentelemetry:
   label: 'opentelemetry'
   permalink: '/opentelemetry'
   description: 'OpenTelemetry topics and usage'
+operability:
+  label: 'Operability'
+  permalink: '/operability'
+  description: 'Operability related topics and usage.'
 oracle:
   label: 'oracle'
   permalink: '/oracle'
   description: 'Oracle related topics and usage'
+oss:
+  label: 'OSS'
+  permalink: '/oss'
+  description: 'OSS related topics and usage.'
+otel:
+  label: 'OpenTelemetry'
+  permalink: '/otel'
+  description: 'OpenTelemetry related topics and usage.'
 parameterized queries:
   label: 'parameterized queries'
   permalink: '/parameterized queries'
   description: 'Topics and usage related to parameterized queries'
-patitioning:
+parquet:
+  label: 'Parquet'
+  permalink: '/parquet'
+  description: 'Parquet related topics and usage.'
+partitioning:
   label: 'partitioning'
   permalink: '/partitioning'
   description: 'Topics and usage related to partitioning'
@@ -278,26 +586,78 @@ postgres:
   label: 'postgres'
   permalink: '/postgres'
   description: 'PostgreSQL database topics and usage'
+postgresql:
+  label: 'PostgreSQL'
+  permalink: '/postgresql'
+  description: 'PostgreSQL related topics and usage.'
+postresql:
+  label: 'PostgreSQL'
+  permalink: '/postresql'
+  description: 'PostgreSQL related topics and usage.'
+"primary keys":
+  label: 'Primary Keys'
+  permalink: '/primary-keys'
+  description: 'Primary Keys related topics and usage.'
 prometheus:
   label: 'prometheus'
   permalink: '/prometheus'
   description: 'Prometheus related topics and usage'
+"pull requests":
+  label: 'Pull Requests'
+  permalink: '/pull-requests'
+  description: 'Pull Requests related topics and usage.'
 python:
   label: 'python'
   permalink: '/python'
   description: 'Python Software related topics and usage'
+query:
+  label: 'Query'
+  permalink: '/query'
+  description: 'Query related topics and usage.'
+"query duration":
+  label: 'Query Duration'
+  permalink: '/query-duration'
+  description: 'Query Duration related topics and usage.'
+"query history":
+  label: 'Query History'
+  permalink: '/query-history'
+  description: 'Query History related topics and usage.'
 rag:
   label: 'rag'
   permalink: '/rag'
   description: 'Retrieval-Augmented Generation (RAG) related topics and usage'
+"rc release":
+  label: 'RC Release'
+  permalink: '/rc-release'
+  description: 'RC Release related topics and usage.'
+"Ready API":
+  label: 'Ready API'
+  permalink: '/ready-api'
+  description: 'Ready API related topics and usage.'
 redshift:
   label: 'redshift'
   permalink: '/redshift'
   description: 'Redshift notes and updates'
+"refresh errors":
+  label: 'Refresh Errors'
+  permalink: '/refresh-errors'
+  description: 'Refresh Errors related topics and usage.'
 release:
   label: 'release'
   permalink: '/releases'
   description: 'Release notes and updates'
+resiliency:
+  label: 'Resiliency'
+  permalink: '/resiliency'
+  description: 'Resiliency related topics and usage.'
+"results caching":
+  label: 'Results Caching'
+  permalink: '/results-caching'
+  description: 'Results Caching related topics and usage.'
+rewards:
+  label: 'Rewards'
+  permalink: '/rewards'
+  description: 'Rewards related topics and usage.'
 rrf:
   label: 'rrf'
   permalink: '/rrf'
@@ -306,10 +666,22 @@ runtime:
   label: 'runtime'
   permalink: '/runtime'
   description: 'Runtime environments and configurations'
+"runtime metrics":
+  label: 'Runtime Metrics'
+  permalink: '/runtime-metrics'
+  description: 'Runtime Metrics related topics and usage.'
+rust:
+  label: 'Rust'
+  permalink: '/rust'
+  description: 'Rust related topics and usage.'
 s3:
   label: 's3'
   permalink: '/s3'
   description: 'Amazon S3 storage service topics and usage'
+schema:
+  label: 'Schema'
+  permalink: '/schema'
+  description: 'Schema related topics and usage.'
 scylladb:
   label: 'scylladb'
   permalink: '/scylladb'
@@ -322,6 +694,22 @@ search:
   label: 'search'
   permalink: '/search'
   description: 'Search functionality and implementations'
+"secret store":
+  label: 'Secret Store'
+  permalink: '/secret-store'
+  description: 'Secret Store related topics and usage.'
+secrets:
+  label: 'Secrets'
+  permalink: '/secrets'
+  description: 'Secrets related topics and usage.'
+"secrets manager":
+  label: 'Secrets Manager'
+  permalink: '/secrets-manager'
+  description: 'Secrets Manager related topics and usage.'
+"secrets replacement":
+  label: 'Secrets Replacement'
+  permalink: '/secrets-replacement'
+  description: 'Secrets Replacement related topics and usage.'
 security:
   label: 'security'
   permalink: '/security'
@@ -330,6 +718,14 @@ semantic-search:
   label: 'semantic-search'
   permalink: '/semantic-search'
   description: 'Semantic search methods and implementations'
+SFTP:
+  label: 'SFTP'
+  permalink: '/sftp'
+  description: 'SFTP related topics and usage.'
+sharepoint:
+  label: 'SharePoint'
+  permalink: '/sharepoint'
+  description: 'SharePoint related topics and usage.'
 snapshots:
   label: 'snapshots'
   permalink: '/snapshots'
@@ -338,10 +734,22 @@ snowflake:
   label: 'snowflake'
   permalink: '/snowflake'
   description: 'Snowflake Data Connector related topics and usage'
+spark:
+  label: 'Spark'
+  permalink: '/spark'
+  description: 'Spark related topics and usage.'
+spice-rs:
+  label: 'spice-rs'
+  permalink: '/spice-rs'
+  description: 'spice-rs related topics and usage.'
 spice.js:
   label: 'spice.js'
   permalink: '/spice.js'
   description: 'spice.js (Node.js SDK) related topics and usage'
+spice.xyz:
+  label: 'Spice.xyz'
+  permalink: '/spice.xyz'
+  description: 'Spice.xyz related topics and usage.'
 spiceai:
   label: 'spiceai'
   permalink: '/spiceai'
@@ -350,22 +758,66 @@ spicepod:
   label: 'spicepod'
   permalink: '/spicepod'
   description: 'Spicepod related topics and usage'
-sqlite:
-  label: 'sqlite'
-  permalink: '/sqlite'
-  description: 'SQLite database topics and usage'
+spicepy:
+  label: 'SpicePy'
+  permalink: '/spicepy'
+  description: 'SpicePy related topics and usage.'
 sql:
   label: 'sql'
   permalink: '/sql'
   description: 'SQL queries and database management'
-task-history:
-  label: 'task-history'
-  permalink: '/task-history'
-  description: 'Task history tracking and management'
+sqlite:
+  label: 'sqlite'
+  permalink: '/sqlite'
+  description: 'SQLite database topics and usage'
+stability:
+  label: 'Stability'
+  permalink: '/stability'
+  description: 'Stability related topics and usage.'
+stargazers:
+  label: 'Stargazers'
+  permalink: '/stargazers'
+  description: 'Stargazers related topics and usage.'
 tableau:
   label: 'tableau'
   permalink: '/tableau'
   description: 'Tableau Connector related topics and usage'
+tables:
+  label: 'Tables'
+  permalink: '/tables'
+  description: 'Tables related topics and usage.'
+task-history:
+  label: 'task-history'
+  permalink: '/task-history'
+  description: 'Task history tracking and management'
+telemetry:
+  label: 'Telemetry'
+  permalink: '/telemetry'
+  description: 'Telemetry related topics and usage.'
+tls:
+  label: 'TLS'
+  permalink: '/tls'
+  description: 'TLS related topics and usage.'
+tpc-ds:
+  label: 'TPC-DS'
+  permalink: '/tpc-ds'
+  description: 'TPC-DS related topics and usage.'
+tpc-h:
+  label: 'TPC-H'
+  permalink: '/tpc-h'
+  description: 'TPC-H related topics and usage.'
+training:
+  label: 'Training'
+  permalink: '/training'
+  description: 'Training related topics and usage.'
+"unity catalog":
+  label: 'Unity Catalog'
+  permalink: '/unity-catalog'
+  description: 'Unity Catalog related topics and usage.'
+upgrade:
+  label: 'Upgrade'
+  permalink: '/upgrade'
+  description: 'Upgrade related topics and usage.'
 vector-search:
   label: 'vector-search'
   permalink: '/vector-search'
@@ -378,7 +830,15 @@ vortex:
   label: 'vortex'
   permalink: '/vortex'
   description: 'Vortex columnar file format related topics and usage'
+windows:
+  label: 'Windows'
+  permalink: '/windows'
+  description: 'Windows related topics and usage.'
 workers:
   label: 'workers'
   permalink: '/workers'
   description: 'Topics and usage related to Spice workers'
+xai:
+  label: 'xAI'
+  permalink: '/xai'
+  description: 'xAI related topics and usage.'
