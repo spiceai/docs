@@ -137,9 +137,9 @@ LIMIT 5;
 
 ```sql
 vector_search(
-  table IDENTIFIER,      -- Dataset name (required, unquoted)
+  table STRING,          -- Dataset name (required)
   query STRING,          -- Search text (required)
-  col IDENTIFIER,        -- Column name (optional if single embedding column, unquoted)
+  col STRING,            -- Column name (optional if single embedding column)
   limit INTEGER,         -- Results limit (default: 1000)
   include_score BOOLEAN  -- Include relevance scores (default: TRUE)
 )

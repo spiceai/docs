@@ -112,7 +112,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `http_port`                | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                                                                                               |
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                     |
-| `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                     |
+| `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                    |
 | `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                                                                                                       |
 | `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                  |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                          |
@@ -128,39 +128,6 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `max_request_query_length` | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                                                                                          |
 | `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                                                                                              |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`. |
-
-## Response Schema
-
-Each row returned by the HTTP connector includes the following columns:
-
-| Column Name      | Type                          | Nullable | Description                                                                                           |
-| ---------------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `request_path`   | `Utf8`                        | Yes      | The URL path used for the request. See [Special Metadata Fields](#special-metadata-fields).           |
-| `request_query`  | `Utf8`                        | Yes      | The query parameters used for the request. See [Special Metadata Fields](#special-metadata-fields).   |
-| `request_body`   | `Utf8`                        | Yes      | The request body used for the request. See [Special Metadata Fields](#special-metadata-fields).       |
-| `content`        | `Utf8`                        | No       | The response body content.                                                                            |
-| `response_status`| `UInt16`                      | No       | The HTTP status code of the response (e.g. `200`, `404`, `500`).                                      |
-| `fetched_at`     | `Timestamp(Nanosecond)`       | Yes      | The timestamp when the response was fetched.                                                          |
-
-### HTTP Status Code Handling
-
-The connector treats all HTTP responses as queryable data, not just successful ones:
-
-- **2xx/3xx responses**: Returned as data and cached normally.
-- **4xx responses** (e.g. `404 Not Found`): Returned as data and cached normally. This allows querying for error responses from APIs.
-- **5xx responses** (e.g. `500 Internal Server Error`): Retried with backoff (up to `max_retries`), then returned as data. **5xx responses are excluded from the cache** to prevent transient server errors from polluting cached results.
-
-Use the `response_status` column to filter or inspect the status of responses:
-
-```sql
--- Get only successful responses
-SELECT content FROM my_api WHERE request_path = '/users' AND response_status = 200;
-
--- Check for error responses
-SELECT request_path, response_status, content
-FROM my_api
-WHERE response_status >= 400;
-```
 
 ## HTTP Response Headers
 
@@ -670,8 +637,8 @@ datasets:
 
 - **Connection Pooling**: The connector maintains up to 10 idle connections per host by default
 - **Retry Overhead**: With the default 3 retries and Fibonacci backoff, failed requests may take several seconds before returning an error
-- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters. 5xx responses are excluded from cache to prevent transient errors from polluting cached results
+- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
