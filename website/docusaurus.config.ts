@@ -140,6 +140,7 @@ const config: Config = {
           routeBasePath: '/docs',
           path: 'docs',
           sidebarPath: 'sidebars.ts',
+          onInlineTags: 'throw',
           docItemComponent: '@theme/ApiItem',
           editUrl: ({ versionDocsDirPath, docPath }) => {
             return `https://github.com/spiceai/docs/edit/trunk/website/${versionDocsDirPath}/${docPath}`
@@ -150,6 +151,7 @@ const config: Config = {
           path: 'blog',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
+          onInlineTags: 'throw',
           onUntruncatedBlogPosts: 'ignore',
           editUrl: ({ locale, blogDirPath, blogPath }) => {
             return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
@@ -493,6 +495,7 @@ const config: Config = {
         routeBasePath: 'releases',
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
+        onInlineTags: 'throw',
         onUntruncatedBlogPosts: 'ignore',
         editUrl: ({ locale, blogDirPath, blogPath }) => {
           return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
