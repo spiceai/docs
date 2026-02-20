@@ -3,7 +3,7 @@ type: docs
 title: 'PostgreSQL Data Accelerator'
 sidebar_label: 'PostgreSQL Data Accelerator'
 description: 'PostgreSQL Data Accelerator Documentation'
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
@@ -26,7 +26,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_port`: The port of the PostgreSQL server.
 - `pg_db`: The name of the database to connect to.
 - `pg_user`: The username to connect with.
-- `pg_pass`: The password to connect with. Use the [secret replacement syntax](../../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.
+- `pg_pass`: The password to connect with. Use the [secret replacement syntax](../../components/secret-stores) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.
 - `pg_sslmode`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
   - `verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
   - `verify-ca`: This mode requires a TLS connection and a valid root certificate.
@@ -36,7 +36,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
 - `connection_pool_size`: Optional. The maximum number of connections to keep open in the connection pool. Default is 10.
 
-Configuration `params` are provided either in the `acceleration` section of a dataset.
+Configuration `params` are provided in the `acceleration` section of a dataset.
 
 ```yaml
 datasets:
@@ -78,7 +78,7 @@ datasets:
 :::warning[Limitations]
 
 - The Postgres accelerator does not support `Map` types.
-- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Please explicitly specify the expected output type of aggregation functions when writing query involving Postgres table in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT`.
+- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
 
 :::
 

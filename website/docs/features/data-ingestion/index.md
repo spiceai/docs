@@ -2,7 +2,7 @@
 title: 'Data Ingestion'
 sidebar_label: 'Data Ingestion'
 description: 'Learn how to ingest data in Spice.'
-sidebar_position: 5
+sidebar_position: 6
 pagination_prev: null
 pagination_next: null
 tags:
@@ -10,10 +10,12 @@ tags:
   - write
 ---
 
-Data can be ingested by the Spice runtime into a Data Connector using the following methods:
+Data can be ingested into the Spice runtime using the following methods:
 
-1. **SQL Statements** – Write data directly to [write-capable connectors](/docs/tags/write) using standard SQL syntax.
-2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL data for real-time processing.
+1. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL syntax.
+2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
+
+Data ingestion is useful for scenarios such as collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
 
 ## SQL Statements
 
@@ -21,14 +23,14 @@ Spice supports writing data to **compatible data connectors** using standard SQL
 
 ### Write-Capable Connectors
 
-Data connectors that support write operations are tagged as [write](/docs/tags/write):
+Data connectors that support write operations are tagged as [write](../tags/write):
 
-- **[Apache Iceberg](/docs/components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](/docs/components/catalogs/iceberg)
-- **[AWS Glue](/docs/components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](/docs/components/catalogs/glue)
+- **[Apache Iceberg](../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](../components/catalogs/iceberg)
+- **[AWS Glue](../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](../components/catalogs/glue)
 
 ### Configuration for Write Operations
 
-To enable write operations, configure your dataset or catalog with [read_write access](/docs/reference/spicepod/datasets#access):
+To enable write operations, configure your dataset or catalog with [read_write access](../reference/spicepod/datasets#access):
 
 ```yaml
 datasets:
@@ -52,11 +54,11 @@ FROM source_table
 WHERE condition = 'filter';
 ```
 
-For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](/docs/reference/sql/dml#insert).
+For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](../reference/sql/dml#insert).
 
 ## OpenTelemetry Data Ingestion
 
-By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50052 for the OTEL data ingestion.
+By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50051 for the OTEL data ingestion.
 
 OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
 
@@ -97,7 +99,7 @@ Start telegraf with the following config:
 [[inputs.smart]]
   attributes = true
 [[outputs.opentelemetry]]
-  service_address = "localhost:50052"
+  service_address = "localhost:50051"
 [agent]
   interval = "1s"
   flush_interval = "1s"
@@ -109,7 +111,7 @@ SMART data will be available in the `smart_attribute_raw_value` dataset in Spice
 
 :::warning[Current Limitations]
 
-- Write Support: Only selected [write-capable connectors and catalogs](/docs/tags/write) support write operations.
+- Write Support: Only selected [write-capable connectors and catalogs](../tags/write) support write operations.
 - Only Spice.ai replication is supported for OpenTelemetry ingestion
 
 :::

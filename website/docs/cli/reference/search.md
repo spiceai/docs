@@ -1,6 +1,6 @@
 ---
-title: "search"
-sidebar_label: "search"
+title: 'search'
+sidebar_label: 'search'
 pagination_prev: null
 pagination_next: null
 ---
@@ -17,15 +17,26 @@ spice search [query] [flags]
 
 #### Flags
 
-- `--cloud`  Whether to use cloud instance for search (default: false)
-- `--limit`  Limit number of search results
-- `--model`  Model to use for search
-- `--http-endpoint`  HTTP endpoint for search (default: http://localhost:8090).
+- `--cloud` Use a Spice Cloud instance for search. Requires `--api-key`.
+- `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).
+- `--limit` Limit number of search results.
+- `--model` Model to use for search.
+- `--http-endpoint <endpoint>` (Deprecated) HTTP endpoint for search (default: `http://localhost:8090`).
 
 ### Examples
 
 ```shell
 >>> spice search --limit 2
+```
+
+#### Remote and Cloud Examples
+
+```shell
+# Search with Spice Cloud
+spice search --cloud --api-key <your-api-key>
+
+# Search with a remote spiced instance
+spice search --endpoint http://my-remote-host:8090
 ```
 
 ```shell

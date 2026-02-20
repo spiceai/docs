@@ -5,7 +5,7 @@ sidebar_position: 3
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.
 :::
 
 ## Numerical Operators
@@ -449,6 +449,80 @@ Bitwise Shift Left
 +----------------------+
 ```
 
+## Type Casting Operators
+
+- [`CAST(expr AS type)`](#op_cast) – Explicit type conversion
+- [`::` (PostgreSQL-style cast)](#op_double_colon) – Shorthand type conversion
+
+### `CAST(expr AS type)` {#op_cast}
+
+Converts an expression to the specified data type.
+
+```sql
+> SELECT CAST('123' AS INT);
++------------------------+
+| CAST(Utf8("123") AS Int32) |
++------------------------+
+| 123                    |
++------------------------+
+
+> SELECT CAST(3.14159 AS INT);
++--------------------------+
+| CAST(Float64(3.14159) AS Int32) |
++--------------------------+
+| 3                        |
++--------------------------+
+
+> SELECT CAST('2024-01-15' AS DATE);
++----------------------------+
+| CAST(Utf8("2024-01-15") AS Date32) |
++----------------------------+
+| 2024-01-15                 |
++----------------------------+
+```
+
+### `::` (PostgreSQL-style cast) {#op_double_colon}
+
+Shorthand syntax for type conversion, equivalent to `CAST`.
+
+```sql
+> SELECT '123'::INT;
++-----------------------+
+| Utf8("123") AS Int32  |
++-----------------------+
+| 123                   |
++-----------------------+
+
+> SELECT '2024-01-15'::DATE;
++---------------------------+
+| Utf8("2024-01-15") AS Date32 |
++---------------------------+
+| 2024-01-15                |
++---------------------------+
+
+> SELECT 100::TEXT;
++-------------------+
+| Int64(100) AS Utf8 |
++-------------------+
+| 100               |
++-------------------+
+```
+
+**Supported Types:**
+
+| Type                          | Description            |
+| ----------------------------- | ---------------------- |
+| `INT` / `INTEGER` / `INT4`    | 32-bit signed integer  |
+| `BIGINT` / `INT8`             | 64-bit signed integer  |
+| `SMALLINT` / `INT2`           | 16-bit signed integer  |
+| `FLOAT` / `REAL` / `FLOAT4`   | 32-bit floating point  |
+| `DOUBLE` / `FLOAT8`           | 64-bit floating point  |
+| `TEXT` / `VARCHAR` / `STRING` | Variable-length string |
+| `BOOLEAN` / `BOOL`            | True/false value       |
+| `DATE`                        | Calendar date          |
+| `TIMESTAMP`                   | Date and time          |
+| `INTERVAL`                    | Time duration          |
+
 ## Other Operators
 
 - [|| (string concatenation)](#op_str_cat)
@@ -493,3 +567,62 @@ Array Is Contained By
 | true                                                                    |
 +-------------------------------------------------------------------------+
 ```
+
+## Literals
+
+Use single quotes for literal string values.
+
+```sql
+SELECT 'foo';
+```
+
+### Escaping
+
+SQL literals do not support C-style escape sequences such as `\n` for newline by default. All characters in a `'` string are treated literally.
+
+To escape `'` in SQL literals, use `''`:
+
+```sql
+> SELECT 'it''s escaped';
++----------------------+
+| Utf8("it's escaped") |
++----------------------+
+| it's escaped         |
++----------------------+
+```
+
+Strings such as `'foo\nbar'` contain a literal backslash followed by `n`, not a newline:
+
+```sql
+> SELECT 'foo\nbar';
++------------------+
+| Utf8("foo\nbar") |
++------------------+
+| foo\nbar         |
++------------------+
+```
+
+### E-String Escape Sequences
+
+To include escaped characters such as newline or tab, use `E`-prefixed strings:
+
+```sql
+> SELECT E'foo\nbar';
++-----------------+
+| Utf8("foo
+bar") |
++-----------------+
+| foo
+bar         |
++-----------------+
+```
+
+Supported escape sequences:
+
+| Escape | Character       |
+| ------ | --------------- |
+| `\n`   | Newline         |
+| `\t`   | Tab             |
+| `\r`   | Carriage return |
+| `\\`   | Backslash       |
+| `\'`   | Single quote    |

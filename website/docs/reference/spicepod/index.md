@@ -14,7 +14,7 @@ Spicepod manifests use YAML syntax. They are stored in the root directory of the
 
 :::info[Tip]
 
-If you are new to YAML and want to learn more, see "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
+Readers who are new to YAML can find a primer in "[Learn YAML in Y minutes](https://learnxinyminutes.com/docs/yaml/)."
 
 :::
 
@@ -32,7 +32,7 @@ The name of the Spicepod.
 
 ## `secrets`
 
-The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](/docs/components/secret-stores).
+The secrets section in the Spicepod manifest is optional and is used to configure how secrets are stored and accessed by the Spicepod. For more information, see [Secret Stores](../components/secret-stores).
 
 ### `secrets.from`
 
@@ -49,10 +49,10 @@ Where:
 - `<secret_store>`: The Secret Store to use
 
   Currently supported secret stores:
-  - [`env`](/docs/components/secret-stores/env/index.md)
-  - [`kubernetes`](/docs/components/secret-stores/kubernetes/index.md)
-  - [`keyring`](/docs/components/secret-stores/keyring/index.md)
-  - [`aws-secrets-manager`](/docs/components/secret-stores/aws-secrets-manager/index.md)
+  - [`env`](../components/secret-stores/env)
+  - [`kubernetes`](../components/secret-stores/kubernetes)
+  - [`keyring`](../components/secret-stores/keyring)
+  - [`aws-secrets-manager`](../components/secret-stores/aws-secrets-manager)
 
   If no secret stores are explicitly specified, it defaults to `env`.
 
@@ -74,7 +74,7 @@ The name of the secret store. This is used to reference the store in the secret 
 
 ## `runtime`
 
-The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](./runtime.md).
+The `runtime` section specifies configuration settings for the Spice runtime. For detailed documentation, see the [Runtime YAML reference](spicepod/runtime).
 
 ## `metadata`
 
@@ -93,7 +93,7 @@ metadata:
 
 ## `datasets`
 
-A Spicepod can contain one or more [datasets](./datasets.md) referenced by relative path.
+A Spicepod can contain one or more [datasets](spicepod/datasets) referenced by relative path.
 
 **Example**
 
@@ -116,9 +116,42 @@ datasets:
       refresh_check_interval: 1h
 ```
 
+## `snapshots` {#snapshots}
+
+Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
+
+```yaml
+snapshots:
+  enabled: true
+  location: s3://my_bucket/snapshots/
+  bootstrap_on_failure_behavior: warn # warn | retry | fallback
+  params:
+    s3_auth: iam_role
+```
+
+### `snapshots.enabled`
+
+Enable or disable snapshot management globally. Defaults to `false`.
+
+### `snapshots.location`
+
+The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`) and absolute or relative filesystem paths. The path must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
+
+### `snapshots.bootstrap_on_failure_behavior`
+
+Controls what happens when Spice cannot load the most recent snapshot on startup. Valid values:
+
+- `warn` (default) – Log a warning and continue with an empty acceleration.
+- `retry` – Retry the newest snapshot until it loads successfully.
+- `fallback` – Attempt older snapshots in the same dataset folder until one works.
+
+### `snapshots.params`
+
+Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`.
+
 ## `models`
 
-A Spicepod can contain one or more [models](./models.md) referenced by relative path.
+A Spicepod can contain one or more [models](spicepod/models) referenced by relative path.
 
 **Example**
 
@@ -141,7 +174,7 @@ models:
 
 ## `embeddings`
 
-A Spicepod can contain one or more [embeddings](./embeddings.md) referenced by relative path.
+A Spicepod can contain one or more [embeddings](spicepod/embeddings) referenced by relative path.
 
 **Example**
 
@@ -162,7 +195,7 @@ embeddings:
 
 ## `evals`
 
-A Spicepod can contain one or more [evaluations](./evals.md) referenced by relative path.
+A Spicepod can contain one or more [evaluations](spicepod/evals) referenced by relative path.
 
 **Example**
 
@@ -210,7 +243,7 @@ views:
 
 ## `workers`
 
-A Spicepod can contain one or more [workers](./workers.md) defining configurable units of compute.
+A Spicepod can contain one or more [workers](spicepod/workers) defining configurable units of compute.
 
 **Example**
 
@@ -248,4 +281,4 @@ workers:
           weight: 1
 ```
 
-For a complete specification of worker configuration, see the [Workers Reference](/docs/reference/spicepod/workers.md).
+For a complete specification of worker configuration, see the [Workers Reference](spicepod/workers).

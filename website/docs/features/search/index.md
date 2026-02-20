@@ -2,7 +2,7 @@
 title: 'Search Functionality'
 sidebar_label: 'Search'
 description: 'Learn how Spice can search across datasets using database-native and vector-search methods.'
-sidebar_position: 8
+sidebar_position: 10
 pagination_prev: null
 pagination_next: null
 tags:
@@ -13,7 +13,7 @@ tags:
 
 import DocCardList from '@theme/DocCardList';
 
-> 🎓 For a practical walkthrough, see the: [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 For a practical walkthrough, see the: [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
 Spice provides robust search capabilities enabling developers to query datasets beyond traditional SQL, including semantic (vector-based) search, full-text keyword search, and hybrid search methods.
 
@@ -37,8 +37,8 @@ Vector search uses embeddings—numerical representations of data—to identify 
 
 **Getting Started:**
 
-- [Configure Embeddings](/docs/components/embeddings)
-- [Performing Vector Search](/docs/features/search/vector-search)
+- [Configure Embeddings](../components/embeddings)
+- [Performing Vector Search](search/vector-search)
 
 **Example SQL Vector Search:**
 
@@ -50,7 +50,7 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](/docs/features/search/vector-search#sql-udtf).
+For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](search/vector-search#sql-udtf).
 
 ### Full-Text Search
 
@@ -62,7 +62,7 @@ Full-text search efficiently retrieves records matching specific keywords.
 
 **Getting Started:**
 
-- [Full-Text Search Docs](./full-text.md)
+- [Full-Text Search Docs](search/full-text)
 
 **Example SQL Full-Text Search:**
 
@@ -74,15 +74,21 @@ ORDER BY score DESC
 LIMIT 5
 ```
 
-For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](/docs/features/search/full-text#searching-with-sql).
+For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](search/full-text#searching-with-sql).
 
 ### Hybrid Search with RRF
 
-Reciprocal Rank Fusion (RRF) combines results by merging rankings from multiple search methods to improve relevance.
+Reciprocal Rank Fusion (RRF) combines results by merging rankings from multiple search methods to improve relevance. This is useful when neither vector search nor full-text search alone provides optimal results.
 
 **Requirements:**
 
 - Multiple search methods configured (vector, full-text, etc.)
+
+**When to use hybrid search:**
+
+- The query contains both semantic concepts and specific keywords.
+- Results from a single method are missing relevant documents.
+- Improved ranking is needed across diverse content types.
 
 **Example SQL Hybrid Search:**
 
@@ -97,6 +103,6 @@ ORDER BY fused_score DESC
 LIMIT 5
 ```
 
-For complete RRF syntax and parameters, see [Search SQL Reference](/docs/reference/sql/search#reciprocal-rank-fusion-rrf).
+For complete RRF syntax and parameters, see [Search SQL Reference](../reference/sql/search#reciprocal-rank-fusion-rrf).
 
 <DocCardList />

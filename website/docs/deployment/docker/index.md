@@ -12,7 +12,7 @@ tags:
 
 ## Running Spice.ai as a Docker Container
 
-For information on using Helm deployment, refer to the [Deploy Spice.ai in Kubernetes using Helm](./kubernetes/) section.
+For information on using Helm deployment, refer to the [Deploy Spice.ai in Kubernetes using Helm](./kubernetes) section.
 
 Use the [`spiceai/spiceai` Docker image](https://hub.docker.com/r/spiceai/spiceai/tags) to run Spice.ai as a Docker container:
 
@@ -80,7 +80,6 @@ docker-compose up --build
  ✔ Container spiced-container  Recreated                                                                                                                                   0.0s
 Attaching to spiced-container
 spiced-container  | 2024-12-19T00:43:13.844091Z  INFO runtime::init::dataset: No datasets were configured. If this is unexpected, check the Spicepod configuration.
-spiced-container  | 2024-12-19T00:43:13.844615Z  INFO runtime::opentelemetry: Spice Runtime OpenTelemetry listening on 127.0.0.1:50052
 spiced-container  | 2024-12-19T00:43:13.844750Z  INFO runtime::metrics_server: Spice Runtime Metrics listening on 0.0.0.0:9090
 spiced-container  | 2024-12-19T00:43:13.844778Z  INFO runtime::flight: Spice Runtime Flight listening on 0.0.0.0:50051
 spiced-container  | 2024-12-19T00:43:13.844882Z  INFO runtime::http: Spice Runtime HTTP listening on 0.0.0.0:8090

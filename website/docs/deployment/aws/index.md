@@ -2,10 +2,13 @@
 title: 'AWS Deployment Options'
 description: 'Guide to deploying Spice.ai applications on Amazon Web Services (AWS)'
 sidebar_label: 'AWS'
-sidebar_position: 2
+sidebar_position: 1
+pagination_next: null
 ---
 
-Spice.ai provides multiple deployment options on Amazon Web Services (AWS), allowing you to leverage AWS's robust infrastructure for your data and AI applications. Whether you prefer virtual machines, container orchestration, or managed services, you can deploy Spice.ai to meet your specific requirements for performance, scalability, and cost efficiency.
+Spice.ai provides multiple deployment options on Amazon Web Services (AWS), enabling data and AI applications to run on AWS's elastic infrastructure. Whether using virtual machines, container orchestration, or managed services, Spice deploys to meet requirements for performance, scalability, and cost efficiency.
+
+For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](aws/integrations).
 
 ## Benefits of Deploying on AWS
 
@@ -132,6 +135,26 @@ The connector will try each source in order until valid credentials are found. I
 Regardless of the credential source, the IAM role or user must have appropriate permissions (e.g., `s3:ListBucket`, `s3:GetObject`) to access the service. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
 :::
 
-## Learn More
+## Resources
 
-- [Using AWS Secrets Manager Secret Store with Spice.ai](https://spiceai.org/docs/components/secret-stores/aws-secrets-manager)
+### Documentation
+
+- [AWS Integrations](aws/integrations) - Complete list of AWS data connectors, AI models, vector stores, and secrets
+- [AWS Secrets Manager Secret Store](../components/secret-stores/aws-secrets-manager)
+
+### AWS Blog Posts
+
+- [Architecting High-Performance AI-Driven Data Applications with Spice.ai and AWS](https://aws.amazon.com/blogs/storage/architecting-high-performance-ai-driven-data-applications-with-spice-ai-and-aws/) - AWS Storage Blog
+
+### Spice.ai Blog Posts
+
+- [Amazon S3 Vectors](https://spice.ai/blog/amazon-s3-vectors) - Overview of S3 Vectors integration
+- [Getting Started with Amazon S3 Vectors and Spice](https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice) - Step-by-step tutorial
+
+### Videos
+
+- [Getting started with Amazon S3 Vectors and Spice](https://www.youtube.com/watch?v=KuWI0yDOnIU) - YouTube walkthrough
+
+### Marketplace
+
+- [Spice.ai on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-jmf6jskjvnq7i) - Deploy Spice.ai from AWS Marketplace

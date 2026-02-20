@@ -17,18 +17,18 @@ datasets:
 
 ## Schema
 
-| Field Name   | Data Type    | Nullable | Description                                                                      |
-| ------------ | ------------ | -------- | -------------------------------------------------------------------------------- |
-| `date`       | `Date64`     | No       | The date and time when the email was sent.                                       |
-| `subject`    | `Utf8`       | Yes      | The subject line of the email.                                                   |
-| `from`       | `List<Utf8>` | Yes      | The sender(s) of the email.                                                      |
-| `to`         | `List<Utf8>` | Yes      | The primary recipient(s) of the email.                                           |
-| `cc`         | `List<Utf8>` | Yes      | The carbon copy recipient(s) of the email.                                       |
-| `bcc`        | `List<Utf8>` | Yes      | The blind carbon copy recipient(s) of the email.                                 |
-| `reply_to`   | `List<Utf8>` | Yes      | The email address(es) to which replies should be sent.                           |
-| `message_id` | `Utf8`       | Yes      | A unique identifier for the email message.                                       |
-| `in_reply_to`| `Utf8`       | Yes      | The `message_id` of the email this message is replying to, if applicable.        |
-| `content`    | `Utf8`       | Yes      | The raw email body of this message. Not retrieved when acceleration is disabled. |
+| Field Name    | Data Type    | Nullable | Description                                                                      |
+| ------------- | ------------ | -------- | -------------------------------------------------------------------------------- |
+| `date`        | `Date64`     | No       | The date and time when the email was sent.                                       |
+| `subject`     | `Utf8`       | Yes      | The subject line of the email.                                                   |
+| `from`        | `List<Utf8>` | Yes      | The sender(s) of the email.                                                      |
+| `to`          | `List<Utf8>` | Yes      | The primary recipient(s) of the email.                                           |
+| `cc`          | `List<Utf8>` | Yes      | The carbon copy recipient(s) of the email.                                       |
+| `bcc`         | `List<Utf8>` | Yes      | The blind carbon copy recipient(s) of the email.                                 |
+| `reply_to`    | `List<Utf8>` | Yes      | The email address(es) to which replies should be sent.                           |
+| `message_id`  | `Utf8`       | Yes      | A unique identifier for the email message.                                       |
+| `in_reply_to` | `Utf8`       | Yes      | The `message_id` of the email this message is replying to, if applicable.        |
+| `content`     | `Utf8`       | Yes      | The raw email body of this message. Not retrieved when acceleration is disabled. |
 
 If a MIME-encoded value is retrieved for a field, it is not decoded and the MIME-encoded value is returned in SQL queries.
 
@@ -89,20 +89,20 @@ SELECT COUNT(*) FROM emails;
 +----------+
 ```
 
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
 The IMAP connector supports the following connection and authentication parameters:
 
-| Parameter Name      | Description                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------ |
-| `imap_username`     | Optional. The username to use for the IMAP connection. Defaults to the value of the `from:` mailbox field. |
-| `imap_password`     | Optional. The password to use for the IMAP connection, in plaintext authentication mode. |
-| `imap_host`         | Optional. The host or IP address of the IMAP server to connect to. Not required for known connections like Outlook or Gmail. |
-| `imap_port`         | Optional. The port of the IMAP server to connect to. |
-| `imap_mailbox`      | Optional. The mailbox to read mail from. Defaults to `INBOX`, the standard email inbox. |
-| `imap_ssl_mode`     | Optional. The IMAP SSL mode to use. Defaults to `tls`, permitted values of `tls`, `starttls`, `disabled` or `auto`. |
+| Parameter Name  | Description                                                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `imap_username` | Optional. The username to use for the IMAP connection. Defaults to the value of the `from:` mailbox field.                   |
+| `imap_password` | Optional. The password to use for the IMAP connection, in plaintext authentication mode.                                     |
+| `imap_host`     | Optional. The host or IP address of the IMAP server to connect to. Not required for known connections like Outlook or Gmail. |
+| `imap_port`     | Optional. The port of the IMAP server to connect to.                                                                         |
+| `imap_mailbox`  | Optional. The mailbox to read mail from. Defaults to `INBOX`, the standard email inbox.                                      |
+| `imap_ssl_mode` | Optional. The IMAP SSL mode to use. Defaults to `tls`, permitted values of `tls`, `starttls`, `disabled` or `auto`.          |
 
 ## Examples
 
@@ -119,9 +119,9 @@ datasets:
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
 
 ## Cookbook
 
 - A cookbook recipe to configure IMAP as a data connector in Spice. [IMAP Data Connector](https://github.com/spiceai/cookbook/tree/trunk/imap/#readme)
-- A cookbook recipe to configure IMAP with Outlook using OAuth authentication as a data connector in Spice. [Connecting to an Outlook mailbox](https://github.com/spiceai/cookbook/tree/trunk/imap/outlook.md)
+- A cookbook recipe to configure IMAP with Outlook using OAuth authentication as a data connector in Spice. [Connecting to an Outlook mailbox](https://github.com/spiceai/cookbook/tree/trunk/imap/outlook)

@@ -30,7 +30,7 @@ The `from` field specifies the source of the embedding model. It supports the fo
 - `file:` - Local file paths
 - `openai` - OpenAI models
 
-Follows the same convention as [`models.from`](./models.md#from).
+Follows the same convention as [`models.from`](./models#from).
 
 ### `name`
 
@@ -44,7 +44,7 @@ Optional. A list of files associated with this model. Each file has:
 - `name`: Optional. A name for the file
 - `type`: Optional. The type of the file (automatically determined if not specified)
 
-Follows the same convention as [`models.files`](./models.md#files).
+Follows the same convention as [`models.files`](./models#files).
 
 ### `params`
 

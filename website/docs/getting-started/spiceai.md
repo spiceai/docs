@@ -8,13 +8,11 @@ pagination_next: null
 
 The [Spice.ai Cloud Platform](https://docs.spice.ai) includes a comprehensive set of free, ready-to-query [sample datasets](https://spicerack.org/).
 
-The Spice runtime can query these datasets using the [Spice.ai Data Connector](/docs/components/data-connectors/spiceai.md).
+The Spice runtime can query these datasets using the [Spice.ai Data Connector](../components/data-connectors/spiceai).
 
 ## Quickstart
 
-To access these community datasets, navigate to [spice.ai](https://spice.ai/), and create a new account by clicking Try for Free.
-
-<img width="500" alt="spiceai_try_for_free-1" src="https://github.com/spiceai/spiceai/assets/112157037/27fb47ed-4825-4fa8-94bd-48197406cfaa" />
+To access these community datasets, navigate to [spice.ai](https://spice.ai/), and create a new account by clicking 'Start for Free'.
 
 After logging in, create an app in order to get an API key.
 

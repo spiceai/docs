@@ -47,16 +47,16 @@ Where:
 - `dataset` is a dataset component.
 - `scorers` is a list of scoring methods.
 
-For complete details on the `evals` component, see the [Spicepod reference](/docs/reference/spicepod/evals).
+For complete details on the `evals` component, see the [Spicepod reference](../../reference/spicepod/evals).
 
 ## Running an Eval
 
-To run an eval, ensure
+To run an eval:
 
-1.  Define an `eval` component (and it's associated `dataset`).
-2.  Add a language model to the spicepod (this is the model that will be evaluated).
+1. Define an `eval` component (and its associated `dataset`).
+2. Add a language model to the spicepod (this is the model that will be evaluated).
 
-An eval can be started via the HTTP API:
+Start an eval via the HTTP API:
 
 ```shell
 curl -XPOST http://localhost:8090/v1/evals/australia \
@@ -160,4 +160,4 @@ Spicepod models can be used to provide eval scores for other models. To do so in
     "rationale": "It was a good story, they both are about love."
   }
   ```
-2. Use [Parameterized prompts](docs/features/large-language-models/parameterized_prompts.md) to provide details about the eval step. When used as an eval scorer, the model will be provided with the following variables: `input`, `actual` & `ideal`. The type of these variables will depend on the dataset, as per the [dataset format](#dataset-formats).
+2. Use [Parameterized prompts](./parameterized_prompts) to provide details about the eval step. When used as an eval scorer, the model will be provided with the following variables: `input`, `actual` & `ideal`. The type of these variables will depend on the dataset, as per the [dataset format](#dataset-formats).

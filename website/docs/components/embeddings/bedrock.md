@@ -1,7 +1,7 @@
 ---
 title: 'Amazon Bedrock Model Provider'
 description: 'Instructions for using Amazon Bedrock embedding models'
-sidebar_label: 'AWS Bedrock'
+sidebar_label: 'Amazon Bedrock'
 sidebar_position: 8
 ---
 
@@ -11,15 +11,15 @@ To use an embedding model deployed to [AWS Bedrock service](https://aws.amazon.c
 
 #### AWS Parameters
 
-| Parameter               | Description                                                                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `aws_region`            | AWS region. Default: `us-east-1`.                                                                                                |
-| `aws_profile`           | Optional. AWS profile to use when loading credentials.                                                                                              |
-| `aws_access_key_id`     | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
-| `aws_secret_access_key` | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
-| `aws_session_token`     | Optional. AWS session token for authentication                                                                                          |
-| `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to `40` |
-| `requests_per_min_limit` | Optional. The maximum number of requests made per minute. Defaults to `1500` |
+| Parameter                    | Description                                                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `aws_region`                 | AWS region. Default: `us-east-1`.                                                                                                       |
+| `aws_profile`                | Optional. AWS profile to use when loading credentials.                                                                                  |
+| `aws_access_key_id`          | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
+| `aws_secret_access_key`      | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
+| `aws_session_token`          | Optional. AWS session token for authentication                                                                                          |
+| `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to `40`                                                            |
+| `requests_per_min_limit`     | Optional. The maximum number of requests made per minute. Defaults to `1500`                                                            |
 
 #### AWS Titan Models
 
@@ -27,8 +27,18 @@ These parameters are used for [Amazon Titan Text](https://docs.aws.amazon.com/be
 
 | Parameter    | Description                                                                                                             |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `normalize`  | Whether or not to normalize the output embedding. Defaults to `true`.                                                     |
+| `normalize`  | Whether or not to normalize the output embedding. Defaults to `true`.                                                   |
 | `dimensions` | The number of dimensions the output embedding should have. The following values are accepted: 1024 (default), 512, 256. |
+
+#### Amazon Nova Models
+
+These parameters are used for [Amazon Nova](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) multimodal embedding models
+
+| Parameter           | Description                                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dimensions`        | **Required**. The number of dimensions the output embedding should have. Accepted value: 256, 384, 1024 or 3072.                                                                                                   |
+| `truncation_mode`   | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                                                                                   |
+| `embedding_purpose` | Optional. Use the Nova embeddings model optimized for different purposes. Default `GENERIC_INDEX`. See reference [docs](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) for all options. |
 
 #### Cohere Models
 
@@ -54,10 +64,25 @@ embeddings:
 ### Example `spicepod.yaml` configuration, Titan model
 
 ```yaml
-  - from: bedrock:amazon.titan-embed-text-v2:0
-    name: titan-embeddings
+- from: bedrock:amazon.titan-embed-text-v2:0
+  name: titan-embeddings
+  params:
+    dimensions: '256'
+```
+
+### Example `spicepod.yaml` configuration, Amazon Nova model
+
+```yaml
+embeddings:
+  - from: bedrock:amazon.nova-2-multimodal-embeddings-v1:0
+    name: nova-embeddings
     params:
-      dimensions: "256"
+      dimensions: '3072'
+      truncation_mode: START
+      embedding_purpose: GENERIC_RETRIEVAL
+      aws_region: us-east-1
+      aws_access_key_id: ${ secrets:AWS_ACCESS_KEY_ID }
+      aws_secret_access_key: ${ secrets:AWS_SECRET_ACCESS_KEY }
 ```
 
 ### Authentication
@@ -95,7 +120,7 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    1. Run `aws configure sso` to configure a new SSO profile
    2. Use the profile by setting `AWS_PROFILE=sso-profile`
    3. Run `aws sso login --profile sso-profile` to start a new SSO session
-   :::
+      :::
 
 3. **AWS STS Web Identity Token Credentials**:
    - Used primarily with OpenID Connect (OIDC) and OAuth
@@ -124,25 +149,21 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "bedrock:InvokeModel"
-            ],
-            "Resource": [
-                "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"
-            ]
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel"],
+      "Resource": ["arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-*"]
+    }
+  ]
 }
 ```
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
+| Permission            | Purpose                                       |
+| --------------------- | --------------------------------------------- |
 | `bedrock:InvokeModel` | Required. Used to invoke the embedding model. |
 
 ### Additional Information

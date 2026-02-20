@@ -1,8 +1,10 @@
 ---
-title: 'Spice.ai OSS Installation'
+title: 'Install Spice.ai OSS'
 sidebar_label: 'Installation'
 sidebar_position: 0
-description: 'Instructions for installing Spice.ai OSS'
+description: 'Install Spice.ai OSS on macOS, Linux, Windows, or WSL using the install script, Homebrew, PowerShell, or direct download from GitHub releases.'
+keywords: [spice.ai, install, installation, macos, linux, windows, wsl, homebrew, download]
+image: /img/og/spiceai.png
 pagination_next: null
 ---
 
@@ -11,7 +13,7 @@ import TabItem from '@theme/TabItem';
 
 Installation options for Spice.ai OSS
 
-For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/index.md).
+For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>
@@ -42,6 +44,23 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment/i
 
 Binaries for Linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
 
+**Verify the installation:**
+
+After installing, verify Spice is installed correctly:
+
+```bash
+spice version
+```
+
+Expected output:
+
+```
+CLI version:     1.x.x
+Runtime version: 1.x.x
+```
+
+If the command is not found, ensure the Spice binary directory is in your `PATH`.
+
 ## Building Spice from Source
 
 ### Build prerequisites
@@ -55,18 +74,21 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     ```
 
-  2. Install the Xcode Command Line tools
-    ```shell
-    xcode-select --install
-    ```
+2. Install the Xcode Command Line tools
 
-  3. Install dependencies
-    ```shell
-    brew install rust
-    brew install go
-    brew install cmake
-    brew install protobuf
-    ```
+```shell
+xcode-select --install
+```
+
+3. Install dependencies
+
+   ```shell
+   brew install rust
+   brew install go
+   brew install cmake
+   brew install protobuf
+   ```
+
   </TabItem>
 
   <TabItem value="linux" label="Linux (Ubuntu)">
@@ -76,26 +98,29 @@ Binaries for Linux, Windows, and macOS are available for download from GitHub at
     sudo apt install build-essential curl openssl libssl-dev pkg-config protobuf-compiler cmake
     ```
 
-  2. Install Go
-    ```shell
-    export GO_VERSION="1.22.4"
-    rm -rf /tmp/spice
-    mkdir -p /tmp/spice
-    cd /tmp/spice
-    wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
-    tar xvfz go$GO_VERSION.linux-amd64.tar.gz
-    sudo mv ./go /usr/local/go
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-    source $HOME/.profile
-    cd $HOME
-    rm -rf /tmp/spice
-    ```
+2. Install Go
 
-  3. Install Rust
-    ```shell
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended
-      source $HOME/.cargo/env
-    ```
+   ```shell
+   export GO_VERSION="1.22.4"
+   rm -rf /tmp/spice
+   mkdir -p /tmp/spice
+   cd /tmp/spice
+   wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
+   tar xvfz go$GO_VERSION.linux-amd64.tar.gz
+   sudo mv ./go /usr/local/go
+   echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+   source $HOME/.profile
+   cd $HOME
+   rm -rf /tmp/spice
+   ```
+
+3. Install Rust
+
+   ```shell
+     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended
+     source $HOME/.cargo/env
+   ```
+
   </TabItem>
 
 </Tabs>
@@ -134,9 +159,9 @@ The Spice CLI will automatically detect and download the appropriate runtime bin
 
 **Steps**:
 
-1. GPUs with Cuda compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series, ...).
-1. Ensure both Cuda and associated Nvidia drivers are installed. Requires CUDA version 12.2 or higher
-1. Ensure Nvidia binaries are in your path:
+1. GPUs with CUDA compute capabilities < 7.5 are not supported (V100, Titan V, GTX 1000 series).
+1. Ensure both CUDA and associated NVIDIA drivers are installed. Requires CUDA version 12.2 or higher.
+1. Ensure NVIDIA binaries are in your path:
 
 ```shell
 export PATH=$PATH:/usr/local/cuda/bin
@@ -148,7 +173,7 @@ export PATH=$PATH:/usr/local/cuda/bin
 make install-with-models-cuda
 ```
 
-This ensures CUDA devices are selected on model load, and CUDA-specifiy kernels used when possible.
+This ensures CUDA devices are selected on model load, and CUDA-specific kernels are used when possible.
 
 #### Metal Support
 
@@ -166,4 +191,4 @@ xcode-select --install
 make install-with-models-metal
 ```
 
-Similarily, this ensures Metal devices are selected on model load, and Metal-specific kernels used when possible.
+Similarly, this ensures Metal devices are selected on model load, and Metal-specific kernels are used when possible.

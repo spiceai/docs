@@ -1,16 +1,16 @@
 ---
 title: 'Secret Stores'
 sidebar_label: 'Secret Stores'
-description: ''
+description: 'Configure secret stores to manage sensitive data like passwords, tokens, and API keys.'
 image: /img/og/secret-stores.png
 sidebar_position: 3
 pagination_prev: null
 pagination_next: null
 ---
 
-A Secret Store is a location where `secrets` are stored and can be used to store sensitive data, like passwords, tokens, and secret keys.
+A Secret Store is a secure location where secrets (such as passwords, tokens, and API keys) are stored. Spice retrieves secrets from configured stores at runtime and injects them into component parameters.
 
-Spice supports secret stores: [`env`](./env/index.md), [`kubernetes`](./kubernetes/index.md), [`keyring`](./keyring/index.md) and [`aws_secrets_manager`](./aws-secrets-manager/index.md). The `env` secret store is loaded by default.
+Supported secret stores include: [`env`](secret-stores/env), [`kubernetes`](secret-stores/kubernetes), [`keyring`](secret-stores/keyring), and [`aws_secrets_manager`](secret-stores/aws-secrets-manager). The `env` secret store is loaded by default.
 
 ### Default
 

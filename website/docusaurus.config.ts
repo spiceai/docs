@@ -7,6 +7,87 @@ import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
+import * as fs from 'fs'
+import * as path from 'path'
+
+// Load versions from versions.json if it exists (generated at build time)
+const versionsPath = path.join(__dirname, 'versions.json')
+const versions: string[] = fs.existsSync(versionsPath)
+  ? JSON.parse(fs.readFileSync(versionsPath, 'utf-8'))
+  : []
+
+// Build version configuration dynamically
+// Trunk docs (current) are "Next" at /docs/next
+// Highest version in versions.json (e.g., 1.11.x) is "Latest" at /docs (default)
+// Previous versions are at /docs/v1.10, etc.
+// Maintenance policy: latest + 1 previous minor versions are maintained
+const hasVersions = versions.length > 0
+
+// Extract major and minor version numbers from versions to determine ordering and maintenance status
+const getVersion = (v: string): { major: number; minor: number } => {
+  const match = v.match(/^(\d+)\.(\d+)/)
+  return match
+    ? { major: parseInt(match[1], 10), minor: parseInt(match[2], 10) }
+    : { major: 0, minor: 0 }
+}
+
+// Sort versions by semver (major desc, then minor desc)
+const sortedVersions = [...versions].sort((a, b) => {
+  const vA = getVersion(a)
+  const vB = getVersion(b)
+  if (vB.major !== vA.major) return vB.major - vA.major
+  return vB.minor - vA.minor
+})
+
+// Highest version is "latest", trunk (current) is "next"
+const latestVersion = sortedVersions[0] || null
+const latestVer = latestVersion ? getVersion(latestVersion) : { major: 0, minor: 0 }
+
+const docsVersionConfig = hasVersions
+  ? {
+      lastVersion: latestVersion!, // The stable release is the default
+      onlyIncludeVersions: [...versions, 'current'],
+      versions: {
+        current: {
+          label: 'Next',
+          path: 'next',
+          banner: 'unreleased' as const
+        },
+        ...Object.fromEntries(
+          versions.map((version) => {
+            const ver = getVersion(version)
+            const isLatest = version === latestVersion
+            // Versions within same major and latest minor - 1 are maintained (no banner)
+            const isMaintained =
+              ver.major > latestVer.major ||
+              (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1)
+
+            return [
+              version,
+              {
+                label: isLatest
+                  ? `Latest (v${version.replace('.x', '')})`
+                  : `v${version.replace('.x', '')}`,
+                path: isLatest ? '' : `v${version.replace('.x', '')}`,
+                banner: isMaintained ? ('none' as const) : ('unmaintained' as const)
+              }
+            ]
+          })
+        )
+      }
+    }
+  : {
+      // No versions generated - use current docs only (for local dev)
+      lastVersion: 'current',
+      versions: {
+        current: {
+          label: 'Latest',
+          path: '',
+          banner: 'none' as const
+        }
+      },
+      onlyIncludeVersions: ['current']
+    }
 
 const config: Config = {
   title: 'Spice.ai OSS',
@@ -29,7 +110,12 @@ const config: Config = {
 
   onBrokenAnchors: 'throw',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'throw'
+    }
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -54,15 +140,18 @@ const config: Config = {
           routeBasePath: '/docs',
           path: 'docs',
           sidebarPath: 'sidebars.ts',
+          onInlineTags: 'throw',
           docItemComponent: '@theme/ApiItem',
-          editUrl: ({ docPath }) => {
-            return `https://github.com/spiceai/docs/edit/trunk/website/docs/${docPath}`
-          }
+          editUrl: ({ versionDocsDirPath, docPath }) => {
+            return `https://github.com/spiceai/docs/edit/trunk/website/${versionDocsDirPath}/${docPath}`
+          },
+          ...docsVersionConfig
         },
         blog: {
           path: 'blog',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
+          onInlineTags: 'throw',
           onUntruncatedBlogPosts: 'ignore',
           editUrl: ({ locale, blogDirPath, blogPath }) => {
             return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
@@ -73,7 +162,7 @@ const config: Config = {
             type: 'all',
             description:
               'Keep up to date with upcoming Spice.ai OSS releases and articles by following our feed!',
-            copyright: `Copyright © 2025 Spice AI, Inc.`,
+            copyright: `Copyright © 2021-2026 Spice AI, Inc.`,
             xslt: true
           },
           blogTitle: 'Spice.ai OSS blog',
@@ -92,14 +181,39 @@ const config: Config = {
         gtag: {
           trackingID: 'G-SST0X6NS37',
           anonymizeIP: true
+        },
+        sitemap: {
+          lastmod: 'date',
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml'
         }
       } satisfies Preset.Options
     ]
   ],
   themes: ['docusaurus-theme-openapi-docs'],
   themeConfig: {
+    // SEO metadata configuration
+    metadata: [
+      {
+        name: 'keywords',
+        content:
+          'spice, spice.ai, sql query engine, ai compute engine, data federation, data acceleration, rag, retrieval augmented generation, arrow flight, datafusion, duckdb, rust, llm, openai compatible, mcp server'
+      },
+      { name: 'author', content: 'Spice AI, Inc.' },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'Spice.ai OSS' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'Spice.ai - SQL Query and AI Compute Engine' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:site', content: '@spice_ai' },
+      { name: 'twitter:creator', content: '@spice_ai' }
+    ],
     announcementBar: {
-      content: '<a href="/blog/releases/v1.8.0">Spice.ai OSS v1.8.0</a> is now available! 🚀',
+      content: '<a href="/releases/v1.11.1">Spice.ai OSS v1.11.1</a> is now available! 🛠️',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
@@ -124,9 +238,24 @@ const config: Config = {
           sidebarId: 'api',
           label: 'API'
         },
-        { to: 'blog', label: 'Blog', position: 'left' },
+        { to: 'releases', label: 'Releases', position: 'left' },
+        {
+          label: 'Blog',
+          href: 'https://spice.ai/blog',
+          position: 'left'
+        },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
+        // Version dropdown is only shown when versions exist
+        ...(hasVersions
+          ? [
+              {
+                type: 'docsVersionDropdown' as const,
+                position: 'right' as const,
+                dropdownActiveClassDisabled: true
+              }
+            ]
+          : []),
         {
           label: 'Try Spice Cloud',
           href: 'https://spice.ai/login',
@@ -138,8 +267,8 @@ const config: Config = {
           position: 'right'
         },
         {
-          label: 'Discord',
-          href: 'https://discord.gg/kZnTfneP5u',
+          label: 'Slack',
+          href: 'https://spiceai.org/slack',
           position: 'right'
         },
         {
@@ -187,8 +316,8 @@ const config: Config = {
               href: 'https://reddit.com/r/spiceai'
             },
             {
-              label: 'Discord',
-              href: 'https://discord.gg/kZnTfneP5u'
+              label: 'Slack',
+              href: 'https://spiceai.org/slack'
             },
             {
               label: 'X',
@@ -205,7 +334,7 @@ const config: Config = {
           items: [
             {
               label: 'Blog',
-              href: 'https://blog.spiceai.org'
+              href: 'https://spice.ai/blog'
             },
             {
               label: 'GitHub',
@@ -232,11 +361,61 @@ const config: Config = {
       appId: '0SP8I8JTL8',
       apiKey: '72f66fe334ccd3c7db696a123d68735c',
       indexName: 'spiceai',
-      contextualSearch: false
+      contextualSearch: true
     }
   } satisfies Preset.ThemeConfig,
 
   headTags: [
+    // Structured data for SEO (JSON-LD)
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json'
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'Spice.ai OSS',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Linux, macOS, Windows',
+        description:
+          'A portable SQL query and AI compute engine, written in Rust, for data-grounded apps and agents.',
+        url: 'https://spiceai.org',
+        downloadUrl: 'https://github.com/spiceai/spiceai/releases',
+        softwareVersion: '1.10.0',
+        author: {
+          '@type': 'Organization',
+          name: 'Spice AI, Inc.',
+          url: 'https://spice.ai'
+        },
+        license: 'https://github.com/spiceai/spiceai/blob/trunk/LICENSE',
+        programmingLanguage: 'Rust',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD'
+        }
+      })
+    },
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json'
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Spice AI, Inc.',
+        url: 'https://spice.ai',
+        logo: 'https://spiceai.org/img/logo.svg',
+        sameAs: [
+          'https://github.com/spiceai',
+          'https://x.com/spice_ai',
+          'https://www.youtube.com/@spiceai',
+          'https://www.linkedin.com/company/spiceai'
+        ]
+      })
+    },
     {
       tagName: 'link',
       attributes: {
@@ -286,11 +465,55 @@ const config: Config = {
         defer: 'true',
         src: '//js.hs-scripts.com/46107967.js'
       }
+    },
+    // SEO: hreflang for language targeting
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'alternate',
+        hreflang: 'en',
+        href: 'https://spiceai.org'
+      }
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'alternate',
+        hreflang: 'x-default',
+        href: 'https://spiceai.org'
+      }
     }
   ],
 
   plugins: [
     tailwindPlugin,
+    [
+      '@docusaurus/plugin-content-blog',
+      {
+        id: 'releases',
+        path: 'releases',
+        routeBasePath: 'releases',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+        onInlineTags: 'throw',
+        onUntruncatedBlogPosts: 'ignore',
+        editUrl: ({ locale, blogDirPath, blogPath }) => {
+          return `https://github.com/spiceai/docs/edit/trunk/website/${blogDirPath}/${blogPath}`
+        },
+        remarkPlugins: [],
+        postsPerPage: 10,
+        feedOptions: {
+          type: 'all',
+          description: 'Keep up to date with Spice.ai OSS releases by following our feed!',
+          copyright: `Copyright © 2025-2026 Spice AI, Inc.`,
+          xslt: true
+        },
+        blogTitle: 'Spice.ai OSS Releases',
+        blogDescription: 'Spice.ai OSS release notes and announcements',
+        blogSidebarCount: 'ALL',
+        blogSidebarTitle: 'All Releases'
+      } satisfies BlogOptions
+    ],
     [
       'docusaurus-plugin-openapi-docs',
       {
@@ -314,12 +537,99 @@ const config: Config = {
       {
         redirects: [
           {
+            from: '/blog',
+            to: 'https://spice.ai/blog'
+          },
+          {
+            from: '/blog/announcing-1.0-stable',
+            to: 'https://spice.ai/blog/announcing-spice-ai-open-source-1-0-stable'
+          },
+          {
+            from: '/blog/amazon-s3-vectors-with-spice',
+            to: 'https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice'
+          },
+          {
+            from: '/blog/releases/v1.10-0',
+            to: '/releases/v1.10.0'
+          },
+          {
             from: '/query-federation',
             to: '/docs/features/query-federation'
           },
+          // 2021 blog posts
           {
-            from: '/blog/2025/amazon-s3-vectors-with-spice',
-            to: '/blog/amazon-s3-vectors-with-spice'
+            from: '/blog/a-new-class-of-applications-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/2021/a-new-class-of-applications-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/a-new-class-of-applications-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/ai-needs-ai-ready-data',
+            to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
+          },
+          {
+            from: '/blog/2021/ai-needs-ai-ready-data',
+            to: 'https://spice.ai/blog/ai-needs-ai-ready-data'
+          },
+          {
+            from: '/blog/making-apps-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/2021/making-apps-that-learn-and-adapt',
+            to: 'https://spice.ai/blog/making-apps-that-learn-and-adapt'
+          },
+          {
+            from: '/blog/q-learning-reward-is-all-you-need',
+            to: 'https://spice.ai/blog/q-learning-reward-is-all-you-need'
+          },
+          {
+            from: '/blog/spiceais-approach-to-time-series-ai',
+            to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
+          },
+          {
+            from: '/blog/2021/spiceais-approach-to-time-series-ai',
+            to: 'https://spice.ai/blog/spiceais-approach-to-time-series-ai'
+          },
+          {
+            from: '/blog/spicepods-from-zero-to-hero',
+            to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
+          },
+          {
+            from: '/blog/2021/spicepods-from-zero-to-hero',
+            to: 'https://spice.ai/blog/spicepods-from-zero-to-hero'
+          },
+          {
+            from: '/blog/teaching-apps-how-to-learn-with-spicepods',
+            to: 'https://spice.ai/blog/teaching-apps-how-to-learn-with-spicepods'
+          },
+          // 2022 blog posts
+          {
+            from: '/blog/adding-soft-actor-critic',
+            to: 'https://spice.ai/blog/adding-soft-actor-critic'
+          },
+          {
+            from: '/blog/building-on-apache-arrow-and-flight',
+            to: 'https://spice.ai/blog/building-on-apache-arrow-and-flight'
+          },
+          {
+            from: '/blog/what-data-informs-ai-driven-decision-making',
+            to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
+          },
+          {
+            from: '/blog/2022/what-data-informs-ai-driven-decision-making',
+            to: 'https://spice.ai/blog/what-data-informs-ai-driven-decision-making'
+          },
+          // 2024 blog posts
+          {
+            from: '/blog/adding-spice',
+            to: 'https://spice.ai/blog/adding-spice-the-next-generation-of-spice-ai-oss'
+          },
+          {
+            from: '/blog/2024/adding-spice',
+            to: 'https://spice.ai/blog/adding-spice--the-next-generation-of-spice-ai-oss'
           },
           {
             from: '/federated-queries',
@@ -336,6 +646,41 @@ const config: Config = {
           {
             from: '/monitoring',
             to: '/docs/features/observability'
+          }
+        ]
+      }
+    ],
+    [
+      '@signalwire/docusaurus-plugin-llms-txt',
+      {
+        siteTitle: 'Spice.ai OSS',
+        siteDescription:
+          'A portable SQL query and AI compute engine, written in Rust, for data-grounded apps and agents.',
+        depth: 2,
+        logLevel: 1,
+        content: {
+          includeBlog: false,
+          includePages: true,
+          includeDocs: true,
+          enableLlmsFullTxt: true,
+          enableMarkdownFiles: false,
+          excludeRoutes: ['/tags/**', '/search', '/api/HTTP/**']
+        },
+        optionalLinks: [
+          {
+            title: 'GitHub Repository',
+            url: 'https://github.com/spiceai/spiceai',
+            description: 'Spice.ai OSS source code and issue tracker'
+          },
+          {
+            title: 'Cookbook',
+            url: 'https://github.com/spiceai/cookbook',
+            description: 'Ready-to-use recipes and examples for Spice.ai'
+          },
+          {
+            title: 'Spice Cloud Platform',
+            url: 'https://spice.ai',
+            description: 'Managed cloud platform for Spice.ai'
           }
         ]
       }

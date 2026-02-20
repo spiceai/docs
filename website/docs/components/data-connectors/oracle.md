@@ -23,7 +23,7 @@ datasets:
 
 :::warning[Limitations]
 
-1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](/docs/features/data-acceleration) for full federation support**.
+1. Only basic filter predicates are currently pushed down to the Oracle database. Full query federation is not currently supported. Joins, subqueries, and complex query constructs are not pushed down to the Oracle database; these operations are performed in-memory after data retrieval. **Enable [Data Acceleration](../../features/data-acceleration) for full federation support**.
 2. The Oracle connector does not support filter push-down optimization for datetime columns. Filtering on these columns is performed in-memory after data retrieval.
 3. The following Oracle data types are not currently supported; columns with these types will be ignored: `INTERVAL YEAR TO MONTH` (Code 182), `INTERVAL DAY TO SECOND` (Code 183), `UROWID` (Code 208), `BFILE` (Code 114), `JSON` (Code 119).
 
@@ -74,45 +74,45 @@ SELECT COUNT(*) FROM products;
 
 ### `params`
 
-The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/index.md) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
+The Oracle data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores/) to load the secret from a secret store, e.g. `${secrets:MY_ORACLE_PASSWORD}`.
 
-| Parameter Name            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Parameter Name             | Description                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `oracle_connection_string` | The connection string to use to connect to the Oracle server. This can be a TNS alias from `tnsnames.ora` for local mTLS/Wallet connections or an [Easy Connect](https://download.oracle.com/ocomdocs/global/Oracle-Net-Easy-Connect-Plus.pdf) string. |
-| `oracle_host`              | The hostname or IP address of the Oracle Database instance. Required when not using `oracle_connection_string`.                                                                                                                                                                                                                                                                                                                                                                                              |
-| `oracle_port`              | Optional. The port of the Oracle Database server. Default: `1521`                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `oracle_username`          | The Oracle username. Required.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `oracle_password`          | The password to connect with. Required.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `oracle_service_name`      | The Oracle Database service name to connect to. Default: `XEPDB1`                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `oracle_wallet_sso_cert`   | The base64-encoded `cwallet.sso` (wallet auto-login certificate) to use for mTLS authentication with Oracle Cloud.                                                                                                                                                                                                                                                                                                                                           |
-| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate.                                                                                                                                                                                                                                                                                                                               |
+| `oracle_host`              | The hostname or IP address of the Oracle Database instance. Required when not using `oracle_connection_string`.                                                                                                                                        |
+| `oracle_port`              | Optional. The port of the Oracle Database server. Default: `1521`                                                                                                                                                                                      |
+| `oracle_username`          | The Oracle username. Required.                                                                                                                                                                                                                         |
+| `oracle_password`          | The password to connect with. Required.                                                                                                                                                                                                                |
+| `oracle_service_name`      | The Oracle Database service name to connect to. Default: `XEPDB1`                                                                                                                                                                                      |
+| `oracle_wallet_sso_cert`   | The base64-encoded `cwallet.sso` (wallet auto-login certificate) to use for mTLS authentication with Oracle Cloud.                                                                                                                                     |
+| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate.                                                                                         |
 
 ## Types
 
 The table below shows the Oracle data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| Oracle Type    | Arrow Type                                                                 |
-| -------------- | -------------------------------------------------------------------------- |
-| `ROWID`        | `Utf8`                                                                    |
-| `CHAR`         | `Utf8`                                                                    |
-| `NCHAR`        | `Utf8`                                                                    |
-| `VARCHAR2`     | `Utf8`                                                                    |
-| `NVARCHAR2`    | `Utf8`                                                                    |
-| `LONG`         | `Utf8`                                                                    |
-| `CLOB`         | `LargeUtf8`                                                               |
-| `NCLOB`        | `LargeUtf8`                                                               |
-| `NUMBER`       | `Int64` for integer types (scale=0, precision≤18), otherwise `Decimal128` |
-| `FLOAT`        | `Float32` for precision≤24, otherwise `Float64`                          |
-| `BINARY_FLOAT` | `Float32`                                                                 |
-| `BINARY_DOUBLE`| `Float64`                                                                 |
-| `BOOLEAN`      | `Boolean`                                                                 |
-| `DATE`         | `Date32`                                                                  |
-| `TIMESTAMP`    | `Timestamp(Second)` for precision=0, otherwise `Timestamp(Nanosecond)`    |
-| `TIMESTAMP WITH TIME ZONE` | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
+| Oracle Type                      | Arrow Type                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `ROWID`                          | `Utf8`                                                                           |
+| `CHAR`                           | `Utf8`                                                                           |
+| `NCHAR`                          | `Utf8`                                                                           |
+| `VARCHAR2`                       | `Utf8`                                                                           |
+| `NVARCHAR2`                      | `Utf8`                                                                           |
+| `LONG`                           | `Utf8`                                                                           |
+| `CLOB`                           | `LargeUtf8`                                                                      |
+| `NCLOB`                          | `LargeUtf8`                                                                      |
+| `NUMBER`                         | `Int64` for integer types (scale=0, precision≤18), otherwise `Decimal128`        |
+| `FLOAT`                          | `Float32` for precision≤24, otherwise `Float64`                                  |
+| `BINARY_FLOAT`                   | `Float32`                                                                        |
+| `BINARY_DOUBLE`                  | `Float64`                                                                        |
+| `BOOLEAN`                        | `Boolean`                                                                        |
+| `DATE`                           | `Date32`                                                                         |
+| `TIMESTAMP`                      | `Timestamp(Second)` for precision=0, otherwise `Timestamp(Nanosecond)`           |
+| `TIMESTAMP WITH TIME ZONE`       | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
 | `TIMESTAMP WITH LOCAL TIME ZONE` | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
-| `RAW`          | `Binary`                                                                  |
-| `LONG RAW`     | `Binary`                                                                  |
-| `BLOB`         | `LargeBinary`                                                             |
+| `RAW`                            | `Binary`                                                                         |
+| `LONG RAW`                       | `Binary`                                                                         |
+| `BLOB`                           | `LargeBinary`                                                                    |
 
 :::note
 
@@ -194,8 +194,8 @@ The Oracle data connector requires the Oracle Instant Client or Oracle Database 
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
 
 ## Cookbook
 
-- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README.md)
+- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README)

@@ -5,7 +5,7 @@ description: 'Models YAML reference'
 pagination_next: null
 ---
 
-Spice supports both traditional machine learning (ML) models and language models (LLMs). The configuration helps specify either type from various sources. The model type is automatically determined based on the model source and files.
+The `models` section of a Spicepod defines machine learning (ML) models and large language models (LLMs) for use with Spice. Models can be loaded from Hugging Face, OpenAI, local files, or other supported providers. The model type is automatically determined based on the source and file format.
 
 | Field         | Description                                                              |
 | ------------- | ------------------------------------------------------------------------ |
@@ -111,13 +111,13 @@ Optional. A map of key-value pairs for additional parameters specific to the mod
 
 Example uses include:
 
-- Setting default OpenAI request parameters for language models, see [parameter overrides](/docs/features/large-language-models/parameter_overrides.md).
-- Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](/docs/features/large-language-models/tools.md).
-- Invoking language models directly from SQL queries using the [`ai()` function](/docs/reference/sql/scalar_functions#ai).
+- Setting default OpenAI request parameters for language models, see [parameter overrides](../../features/large-language-models/parameter_overrides).
+- Allowing Language models to perform actions against spice (e.g. making SQL queries), via language model tool use, see [runtime tools](../../features/large-language-models/tools).
+- Invoking language models directly from SQL queries using the [`ai()` function](../sql/scalar_functions#ai).
 
 ### `datasets`
 
-Optional. A list of [dataset names](./datasets.md#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
+Optional. A list of [dataset names](./datasets#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
 
 ### `dependsOn`
 

@@ -9,9 +9,14 @@ tags:
   - embeddings
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) engineering blog post.
 
-Spice provides advanced vector-based search capabilities, enabling more nuanced and intelligent searches.
+Vector search uses embeddings (numerical representations of text or data) to find semantically similar content. Unlike keyword search, vector search understands meaning and context, making it useful for:
+
+- Finding documents with similar meaning but different wording
+- Semantic similarity matching
+- Retrieval-augmented generation (RAG) applications
+- Recommendation systems
 
 ## Embedding Models
 
@@ -69,7 +74,7 @@ curl -X POST http://localhost:8090/v1/search \
   }'
 ```
 
-For detailed API documentation, see [Search API Reference](/docs/api/HTTP/post-search).
+For detailed API documentation, see [Search API Reference](../../api/HTTP/post-search).
 
 ## Retrieving Full Documents
 
@@ -233,18 +238,15 @@ sql> describe sales;
 ### Constraints
 
 1. **Underlying Column Presence:**
-
-   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators.md) .
+   - The underlying column must exist in the table, and be of `string` [Arrow data type](../../reference/datatypes/accelerators) .
 
 2. **Embeddings Column Naming Convention:**
-
    - For each underlying column, the corresponding embeddings column must be named as `<column_name>_embedding`. For example, a `customer_reviews` table with a `review` column must have a `review_embedding` column.
 
 3. **Embeddings Column Data Type:**
-
-   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators.md) when loaded into Spice:
+   - The embeddings column must have the following [Arrow data type](../../reference/datatypes/accelerators) when loaded into Spice:
      1. `FixedSizeList[Float32 or Float64, N]`, where `N` is the dimension (size) of the embedding vector. `FixedSizeList` is used for efficient storage and processing of fixed-size vectors.
-     2. If the column is [**chunked**](/docs/components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
+     2. If the column is [**chunked**](../../components/embeddings#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
 4. **Offset Column for Chunked Data:**
    - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:

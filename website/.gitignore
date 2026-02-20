@@ -8,6 +8,11 @@
 .docusaurus
 .cache-loader
 
+# Generated versioned docs (created by scripts/generate-versions.sh)
+/versioned_docs
+/versioned_sidebars
+# Note: versions.json is now manually managed and should be committed
+
 # Misc
 .DS_Store
 .env.local

@@ -1,7 +1,9 @@
 ---
-title: 'Frequently Asked Questions'
+title: 'Spice.ai FAQ'
 sidebar_label: 'FAQ'
-description: 'Get answers to common questions about Spice.ai, including its features, differences from other tools, and use cases'
+description: 'Answers to frequently asked questions about Spice.ai including features, use cases, differences from Trino/Presto/Dremio, federated queries, caching, and AI capabilities.'
+keywords: [spice.ai, faq, frequently asked questions, trino, presto, dremio, data federation, caching, ai agents]
+image: /img/og/spiceai.png
 pagination_prev: null
 pagination_next: null
 sidebar_position: 2
@@ -24,7 +26,7 @@ Spice embeds [DataFusion](https://datafusion.apache.org/), the fastest single-no
 
 Spice is primarily used for:
 
-- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](/docs/features/query-federation).
+- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](../features/query-federation).
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
 - **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
 
@@ -37,11 +39,11 @@ Spice is primarily used for:
 
 ## 4. Can Spice handle federated queries?
 
-Yes. Spice natively supports federated queries across disparate data sources with advanced query push-down capabilities. Spice executes portions of queries directly on source databases, reducing data transfer and improving performance. [Learn More](/docs/features/query-federation).
+Yes. Spice natively supports federated queries across disparate data sources with advanced query push-down capabilities. Spice executes portions of queries directly on source databases, reducing data transfer and improving performance. [Learn More](../features/query-federation).
 
 ## 5. Is Spice a cache?
 
-Not solely. Spice functions as an active cache or working dataset prefetcher. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](/docs/features/caching).
+Not solely. Spice functions as an active cache or working dataset prefetcher. A _working dataset_ is a subset of data actively used by an application or model, such as recent records or frequently accessed tables. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](../features/caching).
 
 ## 6. Is Spice a CDN for databases?
 
@@ -65,7 +67,7 @@ Spice provides unified APIs for data and AI workflows, including model inference
 
 ## 11. What AI model providers does Spice support?
 
-Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](/docs/features/large-language-models/index.md).
+Spice supports local model serving (e.g., Llama3) and gateways to hosted AI platforms including OpenAI, Anthropic, xAI, and Nvidia NIMs. [Learn More](../features/large-language-models).
 
 ## 12. What deployment options does Spice support?
 
@@ -84,7 +86,7 @@ The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 qu
 
 ## 14. How can developers get started quickly?
 
-Visit the [Spice.ai Getting Started Guide](/docs/getting-started/index.mdx) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
+Visit the [Spice.ai Getting Started Guide](../getting-started) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
 
 ## 15. What is Data-grounded AI?
 
@@ -92,15 +94,15 @@ Data-grounded AI anchors models in accurate, current, domain-specific data rathe
 
 ## 16. What query engines does Spice support?
 
-Spice supports multiple query engines, including Apache Arrow, DuckDB, SQLite, PostgreSQL, and DataFusion. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
+Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports DuckDB, SQLite, and PostgreSQL as acceleration engines. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
 
 ## 17. Does Spice support Change Data Capture (CDC)?
 
-Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../features/cdc/index.md).
+Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../features/cdc).
 
 ## 18. Can Spice integrate with existing BI tools?
 
-Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau/index.md) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
+Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
 ## 19. How does Spice handle data privacy and compliance?
 
@@ -108,8 +110,8 @@ Spice provides secure, auditable data access through sandboxed runtimes, secure 
 
 ## 20. Can Spice be used for real-time analytics?
 
-Yes. Spice accelerates data locally using Apache Arrow, DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
+Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
 
 ## 21. How can developers contribute to Spice?
 
-Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for guidelines.
+Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING) for guidelines.

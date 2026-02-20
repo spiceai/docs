@@ -4,111 +4,278 @@ sidebar_label: 'FTP/SFTP Data Connector'
 description: 'FTP/SFTP Data Connector Documentation'
 ---
 
-FTP (File Transfer Protocol) and SFTP (SSH File Transfer Protocol) are network protocols used for transferring files between a client and server, with FTP being less secure and SFTP providing encrypted file transfer over SSH.
+FTP (File Transfer Protocol) and SFTP (SSH File Transfer Protocol) are network protocols for transferring files between a client and server. FTP transmits data in plain text, while SFTP provides encrypted file transfer over SSH, making it the preferred choice for secure environments.
 
-The FTP/SFTP Data Connector enables federated/accelerated SQL query across [supported file formats](/docs/components/data-connectors/index.md#object-store-file-formats) stored in FTP/SFTP servers.
+The FTP/SFTP Data Connector enables federated SQL query across [supported file formats](./#file-formats) stored on FTP/SFTP servers.
+
+## Quickstart
+
+Connect to an SFTP server and query CSV files:
 
 ```yaml
 datasets:
-  - from: sftp://remote-sftp-server.com/path/to/folder/
-    name: my_dataset
+  - from: sftp://files.example.com/data/sales/
+    name: sales
     params:
       file_format: csv
-      sftp_port: 22
-      sftp_user: my-sftp-user
-      sftp_pass: ${secrets:my_sftp_password}
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
 ```
+
+Query the data using SQL:
+
+```sql
+SELECT * FROM sales LIMIT 10;
+```
+
+## FTP vs SFTP
+
+| Feature         | FTP                       | SFTP                           |
+| --------------- | ------------------------- | ------------------------------ |
+| Default Port    | 21                        | 22                             |
+| Encryption      | None (plain text)         | SSH encryption                 |
+| Authentication  | Username/password         | Username/password or SSH keys  |
+| Recommended Use | Internal/trusted networks | Production and public networks |
+
+:::tip[Security Recommendation]
+Use SFTP instead of FTP whenever possible. FTP transmits credentials and data in plain text, making it vulnerable to interception.
+:::
 
 ## Configuration
 
 ### `from`
 
-The `from` field takes one of two forms: `ftp://<host>/<path>` or `sftp://<host>/<path>` where `<host>` is the host to connect to and `<path>` is the path to the file or directory to read from.
+Specifies the FTP or SFTP server and path to connect to.
 
-If a folder is provided, all child files will be loaded.
+**Format:** `ftp://<host>/<path>` or `sftp://<host>/<path>`
+
+- `<host>`: The server hostname or IP address
+- `<path>`: Path to a file or directory on the server
+
+When pointing to a directory, Spice loads all files within that directory recursively.
+
+**Examples:**
+
+```yaml
+# Connect to a specific file
+from: sftp://files.example.com/data/customers.parquet
+
+# Connect to a directory (loads all files)
+from: sftp://files.example.com/data/sales/
+
+# FTP connection
+from: ftp://ftp.example.com/exports/reports/
+```
 
 ### `name`
 
-The dataset name. This will be used as the table name within Spice.
-
-Example:
-
-```yaml
-datasets:
-  - from: sftp://remote-sftp-server.com/path/to/folder/
-    name: cool_dataset
-    params: ...
-```
-
-```sql
-SELECT COUNT(*) FROM cool_dataset;
-```
-
-```shell
-+----------+
-| count(*) |
-+----------+
-| 6001215  |
-+----------+
-```
-
-The dataset name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The dataset name used as the table name in SQL queries. Cannot be a [reserved keyword](../../reference/spicepod/keywords).
 
 ### `params`
 
-#### FTP
+#### FTP Parameters
 
-| Parameter Name              | Description                                                                                                                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats). |
-| `ftp_port`                  | Optional, specifies the port of the FTP server. Default is 21. E.g. `ftp_port: 21`                                                                                                                  |
-| `ftp_user`                  | The username for the FTP server. E.g. `ftp_user: my-ftp-user`                                                                                                                                       |
-| `ftp_pass`                  | The password for the FTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_ftp_pass}`.                            |
-| `client_timeout`            | Optional. Specifies timeout for FTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for FTP client.                                                             |
-| `hive_partitioning_enabled` | Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                          |
+| Parameter Name              | Description                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------------- |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                      |
+| `ftp_user`                  | Username for FTP authentication.                                                                   |
+| `ftp_pass`                  | Password for FTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_ftp_pass}`. |
+| `ftp_port`                  | FTP server port. Default: `21`.                                                                    |
+| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                              |
+| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.      |
 
-#### SFTP
+#### SFTP Parameters
 
-| Parameter Name              | Description                                                                                                                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data file format. Required if the format cannot be inferred by from the `from` path. See [Object Store File Formats](/docs/components/data-connectors/index.md#object-store-file-formats). |
-| `sftp_port`                 | Optional, specifies the port of the SFTP server. Default is 22. E.g. `sftp_port: 22`                                                                                                                |
-| `sftp_user`                 | The username for the SFTP server. E.g. `sftp_user: my-sftp-user`                                                                                                                                    |
-| `sftp_pass`                 | The password for the SFTP server. Use the [secret replacement syntax](../secret-stores/index.md) to load the password from a secret store, e.g. `${secrets:my_sftp_pass}`.                          |
-| `client_timeout`            | Optional. Specifies timeout for SFTP connection. E.g. `client_timeout: 30s`. When not set, no timeout will be configured for SFTP client.                                                           |
-| `hive_partitioning_enabled` | Optional. Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                          |
+| Parameter Name              | Description                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                        |
+| `sftp_user`                 | Username for SFTP authentication.                                                                    |
+| `sftp_pass`                 | Password for SFTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_sftp_pass}`. |
+| `sftp_port`                 | SFTP server port. Default: `22`.                                                                     |
+| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                |
+| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.        |
 
 ## Examples
 
-### Connecting to FTP
+### Basic SFTP Connection
+
+Connect to an SFTP server with username and password authentication:
 
 ```yaml
-- from: ftp://remote-ftp-server.com/path/to/folder/
-  name: my_dataset
-  params:
-    file_format: csv
-    ftp_user: my-ftp-user
-    ftp_pass: ${secrets:my_ftp_password}
-    hive_partitioning_enabled: false
+datasets:
+  - from: sftp://sftp.example.com/data/transactions/
+    name: transactions
+    params:
+      file_format: parquet
+      sftp_user: datauser
+      sftp_pass: ${secrets:sftp_password}
 ```
 
-### Connecting to SFTP
+### Basic FTP Connection
+
+Connect to an FTP server for internal file access:
 
 ```yaml
-- from: sftp://remote-sftp-server.com/path/to/folder/
-  name: my_dataset
-  params:
-    file_format: csv
-    sftp_port: 22
-    sftp_user: my-sftp-user
-    sftp_pass: ${secrets:my_sftp_password}
-    hive_partitioning_enabled: false
+datasets:
+  - from: ftp://ftp.internal.local/exports/daily/
+    name: daily_exports
+    params:
+      file_format: csv
+      ftp_user: ftpuser
+      ftp_pass: ${secrets:ftp_password}
+```
+
+### Reading a Single File
+
+When pointing to a specific file, the format is inferred from the file extension:
+
+```yaml
+datasets:
+  - from: sftp://files.example.com/reports/quarterly_summary.parquet
+    name: quarterly_summary
+    params:
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+```
+
+### Connection with Timeout
+
+Configure a timeout for slow or unreliable connections:
+
+```yaml
+datasets:
+  - from: sftp://remote-server.example.com/large-datasets/
+    name: large_dataset
+    params:
+      file_format: parquet
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+      client_timeout: 120s
+```
+
+### Custom Port Configuration
+
+Connect to servers running on non-standard ports:
+
+```yaml
+datasets:
+  - from: sftp://secure.example.com/data/
+    name: secure_data
+    params:
+      file_format: parquet
+      sftp_port: 2222
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+```
+
+### Hive Partitioning
+
+Enable Hive-style partitioning to automatically extract partition columns from the folder structure:
+
+```yaml
+datasets:
+  - from: sftp://datalake.example.com/events/
+    name: events
+    params:
+      file_format: parquet
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+      hive_partitioning_enabled: true
+```
+
+Given a folder structure like:
+
+```text
+/events/
+  year=2024/
+    month=01/
+      data.parquet
+    month=02/
+      data.parquet
+  year=2025/
+    month=01/
+      data.parquet
+```
+
+Queries can filter on partition columns:
+
+```sql
+SELECT * FROM events WHERE year = '2024' AND month = '01';
+```
+
+### Multiple Datasets from One Server
+
+Load different datasets from the same SFTP server:
+
+```yaml
+datasets:
+  - from: sftp://data.example.com/sales/
+    name: sales
+    params:
+      file_format: parquet
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+
+  - from: sftp://data.example.com/inventory/
+    name: inventory
+    params:
+      file_format: csv
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+```
+
+### Accelerated Dataset
+
+Enable local acceleration for faster repeated queries:
+
+```yaml
+datasets:
+  - from: sftp://archive.example.com/historical/
+    name: historical_data
+    params:
+      file_format: parquet
+      sftp_user: ${secrets:sftp_user}
+      sftp_pass: ${secrets:sftp_pass}
+    acceleration:
+      enabled: true
+      refresh_check_interval: 1h
 ```
 
 ## Secrets
 
-Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](/docs/components/secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](/docs/components/secret-stores#using-secrets).
+Spice integrates with multiple secret stores for secure credential management. Store FTP/SFTP credentials in a secret store and reference them using the `${secrets:key}` syntax.
+
+```yaml
+datasets:
+  - from: sftp://files.example.com/data/
+    name: secure_data
+    params:
+      file_format: parquet
+      sftp_user: ${secrets:sftp_username}
+      sftp_pass: ${secrets:sftp_password}
+```
+
+For detailed information, refer to the [secret stores documentation](../secret-stores).
+
+## Troubleshooting
+
+### Connection Timeouts
+
+If connections frequently timeout, increase the `client_timeout` value:
+
+```yaml
+params:
+  client_timeout: 120s
+```
+
+### Authentication Failures
+
+Verify credentials are correctly stored in your secret store and that the user has read access to the specified path on the server.
+
+### File Format Errors
+
+When connecting to a directory, ensure `file_format` is specified and matches the actual file types in the directory. Spice expects all files in a directory to have the same format.
 
 ## Cookbook
 
-Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) to see an example of the FTP connector in use.
+Refer to the [FTP cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/ftp) for a complete working example.

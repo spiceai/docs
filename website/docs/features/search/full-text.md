@@ -7,7 +7,13 @@ tags:
   - search
 ---
 
-Spice provides full text search functionality with BM25 scoring. Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration.
+Spice provides full-text search functionality with BM25 scoring. This search method is optimized for keyword-based queries and is useful when:
+
+- Users search for specific terms or phrases
+- Exact keyword matching is important
+- Searching structured text fields like titles, tags, or names
+
+Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration.
 
 ## Enabling Full-Text Search
 
@@ -38,7 +44,7 @@ In this example, full-text search indexing is enabled on both the `title` and `b
 
 After enabling indexing, you can perform searches using the HTTP API endpoint `/v1/search`. Results will be ranked based on the relevance to your keyword query across indexed columns (`title` and `body` in this example).
 
-For details on using this endpoint, see the [API reference for `/v1/search`](/docs/api/HTTP/post-search).
+For details on using this endpoint, see the [API reference for `/v1/search`](../../api/HTTP/post-search).
 
 ## Searching with SQL
 
@@ -63,9 +69,9 @@ The `text_search()` function has the following signature:
 
 ```sql
 text_search(
-  table STRING,              -- Dataset name (required)
+  table IDENTIFIER,          -- Dataset name (required, unquoted)
   query STRING,              -- Keyword or phrase to search (required)
-  col STRING,                -- Specific column to search (required if dataset has multiple indexed columns)
+  col IDENTIFIER,            -- Column name to search (required if dataset has multiple indexed columns, unquoted)
   limit INTEGER,             -- Maximum results returned (optional, defaults to 1000)
   include_score BOOLEAN      -- Include relevance scores in results (optional, defaults to TRUE)
 )
@@ -74,4 +80,4 @@ RETURNS TABLE                -- Original table columns plus an optional FLOAT co
 
 By default, `text_search` retrieves up to 1000 results. To adjust this, specify the `limit` parameter in the function call.
 
-Use this function to integrate robust full-text search directly into your data workflows with minimal setup.
+Use this function to integrate full-text search directly into your data workflows.

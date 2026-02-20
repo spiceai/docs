@@ -6,7 +6,7 @@ sidebar_position: 1
 pagination_next: null
 ---
 
-> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spiceai.org/blog/amazon-s3-vectors-with-spice) engineering blog post.
+> 🎓 Learn how it works with the [Amazon S3 Vectors with Spice](https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice) engineering blog post.
 
 Amazon S3 Vectors, announced in public preview at AWS Summit New York 2025, is a new S3 bucket type designed for storing and querying vector embeddings at scale. It supports billions of vectors with sub-second similarity queries, reducing costs by up to 90% compared to traditional vector databases by separating storage from compute. Spice AI integrates S3 Vectors as a vector index backend, managing embedding indexing, lifecycle, and queries for hybrid search experiences.
 
@@ -36,13 +36,16 @@ embeddings:
 | Parameter                          | Description                                                                                                                                                                 | Example Value                                                                        |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `s3_vectors_arn`                   | The S3 vectors index to use. Incompatible with `s3_vectors_bucket` and `s3_vectors_index`.                                                                                  | `arn:aws:s3vectors:123456654321/bucket/a-bucket/index/index-of-important-embeddings` |
-| `s3_vectors_aws_access_key_id`     | Optional. The access key ID for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                                  | -                                                                                    |
+| `s3_vectors_aws_access_key_id`     | Optional. The access key ID for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                    | -                                                                                    |
 | `s3_vectors_aws_region`            | The AWS region for the S3 vectors index.                                                                                                                                    | `us-east-1`                                                                          |
-| `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                                                                                              | -                                                                                    |
-| `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                                     | -                                                                                    |
+| `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                | -                                                                                    |
+| `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                           | -                                                                                    |
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
 | `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
-| `s3_vectors_distance_metric`                 | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.  | `euclidean`                                                      |
+| `s3_vectors_distance_metric`       | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.                                                                      | `euclidean`                                                                          |
+| `s3_vectors_index_poll_interval`   | The interval to poll for index updates to avoid excessive API calls. Minimum 5 seconds. Default is to poll on every scan.                                                   | `5m`                                                                                 |
+| `client_timeout`                   | Timeout for S3 operations. Default: `30s`.                                                                                                                                  | `30s`, `9 century`, `1m`                                                             |
+
 
 :::warning[Limitations]
 
@@ -111,7 +114,7 @@ ORDER BY score DESC
 LIMIT 2;
 ```
 
-Results include matching snippets, additional fields, primary keys, scores, and dataset names.
+Results include matching snippets, additional fields, primary keys, scores, and table names.
 
 ## Managing Embeddings
 
@@ -321,15 +324,70 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `s3vectors:GetIndex` | Required. Used to verify if the index already exists or needs to be created. |
-| `s3vectors:GetVectorBucket` | Required. Used to verify if the vector bucket already exists or needs to be created. |
-| `s3vectors:ListVectors` | Required. Used to populate the `*_embeddings` column on vector tables in Spice. |
-| `s3vectors:PutVectors` | Required. Used to populate the vector index with Spice-computed embeddings. |
-| `s3vectors:QueryVectors` | Required. Used to query for vectors using the `vector_search` table function. |
-| `s3vectors:CreateIndex` | Optional. Spice can automatically create indexes if this permission is given. |
+| Permission                     | Purpose                                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `s3vectors:GetIndex`           | Required. Used to verify if the index already exists or needs to be created.            |
+| `s3vectors:GetVectorBucket`    | Required. Used to verify if the vector bucket already exists or needs to be created.    |
+| `s3vectors:ListVectors`        | Required. Used to populate the `*_embeddings` column on vector tables in Spice.         |
+| `s3vectors:PutVectors`         | Required. Used to populate the vector index with Spice-computed embeddings.             |
+| `s3vectors:QueryVectors`       | Required. Used to query for vectors using the `vector_search` table function.           |
+| `s3vectors:CreateIndex`        | Optional. Spice can automatically create indexes if this permission is given.           |
 | `s3vectors:CreateVectorBucket` | Optional. Spice can automatically create the vector bucket if this permission is given. |
+
+### `metrics`
+
+Spice supports the following [S3 Vector engine metrics](../../features/observability/component_metrics):
+
+| Metric Name                                       | Type      | Description                                                               |
+| ------------------------------------------------- | --------- | ------------------------------------------------------------------------- |
+| `s3_vectors_create_index_errors`                  | counter   | Number of errors returned from create_index operation.                    |
+| `s3_vectors_create_index_latency`                 | histogram | Total duration of create_index operation, in milliseconds.                |
+| `s3_vectors_create_index_requests`                | counter   | Number of requests to create_index operation.                             |
+| `s3_vectors_create_vector_bucket_errors`          | counter   | Number of errors returned from create_vector_bucket operation.            |
+| `s3_vectors_create_vector_bucket_latency`         | histogram | Total duration of create_vector_bucket operation, in milliseconds.        |
+| `s3_vectors_create_vector_bucket_requests`        | counter   | Number of requests to create_vector_bucket operation.                     |
+| `s3_vectors_delete_index_errors`                  | counter   | Number of errors returned from delete_index operation.                    |
+| `s3_vectors_delete_index_latency`                 | histogram | Total duration of delete_index operation, in milliseconds.                |
+| `s3_vectors_delete_index_requests`                | counter   | Number of requests to delete_index operation.                             |
+| `s3_vectors_delete_vector_bucket_errors`          | counter   | Number of errors returned from delete_vector_bucket operation.            |
+| `s3_vectors_delete_vector_bucket_latency`         | histogram | Total duration of delete_vector_bucket operation, in milliseconds.        |
+| `s3_vectors_delete_vector_bucket_policy_errors`   | counter   | Number of errors returned from delete_vector_bucket_policy operation.     |
+| `s3_vectors_delete_vector_bucket_policy_latency`  | histogram | Total duration of delete_vector_bucket_policy operation, in milliseconds. |
+| `s3_vectors_delete_vector_bucket_policy_requests` | counter   | Number of requests to delete_vector_bucket_policy operation.              |
+| `s3_vectors_delete_vector_bucket_requests`        | counter   | Number of requests to delete_vector_bucket operation.                     |
+| `s3_vectors_delete_vectors_errors`                | counter   | Number of errors returned from delete_vectors operation.                  |
+| `s3_vectors_delete_vectors_latency`               | histogram | Total duration of delete_vectors operation, in milliseconds.              |
+| `s3_vectors_delete_vectors_requests`              | counter   | Number of requests to delete_vectors operation.                           |
+| `s3_vectors_get_index_errors`                     | counter   | Number of errors returned from get_index operation.                       |
+| `s3_vectors_get_index_latency`                    | histogram | Total duration of get_index operation, in milliseconds.                   |
+| `s3_vectors_get_index_requests`                   | counter   | Number of requests to get_index operation.                                |
+| `s3_vectors_get_vector_bucket_errors`             | counter   | Number of errors returned from get_vector_bucket operation.               |
+| `s3_vectors_get_vector_bucket_latency`            | histogram | Total duration of get_vector_bucket operation, in milliseconds.           |
+| `s3_vectors_get_vector_bucket_policy_errors`      | counter   | Number of errors returned from get_vector_bucket_policy operation.        |
+| `s3_vectors_get_vector_bucket_policy_latency`     | histogram | Total duration of get_vector_bucket_policy operation, in milliseconds.    |
+| `s3_vectors_get_vector_bucket_policy_requests`    | counter   | Number of requests to get_vector_bucket_policy operation.                 |
+| `s3_vectors_get_vector_bucket_requests`           | counter   | Number of requests to get_vector_bucket operation.                        |
+| `s3_vectors_get_vectors_errors`                   | counter   | Number of errors returned from get_vectors operation.                     |
+| `s3_vectors_get_vectors_latency`                  | histogram | Total duration of get_vectors operation, in milliseconds.                 |
+| `s3_vectors_get_vectors_requests`                 | counter   | Number of requests to get_vectors operation.                              |
+| `s3_vectors_list_indexes_errors`                  | counter   | Number of errors returned from list_indexes operation.                    |
+| `s3_vectors_list_indexes_latency`                 | histogram | Total duration of list_indexes operation, in milliseconds.                |
+| `s3_vectors_list_indexes_requests`                | counter   | Number of requests to list_indexes operation.                             |
+| `s3_vectors_list_vector_buckets_errors`           | counter   | Number of errors returned from list_vector_buckets operation.             |
+| `s3_vectors_list_vector_buckets_latency`          | histogram | Total duration of list_vector_buckets operation, in milliseconds.         |
+| `s3_vectors_list_vector_buckets_requests`         | counter   | Number of requests to list_vector_buckets operation.                      |
+| `s3_vectors_list_vectors_errors`                  | counter   | Number of errors returned from list_vectors operation.                    |
+| `s3_vectors_list_vectors_latency`                 | histogram | Total duration of list_vectors operation, in milliseconds.                |
+| `s3_vectors_list_vectors_requests`                | counter   | Number of requests to list_vectors operation.                             |
+| `s3_vectors_put_vector_bucket_policy_errors`      | counter   | Number of errors returned from put_vector_bucket_policy operation.        |
+| `s3_vectors_put_vector_bucket_policy_latency`     | histogram | Total duration of put_vector_bucket_policy operation, in milliseconds.    |
+| `s3_vectors_put_vector_bucket_policy_requests`    | counter   | Number of requests to put_vector_bucket_policy operation.                 |
+| `s3_vectors_put_vectors_errors`                   | counter   | Number of errors returned from put_vectors operation.                     |
+| `s3_vectors_put_vectors_latency`                  | histogram | Total duration of put_vectors operation, in milliseconds.                 |
+| `s3_vectors_put_vectors_requests`                 | counter   | Number of requests to put_vectors operation.                              |
+| `s3_vectors_query_vectors_errors`                 | counter   | Number of errors returned from query_vectors operation.                   |
+| `s3_vectors_query_vectors_latency`                | histogram | Total duration of query_vectors operation, in milliseconds.               |
+| `s3_vectors_query_vectors_requests`               | counter   | Number of requests to query_vectors operation.                            |
 
 ## Cookbook
 
@@ -337,5 +395,5 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
 
 ## References
 
-- [Spice.ai announcement](https://spiceai.org/blog/amazon-s3-vectors-with-spice)
+- [Spice.ai announcement](https://spice.ai/blog/getting-started-with-amazon-s3-vectors-and-spice)
 - [Amazon S3 Vectors official page](https://aws.amazon.com/s3/vectors/)

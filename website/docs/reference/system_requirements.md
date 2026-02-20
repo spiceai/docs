@@ -48,7 +48,6 @@ The following ports are used:
 | HTTP / HTTPS (if TLS is configured) | 8090  |
 | Metrics Endpoint                    | 9090  |
 | Arrow Flight / ADBC/ODBC/JDBC       | 50051 |
-| OpenTelemetry Ingestion             | 50052 |
 
 ## Kubernetes Requirements
 
@@ -69,7 +68,16 @@ spec:
         requests:
           memory: '8Gi'
           cpu: '4'
+        limits:
+          memory: '16Gi'  # Set higher than request for burst capacity
+          # Do not set CPU limits - see recommendations below
 ```
+
+:::tip[CPU Limits]
+
+Avoid setting CPU limits for Spice pods. CPU limits can cause [throttling](https://home.robusta.dev/blog/stop-using-cpu-limits) even when CPU is available, leading to degraded query performance and increased latency. Instead, set appropriate CPU requests to guarantee scheduling and allow pods to burst when needed. For more details, see [Kubernetes CPU requests and limits](https://www.datadoghq.com/blog/kubernetes-cpu-requests-limits/).
+
+:::
 
 ## Resource Requirements Based on Workload and Data
 
@@ -80,7 +88,7 @@ Spice resource requirements, particularly memory, are highly dependent on worklo
 | `refresh_mode: full`   | 2.5x the dataset size |
 | `refresh_mode: append` | 1.5x the dataset size |
 
-See [Memory Management and Best Pratices](memory.md) for a detailed guide on memory considerations.
+See [Memory Management and Best Pratices](memory) for a detailed guide on memory considerations.
 
 ## Additional Considerations
 

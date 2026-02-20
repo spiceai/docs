@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / duckdb / sqlite / postgres
+      engine: arrow # / cayenne / duckdb / sqlite / postgres
       refresh_check_interval: 1h
       refresh_mode: full / append # update / incremental
 ```
@@ -81,19 +81,19 @@ Where:
 - `<data_connector>`: The Data Connector to use to connect to the dataset
 
   Currently supported data connectors:
-  - [`spiceai`](/docs/components/data-connectors/spiceai.md)
-  - [`dremio`](/docs/components/data-connectors/dremio.md)
-  - [`spark`](/docs/components/data-connectors/spark.md)
-  - [`databricks`](/docs/components/data-connectors/databricks.md)
-  - [`s3`](/docs/components/data-connectors/s3.md)
-  - [`postgres`](/docs/components/data-connectors/postgres/index.md)
-  - [`mysql`](/docs/components/data-connectors/mysql.md)
-  - [`flightsql`](/docs/components/data-connectors/flightsql.md)
-  - [`snowflake`](/docs/components/data-connectors/snowflake.md)
-  - [`ftp`, `sftp`](/docs/components/data-connectors/ftp.md)
-  - [`http`, `https`](/docs/components/data-connectors/https.md)
-  - [`clickhouse`](/docs/components/data-connectors/clickhouse.md)
-  - [`graphql`](/docs/components/data-connectors/graphql.md)
+  - [`spiceai`](../../components/data-connectors/spiceai)
+  - [`dremio`](../../components/data-connectors/dremio)
+  - [`spark`](../../components/data-connectors/spark)
+  - [`databricks`](../../components/data-connectors/databricks)
+  - [`s3`](../../components/data-connectors/s3)
+  - [`postgres`](../../components/data-connectors/postgres)
+  - [`mysql`](../../components/data-connectors/mysql)
+  - [`flightsql`](../../components/data-connectors/flightsql)
+  - [`snowflake`](../../components/data-connectors/snowflake)
+  - [`ftp`, `sftp`](../../components/data-connectors/ftp)
+  - [`http`, `https`](../../components/data-connectors/https)
+  - [`clickhouse`](../../components/data-connectors/clickhouse)
+  - [`graphql`](../../components/data-connectors/graphql)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -128,18 +128,18 @@ datasets:
 
 ## `name`
 
-The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](/docs/reference/spicepod/keywords.md).
+The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
 ## `description`
 
-The description of the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `access`
 
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](/docs/tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write).
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -200,8 +200,8 @@ The following values are supported:
 
 Not all connectors support specifying an `unsupported_type_action`. When specified on a connector that does not support the option, the connector will fail to register. The following connectors support `unsupported_type_action`:
 
-- [DuckDB](../../components/data-connectors/duckdb.md)
-- [PostgreSQL](../../components/data-connectors/postgres/index.md)
+- [DuckDB](../../components/data-connectors/duckdb)
+- [PostgreSQL](../../components/data-connectors/postgres)
 
 :::
 
@@ -270,18 +270,67 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`duckdb`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded DuckDB database.
-- [`postgres`](/docs/components/data-accelerators/postgres/index.md) - Accelerated by a Postgres database.
-- [`sqlite`](/docs/components/data-accelerators/duckdb.md) - Accelerated by an embedded Sqlite database.
+- [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
+- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
+- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
+- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
+- [`turso`](../../components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory.
-- `file` - Store acceleration data in a file. Only supported for `duckdb` and `sqlite` acceleration engines.
+- `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
 
-`mode` is currently only supported for the `duckdb` engine.
+## `acceleration.snapshots`
+
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+
+Supported values:
+
+- `enabled` – Download the newest snapshot on startup when the acceleration file is missing and write a fresh snapshot after each refresh.
+- `bootstrap_only` – Download snapshots on startup but never write new ones.
+- `create_only` – Write snapshots after refreshes but never download them on startup.
+- `disabled` (default) – Do not use snapshots for this dataset.
+
+Snapshots are written beneath the configured snapshot location using Hive-style partitioning (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<dataset>`). For more background, see [Acceleration snapshots](../../features/data-acceleration/snapshots).
+
+## `acceleration.snapshots_trigger`
+
+Optional. Controls when Spice creates new snapshots. The available triggers depend on the dataset's refresh mode.
+
+**For batch-based datasets** (`refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with `time_column`):
+
+- `refresh_complete` (default) – Create a snapshot after each data refresh completes.
+- `time_interval` – Create snapshots at a fixed time interval specified by `snapshots_trigger_threshold`.
+
+**For stream-based datasets** (`refresh_mode: changes`, or `refresh_mode: append` without `time_column`):
+
+- `time_interval` (default) – Create snapshots at a fixed time interval. Defaults to `10m` if `snapshots_trigger_threshold` is not specified.
+- `stream_batches` – Create a snapshot after a specified number of batches are processed.
+
+See [Acceleration snapshots](../../features/data-acceleration/snapshots) for more details.
+
+## `acceleration.snapshots_trigger_threshold`
+
+Optional. The threshold value for snapshot creation, interpreted based on the configured `snapshots_trigger`:
+
+- When `snapshots_trigger: time_interval` – A duration specifying how often to create snapshots (e.g., `10m`, `1h`). Defaults to `10m` for stream-based datasets.
+- When `snapshots_trigger: stream_batches` – An integer specifying the number of batch updates after which to create a snapshot.
+
+Not applicable when `snapshots_trigger: refresh_complete`.
+
+## `acceleration.snapshots_compaction`
+
+Optional. Enable database compaction before uploading snapshots. Only supported for the `duckdb` acceleration engine. Defaults to `disabled`.
+
+When enabled, Spice uses DuckDB's internal compaction mechanism (`COPY DATABASE`) to optimize the database file before uploading, reducing snapshot size and improving bootstrap performance.
+
+Supported values:
+
+- `enabled` – Compact the database before creating each snapshot.
+- `disabled` (default) – Upload snapshots without compaction.
 
 ## `acceleration.refresh_mode`
 
@@ -289,18 +338,106 @@ Optional. How to refresh the dataset. The following values are supported:
 
 - `full` - Refresh the entire dataset.
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
+- `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
+- `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
 
 ## `acceleration.refresh_check_interval`
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_cron`
 
 Optional. Specifies a cron schedule which controls how often data is refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data.
 
-See the [cron schedule reference](/docs/reference/cron.md).
+See the [cron schedule reference](../cron).
+
+## `acceleration.params.caching_ttl`
+
+Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
+
+When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file # Persist cache to disk
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+      refresh_check_interval: 30s # Periodic background refresh
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration)
+
+## `acceleration.params.caching_stale_while_revalidate_ttl`
+
+Optional. The duration after `caching_ttl` expires during which stale data is served while refreshing in the background. Only applicable when `refresh_mode: caching`. Defaults to none (stale data is not served).
+
+When `caching_ttl` expires and data becomes stale, this parameter controls how long stale data continues to be served immediately while a background refresh occurs. After the combined `caching_ttl + caching_stale_while_revalidate_ttl` period, queries wait for fresh data instead of returning stale results.
+
+If omitted, cached data becomes "rotten" immediately after `caching_ttl` expires, and queries will wait for fresh data rather than returning stale results.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s # Cache data is fresh for 15 seconds
+        caching_stale_while_revalidate_ttl: 30s # Serve stale data for 30 seconds while refreshing
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
+
+See [Duration](../duration)
+
+## `acceleration.params.caching_stale_if_error`
+
+Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+
+When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+
+Valid values:
+
+- `enabled` - Serve expired cached data when upstream errors occur
+- `disabled` (default) - Propagate upstream errors to queries
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 30s
+        caching_stale_if_error: enabled # Serve stale data on upstream errors
+      refresh_check_interval: 60s
+```
+
+See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) for detailed behavior.
 
 ## `acceleration.refresh_sql`
 
@@ -321,7 +458,7 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_append_overlap`
 
@@ -331,7 +468,7 @@ This setting can help mitigate missing data issues caused by late arriving data.
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -374,7 +511,7 @@ Optional. The retention period for the dataset. Combine with `time_column` and `
 
 `retention_period` or `retention_sql` must be specified when `acceleration.retention_check_enabled` is `true`. When both `retention_period` and `retention_sql` are configured, both retention policies will be applied during each retention check.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.retention_sql`
 
@@ -390,7 +527,7 @@ Optional. How often the retention policy should be checked.
 
 Required when `acceleration.retention_check_enabled` is `true`.
 
-See [Duration](../duration/index.md)
+See [Duration](../duration)
 
 ## `acceleration.refresh_jitter_enabled`
 
@@ -426,7 +563,7 @@ datasets:
       mysql_pass: ${secrets:MYSQL_PASS}
 ```
 
-For detailed information about metrics available for specific components, see the [component metrics documentation](/docs/features/observability/component_metrics).
+For detailed information about metrics available for specific components, see the [component metrics documentation](../../features/observability/component_metrics).
 
 ## `acceleration.indexes`
 
@@ -436,7 +573,7 @@ The `indexes` field is a map where the key is the column reference and the value
 
 A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Indexes](../../features/data-acceleration/indexes.md)
+See [Indexes](../../features/data-acceleration/indexes)
 
 ```yaml
 datasets:
@@ -456,7 +593,7 @@ Optional. Specify the primary key constraint on the locally accelerated table. N
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
 
-See [Constraints](../../features/data-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints)
 
 ```yaml
 datasets:
@@ -485,7 +622,7 @@ The possible conflict resolution strategies are:
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
-See [Constraints](../../features/data-acceleration/constraints.md)
+See [Constraints](../../features/data-acceleration/constraints)
 
 ```yaml
 datasets:
@@ -531,7 +668,7 @@ The name of the column in the table schema.
 
 ## `columns[*].description`
 
-Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ## `columns[*].embeddings`
 
@@ -665,7 +802,7 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](/docs/features/semantic-model/index.md).
+Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
 ```yaml
 datasets:
@@ -685,7 +822,7 @@ Enable or disable vector storage, defaults to `true`.
 
 The vector engine to use. The following engines are supported:
 
-- [`s3_vectors`](/docs/components/vectors/s3_vectors.md) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
 
 ## `vectors.params`
 

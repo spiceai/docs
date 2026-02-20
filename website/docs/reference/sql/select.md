@@ -7,7 +7,7 @@ sidebar_position: 1
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.  
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.
 :::
 
 ## SELECT syntax
@@ -24,10 +24,30 @@ Spice supports the following syntax for queries:
 [ [WHERE](#where-clause) condition ]  
 [ [GROUP BY](#group-by-clause) grouping_element [, ...] ]  
 [ [HAVING](#having-clause) condition]  
+[ [QUALIFY](#qualify-clause) condition ]  
 [ [UNION](#union-clause) [ ALL | select ] ]
 [ [ORDER BY](#order-by-clause) expression \[ ASC | DESC \][, ...] ]  
 [ [LIMIT](#limit-clause) count ]  
 [ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]
+
+### Window Functions (OVER Clause)
+
+Window functions perform calculations across a set of rows related to the current row. Use the `OVER` clause to define the window:
+
+```sql
+SELECT
+  employee_id,
+  salary,
+  ROW_NUMBER() OVER (ORDER BY salary DESC) AS salary_rank,
+  SUM(salary) OVER (PARTITION BY dept_id) AS dept_total
+FROM employees;
+```
+
+The `OVER` clause supports:
+
+- `PARTITION BY`: Divides rows into groups
+- `ORDER BY`: Defines row ordering within each partition
+- Frame specifications: `ROWS BETWEEN ... AND ...`
 
 ### WITH clause
 
@@ -218,9 +238,27 @@ Example:
 SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10
 ```
 
+### QUALIFY clause
+
+The `QUALIFY` clause filters the results of window functions. It is evaluated after window functions are computed, similar to how `HAVING` filters results after `GROUP BY`.
+
+Example:
+
+```sql
+SELECT
+  employee_id,
+  dept_id,
+  salary,
+  ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rank
+FROM employees
+QUALIFY rank <= 3;
+```
+
+This query returns only the top 3 highest-paid employees in each department.
+
 ### UNION clause
 
-The `UNION` clause combines the results of two or more `SELECT` statments. By default `UNION` removes
+The `UNION` clause combines the results of two or more `SELECT` statements. By default `UNION` removes
 duplicates. To include duplicates, use `UNION ALL`.
 
 Example:

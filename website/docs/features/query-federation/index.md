@@ -5,19 +5,81 @@ description: 'Learn how to use federated SQL queries in Spice.ai Open Source'
 sidebar_position: 1
 pagination_prev: null
 pagination_next: null
+tags:
+  - query
+  - sql
+  - features
 ---
 
-Spice supports query federation, enabling you to join, combine, and query data using SQL from multiple sources, including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO).
+import DocCardList from '@theme/DocCardList';
+
+Spice provides a high-performance SQL query engine built on Apache DataFusion, supporting query federation across multiple data sources including databases (PostgreSQL, MySQL), data warehouses (Databricks, Snowflake, BigQuery), and data lakes (S3, MinIO).
 
 ![Spice.ai Open Source Query Federation](/img/features/query-federation.png)
 
-For a full list of supported sources, see [Data Connectors](/docs/components/data-connectors/index.md).
+For a full list of supported sources, see [Data Connectors](../components/data-connectors).
 
-## Getting Started
+## Query Methods
+
+Spice supports multiple ways to execute queries:
+
+- **SQL Queries**: Execute standard SQL queries against datasets using the HTTP API, Arrow Flight SQL, JDBC, ODBC, or ADBC.
+- **Parameterized Queries**: Execute prepared statements with parameter binding for improved security and performance.
+- **Federated Queries**: Join and query data across multiple sources in a single SQL statement.
+
+## API Endpoints
+
+| Protocol         | Endpoint                 | Description                            |
+| ---------------- | ------------------------ | -------------------------------------- |
+| HTTP             | `/v1/sql`                | Execute SQL queries over HTTP          |
+| Arrow Flight SQL | `grpc://localhost:50051` | High-performance Arrow-native queries  |
+| JDBC/ODBC        | Flight SQL compatible    | Connect from BI tools and applications |
+| ADBC             | Flight SQL driver        | Arrow Database Connectivity            |
+
+### HTTP API
+
+Execute a query using the HTTP API:
+
+```bash
+curl -X POST http://localhost:8090/v1/sql \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT * FROM my_table LIMIT 10"}'
+```
+
+### Arrow Flight SQL
+
+Connect using Arrow Flight SQL for high-performance data transfer:
+
+```python
+import adbc_driver_flightsql.dbapi
+
+conn = adbc_driver_flightsql.dbapi.connect('grpc://localhost:50051')
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM my_table LIMIT 10")
+result = cursor.fetch_arrow_table()
+```
+
+### SQL REPL
+
+Use the Spice CLI for interactive queries:
+
+```bash
+spice sql
+```
+
+```sql
+SELECT * FROM my_table LIMIT 10;
+```
+
+## Query Features
+
+<DocCardList />
+
+## Federated Query Example
 
 To start using federated queries in Spice, follow these steps:
 
-**Step 1.** Install Spice by following the [installation instructions](/docs/getting-started/index.mdx).
+**Step 1.** Install Spice by following the [installation instructions](../getting-started).
 
 **Step 2.** Clone the Spice Cookbook repository and navigate to the `federation` directory.
 
@@ -142,9 +204,9 @@ Time: 0.011524375 seconds. 1 rows.
 
 ### Acceleration
 
-While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+The query in step 8 returns results from federated remote data sources, but performance is affected by network latency and data transfer overhead.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](/docs/components/data-accelerators/index.md), resulting in significant performance gains.
+Step 9 demonstrates the same query executed against locally materialized datasets using [Data Accelerators](../components/data-accelerators). By storing data locally, queries avoid network round-trips and achieve significantly faster response times.
 
 :::warning[Limitations]
 
@@ -152,3 +214,10 @@ To improve query performance, step 9 demonstrates the same query executed agains
 - **Query Capabilities:** Not all SQL features and data types are supported across all data sources. More complex data type queries may not work as expected.
 
 :::
+
+## Related Topics
+
+- [Distributed Query](distributed-query) - Scale queries across multiple nodes
+- [Results Caching](caching) - Cache query results for improved performance
+- [Arrow Flight SQL API](../api/arrow-flight-sql) - High-performance query protocol
+- [ADBC](../api/adbc) - Arrow Database Connectivity

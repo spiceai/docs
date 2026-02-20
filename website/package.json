@@ -5,7 +5,9 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "./scripts/generate-versions.sh && docusaurus build",
+    "build:local": "docusaurus build",
+    "generate-versions": "./scripts/generate-versions.sh",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -23,6 +25,8 @@
     "@heroicons/react": "^2.2.0",
     "@mdx-js/react": "^3.0.1",
     "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-visually-hidden": "^1.2.4",
+    "@signalwire/docusaurus-plugin-llms-txt": "^1.2.2",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
@@ -30,23 +34,24 @@
     "docusaurus-theme-openapi-docs": "^4.3.1",
     "embla-carousel-react": "^8.5.2",
     "postcss": "^8.4.49",
+    "postcss-import": "^16.1.1",
     "prism-react-renderer": "^2.3.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-player": "^2.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-player": "^3.4.0",
     "remark": "^15.0.1",
     "remark-extract-frontmatter": "^3.2.0",
-    "tailwind-merge": "^2.6.0",
-    "tailwindcss": "^3.4.17",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.18",
     "tailwindcss-animate": "^1.0.7",
-    "workers-og": "^0.0.25"
+    "workers-og": "^0.0.27"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.8.1",
     "@docusaurus/tsconfig": "^3.8.1",
     "@docusaurus/types": "^3.8.1",
     "typescript": "^5.9.2",
-    "wrangler": "^4.31.0"
+    "wrangler": "^4.59.1"
   },
   "browserslist": {
     "production": [

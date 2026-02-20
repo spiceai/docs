@@ -6,7 +6,7 @@ pagination_next: null
 description: 'spice chat CLI documentation'
 ---
 
-Start an interactive or one-shot chat with a [model](/docs/components/models/index.md) registered in the Spice runtime.
+Start an interactive or one-shot chat with a [model](../../components/models/) registered in the Spice runtime.
 
 ## Requirements
 
@@ -29,12 +29,14 @@ spice chat [flags] [<message>]
 
 ## Flags
 
-- `--cloud` Send requests to a Spice Cloud instance instead of the local instance. Default: `false`.
-- `--http-endpoint <string>` Runtime HTTP endpoint. Default: `http://localhost:8090`.
-- `--model <string>` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
-- `--temperature <float32>` Model temperature used for chat request. Default: `1`.
-- `--user-agent <string>` Custom `User-Agent` header sent with every request.
-- `--responses` Direct all chats to the `/v1/responses` endpoint, which exposes configured models that support [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses) and enables access to [OpenAI-hosted tools](https://platform.openai.com/docs/guides/tools). To learn more about Spice's support for OpenAI's Responses API, view the [OpenAI model provider documentation](/components/models/openai.md) or the [Azure OpenAI model provider documentation](/components/models/azure.md).
+- `--cloud` Use a Spice Cloud instance for chat. Requires `--api-key`.
+- `--endpoint <endpoint>` Specifies the remote Spice instance endpoint. Supports `http://`, `https://`, `grpc://`, or `grpc+tls://` schemes. For example, `--endpoint http://my-remote-host:8090` (HTTP) or `--endpoint grpc://my-remote-host:50051` (Arrow Flight/gRPC).
+- `--http-endpoint <endpoint>` (Deprecated) Runtime HTTP endpoint. Default: `http://localhost:8090`.
+- `--model <string>` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
+- `--temperature <float32>` Model temperature used for chat request. Default: `1.0`.
+- `--user-agent <string>` Custom `User-Agent` header sent with every request.
+- `--responses` Direct all chats to the `/v1/responses` endpoint, which exposes configured models that support [OpenAI's Responses API](https://platform.openai.com/docs/api-reference/responses) and enables access to [OpenAI-hosted tools](https://platform.openai.com/docs/guides/tools). To learn more about Spice's support for OpenAI's Responses API, view the [OpenAI model provider documentation](../../components/models/openai) or the [Azure OpenAI model provider documentation](../../components/models/azure).
+
 ## Examples
 
 When exactly one model is **ready**, `spice chat` opens a REPL that uses that model automatically:
@@ -46,6 +48,19 @@ chat> hello
 Hello! How can I assist you today?
 
 Time: 0.57s (first token 0.53s). Tokens: 18. Prompt: 8. Completion: 10 (325.04/s).
+```
+
+#### Remote and Cloud Examples
+
+```shell
+# Chat with Spice Cloud
+spice chat --cloud --api-key <your-api-key> --model <model>
+
+# Chat with a remote spiced instance over HTTP
+spice chat --endpoint http://my-remote-host:8090 --model <model>
+
+# Chat with a remote spiced instance over Arrow Flight SQL (gRPC)
+spice chat --endpoint grpc://my-remote-host:50051 --model <model>
 ```
 
 When multiple models are **ready**, the command prompts for a selection before starting the REPL:

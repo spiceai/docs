@@ -13,7 +13,7 @@ tags:
 
 Spice provides tools that help LLMs interact with the runtime. To specify these tools for a Spice model, include them in its `params.tools`.
 
-For a list of available tools, or how to define additional tools, see [Tool Components](/docs/components/tools).
+For a list of available tools, or how to define additional tools, see [Tool Components](../../components/tools).
 
 ### Example: Specifying Tools for a Model
 
@@ -34,7 +34,7 @@ models:
     tools: auto # Use all default tools
 ```
 
-For details on tool groups, see [Tool Components](/docs/components/tools#tool-groups).
+For details on tool groups, see [Tool Components](../../components/tools#tool-groups).
 
 ### Example: Specifying tools and tool groups
 
@@ -48,7 +48,10 @@ models:
 
 ### Tool Recursion Limit
 
-When a model requests to call a runtime tool, Spice runs the tool internally and feeds it back to the model. The `tool_recursion_limit` parameter limits the depth of internal recursion Spice will undertake. By default, this limit is set to 10.
+When a model requests to call a runtime tool, Spice runs the tool internally and feeds the result back to the model. The model may then request another tool call based on the result, creating a chain of tool invocations. The `tool_recursion_limit` parameter limits the depth of this internal recursion. By default, this limit is set to 10.
+
+Lowering the limit can help prevent runaway tool chains in cases where a model repeatedly invokes tools without converging on a final answer.
+
 ```yaml
 models:
   - name: my-model

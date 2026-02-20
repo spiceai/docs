@@ -1,13 +1,20 @@
 ---
 title: 'Python SDK'
-description: 'Connect to spice using spice python SDK'
+description: 'Connect to Spice using the Python SDK'
 pagination_prev: null
 pagination_next: null
+tags:
+  - sdk
+  - python
 ---
 
 ## Python SDK for Spice.ai
 
-https://github.com/spiceai/spicepy
+[github.com/spiceai/spicepy](https://github.com/spiceai/spicepy)
+
+:::note[Parameterized Queries]
+Native parameterized query support in spicepy is coming soon. For parameterized queries, use ADBC directly. See [Parameterized Queries](../../features/query-federation/parameterized-queries) and [ADBC](../../api/adbc) for more information.
+:::
 
 ### Install
 

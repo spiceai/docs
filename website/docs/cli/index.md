@@ -1,7 +1,9 @@
 ---
-title: 'Spice.ai OSS CLI documentation'
+title: 'Spice.ai CLI Reference'
 sidebar_label: 'CLI'
-description: 'Detailed documentation on the Spice.ai OSS CLI'
+description: 'Complete CLI reference for Spice.ai including commands to create, manage Spicepods, run queries, and interact with the Spice runtime.'
+keywords: [spice.ai, cli, command line, spicepod, spice run, spice sql, spice add]
+image: /img/og/spiceai.png
 sidebar_position: 13
 pagination_prev: null
 ---
@@ -32,11 +34,18 @@ The Spice CLI can be installed by:
 
 The `spice` program will be added to the PATH automatically for **bash**, **fish**, and **zsh** shells.
 
-After installing the Spice CLI for the first time, ensure you've got the correct version by running `spice version`. The Runtime version is not expected to be shown, as the runtime will be downloaded and installed automatically upon first run.
+After installing the Spice CLI for the first time, verify the installation by running `spice version`. Expected output:
+
+```console
+CLI version:     1.x.x
+Runtime version: (not installed)
+```
+
+The runtime is downloaded and installed automatically upon first run of `spice run`.
 
 ## Getting started
 
-For getting started with Spice using the Spice CLI, see the [Getting Started Guide](/docs/getting-started).
+For getting started with Spice using the Spice CLI, see the [Getting Started Guide](../getting-started).
 
 Use `spice help` for all commands and `spice [command] --help` for more information about a command.
 
@@ -68,7 +77,7 @@ Common commands are:
 | spice help    | Help about any command                                        |
 | spice upgrade | Upgrades the Spice CLI to the latest release                  |
 
-See [Spice CLI command reference](/docs/cli/reference) for the full list of available commands.
+See [Spice CLI command reference](./reference) for the full list of available commands.
 
 ## Updating
 
@@ -79,7 +88,7 @@ spice upgrade
 ```
 
 :::note
-Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](/docs/cli#install) script.
+Upgrade command is supported from CLI v0.3.1. For version < 0.3.1 users have to re-run the [install](#install) script.
 :::
 
 ## Uninstall

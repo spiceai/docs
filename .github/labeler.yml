@@ -1,11 +1,7 @@
-"area/docs":
-- changed-files:
-  - any-glob-to-any-file: ['website/docs/*']
-
-"area/blog":
-- changed-files:
-  - any-glob-to-any-file: ['website/blog/*']
+'area/docs':
+  - changed-files:
+      - any-glob-to-any-file: ['website/docs/*']
 
 release:
-- changed-files:
-  - any-glob-to-any-file: ['website/blog/releases/*.md']
+  - changed-files:
+      - any-glob-to-any-file: ['website/releases/*.md']

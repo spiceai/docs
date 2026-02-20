@@ -1,10 +1,9 @@
-import { Icon } from '../../../components/atoms/icon/icon';
-import { Title } from '../../../components/atoms/title/title';
-import { Link, LinkProps } from '../../../components/atoms/link/link';
+import { Icon } from '../../../components/atoms/icon/icon'
+import { Title } from '../../../components/atoms/title/title'
+import { Link, LinkProps } from '../../../components/atoms/link/link'
 
 export const Social = () => {
-  const iconClasses =
-    'h-8 w-8 hover:text-primary transition-colors active:text-red-700';
+  const iconClasses = 'h-8 w-8 hover:text-primary transition-colors active:text-red-700'
   return (
     <div className='flex flex-col items-center gap-6 md:flex-row'>
       <div>
@@ -30,10 +29,10 @@ export const Social = () => {
           <Icon iconName='twitter' className='h-7 w-7 hover:text-primary' />
         </Link>
         <Link
-          href='https://discord.gg/kZnTfneP5u'
+          href='https://spiceai.org/slack'
           target='_blank'
           rel='noreferrer'
-          aria-label='SpiceAI Discord'
+          aria-label='Spice.ai Slack Community'
         >
           <Icon iconName='discord' className={iconClasses} />
         </Link>
@@ -47,5 +46,5 @@ export const Social = () => {
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
