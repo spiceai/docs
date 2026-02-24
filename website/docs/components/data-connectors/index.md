@@ -90,18 +90,18 @@ datasets:
 
 ### Supported Formats
 
-| Name                                          | Parameter              | Status  | Description                                                                                            |
-| --------------------------------------------- | ---------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                 |
-| JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                             |
-| [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                          |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/). |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                               |
-| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                           |
-| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                     |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)                                                             |
-| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                 |
+| Name                                          | Parameter              | Status  | Description                                                                                                    |
+| --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
+| JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
+| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)                                                                     |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
 

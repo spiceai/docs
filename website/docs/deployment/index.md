@@ -15,7 +15,6 @@ Spice supports flexible deployment options ranging from a single binary to fully
 - [Sidecar Deployment](deployment/architectures/sidecar)
 - [Microservice Deployment (Single or Multiple Replicas)](deployment/architectures/microservice)
 - [Tiered Deployment](deployment/architectures/tiered)
-- [Hybrid Deployment](deployment/architectures/hybrid)
 - [Cloud-Hosted in the Spice Cloud Platform](deployment/architectures/hosted)
 - [Sharded Deployment](deployment/architectures/sharded)
 - [Cluster Deployment (Spice.ai Enterprise)](deployment/architectures/cluster)
