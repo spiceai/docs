@@ -9,6 +9,14 @@ pagination_next: null
 
 Spice.ai colocates dynamic data with SaaS applications as a database CDN, ensuring resilience and high performance for seamless user experiences in high-traffic, customer-facing environments.
 
+```mermaid
+flowchart LR
+    DB["Cloud Database"] -->|"CDC"| Spice["Spice Runtime (Colocated)"]
+    Spice --> Local["Local Replica"]
+    App["SaaS App"] -->|"Fast queries"| Local
+    Local -->|"Always available"| App
+```
+
 Unlike traditional CDNs (e.g., Cloudflare, Akamai) focused on static content delivery, Spice.ai targets dynamic, operational data with real-time caching and materialization, enabling high-availability SaaS applications with minimal infrastructure. This approach delivers superior performance and uptime compared to cloud-dependent databases or generic caching solutions, addressing the critical needs of SaaS platforms for scalability and reliability.
 
 ## Why Spice.ai?

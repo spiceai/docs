@@ -9,6 +9,15 @@ pagination_next: null
 
 Spice.ai federates external Model Context Protocol (MCP) servers over Server-Sent Events (SSE) for scalable, tool-driven AI applications in security, enhancing threat analysis with distributed tool ecosystems.
 
+```mermaid
+flowchart LR
+    MCP1["MCP Server (Threat Intel)"] -->|"SSE"| Spice["Spice Runtime"]
+    MCP2["MCP Server (Anomaly Detection)"] -->|"SSE"| Spice
+    MCP3["MCP Server (Log Parser)"] -->|"SSE"| Spice
+    Spice -->|"Unified tools + data"| LLM["LLM"]
+    LLM -->|"Threat report"| App["Security App"]
+```
+
 Unlike centralized AI orchestration platforms (e.g., Apache Airflow for AI workflows) that introduce complexity and latency, Spice.ai’s federated MCP client approach supports modular, scalable tool integration with seamless data and AI synergy. This makes it ideal for security applications requiring distributed, real-time threat intelligence, outperforming platforms with rigid, centralized architectures.
 
 ## Why Spice.ai?
