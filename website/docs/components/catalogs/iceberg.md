@@ -229,7 +229,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetTable",
           "glue:GetTables"
         ],
-        Resource: "*"
+        "Resource": "*"
       }
     ]
 }
@@ -249,7 +249,18 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ## Write Support
 
-This catalog supports [data ingestion](../../features/data-ingestion) using [SQL INSERT statements](../../reference/sql/dml#insert). Configure with `access: read_write` to enable writes.
+This catalog supports [data ingestion](../../features/data-ingestion) using [SQL INSERT statements](../../reference/sql/dml#insert). Set `access: read_write` on the catalog to enable writes for all included tables.
+
+```yaml
+catalogs:
+  - from: iceberg:https://iceberg-catalog-host.com/v1/namespaces/my_catalog
+    name: ice
+    access: read_write
+    params:
+      iceberg_token: ${secrets:iceberg_token}
+```
+
+Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above.
 
 ## Cookbook
 
