@@ -30,7 +30,6 @@ runtime:
       enabled: true
       max_size: 1GiB # Default 128 MiB
       item_ttl: 1m # Default 1s
-      stale_while_revalidate_ttl: 30s # Default 0s (disabled)
 ```
 
 ## `caching` Parameters

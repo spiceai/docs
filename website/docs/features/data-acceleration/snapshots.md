@@ -30,10 +30,6 @@ datasets:
 
 Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB or SQLite) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
 
-:::info Preview
-Acceleration snapshots are available in preview.
-:::
-
 ## How it works
 
 - On startup, Spice checks whether the file supplied in `acceleration.params` (for example `duckdb_file`) exists.
@@ -275,3 +271,10 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 
 For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).
+
+:::warning[Limitations]
+
+- Only datasets are supported for snapshots. Views are not supported.
+- When using Cayenne accelerations, snapshots are supported only when one dataset is configured per spicepod.
+
+:::
