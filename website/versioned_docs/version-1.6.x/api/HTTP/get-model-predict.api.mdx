@@ -1,0 +1,72 @@
+---
+id: get-model-predict
+title: "ML Prediction"
+description: "Make a ML prediction using a specific model."
+sidebar_label: "ML Prediction"
+hide_title: true
+hide_table_of_contents: true
+api: eJztV99v2zYQ/leIe1kKKLaTNcOmt2wohgAJVqTdw2AYLiOdLDYUyZJHr4ah/704SokkO9iWAX3zQ2BHx/vB7/vurNsDyU2AfAnXN7DKoMRQeOVIWQM53MlHFFLc3QrnsVQFPxYxKLMRUgSHhapUIRpbop5BBtahl3zmpoQcNkjrZFr3zpCBk142SOg55R6MbBDy7iMDxSmdpBoO6/hYo+BDwlaCauwyCrKi6QocVfe3oppr8fglKo8l5OQjZhCKGhsJ+R5o5zhpIK/MBtp2xYeDsyZgYPvlYsEf0wreDxkaWaIIsSgwhCpqvYMMCmsIDbGfdE6rIsEw/xzYeX+c3D58xgTIUOYSAkmKATLoUOtRKWOH6boJTJDzjDKprtaxcYiuDOEG/YswkmpQkHxEw/gVtnEaCROqIxTPlBGN0loFLKwpwxuuShnVxAbyRZsBem/9usEQ5AaH1MsnWDMwUetjRXEJyVf0vkJ1lDIQGEhUUmksoZ2gcMTafxNIDFiKyvqD2w3Bt+iD6ih6Rf2913EuDjxKM4oqvZe7UVBFOGHMxOYhEVZZ30iCHCptJXHA4/wjnjyGqCkTtHOqkFrvhDQiJePqUozAQXppHcmaw3W2p9uM6s+OQEfD/C/hQ6d+yOBXWd53zEEGN4bQG6nfMcF8TVKkceieD10VbXtkue8bkGvFr5JFmfqmL3uUcKwKaHbrSa8csAoXswVMKVkuZm+vssUs/V2tpu2VX1z+2LZc3tuXZsCN2Uqtymepkh34P82A0ww4zYDvOgMmaQ60B3/ZKDZyi6Lh94EHOXRpfvZvU+NgBHQT4OrlCdBdTgT0W/S9im1RRO+xFGVkjKbwnabCaSqcpsL3mwrTyMeD4Q/rQpbq73u2sFGX5gcSw1by2unAKkGqbb/lpL2Gashhvr2YJ+cw37N7Ox+SdOm7vSd6DTnURC6fz7UtpK5toPznxS+LIwHfslmUuEVtXYOG+ovMxG/WVGoTPaalR3w6P+eIn2bAK03AInpFu5RPOrV+RP6+YpsylU0S66H20XDzv9g7wakCSzEc0apA5iN/Xt+unSxqPL9ML1uqREOqUuinljaD8XvZT7PFeTSB5INO1DobqJFmFPXuVrwfK25S2n6Yq69dUnvlEn6ludNSpaZPhOx7GpewvXhSBSs575XwxOUqA6aLD+73DzLgn163LT/+EtEnlDPYSq/S5Rj/UgX+XkJeSR3wHy5zdt+P/Tfifyy9L96tfygNj5mt1JH/gwySIDq021WbQY2yZNaW+950XRToaOR09APGYnruhN/ffYS2/Qaej615
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"ML Prediction"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/models/{name}/predict"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Make a ML prediction using a specific model.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"The name of the model to make a prediction with.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Prediction made successfully","content":{"application/json":{"schema":{"type":"object","required":["status","model_name","duration_ms"],"properties":{"duration_ms":{"type":"integer","description":"The time taken to complete the prediction (in milliseconds)","minimum":0},"error_message":{"type":["string","null"],"description":"The error message if the request failed"},"model_name":{"type":"string","description":"The name of the model used for the prediction"},"model_version":{"type":["string","null"],"description":"The version of the model used"},"prediction":{"type":["array","null"],"items":{"type":"number","format":"float"},"description":"The prediction result, typically an array of floats"},"status":{"description":"The status of the prediction","type":"string","enum":["Success","BadRequest","InternalError"],"title":"PredictStatus"}},"title":"PredictResponse"},"example":{"status":"Success","model_name":"my_model_name","model_version":"1.0","prediction":[0.45,0.5,0.55],"duration_ms":123}}}},"400":{"description":"Invalid request to the model","content":{"application/json":{"schema":{"type":"object","required":["status","model_name","duration_ms"],"properties":{"duration_ms":{"type":"integer","description":"The time taken to complete the prediction (in milliseconds)","minimum":0},"error_message":{"type":["string","null"],"description":"The error message if the request failed"},"model_name":{"type":"string","description":"The name of the model used for the prediction"},"model_version":{"type":["string","null"],"description":"The version of the model used"},"prediction":{"type":["array","null"],"items":{"type":"number","format":"float"},"description":"The prediction result, typically an array of floats"},"status":{"description":"The status of the prediction","type":"string","enum":["Success","BadRequest","InternalError"],"title":"PredictStatus"}},"title":"PredictResponse"},"example":{"status":"BadRequest","error_message":"You gave me a bad request :(","model_name":"my_model_name","duration_ms":12}}}},"500":{"description":"Internal server error occurred during prediction","content":{"application/json":{"schema":{"type":"object","required":["status","model_name","duration_ms"],"properties":{"duration_ms":{"type":"integer","description":"The time taken to complete the prediction (in milliseconds)","minimum":0},"error_message":{"type":["string","null"],"description":"The error message if the request failed"},"model_name":{"type":"string","description":"The name of the model used for the prediction"},"model_version":{"type":["string","null"],"description":"The version of the model used"},"prediction":{"type":["array","null"],"items":{"type":"number","format":"float"},"description":"The prediction result, typically an array of floats"},"status":{"description":"The status of the prediction","type":"string","enum":["Success","BadRequest","InternalError"],"title":"PredictStatus"}},"title":"PredictResponse"},"example":{"status":"InternalError","error_message":"Oops, the server couldn't predict","model_name":"my_model_name","duration_ms":12}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

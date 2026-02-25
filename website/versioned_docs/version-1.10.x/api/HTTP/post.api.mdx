@@ -1,0 +1,72 @@
+---
+id: post
+title: "Run Tool"
+description: "The request body and JSON response formats match the tool’s specification."
+sidebar_label: "Run Tool"
+hide_title: true
+hide_table_of_contents: true
+api: eJytVttu4zYQ/RVinhyAkXW1Lb1l03SRIhsvbKdAERhZRhpbbCVSISlnDUNAf6O/1y8pKNmxnXgTYFG/UJ4ZzRyeuWkDhi01JPcwk7LQMKeQoU4VrwyXAhKY5UgUPtWoDXmU2ZowkZHfpuNbolBXUmgkC6lKZjQpmUlzYnIkRsri37//0URXmPIFT5n15gAFWaFq/1xnkEAltQEKFVOsRIPKAtmAYCVC0h0UuEVRMZPDa2i3rEQiFy8RgYJFyhVmkBhVIwWd5lgySDZg1pV1qo3iYglNM++MUZtPMltbi1f3lrJ4gU+4qGpD9jgdMkUk/ZXXt4G1pWCvJV1Ue91UCoPCWPesqootEf0/tY2x2cNrKOB3VlYFWvFTjWoNCUyvbq4uZ4Stlj0jDSseWClrYc5oJ+LVXpDas+edUVIxrVEsUT20MvLrZPyFlOsHwx4LJJ8n47uv5NMfb8zGk1+uJqcUF9NLcnP95XpGAmia5jXHraArBG2x+677AzKnOzJ39pRw0ZVSV0E/xVcbVD8V9lixosa2hC5+/9zb3dk5IAqSwHGHvh/F8dAL4sEwDugr40OiIfEjJ/CHI28QB3EYDSI/onA5vrud9a6FGYQ978z69MJBZMv4iDlI3Ia+DyUYev7A90ejcDBy3Wj4AZaB47uRH7hhGIXDMI4HJ7D43mg0DOITaLyP0Ay9oRe4vucFfuyOovADNLET+e4giuPAjQM3cMMTaEI38tzgBBi/mTdNW06hG/6gYIQ0ZCFrkR0XhsHvpl8VjB+XxOsOP+ionbsH/XTotQ0fnarXK6WkIjJNa4UZec55oQ1JWVFwsTwcNz/X3iVqzZb4EufF8R5lQm4l0bUdpzbSlqoSTS6P5qbJIYGXMdTf2JnZAAWNarUbp7UqIIHcmCrp9wuZsiKX2iQjN3bfjNQbqyYZrrCQVYnCkM6TQy6lWPBlrZA8c5OTb+fn1uM3B+wk1ZjWipt1G49V/OEvtM9zq+NiIdv0cNPmQtXC8Hayv100uuIpZmRvUvAUhW5Z226Fi4qlOZ77jgXPMxSGLziqY01DwV6/c+w5seNbkWWtZOLA2aQWZNal8gjMZp/Z/3sBbqv0oIgb2qVos83nPaw8a9juYwpJi3VOwWbNajebR6bxThVNY8XbZXE/p7BiittWbdOQcW2fM0gWrND4zg17k+1EPyMnVupJwFshE2ugu7ELQKHNe8duM28o5Mgym5z7zVZ12UU9n1kH+1ffdI+dVd0bF2mKlXnXdn7QGl/H0xlQeNwu9VJmbdGxZ/t1wJ47mLJloV0drWwDBRPLumvKzqf9/QdIWA8b
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Run Tool"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/tools/{name}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+The request body and JSON response formats match the tool’s specification.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"Name of the tool","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"Tool specific input parameters. See /v1/tools for parameter schema.","content":{"application/json":{"schema":{},"example":{"query":"SELECT avg(total_amount), avg(tip_amount), count(1), passenger_count FROM my_table GROUP BY passenger_count ORDER BY passenger_count ASC LIMIT 3"}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Tool Specific response, in JSON format","content":{"application/json":{"schema":{},"examples":{"sql":{"value":[{"AVG(my_table.tip_amount)":3.072259971396793,"AVG(my_table.total_amount)":25.327816939456525,"COUNT(Int64(1))":31465,"passenger_count":0},{"AVG(my_table.tip_amount)":3.3712622884680057,"AVG(my_table.total_amount)":26.205230445474996,"COUNT(Int64(1))":2188739,"passenger_count":1},{"AVG(my_table.tip_amount)":3.7171302113290854,"AVG(my_table.total_amount)":29.520659930930304,"COUNT(Int64(1))":405103,"passenger_count":2}]}}}}},"404":{"description":"Tool not found","content":{"text/plain":{"schema":{"type":"string"},"example":"Tool no_sql not found"}}},"500":{"description":"Error occured whilst calling the tool","content":{"application/json":{"schema":{},"example":{"message":"Error calling tool no_sql: No such tool"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,0 +1,72 @@
+---
+id: post-batch-predict
+title: "Batch ML Predictions"
+description: "Perform a batch of ML predictions, using multiple models, in one request. This is useful for ensembling or A/B testing different models."
+sidebar_label: "Batch ML Predictions"
+hide_title: true
+hide_table_of_contents: true
+api: eJzNVk1v2zgQ/SvEnHYBxnbSFmh1S4oeAqTYoMmeDMOlqZHFliJVfjgxDP33xVBSLVlutkX3sAZiOPyYeTPz5nEOEMTWQ7aE61tYccjRS6fqoKyBDO7RFdZVTLCNCLJktmAf71jtMFeSjnjOoldmy6qog6o1ssrmqD1nyjBrkDn8FtGHGXsslWfKs+ixiJoV1jE0HquNpuvWsev5DQvoA/2bq6JAhyZ05mbAwdboBPm8zSGD2vqwTpjWHRrg0Dm7sfkessNJKDcpgCP0HhqT1gShDPkVTCsfKMrpOZ8w+xqlKpTsgAEHuo4mkENR11rJBHL+xZPXA3hZYiXoV9jXCBnYzRdMaGtHIQWFnnYHOR0cFs6JPXBQASt/zgiBUw5zKmCCtDaiQirk2Pxg72jFB6fMFpqGQ1BB09J9C+NTGzM0p4R4LPGlHHGGQpZdlvaU0lB2nGDBUvFTFmnxeHsEIJVpigKfRVVrnGRqOQ4Ncqd2uPZBBL8W0PAXtjfQrBpyfcxhcBHTgq+t8W3mrhaLfyeTZ9ISvoA581FK9L6IWu9/hx/D0g5j5pDHthPWlZ9Werh5tKpMwC064FApo6pYQbZo+H/BOkpmJFSDRP8mxCnlgqqQBfEVDdGoz/UJj9gfyrBKaa08Smty/+dpuOicdesKvRfbQSMs+07gYKLWUxkkCOku6+4yVSTnvYYUQmnMiagvNdo5s3SSmunYJ9FjfrZLeuM7dF617PkF/N2tqS8Y8WBotedBb/SUDyZWm1QweiNEgAwKbcUPVGOkFj7qwFnY10oKrfdMGJacEbpkw5ORjlqT7iNz7V4fzQA/nyQdDdV/CQ9tYwKHG5H32sLh1gR0RugPVGAK80QLH1oUZ1Wy1Qlofqxg/YmRhI0a4O0ln2haH/kA8wsyNyEGXM4WMK7qcjF7/YYvZunvzWrcodnrK5LKX/G6+Wmvr8jjJX29OuOWJLjh8OacyvaVYR7dDl3XglbK6BzmLI9U4G4yGTFgoLkBn8O81kKdV9v+CRyUB64Niwafa5Qk5ydOn0qliW+WEnTOPTGFIqowlLYfVSgtIpSQwXx3OT9OLG1gbc2j05BBGUKdzefaSqFL60P2dvFuMVGOO9pmOe5Q27qiQam1NGPvrSnUNjpkTyqU7PPFBVn8PINmRe5kdCrskz9Rq/VXpN8r2qMH6dNxgPrwkw9un8BVw0GZwqbcdp3goiHhPqt7vlYSc3Y8opWkgZDud6avayFLvLhKrFI5mqAKhW6803AYEvDd7CrpmfWhEmZgrH2xP96x+/FTOgR2OBLn/zT5dlQdMLnhLVsOHauWsLs8dh5pGFGH1g+HjfD4t9NNQ8vfIrpUcQ474ZTYUJ2WVLsSRU65XR4gkQLet6m4eCTvdFzHNBuczjAkHO2NaymxDi+eXQ364v6vh0fgsOmmdYqXOCOeaMAQT5BBmvq/Dydp7QBamG1Mzze0NunzD+2ceZc=
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Batch ML Predictions"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/predict"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Perform a batch of ML predictions, using multiple models, in one request. This is useful for ensembling or A/B testing different models.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"Batch prediction request containing a list of prediction requests for specific models","content":{"application/json":{"schema":{"type":"object","properties":{"predictions":{"type":"array","items":{"type":"object","required":["model_name"],"properties":{"model_name":{"type":"string"}},"title":"PredictRequest"},"description":"The list of prediction requests, each specifying the model to use for the prediction"}},"title":"BatchPredictRequest"},"example":{"predictions":[{"model_name":"drive_stats_a"},{"model_name":"drive_stats_b"}]}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Batch predictions completed successfully","content":{"application/json":{"schema":{"type":"object","required":["predictions","duration_ms"],"properties":{"duration_ms":{"type":"integer","minimum":0},"predictions":{"type":"array","items":{"type":"object","required":["status","model_name","duration_ms"],"properties":{"duration_ms":{"type":"integer","description":"The time taken to complete the prediction (in milliseconds)","minimum":0},"error_message":{"type":["string","null"],"description":"The error message if the request failed"},"model_name":{"type":"string","description":"The name of the model used for the prediction"},"model_version":{"type":["string","null"],"description":"The version of the model used"},"prediction":{"type":["array","null"],"items":{"type":"number","format":"float"},"description":"The prediction result, typically an array of floats"},"status":{"description":"The status of the prediction","type":"string","enum":["Success","BadRequest","InternalError"],"title":"PredictStatus"}},"title":"PredictResponse"}}},"title":"BatchPredictResponse"},"example":{"duration_ms":81,"predictions":[{"status":"Success","model_name":"drive_stats_a","model_version":"1.0","prediction":[0.45,0.5,0.55],"duration_ms":42},{"status":"Success","model_name":"drive_stats_b","model_version":"1.0","prediction":[0.43,0.51,0.53],"duration_ms":42}]}}}},"500":{"description":"Internal server error occurred during batch prediction","content":{"text/plain":{"schema":{"type":"string"},"example":"An unexpected error occurred while processing batch predictions"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

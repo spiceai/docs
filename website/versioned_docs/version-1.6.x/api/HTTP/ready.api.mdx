@@ -1,0 +1,77 @@
+---
+id: ready
+title: "Check Readiness"
+description: "Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message 'ready'. If not, it returns a 503 status with the message 'not ready'."
+sidebar_label: "Check Readiness"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVk1v20YQ/SuD8SUFKFF2kKLlLUiD1GgPRu2eLCEaLYfiIuTudneoRBD434NZyrKsArnk6pPIGc578/mgAwptE1aP+A9TvcdVgTUnE20Q6x1W+KFl8wWkZYiDE9szJCEZEvgGqOuyx/g+eMdOsvXs2zncTu+J484aBpsgKk8BViCyDNElIAd/Pjzcwc1i8QT+1UqbA3tOibYMS8xxS8yQzstLBHi3ePuDWOcFnuKXbukeWoYNt7SzPkLjI3xt2WkeZAx3HEm4hpqEEovmbLxLtubI9QRztDV2O0TadAw7S5lynd2fNRNeQ6BIPQvHOdwzw+MfJASRm8ipXb1pRUKqyjIFa5js3MdtWXuTyud2lprD7JSUj0fLEeMqs80y2y+5jt5HhpqFbJdypVdXV6CTtY5TgrvoN7x0tw5C9PVgdMZQc+j8vle+IhdR7q7LqUx2dfDWCRhysGEYEtdA2u94wgyKmckJ7rWUM0AQD+zSEBkkUtNYkzfAD9pf8ZltinlaLu+6PVAjHPN2HWeQoKUdQ2OdTS3X0Hll3+YKP36jPnQMfw0bjo6F02Vy1dKt1+s99d3SnVx3Rw/oGD6x6CNAIGmr5wZMNh+lgt8Wvy8yDhbog07DendbYzUtJhYYOQXvEiesDnizWOjPy1u6v7gCLNB4J+xEvxX+JmXoyDp9S6blnrJ9HxgrTBKt2+JYIE8Vn6jHcSzw3eLtDwlPJ/DTpM9IY2buWVqvjdiyYIHaQqzw1EMsUK+fo6rMAYfYYYXa9KosO2+oa32SStuLl9rzt7qh5h13PuR9mpDm8OF4fDxd+3o2U8T1HMeV0pkhWtlnPgr28xfW55X6rGt8rs/K1MFp7/5HrQqRD7OG5086a9gl1nhHvYa/D2Rant3MNXlbsxPbWI4vPWOBWv4EfD3/db6YDS6JCof6gk/SkztDnTT3dLaXyR2eB/gqz6/y/CrPF/J81K4zaRuLSXcOR3V6xN11VuzjXx6VILUeDhtK/G/sxlHN/w0cs3IUuKNo88GqjhTYMtV65o8HzOKC743hoPK3o264ZF+dieSnjw84jt8BHetVnw==
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check Readiness"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/ready"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
+
+The behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://spiceai.org/docs/components/data-accelerators/data-refresh#ready-state) for more details.
+
+### Readiness Probe
+In production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.
+
+Example Kubernetes readiness probe:
+```yaml
+readinessProbe:
+ httpGet:
+   path: /v1/ready
+   port: 8090
+```
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"Service is ready","content":{"text/plain":{"schema":{"type":"string"},"example":"ready"}}},"503":{"description":"Service is not ready","content":{"text/plain":{"schema":{"type":"string"},"example":"not ready"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

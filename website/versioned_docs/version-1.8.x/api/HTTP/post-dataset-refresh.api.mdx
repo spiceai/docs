@@ -1,0 +1,75 @@
+---
+id: post-dataset-refresh
+title: "Refresh Dataset"
+description: "Trigger an on-demand refresh for an accelerated dataset."
+sidebar_label: "Refresh Dataset"
+hide_title: true
+hide_table_of_contents: true
+api: eJzlV9tu3DYQ/RWCQIGkkPcSpEW7DwVS20UDJHDrOOiDY6xocXbFhCJpcrS2sdC/F0NypV3LdZL2rfGLbZEczpxz5sItR7EOfHHJTwSKABj4VcElhMorh8oavuAXXq3X4JkwzJojCY0wknlYeQg1W9m4IKoKNHiBIJlMliYfzAdzUavAwEhnlUGGyVL4F6Yuaug3WqPvmXBOKwgMLStXrdYlI1ulcA6MLPu9jZUQ2DNjkZVVLcwaQhk/Pp/wgltHFylrXku+4M4GXOYrl9kAL7gTXjSA4AmnLTeiAb5IvwquCCEnkDY+gK0GRpuYXTGsYRcLOZxtkwceblrlQfIF+hYKHqoaGsEXW473ju4J6JVZ8667Spsh4K9W3tOOw/vORoDm7QlYFhxUaqWqHlRe8MoaBINkLOJZRTCmHwNZ3I6dsdcfocJRqJflebrybAPeKwmhvNrdRxTVwCprVmrdenGtgdl4MGTHlJFqo2QrNPOtIbhEHwKK8IkcdZ6oQgWBvMmry48KEfyyEXeDj5c7xApuWq0fkXMNrBF3qmkbJhrbGqQrkykiR0hJv3AQ3ISdwEq0GsNuoRx7UPYBS6ZM3BWcqsBZWTDr2Xz23U4J/emqhurTUhkEvxG6pEDhTjROE9bzWeBd0cdKmqUorYGzVRRi5iRG2RUP5bCfMHSWXG8DRMyRsvLzwdGxz4WVco88P9RrwcG0DdEhVSDSJS847eUFTzlK8ksJSRyhwhh1FtJbira72os/3OivJPndn29YQIHQgEGKXX5N8OFGPxm7WjFh7ie860bO91lA/PWEbg9D4e9O35weX7Dv2W/nZ28Ziju1RK9cYH/9fnp+ylC5ZZbnL2w+m8z4Qy3s4HwsG5J6uu5hgYkfgrMmpEx6MZuPK0luBUMSprINkoW2qiAEuvj+v5SPwalL3kAIYg3E4WGW7xZGtfDRjE6bWVq5VmadMzi0GneJlwviAWdv08HzjMoDynofngAliqqnjxRB9l/OZmNkX+16m7KGUU8CE3MjC7NvEt8otntJIC2EiFAtNjDMBIRbxqzH+eU/K5gMrGybis23DegARcLth8f0+ZpakRGaBfAb8Ay8t57Zqmo9Kf22VhqY85aKAHk9DEnfErrvDdw5qDC2hQzYlyLVJfQbwNruZs44Y2LNF3y6mU9zCQjTLU2P3XRf+9MB8MRQGklbTw2lRnSL6VTbSujaBlz8NPt5NkLoDS0zCRvQ1sXOmCxN2HEe0YDdKqxZeXREFssJp9EzQNV6hffxPuHU8hPQ31e0RiSfD6Pp6bjjjVrTqJeZw16WWuRu9qUxe2Uj+5kq3xpUcQAf8x97tGTDFq0qID4X/fD+yomqhqMXsasqCQapy/vDla7ghHAyPJ/8OJkdtSYgFR9aI+YaYfas5vbPTvoifuDcdkiS//ObKicowh1OnRbKEFhRodss80u+mRM4uxdnwRf5NbWv9UENVA9I0HRyu70WAd573XX0+aYFH3VY8I3wKnJDCu2HzsVK6ABPMPHsPBeg5+zLXmyPxpc/CkNj0Ubolv7jBY9ZkvQRp9kahCSdXW7z0nFy5OiCDAxHRzWUBvx0gmYIh0/uvdorMH+cvbvgBb/Ob8acbl7cEr7iNrmZH2QxZenblmth1m0qd8km/fwNkjW0iA==
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Refresh Dataset"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/datasets/{name}/acceleration/refresh"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Trigger an on-demand refresh for an accelerated dataset.
+
+This endpoint triggers an on-demand refresh for an accelerated dataset.
+The refresh only applies to `full` and `append` refresh modes (not `changes` mode).
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"name","in":"path","description":"The name of the dataset to refresh.","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"description":"On-demand refresh request for a specific dataset.","content":{"application/json":{"schema":{"type":"object","description":"[`RefreshOverrides`] specifies the configurable options for a individual run of a refresh task.","properties":{"refresh_jitter_max":{"type":["string","null"],"description":"The maximum amount of jitter to add to the refresh. Defaults to the `refresh_jitter_max` specified in the spicepod, or 10% of the `refresh_check_interval`.","example":"10s"},"refresh_mode":{"oneOf":[{"type":"null"},{"description":"The refresh mode to use for this refresh. Defaults to the `refresh_mode` specified in the spicepod, or `full`.","type":"string","enum":["disabled","full","append","changes"],"title":"RefreshMode"}]},"refresh_sql":{"type":["string","null"],"description":"The SQL statement used for this refresh. Defaults to the `refresh_sql` specified in the spicepod, if any."}},"title":"RefreshOverrides"},"example":{"refresh_sql":"SELECT * FROM taxi_trips WHERE tip_amount > 10.0","refresh_mode":"full","refresh_jitter_max":"10s"}}},"required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Dataset refresh triggered successfully","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset refresh triggered for taxi_trips."}}}},"400":{"description":"Acceleration not enabled for the dataset","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset taxi_trips does not have acceleration enabled"}}}},"404":{"description":"Dataset not found","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Dataset taxi_trips not found"}}}},"500":{"description":"Internal server error occurred while processing refresh","content":{"application/json":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","description":"The message describing the result of the request"}},"title":"MessageResponse"},"example":{"message":"Unexpected internal error occurred while processing refresh"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      
