@@ -105,6 +105,7 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_token`                | Bearer token value to use for Authorization header.                                                                                                                                            |
 | `iceberg_oauth2_credential`    | Credential to use for OAuth2 client credential flow when connecting to the table. Format: `<client_id>:<client_secret>`                                                                        |
 | `iceberg_oauth2_scope`         | Scope to use for OAuth2 client credential flow when connecting to the table. Default: `catalog`                                                                                                |
+| `iceberg_oauth2_token_url`     | The URL to use for OAuth2 token endpoint.                                                                                                                                                      |
 | `iceberg_oauth2_server_url`    | URL of the OAuth2 server tokens endpoint for the client credential flow.                                                                                                                       |
 | `iceberg_s3_endpoint`          | S3-compatible endpoint where the Iceberg table data is stored.                                                                                                                                 |
 | `iceberg_s3_region`            | Region of the S3-compatible endpoint.                                                                                                                                                          |
@@ -201,7 +202,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
       },
       {
         "Effect": "Allow",
-        "Action": ["s3:GetObject"],
+        "Action": ["s3:GetObject", "s3:PutObject"],
         "Resource": "arn:aws:s3:::company-bucketname-datasets/*"
       },
       {
@@ -213,7 +214,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetTable",
           "glue:GetTables"
         ],
-        Resource: "*"
+        "Resource": "*"
       }
     ]
 }
@@ -225,6 +226,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | ------------------- | -------------------------------------------------------------- |
 | `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
 | `s3:GetObject`      | Required. Allows fetching objects                              |
+| `s3:PutObject`      | Required for write operations. Allows writing objects          |
 | `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
