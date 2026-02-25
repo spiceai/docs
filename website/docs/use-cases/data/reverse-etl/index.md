@@ -11,8 +11,13 @@ Spice.ai syncs enriched data from warehouses to operational systems like CRMs fo
 
 ```mermaid
 flowchart LR
-    DW["Warehouse (Databricks / Redshift)"] -->|"Federated Query"| Spice["Spice Runtime"]
-    Spice -->|"Materialize"| Acc["Accelerated Dataset"]
+    subgraph Runtime["Spice Runtime"]
+        Spice["Spice Runtime"]
+        Acc["Accelerated Dataset"]
+        Spice -->|"Materialize"| Acc
+    end
+
+    DW["Warehouse (Databricks / Redshift)"] -->|"Federated Query"| Spice
     Acc -->|"Real-time sync"| CRM["CRM / Ops Systems"]
     Acc -->|"Low-latency API"| App["Application"]
 ```

@@ -11,8 +11,13 @@ Spice.ai colocates dynamic data with SaaS applications as a database CDN, ensuri
 
 ```mermaid
 flowchart LR
-    DB["Cloud Database"] -->|"CDC"| Spice["Spice Runtime (Colocated)"]
-    Spice --> Local["Local Replica"]
+    subgraph Runtime["Spice Runtime (Colocated)"]
+        Spice["Spice Runtime (Colocated)"]
+        Local["Local Replica"]
+        Spice --> Local
+    end
+
+    DB["Cloud Database"] -->|"CDC"| Spice
     App["SaaS App"] -->|"Fast queries"| Local
     Local -->|"Always available"| App
 ```
