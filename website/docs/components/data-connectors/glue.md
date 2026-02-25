@@ -160,7 +160,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
       },
       {
         "Effect": "Allow",
-        "Action": ["s3:GetObject"],
+        "Action": ["s3:GetObject", "s3:PutObject"],
         "Resource": "arn:aws:s3:::company-bucketname-datasets/*"
       },
       {
@@ -184,6 +184,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | ------------------- | -------------------------------------------------------------- |
 | `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
 | `s3:GetObject`      | Required. Allows fetching objects                              |
+| `s3:PutObject`      | Required for write operations. Allows writing objects          |
 | `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |

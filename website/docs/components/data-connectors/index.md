@@ -90,17 +90,18 @@ datasets:
 
 ### Supported Formats
 
-| Name                                          | Parameter              | Status  | Description                                   |
-| --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](../../reference/file_format#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
-| JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
-| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)  |
-| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)            |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)    |
-| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)        |
+| Name                                          | Parameter              | Status  | Description                                                                                                    |
+| --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
+| JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
+| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)                                                                     |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
 
@@ -112,7 +113,7 @@ File formats support additional parameters for fine-grained control. Common exam
 | `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
 | `csv_quote`      | CSV        | Quote character for fields containing delimiters |
 
-For complete format options, see [File Formats Reference](../../reference/file_format).
+For complete format options, see [File Formats Reference](../reference/file_format).
 
 ### Applicable Connectors {#object-store-file-formats}
 
@@ -160,9 +161,10 @@ Partition pruning improves query performance by reading only the relevant files.
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](../../reference/file_format#csv)     | `file_format: csv`     | ✅         | ❌                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta      | ❌                  |
+| JSON                                          | `file_format: json`    | ✅         | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
