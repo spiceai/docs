@@ -1,0 +1,160 @@
+---
+sidebar_position: 0
+title: Home
+---
+
+import ReactPlayer from 'react-player'
+import ThemeBasedImage from '@site/src/components/ThemeBasedImage'
+
+# Spice.ai Open Source
+
+**Spice** is a SQL query, search, and LLM-inference engine, written in Rust, for data-driven applications and AI agents.
+
+![Spice.ai Open Source Data Query & AI-Inference Compute Engine](/img/spice.ai-compute-engine.png)
+
+Spice provides four industry-standard APIs in a lightweight, portable runtime (single ~140 MB binary):
+
+1. **SQL Query & Search APIs**: Supports HTTP, Arrow Flight, Arrow Flight SQL, ODBC, JDBC, ADBC, and `vector_search` and `text_search` UDTFs.
+2. **OpenAI-Compatible APIs**: Provides HTTP APIs for OpenAI SDK compatibility, local model serving (CUDA/Metal accelerated), and hosted model gateway.
+3. **Iceberg Catalog REST APIs**: Offers a unified API for Iceberg Catalog.
+4. **MCP HTTP+SSE APIs**: Enables integration with external tools via Model Context Protocol (MCP) using HTTP and Server-Sent Events (SSE).
+
+:::tip[Goal 🎯]
+Developers can focus on building data apps and AI agents confidently, knowing they are grounded in data.
+:::
+
+Spice is primarily used for:
+
+- **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](https://spiceai.org/docs/features/query-federation).
+- **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
+- **Enterprise Search**: Keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search for structured and unstructured data. [Learn More](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README).
+- **AI Apps and Agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://spiceai.org/docs/use-cases/rag).
+
+:::info[Watch 🎥]
+
+- [CMU Databases - Accelerating Data and AI with Spice.ai Open-Source](https://www.youtube.com/watch?v=tyM-ec1lKfU)
+- [Query Data using Spice, OpenAI, and MCP](https://www.youtube.com/watch?v=TFAu4qxjTPk&list=PLesJrUXEx3U-dQul0PqLV3TGTdUmr3B6e&index=8)
+- [Search with Amazon S3 Vectors](https://www.youtube.com/watch?v=QPbqPf5W36g)
+  :::
+
+Spice is built on industry-leading technologies including [Apache DataFusion](https://datafusion.apache.org), Apache Arrow, Arrow Flight, SQLite, and DuckDB. If you want to build with DataFusion or DuckDB, Spice provides a simple, flexible, and production-ready engine.
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <ThemeBasedImage
+    width='600'
+    alt='How Spice works'
+    lightSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
+    darkSrc='https://github.com/spiceai/spiceai/assets/80174/7d93ae32-d6d8-437b-88d3-d64fe089e4b7'
+  />
+</div>
+
+:::info[Announcement 📣]
+Read the [Spice.ai 1.0-stable announcement](https://spiceai.org/blog/announcing-1.0-stable).
+:::
+
+## Why Spice?
+
+Spice simplifies building data-driven AI applications and agents by enabling fast, SQL-based querying, federation, and acceleration of data from multiple sources, grounding AI in real-time, reliable data. Co-locate datasets with apps and AI models to power AI feedback loops, enable RAG and search, and deliver low-latency data queries and AI inference with full control over cost and performance.
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <ThemeBasedImage
+    width='800'
+    alt='Spice.ai'
+    lightSrc='https://github.com/spiceai/spiceai/assets/80174/29e4421d-8942-4f2a-8397-e9d4fdeda36b'
+    darkSrc='https://github.com/spiceai/spiceai/assets/80174/96b5fcef-a550-4ce8-a74a-83931275e83e'
+  />
+</div>
+
+### How is Spice different?
+
+1. **AI-Native Runtime**: Combines data query and AI inference in a single engine for data-grounded, accurate AI.
+2. **Application-Focused**: Designed for distributed deployment at the application or agent level, often as a 1:1 or 1:N mapping, unlike centralized databases serving multiple apps. Multiple Spice instances can be deployed, even one per tenant or customer.
+3. **Dual-Engine Acceleration**: Supports **OLAP** (Arrow/DuckDB) and **OLTP** (SQLite/PostgreSQL) engines at the dataset level for flexible performance across analytical and transactional workloads.
+4. **Disaggregated Storage**: Separates compute from storage, co-locating materialized working datasets with applications, dashboards, or ML pipelines while accessing source data in its original storage.
+5. **Edge to Cloud Native**: Deploy as a standalone instance, Kubernetes sidecar, microservice, or cluster across edge, on-prem, and public clouds. Chain multiple Spice instances for tier-optimized, distributed deployments.
+
+## How does Spice compare?
+
+### Data Query and Analytics
+
+| Feature                          | **Spice**                              | Trino / Presto       | Dremio                | ClickHouse          | Materialize          |
+| -------------------------------- | -------------------------------------- | -------------------- | --------------------- | ------------------- | -------------------- |
+| **Primary Use-Case**             | Data & AI apps/agents                  | Big data analytics   | Interactive analytics | Real-time analytics | Real-time analytics  |
+| **Primary Deployment Model**     | Sidecar                                | Cluster              | Cluster               | Cluster             | Cluster              |
+| **Federated Query Support**      | ✅                                     | ✅                   | ✅                    | ❌                  | ❌                   |
+| **Acceleration/Materialization** | ✅ (Arrow, SQLite, DuckDB, PostgreSQL) | Intermediate storage | Reflections (Iceberg) | Materialized views  | ✅ (Real-time views) |
+| **Catalog Support**              | ✅ (Iceberg, Unity Catalog, AWS Glue)  | ✅                   | ✅                    | ❌                  | ❌                   |
+| **Query Result Caching**         | ✅                                     | ✅                   | ✅                    | ✅                  | Limited              |
+| **Multi-Modal Acceleration**     | ✅ (OLAP + OLTP)                       | ❌                   | ❌                    | ❌                  | ❌                   |
+| **Change Data Capture (CDC)**    | ✅ (Debezium)                          | ❌                   | ❌                    | ❌                  | ✅ (Debezium)        |
+
+### AI Apps and Agents
+
+| Feature                       | **Spice**                            | LangChain          | LlamaIndex | AgentOps.ai      | Ollama                        |
+| ----------------------------- | ------------------------------------ | ------------------ | ---------- | ---------------- | ----------------------------- |
+| **Primary Use-Case**          | Data & AI apps                       | Agentic workflows  | RAG apps   | Agent operations | LLM apps                      |
+| **Programming Language**      | Any language (HTTP interface)        | JavaScript, Python | Python     | Python           | Any language (HTTP interface) |
+| **Unified Data + AI Runtime** | ✅                                   | ❌                 | ❌         | ❌               | ❌                            |
+| **Federated Data Query**      | ✅                                   | ❌                 | ❌         | ❌               | ❌                            |
+| **Accelerated Data Access**   | ✅                                   | ❌                 | ❌         | ❌               | ❌                            |
+| **Tools/Functions**           | ✅ (MCP HTTP+SSE)                    | ✅                 | ✅         | Limited          | Limited                       |
+| **LLM Memory**                | ✅                                   | ✅                 | ❌         | ✅               | ❌                            |
+| **Evaluations (Evals)**       | ✅                                   | Limited            | ❌         | Limited          | ❌                            |
+| **Search**                    | ✅ (Keyword, Vector, Full-Text)      | ✅                 | ✅         | Limited          | Limited                       |
+| **Caching**                   | ✅ (Query and results caching)       | Limited            | ❌         | ❌               | ❌                            |
+| **Embeddings**                | ✅ (Built-in & pluggable models/DBs) | ✅                 | ✅         | Limited          | ❌                            |
+
+✅ = Fully supported  
+❌ = Not supported  
+Limited = Partial or restricted support
+
+## Example Use-Cases
+
+### Data-Grounded Agentic AI Applications
+
+- **OpenAI-Compatible API**: Connect to hosted models (OpenAI, Anthropic, xAI) or deploy locally (Llama, NVIDIA NIM). [AI Gateway Recipe](https://github.com/spiceai/cookbook/blob/trunk/openai_sdk/README)
+- **Federated Data Access**: Query using SQL and NSQL (text-to-SQL) across databases, data warehouses, and data lakes with advanced query push-down. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README)
+- **Search and RAG**: Perform keyword, vector, and full-text search with Tantivy-powered BM25 and vector similarity search (VSS) integrated into SQL queries using `vector_search` and `text_search`. Supports multi-column vector search with reciprocal rank fusion. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README)
+- **LLM Memory and Observability**: Store and retrieve history and context for AI agents with visibility into data flows, model performance, and traces. [LLM Memory Recipe](https://github.com/spiceai/cookbook/blob/trunk/llm-memory/README) | [Observability Documentation](https://spiceai.org/docs/features/observability)
+
+### Database CDN and Query Mesh
+
+- **Data Acceleration**: Co-locate materialized datasets in Arrow, SQLite, or DuckDB for sub-second queries. [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README)
+- **Resiliency and Local Dataset Replication**: Maintain availability with local replicas of critical datasets. [Local Dataset Replication Recipe](https://github.com/spiceai/cookbook/blob/trunk/localpod/README)
+- **Responsive Dashboards**: Enable fast, real-time analytics for frontends and BI tools. [Sales BI Dashboard Demo](https://github.com/spiceai/cookbook/blob/trunk/sales-bi/README)
+- **Simplified Legacy Migration**: Unify legacy systems with modern infrastructure via federated SQL querying. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README)
+
+### Retrieval-Augmented Generation (RAG)
+
+- **Unified Search with Vector Similarity**: Perform efficient vector similarity search across structured and unstructured data, with native support for Amazon S3 Vectors for petabyte-scale storage and querying. Supports distance metrics like cosine similarity, Euclidean distance, or dot product. [Amazon S3 Vectors Recipe](https://github.com/spiceai/cookbook/blob/trunk/vectors/s3/README)
+- **Semantic Knowledge Layer**: Define a semantic context model to enrich data for AI. [Semantic Model Documentation](features/semantic-model/index.md)
+- **Text-to-SQL**: Convert natural language queries into SQL using built-in NSQL and sampling tools. [Text-to-SQL Recipe](https://github.com/spiceai/cookbook/blob/trunk/text-to-sql/README)
+- **Model and Data Evaluations**: Assess model performance and data quality with integrated evaluation tools. [Language Model Evaluations Recipe](https://github.com/spiceai/cookbook/blob/trunk/evals/README)
+
+## FAQ
+
+- **Is Spice a cache?** No, but its data acceleration acts as an active cache, materialization, or prefetcher. Unlike traditional caches that fetch on miss, Spice prefetches and materializes filtered data on intervals, triggers, or via CDC. It also supports [results caching](https://spiceai.org/docs/features/caching).
+- **Is Spice a CDN for databases?** Yes, Spice enables shipping working datasets to where they’re accessed most, like data-intensive applications or AI contexts, similar to a CDN. [Docs FAQ](faq/index.md)
+
+### Watch a 30-second BI dashboard acceleration demo
+
+<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+  <ReactPlayer
+    controls
+    url='https://www.youtube.com/watch?v=t3B2AyshVY0&list=PLesJrUXEx3U-dQul0PqLV3TGTdUmr3B6e&index=1&pp=gAQBiAQB'
+  />
+</div>
+
+See more demos on [YouTube](https://www.youtube.com/playlist?list=PLesJrUXEx3U9anekJvbjyyTm7r9A26ugK).
+
+### Intelligent Applications and Agents
+
+Spice enables developers to build data-grounded AI applications and agents by co-locating data and ML models with applications. Read more about the vision for [intelligent AI-driven applications](./intelligent-applications/index.md).
+
+### Connect with Us
+
+- Build with Spice and share feedback at [hey@spice.ai](mailto:hey@spice.ai), [Discord](https://discord.gg/kZnTfneP5u), [X](https://twitter.com/spice_ai), or [LinkedIn](https://www.linkedin.com/company/74148478).
+- [File an issue](https://github.com/spiceai/spiceai/issues/new) for bugs or issues.
+- Join our team ([We're hiring!](https://spice.ai/careers)).
+- Contribute code or documentation ([CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING)).
+- ⭐️ Star the [Spice.ai repo](https://github.com/spiceai/spiceai) to show support!
