@@ -30,7 +30,7 @@
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
-    "docusaurus-plugin-openapi-docs": "^4.3.1",
+    "docusaurus-plugin-openapi-docs": "^4.7.1",
     "docusaurus-theme-openapi-docs": "^4.3.1",
     "embla-carousel-react": "^8.5.2",
     "postcss": "^8.4.49",
