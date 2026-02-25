@@ -8,7 +8,7 @@ tags:
   - write
 ---
 
-The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
+The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Iceberg table format versions V1, V2, and V3 are supported. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
 
 When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg) or [AWS Glue Catalog Connector](../catalogs/glue) instead of configuring individual datasets.
 
@@ -233,6 +233,35 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 
+## Write Support
+
+This connector supports writing data to Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.
+
+To enable writes, set `access: read_write` on the dataset:
+
+```yaml
+datasets:
+  - from: iceberg:https://iceberg-catalog-host.com/v1/namespaces/my_namespace/tables/my_table
+    name: my_table
+    access: read_write
+    params:
+      iceberg_token: ${secrets:iceberg_token}
+```
+
+```sql
+-- Insert with values
+INSERT INTO my_table (id, name, amount)
+VALUES (1, 'Alice', 100.0), (2, 'Bob', 200.0);
+
+-- Insert from another table
+INSERT INTO my_table
+SELECT * FROM source_table;
+```
+
+Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+
+Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+
 ## Examples
 
 ### Basic Example (REST Catalog)
@@ -310,6 +339,10 @@ datasets:
     params:
       metadata_path: s3a://my-bucket/hadoop_warehouse/test/my_table_2/metadata/v1.metadata.json
 ```
+
+## Cookbook
+
+A cookbook recipe to configure Iceberg as a catalog connector in Spice, including write operations: [Iceberg Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme).
 
 ## Secrets
 

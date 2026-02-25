@@ -156,6 +156,35 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 
+## Write Support
+
+This catalog supports writing data to Glue-managed Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.
+
+To enable writes for all tables in the catalog, set `access: read_write` on the catalog:
+
+```yaml
+catalogs:
+  - from: glue
+    name: my_glue_catalog
+    access: read_write
+    params:
+      glue_region: us-east-1
+```
+
+```sql
+-- Insert with values
+INSERT INTO my_glue_catalog.my_database.my_table (id, name, amount)
+VALUES (1, 'Alice', 100.0);
+
+-- Insert from another table
+INSERT INTO my_glue_catalog.my_database.my_table
+SELECT * FROM staging_table;
+```
+
+Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+
+Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+
 ## Limitations
 
 :::warning

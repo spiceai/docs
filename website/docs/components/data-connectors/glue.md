@@ -1,7 +1,7 @@
 ---
 title: 'Glue Data Connector'
 sidebar_label: 'Glue Data Connector'
-description: 'Glue Data Connector Documentation'
+description: 'Connect to and query tables in an AWS Glue Data Catalog'
 tags:
   - data-connectors
   - glue
@@ -190,6 +190,35 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
+
+## Write Support
+
+This connector supports writing data to Glue-managed Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.
+
+To enable writes, set `access: read_write` on the dataset:
+
+```yaml
+datasets:
+  - from: glue:tpch.lineitem
+    name: lineitem
+    access: read_write
+    params:
+      glue_region: us-east-1
+```
+
+```sql
+-- Insert with values
+INSERT INTO lineitem (l_orderkey, l_partkey, l_quantity)
+VALUES (1, 100, 5.0);
+
+-- Insert from another table
+INSERT INTO lineitem
+SELECT * FROM staging_lineitem;
+```
+
+Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+
+Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Limitations
 
