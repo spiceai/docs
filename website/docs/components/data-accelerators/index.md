@@ -46,43 +46,34 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 Select the appropriate accelerator based on dataset size, query patterns, and resource constraints:
 
-```mermaid
-flowchart TD
-    Start["What's your priority?"] --> Perf["High performance, concurrency, lookups"]
-    Start --> Scale["File-based, large-scale analytics"]
-    Start --> External["Using existing PostgreSQL?"]
+| Use Case                                            | Recommended Accelerator | Rationale                                               |
+| --------------------------------------------------- | ----------------------- | ------------------------------------------------------- |
+| Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
+| Medium datasets (1-100 GB), complex SQL             | `duckdb`                | Mature SQL support with memory management               |
+| Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
+| Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
+| Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
+| Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
+| External database integration                       | `postgres`              | Leverage existing PostgreSQL infrastructure             |
 
-    Perf --> Arrow["arrow (in-memory)"]
-    Scale --> Cayenne["cayenne (file)"]
-    External --> Postgres["postgres"]
-```
+### Spice Cayenne vs DuckDB
 
-| Use Case                                        | Recommended Accelerator | Rationale                                               |
-| ----------------------------------------------- | ----------------------- | ------------------------------------------------------- |
-| High performance, concurrency, lookups          | `arrow`                 | In-memory storage provides lowest latency               |
-| File-based, scalable analytics (100GB+) | `cayenne`               | Vortex columnar format scales beyond single-file limits |
-| Point lookups on large datasets                 | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
-| External database integration                   | `postgres`              | Leverage existing PostgreSQL infrastructure             |
-| Complex SQL features (window functions, CTEs)   | `duckdb`                | Mature SQL support with memory management               |
-| Simple queries, low resource usage              | `sqlite`                | Lightweight, minimal overhead                           |
-
-### Arrow vs Spice Cayenne
-
-[Arrow](data-accelerators/arrow) and [Spice Cayenne](data-accelerators/cayenne) are the primary accelerators, optimized for different workloads:
-
-**Choose Arrow when:**
-
-- High concurrency and low-latency lookups are the priority
-- Datasets fit in memory
-- Maximum query performance is required
+Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
 
 **Choose Spice Cayenne when:**
 
-- Datasets exceed available memory or reach 100GB+
-- File-based persistence is required
+- Datasets exceed ~1 TB
 - Multi-file data ingestion is required (e.g., partitioned S3 data)
+- Lower memory overhead is preferred
 - Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
 - Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
+
+**Choose DuckDB when:**
+
+- Datasets are under ~1 TB
+- Complex SQL features are required (window functions, CTEs)
+- Existing DuckDB tooling integration is beneficial
+- Explicit index control is required
 
 ## Data Types
 

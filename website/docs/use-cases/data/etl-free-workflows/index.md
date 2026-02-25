@@ -9,13 +9,6 @@ pagination_next: null
 
 Spice.ai enables data migrations and workflows without ETL by federating legacy and modern systems for seamless transitions.
 
-```mermaid
-flowchart LR
-    Legacy["Legacy System (Oracle)"] -->|"Connector"| Spice["Spice Runtime"]
-    Modern["Cloud System (Snowflake)"] -->|"Connector"| Spice
-    Spice -->|"Unified SQL endpoint"| App["Application"]
-```
-
 Unlike legacy ETL platforms (e.g., Informatica) that require heavy infrastructure, Spice.ai offers a drop-in solution for developers modernizing applications. Its ability to query across systems without data movement provides a lightweight alternative to data replication tools, reducing complexity and costs.
 
 ## Why Spice.ai?

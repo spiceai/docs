@@ -9,15 +9,6 @@ pagination_next: null
 
 Spice.ai powers instant, context-aware decisions for applications like security recommendations by grounding AI in federated, low-latency datasets.
 
-```mermaid
-flowchart LR
-    Kafka["Kafka (real-time)"] --> Spice["Spice Runtime"]
-    PG["PostgreSQL"] --> Spice
-    API["External APIs"] --> Spice
-    Spice -->|"Accelerated data"| AI["AI Gateway (LLM)"]
-    AI -->|"Decision in ms"| App["Application"]
-```
-
 Unlike batch-processing analytics platforms (e.g., traditional data warehouses), Spice.ai delivers real-time decisions by unifying disparate data sources and accelerating access, outpacing siloed pipelines that introduce delays and complexity.
 
 ## Why Spice.ai?

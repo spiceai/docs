@@ -9,14 +9,6 @@ pagination_next: null
 
 Spice.ai syncs enriched data from warehouses to operational systems like CRMs for real-time actions, eliminating complex ETL pipelines.
 
-```mermaid
-flowchart LR
-    DW["Warehouse (Databricks / Redshift)"] -->|"Federated Query"| Spice["Spice Runtime"]
-    Spice -->|"Materialize"| Acc["Accelerated Dataset"]
-    Acc -->|"Real-time sync"| CRM["CRM / Ops Systems"]
-    Acc -->|"Low-latency API"| App["Application"]
-```
-
 Unlike data-team-focused orchestration tools (e.g., Fivetran, Airbyte), Spice.ai targets developers by providing a unified query layer and native Databricks integration, simplifying data flow into operational systems with enterprise-grade governance.
 
 ## Why Spice.ai?

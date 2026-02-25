@@ -8,21 +8,6 @@ pagination_next: null
 
 Spice.ai provides multiple deployment options on Amazon Web Services (AWS), enabling data and AI applications to run on AWS's elastic infrastructure. Whether using virtual machines, container orchestration, or managed services, Spice deploys to meet requirements for performance, scalability, and cost efficiency.
 
-```mermaid
-flowchart TB
-    AWS["AWS"] --> EKS["EKS (Kubernetes + Helm)"]
-    AWS --> ECS["ECS (Container Service)"]
-    AWS --> EC2["EC2 (Virtual Machine)"]
-
-    EKS -->|"Sidecar or Microservice"| Spice["Spice Runtime"]
-    ECS -->|"Task Definition"| Spice
-    EC2 -->|"Docker or Binary"| Spice
-
-    Spice --> S3["S3"]
-    Spice --> RDS["RDS"]
-    Spice --> Secrets["Secrets Manager"]
-```
-
 For a complete list of AWS-compatible data connectors, AI models, vector stores, and secret management, see [AWS Integrations](aws/integrations).
 
 ## Benefits of Deploying on AWS
