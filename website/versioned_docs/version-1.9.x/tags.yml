@@ -1,0 +1,512 @@
+abfs:
+  label: 'ABFS'
+  permalink: '/abfs'
+  description: 'Azure Blob File System data connector configuration and usage.'
+acknowledgements:
+  label: 'Acknowledgements'
+  permalink: '/acknowledgements'
+  description: 'Project acknowledgements, credits, and attributions.'
+adbc:
+  label: 'ADBC'
+  permalink: '/adbc'
+  description: 'Arrow Database Connectivity driver configuration and usage.'
+api:
+  label: 'API'
+  permalink: '/api'
+  description: 'HTTP, Arrow Flight SQL, ODBC, JDBC, and ADBC API reference.'
+arrow:
+  label: 'Arrow'
+  permalink: '/arrow'
+  description: 'Apache Arrow columnar data format integration.'
+arrow-flight-sql:
+  label: 'Arrow Flight SQL'
+  permalink: '/arrow-flight-sql'
+  description: 'Arrow Flight SQL protocol implementation and configuration.'
+auth:
+  label: 'Auth'
+  permalink: '/auth'
+  description: 'Authentication and authorization mechanisms.'
+authentication:
+  label: 'Authentication'
+  permalink: '/authentication'
+  description: 'User authentication methods and security protocols.'
+aws:
+  label: 'AWS'
+  permalink: '/aws'
+  description: 'Amazon Web Services integrations and configurations.'
+aws-secrets-manager:
+  label: 'AWS Secrets Manager'
+  permalink: '/aws-secrets-manager'
+  description: 'AWS Secrets Manager integration for secure credential storage.'
+azure:
+  label: 'Azure'
+  permalink: '/azure'
+  description: 'Microsoft Azure cloud services and integrations.'
+blob-storage:
+  label: 'Blob Storage'
+  permalink: '/blob-storage'
+  description: 'Object storage services and blob data access.'
+"cache control":
+  label: 'Cache Control'
+  permalink: '/cache-control-policy'
+  description: 'Cache control headers and directives.'
+cache-control:
+  label: 'Cache Control'
+  permalink: '/cache-control'
+  description: 'Cache invalidation policies and refresh strategies.'
+caching:
+  label: 'Caching'
+  permalink: '/caching'
+  description: 'Data caching strategies and performance optimization.'
+catalogs:
+  label: 'Catalogs'
+  permalink: '/catalogs'
+  description: 'Data catalog connectors and metadata management.'
+cayenne:
+  label: 'Cayenne'
+  permalink: '/cayenne'
+  description: 'Cayenne (Vortex) data accelerator built on Vortex columnar format.'
+cli:
+  label: 'CLI'
+  permalink: '/cli'
+  description: 'Spice command-line interface commands and usage.'
+clickhouse:
+  label: 'ClickHouse'
+  permalink: '/clickhouse'
+  description: 'ClickHouse OLAP database integration.'
+component-metrics:
+  label: 'Component Metrics'
+  permalink: '/component-metrics'
+  description: 'Runtime component performance metrics and monitoring.'
+components:
+  label: 'Components'
+  permalink: '/components'
+  description: 'Runtime components including catalogs, data connectors, and models.'
+configuration:
+  label: 'Configuration'
+  permalink: '/configuration'
+  description: 'System configuration files and runtime settings.'
+csharp:
+  label: 'C#'
+  permalink: '/csharp'
+  description: 'C# programming language topics.'
+data-accelerators:
+  label: 'Data Accelerators'
+  permalink: '/data-accelerators'
+  description: 'Data acceleration engines for high-performance query execution.'
+data-connector:
+  label: 'Data Connector'
+  permalink: '/data-connector'
+  description: 'Data connector tools and integrations.'
+data-connectors:
+  label: 'Data Connectors'
+  permalink: '/data-connectors'
+  description: 'Data source connectors and integration patterns.'
+data-lake:
+  label: 'Data Lake'
+  permalink: '/data-lake'
+  description: 'Data lake architectures and storage solutions.'
+data-refresh:
+  label: 'Data Refresh'
+  permalink: '/data-refresh'
+  description: 'Automated data refresh and synchronization mechanisms.'
+databricks:
+  label: 'Databricks'
+  permalink: '/databricks'
+  description: 'Databricks platform integration and Unity Catalog support.'
+datadog:
+  label: 'Datadog'
+  permalink: '/datadog'
+  description: 'Datadog observability and monitoring integration.'
+datasets:
+  label: 'Datasets'
+  permalink: '/datasets'
+  description: 'Dataset definitions and data source configurations.'
+dbeaver:
+  label: 'DBeaver'
+  permalink: '/dbeaver'
+  description: 'DBeaver universal database tool integration.'
+debezium:
+  label: 'Debezium'
+  permalink: '/debezium'
+  description: 'Debezium change data capture integration.'
+debugging:
+  label: 'Debugging'
+  permalink: '/debugging'
+  description: 'Debugging techniques and troubleshooting tools.'
+delta-lake:
+  label: 'Delta Lake'
+  permalink: '/delta-lake'
+  description: 'Delta Lake open table format support.'
+dependencies:
+  label: 'Dependencies'
+  permalink: '/dependencies'
+  description: 'Third-party dependencies and software requirements.'
+deployment:
+  label: 'Deployment'
+  permalink: '/deployment'
+  description: 'Production deployment using Docker and Kubernetes.'
+docker:
+  label: 'Docker'
+  permalink: '/docker'
+  description: 'Docker containerization and deployment configurations.'
+dotnet:
+  label: '.NET'
+  permalink: '/dotnet'
+  description: '.NET framework topics.'
+dremio:
+  label: 'Dremio'
+  permalink: '/dremio'
+  description: 'Dremio data lake engine integration.'
+duckdb:
+  label: 'DuckDB'
+  permalink: '/duckdb'
+  description: 'DuckDB embedded analytical database integration.'
+dynamodb:
+  label: 'DynamoDB'
+  permalink: '/dynamodb'
+  description: 'Amazon DynamoDB NoSQL database integration.'
+embeddings:
+  label: 'Embeddings'
+  permalink: '/embeddings'
+  description: 'Vector embeddings and semantic similarity operations.'
+env:
+  label: 'Environment Variables'
+  permalink: '/env'
+  description: 'Environment variables for configuration and secret management.'
+evaluation:
+  label: 'Evaluation'
+  permalink: '/evaluation'
+  description: 'Model evaluation metrics and assessment frameworks.'
+features:
+  label: 'Features'
+  permalink: '/features'
+  description: 'Core platform features including acceleration, caching, and search.'
+federation:
+  label: 'Federation'
+  permalink: '/federation'
+  description: 'Cross-database queries and federated data access.'
+file:
+  label: 'File'
+  permalink: '/file'
+  description: 'File-based data connectors and local file access.'
+flightsql:
+  label: 'FlightSQL'
+  permalink: '/flightsql'
+  description: 'Apache Arrow Flight SQL high-performance database protocol.'
+ftp:
+  label: 'FTP'
+  permalink: '/ftp'
+  description: 'FTP and SFTP file transfer protocol data connectors.'
+getting-started:
+  label: 'Getting Started'
+  permalink: '/getting-started'
+  description: 'Installation guides and quickstart tutorials.'
+github:
+  label: 'GitHub'
+  permalink: '/github'
+  description: 'GitHub repository data connector and integration.'
+glue:
+  label: 'Glue'
+  permalink: '/glue'
+  description: 'AWS Glue ETL service and data catalog integration.'
+go:
+  label: 'Go'
+  permalink: '/go'
+  description: 'Go programming language topics.'
+golang:
+  label: 'Golang'
+  permalink: '/golang'
+  description: 'Go (Golang) programming language topics.'
+grafana:
+  label: 'Grafana'
+  permalink: '/grafana'
+  description: 'Grafana dashboard and visualization platform integration.'
+graphql:
+  label: 'GraphQL'
+  permalink: '/graphql'
+  description: 'GraphQL API data connectors and query language support.'
+https:
+  label: 'HTTPS'
+  permalink: '/https'
+  description: 'HTTPS data connectors and secure web API access.'
+huggingface:
+  label: 'Hugging Face'
+  permalink: '/huggingface'
+  description: 'Hugging Face model hub and transformer model integration.'
+iceberg:
+  label: 'Iceberg'
+  permalink: '/iceberg'
+  description: 'Apache Iceberg open table format support.'
+in-memory:
+  label: 'In-Memory'
+  permalink: '/in-memory'
+  description: 'In-memory data processing and temporary storage.'
+integration:
+  label: 'Integration'
+  permalink: '/integration'
+  description: 'Third-party system integrations and connectivity patterns.'
+introduction:
+  label: 'Introduction'
+  permalink: '/introduction'
+  description: 'Introductory guides and getting started.'
+java:
+  label: 'Java'
+  permalink: '/java'
+  description: 'Java programming language topics.'
+javascript:
+  label: 'JavaScript'
+  permalink: '/javascript'
+  description: 'JavaScript programming language topics.'
+jdbc:
+  label: 'JDBC'
+  permalink: '/jdbc'
+  description: 'Java Database Connectivity driver configuration.'
+jetbrains-datagrip:
+  label: 'JetBrains DataGrip'
+  permalink: '/jetbrains-datagrip'
+  description: 'JetBrains DataGrip IDE database tool integration.'
+kafka:
+  label: 'Kafka'
+  permalink: '/kafka'
+  description: 'Apache Kafka event streaming platform integration.'
+keyring:
+  label: 'Keyring'
+  permalink: '/keyring'
+  description: 'Operating system keyring integration for secure credential storage.'
+kubernetes:
+  label: 'Kubernetes'
+  permalink: '/kubernetes'
+  description: 'Kubernetes orchestration and secret management.'
+libsql:
+  label: 'libSQL'
+  permalink: '/libsql'
+  description: 'libSQL database topics.'
+llm:
+  label: 'LLM'
+  permalink: '/llm'
+  description: 'Large Language Model integration and inference.'
+local:
+  label: 'Local'
+  permalink: '/local'
+  description: 'Local model execution and on-premise services.'
+localpod:
+  label: 'LocalPod'
+  permalink: '/localpod'
+  description: 'LocalPod local development data connector.'
+logging:
+  label: 'Logging'
+  permalink: '/logging'
+  description: 'Application logging configuration and log management.'
+login:
+  label: 'Login'
+  permalink: '/login'
+  description: 'User login processes and session management.'
+manifest:
+  label: 'Manifest'
+  permalink: '/manifest'
+  description: 'Configuration manifest files and schema definitions.'
+mcp:
+  label: 'MCP'
+  permalink: '/mcp'
+  description: 'Model Context Protocol for AI tool integration.'
+memory:
+  label: 'Memory'
+  permalink: '/memory'
+  description: 'In-memory data connectors and volatile storage.'
+models:
+  label: 'Models'
+  permalink: '/models'
+  description: 'Machine learning models and AI inference engines.'
+mongodb:
+  label: 'MongoDB'
+  permalink: '/mongodb'
+  description: 'MongoDB NoSQL document database integration.'
+mssql:
+  label: 'MSSQL'
+  permalink: '/mssql'
+  description: 'Microsoft SQL Server database integration.'
+mysql:
+  label: 'MySQL'
+  permalink: '/mysql'
+  description: 'MySQL relational database integration.'
+nodejs:
+  label: 'Node.js'
+  permalink: '/nodejs'
+  description: 'Node.js runtime environment topics.'
+nosql:
+  label: 'NoSQL'
+  permalink: '/nosql'
+  description: 'NoSQL database systems and document stores.'
+observability:
+  label: 'Observability'
+  permalink: '/observability'
+  description: 'Monitoring, tracing, and metrics for system visibility.'
+odbc:
+  label: 'ODBC'
+  permalink: '/odbc'
+  description: 'Open Database Connectivity driver configuration.'
+open-source:
+  label: 'Open Source'
+  permalink: '/open-source'
+  description: 'Open source licenses and community contributions.'
+openai:
+  label: 'OpenAI'
+  permalink: '/openai'
+  description: 'OpenAI API integration and GPT model access.'
+oracle:
+  label: 'Oracle'
+  permalink: '/oracle'
+  description: 'Documentation related to Oracle database integration.'
+overrides:
+  label: 'Overrides'
+  permalink: '/overrides'
+  description: 'Parameter overrides and configuration customization.'
+overview:
+  label: 'Overview'
+  permalink: '/overview'
+  description: 'High-level component and feature overviews.'
+parameters:
+  label: 'Parameters'
+  permalink: '/parameters'
+  description: 'Configuration parameters and runtime options.'
+performance:
+  label: 'Performance'
+  permalink: '/performance'
+  description: 'Performance optimization and benchmarking.'
+persistence:
+  label: 'Persistence'
+  permalink: '/persistence'
+  description: 'Data persistence and durable storage mechanisms.'
+postgres:
+  label: 'Postgres'
+  permalink: '/postgres'
+  description: 'PostgreSQL database integration and configuration.'
+python:
+  label: 'Python'
+  permalink: '/python'
+  description: 'Python programming language topics.'
+query:
+  label: 'Query'
+  permalink: '/query'
+  description: 'SQL query execution, parameterized queries, and prepared statements.'
+reference:
+  label: 'Reference'
+  permalink: '/reference'
+  description: 'API reference, CLI commands, and configuration syntax.'
+relational:
+  label: 'Relational'
+  permalink: '/relational'
+  description: 'Relational database systems and SQL operations.'
+"results caching":
+  label: 'Results Caching'
+  permalink: '/results-caching-feature'
+  description: 'Query results caching configuration.'
+results-caching:
+  label: 'Results Caching'
+  permalink: '/results-caching'
+  description: 'Query result caching and computed data storage.'
+runtime:
+  label: 'Runtime'
+  permalink: '/runtime'
+  description: 'Runtime behavior and execution environment.'
+rust:
+  label: 'Rust'
+  permalink: '/rust'
+  description: 'Rust programming language topics.'
+s3:
+  label: 'S3'
+  permalink: '/s3'
+  description: 'Amazon S3 object storage integration.'
+s3-express:
+  label: 'S3 Express'
+  permalink: '/s3-express'
+  description: 'Amazon S3 Express One Zone storage.'
+sandbox:
+  label: 'Sandbox'
+  permalink: '/sandbox'
+  description: 'Sandbox environments and isolated testing.'
+scylladb:
+  label: 'ScyllaDB'
+  permalink: '/scylladb'
+  description: 'ScyllaDB database integration.'
+sdk:
+  label: 'SDK'
+  permalink: '/sdk'
+  description: 'Software Development Kit topics and usage.'
+search:
+  label: 'Search'
+  permalink: '/search'
+  description: 'Vector search, semantic search, and ranking capabilities.'
+security:
+  label: 'Security'
+  permalink: '/security'
+  description: 'Security features and data protection mechanisms.'
+sharepoint:
+  label: 'SharePoint'
+  permalink: '/sharepoint'
+  description: 'Microsoft SharePoint collaboration platform integration.'
+snowflake:
+  label: 'Snowflake'
+  permalink: '/snowflake'
+  description: 'Snowflake cloud data warehouse integration.'
+spark:
+  label: 'Spark'
+  permalink: '/spark'
+  description: 'Apache Spark distributed computing integration.'
+spiceai:
+  label: 'SpiceAI'
+  permalink: '/spiceai'
+  description: 'SpiceAI cloud platform and managed services.'
+spicepod:
+  label: 'Spicepod'
+  permalink: '/spicepod'
+  description: 'Spicepod configuration files, manifest syntax, and package management.'
+spicepods:
+  label: 'Spicepods'
+  permalink: '/spicepods'
+  description: 'Spicepod configuration and usage.'
+sql:
+  label: 'SQL'
+  permalink: '/sql'
+  description: 'SQL query language support and database operations.'
+tools:
+  label: 'Tools'
+  permalink: '/tools'
+  description: 'Development tools and utility integrations.'
+tracing:
+  label: 'Tracing'
+  permalink: '/tracing'
+  description: 'Distributed tracing and request monitoring.'
+troubleshooting:
+  label: 'Troubleshooting'
+  permalink: '/troubleshooting'
+  description: 'Problem diagnosis and resolution guides.'
+turso:
+  label: 'Turso'
+  permalink: '/turso'
+  description: 'Turso data accelerator integration.'
+unity-catalog:
+  label: 'Unity Catalog'
+  permalink: '/unity-catalog'
+  description: 'Databricks Unity Catalog data governance integration.'
+views:
+  label: 'Views'
+  permalink: '/views'
+  description: 'Virtual views and data transformation layers.'
+vortex:
+  label: 'Vortex'
+  permalink: '/vortex'
+  description: 'Vortex columnar file format and storage engine.'
+write:
+  label: 'Write'
+  permalink: '/write'
+  description: 'Data connectors and catalogs that support write operations.'
+yaml:
+  label: 'YAML'
+  permalink: '/yaml'
+  description: 'YAML configuration syntax and file formats.'
+zipkin:
+  label: 'Zipkin'
+  permalink: '/zipkin'
+  description: 'Zipkin distributed tracing system integration.'

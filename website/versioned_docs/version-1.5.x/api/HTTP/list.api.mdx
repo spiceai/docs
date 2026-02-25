@@ -1,0 +1,64 @@
+---
+id: list
+title: "List Evals"
+description: "Return all evals available to run in the runtime."
+sidebar_label: "List Evals"
+hide_title: true
+hide_table_of_contents: true
+api: eJydVMFu2zAM/RWBZzdJix0234ohGAb0sq07BUHKykysVpZUiXYbGP73gbKTJlmBATtZJu33xPee1APjLkG5gmWHtkU23iVYF1BR0tEEeYcSfhK30Sm0VlGHNins0Fh8tKTYq9g6ZZzimmTJpqEZFOADxYz3vYISrEkMBURKwbtECcoebhYLeZxT3X7AMYH/CkYfKaAA7R2TY8HAEKzRmW7+lASoh6RralBWvA8EJWCMuIcCDFOTTur+8Yn0uLuX1kSqRA+HmaNCxkTSTNpHilmcEGU4NuMYh0/eARNH43YwXMh46K8OHxTgWmthPRQj3UcIB9p/j3H4ZxgKYMNWancmsTi7tNSIVNKjN2yCdFf9RAvPzr+mTYNcw6X1P1pKORVqG32jtiYmVnvCWKjWVRR3EasWmZT8rQQ7nchWgpQ3h/JxmJXUtbCF6LeUko8b63dGo91o75JJTE7vYT2shzxQQ1x7CdIumxFkqyXMu+t5DotgU+xG7B7aaKGEmjmU87n1Gm3tE5efF18Wfw14J21VUUfWBxFJjUgz9dW7rdm1kdSr4Vo9XF0J4sMMhrXQ6TYa3mc+DGbzTLJeS8+4rc/GTC68R/ac+r4mlSTU1UmqrdHkUg7D5M5tQF3T1c1MNm8qcmy2huJ5ZyhAxh+Br2efxlLwiRt0J2CSCLWcNLuI5/FA/deBn2LI9MbzYNE42UB2op/8WkF3DQWMjq0LEFOk2vePmOh3tMMg5ZeWYtaygA6jEdasbAE1YSWDr3rIcsOt1hQkEHJ75cNxeRGIH8fwfFvewzD8ARMRtSs=
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Evals"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/evals"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Return all evals available to run in the runtime.
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"All evals available in the Spice runtime","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","required":["name","dataset","scorers"],"properties":{"dataset":{"type":"string"},"description":{"type":["string","null"]},"name":{"type":"string"},"scorers":{"type":"array","items":{"type":"string"}}},"title":"ListEvalElement"}},"example":[{"name":"knows_math","description":"Questions from first year, undergraduate math exams","dataset":"math_exams","scorers":["match","professor_logical_consistency"]}]}}}}}
+>
+  
+</StatusCodes>
+
+
+      
