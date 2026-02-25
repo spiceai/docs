@@ -78,7 +78,7 @@ flowchart TD
 
 **Choose Spice Cayenne when:**
 
-- Datasets exceed available memory or reach 100 GB - 1+ TB
+- Datasets exceed available memory or reach 100GB+
 - File-based persistence is required
 - Multi-file data ingestion is required (e.g., partitioned S3 data)
 - Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
