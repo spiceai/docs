@@ -60,7 +60,7 @@ flowchart TD
 | Use Case                                        | Recommended Accelerator | Rationale                                               |
 | ----------------------------------------------- | ----------------------- | ------------------------------------------------------- |
 | High performance, concurrency, lookups          | `arrow`                 | In-memory storage provides lowest latency               |
-| File-based, scalable analytics (100 GB - 1+ TB) | `cayenne`               | Vortex columnar format scales beyond single-file limits |
+| File-based, scalable analytics (100GB+) | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                 | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | External database integration                   | `postgres`              | Leverage existing PostgreSQL infrastructure             |
 | Complex SQL features (window functions, CTEs)   | `duckdb`                | Mature SQL support with memory management               |
