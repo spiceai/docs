@@ -24,64 +24,35 @@ During local development, only the current docs (in the `docs/` folder) are serv
 npm run build
 ```
 
-This command generates versioned docs from git refs, then builds static content into the `build` directory.
-
-To build without generating versions (uses only the current `docs/` folder):
-
-```bash
-npm run build:local
-```
+This command builds static content into the `build` directory.
 
 ## Versioned Documentation
 
-The documentation supports multiple versions to maintain docs for different releases. Versioned docs are generated at build time from git release branches to avoid maintaining duplicate content in the repository.
+The documentation supports multiple versions to maintain docs for different releases. Versioned docs are checked into the repository under `versioned_docs/` and `versioned_sidebars/`.
 
 ### How it works
 
 1. **Current docs** (`docs/`) — Working documentation from trunk, served at `/docs/trunk`
-2. **Versioned docs** — Auto-generated at build time from `release/<major>.<minor>` branches
-   - Highest version (e.g., v2.0.x) → "Next" (unreleased) at `/docs/next`
-   - Second highest (e.g., v1.11.x) → "Latest" (stable) at `/docs`
-   - Previous versions → at `/docs/v1.10`, etc.
-
-The version generation script ([scripts/generate-versions.sh](scripts/generate-versions.sh)) auto-detects release branches and uses `git archive` to extract docs from each without checking out the full repository.
+2. **Versioned docs** (`versioned_docs/`) — Checked-in snapshots from release branches
+   - Listed in `versions.json` in order from newest to oldest
+   - Latest version serves at `/docs`
+   - Previous versions serve at `/docs/v1.10`, etc.
 
 ### Creating a new version for a release
 
 When releasing a new version (e.g., v2.1):
 
-1. **Create a release branch** for the new version:
-
-   ```bash
-   git checkout -b release/2.1
-   git push origin release/2.1
-   ```
-
-2. **That's it!** The build script auto-detects release branches matching the `release/<major>.<minor>` pattern. The next build will automatically include the new version.
-
-3. **Test the build locally**:
-
-   ```bash
-   npm run build
-   npm run serve
-   ```
+1. Copy the current `docs/` directory to `versioned_docs/version-2.1.x/`
+2. Add `"2.1.x"` to the beginning of `versions.json`
+3. Create a matching sidebar file at `versioned_sidebars/version-2.1.x-sidebars.json`
+4. Commit and push the changes
 
 ### Version URL structure
 
 - `/docs` — Latest stable release (default)
-- `/docs/next` — Next release (unreleased, highest version branch)
 - `/docs/trunk` — Working docs from trunk
 - `/docs/v1.10` — Previous release versions
 
 ### Updating existing version docs
 
-To update docs for a released version, push changes directly to the corresponding release branch:
-
-```bash
-git checkout release/2.1
-# Make changes
-git commit -m "Update docs for v2.1.x"
-git push origin release/2.1
-```
-
-The next build will pick up the updated docs from the release branch.
+To update docs for a released version, edit the files directly in the corresponding `versioned_docs/version-<version>/` directory and commit the changes.
