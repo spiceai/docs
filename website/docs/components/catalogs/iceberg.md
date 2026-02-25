@@ -12,7 +12,7 @@ tags:
   - write
 ---
 
-The Iceberg Catalog Connector helps connect Spice to an [Apache Iceberg](https://iceberg.apache.org/) catalog, making Iceberg tables and schemas available for federated SQL queries. Every Iceberg table must be registered in a catalog, which manages table metadata and access. Using a catalog connector is the recommended approach for working with multiple Iceberg datasets, as it helps organize tables and schemas efficiently and mirrors the structure of the source catalog provider.
+The Iceberg Catalog Connector helps connect Spice to an [Apache Iceberg](https://iceberg.apache.org/) catalog, making Iceberg tables and schemas available for federated SQL queries. Iceberg table format versions V1, V2, and V3 are supported. Every Iceberg table must be registered in a catalog, which manages table metadata and access. Using a catalog connector is the recommended approach for working with multiple Iceberg datasets, as it helps organize tables and schemas efficiently and mirrors the structure of the source catalog provider.
 
 For connecting to a single Iceberg table, see the [Iceberg Data Connector documentation](../data-connectors/iceberg). For AWS Glue-based catalogs, see the [AWS Glue Catalog Connector documentation](./glue).
 
@@ -249,7 +249,9 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ## Write Support
 
-This catalog supports [data ingestion](../../features/data-ingestion) using [SQL INSERT statements](../../reference/sql/dml#insert). Set `access: read_write` on the catalog to enable writes for all included tables.
+This catalog supports writing data to Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.
+
+To enable writes for all tables in the catalog, set `access: read_write` on the catalog:
 
 ```yaml
 catalogs:
@@ -260,7 +262,23 @@ catalogs:
       iceberg_token: ${secrets:iceberg_token}
 ```
 
-Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above.
+```sql
+-- Insert with values
+INSERT INTO ice.sales.transactions (id, order_date, amount, status)
+VALUES (1001, '2025-01-15', 299.99, 'completed');
+
+-- Insert from another table
+INSERT INTO ice.sales.transactions
+SELECT * FROM staging_transactions;
+```
+
+Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+
+Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+
+## Secrets
+
+Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
 ## Cookbook
 
