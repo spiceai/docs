@@ -1,0 +1,30 @@
+The Spice Runtime operates as an independent microservice. Multiple replicas may be deployed behind a load balancer to achieve high availability and handle spikes in demand.
+
+<img
+  width='740'
+  alt='microservice'
+  src='https://github.com/user-attachments/assets/b46f050b-e500-4d53-b354-24f0ab30cad3'
+/>
+
+**Benefits**
+
+- Loose coupling between the application and the Spice Runtime.
+- Independent scaling and upgrades.
+- Can serve multiple applications or services within an organization.
+- Helps achieve high availability and redundancy.
+
+**Considerations**
+
+- Additional network hop introduces latency compared to sidecar.
+- More complex infrastructure, requiring service discovery and load balancing.
+- Potentially higher cost due to additional infrastructure components.
+
+**Use This Approach When**
+
+- A loosely coupled architecture and the ability to independently scale the AI service are desired.
+- Multiple services or teams need to share the same AI engine.
+- Heavy or varying traffic is anticipated, requiring independent scaling of the Spice Runtime.
+- Resiliency and redundancy are prioritized over simplicity.
+
+**Example Use Case**
+A large organization where multiple services (recommendations, analytics, etc.) need to share AI insights. A centralized Spice Runtime microservice cluster helps separate teams consume AI outputs without duplicating efforts.
