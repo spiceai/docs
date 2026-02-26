@@ -84,7 +84,6 @@ xcode-select --install
 
    ```shell
    brew install rust
-   brew install go
    brew install cmake
    brew install protobuf
    ```
@@ -98,23 +97,7 @@ xcode-select --install
     sudo apt install build-essential curl openssl libssl-dev pkg-config protobuf-compiler cmake
     ```
 
-2. Install Go
-
-   ```shell
-   export GO_VERSION="1.22.4"
-   rm -rf /tmp/spice
-   mkdir -p /tmp/spice
-   cd /tmp/spice
-   wget https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
-   tar xvfz go$GO_VERSION.linux-amd64.tar.gz
-   sudo mv ./go /usr/local/go
-   echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-   source $HOME/.profile
-   cd $HOME
-   rm -rf /tmp/spice
-   ```
-
-3. Install Rust
+2. Install Rust
 
    ```shell
      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y # install unattended

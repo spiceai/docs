@@ -16,7 +16,7 @@ Spice provides high-performance, industry-standard APIs:
 
 ### OpenAI-Compatible APIs
 
-- **HTTP APIs**: Compatible the OpenAI SDK, AI SDK with local model serving (CUDA/Metal accelerated) and gateway to hosted models.
+- **HTTP APIs**: Compatible with the OpenAI SDK and AI SDK. Supports local model serving (CUDA/Metal accelerated) and gateway to hosted models.
 
 ### Iceberg Catalog REST APIs
 

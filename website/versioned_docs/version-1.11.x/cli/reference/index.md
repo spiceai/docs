@@ -15,25 +15,36 @@ spice [command] [--help]
 
 ### Full Command Reference
 
-| Command                    | Description                                                            |
-| -------------------------- | ---------------------------------------------------------------------- |
-| [add](reference/add)       | Add Pod - adds a pod to the project                                    |
-| [catalogs](reference/catalogs) | List [catalogs](../components/catalogs) loaded by the Spice runtime |
-| [completion](reference/completion) | Generate the autocompletion script for the specified shell         |
-| [dataset](reference/dataset) | Dataset operations                                                   |
-| [datasets](reference/datasets) | Lists datasets loaded by the Spice runtime                         |
-| help                       | Help about any command                                                 |
-| [init](reference/init)     | Initialize Pod - initializes a new pod in the project                  |
-| [login](reference/login)   | Login to the Spice.ai Platform                                         |
-| [models](reference/models) | Lists models loaded by the Spice runtime                               |
-| [pods](reference/pods)     | Lists Spicepods loaded by the Spice runtime                            |
-| [refresh](reference/refresh) | Refreshes an accelerated dataset loaded by the Spice runtime         |
-| [run](reference/run)       | Run Spice - starts the Spice runtime, installing if necessary          |
-| [search](reference/search) | Perform embeddings-based searches across                               |
-| [sql](reference/sql)       | Start an interactive SQL query session against the Spice runtime       |
-| [status](reference/status) | Spice runtime status                                                   |
-| [upgrade](reference/upgrade) | Upgrades the Spice CLI to the latest release                         |
-| [version](reference/version) | Spice CLI version                                                    |
+| Command                                | Description                                                         |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| [acceleration](reference/acceleration) | Manage dataset acceleration features                                |
+| [add](reference/add)                   | Add Spicepod - adds a Spicepod to the project                       |
+| [catalogs](reference/catalogs)         | List [catalogs](../components/catalogs) loaded by the Spice runtime |
+| [chat](reference/chat)                 | Chat with an LLM                                                    |
+| [cloud](reference/cloud)               | Manage Spice Cloud resources                                        |
+| [cluster](reference/cluster)           | Cluster operations for the Spice runtime                            |
+| [completion](reference/completion)     | Generate the autocompletion script for the specified shell          |
+| [connect](reference/connect)           | Connect to a Spice.ai Cloud Platform app                            |
+| [dataset](reference/dataset)           | Dataset operations (configure datasets)                             |
+| [datasets](reference/datasets)         | Lists datasets loaded by the Spice runtime                          |
+| [eval](reference/eval)                 | Run model evaluation                                                |
+| help                                   | Help about any command                                              |
+| [init](reference/init)                 | Initialize Spice app - creates a new spicepod.yaml                  |
+| [install](reference/install)           | Install or reinstall the Spice.ai runtime                           |
+| [login](reference/login)               | Login to Spice.ai or configure credentials for data sources         |
+| [models](reference/models)             | Lists models loaded by the Spice runtime                            |
+| [nsql](reference/nsql)                 | Text-to-SQL REPL - translate natural language to SQL                |
+| [pods](reference/pods)                 | Lists Spicepods loaded by the Spice runtime                         |
+| [query](reference/query)               | Submit an async query or start an interactive async query REPL      |
+| [refresh](reference/refresh)           | Refresh a dataset loaded by the Spice runtime                       |
+| [run](reference/run)                   | Run Spice - starts the Spice runtime, installing if necessary       |
+| [search](reference/search)             | Search datasets with embeddings                                     |
+| [sql](reference/sql)                   | Start an interactive SQL query session against the Spice runtime    |
+| [status](reference/status)             | Spice runtime status                                                |
+| [trace](reference/trace)               | Return traces for operations that occurred in Spice                 |
+| [upgrade](reference/upgrade)           | Upgrades the Spice CLI and runtime to the latest release            |
+| [version](reference/version)           | Spice CLI version                                                   |
+| [workers](reference/workers)           | Lists workers loaded by the Spice runtime                           |
 
 ### Command Flags
 

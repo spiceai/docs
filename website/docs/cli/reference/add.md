@@ -51,7 +51,7 @@ Any other Spicepods added using `spice add` are placed in the `spicepods` direct
 ```yaml
 # File: ./spicepods/spiceai/quickstart/spicepod.yaml
 
- version: v1beta1
+ version: v1
  kind: Spicepod
  name: quickstart
 

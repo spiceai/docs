@@ -166,24 +166,24 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 
 ## Common Parameters
 
-| **Name**                        | **Description**                                                                                                                                                                           | **Value**  |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `additionalEnv`                 | Additional environment variables to set in the Spice.ai container.                                                                                                                        | `[]`       |
-| `additionalLabels`              | Additional labels to add to all resources.                                                                                                                                                | `{}`       |
-| `image.pullSecrets`             | Specify Docker registry secret names as an array.                                                                                                                                         | `[]`       |
-| `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai`  |
-| `image.tag`                     | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `1.3.0`    |
-| `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`    |
-| `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`        |
-| `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | `{}`       |
-| `service.type`                  | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                               | `null`     |
-| `serviceAccount.create`         | Specifies whether a ServiceAccount should be created.                                                                                                                                     | `false`    |
-| `spicepod`                      | Define the [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime.                                                                           | `{}`       |
-| `stateful.enabled`              | Use a StatefulSet with a PVC (Persistent Volume Claim) for the data volume.                                                                                                               | `false`    |
-| `stateful.mountPath`            | Mount path in container for the persistent volume.                                                                                                                                        | `/data`    |
-| `stateful.size`                 | Size of each PV in the StatefulSet.                                                                                                                                                       | `1Gi`      |
-| `stateful.storageClass`         | Storage class for the volume claim template in the StatefulSet.                                                                                                                           | `standard` |
-| `tolerations`                   | List of node taints to tolerate.                                                                                                                                                          | `[]`       |
+| **Name**                        | **Description**                                                                                                                                                                           | **Value**         |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `additionalEnv`                 | Additional environment variables to set in the Spice.ai container.                                                                                                                        | `[]`              |
+| `additionalLabels`              | Additional labels to add to all resources.                                                                                                                                                | `{}`              |
+| `image.pullSecrets`             | Specify Docker registry secret names as an array.                                                                                                                                         | `[]`              |
+| `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai/spiceai` |
+| `image.tag`                     | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `latest-models`   |
+| `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`           |
+| `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`               |
+| `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | `{}`              |
+| `service.type`                  | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                               | `null`            |
+| `serviceAccount.create`         | Specifies whether a ServiceAccount should be created.                                                                                                                                     | `false`           |
+| `spicepod`                      | Define the [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime.                                                                           | `{}`              |
+| `stateful.enabled`              | Use a StatefulSet with a PVC (Persistent Volume Claim) for the data volume.                                                                                                               | `false`           |
+| `stateful.mountPath`            | Mount path in container for the persistent volume.                                                                                                                                        | `/data`           |
+| `stateful.size`                 | Size of each PV in the StatefulSet.                                                                                                                                                       | `1Gi`             |
+| `stateful.storageClass`         | Storage class for the volume claim template in the StatefulSet.                                                                                                                           | `standard`        |
+| `tolerations`                   | List of node taints to tolerate.                                                                                                                                                          | `[]`              |
 
 ## Environment Variables and Secrets
 
@@ -355,7 +355,7 @@ additionalLabels:
 
 image:
   repository: spiceai/spiceai
-  tag: 1.3.0
+  tag: latest-models
 replicaCount: 1
 
 service:

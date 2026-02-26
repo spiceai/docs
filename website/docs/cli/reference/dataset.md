@@ -64,7 +64,7 @@ from: s3://spiceai-demo-datasets/taxi_trips/2024/
 name: taxi-trips
 description: Taxi trips in s3
 acceleration:
-  - enabled: false
+  enabled: true
 ```
 
 The command additionally updates the root `spicepod.yaml` file to include the configured dataset as a reference (`ref`). For this example, `spicepod.yaml` would include the following:

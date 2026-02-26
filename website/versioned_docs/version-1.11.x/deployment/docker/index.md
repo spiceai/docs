@@ -30,6 +30,7 @@ COPY data /app/data
 COPY .env* /app/
 
 # Spice runtime start-up arguments
+# --metrics is optional; omit it if Prometheus metrics are not needed
 CMD ["--http","0.0.0.0:8090","--metrics", "0.0.0.0:9090","--flight","0.0.0.0:50051"]
 
 EXPOSE 8090

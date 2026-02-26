@@ -43,11 +43,11 @@ Recommended minimum hardware specifications:
 
 The following ports are used:
 
-| Description                         | Port  |
-| ----------------------------------- | ----- |
-| HTTP / HTTPS (if TLS is configured) | 8090  |
-| Metrics Endpoint                    | 9090  |
-| Arrow Flight / ADBC/ODBC/JDBC       | 50051 |
+| Description                         | Port  | Required                                          |
+| ----------------------------------- | ----- | ------------------------------------------------- |
+| HTTP / HTTPS (if TLS is configured) | 8090  | Yes                                               |
+| Metrics Endpoint                    | 9090  | No (disabled by default, enable with `--metrics`) |
+| Arrow Flight / ADBC/ODBC/JDBC       | 50051 | Yes                                               |
 
 ## Kubernetes Requirements
 
@@ -88,7 +88,7 @@ Spice resource requirements, particularly memory, are highly dependent on worklo
 | `refresh_mode: full`   | 2.5x the dataset size |
 | `refresh_mode: append` | 1.5x the dataset size |
 
-See [Memory Management and Best Pratices](memory) for a detailed guide on memory considerations.
+See [Memory Management and Best Practices](memory) for a detailed guide on memory considerations.
 
 ## Additional Considerations
 

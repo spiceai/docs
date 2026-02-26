@@ -424,3 +424,59 @@ runtime:
       enabled: false
     - name: dataset_acceleration_ingestion_lag_ms
 ```
+
+## `runtime.flight`
+
+Configures Arrow Flight protocol settings for the runtime.
+
+```yaml
+runtime:
+  flight:
+    max_message_size: 16MiB
+    do_put_rate_limit_enabled: true
+```
+
+| Parameter name              | Optional | Default | Description                                                          |
+| --------------------------- | -------- | ------- | -------------------------------------------------------------------- |
+| `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
+| `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
+
+## `runtime.ready_state`
+
+Controls when the runtime readiness probe (`/v1/ready`) reports the runtime as ready. This is particularly useful for Kubernetes readiness probes.
+
+```yaml
+runtime:
+  ready_state: on_load
+```
+
+| Value               | Description                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `on_load` (default) | The runtime reports ready after all components (datasets, models, etc.) have loaded successfully.     |
+| `on_registration`   | The runtime reports ready as soon as all components have been registered, before they finish loading. |
+
+## `runtime.scheduler`
+
+Configures the cluster scheduler when running Spice in [cluster mode](../../deployment/architectures/cluster). This section is relevant only when using `--role scheduler`.
+
+```yaml
+runtime:
+  scheduler:
+    state_location: s3://my-bucket/spice-cluster-state/
+    params:
+      aws_region: us-east-1
+    partition_management:
+      interval: 30s
+      max_assignments_per_cycle: 100
+      max_partitions_per_executor: 1000
+      discovery_timeout: 60s
+```
+
+| Parameter name                                     | Optional | Default | Description                                                            |
+| -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
+| `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
+| `partition_management.interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
+| `partition_management.max_assignments_per_cycle`   | Yes      | `100`   | Maximum number of partition assignments per cycle.                     |
+| `partition_management.max_partitions_per_executor` | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
+| `partition_management.discovery_timeout`           | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
