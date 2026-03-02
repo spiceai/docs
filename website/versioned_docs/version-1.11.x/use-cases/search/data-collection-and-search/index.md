@@ -20,7 +20,7 @@ Unlike complex streaming platforms (e.g., Apache Flink) that require extensive i
 
 ## Example
 
-A gaming platform processes live player activity from Kafka streams to power in-game leaderboards and personalized challenges, while using hybrid search to enable players to research game strategies by querying unstructured content (e.g., guides, forums) and structured metadata. This unified approach bypasses the infrastructure overhead of separate streaming pipelines and search engines, enhancing player engagement and feature delivery. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README) demonstrates real-time data processing and search patterns adaptable to such use cases.
+A gaming platform processes live player activity from Kafka streams to power in-game leaderboards and personalized challenges, while using hybrid search to enable players to research game strategies by querying unstructured content (e.g., guides, forums) and structured metadata. This unified approach bypasses the infrastructure overhead of separate streaming pipelines and search engines, improving player engagement and feature delivery. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README) demonstrates real-time data processing and search patterns adaptable to such use cases.
 
 ## Benefits
 

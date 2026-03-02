@@ -22,7 +22,7 @@ For a complete list of AWS-compatible data connectors, AI models, vector stores,
 
 ### Amazon EKS (Elastic Kubernetes Service)
 
-Leverage [Kubernetes](https://kubernetes.io/) orchestration with [Amazon EKS](https://aws.amazon.com/eks/) for containerized Spice.ai deployments.
+Use [Kubernetes](https://kubernetes.io/) orchestration with [Amazon EKS](https://aws.amazon.com/eks/) for containerized Spice.ai deployments.
 
 1. **Create an EKS Cluster**:
    - Use the [AWS Management Console](https://console.aws.amazon.com/eks/), [AWS CLI](https://docs.aws.amazon.com/cli/latest/reference/eks/), or [eksctl](https://eksctl.io/) to create your cluster

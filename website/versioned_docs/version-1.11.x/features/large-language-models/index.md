@@ -15,6 +15,39 @@ Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized fo
 
 Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
 
+## Quickstart
+
+Add a language model to your `spicepod.yaml` to start using AI capabilities:
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: my_model
+    params:
+      openai_api_key: ${ env:OPENAI_API_KEY }
+      tools: auto  # Gives the model access to datasets for data-grounded responses
+```
+
+Start the runtime and use the chat REPL:
+
+```bash
+spice run
+# In another terminal:
+spice chat
+chat> What tables are available?
+```
+
+Or call the OpenAI-compatible HTTP API directly:
+
+```bash
+curl -X POST http://localhost:8090/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "my_model",
+    "messages": [{"role": "user", "content": "What tables are available?"}]
+  }'
+```
+
 ## Configuring Language Models
 
 Spice supports a variety of LLMs (see [Model Providers](../components/models)).

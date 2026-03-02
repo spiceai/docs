@@ -14,6 +14,53 @@ Spice provides a number of methods to support debugging Runtime operations, incl
 
 For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/cookbook) for recipes demonstrating common troubleshooting scenarios.
 
+## Common Issues
+
+### `spice` command not found after installation
+
+The Spice binary directory is not in your `PATH`. Add it:
+
+```bash
+# Add to your shell profile (.zshrc, .bashrc, etc.) for persistence
+export PATH="$PATH:$HOME/.spice/bin"
+```
+
+Verify with `spice version`.
+
+### Dataset fails to load or refresh
+
+Check the runtime output for error messages. Common causes:
+
+- **Incorrect credentials**: Verify connection parameters (`pg_host`, `pg_user`, `pg_pass`, etc.) and that secrets are configured correctly. Use `--verbose` to see secret resolution logs.
+- **Network connectivity**: Ensure the Spice runtime can reach the data source. Test with `curl` or `psql` from the same host.
+- **Schema mismatch**: If the source schema changed since the last refresh, the accelerated table may fail to update. Restart the runtime to re-initialize the dataset.
+
+Review the `task_history` table for detailed error messages:
+
+```sql
+SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT NULL ORDER BY start_time DESC LIMIT 5;
+```
+
+### Slow query performance
+
+- **Check if acceleration is enabled**: Unaccelerated datasets query the remote source directly, adding network latency. Add `acceleration: enabled: true` to the dataset configuration.
+- **Review the query plan**: Run `EXPLAIN` before the query to verify it executes against the local accelerator and not the remote source.
+- **Check cache status**: For repeated queries, verify caching is active by inspecting the `Results-Cache-Status` HTTP header. A `MISS` on repeated identical queries may indicate a low `item_ttl`.
+
+### AI chat returns incorrect or empty results
+
+- **Verify model deployment**: Check the runtime logs for `Model [name] deployed, ready for inferencing`. If the model failed to load, review error messages in the logs.
+- **Check tools configuration**: Ensure `tools: auto` is set in the model params so the model can discover and query datasets.
+- **Use `spice trace ai_chat`**: Inspect the trace output to see which tools the model called and whether SQL queries succeeded or failed.
+
+### Port conflicts on startup
+
+If Spice fails to bind to its default ports (`8090` for HTTP, `50051` for Flight, `9090` for metrics), another process is already using that port. Override the ports:
+
+```bash
+spiced --http 0.0.0.0:3000 --flight 0.0.0.0:50052 --metrics 0.0.0.0:9091
+```
+
 ## Verbose Logging
 
 Running `spiced` with `--verbose` produces immediate debug logs for diagnosing issues in real time. Running `spiced` with `--very-verbose` captures trace logs, which are useful for examining function outputs and other low-level details. The verbosity flags are also available for `spice run`, providing consistent behavior during local testing or production operation.

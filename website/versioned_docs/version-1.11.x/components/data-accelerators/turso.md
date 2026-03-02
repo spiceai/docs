@@ -153,7 +153,7 @@ Turso uses connection pooling for efficient database access. Connection pools ar
 
 ### Query Federation
 
-Turso supports query federation, allowing queries to span multiple data sources. The accelerator pushes down filters, projections, and limits when possible for improved performance.
+Turso supports query federation, where queries can span multiple data sources. The accelerator pushes down filters, projections, and limits when possible for improved performance.
 
 ## Limitations
 

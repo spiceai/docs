@@ -40,7 +40,7 @@ This configuration accelerates the `user_sessions` table from a PostgreSQL datab
 
 ## Benefits
 
-- **Availability**: Local replicas ensure uptime, enhancing user trust and retention in SaaS applications.
+- **Availability**: Local replicas ensure uptime, improving user trust and retention in SaaS applications.
 - **Performance**: Reduced latency improves responsiveness for customer-facing features, critical for user engagement.
 - **Scalability**: Supports high user concurrency, enabling growth without performance degradation.
 

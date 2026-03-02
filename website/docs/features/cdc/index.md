@@ -15,7 +15,7 @@ Using locally accelerated datasets configured with CDC enables Spice to provide 
 
 ## Example Use Case
 
-Consider a fraud detection application that needs to determine whether a pending transaction is likely fraudulent. The application queries a Spice-accelerated, real-time updated table of recent transactions to check if a pending transaction resembles known fraudulent ones. With CDC, the table is kept up-to-date, allowing the application to quickly identify potential fraud.
+Consider a fraud detection application that needs to determine whether a pending transaction is likely fraudulent. The application queries a Spice-accelerated, real-time updated table of recent transactions to check if a pending transaction resembles known fraudulent ones. With CDC, the table is kept up-to-date, so the application can quickly identify potential fraud.
 
 ## Considerations
 

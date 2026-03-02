@@ -37,11 +37,11 @@ datasets:
 
 ## Overview
 
-Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, allowing Spice to resume without reprocessing all historical change events.
+Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, so Spice can resume without reprocessing all historical change events.
 
 ## Consumer Group Management
 
-The Debezium connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, allowing Spice to track consumption progress.
+The Debezium connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, so Spice can track consumption progress.
 
 **Default behavior:** When no `kafka_consumer_group_id` is specified, Spice automatically generates a unique consumer group ID and stores it in the acceleration metadata. On subsequent restarts, Spice retrieves and reuses this stored consumer group ID to maintain offset tracking and resume consumption from where it left off.
 

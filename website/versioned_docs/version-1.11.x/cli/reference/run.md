@@ -45,7 +45,7 @@ Flags that are passed to the `spiced` runtime directly using `--`.
 
 #### `--set-runtime`
 
-The `--set-runtime` flag allows overriding runtime configuration values. It can be specified multiple times to set multiple values. It is used like this: `--set-runtime name=value`. The Spicepod YAML equivalent of that is:
+The `--set-runtime` flag overrides runtime configuration values. It can be specified multiple times to set multiple values. It is used like this: `--set-runtime name=value`. The Spicepod YAML equivalent of that is:
 
 ```yaml
 runtime:

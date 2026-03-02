@@ -13,6 +13,8 @@ import TabItem from '@theme/TabItem';
 
 Installation options for Spice.ai OSS
 
+**Prerequisites:** macOS (Apple Silicon), Linux (x86_64 or aarch64), or Windows 10+/WSL. No other dependencies are required for the pre-built binary.
+
 For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
 <Tabs>
@@ -60,6 +62,10 @@ Runtime version: 1.x.x
 ```
 
 If the command is not found, ensure the Spice binary directory is in your `PATH`.
+
+## What's Next?
+
+After installing, follow the [Getting Started guide](./getting-started) to initialize a Spice app, connect to a dataset, and run your first query in under 5 minutes.
 
 ## Building Spice from Source
 

@@ -71,7 +71,12 @@ Read the [Spice.ai 1.0-stable announcement](https://spice.ai/blog/announcing-1.0
 
 ## Why Spice?
 
-Spice simplifies building data-driven AI applications and agents by enabling fast, SQL-based querying, federation, and acceleration of data from multiple sources, grounding AI in real-time, reliable data. Co-locate datasets with apps and AI models to power AI feedback loops, enable RAG and search, and deliver low-latency data queries and AI inference with full control over cost and performance.
+Spice simplifies building data-driven AI applications and agents by combining SQL query, search, and LLM inference in a single runtime. Instead of stitching together separate databases, caching layers, and AI services, developers deploy Spice alongside their applications to:
+
+- **Query any data source with SQL**: Join data across PostgreSQL, Snowflake, S3, and other sources without building ETL pipelines.
+- **Accelerate queries locally**: Materialize datasets in-memory or on disk for sub-second query performance, with automatic refresh from source.
+- **Ground AI in real data**: Connect LLMs to datasets through built-in tools so AI responses are based on actual data, not hallucinations.
+- **Search across data**: Run vector, keyword, and hybrid search through SQL functions like `vector_search()` and `text_search()`.
 
 <div style={{ display: 'flex', justifyContent: 'center' }}>
   <ThemeBasedImage

@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice.ai powers semantic and precise search for financial services (finserv) knowledge bases with hybrid vector and keyword capabilities, enabling rapid access to critical information for compliance and decision-making.
 
-Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that lack seamless data and AI integration, Spice.ai combines hybrid search (vector + keyword + BM25), federated data access, and AI workflows to deliver enterprise-grade search experiences tailored for finserv’s regulatory and performance demands. This approach reduces data duplication costs and enhances contextual relevance, making it ideal for high-stakes financial applications.
+Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that lack built-in data and AI integration, Spice.ai combines hybrid search (vector + keyword + BM25), federated data access, and AI workflows to deliver enterprise-grade search experiences tailored for finserv's regulatory and performance demands. This approach reduces data duplication costs and improves contextual relevance, making it ideal for high-stakes financial applications.
 
 ## Why Spice.ai?
 
@@ -24,7 +24,7 @@ A finserv firm enables traders to search a knowledge base combining structured t
 
 ## Benefits
 
-- **Precision**: Hybrid search delivers highly relevant results for regulatory and operational needs, enhancing decision-making accuracy.
+- **Precision**: Hybrid search delivers highly relevant results for regulatory and operational needs, improving decision-making accuracy.
 - **Efficiency**: Federated access eliminates data duplication, reducing storage and management costs in finserv.
 - **Productivity**: AI-enhanced search accelerates information retrieval, enabling faster responses in fast-paced financial markets.
 

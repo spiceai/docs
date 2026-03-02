@@ -4,7 +4,7 @@ sidebar_label: 'PostgreSQL Data Connector'
 description: 'PostgreSQL Data Connector Documentation'
 ---
 
-PostgreSQL is an advanced open-source relational database management system known for its robustness, extensibility, and support for SQL compliance.
+PostgreSQL is an advanced open-source relational database management system known for its reliability, extensibility, and support for SQL compliance.
 
 The PostgreSQL Server Data Connector enables federated/accelerated SQL queries on data stored in PostgreSQL databases.
 
@@ -13,6 +13,47 @@ datasets:
   - from: postgres:my_table
     name: my_dataset
     params: ...
+```
+
+## Quickstart
+
+Connect to a local PostgreSQL database and accelerate a table for fast local queries:
+
+```yaml
+version: v1
+kind: Spicepod
+name: pg_demo
+
+datasets:
+  - from: postgres:public.customers
+    name: customers
+    params:
+      pg_host: localhost
+      pg_port: "5432"
+      pg_db: mydb
+      pg_user: spice_reader
+      pg_pass: ${secrets:PG_PASSWORD}
+    acceleration:
+      enabled: true
+
+secrets:
+  - from: env
+    name: env
+```
+
+Set the password in an `.env` file:
+
+```bash
+echo "PG_PASSWORD=your_password" > .env
+```
+
+Start Spice and query the data:
+
+```bash
+spice run
+# In another terminal:
+spice sql
+sql> SELECT count(*) FROM customers;
 ```
 
 ## Configuration

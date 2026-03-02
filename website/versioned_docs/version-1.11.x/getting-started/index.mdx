@@ -71,7 +71,7 @@ cd spice_qs
 spice add spiceai/quickstart
 ```
 
-The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency.
+The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency. This Spicepod includes a `taxi_trips` dataset sourced from S3.
 
 ```yaml
 version: v1
@@ -81,7 +81,7 @@ dependencies:
   - spiceai/quickstart
 ```
 
-**Step 4.** Add an [OpenAI] model to the Spicepod, with tools enabled to enable the model to access the data:
+**Step 4.** Add an [OpenAI] model to the Spicepod with tools enabled, so the model can query the `taxi_trips` dataset directly:
 
 [OpenAI]: /docs/components/models/openai
 
@@ -94,7 +94,7 @@ models:
       tools: auto
 ```
 
-Add your OpenAI API key to a `.env` file that will be automatically loaded:
+Add your OpenAI API key to a `.env` file that Spice automatically loads at startup:
 
 ```bash
 echo "OPENAI_API_KEY=sk-..." > .env
@@ -106,7 +106,7 @@ Start the Spice runtime:
 spice run
 ```
 
-Example output:
+The runtime starts and loads the `taxi_trips` dataset. Wait for the dataset to finish loading before querying:
 
 ```bash
 Spice.ai runtime starting...
@@ -185,15 +185,47 @@ Time: 0.045150667 seconds. 10 rows.
 
 ## Next Steps
 
+Now that Spice is running, explore the key capabilities:
+
 import DocCardList from '@theme/DocCardList'
 
 <DocCardList
   items={[
     {
       type: 'link',
+      label: 'Spicepods',
+      href: '/docs/getting-started/spicepods',
+      description: 'Understand the Spicepod configuration format that defines datasets, models, and secrets.'
+    },
+    {
+      type: 'link',
+      label: 'Data Connectors',
+      href: '/docs/components/data-connectors',
+      description: 'Connect to PostgreSQL, MySQL, S3, Snowflake, Databricks, and more.'
+    },
+    {
+      type: 'link',
+      label: 'Data Acceleration',
+      href: '/docs/features/data-acceleration',
+      description: 'Materialize and cache datasets locally for sub-second query performance.'
+    },
+    {
+      type: 'link',
+      label: 'Large Language Models',
+      href: '/docs/features/large-language-models',
+      description: 'Configure AI models with OpenAI-compatible APIs, local serving, and tool use.'
+    },
+    {
+      type: 'link',
+      label: 'Search',
+      href: '/docs/features/search',
+      description: 'Vector, full-text, and hybrid search across structured and unstructured data.'
+    },
+    {
+      type: 'link',
       label: 'Cookbook',
       href: 'https://github.com/spiceai/cookbook',
-      description: 'Spice.ai Cookbook Recipes.'
+      description: 'Over 65 recipes demonstrating federated queries, RAG, text-to-SQL, and more.'
     }
   ]}
 />

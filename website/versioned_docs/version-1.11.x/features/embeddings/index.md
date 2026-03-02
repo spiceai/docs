@@ -15,7 +15,7 @@ Spice provides three distinct methods for handling embedding columns in datasets
 
 1. **[Just-in-Time (JIT) Embeddings](../components/embeddings#jit-embeddings)**: Dynamically computes embeddings, on-demand, during query execution, without precomputing data.
 2. **[Accelerated Embeddings](../components/embeddings#accelerated-embeddings)**: Precomputes embeddings by transforming and augmenting the source dataset for faster query and search performance.
-3. **[Passthrough Embeddings](../components/embeddings#passthrough-embeddings)**: Utilizes pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
+3. **[Passthrough Embeddings](../components/embeddings#passthrough-embeddings)**: Uses pre-existing embeddings directly from the underlying source datasets, bypassing any additional computation.
 
 ## Configuring Embedding Models
 
@@ -44,4 +44,4 @@ For detailed instructions and examples on running vector searches, refer to the 
 
 ## Generating Embeddings in Queries
 
-The [`embed()` scalar function](../reference/sql/scalar_functions#embed) allows you to generate embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.
+The [`embed()` scalar function](../reference/sql/scalar_functions#embed) generates embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.

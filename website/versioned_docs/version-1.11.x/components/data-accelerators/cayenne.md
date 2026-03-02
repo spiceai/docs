@@ -15,7 +15,7 @@ tags:
 The Spice Cayenne Data Accelerator is in Beta.
 :::
 
-Spice Cayenne is a data acceleration engine designed for high-performance, scalable query on large-scale datasets. Built on [Vortex](https://github.com/vortex-data/vortex), a next-generation columnar file format, Spice Cayenne combines columnar storage with in-process metadata management to provide fast query performance to scale to datasets beyond 1TB.
+Spice Cayenne is a data acceleration engine designed for high-performance, scalable query on large-scale datasets. Built on [Vortex](https://github.com/vortex-data/vortex), a high-performance columnar file format, Spice Cayenne combines columnar storage with in-process metadata management to provide fast query performance to scale to datasets beyond 1TB.
 
 ## Why Vortex?
 
@@ -259,7 +259,7 @@ Cayenne supports two deletion vector strategies based on your table configuratio
 
 **Position-based deletion** uses row position within the table. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 
-**Key-based deletion** uses the byte representation of primary key columns. This approach is position-independent and survives data reorganization, making it more robust for tables with primary keys.
+**Key-based deletion** uses the byte representation of primary key columns. This approach is position-independent and survives data reorganization, making it more reliable for tables with primary keys.
 
 ### Primary Key Optimization
 

@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice.ai generates dynamic, context-aware AI-driven reports for operational insights in health-tech/healthcare, ensuring compliance and precision in regulated environments.
 
-Unlike traditional reporting tools (e.g., Tableau, Power BI) or generic RAG frameworks (e.g., LlamaIndex) that lack real-time data federation and robust governance, Spice.ai combines enterprise-grade data access, vector search, and AI integration to deliver precise, real-time reports tailored to healthcare’s stringent requirements, surpassing generic solutions in accuracy and trustworthiness.
+Unlike traditional reporting tools (e.g., Tableau, Power BI) or generic RAG frameworks (e.g., LlamaIndex) that lack real-time data federation and comprehensive governance, Spice.ai combines enterprise-grade data access, vector search, and AI integration to deliver precise, real-time reports tailored to healthcare's stringent requirements, surpassing generic solutions in accuracy and trustworthiness.
 
 ## Why Spice.ai?
 
@@ -26,7 +26,7 @@ A health-tech company generates real-time HIPAA compliance reports by combining 
 
 - **Compliance**: Governed data access meets stringent healthcare regulatory standards, ensuring auditability and trust.
 - **Timeliness**: Real-time data federation delivers up-to-date reports for rapid compliance and operational decisions.
-- **Insightfulness**: AI-driven narratives provide context-rich, actionable insights, enhancing healthcare operational efficiency.
+- **Insightfulness**: AI-driven narratives provide context-rich, actionable insights, improving healthcare operational efficiency.
 
 ### Learn More
 

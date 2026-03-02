@@ -57,7 +57,7 @@ datasets:
 Index types:
 
 - **`unique`** — Enforces uniqueness and enables O(1) indexed lookups.
-- **`enabled`** — Allows duplicates. The index is built and maintained but does not currently accelerate queries (queries fall back to a full scan).
+- **`enabled`** — Permits duplicates. The index is built and maintained but does not currently accelerate queries (queries fall back to a full scan).
 
 Compound secondary indexes can be defined with a multicolumn key in parentheses, e.g. `'(col1, col2)': unique`, but are not yet used for query optimization.
 

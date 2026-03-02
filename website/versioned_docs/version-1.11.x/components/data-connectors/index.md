@@ -14,6 +14,25 @@ tags:
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.
 
+Each connector is configured using the `from` field in a dataset definition. For example:
+
+```yaml
+datasets:
+  - from: postgres:public.orders    # Database connector
+    name: orders
+    params:
+      pg_host: localhost
+      pg_db: mydb
+      pg_user: reader
+      pg_pass: ${secrets:PG_PASS}
+
+  - from: s3://my-bucket/events/    # Object storage connector
+    name: events
+    params:
+      file_format: parquet
+      s3_auth: iam_role
+```
+
 Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |

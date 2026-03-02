@@ -14,7 +14,7 @@ Datasets and views can be locally accelerated by the Spice runtime, pulling data
 
 Local data acceleration stores data alongside the application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](../components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](data-acceleration/indexes) can be applied to speed up certain queries.
 
-Locally accelerated datasets can also have [primary key constraints](data-acceleration/constraints) applied. This feature allows specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
+Locally accelerated datasets can also have [primary key constraints](data-acceleration/constraints) applied. This feature supports specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
 
 [Acceleration snapshots](data-acceleration/snapshots) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
@@ -24,9 +24,21 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 ## Considerations
 
-Data Storage: Ensure local storage has enough capacity for the accelerated data. The required storage type (Disk or RAM) and amount depend on the dataset size and the acceleration engine used.
+**Storage Capacity**: Accelerated datasets consume local storage. In-memory engines (Arrow) require sufficient RAM; file-based engines (DuckDB, SQLite, Cayenne) require sufficient disk space. As a guideline, allocate at least 1.5x the source dataset size to account for indexing and temporary refresh overhead. Check current usage by querying `runtime.metrics`.
 
-Data Security: Assess data sensitivity and secure network connections between the edge and data connector when replicating data. Secure any external Data Accelerator connected to the Spice runtime with encryption, access controls, and secure protocols.
+**Data Security**: Accelerating a dataset copies data from the source to the local runtime. Assess whether the data sensitivity is appropriate for the deployment environment. Secure network connections between the runtime and data source using TLS (`pg_sslmode: verify-full` for PostgreSQL, `s3_auth: iam_role` for S3). Encrypt data at rest when using file-based accelerators in production.
+
+**Refresh Latency**: The `refresh_check_interval` controls how frequently the runtime checks for new data. Shorter intervals increase load on the source database. For real-time requirements, use [Change Data Capture (CDC)](../cdc) instead of polling.
+
+**Engine Selection**: Choose the acceleration engine based on workload characteristics:
+
+| Engine       | Best For                              | Mode          |
+|-------------|---------------------------------------|---------------|
+| `arrow`     | Read-heavy analytics, in-memory speed | `memory`      |
+| `duckdb`    | Complex analytical queries, file-based persistence | `memory` or `file` |
+| `sqlite`    | OLTP-style point lookups, concurrent reads/writes | `file`        |
+| `postgres`  | When a full SQL database is needed as accelerator | External      |
+| `cayenne`   | Large datasets (1TB+), high-performance columnar | `file`        |
 
 ## Example
 

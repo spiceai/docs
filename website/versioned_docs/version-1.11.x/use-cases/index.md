@@ -9,6 +9,10 @@ pagination_prev: null
 pagination_next: null
 ---
 
+Spice supports a range of use cases across data infrastructure, search, and AI. Each use case below describes a specific scenario with architecture guidance, configuration examples, and links to relevant cookbook recipes.
+
+For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/cookbook).
+
 ## Data Federation, Acceleration, and SQL Query
 
 - [**Reverse-ETL**](use-cases/data/reverse-etl): Serve data from warehouses and data lakes to operational systems, applications, and dashboards, eliminating complex pipelines.
@@ -25,7 +29,7 @@ pagination_next: null
 
 ## Retrieval-Augmented-Generation (RAG)
 
-- [**RAG for Contextual Applications**](use-cases/rag/applications): Combines structured and unstructured data for context-rich AI outputs in SaaS chatbots, enhancing user interactions.
+- [**RAG for Contextual Applications**](use-cases/rag/applications): Combines structured and unstructured data for context-rich AI outputs in SaaS chatbots, improving user interactions.
 - [**RAG for AI-Powered Reporting**](use-cases/rag/reporting): Generates dynamic, context-aware AI-driven reports for operational insights in health-tech, ensuring compliance and precision.
 
 ## AI Applications and Agents

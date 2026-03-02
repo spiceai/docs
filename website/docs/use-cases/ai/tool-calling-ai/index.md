@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice.ai extends AI with custom tools via Model Context Protocol (MCP) server in financial services (finserv), integrating domain-specific APIs for enhanced functionality and precise decision-making in high-stakes financial applications.
 
-Unlike generic tool-calling frameworks (e.g., OpenAI Functions) that rely on external APIs and lack robust data integration, Spice.ai’s stdio-based MCP servers provide low-latency, secure tool interactions with federated data access. This makes it ideal for finserv applications requiring compliance, real-time performance, and tailored AI capabilities, outperforming platforms with limited domain-specific tool integration.
+Unlike generic tool-calling frameworks (e.g., OpenAI Functions) that rely on external APIs and lack deep data integration, Spice.ai's stdio-based MCP servers provide low-latency, secure tool interactions with federated data access. This makes it ideal for finserv applications requiring compliance, real-time performance, and tailored AI capabilities, outperforming platforms with limited domain-specific tool integration.
 
 ## Why Spice.ai?
 
@@ -24,7 +24,7 @@ A finserv platform uses Spice.ai as an MCP server to integrate a risk assessment
 
 ## Benefits
 
-- **Customization**: Tailors AI capabilities to finserv-specific needs with custom tools, enhancing decision-making accuracy.
+- **Customization**: Tailors AI capabilities to finserv-specific needs with custom tools, improving decision-making accuracy.
 - **Performance**: Internal tool execution minimizes latency, enabling real-time fraud detection and risk analysis.
 - **Compliance**: Protects sensitive financial data with secure, internal processing, meeting regulatory standards.
 

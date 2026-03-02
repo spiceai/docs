@@ -7,16 +7,16 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice.ai builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making to enhance user experiences and operational efficiency.
+Spice.ai builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making to improve user experiences and operational efficiency.
 
-Unlike generic AI agent frameworks (e.g., AutoGen, CrewAI) that often lack seamless integration with enterprise data or real-time capabilities, Spice.ai combines federated data access, hybrid search, and AI inference to deliver autonomous agents that operate with enterprise-grade governance and low-latency performance. This makes it ideal for SaaS platforms requiring dynamic, context-driven automation in customer-facing workflows.
+Unlike generic AI agent frameworks (e.g., AutoGen, CrewAI) that often lack direct integration with enterprise data or real-time capabilities, Spice.ai combines federated data access, hybrid search, and AI inference to deliver autonomous agents that operate with enterprise-grade governance and low-latency performance. This makes it ideal for SaaS platforms requiring dynamic, context-driven automation in customer-facing workflows.
 
 ## Why Spice.ai?
 
 - **Federated Data Access**: Queries disparate data sources (e.g., Databricks, PostgreSQL, cloud storage) in real time, providing agents with a unified view of customer data, unlike siloed frameworks that limit context.
 - **Hybrid Search**: Integrates vector similarity search (VSS) for semantic understanding (e.g., user intent from support tickets) with keyword/BM25 search for precise data retrieval, enabling agents to make informed decisions.
 - **AI Gateway**: Powers agents with large language models (LLMs), supporting hosted (e.g., OpenAI) and local (e.g., Llama) models for privacy and cost efficiency, optimized for real-time inference in SaaS environments.
-- **Governance and Observability**: Leverages Databricks Unity Catalog for compliance and provides end-to-end visibility into agent performance and data flows, ensuring reliability and auditability, unlike generic agent platforms.
+- **Governance and Observability**: Uses Databricks Unity Catalog for compliance and provides end-to-end visibility into agent performance and data flows, ensuring reliability and auditability, unlike generic agent platforms.
 
 ## Example
 
@@ -25,7 +25,7 @@ A SaaS customer success platform deploys a Spice.ai-powered agent to automate ti
 ## Benefits
 
 - **Automation**: Context-aware agents reduce manual effort, improving efficiency in SaaS customer workflows.
-- **Responsiveness**: Real-time data and inference enable rapid, accurate decision-making, enhancing user satisfaction.
+- **Responsiveness**: Real-time data and inference enable rapid, accurate decision-making, improving user satisfaction.
 - **Compliance**: Governed data access ensures alignment with SaaS regulatory requirements, fostering trust.
 
 ### Learn More
