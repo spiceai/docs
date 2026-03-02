@@ -38,7 +38,7 @@ Flags that are passed to the `spiced` runtime directly using `--`.
 - `--repl` Start a SQL REPL against the runtime's Flight endpoint
 - `-v`, `--verbose` Enable verbose logging (use `-vv` for more detail)
 - `--very-verbose` Enable very verbose logging
-- `--set-runtime` Override [runtime configuration](../reference/spicepod/#runtime) with a name/value pair specified as `name=value`. Multiple overrides can be specified by using the flag multiple times.
+- `--set-runtime` Override [runtime configuration](../../reference/spicepod/#runtime) with a name/value pair specified as `name=value`. Multiple overrides can be specified by using the flag multiple times.
 - `[PATH]` Positional argument specifying the path to a Spicepod directory or file. Supports local paths and `s3://` remote URLs.
 
 ### Examples
