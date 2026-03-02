@@ -457,7 +457,7 @@ runtime:
 
 ## `runtime.scheduler`
 
-Configures the cluster scheduler when running Spice in [cluster mode](../deployment/architectures/cluster). This section is relevant only when using `--role scheduler`.
+Configures the cluster scheduler when running Spice in [cluster mode](../../deployment/architectures/cluster). This section is relevant only when using `--role scheduler`.
 
 ```yaml
 runtime:
