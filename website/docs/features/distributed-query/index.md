@@ -30,11 +30,11 @@ The scheduler holds the cluster-wide configuration for a Spicepod, while executo
 
 Spice separates public and internal cluster traffic across different ports:
 
-| Port | Service | Description |
-|------|---------|-------------|
-| 50051 | Flight SQL | Public query endpoint |
-| 8090 | HTTP API | Public REST API |
-| 9090 | Prometheus | Metrics endpoint |
+| Port  | Service         | Description                                                           |
+| ----- | --------------- | --------------------------------------------------------------------- |
+| 50051 | Flight SQL      | Public query endpoint                                                 |
+| 8090  | HTTP API        | Public REST API                                                       |
+| 9090  | Prometheus      | Metrics endpoint                                                      |
 | 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced, by default) |
 
 Internal cluster services are isolated on port 50052 with mTLS enforced by default.
@@ -184,15 +184,15 @@ Base path: `/v1/queries`
 
 #### Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/v1/queries` | Submit a query for async execution |
-| `GET` | `/v1/queries` | List all queries |
-| `GET` | `/v1/queries/{query_id}` | Get query status and first result chunk |
-| `GET` | `/v1/queries/{query_id}/status` | Get query status only |
-| `GET` | `/v1/queries/{query_id}/results` | Get results (with pagination) |
-| `GET` | `/v1/queries/{query_id}/results/chunks/{chunk_index}` | Get a specific result chunk |
-| `POST` | `/v1/queries/{query_id}/cancel` | Cancel a running query |
+| Method | Path                                                  | Description                             |
+| ------ | ----------------------------------------------------- | --------------------------------------- |
+| `POST` | `/v1/queries`                                         | Submit a query for async execution      |
+| `GET`  | `/v1/queries`                                         | List all queries                        |
+| `GET`  | `/v1/queries/{query_id}`                              | Get query status and first result chunk |
+| `GET`  | `/v1/queries/{query_id}/status`                       | Get query status only                   |
+| `GET`  | `/v1/queries/{query_id}/results`                      | Get results (with pagination)           |
+| `GET`  | `/v1/queries/{query_id}/results/chunks/{chunk_index}` | Get a specific result chunk             |
+| `POST` | `/v1/queries/{query_id}/cancel`                       | Cancel a running query                  |
 
 #### Submit Query
 
@@ -202,12 +202,12 @@ Submits a SQL query for asynchronous execution and returns immediately with a jo
 
 **Request Body** (`application/json`):
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `sql` | string | Yes | SQL statement to execute |
-| `parameters` | array | No | Bind variables for parameterized queries (`$1`, `$2`, ...) |
-| `timeout_seconds` | integer | No | Maximum execution time in seconds. The query is cancelled and failed on timeout. |
-| `maximum_size` | integer | No | Maximum result size in bytes. The query is failed if results exceed this limit. |
+| Field             | Type    | Required | Description                                                                      |
+| ----------------- | ------- | -------- | -------------------------------------------------------------------------------- |
+| `sql`             | string  | Yes      | SQL statement to execute                                                         |
+| `parameters`      | array   | No       | Bind variables for parameterized queries (`$1`, `$2`, ...)                       |
+| `timeout_seconds` | integer | No       | Maximum execution time in seconds. The query is cancelled and failed on timeout. |
+| `maximum_size`    | integer | No       | Maximum result size in bytes. The query is failed if results exceed this limit.  |
 
 **Request Example**:
 
@@ -311,9 +311,9 @@ Returns result data for a completed query. Use the `partition` query parameter t
 
 **Query Parameters**:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `partition` | integer | `0` | Chunk index to retrieve (0-based) |
+| Parameter   | Type    | Default | Description                       |
+| ----------- | ------- | ------- | --------------------------------- |
+| `partition` | integer | `0`     | Chunk index to retrieve (0-based) |
 
 **Response** (HTTP 200):
 
@@ -368,10 +368,10 @@ Lists all queries, optionally filtered by status.
 
 **Query Parameters**:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `status` | string | *all* | Filter by status: `queued`/`pending`, `running`, `completed`/`succeeded`, `failed`, `cancelled`, `closed` |
-| `limit` | integer | `100` | Maximum number of results |
+| Parameter | Type    | Default | Description                                                                                               |
+| --------- | ------- | ------- | --------------------------------------------------------------------------------------------------------- |
+| `status`  | string  | *all*   | Filter by status: `queued`/`pending`, `running`, `completed`/`succeeded`, `failed`, `cancelled`, `closed` |
+| `limit`   | integer | `100`   | Maximum number of results                                                                                 |
 
 **Response** (HTTP 200):
 
@@ -393,27 +393,27 @@ The `sql_preview` field contains the first 100 characters of the SQL statement.
 
 #### HTTP Error Responses
 
-| HTTP Status | Condition |
-|-------------|-----------|
-| 202 Accepted | Query successfully submitted |
-| 200 OK | Status/results retrieved successfully |
-| 404 Not Found | Query ID, chunk, or result not found |
-| 409 Conflict | Query not yet complete (when fetching results by chunk) |
-| 410 Gone | Query results have expired |
-| 425 Too Early | Query still running (results endpoint) |
-| 500 Internal Server Error | Execution or serialization failure |
-| 503 Service Unavailable | Not running in scheduler cluster mode, or executor not yet initialized |
+| HTTP Status               | Condition                                                              |
+| ------------------------- | ---------------------------------------------------------------------- |
+| 202 Accepted              | Query successfully submitted                                           |
+| 200 OK                    | Status/results retrieved successfully                                  |
+| 404 Not Found             | Query ID, chunk, or result not found                                   |
+| 409 Conflict              | Query not yet complete (when fetching results by chunk)                |
+| 410 Gone                  | Query results have expired                                             |
+| 425 Too Early             | Query still running (results endpoint)                                 |
+| 500 Internal Server Error | Execution or serialization failure                                     |
+| 503 Service Unavailable   | Not running in scheduler cluster mode, or executor not yet initialized |
 
 ### Arrow Flight API
 
 The async query API is also available via Apache Arrow Flight `DoAction` requests. This is more efficient for programmatic access since results are returned in Arrow IPC binary format instead of JSON.
 
-| Action Type | Request Body (JSON) | Response |
-|-------------|---------------------|----------|
-| `SubmitAsyncQuery` | `{"sql": "...", "parameters": [...]}` | JSON: `{"query_id": "...", "status": "PENDING"}` |
-| `GetAsyncQueryStatus` | `{"query_id": "..."}` | JSON: query status with error/result metadata |
-| `GetAsyncQueryResult` | `{"query_id": "...", "chunk_index": 0}` | Binary: Arrow IPC stream |
-| `CancelAsyncQuery` | `{"query_id": "..."}` | JSON: `{"query_id": "...", "cancelled": true, "status": "CANCELLED"}` |
+| Action Type           | Request Body (JSON)                     | Response                                                              |
+| --------------------- | --------------------------------------- | --------------------------------------------------------------------- |
+| `SubmitAsyncQuery`    | `{"sql": "...", "parameters": [...]}`   | JSON: `{"query_id": "...", "status": "PENDING"}`                      |
+| `GetAsyncQueryStatus` | `{"query_id": "..."}`                   | JSON: query status with error/result metadata                         |
+| `GetAsyncQueryResult` | `{"query_id": "...", "chunk_index": 0}` | Binary: Arrow IPC stream                                              |
+| `CancelAsyncQuery`    | `{"query_id": "..."}`                   | JSON: `{"query_id": "...", "cancelled": true, "status": "CANCELLED"}` |
 
 #### SubmitAsyncQuery
 
@@ -512,11 +512,11 @@ spice query "SELECT * FROM large_table;" --no-wait
 
 #### Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--no-wait` | `false` | Submit the query and return immediately without waiting for results |
-| `--timeout <DURATION>` | *none* | Maximum client-side wait time (e.g., `30s`, `5m`). The query itself continues running on timeout. |
-| `-o, --output <FORMAT>` | `table` | Output format: `table` or `json` |
+| Option                  | Default | Description                                                                                       |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `--no-wait`             | `false` | Submit the query and return immediately without waiting for results                               |
+| `--timeout <DURATION>`  | *none*  | Maximum client-side wait time (e.g., `30s`, `5m`). The query itself continues running on timeout. |
+| `-o, --output <FORMAT>` | `table` | Output format: `table` or `json`                                                                  |
 
 #### Subcommands
 
@@ -550,17 +550,17 @@ Time: 5.10000000 seconds. 1 rows.
 
 **REPL Commands**:
 
-| Command | Description |
-|---------|-------------|
-| `.list` | List all queries tracked in this REPL session |
-| `.status <id>` | Show detailed status of a query |
-| `.results <id>` | Fetch and display results of a completed query |
-| `.wait <id>` | Resume waiting for a query to complete |
-| `.cancel <id>` | Cancel a running query |
-| `.clear` | Clear the local tracked queries list |
-| `.clear history` | Clear command history |
-| `.help` | Show available commands |
-| `.exit`, `.quit`, `.q` | Exit the REPL |
+| Command                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `.list`                | List all queries tracked in this REPL session  |
+| `.status <id>`         | Show detailed status of a query                |
+| `.results <id>`        | Fetch and display results of a completed query |
+| `.wait <id>`           | Resume waiting for a query to complete         |
+| `.cancel <id>`         | Cancel a running query                         |
+| `.clear`               | Clear the local tracked queries list           |
+| `.clear history`       | Clear command history                          |
+| `.help`                | Show available commands                        |
+| `.exit`, `.quit`, `.q` | Exit the REPL                                  |
 
 Query IDs can be abbreviated if they uniquely identify a query within the tracked session.
 
@@ -572,30 +572,30 @@ PENDING → RUNNING → SUCCEEDED → CLOSED (after 12h TTL)
                    → CANCELLED
 ```
 
-| Status | Description |
-|--------|-------------|
-| `PENDING` | Job is queued but not yet executing |
-| `RUNNING` | Job is actively executing on the distributed cluster |
-| `SUCCEEDED` | Job completed successfully, results are available |
-| `FAILED` | Job execution failed (see `error` field for details) |
-| `CANCELLED` | Job was cancelled by the user |
-| `CLOSED` | Job results have expired and been cleaned up |
+| Status      | Description                                          |
+| ----------- | ---------------------------------------------------- |
+| `PENDING`   | Job is queued but not yet executing                  |
+| `RUNNING`   | Job is actively executing on the distributed cluster |
+| `SUCCEEDED` | Job completed successfully, results are available    |
+| `FAILED`    | Job execution failed (see `error` field for details) |
+| `CANCELLED` | Job was cancelled by the user                        |
+| `CLOSED`    | Job results have expired and been cleaned up         |
 
 ### Error Codes
 
 When a query fails, the `error` object contains an `error_code` field:
 
-| Error Code | Description |
-|------------|-------------|
-| `SCHEDULER_UNAVAILABLE` | The Ballista scheduler is not reachable |
-| `SUBMISSION_FAILED` | Failed to submit the query to the distributed scheduler |
-| `EXECUTION_FAILED` | The query failed during execution |
-| `FETCHING_RESULTS_FAILED` | Failed to retrieve results from executor nodes |
-| `CANCELLED` | The query was explicitly cancelled |
-| `PARAMETER_BINDING_FAILED` | Failed to bind the provided query parameters |
-| `NOT_FOUND` | The referenced query or job was not found |
-| `INTERNAL` | An unexpected internal error occurred |
-| `TIMEOUT` | The query exceeded the configured `timeout_seconds` |
+| Error Code                 | Description                                             |
+| -------------------------- | ------------------------------------------------------- |
+| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable                 |
+| `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
+| `EXECUTION_FAILED`         | The query failed during execution                       |
+| `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
+| `CANCELLED`                | The query was explicitly cancelled                      |
+| `PARAMETER_BINDING_FAILED` | Failed to bind the provided query parameters            |
+| `NOT_FOUND`                | The referenced query or job was not found               |
+| `INTERNAL`                 | An unexpected internal error occurred                   |
+| `TIMEOUT`                  | The query exceeded the configured `timeout_seconds`     |
 
 ### Storage Layout
 
@@ -613,10 +613,10 @@ Job state and result chunks are stored in the shared object store configured via
 
 ### Defaults and Limitations
 
-| Setting | Default |
-|---------|---------|
+| Setting    | Default     |
+| ---------- | ----------- |
 | Chunk size | 10,000 rows |
-| Result TTL | 12 hours |
+| Result TTL | 12 hours    |
 | List limit | 100 queries |
 
 - Only available in cluster mode with `--role scheduler`
@@ -674,16 +674,16 @@ The object store is used for scheduler registration and discovery. Job state per
 
 The `runtime.scheduler.params` section supports the following S3 parameters:
 
-| Parameter        | Description                                           | Default    |
-| ---------------- | ----------------------------------------------------- | ---------- |
-| `region`         | AWS region for the S3 bucket                          | -          |
-| `endpoint`       | Custom S3-compatible endpoint URL                     | -          |
-| `auth`           | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `key`            | AWS access key ID (when `auth: key`)                  | -          |
-| `secret`         | AWS secret access key (when `auth: key`)              | -          |
-| `session_token`  | AWS session token for temporary credentials           | -          |
-| `client_timeout` | S3 client timeout                                     | -          |
-| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
+| Parameter        | Description                                     | Default    |
+| ---------------- | ----------------------------------------------- | ---------- |
+| `region`         | AWS region for the S3 bucket                    | -          |
+| `endpoint`       | Custom S3-compatible endpoint URL               | -          |
+| `auth`           | Authentication method: `iam_role` or `key`      | `iam_role` |
+| `key`            | AWS access key ID (when `auth: key`)            | -          |
+| `secret`         | AWS secret access key (when `auth: key`)        | -          |
+| `session_token`  | AWS session token for temporary credentials     | -          |
+| `client_timeout` | S3 client timeout                               | -          |
+| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint | `false`    |
 
 Example with explicit credentials:
 

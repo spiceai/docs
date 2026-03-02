@@ -35,7 +35,7 @@ spice [command] [--help]
 | [models](reference/models)         | Lists models loaded by the Spice runtime                            |
 | nsql                               | Text-to-SQL REPL - translate natural language to SQL                |
 | [pods](reference/pods)             | Lists Spicepods loaded by the Spice runtime                         |
-| query                              | Submit an async query or start an interactive async query REPL      |
+| [query](reference/query)           | Submit an async query or start an interactive async query REPL      |
 | [refresh](reference/refresh)       | Refresh a dataset loaded by the Spice runtime                       |
 | [run](reference/run)               | Run Spice - starts the Spice runtime, installing if necessary       |
 | [search](reference/search)         | Search datasets with embeddings                                     |
