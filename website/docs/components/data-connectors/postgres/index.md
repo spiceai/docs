@@ -36,13 +36,6 @@ datasets:
     acceleration:
       enabled: true
 
-secrets:
-  - from: env
-    name: env
-```
-
-Set the password in an `.env` file:
-
 ```bash
 echo "PG_PASSWORD=your_password" > .env
 ```
