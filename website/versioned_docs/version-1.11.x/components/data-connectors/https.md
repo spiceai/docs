@@ -272,7 +272,7 @@ The connector will construct requests like:
 
 #### Securing Paths with Glob Patterns
 
-The `allowed_request_paths` parameter supports glob patterns to flexibly and securely match request paths. This provides a powerful way to configure path filtering without listing every possible endpoint.
+The `allowed_request_paths` parameter supports glob patterns to flexibly and securely match request paths. This provides a flexible way to configure path filtering without listing every possible endpoint.
 
 **Pattern Types:**
 

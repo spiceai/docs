@@ -6,7 +6,7 @@ sidebar_position: 4
 ---
 
 Accelerations can be partitioned using an arbitrary expression to group rows together into separate files.
-This allows Spice to avoid reading unnecessary partitions, making particular queries faster.
+This enables Spice to avoid reading unnecessary partitions, making particular queries faster.
 To partition your accelerations, add the `partition_by` acceleration parameter:
 
 ```yaml
@@ -25,7 +25,7 @@ datasets:
 
 This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and put each row into one of 50 partition files.
 
-This allows partition pruning for queries that filter on the column referenced in the `partition_by` expression:
+This enables partition pruning for queries that filter on the column referenced in the `partition_by` expression:
 
 ```sql
 SELECT * FROM taxi_trips WHERE PULocationID IN (1, 2, 3, 4, 5)

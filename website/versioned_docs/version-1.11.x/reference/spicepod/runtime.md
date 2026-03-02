@@ -300,7 +300,7 @@ runtime:
     spill_compression: lz4_frame
 ```
 
-This option allows you to balance disk space usage and query performance for large-scale analytics workloads.
+This setting controls the trade-off between disk space usage and query performance for large-scale analytics workloads.
 
 ## `runtime.query.temp_directory`
 

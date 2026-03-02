@@ -15,7 +15,7 @@ Unlike traditional data platforms (e.g., Snowflake, BigQuery) that rely on costl
 
 - **Federated SQL Queries**: Executes SQL queries directly on object-store data (e.g., S3, Databricks Delta Lake) and other sources (e.g., PostgreSQL, on-premises systems) in a unified interface, eliminating data movement and simplifying workflows compared to centralized warehouse solutions.
 - **Data Acceleration**: Materializes frequently accessed datasets (e.g., transaction logs) from object stores using Change Data Capture (CDC), delivering low-latency access critical for finserv’s time-sensitive applications, surpassing cloud-only platforms with higher latency.
-- **Governance**: Integrates with Databricks Unity Catalog for role-based security and credential vendoring, ensuring compliance with finserv regulations (e.g., GDPR, SEC), unlike generic data federation tools lacking robust governance.
+- **Governance**: Integrates with Databricks Unity Catalog for role-based security and credential vendoring, ensuring compliance with finserv regulations (e.g., GDPR, SEC), unlike generic data federation tools lacking comprehensive governance.
 - **Observability**: Provides end-to-end visibility into data flows, query performance, and system health, enabling rapid debugging and optimization, reducing overhead compared to fragmented monitoring in traditional platforms.
 
 ## Example

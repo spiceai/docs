@@ -7,7 +7,7 @@ tags:
   - mongodb
 ---
 
-MongoDB is an open-source NoSQL database that stores data in flexible, JSON-like documents, allowing for dynamic schemas and easy scalability.
+MongoDB is an open-source NoSQL database that stores data in flexible, JSON-like documents, supporting dynamic schemas and easy scalability.
 
 The MongoDB Data Connector enables federated/accelerated SQL queries on data stored in MongoDB databases.
 

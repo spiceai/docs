@@ -57,7 +57,7 @@ datasets:
 Index types:
 
 - **`unique`** — Enforces uniqueness and enables O(1) indexed lookups.
-- **`enabled`** — Allows duplicates. The index is built and maintained but does not currently accelerate queries (queries fall back to a full scan).
+- **`enabled`** — Permits duplicates. The index is built and maintained but does not currently accelerate queries (queries fall back to a full scan).
 
 Compound secondary indexes can be defined with a multicolumn key in parentheses, e.g. `'(col1, col2)': unique`, but are not yet used for query optimization.
 
@@ -67,10 +67,10 @@ Only single-column `unique` secondary indexes currently accelerate queries. Non-
 
 ### Configuration Options
 
-| Parameter     | Type                 | Required                    | Default    | Description                                |
-| ------------- | -------------------- | --------------------------- | ---------- | ------------------------------------------ |
-| `hash_index`  | `enabled`/`disabled` | No                          | `disabled` | Enable hash indexing                       |
-| `primary_key` | string or list       | Yes (if hash_index enabled) | None       | Column(s) for the primary key index        |
+| Parameter     | Type                 | Required                    | Default    | Description                                  |
+| ------------- | -------------------- | --------------------------- | ---------- | -------------------------------------------- |
+| `hash_index`  | `enabled`/`disabled` | No                          | `disabled` | Enable hash indexing                         |
+| `primary_key` | string or list       | Yes (if hash_index enabled) | None       | Column(s) for the primary key index          |
 | `indexes`     | YAML map             | No                          | None       | Secondary indexes (see [indexes](./indexes)) |
 
 ## Supported Data Types

@@ -20,13 +20,13 @@ Unlike data-team-focused orchestration tools (e.g., Fivetran, Airbyte), Spice.ai
 
 ## Example
 
-A SaaS company syncs customer usage data from a Databricks lakehouse to a Salesforce CRM, enabling real-time account health scoring for sales teams. This reduces integration time from weeks to days compared to traditional ETL tools, allowing faster response to customer needs. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README) provides a practical guide to materializing datasets for such workflows.
+A SaaS company syncs customer usage data from a Databricks lakehouse to a Salesforce CRM, enabling real-time account health scoring for sales teams. This reduces integration time from weeks to days compared to traditional ETL tools, so teams can respond faster to customer needs. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README) provides a practical guide to materializing datasets for such workflows.
 
 ## Benefits
 
 - **Efficiency**: Eliminates ETL pipeline maintenance, freeing developers for core application logic.
 - **Consistency**: Ensures operational systems have up-to-date data, improving decision accuracy.
-- **Security**: Leverages enterprise-grade governance, critical for regulated industries like finance or healthcare.
+- **Security**: Uses enterprise-grade governance, critical for regulated industries like finance or healthcare.
 
 ### Learn More
 

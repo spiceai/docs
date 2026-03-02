@@ -51,7 +51,7 @@ The `OVER` clause supports:
 
 ### WITH clause
 
-A with clause allows to give names for queries and reference them by name.
+A WITH clause assigns names to subqueries so they can be referenced by name.
 
 ```sql
 WITH x AS (SELECT a, MAX(b) AS b FROM t GROUP BY a)

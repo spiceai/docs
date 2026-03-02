@@ -4,7 +4,7 @@ sidebar_label: 'ODBC Data Connector'
 description: 'ODBC Data Connector Documentation'
 ---
 
-ODBC (Open Database Connectivity) is a standard API that allows applications to connect to and interact with various database management systems using a common interface. To connect to any ODBC database for federated/accelerated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required.
+ODBC (Open Database Connectivity) is a standard API for connecting applications to various database management systems using a common interface. To connect to any ODBC database for federated/accelerated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required.
 
 :::warning
 

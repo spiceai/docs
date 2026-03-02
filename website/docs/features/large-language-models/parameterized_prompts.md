@@ -24,7 +24,7 @@ models:
         Write everything in Haiku like a pirate from Australia
 ```
 
-More than this, system prompts can use Jinja syntax to allow system prompts to be altered on each [v1/chat/completion](../../api/HTTP/post-chat-completions) request. This involves three steps:
+More than this, system prompts can use Jinja syntax so that system prompts can be altered on each [v1/chat/completion](../../api/HTTP/post-chat-completions) request. This involves three steps:
 1. Add `parameterized_prompt: enabled` to the model.
 1. Use Jinja syntax in the `system_prompt` parameter for the model in the spicepods.
    ```yaml

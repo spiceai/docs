@@ -19,6 +19,48 @@ Spice provides a high-performance SQL query engine built on Apache DataFusion, s
 
 For a full list of supported sources, see [Data Connectors](../components/data-connectors).
 
+## When to Use Query Federation
+
+Query federation is useful when:
+
+- Data lives in multiple systems (e.g., PostgreSQL + S3 + Snowflake) and needs to be joined without ETL pipelines.
+- Applications need a single SQL interface to query across databases, data lakes, and warehouses.
+- SQL queries should be pushed down to source databases to minimize data transfer.
+
+## Minimal Example
+
+Query data from PostgreSQL and S3 through a single SQL interface:
+
+```yaml
+version: v1
+kind: Spicepod
+name: federation_example
+
+datasets:
+  - from: postgres:public.customers
+    name: customers
+    params:
+      pg_host: localhost
+      pg_db: mydb
+      pg_user: reader
+      pg_pass: ${secrets:PG_PASS}
+
+  - from: s3://analytics-bucket/orders/
+    name: orders
+    params:
+      file_format: parquet
+      s3_auth: iam_role
+```
+
+```sql
+-- Join across PostgreSQL and S3 in a single query
+SELECT c.name, COUNT(o.order_id) as order_count
+FROM customers c
+JOIN orders o ON c.id = o.customer_id
+GROUP BY c.name
+ORDER BY order_count DESC;
+```
+
 ## Query Methods
 
 Spice supports multiple ways to execute queries:

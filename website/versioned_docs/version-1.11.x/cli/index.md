@@ -69,13 +69,18 @@ spice add spiceai/quickstart
 
 Common commands are:
 
-| Command       | Description                                                   |
-| ------------- | ------------------------------------------------------------- |
-| spice add     | Add Pod - adds a pod to the project                           |
-| spice run     | Run Spice - starts the Spice runtime, installing if necessary |
-| spice version | Spice CLI version                                             |
-| spice help    | Help about any command                                        |
-| spice upgrade | Upgrades the Spice CLI to the latest release                  |
+| Command         | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `spice run`     | Start the Spice runtime, installing if necessary                 |
+| `spice sql`     | Open an interactive SQL REPL connected to the running runtime    |
+| `spice chat`    | Open an interactive chat REPL for AI model conversations         |
+| `spice init`    | Initialize a new Spice app with a `spicepod.yaml`                |
+| `spice add`     | Add a Spicepod dependency to the project                         |
+| `spice login`   | Log in to Spice.ai Cloud Platform or other data sources          |
+| `spice trace`   | Inspect traces for AI chat, SQL queries, and other runtime tasks |
+| `spice version` | Display CLI and runtime versions                                 |
+| `spice upgrade` | Upgrade the Spice CLI to the latest release                      |
+| `spice help`    | Display help for any command                                     |
 
 See [Spice CLI command reference](cli/reference) for the full list of available commands.
 

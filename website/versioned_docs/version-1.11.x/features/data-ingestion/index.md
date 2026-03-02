@@ -64,7 +64,7 @@ OTEL metrics will be inserted into datasets with matching names (metric name = d
 
 ## Benefits
 
-Spice.ai OSS includes built-in data ingestion support, allowing the collection of the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and enhances the speed of the feedback loop.
+Spice.ai OSS includes built-in data ingestion support for collecting the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and improves the speed of the feedback loop.
 
 For example, consider CPU usage anomaly detection. When CPU metrics are sent to the Spice OpenTelemetry endpoint, the loaded machine learning model can use the most recent observations for inferencing and provide recommendations to the edge node. This process occurs quickly on the edge itself, within milliseconds, and without generating network traffic.
 

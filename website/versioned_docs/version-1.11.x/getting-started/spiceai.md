@@ -10,6 +10,11 @@ The [Spice.ai Cloud Platform](https://docs.spice.ai) includes a comprehensive se
 
 The Spice runtime can query these datasets using the [Spice.ai Data Connector](../components/data-connectors/spiceai).
 
+## Prerequisites
+
+- Spice CLI installed ([Installation guide](../installation))
+- A free Spice.ai Cloud Platform account at [spice.ai](https://spice.ai/)
+
 ## Quickstart
 
 To access these community datasets, navigate to [spice.ai](https://spice.ai/), and create a new account by clicking 'Start for Free'.

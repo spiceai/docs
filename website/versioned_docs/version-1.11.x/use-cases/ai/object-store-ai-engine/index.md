@@ -16,7 +16,7 @@ Unlike traditional data platforms (e.g., Snowflake, BigQuery) or separate search
 - **Object-Store SQL Queries**: Executes federated SQL queries directly on object-store data (e.g., S3, Databricks Delta Lake) alongside other sources (e.g., PostgreSQL), eliminating the need for data ingestion into centralized warehouses, reducing costs and complexity.
 - **Hybrid Search**: Combines vector similarity search (VSS) for semantic analysis of unstructured data (e.g., security logs, threat reports) with keyword/BM25 search for precise retrieval, delivering context-aware results critical for security investigations.
 - **AI Gateway for LLM Inference**: Integrates LLMs (hosted like OpenAI or local like Llama) to process query and search results, generating actionable insights (e.g., threat summaries) with low-latency inference, optimized for object-store data access.
-- **Performance and Compliance**: Materializes hot datasets using Change Data Capture (CDC) for low-latency access and leverages Databricks Unity Catalog for governance, ensuring compliance with security regulations (e.g., GDPR, SOC 2) unlike generic platforms.
+- **Performance and Compliance**: Materializes hot datasets using Change Data Capture (CDC) for low-latency access and uses Databricks Unity Catalog for governance, ensuring compliance with security regulations (e.g., GDPR, SOC 2) unlike generic platforms.
 
 ## Example
 
@@ -26,7 +26,7 @@ A security operations platform uses Spice.ai to query object-store data (e.g., S
 
 - **Efficiency**: Direct querying and inference on object stores eliminate data movement, reducing infrastructure costs and complexity.
 - **Real-Time Insights**: Low-latency search and LLM inference deliver rapid threat detection, critical for security applications.
-- **Compliance**: Governed data access ensures alignment with security regulations, enhancing trust and auditability.
+- **Compliance**: Governed data access ensures alignment with security regulations, increasing trust and auditability.
 
 ### Learn More
 

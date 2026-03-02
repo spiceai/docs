@@ -14,6 +14,25 @@ tags:
 
 Data Connectors provide connections to databases, data warehouses, and data lakes for federated SQL queries and data replication.
 
+Each connector is configured using the `from` field in a dataset definition. For example:
+
+```yaml
+datasets:
+  - from: postgres:public.orders    # Database connector
+    name: orders
+    params:
+      pg_host: localhost
+      pg_db: mydb
+      pg_user: reader
+      pg_pass: ${secrets:PG_PASS}
+
+  - from: s3://my-bucket/events/    # Object storage connector
+    name: events
+    params:
+      file_format: parquet
+      s3_auth: iam_role
+```
+
 Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
@@ -93,7 +112,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                   |
 | --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](../reference/file_format#csv)     | `file_format: csv`     | Stable  | Comma-separated values                        |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                        |
 | JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
@@ -160,7 +179,7 @@ Partition pruning improves query performance by reading only the relevant files.
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](../reference/file_format#csv)     | `file_format: csv`     | ✅         | ❌                  |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |

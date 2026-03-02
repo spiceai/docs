@@ -16,14 +16,14 @@ The Spice Cloud Platform is a managed, cloud-hosted solution designed for deploy
 
 ## Security and Compliance
 
-The Spice.ai Cloud Platform prioritizes security and compliance to ensure the protection of user data and systems. It adheres to SOC 2 Type II compliance standards, providing enterprise-level security validated by third-party audits. The platform employs robust security measures, including encryption of sensitive data both in-transit and at-rest, multi-factor authentication (MFA), and role-based access control (RBAC). Access and usage are logged for auditability, and the principle of least privilege is enforced to minimize unnecessary access. For more details, visit the [Spice.ai Security Documentation](https://docs.spice.ai/security/security).
+The Spice.ai Cloud Platform prioritizes security and compliance to ensure the protection of user data and systems. It adheres to SOC 2 Type II compliance standards, providing enterprise-level security validated by third-party audits. The platform employs comprehensive security measures, including encryption of sensitive data both in-transit and at-rest, multi-factor authentication (MFA), and role-based access control (RBAC). Access and usage are logged for auditability, and the principle of least privilege is enforced to minimize unnecessary access. For more details, visit the [Spice.ai Security Documentation](https://docs.spice.ai/security/security).
 
 ## Deployment Overview
 
 1. **Sign Up**: Register for an account on the [Spice.ai Cloud Platform](https://spice.ai/login).
 2. **Configure Your Application**: Organize datasets, models, and workflows using the platform's cloud portal.
 3. **Deploy**: Launch your AI applications and agents with minimal configuration.
-4. **Monitor and Scale**: Leverage built-in monitoring and observability tools to track performance and scale resources as required.
+4. **Monitor and Scale**: Use built-in monitoring and observability tools to track performance and scale resources as required.
 
 ## Learn More
 

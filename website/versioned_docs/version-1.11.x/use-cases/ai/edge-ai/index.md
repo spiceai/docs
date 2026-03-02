@@ -14,7 +14,7 @@ Unlike cloud-centric AI platforms (e.g., AWS SageMaker, Google Vertex AI) that r
 ## Why Spice.ai?
 
 - **Edge Acceleration**: Materializes data (e.g., sensor logs, event streams) at the edge for fast, local queries, minimizing latency compared to cloud-only inference, essential for security IoT responsiveness.
-- **Unified Queries**: Seamlessly accesses cloud and edge data sources (e.g., Databricks, on-premises sensors) via federated SQL, simplifying distributed architectures for security deployments.
+- **Unified Queries**: Accesses cloud and edge data sources (e.g., Databricks, on-premises sensors) via federated SQL, simplifying distributed architectures for security deployments.
 - **Local Models**: Deploys lightweight AI models (e.g., NVIDIA NIM, OSS Llama) at the edge, reducing costs and ensuring data privacy, critical for sensitive security data in regulated environments.
 - **Resilience**: Maintains edge functionality during network disruptions, ensuring continuous threat monitoring and response, unlike cloud-reliant platforms vulnerable to outages.
 
@@ -25,7 +25,7 @@ A security IoT system processes real-time sensor data from edge devices to detec
 ## Benefits
 
 - **Low Latency**: Edge processing delivers instant threat detection, critical for security IoT applications.
-- **Reliability**: Offline capabilities ensure continuous operation in distributed environments, enhancing system uptime.
+- **Reliability**: Offline capabilities ensure continuous operation in distributed environments, improving system uptime.
 - **Privacy**: Local inference protects sensitive security data, aligning with compliance requirements in regulated industries.
 
 ### Learn More

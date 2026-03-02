@@ -8,7 +8,7 @@ sidebar_position: 4
 
 The Spice runtime stores information about completed tasks in the `spice.runtime.task_history` table. Each task represents a single unit of execution within the runtime, such as a SQL query or an AI chat completion, and is represented by a unique span.
 
-A span is a unit of trace data that encapsulates the details of a task's execution, including its duration, inputs, and outputs. Spans enable hierarchical tracing by allowing tasks to be grouped under a parent span, which provides a view of task dependencies and the overall execution flow.
+A span is a unit of trace data that encapsulates the details of a task's execution, including its duration, inputs, and outputs. Spans enable hierarchical tracing by grouping tasks under a parent span, which provides a view of task dependencies and the overall execution flow.
 
 To learn more about task history configuration read [task_history](./task_history).
 

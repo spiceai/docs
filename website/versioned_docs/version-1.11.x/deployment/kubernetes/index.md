@@ -344,7 +344,7 @@ stateful:
   mountPath: /data
 ```
 
-When `stateful.enabled` is set to `true`, the Helm chart creates a StatefulSet instead of a Deployment and provisions a PersistentVolumeClaim for each replica. The persistent volume is mounted at the specified path, allowing data to persist across pod restarts and rescheduling events.
+When `stateful.enabled` is set to `true`, the Helm chart creates a StatefulSet instead of a Deployment and provisions a PersistentVolumeClaim for each replica. The persistent volume is mounted at the specified path, so data persists across pod restarts and rescheduling events.
 
 ## Example values.yaml
 

@@ -54,7 +54,7 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
 | Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
-| External database integration                       | `postgres`              | Leverage existing PostgreSQL infrastructure             |
+| External database integration                       | `postgres`              | Use existing PostgreSQL infrastructure                  |
 
 ### Spice Cayenne vs DuckDB
 

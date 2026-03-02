@@ -2,14 +2,14 @@
 title: 'Federated MCP Client for Distributed Tool Ecosystems'
 sidebar_label: 'Federated MCP Client'
 sidebar_position: 11
-description: 'Spice.ai federates external MCP servers for scalable, tool-driven AI applications in security, enhancing threat analysis.'
+description: 'Spice.ai federates external MCP servers for scalable, tool-driven AI applications in security, improving threat analysis.'
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice.ai federates external Model Context Protocol (MCP) servers over Server-Sent Events (SSE) for scalable, tool-driven AI applications in security, enhancing threat analysis with distributed tool ecosystems.
+Spice.ai federates external Model Context Protocol (MCP) servers over Server-Sent Events (SSE) for scalable, tool-driven AI applications in security, improving threat analysis with distributed tool ecosystems.
 
-Unlike centralized AI orchestration platforms (e.g., Apache Airflow for AI workflows) that introduce complexity and latency, Spice.ai’s federated MCP client approach supports modular, scalable tool integration with seamless data and AI synergy. This makes it ideal for security applications requiring distributed, real-time threat intelligence, outperforming platforms with rigid, centralized architectures.
+Unlike centralized AI orchestration platforms (e.g., Apache Airflow for AI workflows) that introduce complexity and latency, Spice.ai's federated MCP client approach supports modular, scalable tool integration with integrated data and AI capabilities. This makes it ideal for security applications requiring distributed, real-time threat intelligence, outperforming platforms with rigid, centralized architectures.
 
 ## Why Spice.ai?
 
@@ -24,7 +24,7 @@ A security operations center federates external MCP servers for threat intellige
 
 ## Benefits
 
-- **Modularity**: Integrates diverse security tools into a cohesive workflow, enhancing flexibility and adaptability.
+- **Modularity**: Integrates diverse security tools into a cohesive workflow, improving flexibility and adaptability.
 - **Scalability**: Supports distributed architectures for global security operations, handling high-volume threat data.
 - **Efficiency**: Reduces integration complexity with standardized SSE connectivity, speeding up deployment.
 
