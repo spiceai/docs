@@ -67,10 +67,10 @@ Only single-column `unique` secondary indexes currently accelerate queries. Non-
 
 ### Configuration Options
 
-| Parameter     | Type                 | Required                    | Default    | Description                                |
-| ------------- | -------------------- | --------------------------- | ---------- | ------------------------------------------ |
-| `hash_index`  | `enabled`/`disabled` | No                          | `disabled` | Enable hash indexing                       |
-| `primary_key` | string or list       | Yes (if hash_index enabled) | None       | Column(s) for the primary key index        |
+| Parameter     | Type                 | Required                    | Default    | Description                                  |
+| ------------- | -------------------- | --------------------------- | ---------- | -------------------------------------------- |
+| `hash_index`  | `enabled`/`disabled` | No                          | `disabled` | Enable hash indexing                         |
+| `primary_key` | string or list       | Yes (if hash_index enabled) | None       | Column(s) for the primary key index          |
 | `indexes`     | YAML map             | No                          | None       | Secondary indexes (see [indexes](./indexes)) |
 
 ## Supported Data Types

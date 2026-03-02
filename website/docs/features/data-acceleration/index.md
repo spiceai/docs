@@ -32,13 +32,13 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 **Engine Selection**: Choose the acceleration engine based on workload characteristics:
 
-| Engine       | Best For                              | Mode          |
-|-------------|---------------------------------------|---------------|
-| `arrow`     | Read-heavy analytics, in-memory speed | `memory`      |
-| `duckdb`    | Complex analytical queries, file-based persistence | `memory` or `file` |
-| `sqlite`    | OLTP-style point lookups, concurrent reads/writes | `file`        |
-| `postgres`  | When a full SQL database is needed as accelerator | External      |
-| `cayenne`   | Large datasets (1TB+), high-performance columnar | `file`        |
+| Engine     | Best For                                           | Mode               |
+| ---------- | -------------------------------------------------- | ------------------ |
+| `arrow`    | Read-heavy analytics, in-memory speed              | `memory`           |
+| `duckdb`   | Complex analytical queries, file-based persistence | `memory` or `file` |
+| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `file`             |
+| `postgres` | When a full SQL database is needed as accelerator  | External           |
+| `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file`             |
 
 ## Example
 
