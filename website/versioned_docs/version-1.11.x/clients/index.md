@@ -19,7 +19,7 @@ Most SQL clients connect to Spice using one of the following protocols:
 | HTTP             | `http://localhost:8090`  | REST API calls, curl, web applications            |
 | ADBC             | Flight SQL driver        | Python and R data science workflows               |
 
-For programmatic access, see [SDKs](../sdks).
+For programmatic access, see [SDKs](../sdks/index.md).
 
 import DocCardList from '@theme/DocCardList';
 

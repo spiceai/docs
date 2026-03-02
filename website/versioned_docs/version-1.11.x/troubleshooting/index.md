@@ -104,7 +104,7 @@ Example `--very-verbose` output:
 2025-02-07T00:26:21.426981Z TRACE runtime::accelerated_table::refresh_task: [refresh] Received 10 rows for dataset: emails
 ```
 
-For more information, view the [tracing documentation](../cli/tracing)
+For more information, view the [tracing documentation](../cli/tracing.md)
 
 ## Use `spice trace` for task tracing
 
@@ -144,7 +144,7 @@ To inspect the last chat, run `spice trace ai_chat`, producing an AI chat trace 
 
 In this example, the trace logs show that the model attempted an SQL query twice - getting the first query incorrect, due to a syntax issue in the SQL the model generated. Before running the second query, it retrieved the table schema - which it used for the second query to successfully retrieve the last taxi trip time.
 
-For more information, view the [`spice trace` documentation](../cli/reference/trace).
+For more information, view the [`spice trace` documentation](../cli/reference/trace.md).
 
 ## Reviewing the Task History
 
@@ -168,7 +168,7 @@ The `task_history` table also includes start and end times, including execution 
 +-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
 ```
 
-For more information, view the [task history documentation](../reference/task_history)
+For more information, view the [task history documentation](../reference/task_history.md)
 
 ## Logging Additional Captured Output
 
@@ -236,7 +236,7 @@ ORDER BY execution_duration_ms DESC
 LIMIT 5;
 ```
 
-Plans are captured asynchronously after query completion, ensuring query execution proceeds without blocking. For more details, view the [task history documentation](../reference/task_history#sql-query-plan-capture).
+Plans are captured asynchronously after query completion, ensuring query execution proceeds without blocking. For more details, view the [task history documentation](../reference/task_history.md#sql-query-plan-capture).
 
 ## SQL Explain Plans
 
