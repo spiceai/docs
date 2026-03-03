@@ -130,6 +130,28 @@ datasets:
 
 The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
+Spice follows PostgreSQL SQL syntax conventions, which normalize unquoted identifiers to lowercase. A dataset named `LINEITEM` is accessible in queries as `lineitem`.
+
+To preserve uppercase or mixed-case names, wrap the name in double quotes. In YAML, this requires an extra layer of quoting:
+
+```yaml
+datasets:
+  - from: snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM
+    name: '"LINEITEM"'
+    params:
+      snowflake_account: JYFGIWYEFBW
+      snowflake_warehouse: snowflake_wh
+      snowflake_password: ${secrets:SNOWFLAKE_PASSWORD}
+      snowflake_username: ${secrets:SNOWFLAKE_USERNAME}
+```
+
+```sql
+-- Query using the preserved uppercase name
+SELECT * FROM "LINEITEM";
+```
+
+Without the double quotes, the same dataset would be queryable only as `lineitem`.
+
 ## `description`
 
 The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
