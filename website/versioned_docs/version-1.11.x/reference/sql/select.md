@@ -13,7 +13,19 @@ Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses t
 ## SELECT syntax
 
 The queries in Spice scan data from tables and return 0 or more rows.
-Please be aware that column names in queries are made lower-case, but not on the inferred schema. Accordingly, if you want to query against a capitalized field, make sure to use double quotes.
+
+Spice follows PostgreSQL conventions for identifier handling: unquoted identifiers (table and column names) are normalized to lowercase. To reference a table or column with uppercase or mixed-case characters, wrap the identifier in double quotes.
+
+```sql
+-- These are equivalent (both reference the lowercase table name)
+SELECT * FROM lineitem;
+SELECT * FROM LINEITEM;
+
+-- Double quotes preserve the exact casing
+SELECT * FROM "LINEITEM";
+```
+
+See [dataset `name` configuration](../spicepod/datasets#name) for how to set a case-sensitive dataset name in the Spicepod manifest.
 
 Spice supports the following syntax for queries:
 
