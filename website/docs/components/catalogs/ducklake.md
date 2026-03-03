@@ -34,10 +34,10 @@ The `from` field specifies the DuckLake catalog connection. Use `ducklake:<conne
 
 Supported connection string formats:
 
-| Backend | Example |
-| --- | --- |
-| Local file | `ducklake:/path/to/metadata.ducklake` |
-| AWS S3 | `ducklake:s3://bucket/path/metadata.ducklake` |
+| Backend    | Example                                                                      |
+| ---------- | ---------------------------------------------------------------------------- |
+| Local file | `ducklake:/path/to/metadata.ducklake`                                        |
+| AWS S3     | `ducklake:s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `ducklake:postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
 The connection string can also be provided via the `connection_string` parameter.
@@ -62,19 +62,19 @@ catalogs:
 
 The `access` field controls what operations are allowed on the catalog:
 
-| Access Mode | Description |
-| --- | --- |
-| `read` (default) | Query tables only. DuckDB opens in read-only mode. |
-| `read_write` | Query and write data (INSERT). DuckDB opens in read-write mode. |
+| Access Mode         | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `read` (default)    | Query tables only. DuckDB opens in read-only mode.                                   |
+| `read_write`        | Query and write data (INSERT). DuckDB opens in read-write mode.                      |
 | `read_write_create` | Full access including CREATE/DROP SCHEMA and TABLE. DuckDB opens in read-write mode. |
 
 ## `params`
 
-| Parameter Name | Description |
-| --- | --- |
+| Parameter Name      | Description                                                                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `connection_string` | The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). If omitted, the value from `from: ducklake:<connection_string>` is used. |
-| `name` | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`. |
-| `open` | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used. |
+| `name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                                                            |
+| `open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used.                                        |
 
 ## Authentication
 

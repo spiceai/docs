@@ -25,10 +25,10 @@ datasets:
 
 The `from` field specifies the DuckLake table to connect to. Use `ducklake:<table_path>`, where `table_path` is the table name or a schema-qualified table name.
 
-| `from` | Description |
-| --- | --- |
-| `ducklake:my_table` | Read from `my_table` in the default `main` schema |
-| `ducklake:my_schema.my_table` | Read from `my_table` in the `my_schema` schema |
+| `from`                        | Description                                       |
+| ----------------------------- | ------------------------------------------------- |
+| `ducklake:my_table`           | Read from `my_table` in the default `main` schema |
+| `ducklake:my_schema.my_table` | Read from `my_table` in the `my_schema` schema    |
 
 ### `name`
 
@@ -50,18 +50,18 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-| Parameter Name | Description |
-| --- | --- |
-| `connection_string` | **Required**. The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). |
-| `name` | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`. |
-| `open` | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used. |
+| Parameter Name      | Description                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `connection_string` | **Required**. The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`).                     |
+| `name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                     |
+| `open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used. |
 
 ### Connection string formats
 
-| Backend | Example |
-| --- | --- |
-| Local file | `/path/to/metadata.ducklake` |
-| AWS S3 | `s3://bucket/path/metadata.ducklake` |
+| Backend    | Example                                                             |
+| ---------- | ------------------------------------------------------------------- |
+| Local file | `/path/to/metadata.ducklake`                                        |
+| AWS S3     | `s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
 ## Authentication
