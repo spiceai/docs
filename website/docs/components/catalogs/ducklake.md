@@ -38,8 +38,6 @@ Supported connection string formats:
 | --- | --- |
 | Local file | `ducklake:/path/to/metadata.ducklake` |
 | AWS S3 | `ducklake:s3://bucket/path/metadata.ducklake` |
-| Google Cloud Storage | `ducklake:gs://bucket/path/metadata.ducklake` |
-| Azure Blob Storage | `ducklake:az://container/path/metadata.ducklake` |
 | PostgreSQL | `ducklake:postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
 The connection string can also be provided via the `connection_string` parameter.
@@ -89,17 +87,6 @@ Uses the standard AWS credential chain:
 1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
 2. Shared credentials file (`~/.aws/credentials`)
 3. IAM instance profiles (on EC2/ECS)
-
-### Google Cloud Storage
-
-Uses the standard Google Cloud credential chain:
-
-1. `GOOGLE_APPLICATION_CREDENTIALS` environment variable
-2. Application Default Credentials
-
-### Azure Blob Storage
-
-Uses the standard Azure credential chain.
 
 ## Examples
 

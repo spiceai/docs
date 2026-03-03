@@ -62,8 +62,6 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | --- | --- |
 | Local file | `/path/to/metadata.ducklake` |
 | AWS S3 | `s3://bucket/path/metadata.ducklake` |
-| Google Cloud Storage | `gs://bucket/path/metadata.ducklake` |
-| Azure Blob Storage | `az://container/path/metadata.ducklake` |
 | PostgreSQL | `postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
 ## Authentication
@@ -77,17 +75,6 @@ Uses the standard AWS credential chain:
 1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
 2. Shared credentials file (`~/.aws/credentials`)
 3. IAM instance profiles (on EC2/ECS)
-
-### Google Cloud Storage
-
-Uses the standard Google Cloud credential chain:
-
-1. `GOOGLE_APPLICATION_CREDENTIALS` environment variable
-2. Application Default Credentials
-
-### Azure Blob Storage
-
-Uses the standard Azure credential chain.
 
 ## Examples
 
