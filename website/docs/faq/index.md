@@ -115,3 +115,11 @@ Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), 
 ## 21. How can developers contribute to Spice?
 
 Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING) for guidelines.
+
+## 22. Does Spice support schema evolution?
+
+Spice infers the schema for datasets and views at startup and does not apply runtime schema changes by default. If the source schema changes while the runtime is running (for example, columns are added, removed, or their types change), data refreshes will fail with a schema mismatch error rather than silently applying the new schema. This behavior is intentional — it protects against unintentional or breaking schema changes propagating into accelerated tables.
+
+To pick up a new source schema, restart the Spice runtime. On startup, Spice re-infers the schema from the source, and the accelerated table is re-initialized with the updated schema.
+
+Runtime schema evolution controls are planned for a future release but will remain off by default to guard against unexpected schema drift.

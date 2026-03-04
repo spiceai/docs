@@ -207,6 +207,12 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 (Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
 
+## Schema Inference and Evolution
+
+Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. Schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts. Restart the runtime to re-infer the schema.
+
+For connector-specific inference parameters, runtime schema change behavior, and recommendations, see [Schema Inference](../../components/data-connectors#schema-inference).
+
 ## `unsupported_type_action`
 
 Optional. Specifies the action to take when a data type that is not supported by the data connector is encountered.

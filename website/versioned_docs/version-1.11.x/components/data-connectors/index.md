@@ -176,6 +176,41 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 ```
 
 Partition pruning improves query performance by reading only the relevant files.
+
+## Schema Inference
+
+Spice infers the schema for each dataset from its data source at startup. The inferred schema defines the column names, data types, and nullability used by the dataset for the lifetime of that runtime process.
+
+Schema inference happens once, when the dataset is first registered. Some connectors support tuning the inference behavior with connector-specific parameters:
+
+| Connector                             | Parameter                          | Default | Description                                         |
+| ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
+| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
+| [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
+| [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
+| [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
+
+For connectors that read self-describing formats (Parquet, Arrow, Avro), the schema is read directly from file metadata and does not require sampling.
+
+### Runtime Schema Changes
+
+Spice does not apply schema changes at runtime. If the source schema changes while the runtime is running — for example, new columns are added, columns are removed, or data types change — subsequent data refreshes will fail with an error such as:
+
+```
+Failed to load data for dataset <name>: Cannot cast struct field ...
+```
+
+This behavior is by design. Blocking runtime schema evolution protects accelerated tables from unintentional or breaking schema changes that could corrupt data or produce unexpected query results.
+
+To apply a new source schema, restart the Spice runtime. On startup, Spice re-infers the schema from the source and re-initializes the dataset with the updated column definitions.
+
+:::tip[Recommendation]
+Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
+:::
+
+:::note
+Runtime schema evolution controls are planned for a future release. When available, schema evolution will remain off by default.
+:::
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
