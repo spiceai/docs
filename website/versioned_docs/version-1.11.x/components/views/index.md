@@ -44,3 +44,11 @@ views:
 - Views are read-only; insert, update, and delete operations are not supported.
 - Performance depends on SQL complexity and underlying data.
 - Ensure queries are optimized to prevent slow execution.
+
+## Schema Inference and Evolution
+
+Views derive their schema from the SQL query that defines them. When a view is accelerated, Spice materializes this schema into the acceleration engine at startup.
+
+If the underlying dataset schemas change while the runtime is running, the accelerated view will fail to refresh because the materialized schema no longer matches the source data. Restart the runtime to re-derive the view schema from the updated datasets.
+
+For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](../data-connectors#schema-inference) documentation.

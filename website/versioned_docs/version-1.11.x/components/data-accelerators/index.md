@@ -87,6 +87,14 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 
 :::
 
+## Schema Handling
+
+Data accelerators store the schema that Spice infers from the data source at startup. This schema is fixed for the lifetime of the runtime process and defines the column names, data types, and nullability of the accelerated table.
+
+If the source schema changes while the runtime is running (for example, new columns are added or data types change), subsequent data refreshes into the accelerator will fail because the incoming data no longer matches the schema of the accelerated table. Restart the runtime to re-infer the schema and re-initialize the accelerated table.
+
+For details on how schema inference works per connector and recommendations for managing schema drift, see [Schema Inference](../data-connectors#schema-inference).
+
 ## Data Accelerator Docs
 
 import DocCardList from '@theme/DocCardList';

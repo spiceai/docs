@@ -33,7 +33,7 @@ Check the runtime output for error messages. Common causes:
 
 - **Incorrect credentials**: Verify connection parameters (`pg_host`, `pg_user`, `pg_pass`, etc.) and that secrets are configured correctly. Use `--verbose` to see secret resolution logs.
 - **Network connectivity**: Ensure the Spice runtime can reach the data source. Test with `curl` or `psql` from the same host.
-- **Schema mismatch**: If the source schema changed since the last refresh, the accelerated table may fail to update. Restart the runtime to re-initialize the dataset.
+- **Schema mismatch**: If the source schema changed since the last refresh (for example, columns were added, removed, or types changed), the accelerated table will fail to update. Spice infers the dataset schema at startup and intentionally blocks runtime schema evolution to protect against unintentional or breaking changes. Restart the runtime so Spice re-infers the schema from the source. See [Schema Inference](../components/data-connectors#schema-inference) for details.
 
 Review the `task_history` table for detailed error messages:
 
