@@ -1,0 +1,76 @@
+---
+id: get-datasets
+title: "List Datasets"
+description: "This endpoint returns a list of configured datasets. The response can be formatted as **JSON** or **CSV**,"
+sidebar_label: "List Datasets"
+hide_title: true
+hide_table_of_contents: true
+api: eJztV99v2zYQ/leIe0lrMEpSYMAmYA9F0g4ZirZo2vXBNmxaOltsKVIlKaeuof99OEqyZFvJjK7DgGEvrSOSx+++737wtuDFykE8hhvhhUPvYMohRZdYWXhpNMTwPpOOoU4LI7VnFn1ptWOCKek8M0uWGL2Uq9JiytLGSMTeZ8gsusJohywRmi2QLY3NhfeYMuHYaPT73ZvXoxEzlo1G13d/jEZ8ooVOmUhTSVcLxZZSebSuNSCKQklMWemkXrEvJdoNK4QVOdKuaKIn+oNDNnde+NL96m2J88NtzBsmdaLKFJnPkCWltag9q8+QPyiSrPWESR12ta5EE/3WOCcXCtsTa6FKdDGbSy29FEp+k3o152xuUaQb+pFKJxYKU/qN1hpbry4tuqzZ67LSe6lXqbnX8wg4mAKtIBZuU4hhhX7WcgscOp8hHm9BixwhhhoPcJCkWnAbDrX8mKHPjkloXFlKVOmRy+xjhprNA5t8b6m14Sb6BCqfYLSK+rwcE9anpGbqaTTRN7gUpfKOUM+XQjkMFFn8UkqLKcThGweXZJgLiLfgNwUxsjBGodBQVXzHUh2Ej7NEwVvvIyf2ydjJX+vOhEV29skZfcaepDXQpxTTZ4lbn50G03kr9Qo4oC5zykUyBxwSt6Zs9NIr2vayRt53xpnSJvi4My+bHGrjhy02rD63U6Qwzq8suljIFHMzy9E5sUI3f3qSA+POA10qBdOqmtKxmjJHG59dXtJ/+8heNQWkqxp1pO2lr3TMFZjIpcSUH+ZmHX1MtGfmdQgT6sRoj9rTraFsJCGbLgK18fZYBLP4hInfc3cMS2ty8orYppWdnRnqkNLAQSQJqiZZd5+nHApLOexlTcDgruNIfShf+8dZKMfBAkVpiM+GEqh4jXkguI5DvImC+wwt9q3QBcokwmNKButYO8Ug7Wwzpodon4lDvvfNXJfOm5x1R45c5NA1iLd9y91Nm9ci37uswVxVwyKerkPv9F/I0FTjeAtG45tlKNTNJSFJKIuPGTwuoT2zEXuj1aYN+5SEO8yWw2bXz55+7/pnmtZD9ey2dwlweEd3AIeb5grg8IJuCEvtBcDhrrF/Y+51vxBem7wwGrW/qzmupiRsu9o8ZN415efWY0564FeRF7RhvG1SBHZlz2104to8jyEVUm1mn0xptVCzXeoFoIPh09TF4RwnYbpwaJwn9RsUJO7CyuSzizO5xlmOXjhvLEZNO4nactwhbL/8eHA7+nsIH2oPHZ4VarRCfReEtqm0GPaCpZqSsvjVX1AzHKrbbWr3FIaJJuScwPEBQHwICK8BTPR+VPAHg4HXwAODQdSJPl1KPqTgvsVWiR6iA/55Q3tzrv63T9+Enj4Vh5+Guu+t9kg+MYd2jZaFJGcmCSWIiotUSHU4QRee2733Z6+3Bm0KJeRwVx1S57lmpcavBSY0Cpx8bRVcydFnpnkSh5ewzyCGi/XVRQ9f7VH9OC6tghgy74v44oK6msqM8/HPl79cHlX5V7TMUlyjMkUe6nCwFLHrdsZh99JnbH5+ThbnEdBLx2FSWuk34T5RyNlnpN9TWpN6aQIfTXWypfYyvCYG+nEhE0xZt0XJBLULzbdJtOeFSDI8fxYReJmi9lTa7f5KxYHcrw1fRVdX0eV5qZ2nOA/92DifC90zG15iNx2Be9i2nd7/z4L/xizY5FIv1Spex/W2SYAxrK9Itt4MT1FOC9vtQjj8YFVV0ed6RqBAbZHsKvCDov+XhsZBLkO+dvNzUBFiqN9oJ9P0Q6fGR3DuJtjvxPm3B8LHOGwH0g7blP6wMhQfKoocMhQp1azxtjn1PEmw6Ht0NLGRlV3p/+3Fe6iqPwHSvqwj
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Datasets"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/datasets"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns a list of configured datasets. The response can be formatted as **JSON** or **CSV**,
+and additional filters can be applied using query parameters.
+
+Use `status=true` query parameter to include the current status of each dataset in the response.
+Possible status values: `initializing`, `ready`, `disabled`, `error`, `refreshing`, `shuttingdown`.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"name":"status","in":"query","description":"Whether to include the status field in the response. When `true`, the response includes\nthe current status of each dataset (e.g., `ready`, `initializing`, `refreshing`, `error`).\nDefaults to `false`.","required":false,"schema":{"type":"boolean"}},{"name":"format","in":"query","description":"The format of the response. Possible values are 'json' (default) or 'csv'.","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}},{"name":"source","in":"query","description":"Filters datasets by source (e.g., `postgres:aidemo_messages`).","required":false,"schema":{"type":["string","null"]}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"List of datasets. When `status=true` is specified, each dataset includes a `status` field.","content":{"application/json":{"schema":{"type":"object","required":["from","name","replication_enabled","acceleration_enabled"],"properties":{"acceleration_enabled":{"type":"boolean","description":"Whether acceleration is enabled for the dataset"},"from":{"type":"string","description":"The source where the dataset is located"},"name":{"type":"string","description":"The name of the dataset"},"properties":{"type":"object","description":"Custom properties for the dataset","additionalProperties":{},"propertyNames":{"type":"string"}},"replication_enabled":{"type":"boolean","description":"Whether replication is enabled for the dataset"},"status":{"oneOf":[{"type":"null"},{"description":"The current status of the dataset. Only included when `status=true` query parameter is specified.\nPossible values: `initializing`, `ready`, `disabled`, `error`, `refreshing`, `shuttingdown`.","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing","ShuttingDown"],"title":"ComponentStatus"}]}},"title":"DatasetResponseItem"},"example":[{"from":"postgres:syncs","name":"daily_journal_accelerated","replication_enabled":false,"acceleration_enabled":true,"status":"Ready"},{"from":"databricks:hive_metastore.default.messages","name":"messages_accelerated","replication_enabled":false,"acceleration_enabled":true,"status":"Refreshing"},{"from":"postgres:aidemo_messages","name":"general","replication_enabled":false,"acceleration_enabled":false,"status":"Initializing"}]},"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name,replication_enabled,acceleration_enabled,status\npostgres:syncs,daily_journal_accelerated,false,true,Ready\ndatabricks:hive_metastore.default.messages,messages_accelerated,false,true,Refreshing\npostgres:aidemo_messages,general,false,false,Initializing\n"}}},"500":{"description":"Internal server error occurred while processing datasets","content":{"text/plain":{"schema":{"type":"string"},"example":"An unexpected error occurred while processing datasets"}}}}}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,0 +1,232 @@
+---
+title: 'Getting Started with Spice.ai OSS'
+sidebar_label: 'Getting started'
+sidebar_position: 1
+description: 'Get started with Spice.ai in 5 minutes. Install the CLI, connect to datasets, run SQL queries, and use AI models with OpenAI-compatible APIs.'
+keywords: [spice.ai, getting started, quickstart, tutorial, install, cli, sql, ai, openai]
+image: /img/og/getting-started.png
+pagination_next: null
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+  <iframe
+    width='640'
+    height='360'
+    src='https://www.youtube.com/embed/yAIyjb1RxX4'
+    frameBorder='0'
+    allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+    allowFullScreen
+  />
+</div>
+
+### Follow these steps to get started with Spice
+
+Download the latest version of Spice, connect to a dataset in S3, and ask questions about the data using AI, in less than 5 minutes.
+
+**Step 1.** Install the Spice CLI:
+
+<Tabs>
+  <TabItem value="default" label="macOS, Linux, and WSL" default>
+    ### Install Script
+
+    ```bash
+    curl https://install.spiceai.org | /bin/bash
+    ```
+
+    ### Homebrew
+
+    ```bash
+    brew install spiceai/spiceai/spice
+    ```
+
+  </TabItem>
+  <TabItem value="windows" label="Windows" default>
+    ### PowerShell Install Script
+
+    ```bash
+    iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))
+    ```
+
+  </TabItem>
+</Tabs>
+
+**Step 2.** Initialize a new Spice app with the `spice init` command:
+
+```bash
+spice init spice_qs
+```
+
+A `spicepod.yaml` file is created in the `spice_qs` directory. Change to that directory:
+
+```bash
+cd spice_qs
+```
+
+**Step 3.** Add the `spiceai/quickstart` Spicepod. A Spicepod is a package of configuration defining datasets and ML models.
+
+```bash
+spice add spiceai/quickstart
+```
+
+The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency. This Spicepod includes a `taxi_trips` dataset sourced from S3.
+
+```yaml
+version: v1
+kind: Spicepod
+name: spice_qs
+dependencies:
+  - spiceai/quickstart
+```
+
+**Step 4.** Add an [OpenAI] model to the Spicepod with tools enabled, so the model can query the `taxi_trips` dataset directly:
+
+[OpenAI]: /docs/components/models/openai
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: openai_model
+    params:
+      openai_api_key: ${ env:OPENAI_API_KEY }
+      tools: auto
+```
+
+Add your OpenAI API key to a `.env` file that Spice automatically loads at startup:
+
+```bash
+echo "OPENAI_API_KEY=sk-..." > .env
+```
+
+Start the Spice runtime:
+
+```bash
+spice run
+```
+
+The runtime starts and loads the `taxi_trips` dataset. Wait for the dataset to finish loading before querying:
+
+```bash
+Spice.ai runtime starting...
+2024-08-05T13:02:40.247484Z  INFO runtime::flight: Spice Runtime Flight listening on 127.0.0.1:50051
+2024-08-05T13:02:40.247949Z  INFO runtime: Initialized results cache; max size: 128.00 MiB, item ttl: 1s
+2024-08-05T13:02:40.248611Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
+```
+
+**Step 5.** Start the Spice Chat REPL and ask a question:
+
+```bash
+$ spice chat
+Using model: openai_model
+chat> How many taxi trips were taken?
+A total of 2,964,624 trips were taken according to the dataset.
+```
+
+The OpenAI model was automatically provided with the `taxi_trips` dataset and was able to answer the question.
+
+**Step 6.** Start the Spice SQL REPL:
+
+```bash
+spice sql
+```
+
+The SQL REPL inferface will be shown:
+
+```
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+
+show tables; -- list available tables
+sql>
+```
+
+Enter `show tables;` to display the available tables for query:
+
+```
+sql> show tables
++---------------+--------------+---------------+------------+
+| table_catalog | table_schema | table_name    | table_type |
++---------------+--------------+---------------+------------+
+| spice         | public       | taxi_trips    | BASE TABLE |
+| spice         | runtime      | task_history  | BASE TABLE |
+| spice         | runtime      | metrics       | BASE TABLE |
++---------------+--------------+---------------+------------+
+
+Time: 0.022671708 seconds. 3 rows.
+```
+
+Enter a query to display the longest taxi trips:
+
+```
+sql> SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;
+```
+
+Output:
+
+```
++---------------+--------------+
+| trip_distance | total_amount |
++---------------+--------------+
+| 312722.3      | 22.15        |
+| 97793.92      | 36.31        |
+| 82015.45      | 21.56        |
+| 72975.97      | 20.04        |
+| 71752.26      | 49.57        |
+| 59282.45      | 33.52        |
+| 59076.43      | 23.17        |
+| 58298.51      | 18.63        |
+| 51619.36      | 24.2         |
+| 44018.64      | 52.43        |
++---------------+--------------+
+
+Time: 0.045150667 seconds. 10 rows.
+```
+
+## Next Steps
+
+Now that Spice is running, explore the key capabilities:
+
+import DocCardList from '@theme/DocCardList'
+
+<DocCardList
+  items={[
+    {
+      type: 'link',
+      label: 'Spicepods',
+      href: '/docs/getting-started/spicepods',
+      description:
+        'Understand the Spicepod configuration format that defines datasets, models, and secrets.'
+    },
+    {
+      type: 'link',
+      label: 'Data Connectors',
+      href: '/docs/components/data-connectors',
+      description: 'Connect to PostgreSQL, MySQL, S3, Snowflake, Databricks, and more.'
+    },
+    {
+      type: 'link',
+      label: 'Data Acceleration',
+      href: '/docs/features/data-acceleration',
+      description: 'Materialize and cache datasets locally for sub-second query performance.'
+    },
+    {
+      type: 'link',
+      label: 'Large Language Models',
+      href: '/docs/features/large-language-models',
+      description: 'Configure AI models with OpenAI-compatible APIs, local serving, and tool use.'
+    },
+    {
+      type: 'link',
+      label: 'Search',
+      href: '/docs/features/search',
+      description: 'Vector, full-text, and hybrid search across structured and unstructured data.'
+    },
+    {
+      type: 'link',
+      label: 'Cookbook',
+      href: 'https://github.com/spiceai/cookbook',
+      description: 'Over 65 recipes demonstrating federated queries, RAG, text-to-SQL, and more.'
+    }
+  ]}
+/>

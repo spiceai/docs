@@ -1,0 +1,36 @@
+---
+title: 'Spice.ai Features'
+sidebar_label: 'Features'
+sidebar_position: 3
+description: 'Explore Spice.ai features including data federation, data acceleration, caching, search, LLM integration, embeddings, observability, and more for building data-driven AI applications.'
+keywords: [spice.ai, features, data federation, data acceleration, caching, search, llm, embeddings, observability, cdc, machine learning]
+image: /img/og/spiceai.png
+pagination_prev: null
+pagination_next: null
+---
+
+import DocCardList from '@theme/DocCardList';
+
+Spice provides a set of features for building data-driven applications and AI agents. This page gives an overview of each feature area.
+
+### Data Query and Federation
+
+[Query Federation](./query-federation/index.md) connects multiple data sources—databases, data warehouses, and data lakes—through a single SQL interface. Write one query that joins data across PostgreSQL, Snowflake, S3, and other sources. Spice pushes query operations to source databases when possible to reduce data transfer.
+
+### Data Acceleration and Caching
+
+[Data Acceleration](./data-acceleration/index.md) materializes remote datasets locally in memory or on disk using engines like Arrow, DuckDB, SQLite, or PostgreSQL. Accelerated datasets stay current through scheduled refreshes, append mode, or [Change Data Capture (CDC)](./cdc/index.md). [Caching](./caching/index.md) stores query and search results in memory with configurable TTLs and eviction policies to avoid redundant computation.
+
+### AI and Language Models
+
+[Large Language Models](./large-language-models/index.md) provides an OpenAI-compatible API gateway for hosted models (OpenAI, Anthropic, xAI) and locally served models (Llama, Phi) with CUDA and Metal acceleration. Models can call tools to query datasets, run SQL, and retrieve schemas. [Embeddings](./embeddings/index.md) generates vector representations of text for semantic search and RAG workflows.
+
+### Search
+
+[Search](./search/index.md) supports three methods: vector search (semantic similarity using embeddings), full-text search (keyword matching with BM25 scoring), and hybrid search (combining both with Reciprocal Rank Fusion). All search methods are accessible through SQL UDTFs like `vector_search()` and `text_search()`.
+
+### Monitoring and Observability
+
+[Observability](./observability/index.md) exposes Prometheus-compatible metrics, OpenTelemetry metric export, and distributed tracing with Zipkin. Integrations are available for Datadog, Grafana, and other monitoring platforms.
+
+<DocCardList />
