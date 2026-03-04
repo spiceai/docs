@@ -93,7 +93,7 @@ Data accelerators store the schema that Spice infers from the data source at sta
 
 If the source schema changes while the runtime is running (for example, new columns are added or data types change), subsequent data refreshes into the accelerator will fail because the incoming data no longer matches the schema of the accelerated table. Restart the runtime to re-infer the schema and re-initialize the accelerated table.
 
-For details on how schema inference works per connector and recommendations for managing schema drift, see [Schema Inference](../data-connectors#schema-inference).
+For details on how schema inference works per connector and recommendations for managing schema drift, see [Schema Inference](data-connectors#schema-inference).
 
 ## Data Accelerator Docs
 

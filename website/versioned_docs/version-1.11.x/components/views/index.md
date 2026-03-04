@@ -51,4 +51,4 @@ Views derive their schema from the SQL query that defines them. When a view is a
 
 If the underlying dataset schemas change while the runtime is running, the accelerated view will fail to refresh because the materialized schema no longer matches the source data. Restart the runtime to re-derive the view schema from the updated datasets.
 
-For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](../data-connectors#schema-inference) documentation.
+For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](data-connectors#schema-inference) documentation.

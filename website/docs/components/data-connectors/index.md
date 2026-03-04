@@ -184,12 +184,12 @@ Spice infers the schema for each dataset from its data source at startup. The in
 
 Schema inference happens once, when the dataset is first registered. Some connectors support tuning the inference behavior with connector-specific parameters:
 
-| Connector                                | Parameter                          | Default | Description                                         |
-| ---------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
-| [Kafka](./kafka)                         | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
-| [DynamoDB](./dynamodb)                   | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
-| [MongoDB](./mongodb)                     | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
-| [CSV files](../../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
+| Connector                             | Parameter                          | Default | Description                                         |
+| ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
+| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
+| [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
+| [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
+| [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
 
 For connectors that read self-describing formats (Parquet, Arrow, Avro), the schema is read directly from file metadata and does not require sampling.
 
@@ -206,7 +206,7 @@ This behavior is by design. Blocking runtime schema evolution protects accelerat
 To apply a new source schema, restart the Spice runtime. On startup, Spice re-infers the schema from the source and re-initializes the dataset with the updated column definitions.
 
 :::tip[Recommendation]
-Pin a known-good schema version in the data source or use the [`columns`](../../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
+Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
 :::
 
 :::note
