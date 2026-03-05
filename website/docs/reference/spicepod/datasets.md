@@ -130,6 +130,28 @@ datasets:
 
 The name of the dataset. Used to reference the dataset in the pod manifest, as well as in external data sources. The name cannot be a [reserved keyword](./keywords).
 
+Spice follows PostgreSQL SQL syntax conventions, which normalize unquoted identifiers to lowercase. A dataset named `LINEITEM` is accessible in queries as `lineitem`.
+
+To preserve uppercase or mixed-case names, wrap the name in double quotes. In YAML, this requires an extra layer of quoting:
+
+```yaml
+datasets:
+  - from: snowflake:SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM
+    name: '"LINEITEM"'
+    params:
+      snowflake_account: JYFGIWYEFBW
+      snowflake_warehouse: snowflake_wh
+      snowflake_password: ${secrets:SNOWFLAKE_PASSWORD}
+      snowflake_username: ${secrets:SNOWFLAKE_USERNAME}
+```
+
+```sql
+-- Query using the preserved uppercase name
+SELECT * FROM "LINEITEM";
+```
+
+Without the double quotes, the same dataset would be queryable only as `lineitem`.
+
 ## `description`
 
 The description of the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
@@ -184,6 +206,12 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 ## `time_partition_format`
 
 (Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
+
+## Schema Inference and Evolution
+
+Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. Schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts. Restart the runtime to re-infer the schema.
+
+For connector-specific inference parameters, runtime schema change behavior, and recommendations, see [Schema Inference](../../components/data-connectors#schema-inference).
 
 ## `unsupported_type_action`
 
