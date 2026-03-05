@@ -162,6 +162,10 @@ duckdb:
   label: 'DuckDB'
   permalink: '/duckdb'
   description: 'DuckDB embedded analytical database integration.'
+ducklake:
+  label: 'DuckLake'
+  permalink: '/ducklake'
+  description: 'DuckLake catalog integration.'
 dynamodb:
   label: 'DynamoDB'
   permalink: '/dynamodb'
