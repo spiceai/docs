@@ -140,6 +140,6 @@ models:
 
 :::warning[Limitations]
 
-- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports [Apple metal](../../installation#metal-support) and [CUDA](../../installation#cuda-support) for accelerated inference.
+- The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports Apple Metal and CUDA for accelerated inference. See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for build instructions.
 
 :::
