@@ -108,12 +108,14 @@ catalogs:
 
 ### PostgreSQL metadata backend
 
-Use PostgreSQL as the metadata storage for multi-user access:
+Use PostgreSQL as the metadata storage for multi-user access (note: `from` field does not support secrets replacement):
 
 ```yaml
 catalogs:
-  - from: ducklake:postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres
+  - from: ducklake
     name: my_lakehouse
+    params:
+      connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=${secrets:PASSWORD}"
 ```
 
 ### Read-write with DDL support
