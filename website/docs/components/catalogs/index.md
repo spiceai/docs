@@ -28,6 +28,7 @@ Supported Catalog Connectors include:
 | `databricks`    | Databricks              | Beta   | Spark Connect, S3/Delta Lake |
 | `iceberg`       | Apache Iceberg          | Beta   | Parquet                      |
 | `spice.ai`      | Spice.ai Cloud Platform | Beta   | Arrow Flight                 |
+| `ducklake`      | DuckLake                | Alpha  | Parquet                      |
 | `glue`          | AWS Glue                | Alpha  | Parquet, Iceberg             |
 
 ## Catalog Connector Docs

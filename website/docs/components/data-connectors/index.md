@@ -70,6 +70,7 @@ Supported Data Connectors include:
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
+| `ducklake`                         | [DuckLake][ducklake]                  | Alpha             | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
@@ -81,6 +82,7 @@ Supported Data Connectors include:
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
+[ducklake]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme
 [ODPIC]: https://oracle.github.io/odpi/
 
 ## File Formats

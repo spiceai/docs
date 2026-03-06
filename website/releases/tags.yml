@@ -278,6 +278,10 @@ duckdb:
   label: 'duckdb'
   permalink: '/duckdb'
   description: 'DuckDB database topics and usage'
+ducklake:
+  label: 'ducklake'
+  permalink: '/ducklake'
+  description: 'DuckLake related topics and usage'  
 dynamodb:
   label: 'dynamodb'
   permalink: '/dynamodb'
