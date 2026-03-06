@@ -1,7 +1,7 @@
 ---
 title: 'How Spice Compares'
 sidebar_label: 'Comparison'
-sidebar_position: 11
+sidebar_position: 3
 description: 'Compare Spice.ai with data platforms (Databricks, Snowflake), query engines (Trino, Dremio, ClickHouse), vector databases (Turbopuffer, LanceDB), search engines (Elasticsearch), and AI frameworks (LangChain, LlamaIndex, Ollama).'
 keywords: [spice.ai, comparison, trino, dremio, clickhouse, databricks, snowflake, turbopuffer, lancedb, elasticsearch, langchain, llamaindex, ollama]
 image: /img/og/spiceai.png
