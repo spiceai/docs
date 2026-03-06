@@ -1,7 +1,7 @@
 ---
 title: 'Building Intelligent AI Applications with Spice.ai'
 sidebar_label: 'Intelligent Applications'
-sidebar_position: 2
+sidebar_position: 12
 description: 'Learn how to build intelligent, data-driven AI applications and agents with Spice.ai. Explore patterns for RAG, LLM integration, and real-time AI inference.'
 keywords: [spice.ai, intelligent applications, ai agents, rag, llm, ai inference, data-driven ai]
 image: /img/og/spiceai.png
