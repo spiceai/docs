@@ -75,15 +75,15 @@
 }
 
 .sbdocs p {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .markdown h1:first-child {
-  --ifm-h1-font-size: 1.75rem;
+  --ifm-h1-font-size: 1.6rem;
 }
 
 .markdown h1 {
-  --ifm-h1-font-size: 1.5rem;
+  --ifm-h1-font-size: 1.4rem;
 }
 
 .markdown h2 {
@@ -113,6 +113,7 @@ nav.menu.thin-scrollbar {
 
 /* You can override the default Infima variables here. */
 :root {
+  --ifm-font-size-base: 0.9rem;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
   --announcement-bar-bg: #fafbfc;
