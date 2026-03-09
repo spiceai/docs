@@ -181,6 +181,34 @@ These metadata fields work in combination:
 - `request_query` is appended as query parameters
 - `request_body` is sent as the request payload (requires appropriate HTTP method configuration)
 
+### Response Metadata Fields
+
+In addition to request metadata, the HTTP connector includes response metadata fields in the dataset schema. These fields capture information about the HTTP response and are available in SQL queries.
+
+| Field Name           | Type                    | Description                                                                                                                                                                                                          |
+| -------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `content`            | String                  | The response body content.                                                                                                                                                                                           |
+| `response_status`    | UInt16                  | The HTTP status code of the response (e.g., `200`, `404`, `500`).                                                                                                                                                    |
+| `response_headers`   | Map(String, String)     | The HTTP response headers as key-value pairs. Each header name maps to its value. Available for inspection in queries, e.g., to check `content-type` or custom headers returned by the API.                           |
+| `fetched_at`         | Timestamp (Nanosecond)  | The timestamp when the data was fetched. Uses the HTTP `Date` response header when available, falling back to the current system time.                                                                                |
+
+#### Querying Response Metadata
+
+```sql
+-- Check the HTTP status of cached responses
+SELECT request_path, response_status, fetched_at
+FROM my_http_dataset;
+
+-- Inspect response headers
+SELECT request_path, response_headers
+FROM my_http_dataset
+WHERE request_path = '/api/data';
+```
+
+:::note
+When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), transient HTTP error responses (5xx server errors and 429 Too Many Requests) are automatically excluded from the cache. These responses are still returned to the querying client but are not persisted, preventing temporary failures from polluting cached data.
+:::
+
 ### Endpoint Validation
 
 The HTTP connector validates the configured endpoint during initialization to detect issues such as DNS errors, connection problems, or invalid URLs early in the startup process.
