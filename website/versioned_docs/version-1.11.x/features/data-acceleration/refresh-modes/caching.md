@@ -39,13 +39,15 @@ The `caching` mode uses HTTP request filter values as cache keys rather than enf
 
 Datasets using `caching` mode include the following metadata fields in addition to the content data:
 
-| Field Name      | Type      | Description                                                         |
-| --------------- | --------- | ------------------------------------------------------------------- |
-| `request_path`  | String    | The URL path used for the request                                   |
-| `request_query` | String    | The query parameters used for the request                           |
-| `request_body`  | String    | The request body (for POST requests)                                |
-| `content`       | String    | The response content                                                |
-| `fetched_at`    | Timestamp | The timestamp when the data was fetched (based on HTTP Date header) |
+| Field Name           | Type                   | Description                                                          |
+| -------------------- | ---------------------- | -------------------------------------------------------------------- |
+| `request_path`       | String                 | The URL path used for the request                                    |
+| `request_query`      | String                 | The query parameters used for the request                            |
+| `request_body`       | String                 | The request body (for POST requests)                                 |
+| `content`            | String                 | The response content                                                 |
+| `response_status`    | UInt16                 | The HTTP status code of the response (e.g., `200`, `404`, `500`)     |
+| `response_headers`   | Map(String, String)    | The HTTP response headers as key-value pairs                         |
+| `fetched_at`         | Timestamp              | The timestamp when the data was fetched (based on HTTP Date header)  |
 
 The `fetched_at` timestamp uses the HTTP `Date` response header when available, falling back to the current system time if not present.
 
