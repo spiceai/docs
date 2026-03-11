@@ -802,15 +802,41 @@ Optional. If enabled, the content of each chunk will be trimmed to remove leadin
 
 ## `metadata` {#metadata}
 
-Optional. Additional key-value metadata for the dataset. Used as part of the [Semantic Data Model](../../features/semantic-model).
+Optional. Additional key-value metadata for the dataset.
 
-```yaml
-datasets:
-  - from: spice.ai/eth.recent_blocks
-    name: eth.recent_blocks
-    metadata:
-      instructions: The last 128 blocks.
-```
+The `metadata` field serves two purposes:
+
+1. **Semantic metadata** — Arbitrary key-value pairs used as part of the [Semantic Data Model](../../features/semantic-model).
+
+    ```yaml
+    datasets:
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        metadata:
+          instructions: The last 128 blocks.
+    ```
+
+2. **File metadata columns** — For [file-based connectors](../../components/data-connectors/#metadata-columns) (S3, ABFS, File, FTP, SFTP, SMB, NFS, HTTP/HTTPS), the following reserved keys enable virtual columns that expose per-file object store metadata in query results:
+
+    | Key              | Value       | Column Type            | Description                        |
+    | ---------------- | ----------- | ---------------------- | ---------------------------------- |
+    | `location`       | `enabled`   | `Utf8`                 | Full URI of the source file        |
+    | `last_modified`  | `enabled`   | `Timestamp(µs, "UTC")` | When the file was last modified    |
+    | `size`           | `enabled`   | `UInt64`               | File size in bytes                 |
+
+    ```yaml
+    datasets:
+      - from: s3://bucket/data/
+        name: my_data
+        params:
+          file_format: parquet
+        metadata:
+          location: enabled
+          last_modified: enabled
+          size: enabled
+    ```
+
+    If a data file already contains a column with the same name as a metadata column, the metadata column is not added.
 
 ## `vectors`
 
