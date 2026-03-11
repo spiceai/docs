@@ -180,6 +180,91 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
+### Metadata Columns
+
+File-based connectors can expose per-file object store metadata as virtual columns in the dataset schema. These columns are not stored in the data files — they are derived from object store file metadata at query time.
+
+#### Available Columns
+
+| Column           | Type                   | Description                        |
+| ---------------- | ---------------------- | ---------------------------------- |
+| `_location`      | `Utf8`                 | Full URI of the source file        |
+| `_last_modified` | `Timestamp(µs, "UTC")` | When the file was last modified    |
+| `_size`          | `UInt64`               | File size in bytes                 |
+
+#### Enabling Metadata Columns
+
+Metadata columns are enabled by adding a `metadata` section to the dataset definition with each desired column set to `enabled`:
+
+```yaml
+datasets:
+  - from: s3://bucket/data/
+    name: my_data
+    params:
+      file_format: parquet
+    metadata:
+      _location: enabled
+      _last_modified: enabled
+      _size: enabled
+```
+
+Each column can be individually enabled or omitted:
+
+```yaml
+metadata:
+  _location: enabled     # Only add the _location column
+```
+
+:::note
+If the data files already contain a column with the same name as a metadata column (e.g., a Parquet file with a `_size` column), the metadata column is not added to avoid conflicts.
+:::
+
+#### Querying Metadata Columns
+
+Once enabled, metadata columns appear alongside the regular data columns:
+
+```sql
+SELECT * FROM my_data LIMIT 3;
+```
+
+```shell
++----+---------+------+-------+-----+----------------------+--------------------------------------------------------------+-------+
+| id | value   | year | month | day | _last_modified       | _location                                                    | _size |
++----+---------+------+-------+-----+----------------------+--------------------------------------------------------------+-------+
+| 0  | value_0 | 2022 | 1     | 1   | 2024-10-10T05:36:59Z | s3://bucket/data/year=2022/month=1/day=1/data_0.parquet      | 2317  |
+| 1  | value_1 | 2022 | 1     | 1   | 2024-10-10T05:36:59Z | s3://bucket/data/year=2022/month=1/day=1/data_0.parquet      | 2317  |
+| 2  | value_2 | 2022 | 1     | 1   | 2024-10-10T05:36:59Z | s3://bucket/data/year=2022/month=1/day=1/data_0.parquet      | 2317  |
++----+---------+------+-------+-----+----------------------+--------------------------------------------------------------+-------+
+```
+
+Metadata columns can be used in filters, projections, aggregations, and joins like any other column:
+
+```sql
+-- Filter by file location
+SELECT id, value FROM my_data
+WHERE _location = 's3://bucket/data/year=2022/month=1/day=1/data_0.parquet';
+
+-- Find recently modified files
+SELECT DISTINCT _location, _last_modified FROM my_data
+WHERE _last_modified > '2024-01-01T00:00:00Z';
+
+-- Aggregate by file
+SELECT _location, COUNT(*) AS row_count, _size
+FROM my_data
+GROUP BY _location, _size
+ORDER BY _location;
+```
+
+#### Applicable Connectors
+
+Metadata columns are supported by all file-based connectors:
+
+| Connector Type               | Connectors                             |
+| ---------------------------- | -------------------------------------- |
+| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS      |
+| **Network-Attached Storage** | FTP, SFTP, SMB, NFS                    |
+| **Local Storage**            | File                                   |
+
 ## Schema Inference
 
 Spice infers the schema for each dataset from its data source at startup. The inferred schema defines the column names, data types, and nullability used by the dataset for the lifetime of that runtime process.
