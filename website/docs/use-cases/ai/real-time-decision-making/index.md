@@ -9,6 +9,13 @@ pagination_next: null
 
 Spice.ai powers instant, context-aware decisions for applications like security recommendations by grounding AI in federated, low-latency datasets.
 
+```mermaid
+graph LR
+    Sources[Multiple Data Sources] --> Spice[Spice]
+    Spice -->|Accelerated Data| AI[AI Gateway]
+    AI --> Decision[Real-Time Decision]
+```
+
 Unlike batch-processing analytics platforms (e.g., traditional data warehouses), Spice.ai delivers real-time decisions by unifying disparate data sources and accelerating access, outpacing siloed pipelines that introduce delays and complexity.
 
 ## Why Spice.ai?

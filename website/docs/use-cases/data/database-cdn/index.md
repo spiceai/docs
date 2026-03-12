@@ -9,6 +9,12 @@ pagination_next: null
 
 Spice.ai acts as a database CDN for SaaS applications, caching dynamic data to ensure high performance and resilience in high-traffic, customer-facing environments.
 
+```mermaid
+graph LR
+    DB[(Source Database)] -->|CDC Sync| Spice[Spice - Local Replica]
+    Spice -->|Low-Latency Reads| App[Application]
+```
+
 Unlike traditional CDNs (e.g., Cloudflare, Akamai) designed for static content delivery, Spice.ai focuses on dynamic, operational data with real-time caching and materialization, delivering superior performance and uptime compared to cloud-dependent databases or generic caching solutions. This makes it ideal for SaaS platforms requiring low-latency data access and continuous availability to support seamless user experiences.
 
 ## Why Spice.ai?
@@ -45,3 +51,7 @@ This configuration accelerates the `user_sessions` table from a PostgreSQL datab
 - **Scalability**: Supports high user concurrency, enabling growth without performance degradation.
 
 ### Learn More
+
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
+- **Observability**: [Documentation](../../features/observability).

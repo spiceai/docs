@@ -2,31 +2,55 @@
 title: 'ETL-free Workflows and Data Migrations'
 sidebar_label: 'ETL-free Workflows'
 sidebar_position: 2
-description: 'Spice.ai enables data migrations and workflows without ETL by federating legacy and modern systems for seamless transitions.'
+description: 'Federate legacy and modern data systems without ETL for faster migrations, lower overhead, and zero application downtime.'
 pagination_prev: null
 pagination_next: null
 ---
 
-Spice.ai enables data migrations and workflows without ETL by federating legacy and modern systems for seamless transitions.
+Spice federates legacy and modern data systems without ETL, supporting data migrations and cross-system workflows with zero application downtime. Applications query a single SQL endpoint that spans both old and new systems, making migrations incremental and reversible.
 
-Unlike legacy ETL platforms (e.g., Informatica) that require heavy infrastructure, Spice.ai offers a drop-in solution for developers modernizing applications. Its ability to query across systems without data movement provides a lightweight alternative to data replication tools, reducing complexity and costs.
+```mermaid
+graph LR
+    Legacy[(Legacy DB)] --> Spice[Spice]
+    New[(New System)] --> Spice
+    Spice -->|Single SQL Endpoint| App[Application]
+```
 
 ## Why Spice.ai?
 
-- **Drop-In Solution**: Provides a single endpoint for legacy (e.g., Oracle) and modern (e.g., Snowflake) systems, avoiding application rewrites required by migration frameworks.
-- **Data Federation**: Queries on-premises, cloud, and edge sources without moving data, minimizing costs and risks compared to data replication approaches.
-- **Performance Optimization**: Materializes frequently accessed data for low-latency queries, outperforming traditional query federation with high overhead.
-- **Monitoring**: Built-in observability tracks migration progress and performance, ensuring reliability and transparency.
+- **Single Endpoint**: Applications connect to one SQL interface regardless of how many backend systems are involved. Migrating from one database to another requires no application code changes.
+- **No Data Movement**: Federated queries read from each source directly, avoiding the cost and risk of bulk data replication during migrations.
+- **Acceleration**: Frequently accessed data is materialized locally for low-latency queries, so performance stays consistent even while backend systems are being migrated.
+- **Observability**: Built-in monitoring tracks query performance and data freshness across all sources, giving visibility into migration progress.
 
 ## Example
 
-A fintech firm migrates from an Oracle database to a cloud-native stack, querying both systems simultaneously to ensure zero downtime. This approach avoids the staged migrations and data duplication of ETL tools, maintaining service continuity for customers. The [CQRS Cookbook](https://github.com/spiceai/cookbook/tree/trunk/cqrs#readme) illustrates how to implement unified data access patterns for such scenarios.
+An application migrates from a legacy PostgreSQL database to a cloud-native system. During the transition, Spice federates both sources so the application queries a single endpoint. Data from the legacy system is accelerated locally to maintain performance while traffic shifts to the new backend.
+
+### Example Configuration
+
+```yaml
+datasets:
+  - from: postgres:legacy_db.orders
+    name: legacy_orders
+    acceleration:
+      enabled: true
+      engine: duckdb
+
+  - from: mysql:new_system.orders
+    name: new_orders
+    acceleration:
+      enabled: true
+      engine: duckdb
+```
+
+This configuration federates order data from both the legacy PostgreSQL database and the new MySQL system, accelerating both locally in DuckDB for consistent query performance.
 
 ## Benefits
 
-- **Agility**: Accelerates modernization projects without disrupting existing applications.
-- **Cost Savings**: Minimizes data movement and infrastructure costs.
-- **Reliability**: Ensures data consistency during migrations with real-time federation.
+- **Zero Downtime**: Applications keep working during migrations — no staged cutovers or maintenance windows required.
+- **Incremental Migration**: Move tables one at a time while the application queries both systems transparently.
+- **Lower Risk**: No bulk data replication means fewer failure modes and easier rollback.
 
 ### Learn More
 

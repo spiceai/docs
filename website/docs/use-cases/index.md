@@ -21,6 +21,14 @@ For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/co
 - [**Data Mesh**](use-cases/data/data-mesh): Unified data access across disparate sources with acceleration.
 - [**Object-Store Native Database**](use-cases/data/object-store-data-engine): Federates, accelerates, and queries object-store data for real-time data access without centralized warehouses.
 
+## Caching
+
+- [**Write-Through Cache**](use-cases/caching/write-through-cache): Write data through Spice to both a local accelerator and the upstream source, keeping both layers consistent.
+- [**Read-Through Cache**](use-cases/caching/read-through-cache): Fetch data from the upstream source on cache miss, with stale-while-revalidate and stale-if-error semantics.
+- [**SQL/Database Cache**](use-cases/caching/sql-database-cache): Cache SQL database tables locally with acceleration and cache SQL query results in memory.
+- [**S3 Cache**](use-cases/caching/s3-cache): Cache S3 and object store data locally with smart refresh skip for unchanged files.
+- [**HTTP Cache**](use-cases/caching/http-cache): Cache HTTP API responses locally with request filtering, TTL, and stale-while-revalidate support.
+
 ## Search and Retrieval
 
 - [**Enterprise Search**](use-cases/search/enterprise-search): Semantic and full-text-search search with hybrid vector and keyword capabilities.

@@ -9,6 +9,15 @@ pagination_next: null
 
 Spice.ai enables SQL queries, hybrid search, and large language model (LLM) inference on object-store data for security applications, delivering real-time insights from distributed data sources with minimal infrastructure overhead.
 
+```mermaid
+graph LR
+    S3[S3 / Object Store] --> Spice[Spice]
+    Query[Query] --> Spice
+    Spice -->|SQL + Search| Results[Results]
+    Results --> LLM[LLM]
+    LLM --> Insights[Insights]
+```
+
 Unlike traditional data platforms (e.g., Snowflake, BigQuery) or separate search and AI frameworks (e.g., Elasticsearch, LangChain) that require complex data pipelines and centralized storage, Spice.ai integrates SQL querying, vector/keyword search, and LLM inference directly on object stores (e.g., S3, Azure Blob). This unified approach reduces latency, simplifies architecture, and ensures compliance for security applications, outperforming fragmented solutions that demand extensive data movement and integration.
 
 ## Why Spice.ai?
