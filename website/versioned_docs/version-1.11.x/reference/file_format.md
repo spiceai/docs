@@ -6,7 +6,7 @@ pagination_prev: 'reference/index'
 pagination_next: null
 ---
 
-File-based [data connectors](../components/data-connectors/index.md) — including [`s3://`](../components/data-connectors/s3), [`abfs://`](../components/data-connectors/abfs), [`file://`](../components/data-connectors/file), [`ftp://`](../components/data-connectors/ftp), [`sftp://`](../components/data-connectors/sftp), and others — support multiple structured and document file formats. This page details the format-specific parameters available for each.
+File-based [data connectors](../components/data-connectors/index.md) — including [`s3://`](../components/data-connectors/s3), [`abfs://`](../components/data-connectors/abfs), [`file://`](../components/data-connectors/file), [`ftp://`](../components/data-connectors/ftp), [`sftp://`](../components/data-connectors/ftp), and others — support multiple structured and document file formats. This page details the format-specific parameters available for each.
 
 ## Common Parameters
 
