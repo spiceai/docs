@@ -109,17 +109,18 @@ datasets:
 
 ### Supported Formats
 
-| Name                                          | Parameter              | Status  | Description                                   |
-| --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                        |
-| JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
-| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)  |
-| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)            |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)    |
-| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)        |
+| Name                                          | Parameter              | Status  | Description                                                                                                    |
+| --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [CSV](../../reference/file_format#csv)        | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
+| JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
+| PDF                                           | `file_format: pdf`     | Beta    | Portable Document Format (document format)                                                                     |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
 
@@ -131,7 +132,7 @@ File formats support additional parameters for fine-grained control. Common exam
 | `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
 | `csv_quote`      | CSV        | Quote character for fields containing delimiters |
 
-For complete format options, see [File Formats Reference](../reference/file_format).
+For complete format options, see [File Formats Reference](../../reference/file_format).
 
 ### Applicable Connectors {#object-store-file-formats}
 
@@ -268,12 +269,12 @@ Spice infers the schema for each dataset from its data source at startup. The in
 
 Schema inference happens once, when the dataset is first registered. Some connectors support tuning the inference behavior with connector-specific parameters:
 
-| Connector                             | Parameter                          | Default | Description                                         |
-| ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
-| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
-| [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
-| [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
-| [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
+| Connector                                | Parameter                          | Default | Description                                         |
+| ---------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
+| [Kafka](data-connectors/kafka)           | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
+| [DynamoDB](data-connectors/dynamodb)     | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
+| [MongoDB](data-connectors/mongodb)       | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
+| [CSV files](../../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
 
 For connectors that read self-describing formats (Parquet, Arrow, Avro), the schema is read directly from file metadata and does not require sampling.
 
@@ -299,13 +300,14 @@ Runtime schema evolution controls are planned for a future release. When availab
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| [CSV](../../reference/file_format#csv)        | `file_format: csv`     | ✅         | ❌                  |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
+| JSON                                          | `file_format: json`    | ✅         | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| PDF                                           | `file_format: pdf`     | Beta      | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}

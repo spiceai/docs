@@ -55,7 +55,7 @@ Supported Data Connectors include:
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
-| `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Stable            | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, JSON           |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, JSON           |
 | `smb`                              | SMB                                   | Alpha             | Parquet, CSV, JSON           |
@@ -114,14 +114,14 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                                                                                    |
 | --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
+| [CSV](../../reference/file_format#csv)        | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
 | JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Stable  | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
 | Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
 | Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)                                                                     |
+| PDF                                           | `file_format: pdf`     | Beta    | Portable Document Format (document format)                                                                     |
 | Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
@@ -134,7 +134,7 @@ File formats support additional parameters for fine-grained control. Common exam
 | `csv_delimiter`  | CSV        | Field delimiter character (default: `,`)         |
 | `csv_quote`      | CSV        | Quote character for fields containing delimiters |
 
-For complete format options, see [File Formats Reference](../reference/file_format).
+For complete format options, see [File Formats Reference](../../reference/file_format).
 
 ### Applicable Connectors {#object-store-file-formats}
 
@@ -186,11 +186,11 @@ File-based connectors can expose per-file object store metadata as virtual colum
 
 #### Available Columns
 
-| Column           | Type                   | Description                        |
-| ---------------- | ---------------------- | ---------------------------------- |
-| `_location`      | `Utf8`                 | Full URI of the source file        |
-| `_last_modified` | `Timestamp(µs, "UTC")` | When the file was last modified    |
-| `_size`          | `UInt64`               | File size in bytes                 |
+| Column           | Type                   | Description                     |
+| ---------------- | ---------------------- | ------------------------------- |
+| `_location`      | `Utf8`                 | Full URI of the source file     |
+| `_last_modified` | `Timestamp(µs, "UTC")` | When the file was last modified |
+| `_size`          | `UInt64`               | File size in bytes              |
 
 #### Enabling Metadata Columns
 
@@ -259,11 +259,11 @@ ORDER BY _location;
 
 Metadata columns are supported by all file-based connectors:
 
-| Connector Type               | Connectors                             |
-| ---------------------------- | -------------------------------------- |
-| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS      |
-| **Network-Attached Storage** | FTP, SFTP, SMB, NFS                    |
-| **Local Storage**            | File                                   |
+| Connector Type               | Connectors                        |
+| ---------------------------- | --------------------------------- |
+| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS |
+| **Network-Attached Storage** | FTP, SFTP, SMB, NFS               |
+| **Local Storage**            | File                              |
 
 ## Schema Inference
 
@@ -271,12 +271,12 @@ Spice infers the schema for each dataset from its data source at startup. The in
 
 Schema inference happens once, when the dataset is first registered. Some connectors support tuning the inference behavior with connector-specific parameters:
 
-| Connector                             | Parameter                          | Default | Description                                         |
-| ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
-| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
-| [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
-| [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
-| [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
+| Connector                                | Parameter                          | Default | Description                                         |
+| ---------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
+| [Kafka](data-connectors/kafka)           | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
+| [DynamoDB](data-connectors/dynamodb)     | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
+| [MongoDB](data-connectors/mongodb)       | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
+| [CSV files](../../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
 
 For connectors that read self-describing formats (Parquet, Arrow, Avro), the schema is read directly from file metadata and does not require sampling.
 
@@ -302,14 +302,14 @@ Runtime schema evolution controls are planned for a future release. When availab
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
+| [CSV](../../reference/file_format#csv)        | `file_format: csv`     | ✅         | ❌                  |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta      | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
 | JSON                                          | `file_format: json`    | ✅         | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| PDF                                           | `file_format: pdf`     | Beta      | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}
@@ -320,7 +320,7 @@ Runtime schema evolution controls are planned for a future release. When availab
 Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 
 :::warning[Note]
-Document formats in Alpha (PDF, DOCX) may not parse all structure or text from the underlying documents correctly.
+Document formats in Alpha (DOCX) may not parse all structure or text from the underlying documents correctly.
 :::
 
 #### Document Table Schema
