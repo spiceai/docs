@@ -72,6 +72,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `ducklake`                         | [DuckLake][ducklake]                  | Alpha             | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
+| `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
@@ -83,6 +84,7 @@ Supported Data Connectors include:
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
 [ducklake]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme
+[adbc]: https://arrow.apache.org/adbc/
 [ODPIC]: https://oracle.github.io/odpi/
 
 ## File Formats
