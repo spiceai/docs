@@ -29,6 +29,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 | Name       | Description                     | Status            | Engine Modes     |
 | ---------- | ------------------------------- | ----------------- | ---------------- |
+| `cayenne`  | [Spice Cayenne][cayenne]        | Release Candidate | `file`           |
 | `arrow`    | In-Memory Arrow Records         | Stable            | `memory`         |
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable            | `memory`, `file` |
 | `cayenne`  | [Spice Cayenne][cayenne]        | Release Candidate | `file`           |
