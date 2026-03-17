@@ -130,11 +130,32 @@ datasets:
 
 Read a SODA response with metadata columns included:
 
+```bash
+curl -sL "https://data.ct.gov/api/views/kf98-j89e/rows.json?accessType=DOWNLOAD" -o house_price_index.json
+```
+
 ```yaml
 datasets:
-  - from: https://data.ct.gov/api/views/kf98-j89e/rows.json?accessType=DOWNLOAD
+  - from: file:house_price_index.json
     name: house_price_index
     params:
       json_format: soda
       soda_metadata: enabled
+```
+
+```sql
+sql> select * from house_price_index limit 5;
+
++--------------------+--------------------------------------+-----------+-------------+---------------+-------------+---------------+-------+---------------------+---------+
+|        :sid        |                  :id                 | :position | :created_at | :created_meta | :updated_at | :updated_meta | :meta |   observation_date  | ctsthpi |
+|       varchar      |                varchar               |   int64   |    int64    |    varchar    |    int64    |    varchar    |varchar|     timestamp[s]    | float64 |
++--------------------+--------------------------------------+-----------+-------------+---------------+-------------+---------------+-------+---------------------+---------+
+| row-r4ag~gfrd~dqcz | 00000000-0000-0000-6A52-5730E0309BF7 | 0         | 1768216213  |               | 1768216213  |               | { }   | 1975-01-01T00:00:00 | 62.9    |
+| row-65s5_stm6-jbjc | 00000000-0000-0000-3B25-D45DF23837A7 | 0         | 1768216213  |               | 1768216213  |               | { }   | 1975-04-01T00:00:00 | 62.94   |
+| row-buhc_mzb7.95pa | 00000000-0000-0000-A414-989C0238E96F | 0         | 1768216213  |               | 1768216213  |               | { }   | 1975-07-01T00:00:00 | 61.93   |
+| row-3fp4~bx38-mwgi | 00000000-0000-0000-58CE-D4AF76C589B0 | 0         | 1768216213  |               | 1768216213  |               | { }   | 1975-10-01T00:00:00 | 61.85   |
+| row-khut~7dd3-vi9e | 00000000-0000-0000-A274-646F4876CC81 | 0         | 1768216213  |               | 1768216213  |               | { }   | 1976-01-01T00:00:00 | 64.83   |
++--------------------+--------------------------------------+-----------+-------------+---------------+-------------+---------------+-------+---------------------+---------+
+
+Time: 0.0028895 seconds. 5 rows.
 ```
