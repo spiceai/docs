@@ -27,21 +27,21 @@ Download the [flight-sql-jdbc-driver.jar](https://repo1.maven.org/maven2/org/apa
     **PowerShell Install Script**
 
     ```powershell
-    Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/18.2.0/flight-sql-jdbc-driver-18.2.0.jar" -OutFile "C:\Program Files\Tableau\Drivers\flight-sql-jdbc-driver-18.2.0.jar"
+    Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/19.0.0/flight-sql-jdbc-driver-19.0.0.jar" -OutFile "C:\Program Files\Tableau\Drivers\flight-sql-jdbc-driver-19.0.0.jar"
     ```
   </TabItem>
   <TabItem value="macos" label="macOS">
     **Install Script**
 
     ```bash
-    curl -L https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/18.2.0/flight-sql-jdbc-driver-18.2.0.jar -o ~/Library/Tableau/Drivers/flight-sql-jdbc-driver-18.2.0.jar
+    curl -L https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/19.0.0/flight-sql-jdbc-driver-19.0.0.jar -o ~/Library/Tableau/Drivers/flight-sql-jdbc-driver-19.0.0.jar
     ```
   </TabItem>
   <TabItem value="linux" label="Linux">
     **Install Script**
 
     ```bash
-    curl -L https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/18.2.0/flight-sql-jdbc-driver-18.2.0.jar -o /opt/tableau/tableau_driver/jdbc/flight-sql-jdbc-driver-18.2.0.jar
+    curl -L https://repo1.maven.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/19.0.0/flight-sql-jdbc-driver-19.0.0.jar -o /opt/tableau/tableau_driver/jdbc/flight-sql-jdbc-driver-19.0.0.jar
     ```
   </TabItem>
 </Tabs>
