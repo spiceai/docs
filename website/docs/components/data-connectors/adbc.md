@@ -62,6 +62,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_driver`              | Required. The ADBC driver name (e.g., `duckdb`, `sqlite`, `postgres`).                                                                   |
 | `adbc_uri`                 | Required. Database URI or connection string for the ADBC driver. In-memory URIs (e.g., `:memory:`) are not supported.                    |
 | `adbc_driver_path`         | Optional. Path to the ADBC driver shared library. When omitted, the driver is loaded by name.                                            |
+| `adbc_driver_options`      | Optional. Semicolon-separated key-value pairs of driver-specific options passed to the ADBC driver on connection.                        |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default value is `5`.                                                    |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections to keep open in the pool. Default value is `1`.                                             |
 
@@ -80,6 +81,23 @@ datasets:
     params:
       adbc_driver: postgres
       adbc_uri: postgresql://user:password@localhost:5432/mydb
+```
+
+### Driver Options (Snowflake)
+
+Use `adbc_driver_options` to pass driver-specific options as semicolon-separated key-value pairs:
+
+```yaml
+datasets:
+  - from: adbc:my_table
+    name: my_table
+    params:
+      adbc_driver: snowflake
+      adbc_uri: user:password@account.snowflakecomputing.com/mydb/myschema
+      adbc_driver_options: >-
+        snowflake.sql.warehouse=MY_WH;
+        snowflake.sql.role=MY_ROLE;
+        snowflake.sql.auth_type=auth_snowflake
 ```
 
 ### Custom Driver Path
