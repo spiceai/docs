@@ -24,7 +24,7 @@ pagination_next: null
 7. Add the JDBC jar file:
    1. Click the "Libraries" tab
    1. Click the: "Add File" button
-   1. Choose the "flight-sql-jdbc-driver-15.0.1.jar" jar file (the file downloaded in step 3 above) - and click "Open"
+   1. Choose the "flight-sql-jdbc-driver-19.0.0.jar" jar file (the file downloaded in step 3 above) - and click "Open"
       ![Select jar file](https://imagedelivery.net/HyTs22ttunfIlvyd6vumhQ/19900f7a-f00f-473d-780e-4a28c2ecd800/public 'Select jar file')
    1. Close the Driver editor window with the blue "OK" button on the lower-right
 
