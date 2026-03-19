@@ -128,12 +128,12 @@ Driver-specific options are documented at [ADBC Driver Foundry](https://docs.adb
 
 The [BigQuery ADBC driver](https://docs.adbc-drivers.org/drivers/bigquery/index.html) accepts the following commonly-used options through `adbc_driver_options`.
 
-| Option Key                         | Description                                                                                                      |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `adbc.bigquery.sql.project_id`     | The Google Cloud project ID.                                                                                     |
-| `adbc.bigquery.sql.dataset_id`     | The BigQuery dataset ID.                                                                                         |
-| `adbc.bigquery.sql.auth_type`      | Authentication type. `0` = Application Default Credentials (default), `1` = service account JSON file, `2` = service account JSON string. |
-| `adbc.bigquery.sql.auth_credentials` | Path to the service account JSON file (when `auth_type=1`) or the JSON string (when `auth_type=2`).             |
+| Option Key                           | Description                                                                                                                               |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `adbc.bigquery.sql.project_id`       | The Google Cloud project ID.                                                                                                              |
+| `adbc.bigquery.sql.dataset_id`       | The BigQuery dataset ID.                                                                                                                  |
+| `adbc.bigquery.sql.auth_type`        | Authentication type. `0` = Application Default Credentials (default), `1` = service account JSON file, `2` = service account JSON string. |
+| `adbc.bigquery.sql.auth_credentials` | Path to the service account JSON file (when `auth_type=1`) or the JSON string (when `auth_type=2`).                                       |
 
 BigQuery also supports connection string URIs as the `adbc_uri` value:
 
@@ -171,12 +171,12 @@ The `adbc_catalog` and `adbc_schema` parameters set connection-level defaults th
 
 How these map to source database concepts varies by driver:
 
-| Driver    | `adbc_catalog`        | `adbc_schema`          |
-| --------- | --------------------- | ---------------------- |
-| BigQuery  | GCP project ID        | BigQuery dataset       |
-| Trino     | Trino catalog         | Schema within catalog  |
-| Redshift  | Redshift database     | Redshift schema        |
-| Snowflake | Snowflake database    | Snowflake schema       |
+| Driver    | `adbc_catalog`     | `adbc_schema`         |
+| --------- | ------------------ | --------------------- |
+| BigQuery  | GCP project ID     | BigQuery dataset      |
+| Trino     | Trino catalog      | Schema within catalog |
+| Redshift  | Redshift database  | Redshift schema       |
+| Snowflake | Snowflake database | Snowflake schema      |
 
 ```yaml
 datasets:
