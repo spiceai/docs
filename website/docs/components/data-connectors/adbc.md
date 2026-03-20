@@ -126,14 +126,71 @@ Driver-specific options are documented at [ADBC Driver Foundry](https://docs.adb
 
 #### BigQuery Driver Options
 
-The [BigQuery ADBC driver](https://docs.adbc-drivers.org/drivers/bigquery/index.html) accepts the following commonly-used options through `adbc_driver_options`.
+The [BigQuery ADBC driver](https://docs.adbc-drivers.org/drivers/bigquery/index.html) accepts the following options through `adbc_driver_options`.
 
-| Option Key                           | Description                                                                                                                               |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `adbc.bigquery.sql.project_id`       | The Google Cloud project ID.                                                                                                              |
-| `adbc.bigquery.sql.dataset_id`       | The BigQuery dataset ID.                                                                                                                  |
-| `adbc.bigquery.sql.auth_type`        | Authentication type. `0` = Application Default Credentials (default), `1` = service account JSON file, `2` = service account JSON string. |
-| `adbc.bigquery.sql.auth_credentials` | Path to the service account JSON file (when `auth_type=1`) or the JSON string (when `auth_type=2`).                                       |
+**Connection**
+
+| Option Key                        | Description                          |
+| --------------------------------- | ------------------------------------ |
+| `adbc.bigquery.sql.project_id`    | The Google Cloud project ID.         |
+| `adbc.bigquery.sql.dataset_id`    | The BigQuery dataset ID.             |
+| `adbc.bigquery.sql.table_id`      | The BigQuery table ID.               |
+| `adbc.bigquery.sql.location`      | The BigQuery location (e.g., `US`).  |
+
+**Authentication**
+
+| Option Key                              | Description                                                                                   |
+| --------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `adbc.bigquery.sql.auth_type`           | Authentication type. One of the values below. Default: `adbc.bigquery.sql.auth_type.auth_bigquery`. |
+| `adbc.bigquery.sql.auth_credentials`    | Credential data: file path or JSON string, depending on `auth_type`.                          |
+| `adbc.bigquery.sql.auth.client_id`      | OAuth client ID (for `oauth_client_ids` auth type).                                           |
+| `adbc.bigquery.sql.auth.client_secret`  | OAuth client secret (for `oauth_client_ids` auth type).                                       |
+| `adbc.bigquery.sql.auth.refresh_token`  | OAuth refresh token (for `user_authentication` auth type).                                    |
+| `adbc.bigquery.sql.auth.quota_project`  | Quota project for billing.                                                                    |
+
+Supported `auth_type` values:
+
+| Value                                                      | Description                                    |
+| ---------------------------------------------------------- | ---------------------------------------------- |
+| `adbc.bigquery.sql.auth_type.auth_bigquery`                | Default BigQuery authentication.               |
+| `adbc.bigquery.sql.auth_type.json_credential_file`         | Service account JSON key file.                 |
+| `adbc.bigquery.sql.auth_type.json_credential_string`       | Service account JSON as a string.              |
+| `adbc.bigquery.sql.auth_type.json_credentials`             | JSON credentials as a byte array.              |
+| `adbc.bigquery.sql.auth_type.user_authentication`          | User-based OAuth authentication.               |
+| `adbc.bigquery.sql.auth_type.app_default_credentials`      | Google Application Default Credentials (ADC).  |
+| `adbc.bigquery.sql.auth_type.oauth_client_ids`             | OAuth client ID credentials.                   |
+
+**Service Account Impersonation**
+
+| Option Key                                          | Description                                                       |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| `adbc.bigquery.sql.impersonate.target_principal`    | Service account email to impersonate.                             |
+| `adbc.bigquery.sql.impersonate.delegates`           | Delegation chain (comma-separated service account emails).        |
+| `adbc.bigquery.sql.impersonate.scopes`              | OAuth 2.0 scopes (comma-separated).                              |
+| `adbc.bigquery.sql.impersonate.lifetime`            | Token lifetime duration (e.g., `3600s`).                          |
+
+**Query**
+
+| Option Key                                              | Type    | Description                                          | Default      |
+| ------------------------------------------------------- | ------- | ---------------------------------------------------- | ------------ |
+| `adbc.bigquery.sql.query.parameter_mode`                | string  | Query parameter mode: `positional` (`?`) or `named` (`@p`). | `positional` |
+| `adbc.bigquery.sql.query.destination_table`             | string  | Destination table for query results.                 |              |
+| `adbc.bigquery.sql.query.default_project_id`            | string  | Default project ID for queries.                      |              |
+| `adbc.bigquery.sql.query.default_dataset_id`            | string  | Default dataset ID for queries.                      |              |
+| `adbc.bigquery.sql.query.create_disposition`            | string  | Table creation behavior (e.g., `CREATE_IF_NEEDED`).  |              |
+| `adbc.bigquery.sql.query.write_disposition`             | string  | Table write behavior (e.g., `WRITE_TRUNCATE`).       |              |
+| `adbc.bigquery.sql.query.disable_query_cache`           | bool    | Disable query cache.                                 | `false`      |
+| `adbc.bigquery.sql.query.disable_flattened_results`     | bool    | Disable flattened results.                           | `false`      |
+| `adbc.bigquery.sql.query.allow_large_results`           | bool    | Allow large query results.                           | `false`      |
+| `adbc.bigquery.sql.query.priority`                      | string  | Query priority (`BATCH` or `INTERACTIVE`).           |              |
+| `adbc.bigquery.sql.query.max_billing_tier`              | int     | Maximum billing tier.                                |              |
+| `adbc.bigquery.sql.query.max_bytes_billed`              | int     | Maximum bytes billed.                                |              |
+| `adbc.bigquery.sql.query.use_legacy_sql`                | bool    | Use legacy SQL syntax.                               | `false`      |
+| `adbc.bigquery.sql.query.dry_run`                       | bool    | Execute a dry run (no data returned).                | `false`      |
+| `adbc.bigquery.sql.query.create_session`                | bool    | Create a session for the query.                      | `false`      |
+| `adbc.bigquery.sql.query.job_timeout`                   | int     | Job timeout in milliseconds.                         |              |
+| `adbc.bigquery.sql.query.result_buffer_size`            | int     | Result buffer size.                                  | `200`        |
+| `adbc.bigquery.sql.query.prefetch_concurrency`          | int     | Number of concurrent prefetch operations.            | `10`         |
 
 BigQuery also supports connection string URIs as the `adbc_uri` value:
 
@@ -268,12 +325,17 @@ datasets:
     name: my_table
     params:
       adbc_driver: bigquery
-      adbc_uri: "bigquery:///my-gcp-project?OAuthType=1&AuthCredentials=/path/to/service-account.json"
+      adbc_uri: "bigquery:///my-gcp-project"
       adbc_catalog: my-gcp-project
       adbc_schema: my_dataset
+      adbc_driver_options: >-
+        adbc.bigquery.sql.auth_type=adbc.bigquery.sql.auth_type.json_credential_file;
+        adbc.bigquery.sql.auth_credentials=/path/to/service-account.json
 ```
 
-Or equivalently, using `adbc_driver_options`:
+#### BigQuery with Service Account JSON Secret
+
+Authenticate using a service account JSON string stored in a [Secrets Store](../secret-stores/):
 
 ```yaml
 datasets:
@@ -282,11 +344,10 @@ datasets:
     params:
       adbc_driver: bigquery
       adbc_uri: "bigquery:///my-gcp-project"
-      adbc_catalog: my-gcp-project
-      adbc_schema: my_dataset
       adbc_driver_options: >-
-        adbc.bigquery.sql.auth_type=1;
-        adbc.bigquery.sql.auth_credentials=/path/to/service-account.json
+        adbc.bigquery.sql.auth_type=adbc.bigquery.sql.auth_type.json_credential_string;
+        adbc.bigquery.sql.auth_credentials=${secrets:BIGQUERY_SERVICE_ACCOUNT_JSON};
+        adbc.bigquery.sql.dataset_id=my_dataset
 ```
 
 ### Trino
