@@ -49,6 +49,7 @@ models:
 | `aws_access_key_id`     | AWS access key ID. If not provided, credentials load from environment variables or IAM roles.     | -           |
 | `aws_secret_access_key` | AWS secret access key. If not provided, credentials load from environment variables or IAM roles. | -           |
 | `aws_session_token`     | AWS session token for temporary credentials.                                                      | -           |
+| `aws_iam_role_source`   | IAM role credential source. `auto` uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. | `auto`      |
 
 #### Guardrails
 
