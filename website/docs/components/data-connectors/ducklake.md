@@ -156,7 +156,3 @@ datasets:
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.
 
 :::
-
-## Cookbook
-
-- A cookbook recipe to configure DuckLake as a catalog and data connector in Spice. [DuckLake Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme)

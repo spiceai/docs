@@ -327,7 +327,7 @@ datasets:
       odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
 ```
 
-See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README) for more help on getting started with ODBC and Postgres.
+See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
 
 ## Secrets
 

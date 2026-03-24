@@ -86,7 +86,7 @@ const recipes: RecipeData[] = [
   {
     title: 'Nvidia NIM',
     description: 'Deploy Nvidia NIM infrastructure, on Kubernetes, with GPUs connected to Spice.',
-    path: '/nvidia-nim/README.md',
+    path: '/nvidia-nim/ec2/README.md',
     tags: ['ai', 'nvidia', 'nim']
   },
   {
@@ -158,7 +158,7 @@ const recipes: RecipeData[] = [
   {
     title: 'Hashed Partitioning with DuckDB',
     description: 'Use hashed partitioning for performance with DuckDB.',
-    path: '/duckdb/hashed-partitioning/README.md',
+    path: '/hashed_partitioning/README.md',
     tags: ['acceleration', 'duckdb', 'partitioning']
   },
   {
@@ -404,7 +404,7 @@ const recipes: RecipeData[] = [
   {
     title: 'Results Caching',
     description: 'Cache query results for improved performance.',
-    path: '/caching/README.md',
+    path: '/caching/accelerator/README.md',
     tags: ['performance', 'caching']
   },
   {
@@ -481,13 +481,13 @@ const recipes: RecipeData[] = [
   {
     title: 'Java JDBC Client',
     description: 'Query Spice.ai using the Java JDBC client.',
-    path: '/clients/jdbc/java/README.md',
+    path: '/clients/java/README.md',
     tags: ['client', 'java', 'jdbc']
   },
   {
     title: 'Scala JDBC Client',
     description: 'Query Spice.ai using the Scala JDBC client.',
-    path: '/clients/jdbc/scala/README.md',
+    path: '/clients/scala/README.md',
     tags: ['client', 'scala', 'jdbc']
   },
   // Security
@@ -514,7 +514,7 @@ const recipes: RecipeData[] = [
   {
     title: 'Cron Dataset Schedules',
     description: 'Schedule dataset refreshes using cron syntax.',
-    path: '/cron-schedules/README.md',
+    path: '/acceleration/cron/README.md',
     tags: ['configuration', 'scheduling', 'refresh']
   }
 ]

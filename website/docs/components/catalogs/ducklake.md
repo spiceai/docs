@@ -176,7 +176,3 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 - If a table fails to load during catalog refresh, it is skipped with a warning and does not fail the entire catalog.
 
 :::
-
-## Cookbook
-
-- A cookbook recipe to configure DuckLake as a catalog connector in Spice. [DuckLake Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme)

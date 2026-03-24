@@ -51,7 +51,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
 [s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
 [spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
