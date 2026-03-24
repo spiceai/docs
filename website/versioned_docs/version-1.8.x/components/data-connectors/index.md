@@ -51,7 +51,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
 [s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
 [spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
@@ -71,15 +71,15 @@ File formats currently supported are:
 
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅        | ❌                 |
-| [CSV](../reference/file_format#csv)     | `file_format: csv`     | ✅        | ❌                 |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                 |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                 |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                 |
-| Markdown                                      | `file_format: md`      | ✅        | ✅                 |
-| Text                                          | `file_format: txt`     | ✅        | ✅                 |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                 |
-| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                 |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
+| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Markdown                                      | `file_format: md`      | ✅         | ✅                  |
+| Text                                          | `file_format: txt`     | ✅         | ✅                  |
+| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 File formats support additional parameters in the `params` (like `csv_has_header`) described in [File Formats](../reference/file_format)
 

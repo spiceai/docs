@@ -20,7 +20,7 @@ Unlike data-team-focused orchestration tools (e.g., Fivetran, Airbyte), Spice.ai
 
 ## Example
 
-A SaaS company syncs customer usage data from a Databricks lakehouse to a Salesforce CRM, enabling real-time account health scoring for sales teams. This reduces integration time from weeks to days compared to traditional ETL tools, allowing faster response to customer needs. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README) provides a practical guide to materializing datasets for such workflows.
+A SaaS company syncs customer usage data from a Databricks lakehouse to a Salesforce CRM, enabling real-time account health scoring for sales teams. This reduces integration time from weeks to days compared to traditional ETL tools, allowing faster response to customer needs. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) provides a practical guide to materializing datasets for such workflows.
 
 ## Benefits
 
@@ -30,6 +30,6 @@ A SaaS company syncs customer usage data from a Databricks lakehouse to a Salesf
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
 - **Observability**: [Documentation](../../features/observability).

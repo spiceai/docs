@@ -20,7 +20,7 @@ Unlike generic AI agent frameworks (e.g., AutoGen, CrewAI) that often lack seaml
 
 ## Example
 
-A SaaS customer success platform deploys a Spice.ai-powered agent to automate ticket resolution by querying real-time user data from PostgreSQL, historical support interactions from Databricks, and unstructured knowledge base articles via hybrid search. The agent uses LLM inference to generate personalized responses and escalate critical issues, reducing resolution time compared to manual processes or generic AI agents lacking deep data integration. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README) and [Vector-Based Search documentation](/docs/features/search) guide implementation of data access and search for agentic workflows.
+A SaaS customer success platform deploys a Spice.ai-powered agent to automate ticket resolution by querying real-time user data from PostgreSQL, historical support interactions from Databricks, and unstructured knowledge base articles via hybrid search. The agent uses LLM inference to generate personalized responses and escalate critical issues, reducing resolution time compared to manual processes or generic AI agents lacking deep data integration. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) and [Vector-Based Search documentation](/docs/features/search) guide implementation of data access and search for agentic workflows.
 
 ## Benefits
 
@@ -30,8 +30,8 @@ A SaaS customer success platform deploys a Spice.ai-powered agent to automate ti
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](/docs/features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Vector and Hybrid Search**: [Documentation](/docs/features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
-- **AI Gateway**: [Documentation](/docs/features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Federated SQL Queries**: [Documentation](/docs/features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Vector and Hybrid Search**: [Documentation](/docs/features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
+- **AI Gateway**: [Documentation](/docs/features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
 - **Semantic Model**: [Documentation](/docs/features/semantic-model).
 - **Observability**: [Documentation](/docs/features/observability).

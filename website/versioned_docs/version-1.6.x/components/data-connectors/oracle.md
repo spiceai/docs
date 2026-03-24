@@ -198,4 +198,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README)
+- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README.md)
