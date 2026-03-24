@@ -46,12 +46,12 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 The following parameters are supported for configuring the connection to the Glue Data Catalog:
 
-| Parameter Name       | Definition                                                                  |
-| -------------------- | --------------------------------------------------------------------------- |
-| `glue_region`        | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                 |
-| `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                 |
-| `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                             |
-| `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials    |
+| Parameter Name       | Definition                                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `glue_region`        | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                                                                           |
+| `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.     |
+| `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles. |
+| `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                              |
 
 ## Authentication
 
@@ -146,15 +146,15 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ### Permission Details
 
-| Permission | Purpose |
-|------------|---------|
-| `s3:ListBucket` | Required. Allows scanning all objects from the bucket |
-| `s3:GetObject` | Required. Allows fetching objects |
-| `glue:GetCatalog` | Required. Retrieve metadata about the specified catalog. |
+| Permission          | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
+| `s3:GetObject`      | Required. Allows fetching objects                              |
+| `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
-| `glue:GetDatabase` | Required. Retrieve metadata about the specified database. |
-| `glue:GetTable` | Required. Retrieve metadata about the specified table. |
-| `glue:GetTables` | Required. List the tables available in the current database. |
+| `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
+| `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
+| `glue:GetTables`    | Required. List the tables available in the current database.   |
 
 ## Limitations
 

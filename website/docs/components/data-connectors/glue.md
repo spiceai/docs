@@ -50,13 +50,13 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 The following parameters are supported for configuring the connection to the Glue Data Catalog:
 
-| Parameter Name       | Definition                                                                                                                                                                  |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `glue_region`        | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                                                                                                                 |
-| `glue_catalog_id`    | The Glue catalog ID. For Amazon S3 Tables, use the format `<account_id>:s3tablescatalog/<table_bucket_name>`. If not provided, the default catalog for the account is used. |
-| `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                           |
-| `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                       |
-| `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                    |
+| Parameter Name         | Definition                                                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `glue_region`          | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                                                                                                                                                  |
+| `glue_catalog_id`      | The Glue catalog ID. For Amazon S3 Tables, use the format `<account_id>:s3tablescatalog/<table_bucket_name>`. If not provided, the default catalog for the account is used.                                  |
+| `glue_key`             | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                                                            |
+| `glue_secret`          | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                                                        |
+| `glue_session_token`   | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                                     |
 | `glue_iam_role_source` | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 
 ## Examples
