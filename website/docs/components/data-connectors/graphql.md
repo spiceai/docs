@@ -47,7 +47,8 @@ The GraphQL data connector can be configured by providing the following `params`
 | Parameter Name       | Description                                                                                                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `unnest_depth`       | Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.                                                                                     |
-| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication.                                                                                   |
+| `graphql_auth_header` | A custom header name to use for authentication instead of the default `Authorization: Bearer` header. When set, the value of `graphql_auth_token` is sent as the value of this header. Useful for APIs that require authentication via a custom header (e.g. `X-Shopify-Access-Token`). |
+| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication by default, or sent via the custom header specified by `graphql_auth_header`.                                                                                   |
 | `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           |
 | `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   |
 | `graphql_query`      | The username to use for basic auth. See [examples](#examples) for a sample GraphQL query                                                                                        |
@@ -96,6 +97,38 @@ params:
       }
     }
 ```
+
+### Custom Auth Header Example
+
+Some APIs require authentication via a custom header instead of the standard `Authorization: Bearer` header. Use the `graphql_auth_header` parameter to specify a custom header name:
+
+```yaml
+datasets:
+  - from: graphql:https://mystore.myshopify.com/admin/api/2024-01/graphql.json
+    name: shopify_products
+    params:
+      graphql_auth_header: "X-Shopify-Access-Token"
+      graphql_auth_token: ${secrets:SHOPIFY_TOKEN}
+      graphql_query: |
+        {
+          products(first: 10) {
+            edges {
+              node {
+                id
+                title
+              }
+            }
+          }
+        }
+      json_pointer: /data/products/edges
+```
+
+| `graphql_auth_header` | `graphql_auth_token` | `graphql_auth_user`/`graphql_auth_pass` | Result |
+|---|---|---|---|
+| set | set | - | Custom header: `X-Custom: <token>` |
+| not set | set | - | Default: `Authorization: Bearer <token>` |
+| not set | not set | set | HTTP Basic Auth |
+| not set | not set | not set | No auth |
 
 ## Pagination
 

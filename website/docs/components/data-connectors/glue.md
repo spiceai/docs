@@ -57,6 +57,7 @@ The following parameters are supported for configuring the connection to the Glu
 | `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                           |
 | `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                       |
 | `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                    |
+| `glue_iam_role_source` | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 
 ## Examples
 
