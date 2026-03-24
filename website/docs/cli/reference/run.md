@@ -17,6 +17,7 @@ spice run [flags] -- [spiced flags]
 #### Flags
 
 - `-h`, `--help` Print this help message.
+- `--endpoint` Configure the runtime endpoint. The URL scheme determines the endpoint type: `http://` or `https://` sets the HTTP endpoint, `grpc://` or `grpc+tls://` sets the Flight endpoint. Cannot be combined with `--http-endpoint` or `--flight-endpoint` for the same endpoint type.
 - `--flight-endpoint` Configure runtime Flight endpoint. Defaults to `http://127.0.0.1:50051`.
 - `--http-endpoint` Configure runtime HTTP endpoint. Defaults to `http://127.0.0.1:8090`.
 - `--metrics-endpoint` Configure runtime Prometheus metrics endpoint. Defaults to `http://127.0.0.1:9090`.
@@ -78,6 +79,16 @@ runtime:
     enabled: true
     certificate_file: /path/to/cert.pem
     key_file: /path/to/key.pem
+```
+
+#### `--endpoint`
+
+```shell
+# Set the HTTP bind address using scheme-based routing
+spice run --endpoint http://0.0.0.0:8090
+
+# Set the Flight bind address using scheme-based routing
+spice run --endpoint grpc://0.0.0.0:50051
 ```
 
 #### No arguments
