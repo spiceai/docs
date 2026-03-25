@@ -11,7 +11,7 @@ tags:
 Spice provides web search functionality through OpenAI's hosted tools, enabling access to recent information and relevant context.
 
 :::note
-The `websearch` tool (backed by Perplexity) was removed in [spiceai/spiceai#9910](https://github.com/spiceai/spiceai/pull/9910). Use OpenAI's hosted web search tool as described below.
+The `websearch` tool (backed by Perplexity) is no longer supported and was deprecated in [spiceai/spiceai#9910](https://github.com/spiceai/spiceai/pull/9910). Use OpenAI's hosted web search tool as described below.
 :::
 
 ## Web Search Through OpenAI Hosted Tools

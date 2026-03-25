@@ -1,11 +1,11 @@
 ---
-title: 'Web Search Tool (Removed)'
-sidebar_label: 'Websearch (Removed)'
-description: 'The websearch tool has been removed from Spice.'
+title: 'Web Search Tool (Deprecated)'
+sidebar_label: 'Websearch (Deprecated)'
+description: 'The websearch tool is no longer supported in Spice.'
 ---
 
-:::warning Removed
-The `websearch` tool was removed in [spiceai/spiceai#9910](https://github.com/spiceai/spiceai/pull/9910). The tool was backed by Perplexity, which is no longer supported.
+:::warning Deprecated
+The `websearch` tool is no longer supported and was deprecated in [spiceai/spiceai#9910](https://github.com/spiceai/spiceai/pull/9910). The tool was backed by Perplexity, which is no longer supported.
 
 For web search functionality, use [OpenAI's hosted web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses) via the [OpenAI Responses API](/docs/features/web-search#web-search-through-openai-hosted-tools).
 

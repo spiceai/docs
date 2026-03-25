@@ -23,6 +23,7 @@ For details on tool specifications, see the [Tools Spicepod Reference](../refere
 | `top_n_sample`            | Sample the top N rows from a table based on a specified ordering. | `auto`        |
 | `memory:load`             | Retrieve all stored memories from the last time period.           | `memory`      |
 | `memory:store`            | Store information from LLM interaction(s) for future reference.   | `memory`      |
+| ~~[`websearch`][websearch]~~ | ~~Search the web for information.~~ (Deprecated)               | -             |
 
 [websearch]: tools/websearch
 
