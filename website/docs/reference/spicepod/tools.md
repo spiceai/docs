@@ -14,12 +14,11 @@ Example:
 
 ```yaml
 tools:
-  - name: arpanet
-    from: websearch
-    description: 'Search the web for information.'
+  - name: my_mcp_tool
+    from: mcp
+    description: 'An MCP tool.'
     params:
-      engine: perplexity
-      perplexity_auth_token: ${ secrets:SPICE_PERPLEXITY_AUTH_TOKEN }
+      mcp_endpoint: http://localhost:3000/sse
 ```
 
 ### `name`
