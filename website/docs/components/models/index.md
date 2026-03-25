@@ -20,7 +20,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`google`][google]         | Google AI language models                    | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| ~~`perplexity`~~           | ~~Perplexity~~ ([Removed][perplexity])       | Removed           | -            | -                               |
+| ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])       | Deprecated           | -            | -                               |
 
 [openai]: ./openai.md
 [bedrock]: ./bedrock.md
