@@ -7,7 +7,7 @@ pagination_prev: null
 
 [ADBC](https://arrow.apache.org/adbc/) (Arrow Database Connectivity) is a columnar, minimal-overhead alternative to JDBC/ODBC for analytical data access. It transfers data using [Apache Arrow](https://arrow.apache.org/), avoiding serialization overhead between the database driver and Spice.
 
-The ADBC data connector dynamically loads any ADBC-compatible driver at runtime and provides federated SQL query access through a managed connection pool. It supports both read and write operations, and pushes filters, projections, and limits down to the source database.
+The ADBC data connector dynamically loads any ADBC-compatible driver at runtime and provides federated SQL query access through a managed connection pool. It supports both read and write operations, and by default federates entire SQL queries — including aggregations, joins, sorts, and limits — directly to the source database.
 
 Drivers are available for [BigQuery](https://docs.adbc-drivers.org/drivers/bigquery/index.html), [Trino](https://docs.adbc-drivers.org/drivers/trino/index.html), [Snowflake](https://docs.adbc-drivers.org/drivers/snowflake/index.html), [Amazon Redshift](https://docs.adbc-drivers.org/drivers/redshift/index.html), [Databricks](https://docs.adbc-drivers.org/drivers/databricks/index.html), and more. See [ADBC Driver Foundry](https://docs.adbc-drivers.org/) for the full list.
 
@@ -93,6 +93,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_schema`              | Optional. Sets the default schema for the connection.                                                                                |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default: `5`.                                                        |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections in the pool. Default: `1`.                                                              |
+| `query_federation`         | Optional. Enable or disable full SQL query federation. When `enabled`, entire queries (aggregations, joins, sorts) are pushed to the source database. Valid values: `enabled` (default), `disabled`. |
 
 :::warning[In-memory databases]
 In-memory database URIs (e.g., `:memory:` or URIs containing `mode=memory`) are not supported.
@@ -255,15 +256,28 @@ The ADBC connector maintains a pool of database connections for concurrent query
 
 Both values must be positive integers. A `connection_pool_min_idle` greater than `connection_pool_size` is coerced to `connection_pool_size`.
 
-### Query Pushdown
+### Query Federation
 
-The ADBC connector pushes SQL operations down to the source database when possible, reducing the amount of data transferred:
+By default, the ADBC connector federates entire SQL queries to the source database, minimizing data transfer and leveraging the source's query engine for optimal performance. This includes:
 
-- **Filter pushdown**: `WHERE` clauses are pushed to the source.
+- **Aggregation pushdown**: `GROUP BY`, `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, and other aggregate functions.
+- **Sort pushdown**: `ORDER BY` clauses.
+- **Join pushdown**: `JOIN` operations between tables that share the same ADBC connection URI.
+- **Filter pushdown**: `WHERE` clauses.
 - **Projection pushdown**: Only the columns referenced in the query are fetched.
-- **Limit pushdown**: `LIMIT` clauses are applied at the source.
+- **Limit pushdown**: `LIMIT` clauses.
 
-No special configuration is required. Pushdown happens automatically when the source database supports the operation.
+Query federation is enabled by default. To disable it and fall back to partial pushdown (filters, projections, and limits only), set `query_federation: disabled`:
+
+```yaml
+datasets:
+  - from: adbc:my_table
+    name: my_table
+    params:
+      adbc_driver: bigquery
+      adbc_uri: "bigquery:///my-gcp-project"
+      query_federation: disabled
+```
 
 ## Auth
 
