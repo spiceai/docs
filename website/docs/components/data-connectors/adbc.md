@@ -276,9 +276,7 @@ datasets:
 
 When full federation is disabled, the connector still pushes down:
 
-- **Filter pushdown**: `WHERE` clauses are pushed to the source.
-- **Projection pushdown**: Only the columns referenced in the query are fetched.
-- **Limit pushdown**: `LIMIT` clauses are applied at the source.
+Full query federation is enabled by default. When enabled, queries like `SELECT count(*) FROM my_table` are fully pushed to the remote database. When disabled, only projections, filters, and limits are pushed down, and aggregations and other computations are performed locally.
 
 ## Auth
 
