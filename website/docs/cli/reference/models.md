@@ -23,8 +23,8 @@ spice models [flags]
 ```shell
 >>> spice models
 
-NAME  FROM                                    DATASETS STATUS
-modlz file:/Users/jeadie/Downloads/model.onnx []       Ready
+ID     OWNED_BY STATUS ERROR
+modlz  local    Ready
 ```
 
 ### Additional Example
@@ -32,6 +32,6 @@ modlz file:/Users/jeadie/Downloads/model.onnx []       Ready
 ```shell
 >>> spice models --tls-root-certificate-file /path/to/cert.pem
 
-NAME  FROM                                    DATASETS STATUS
-modlz file:/Users/jeadie/Downloads/model.onnx []       Ready
+ID     OWNED_BY STATUS ERROR
+modlz  local    Ready
 ```

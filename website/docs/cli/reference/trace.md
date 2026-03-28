@@ -15,18 +15,21 @@ spice trace [task] [flags]
 
 `task` - The name of the task whose trace is requested. Supported tasks include:
 
-- `accelerated_refresh`
+- `acceleration_refresh`
+- `ai`
 - `ai_chat`
 - `ai_completion`
+- `eval_run`
 - `sql_query`
 - `nsql`
+- `text_embed`
 - `tool_use::search`
 - `tool_use::list_datasets`
 - `tool_use::sql`
 - `tool_use::table_schema`
 - `tool_use::sample_data`
-- `tool_use::sql_query`
-- `tool_use::memory`
+- `tool_use::load_memory`
+- `tool_use::store_memory`
 - `search`
 - `scheduled_worker`
 
