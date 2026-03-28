@@ -7,7 +7,7 @@ pagination_prev: null
 
 [ADBC](https://arrow.apache.org/adbc/) (Arrow Database Connectivity) is a columnar, minimal-overhead alternative to JDBC/ODBC for analytical data access. It transfers data using [Apache Arrow](https://arrow.apache.org/), avoiding serialization overhead between the database driver and Spice.
 
-The ADBC data connector dynamically loads any ADBC-compatible driver at runtime and provides federated SQL query access through a managed connection pool. It supports both read and write operations, and pushes filters, projections, and limits down to the source database.
+The ADBC data connector dynamically loads any ADBC-compatible driver at runtime and provides federated SQL query access through a managed connection pool. It supports both read and write operations, and pushes filters, projections, limits, aggregations, sorting, and joins down to the source database.
 
 Drivers are available for [BigQuery](https://docs.adbc-drivers.org/drivers/bigquery/index.html), [Trino](https://docs.adbc-drivers.org/drivers/trino/index.html), [Snowflake](https://docs.adbc-drivers.org/drivers/snowflake/index.html), [Amazon Redshift](https://docs.adbc-drivers.org/drivers/redshift/index.html), [Databricks](https://docs.adbc-drivers.org/drivers/databricks/index.html), and more. See [ADBC Driver Foundry](https://docs.adbc-drivers.org/) for the full list.
 
@@ -262,6 +262,9 @@ The ADBC connector pushes SQL operations down to the source database when possib
 - **Filter pushdown**: `WHERE` clauses are pushed to the source.
 - **Projection pushdown**: Only the columns referenced in the query are fetched.
 - **Limit pushdown**: `LIMIT` clauses are applied at the source.
+- **Aggregation pushdown**: `GROUP BY`, `SUM`, `COUNT`, `AVG`, and other aggregations are executed on the source.
+- **Sort pushdown**: `ORDER BY` clauses are applied at the source.
+- **Join pushdown**: Joins between datasets from the same ADBC URI are executed on the remote database.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
 
