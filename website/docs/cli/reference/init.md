@@ -30,7 +30,7 @@ The command creates a `spicepod.yaml` with basic initial metadata about the app.
 ```yaml
 # File: ./taxi-trips/spicepod.yaml
 
-version: v1
+version: v2
 kind: Spicepod
 name: taxi-trips
 ```
@@ -47,7 +47,7 @@ After execution, the current working directory contains the file `spicepod.yaml`
 ```yaml
 # File: ./spicepod.yaml
 
-version: v1
+version: v2
 kind: Spicepod
 name: taxi-trips
 ```
