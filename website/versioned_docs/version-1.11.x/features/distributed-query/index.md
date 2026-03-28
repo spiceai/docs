@@ -302,7 +302,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster
     params:
-      region: us-east-1
+      s3_region: us-east-1
 ```
 
 The object store is used for scheduler registration and discovery. Job state persistence for query handoff between schedulers is planned for a future release.
@@ -311,16 +311,16 @@ The object store is used for scheduler registration and discovery. Job state per
 
 The `runtime.scheduler.params` section supports the following S3 parameters:
 
-| Parameter        | Description                                           | Default    |
-| ---------------- | ----------------------------------------------------- | ---------- |
-| `region`         | AWS region for the S3 bucket                          | -          |
-| `endpoint`       | Custom S3-compatible endpoint URL                     | -          |
-| `auth`           | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `key`            | AWS access key ID (when `auth: key`)                  | -          |
-| `secret`         | AWS secret access key (when `auth: key`)              | -          |
-| `session_token`  | AWS session token for temporary credentials           | -          |
-| `client_timeout` | S3 client timeout                                     | -          |
-| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
+| Parameter          | Description                                           | Default    |
+|--------------------| ----------------------------------------------------- | ---------- |
+| `s3_region`        | AWS region for the S3 bucket                          | -          |
+| `s3_endpoint`      | Custom S3-compatible endpoint URL                     | -          |
+| `s3_auth`          | Authentication method: `iam_role` or `key`            | `iam_role` |
+| `s3_key`           | AWS access key ID (when `auth: key`)                  | -          |
+| `s3_secret`        | AWS secret access key (when `auth: key`)              | -          |
+| `s3_session_token` | AWS session token for temporary credentials           | -          |
+| `client_timeout`   | S3 client timeout                                     | -          |
+| `allow_http`       | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
 
 Example with explicit credentials:
 
