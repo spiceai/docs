@@ -23,11 +23,9 @@ spice [command] [--help]
 | [chat](reference/chat)             | Chat with an LLM                                                       |
 | cloud                              | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
-| [completion](reference/completion) | Generate the autocompletion script for the specified shell             |
 | [connect](reference/connect)       | Connect to a Spice.ai Cloud Platform app                               |
 | [dataset](reference/dataset)       | Dataset operations (configure datasets)                                |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
-| eval                               | Run model evaluation                                                   |
 | help                               | Help about any command                                                 |
 | [init](reference/init)             | Initialize Spice app - creates a new spicepod.yaml                     |
 | [install](reference/install)       | Install or reinstall the Spice.ai runtime                              |

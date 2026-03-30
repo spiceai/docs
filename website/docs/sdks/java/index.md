@@ -24,7 +24,7 @@ import TabItem from '@theme/TabItem';
     <dependency>
         <groupId>ai.spice</groupId>
         <artifactId>spiceai</artifactId>
-        <version>0.5.0</version>
+        <version>0.6.0</version>
         <scope>compile</scope>
     </dependency>
     ```
@@ -32,7 +32,7 @@ import TabItem from '@theme/TabItem';
   <TabItem value="gradle" label="Gradle">
     Add the following dependency:
     ```groovy
-    implementation 'ai.spice:spiceai:0.5.0'
+    implementation 'ai.spice:spiceai:0.6.0'
     ```
   </TabItem>
 </Tabs>
@@ -131,7 +131,7 @@ ArrowReader reader = client.queryWithParams(
     Param.decimal128(new BigDecimal("99.99"), 10, 2));
 ```
 
-For more details, see [Parameterized Queries](../features/query-federation/parameterized-queries).
+For more details, see [Parameterized Queries](../../features/query-federation/parameterized-queries).
 
 ### Memory Configuration
 
@@ -147,7 +147,7 @@ SpiceClient client = SpiceClient.builder()
 
 #### Accelerated dataset refresh
 
-Use `refresh` method to perform [Accelerated Dataset](../../components/data-accelerators/index.md) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/release/0.4/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
+Use `refresh` method to perform [Accelerated Dataset](../../components/data-accelerators/index.md) refresh. See full [dataset refresh example](https://github.com/spiceai/spice-java/blob/trunk/src/main/java/ai/spice/example/ExampleDatasetRefreshSpiceOSS.java).
 
 ```java
 SpiceClient client = SpiceClient.builder()
