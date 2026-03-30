@@ -20,7 +20,7 @@ The `from` field specifies the GitHub resource to query. It supports the followi
 | `github:github.com/<owner>/<repo>/files/<ref>` | Query files from a repository at a specific branch or tag |
 | `github:github.com/<owner>/<repo>/issues`      | Query issues from a repository                            |
 | `github:github.com/<owner>/<repo>/pulls`       | Query pull requests from a repository                     |
-| `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository                           |
+| `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository (filter by branch/tag using `WHERE ref = '<value>'`) |
 | `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
 | `github:github.com/<organization>/members`     | Query members from an organization                        |
 
@@ -111,7 +111,10 @@ GitHub queries support a `github_query_mode` parameter, which can be set to eith
 - **Issues**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
 - **Pull Requests**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
 
-Commits only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
+Commits only supports `auto` mode. Filter push down is enabled for the `committed_date` and `ref` columns:
+
+- `committed_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
+- `ref` supports exact matches to query commits from a specific branch or tag. For example, `WHERE ref = 'main'` or `WHERE ref = 'v1.0.0'`.
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
@@ -400,18 +403,25 @@ datasets:
 
 #### Schema
 
-| Column Name       | Data Type | Is Nullable |
-| ----------------- | --------- | ----------- |
-| additions         | Int64     | YES         |
-| author_email      | Utf8      | YES         |
-| author_name       | Utf8      | YES         |
-| committed_date    | Timestamp | YES         |
-| deletions         | Int64     | YES         |
-| id                | Utf8      | YES         |
-| message           | Utf8      | YES         |
-| message_body      | Utf8      | YES         |
-| message_head_line | Utf8      | YES         |
-| sha               | Utf8      | YES         |
+| Column Name                        | Data Type | Is Nullable |
+| ---------------------------------- | --------- | ----------- |
+| sha                                | Utf8      | YES         |
+| id                                 | Utf8      | YES         |
+| ref                                | Utf8      | YES         |
+| author_name                        | Utf8      | YES         |
+| author_email                       | Utf8      | YES         |
+| committer_name                     | Utf8      | YES         |
+| committer_email                    | Utf8      | YES         |
+| committed_date                     | Timestamp | YES         |
+| committer_date                     | Timestamp | YES         |
+| message                            | Utf8      | YES         |
+| message_body                       | Utf8      | YES         |
+| message_head_line                  | Utf8      | YES         |
+| additions                          | Int64     | YES         |
+| deletions                          | Int64     | YES         |
+| changed_files                      | Int64     | YES         |
+| associated_pull_request_number     | Int64     | YES         |
+| status                             | Utf8      | YES         |
 
 #### Example
 
@@ -425,24 +435,15 @@ datasets:
       enabled: true
 ```
 
-```console
-sql> select sha, message_head_line from spiceai.commits limit 10
-+------------------------------------------+------------------------------------------------------------------------+
-| sha                                      | message_head_line                                                      |
-+------------------------------------------+------------------------------------------------------------------------+
-| 2a9fab7905737e1af182e17f40aecc5c4b5dd236 |  wait 2 seconds for the status to turn ready in refreshing status tes… |
-| b9c210a818abeaf14d2493fde5227781f47faed8 | Update README.md - Remove bigquery from tablet of connectors (#1434)   |
-| d61e1af61ebf826f83703b8dd939f19e8b2ba426 | Add databricks_use_ssl parameter (#1406)                               |
-| f1ec55c5986e3e5d57eff94197182ffebbae1045 | wording and logs change reflected on readme (#1435)                    |
-| bfc74185584d1e048ef66c72ce3572a0b652bfd9 | Update acknowledgements (#1433)                                        |
-| 0d870f1791d456e7924b4ecbbda5f3b762db1e32 | Update helm version and use v0.13.0-alpha (#1436)                      |
-| 12f930cbad69833077bd97ea43599a75cff985fc | Enable push-down federation by default (#1429)                         |
-| 6e4521090aaf39664bd61d245581d34398ce77db | Add functional tests for federation push-down (#1428)                  |
-| fa3279b7d9fcaa5e8baaa2425f69b556bb30e309 | Add LRU cache support for http-based sql queries (#1410)               |
-| a3f93dde9d1312bfbf14f7ae3b75bdc468289212 | Add guides and examples about error handling (#1427)                   |
-+------------------------------------------+------------------------------------------------------------------------+
+```sql
+-- Query commits from the default branch
+SELECT sha, message_head_line, ref FROM spiceai.commits LIMIT 5;
 
-Time: 0.0065395 seconds. 10 rows.
+-- Query commits from a specific branch
+SELECT sha, message_head_line, status FROM spiceai.commits WHERE ref = 'main' LIMIT 5;
+
+-- Query commits from a specific tag
+SELECT sha, author_name, committed_date FROM spiceai.commits WHERE ref = 'v1.0.0';
 ```
 
 ### Querying GitHub stars (Stargazers)

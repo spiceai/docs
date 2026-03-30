@@ -1,27 +1,13 @@
 ---
-title: "Completion"
-sidebar_label: "completion"
+title: "Completion (Deprecated)"
+sidebar_label: "completion (deprecated)"
 pagination_prev: null
 pagination_next: null
 ---
 
-Generate the autocompletion script for spice for the specified shell.
-See each sub-command's help for details on how to use the generated script.
+:::warning[Deprecated]
 
-### Usage
+The `spice completion` command has been renamed to [`spice completions`](completions). Use `spice completions` instead.
 
-```shell
-spice completion [command]
-```
-
-Available `command`s
-
-- bash
-- fish
-- powershell
-- zsh
-
-#### Flags
-
-- `-h`, `--help`   Print this help message
+:::
   
