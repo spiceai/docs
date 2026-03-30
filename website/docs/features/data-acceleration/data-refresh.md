@@ -449,7 +449,7 @@ The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_
 | ------------------------------------ | ---------------- |
 | Supported in `refresh_mode`          | `full`, `append` |
 | Required                             | No               |
-| Default `refresh_retry_enabled`      | `false`          |
+| Default `refresh_retry_enabled`      | `true`           |
 | Default `refresh_retry_max_attempts` | Unset            |
 
 By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using a [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.

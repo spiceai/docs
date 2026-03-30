@@ -464,7 +464,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster-state/
     params:
-      aws_region: us-east-1
+      s3_region: us-east-1
     partition_management:
       interval: 30s
       max_assignments_per_cycle: 100
