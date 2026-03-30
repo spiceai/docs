@@ -102,7 +102,7 @@ models:
         Write everything in Haiku like a pirate
 ```
 
-Any request to [HTTP `v1/chat/completion`](../../api/HTTP/post-chat-completions) will include the configured system prompt.
+Any request to [HTTP `v1/chat/completion`](../../api/HTTP/post-chat-completions) or `v1/responses` will include the configured system prompt. For `v1/responses`, the system prompt is set as the `instructions` field. If client-provided `instructions` are also included in the request, both are combined: the configured system prompt appears first, followed by the client instructions.
 
 ### Example: Enforcing default structured output and using system prompt
 

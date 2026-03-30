@@ -23,8 +23,8 @@ datasets:
       mysql_db: my_database
       mysql_user: my_user
       mysql_pass: ${secrets:mysql_pass}
-      mysql_pool_min: 10
-      mysql_pool_max: 100
+      mysql_pool_min: 1
+      mysql_pool_max: 5
 ```
 
 ## Configuration
