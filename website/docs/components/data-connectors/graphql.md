@@ -51,7 +51,7 @@ The GraphQL data connector can be configured by providing the following `params`
 | `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication by default, or sent via the custom header specified by `graphql_auth_header`.                                                                                   |
 | `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           |
 | `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   |
-| `graphql_query`      | The username to use for basic auth. See [examples](#examples) for a sample GraphQL query                                                                                        |
+| `graphql_query`      | The GraphQL query to execute. See [examples](#examples) for a sample GraphQL query                                                                                        |
 | `json_pointer`       | The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred. |
 
 #### GraphQL Query Example
