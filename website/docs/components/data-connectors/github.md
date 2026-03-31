@@ -15,14 +15,14 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 The `from` field specifies the GitHub resource to query. It supports the following formats:
 
-| Format                                         | Description                                               |
-| ---------------------------------------------- | --------------------------------------------------------- |
-| `github:github.com/<owner>/<repo>/files/<ref>` | Query files from a repository at a specific branch or tag |
-| `github:github.com/<owner>/<repo>/issues`      | Query issues from a repository                            |
-| `github:github.com/<owner>/<repo>/pulls`       | Query pull requests from a repository                     |
-| `github:github.com/<owner>/<repo>/commits`     | Query commits from a repository                           |
-| `github:github.com/<owner>/<repo>/stargazers`  | Query stargazers from a repository                        |
-| `github:github.com/<organization>/members`     | Query members from an organization                        |
+| Format                                                | Description                                                           |
+| ----------------------------------------------------- | --------------------------------------------------------------------- |
+| `github:github.com/<owner>/<repo>/files[/<ref>]`      | Query files from a repository, optionally at a specific branch or tag |
+| `github:github.com/<owner>/<repo>/issues`              | Query issues from a repository                                        |
+| `github:github.com/<owner>/<repo>/pulls`               | Query pull requests from a repository                                 |
+| `github:github.com/<owner>/<repo>/commits[/<ref>]`    | Query commits from a repository, optionally from a specific branch    |
+| `github:github.com/<owner>/<repo>/stargazers`          | Query stargazers from a repository                                    |
+| `github:github.com/<organization>/members`             | Query members from an organization                                    |
 
 ### `name`
 
@@ -34,7 +34,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 | Parameter Name | Description                                                                                                                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `github_token` | Required. GitHub personal access token to use to connect to the GitHub API. [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). |
+| `github_token` | GitHub personal access token to use to connect to the GitHub API. Required for issues, pulls, commits, stargazers, and members. Optional for files against public repositories (subject to lower rate limits). [Learn more](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). |
 
 #### GitHub App Installation
 
@@ -111,7 +111,9 @@ GitHub queries support a `github_query_mode` parameter, which can be set to eith
 - **Issues**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
 - **Pull Requests**: Defaults to `auto`. Query filters are only pushed down to the GitHub API in `search` mode.
 
-Commits only supports `auto` mode. Query with filter push down is only enabled for the `committed_date` column. `commited_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`.
+Commits only supports `auto` mode. Query with filter push down is enabled for the `committed_date` and `ref` columns. `committed_date` supports exact matches, or greater/less than matches for dates provided in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) format, like `WHERE committed_date > '2024-09-24'`. `ref` supports exact match only, like `WHERE ref = 'main'`.
+
+Files support filter push down on the `ref` column. `ref` supports exact match only, like `WHERE ref = 'main'`.
 
 When set to `search`, Issues and Pull Requests will use the GitHub [Search API](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) for improved filter performance when querying against the columns:
 
@@ -135,21 +137,30 @@ All other filters are supported when `github_query_mode` is set to `search`, but
 :::warning[Limitations]
 
 - `content` column is fetched only when acceleration is enabled.
-- Querying GitHub files does not support filter push down, which may result in long query times when acceleration is disabled.
+- Querying GitHub files does not support filter push down on columns other than `ref`, which may result in long query times when acceleration is disabled.
 - Setting `github_query_mode` to `search` is not supported.
 
 :::
 
-- `ref` - Required. Specifies the GitHub branch or tag to fetch files from.
+- `ref` - Optional. Specifies the GitHub branch or tag to fetch files from. Can be specified in the dataset path (e.g., `files/<ref>`) or as a SQL filter (`WHERE ref = '<value>'`). If not specified, the repository's default branch is used.
 - `include` - Optional. Specifies a pattern to include specific files. Supports glob patterns. If not specified, all files are included by default.
 
 ```yaml
 datasets:
-  - from: github:github.com/<owner>/<repo>/files/<ref>
+  # Without ref - uses the repository's default branch
+  - from: github:github.com/<owner>/<repo>/files
     name: spiceai.files
     params:
       github_token: ${secrets:GITHUB_TOKEN}
       include: '**/*.json; **/*.yaml'
+    acceleration:
+      enabled: true
+
+  # With ref - pins to a specific branch or tag
+  - from: github:github.com/<owner>/<repo>/files/<ref>
+    name: spiceai.files_tagged
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
     acceleration:
       enabled: true
 ```
@@ -162,6 +173,7 @@ datasets:
 | path         | Utf8      | YES         |
 | size         | Int64     | YES         |
 | sha          | Utf8      | YES         |
+| ref          | Utf8      | NO          |
 | mode         | Utf8      | YES         |
 | url          | Utf8      | YES         |
 | download_url | Utf8      | YES         |
@@ -390,28 +402,44 @@ Time: 0.036530584 seconds. 1 rows.
 
 :::
 
+A specific branch or tag can be specified in the dataset path (e.g., `commits/<ref>`) or as a SQL filter (`WHERE ref = '<value>'`). If not specified, the repository's default branch is used.
+
 ```yaml
 datasets:
+  # Commits from the default branch
   - from: github:github.com/<owner>/<repo>/commits
     name: spiceai.commits
+    params:
+      github_token: ${secrets:GITHUB_TOKEN}
+
+  # Commits from a specific branch
+  - from: github:github.com/<owner>/<repo>/commits/develop
+    name: spiceai.commits_develop
     params:
       github_token: ${secrets:GITHUB_TOKEN}
 ```
 
 #### Schema
 
-| Column Name       | Data Type | Is Nullable |
-| ----------------- | --------- | ----------- |
-| additions         | Int64     | YES         |
-| author_email      | Utf8      | YES         |
-| author_name       | Utf8      | YES         |
-| committed_date    | Timestamp | YES         |
-| deletions         | Int64     | YES         |
-| id                | Utf8      | YES         |
-| message           | Utf8      | YES         |
-| message_body      | Utf8      | YES         |
-| message_head_line | Utf8      | YES         |
-| sha               | Utf8      | YES         |
+| Column Name                      | Data Type | Is Nullable |
+| -------------------------------- | --------- | ----------- |
+| additions                        | Int64     | YES         |
+| author_email                     | Utf8      | YES         |
+| author_name                      | Utf8      | YES         |
+| committed_date                   | Timestamp | YES         |
+| committer_name                   | Utf8      | YES         |
+| committer_email                  | Utf8      | YES         |
+| committer_date                   | Timestamp | YES         |
+| deletions                        | Int64     | YES         |
+| changed_files                    | Int64     | YES         |
+| id                               | Utf8      | YES         |
+| message                          | Utf8      | YES         |
+| message_body                     | Utf8      | YES         |
+| message_head_line                | Utf8      | YES         |
+| sha                              | Utf8      | YES         |
+| ref                              | Utf8      | YES         |
+| associated_pull_request_number   | Int64     | YES         |
+| status                           | Utf8      | YES         |
 
 #### Example
 

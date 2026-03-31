@@ -23,7 +23,7 @@ spice [command] [--help]
 | [chat](reference/chat)             | Chat with an LLM                                                       |
 | cloud                              | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
-| [completion](reference/completion) | Generate the autocompletion script for the specified shell             |
+| [completions](reference/completion) | Generate shell completion scripts                                     |
 | [connect](reference/connect)       | Connect to a Spice.ai Cloud Platform app                               |
 | [dataset](reference/dataset)       | Dataset operations (configure datasets)                                |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
