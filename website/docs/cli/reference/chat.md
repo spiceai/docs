@@ -29,11 +29,10 @@ spice chat [flags] [<message>]
 
 ## Flags
 
-- `--cloud` Use a Spice Cloud instance for chat. Requires `--api-key`.
-- `--endpoint <endpoint>` Specifies the remote Spice instance endpoint. Supports `http://`, `https://`, `grpc://`, or `grpc+tls://` schemes. For example, `--endpoint http://my-remote-host:8090` (HTTP) or `--endpoint grpc://my-remote-host:50051` (Arrow Flight/gRPC).
-- `--http-endpoint <endpoint>` (Deprecated) Runtime HTTP endpoint. Default: `http://localhost:8090`.
-- `--model <string>` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
-- `--temperature <float32>` Model temperature used for chat request. Default: `1.0`.
+- `--model`, `-m` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
+- `--temperature <float>` Model temperature used for chat request.
+- `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).
+- `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 
 ## Examples
 
