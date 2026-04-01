@@ -5,7 +5,7 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Performs embeddings-based searches across search configured datasets. Note: Search requires the `ai` feature to be installed.
+Performs embeddings-based searches across search-configured datasets.
 
 ### Usage
 
@@ -17,11 +17,12 @@ spice search [query] [flags]
 
 #### Flags
 
-- `--cloud` Use a Spice Cloud instance for search. Requires `--api-key`.
+- `--limit`, `-l` Limit number of search results. Default: `10`.
+- `--cache-control <value>` Control whether the results cache is used for searches. Values: `cache` (default), `no-cache`.
+- `--model <string>` Model to use for search.
 - `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).
-- `--limit` Limit number of search results.
-- `--model` Model to use for search.
-- `--http-endpoint <endpoint>` (Deprecated) HTTP endpoint for search (default: `http://localhost:8090`).
+- `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
 
 ### Examples
 
@@ -29,12 +30,9 @@ spice search [query] [flags]
 >>> spice search --limit 2
 ```
 
-#### Remote and Cloud Examples
+#### Remote Example
 
 ```shell
-# Search with Spice Cloud
-spice search --cloud --api-key <your-api-key>
-
 # Search with a remote spiced instance
 spice search --endpoint http://my-remote-host:8090
 ```
