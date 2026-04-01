@@ -18,7 +18,7 @@ datasets:
 
 The `from` field for the ClickHouse connector takes the form of `from:db.dataset` where `db.dataset` is the path to the Dataset within ClickHouse. In the example above it would be `my.dataset`.
 
-If `db` is not specified in either the `from` field or the `clickhouse_db` parameter, it will default to the `default` database.
+The `clickhouse_db` parameter is required when not using `clickhouse_connection_string`. When using a connection string without a database path, it defaults to the `default` database.
 
 ### `name`
 

@@ -40,7 +40,7 @@ Supported connection string formats:
 | AWS S3     | `ducklake:s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `ducklake:postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
-The connection string can also be provided via the `connection_string` parameter.
+The connection string can also be provided via the `ducklake_connection_string` parameter.
 
 ## `name`
 
@@ -70,11 +70,11 @@ The `access` field controls what operations are allowed on the catalog:
 
 ## `params`
 
-| Parameter Name      | Description                                                                                                                                           |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `connection_string` | The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). If omitted, the value from `from: ducklake:<connection_string>` is used. |
-| `name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                                                            |
-| `open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used.                                        |
+| Parameter Name               | Description                                                                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ducklake_connection_string` | The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). If omitted, the value from `from: ducklake:<connection_string>` is used. |
+| `ducklake_name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                                                            |
+| `ducklake_open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used.                                        |
 
 ## Authentication
 
@@ -115,7 +115,7 @@ catalogs:
   - from: ducklake
     name: my_lakehouse
     params:
-      connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=${secrets:PASSWORD}"
+      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=${secrets:PASSWORD}"
 ```
 
 ### Read-write with DDL support
