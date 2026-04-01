@@ -555,7 +555,7 @@ FROM (
 WHERE address.city = 'San Francisco';
 ```
 
-### 
+### Limitations
 
 :::warning[Limitations]
 

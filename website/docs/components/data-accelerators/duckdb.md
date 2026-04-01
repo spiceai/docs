@@ -41,7 +41,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `connection_pool_size` (integer, default: `10`): Controls the maximum number of connections to keep open in the connection pool for concurrent query execution.
 - `on_refresh_recompute_statistics` (string, default: `enabled`): Triggers automatic `ANALYZE` execution after data refreshes. This keeps DuckDB optimizer statistics up-to-date for efficient query plans and performance. Set to `disabled` to turn automatic statistics recomputation off. See [DuckDB ANALYZE statement documentation](https://duckdb.org/docs/stable/sql/statements/analyze).
 - `partition_mode` (string, default: `files`): Controls how partitioned data is stored. Can only be used with `partition_by`. Set to `tables` to store partitions as separate tables within a single DuckDB database, improving resource usage through single shared connection pool for all partitions. Default `files` mode creates separate database files per partition with individual connection pools and generally faster query performance.
-- `duckdb_partitioned_write_flush_threshold` (integer, default: `122880`): The number of rows buffered per partition before flushing data to acceleration storage. Only applicable when using `partition_mode: tables`. Using a larger value can improve write performance but requires more memory.
+- `duckdb_partitioned_write_flush_threshold_rows` (integer, default: `122880`): The number of rows buffered per partition before flushing data to acceleration storage. Only applicable when using `partition_mode: tables`. Using a larger value can improve write performance but requires more memory.
 - `on_refresh_sort_columns` (string, default: none): Sorts data after each refresh by the specified columns, improving DuckDB [zone map](https://duckdb.org/2025/05/14/sorting-for-fast-selective-queries) (min/max) statistics for query pruning and significantly faster lookup queries. Format: `column1 ASC, column2 DESC` or `column1, column2` (defaults to ASC). Specified columns must exist in the dataset schema, and sort direction must be `ASC` or `DESC`.
 - `optimizer_duckdb_aggregate_pushdown` (string, default: `disabled`): Enables aggregate pushdown optimization to execute supported aggregate queries directly in DuckDB. Set to `enabled` to push down aggregations for improved query performance on supported functions like `count`, `sum`, `avg`, `min`, and `max`. Requires `query_federation` to be `disabled`.
 
@@ -92,7 +92,7 @@ datasets:
         duckdb_memory_limit: '4GB'
 ```
 
-Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duck_memory_limit` so ensure adequate memory is provisioned.
+Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duckdb_memory_limit` so ensure adequate memory is provisioned.
 
 Allocate at least 30% more container/machine memory for the runtime process.
 
@@ -116,7 +116,7 @@ Ensure adequate disk space for temporary files, swap files, WAL files, and inter
 
 The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
 
-Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.query.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
 
 Example configuration:
 
