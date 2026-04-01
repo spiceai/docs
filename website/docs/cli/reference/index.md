@@ -21,6 +21,7 @@ spice [command] [--help]
 | [add](reference/add)               | Add Spicepod - adds a Spicepod to the project                          |
 | [catalogs](reference/catalogs)     | List [catalogs](../../components/catalogs) loaded by the Spice runtime |
 | [chat](reference/chat)             | Chat with an LLM                                                       |
+| [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
 | cloud                              | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
 | [connect](reference/connect)       | Connect to a Spice.ai Cloud Platform app                               |
