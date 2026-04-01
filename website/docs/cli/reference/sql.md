@@ -15,11 +15,11 @@ spice sql [flags]
 
 #### Flags
 
-- `--cloud` Use a Spice Cloud instance as the SQL backend. Requires `--api-key`.
 - `--endpoint <endpoint>` Specifies the remote Spice instance endpoint. Supports `http://`, `https://`, `grpc://`, or `grpc+tls://` schemes. If not provided, uses the local spiced runtime.
 - `--flight-endpoint <endpoint>` (Deprecated) Specifies the remote Spice instance Flight endpoint (treated as gRPC endpoint). If not provided, uses the local spiced runtime.
-- `--http-endpoint <endpoint>` (Deprecated) HTTP endpoint of Spice (default: `http://127.0.0.1:8090`).
+- `--cache-control <value>` Control whether the results cache is used for queries. Default: `cache`.
 - `--tls-root-certificate-file <file>` The path to the root certificate file used to verify the Spice.ai runtime server certificate.
+- `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 - `-h`, `--help` Print this help message.
 
 ### Examples

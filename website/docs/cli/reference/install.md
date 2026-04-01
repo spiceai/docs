@@ -14,13 +14,14 @@ spice install [flavor] [flags]
 
 #### flavor
 
-- ``   Install the core runtime that only includes data components
-- `ai` Install the AI-enabled runtime with both data components and AI components
+- ``     Install the core runtime that only includes data components
+- `cuda` Install the runtime with CUDA GPU acceleration
+
+Metal/CUDA acceleration is auto-detected by default.
 
 #### Flags
 
 - `-h`, `--help`   Print this help message
-- `-c`, `--cpu`    Install the CPU accelerated version of the AI runtime
 - `-f`, `--force`  Force installation of the latest released runtime
 
 ### Examples
@@ -32,5 +33,5 @@ spice install
 ### Additional Example
 
 ```shell
-spice install ai --cpu
+spice install cuda
 ```

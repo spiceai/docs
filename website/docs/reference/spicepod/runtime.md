@@ -26,7 +26,7 @@ API key authentication supports the following configuration parameters:
 
 | Parameter name | Optional | Default | Description                                                    |
 | -------------- | -------- | ------- | -------------------------------------------------------------- |
-| `enabled`      | Yes      | `false` | Defaults to `false`. Whether API key authentication is enabled |
+| `enabled`      | Yes      | `true`  | Defaults to `true`. Whether API key authentication is enabled  |
 | `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
 
 ## `runtime.dataset_load_parallelism`
@@ -464,7 +464,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster-state/
     params:
-      aws_region: us-east-1
+      s3_region: us-east-1
     partition_management:
       interval: 30s
       max_assignments_per_cycle: 100

@@ -146,7 +146,7 @@ runtime:
     temp_directory: /tmp/spice  # Directory for spill files
 ```
 
-Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query execution engine, which provides vectorized, multi-threaded query execution with automatic memory management. DataFusion's [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html) divides memory evenly among partitions, so higher `target_partitions` values result in less memory per partition.
+Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query execution engine, which provides vectorized, multi-threaded query execution with automatic memory management. DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured limit, improving throughput for high-concurrency queries with many partitions.
 
 ### Spill-to-Disk
 

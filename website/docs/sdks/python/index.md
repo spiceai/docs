@@ -13,13 +13,13 @@ tags:
 [github.com/spiceai/spicepy](https://github.com/spiceai/spicepy)
 
 :::note[Parameterized Queries]
-Native parameterized query support in spicepy is coming soon. For parameterized queries, use ADBC directly. See [Parameterized Queries](../../features/query-federation/parameterized-queries) and [ADBC](../../api/adbc) for more information.
+Parameterized queries are supported via the `query_with_params()` method. Install with `pip install spicepy[params]` for ADBC support. See [Parameterized Queries](../../features/query-federation/parameterized-queries) and [ADBC](../../api/adbc) for more information.
 :::
 
 ### Install
 
 ```shell
-pip install git+https://github.com/spiceai/spicepy@v3.0.0
+pip install git+https://github.com/spiceai/spicepy@v3.1.0
 ```
 
 ### Connect to a local Spice Runtime
