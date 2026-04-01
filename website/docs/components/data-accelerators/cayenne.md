@@ -175,7 +175,7 @@ Spice Cayenne is DataFusion query-native, meaning all query execution uses [Apac
 - **Automatic memory management**: Query memory is tracked and spilled to disk when limits are exceeded
 - **Dynamic filter pushdown**: Filters from TopK, Join, and Aggregate operators push down to file scans
 
-DataFusion's [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html) divides memory evenly among partitions, providing predictable memory usage under concurrent query load.
+DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis, improving throughput for high-concurrency queries with many partitions.
 
 ### High-Performance Columnar Storage
 
