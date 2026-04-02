@@ -10,7 +10,65 @@ The Spice runtime stores information about completed tasks in the `spice.runtime
 
 A span is a unit of trace data that encapsulates the details of a task's execution, including its duration, inputs, and outputs. Spans enable hierarchical tracing by grouping tasks under a parent span, which provides a view of task dependencies and the overall execution flow.
 
-To learn more about task history configuration read [task_history](./task_history).
+For configuration options, see the [`runtime.task_history` reference](./spicepod/runtime#runtimetask_history).
+
+## Configuration
+
+Task history is enabled by default with a 30-minute retention period. To adjust retention and other settings, configure the `runtime.task_history` section in `spicepod.yaml`:
+
+```yaml
+runtime:
+  task_history:
+    enabled: true
+    captured_output: none
+    retention_period: 8h
+    retention_check_interval: 15m
+```
+
+- **`enabled`**: Enable or disable task history. Defaults to `true`.
+- **`captured_output`**: Level of output captured. Defaults to `none`.
+- **`retention_period`**: How long records are retained. Defaults to `8h`. Longer retention periods increase memory usage.
+- **`retention_check_interval`**: How often old records are checked for removal. Defaults to `15m`.
+
+For the full list of parameters, see the [`runtime.task_history` reference](./spicepod/runtime#runtimetask_history).
+
+## Querying Task History
+
+Task history is queryable as a standard SQL table at `runtime.task_history` (or `spice.runtime.task_history`). To retrieve all recorded tasks, run:
+
+```sql
+SELECT * FROM runtime.task_history;
+```
+
+This query can be issued through any Spice SQL interface, including the [HTTP API](../api/HTTP/post-sql), [Arrow Flight SQL](../api/arrow-flight-sql), or the [Spice SQL REPL](../cli/reference/sql).
+
+## Persisting Task History
+
+Task history is stored in-memory and subject to the configured `retention_period`. To persist task history beyond the retention window, set up a [worker](./spicepod/workers) with a cron schedule that periodically writes records to an external dataset.
+
+For example, to back up task history to an Iceberg table every 10 minutes:
+
+```yaml
+datasets:
+  - from: glue:team_app.task_history
+    name: task_history_sink
+    mode: read_write
+    params:
+      glue_auth: key
+      glue_region: us-east-1
+      glue_key: ${secrets:AWS_GLUE_ACCESS_KEY}
+      glue_secret: ${secrets:AWS_GLUE_SECRET_ACCESS_KEY}
+
+workers:
+  - name: backup-task-history
+    cron: '*/10 * * * *' # every 10 minutes
+    sql: |
+      INSERT INTO task_history_sink
+      SELECT * FROM runtime.task_history
+      WHERE start_time >= NOW() - INTERVAL '10' MINUTE;
+```
+
+This approach writes recent task history records to a durable store on a regular schedule, ensuring data is available for later analysis even after the in-memory retention window expires.
 
 ## Table Schema
 
