@@ -9,9 +9,9 @@ Spice supports large language models hosted on [Amazon Bedrock](https://aws.amaz
 
 ## Supported Models
 
-Spice uses Bedrock's Converse API for chat models, so it supports Bedrock model IDs that are Converse-compatible.
+Spice supports both Amazon's Nova models and models from other providers that are available on AWS bedrock.
 
-Commonly used model families include:
+Providers include:
 
 | Family | Example model IDs |
 | ------ | ----------------- |
@@ -24,15 +24,6 @@ Commonly used model families include:
 | DeepSeek | `deepseek.r1-v1:0`, `deepseek.v3.2` |
 
 Cross-region inference profiles (for example, `us.amazon.nova-lite-v1:0` or `us.meta.llama3-1-70b-instruct-v1:0`) are supported. See the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for the latest IDs and availability by region.
-
-### Model ID limitations
-
-Some Bedrock models cannot be invoked with direct model IDs and require an inference profile ID/ARN instead. In those cases, use an inference profile model ID (for example, `us.meta.llama3-1-70b-instruct-v1:0`) or a profile ARN.
-
-You may see errors like:
-
-- `Invocation of model ID ... with on-demand throughput isn’t supported`
-- `Access denied ... model is marked as Legacy`
 
 To request support for additional models, file a [GitHub Issue](https://github.com/spiceai/spiceai/issues).
 
