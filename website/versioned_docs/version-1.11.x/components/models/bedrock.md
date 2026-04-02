@@ -9,16 +9,21 @@ Spice supports large language models hosted on [Amazon Bedrock](https://aws.amaz
 
 ## Supported Models
 
-Spice supports the following Amazon Nova models:
+Spice supports both Amazon's Nova models and models from other providers that are available on AWS bedrock.
 
-| Model ID                   | Description                                    |
-| -------------------------- | ---------------------------------------------- |
-| `amazon.nova-micro-v1:0`   | Text-only, lowest latency responses            |
-| `amazon.nova-lite-v1:0`    | Multimodal, low-cost with fast processing      |
-| `amazon.nova-pro-v1:0`     | Multimodal, balanced accuracy, speed, and cost |
-| `amazon.nova-premier-v1:0` | Multimodal, best for complex tasks             |
+Providers include:
 
-Cross-region inference profiles (e.g., `us.amazon.nova-lite-v1:0`) are also supported. See the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for details.
+| Family | Example model IDs |
+| ------ | ----------------- |
+| Amazon Nova | `amazon.nova-micro-v1:0`, `amazon.nova-lite-v1:0`, `amazon.nova-pro-v1:0`, `amazon.nova-premier-v1:0` |
+| Anthropic Claude | `anthropic.claude-3-5-haiku-20241022-v1:0`, `anthropic.claude-sonnet-4-20250514-v1:0` |
+| Meta Llama | `meta.llama3-1-70b-instruct-v1:0`, `meta.llama3-2-90b-instruct-v1:0` |
+| Mistral | `mistral.mixtral-8x7b-instruct-v0:1`, `mistral.mistral-large-2407-v1:0` |
+| Cohere Command | `cohere.command-r-v1:0`, `cohere.command-r-plus-v1:0` |
+| AI21 Jamba | `ai21.jamba-1-5-mini-v1:0`, `ai21.jamba-1-5-large-v1:0` |
+| DeepSeek | `deepseek.r1-v1:0`, `deepseek.v3.2` |
+
+Cross-region inference profiles (for example, `us.amazon.nova-lite-v1:0` or `us.meta.llama3-1-70b-instruct-v1:0`) are supported. See the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) for the latest IDs and availability by region.
 
 To request support for additional models, file a [GitHub Issue](https://github.com/spiceai/spiceai/issues).
 
@@ -49,6 +54,7 @@ models:
 | `aws_access_key_id`     | AWS access key ID. If not provided, credentials load from environment variables or IAM roles.     | -           |
 | `aws_secret_access_key` | AWS secret access key. If not provided, credentials load from environment variables or IAM roles. | -           |
 | `aws_session_token`     | AWS session token for temporary credentials.                                                      | -           |
+| `aws_iam_role_source`   | IAM role credential source. `auto` uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. | `auto`      |
 
 #### Guardrails
 
@@ -96,6 +102,23 @@ Use cross-region inference profiles for improved availability:
 models:
   - from: bedrock:us.amazon.nova-pro-v1:0
     name: nova-pro
+    params:
+      aws_region: us-east-1
+```
+
+### Inference Profile for Models Without On-Demand Throughput
+
+Some models (for example, several Anthropic/Meta variants) require inference profile IDs:
+
+```yaml
+models:
+  - from: bedrock:us.meta.llama3-1-70b-instruct-v1:0
+    name: llama31
+    params:
+      aws_region: us-east-1
+
+  - from: bedrock:us.anthropic.claude-opus-4-6-v1
+    name: claude-opus-46
     params:
       aws_region: us-east-1
 ```
