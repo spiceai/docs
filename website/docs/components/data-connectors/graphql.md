@@ -57,7 +57,7 @@ The GraphQL data connector can be configured by providing the following `params`
 #### GraphQL Query Example
 
 ```yaml
-query: |
+graphql_query: |
   {
     some {
       nodes {
