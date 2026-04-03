@@ -79,7 +79,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 **One** of the following auth values must be provided for Azure Blob:
 
 - `delta_lake_azure_storage_account_key`,
-- `delta_lake_azure_storage_client_id` and `azure_storage_client_secret`, or
+- `delta_lake_azure_storage_client_id` and `delta_lake_azure_storage_client_secret`, or
 - `delta_lake_azure_storage_sas_key`.
   :::
 
@@ -96,7 +96,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 
 | Parameter Name           | Description                                                  |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `delta_lake_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 
@@ -154,7 +154,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 
 ```yaml
 params:
-  delta_lake_google_service_account_path: /path/to/service-account.json
+  delta_lake_google_service_account: /path/to/service-account.json
 ```
 
 ## Types
