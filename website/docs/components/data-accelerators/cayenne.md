@@ -68,7 +68,7 @@ datasets:
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
-| `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `string`. See [Data Type Support](#data-type-support).                                                                       |
+| `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
 | `cayenne_footer_cache_mb`         | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans. Defaults to `128`.                                                        |
 | `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in megabytes, caching decompressed data segments for improved query performance. Defaults to `256`.                                                |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
@@ -76,7 +76,7 @@ datasets:
 | `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). Defaults to `{spice_data_path}/metadata`.                                                                                     |
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `sort_columns`                    | Comma-separated list of columns to sort data by on refresh operations. Improves segment pruning for frequently filtered columns.                                                              |
-| `unsupported_type_action`         | Action when encountering unsupported data types. Options: `string` (default), `error`, `warn`, `ignore`.                                                                                      |
+| `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
 ### S3 Express One Zone Parameters
 
@@ -89,7 +89,7 @@ datasets:
 | `cayenne_s3_secret`         | AWS secret access key (required when `cayenne_s3_auth: key`).                                                                                   |
 | `cayenne_s3_session_token`  | AWS session token (optional, for temporary credentials).                                                                                        |
 | `cayenne_s3_endpoint`       | Custom S3 endpoint URL (optional, overrides auto-generated endpoint).                                                                           |
-| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `5m`). Defaults to 5 minutes for uploads.                                                                       |
+| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `30s`, `5m`). Defaults to `120s`.                                                                               |
 | `cayenne_s3_allow_http`     | Set to `true` for testing with local S3-compatible storage. Defaults to `false`.                                                                |
 
 ## Performance Tuning

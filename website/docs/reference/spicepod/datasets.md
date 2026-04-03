@@ -469,7 +469,7 @@ See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-
 
 ## `acceleration.refresh_sql`
 
-Optional. Filters the data fetched from the source to be stored in the accelerator engine. Only supported for `full` refresh_mode datasets.
+Optional. Filters the data fetched from the source to be stored in the accelerator engine. Supported for `full` and `append` refresh mode datasets.
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
@@ -482,7 +482,7 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 
 ## `acceleration.refresh_data_window`
 
-Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Only supported for `full` refresh mode datasets.
+Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Supported for `full` and `append` refresh mode datasets.
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
