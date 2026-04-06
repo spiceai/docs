@@ -35,6 +35,7 @@ datasets:
       pg_pass: ${secrets:PG_PASSWORD}
     acceleration:
       enabled: true
+```
 
 ```bash
 echo "PG_PASSWORD=your_password" > .env
@@ -127,9 +128,9 @@ The table below shows the PostgreSQL data types supported, along with the type m
 | `uuid`          | `Utf8`                           |
 | `bytea`         | `Binary`                         |
 | `bool`          | `Boolean`                        |
-| `json`          | `LargeUtf8`                      |
+| `json`          | `Utf8`                           |
 | `timestamp`     | `Timestamp(Nanosecond, None)`    |
-| `timestampz`    | `Timestamp(Nanosecond, TimeZone` |
+| `timestamptz`   | `Timestamp(Nanosecond, UTC)`     |
 | `date`          | `Date32`                         |
 | `time`          | `Time64(Nanosecond)`             |
 | `interval`      | `Interval(MonthDayNano)`         |
