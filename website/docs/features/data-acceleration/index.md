@@ -30,17 +30,17 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 **Refresh Latency**: The `refresh_check_interval` controls how frequently the runtime checks for new data. Shorter intervals increase load on the source database. For real-time requirements, use [Change Data Capture (CDC)](../cdc/index.md) instead of polling.
 
-**Schema Changes**: Spice infers the schema for each accelerated dataset at startup and does not apply schema changes at runtime. If the source schema changes (columns added, removed, or types changed) while the runtime is running, data refreshes will fail rather than silently applying the new schema. To pick up source schema changes, restart the runtime. See [Schema Inference](../components/data-connectors#schema-inference) for details.
+**Schema Changes**: Spice infers the schema for each accelerated dataset at startup and does not apply schema changes at runtime. If the source schema changes (columns added, removed, or types changed) while the runtime is running, data refreshes will fail rather than silently applying the new schema. To pick up source schema changes, restart the runtime, or use [`mode: file_update`](../../reference/spicepod/datasets#accelerationmode) which automatically detects schema changes on refresh and recreates the acceleration when incompatible changes are found. See [Schema Inference](../components/data-connectors#schema-inference) for details.
 
 **Engine Selection**: Choose the acceleration engine based on workload characteristics:
 
-| Engine     | Best For                                           | Mode               |
-| ---------- | -------------------------------------------------- | ------------------ |
-| `arrow`    | Read-heavy analytics, in-memory speed              | `memory`           |
-| `duckdb`   | Complex analytical queries, file-based persistence | `memory` or `file` |
-| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `file`             |
-| `postgres` | When a full SQL database is needed as accelerator  | External           |
-| `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file`             |
+| Engine     | Best For                                           | Mode                                              |
+| ---------- | -------------------------------------------------- | ------------------------------------------------- |
+| `arrow`    | Read-heavy analytics, in-memory speed              | `memory`                                          |
+| `duckdb`   | Complex analytical queries, file-based persistence | `memory`, `file`, `file_create`, or `file_update` |
+| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `file`, `file_create`, or `file_update`           |
+| `postgres` | When a full SQL database is needed as accelerator  | External                                          |
+| `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file`, `file_create`, or `file_update`           |
 
 ## Example
 
