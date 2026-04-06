@@ -272,7 +272,9 @@ This configuration permits requests only from the `https://example.com` origin.
 
 ## `runtime.query.memory_limit`
 
-The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When `memory_limit` is specified, the value of `runtime.query.temp_directory` determines the directory DataFusion uses for spilling intermediate data to disk.
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
+
+If not specified, defaults to **90% of total system memory** (container-aware).
 
 ```yaml
 runtime:
