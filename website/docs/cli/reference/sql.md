@@ -19,6 +19,8 @@ spice sql [flags]
 - `--flight-endpoint <endpoint>` (Deprecated) Specifies the remote Spice instance Flight endpoint (treated as gRPC endpoint). If not provided, uses the local spiced runtime.
 - `--cache-control <value>` Control whether the results cache is used for queries. Default: `cache`.
 - `--tls-root-certificate-file <file>` The path to the root certificate file used to verify the Spice.ai runtime server certificate.
+- `--client-tls-certificate-file <file>` The path to the client certificate file for mTLS authentication. Required when connecting to a cluster node that enforces mutual TLS. Must be used together with `--client-tls-key-file`.
+- `--client-tls-key-file <file>` The path to the client private key file for mTLS authentication. Must be used together with `--client-tls-certificate-file`.
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 - `-h`, `--help` Print this help message.
 
@@ -41,10 +43,19 @@ sql> show tables
 +---------------+--------------------+---------------+------------+
 ```
 
-### Additional Example
+### Additional Examples
 
 ```shell
 $ spice sql --tls-root-certificate-file /path/to/cert.pem
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+```
+
+#### mTLS Client Authentication
+
+```shell
+$ spice sql --tls-root-certificate-file /path/to/ca.pem \
+  --client-tls-certificate-file /path/to/client-cert.pem \
+  --client-tls-key-file /path/to/client-key.pem
 Welcome to the Spice.ai SQL REPL! Type 'help' for help.
 ```
 
