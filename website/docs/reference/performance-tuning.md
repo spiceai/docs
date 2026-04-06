@@ -380,7 +380,7 @@ runtime:
 
 ### Memory Limit
 
-Set `memory_limit` based on available container/machine memory minus accelerator requirements:
+If not specified, `memory_limit` defaults to 90% of total system memory (container-aware). For deployments with co-located accelerators, set an explicit limit based on available memory:
 
 ```text
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)

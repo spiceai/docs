@@ -133,11 +133,11 @@ Refresh modes affect memory usage as follows:
 
 ## DataFusion Query Memory Management
 
-Spice uses DataFusion as its query execution engine. By default, DataFusion does not enforce strict memory limits, which can lead to unbounded usage. Spice addresses this through configurable memory limits and spill-to-disk support.
+Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware). This can be tuned through the `runtime.query.memory_limit` configuration.
 
 ### Memory Limit Configuration
 
-The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. Once the memory limit is reached, supported query operations spill data to disk.
+The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory. Once the memory limit is reached, supported query operations spill data to disk.
 
 ```yaml
 runtime:
