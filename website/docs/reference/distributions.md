@@ -44,15 +44,15 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 
 ## Distribution Availability
 
-| Distribution / Variant | Open Source      | Spice Cloud | Enterprise |
-| ---------------------- | ---------------- | ----------- | ---------- |
-| Default (Data + AI)    | ✅                | ✅           | ✅          |
-| Data-only              | Nightly only     | ✅           | ✅          |
-| NAS (SMB + NFS)        | Local build only | ❌           | ✅          |
-| Metal (macOS)          | ✅                | ✅           | ✅          |
-| CUDA (Linux)           | Local build only | ✅           | ✅          |
-| Allocator variants     | Local build only | ✅           | ✅          |
-| ODBC connector         | Local build only | ✅           | ✅          |
+| Distribution / Variant | Image Tag | Open Source | Spice Cloud | Enterprise |
+| --- | --- | --- | --- | --- |
+| Default (Data + AI) | `latest` | ✅ | ✅ | ✅ |
+| Data-only | `latest-data` | Nightly only | ✅ | ✅ |
+| NAS (SMB + NFS) | — | Local build only | ❌ | ✅ |
+| Metal (macOS) | — | Local build only | ✅ | ✅ |
+| CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
+| Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
+| ODBC connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
