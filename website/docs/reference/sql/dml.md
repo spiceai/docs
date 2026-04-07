@@ -107,6 +107,7 @@ WHEN MATCHED THEN UPDATE SET column1 = expr1 [, column2 = expr2, ...]
 - Only `WHEN MATCHED THEN UPDATE SET` is supported (no `INSERT`, `DELETE`, or `NOT MATCHED` clauses).
 - The `ON` clause must use equality predicates only, joined with `AND`.
 - The target table must not have `primary_key` or `on_conflict` configured.
+- The source table must not contain duplicate rows for the same join key(s). If duplicates are detected, the MERGE operation fails with an error to prevent data loss. Deduplicate the source table before running MERGE.
 - In distributed deployments, both source and target tables must be partitioned by the same column, and the partition column must appear in the `ON` clause join keys.
 
 ### Examples
