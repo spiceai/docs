@@ -1,7 +1,7 @@
 ---
 title: 'Managing Memory Usage'
 sidebar_label: 'Memory'
-sidebar_position: 31
+sidebar_position: 32
 description: 'Guidelines and best practices for managing memory usage and optimizing performance in Spice deployments.'
 keywords:
   - memory
@@ -250,32 +250,22 @@ Spice Cayenne and Arrow both use DataFusion as the query execution engine and sh
 
 ## Memory Allocators
 
-Spice supports multiple memory allocators, each with different performance characteristics. The allocator is selected at build time and available through different Docker image tags.
+The Spice runtime supports multiple memory allocators that affect how the process allocates and frees memory at the system level. The choice of allocator can significantly impact performance depending on workload characteristics such as concurrency, allocation size distribution, and fragmentation behavior.
 
-| Allocator          | Docker Tag Suffix | Characteristics                                     | Best For                                   |
-| ------------------ | ----------------- | --------------------------------------------------- | ------------------------------------------ |
-| snmalloc (default) | (none)            | High performance, low fragmentation, multi-threaded | Most workloads                             |
-| jemalloc           | `-jemalloc`       | Predictable performance, good memory profiling      | Memory-constrained environments, debugging |
-| System allocator   | `-sysalloc`       | Uses OS default allocator                           | Compatibility, minimal overhead            |
+| Allocator             | Description                                                  | Best For                                      |
+| --------------------- | ------------------------------------------------------------ | --------------------------------------------- |
+| snmalloc (default)    | Optimized for concurrent workloads with low fragmentation    | General-purpose, high-concurrency deployments |
+| jemalloc              | Mature allocator with strong profiling support               | Workloads with varied allocation patterns     |
+| mimalloc              | Microsoft's allocator, designed for performance and security | Performance-sensitive deployments             |
+| System (glibc malloc) | Uses the OS default allocator                                | Compatibility testing, debugging              |
 
-**Usage Example:**
+The default distribution uses snmalloc. Alternative allocators are available as separate [distribution variants](./distributions#allocator-variants), each published as a distinct Docker image tag.
 
-```bash
-# Default (snmalloc)
-docker pull spiceai/spiceai:latest
+:::note
+Allocator variants are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing). Open source users can build locally for development and testing.
+:::
 
-# jemalloc variant
-docker pull spiceai/spiceai:latest-jemalloc
-
-# System allocator variant
-docker pull spiceai/spiceai:latest-sysalloc
-```
-
-**Recommendations:**
-
-- Use the default (snmalloc) for most production workloads
-- Use jemalloc when memory profiling or debugging memory issues
-- Use sysalloc for maximum compatibility with system monitoring tools
+The memory allocator operates independently from the query memory management described above. `runtime.query.memory_limit` controls DataFusion's query execution memory pool, while the allocator determines how the runtime process itself requests and releases memory from the operating system.
 
 ## Results Cache Memory
 
