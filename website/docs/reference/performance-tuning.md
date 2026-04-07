@@ -1,7 +1,7 @@
 ---
 title: 'Performance Tuning'
 sidebar_label: 'Performance Tuning'
-sidebar_position: 32
+sidebar_position: 33
 description: 'Comprehensive guide to optimizing query performance, acceleration, and resource utilization in Spice deployments.'
 keywords:
   - performance
