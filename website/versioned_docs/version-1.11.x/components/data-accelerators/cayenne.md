@@ -52,7 +52,7 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 
 ## Configuration
 
-To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne only supports `mode: file` and stores data on disk.
+To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports `mode: file`, `mode: file_create`, and `mode: file_update` and stores data on disk.
 
 ```yaml
 datasets:
