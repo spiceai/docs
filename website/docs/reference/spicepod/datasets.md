@@ -21,9 +21,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 `spicepod.yaml`
@@ -37,9 +37,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / duckdb
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 Relative path example:
@@ -56,7 +56,6 @@ datasets:
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
   refresh_check_interval: 1h
@@ -127,7 +126,6 @@ An alternative to adding the dataset definition inline in the `spicepod.yaml` fi
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
   refresh_check_interval: 1h
