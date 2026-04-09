@@ -381,6 +381,62 @@ A Document table will be created.
 +----------------------------------------------------+--------------------------------------------------+
 ```
 
+## Identifier Case Sensitivity and Quoting
+
+Spice follows [PostgreSQL conventions](/docs/reference/sql/select) for identifier handling: **unquoted identifiers are normalized to lowercase**. This applies to both the `from` field in dataset definitions and the `name` field used for SQL queries.
+
+### Quoting in the `from` field
+
+To reference a table or schema with mixed-case or uppercase characters in the `from` field, wrap each case-sensitive part in double quotes:
+
+```yaml
+datasets:
+  # Without quoting — "ActionExecutions" is lowercased to "actionexecutions"
+  - from: postgres:my_schema.ActionExecutions
+    name: action_executions
+
+  # With quoting — case is preserved for the table name
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+
+  # Quote each part individually as needed
+  - from: postgres:"MySchema"."ActionExecutions"
+    name: action_executions
+```
+
+Each dotted part of the identifier is treated independently — quote only the parts that require case preservation. For example, `postgres:my_schema."ActionExecutions"` preserves the case of `ActionExecutions` while `my_schema` is normalized to lowercase.
+
+This applies to all federated database connectors where the `from` field references a table identifier (e.g. `postgres`, `mysql`, `snowflake`, `databricks`, `clickhouse`, `mssql`, `duckdb`, `dremio`, `flightsql`, `spark`, `mongodb`, `oracle`, `adbc`). Connectors that interpret `from` as a file path (e.g. `s3`, `delta_lake`, `ftp`, `abfs`) do not apply identifier normalization.
+
+### Quoting in the `name` field
+
+The `name` field controls the table name used in Spice SQL queries and follows the same lowercase normalization. To preserve case in the dataset name, wrap the value in double quotes. In YAML, use single quotes around the double-quoted value:
+
+```yaml
+datasets:
+  - from: postgres:my_schema."ActionExecutions"
+    name: '"ActionExecutions"'
+```
+
+```sql
+-- Query using the preserved-case name
+SELECT * FROM "ActionExecutions";
+```
+
+If you don't need to preserve case in queries, a lowercase `name` works without quoting:
+
+```yaml
+datasets:
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+```
+
+```sql
+SELECT * FROM action_executions;
+```
+
+Dataset `name` quoting works regardless of connector type. See the [datasets `name` reference](/docs/reference/spicepod/datasets#name) for more details.
+
 ## Data Connector Docs
 
 import DocCardList from '@theme/DocCardList';

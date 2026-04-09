@@ -35,6 +35,10 @@ The `from` field takes the form `mysql:database_name.table_name` where `database
 
 If the `database_name` is omitted in the `from` field, the connector will use the database specified in the `mysql_db` parameter. If the `mysql_db` parameter is not provided, it will default to the user's default database.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table or database with mixed-case characters, wrap each case-sensitive part in double quotes: `mysql:my_database."MixedCaseTable"`. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting).
+:::
+
 These two examples are identical:
 
 ```yaml

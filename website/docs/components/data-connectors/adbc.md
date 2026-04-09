@@ -48,7 +48,26 @@ Spice includes built-in SQL dialect support for BigQuery, translating federated 
 
 The `from` field takes the form `adbc:table_name`, where `table_name` is the name of the table to read from the connected database.
 
-Table name casing depends on the source database. For example, Snowflake uses uppercase table names by default, while BigQuery and Trino use lowercase. When `adbc_catalog` and `adbc_schema` are not set, fully qualified names can be specified in the `from` field.
+Spice normalizes unquoted identifiers to lowercase. To preserve mixed-case or uppercase table names, wrap each case-sensitive part in double quotes:
+
+```yaml
+datasets:
+  # BigQuery table with mixed-case name
+  - from: adbc:my_dataset."ActionExecutions"
+    name: action_executions
+    params:
+      adbc_driver: bigquery
+      adbc_uri: "bigquery:///my-gcp-project"
+
+  # Quote each part individually as needed
+  - from: adbc:"MyDataset"."ActionExecutions"
+    name: action_executions
+    params:
+      adbc_driver: bigquery
+      adbc_uri: "bigquery:///my-gcp-project"
+```
+
+Table name casing conventions vary by source database — Snowflake uses uppercase by default, while BigQuery and Trino use lowercase. When `adbc_catalog` and `adbc_schema` are not set, fully qualified names can be specified in the `from` field. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting) for details.
 
 ### `name`
 

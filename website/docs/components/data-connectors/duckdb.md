@@ -27,6 +27,10 @@ The `from` field supports one of two forms:
 | `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                                                             |
 | `duckdb:*`                     | Read data using any DuckDB function that produces a table. For example one of the [data import](https://duckdb.org/docs/data/overview) functions such as `read_json`, `read_parquet` or `read_csv`. |
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `duckdb:my_database."MySchema"."MyTable"`. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting).
+:::
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice.
