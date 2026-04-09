@@ -21,7 +21,7 @@ The `from` field for the ClickHouse connector takes the form of `from:db.dataset
 The `clickhouse_db` parameter is required when not using `clickhouse_connection_string`. When using a connection string without a database path, it defaults to the `default` database.
 
 :::info
-Unquoted identifiers are normalized to lowercase. To reference a table or database with mixed-case characters, wrap each case-sensitive part in double quotes: `clickhouse:my_db."MixedCaseTable"`. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting).
+Unquoted identifiers are normalized to lowercase. To reference a table or database with mixed-case characters, wrap each case-sensitive part in double quotes: `clickhouse:my_db."MixedCaseTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
 :::
 
 ### `name`

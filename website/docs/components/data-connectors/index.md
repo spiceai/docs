@@ -383,7 +383,7 @@ A Document table will be created.
 
 ## Identifier Case Sensitivity and Quoting
 
-Spice follows [PostgreSQL conventions](/docs/reference/sql/select) for identifier handling: **unquoted identifiers are normalized to lowercase**. This applies to both the `from` field in dataset definitions and the `name` field used for SQL queries.
+Spice follows [PostgreSQL conventions](../../reference/sql/select.md) for identifier handling: **unquoted identifiers are normalized to lowercase**. This applies to both the `from` field in dataset definitions and the `name` field used for SQL queries.
 
 ### Quoting in the `from` field
 
@@ -435,7 +435,7 @@ datasets:
 SELECT * FROM action_executions;
 ```
 
-Dataset `name` quoting works regardless of connector type. See the [datasets `name` reference](/docs/reference/spicepod/datasets#name) for more details.
+Dataset `name` quoting works regardless of connector type. See the [datasets `name` reference](../../reference/spicepod/datasets.md#name) for more details.
 
 ## Data Connector Docs
 

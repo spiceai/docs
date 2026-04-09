@@ -20,7 +20,7 @@ datasets:
 ```
 
 :::info[Hint]
-Unquoted identifiers are normalized to lowercase by Spice. Snowflake normalizes unquoted identifiers to uppercase, so unquoted identifiers in the `from` field should be UPPERCASED (e.g. `snowflake:MY_DATABASE.MY_SCHEMA.MY_TABLE`). To reference a table created with mixed-case in Snowflake, wrap it in double quotes: `snowflake:MY_DATABASE.MY_SCHEMA."mixedCaseTable"`. See [Snowflake identifier resolution](https://docs.snowflake.com/en/sql-reference/identifiers-syntax#label-identifier-casing) and [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting).
+Unquoted identifiers are normalized to lowercase by Spice. Snowflake normalizes unquoted identifiers to uppercase, so unquoted identifiers in the `from` field should be UPPERCASED (e.g. `snowflake:MY_DATABASE.MY_SCHEMA.MY_TABLE`). To reference a table created with mixed-case in Snowflake, wrap it in double quotes: `snowflake:MY_DATABASE.MY_SCHEMA."mixedCaseTable"`. See [Snowflake identifier resolution](https://docs.snowflake.com/en/sql-reference/identifiers-syntax#label-identifier-casing) and [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
 :::
 
 ## Configuration

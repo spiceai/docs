@@ -67,7 +67,7 @@ datasets:
       adbc_uri: "bigquery:///my-gcp-project"
 ```
 
-Table name casing conventions vary by source database — Snowflake uses uppercase by default, while BigQuery and Trino use lowercase. When `adbc_catalog` and `adbc_schema` are not set, fully qualified names can be specified in the `from` field. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting) for details.
+Table name casing conventions vary by source database — Snowflake uses uppercase by default, while BigQuery and Trino use lowercase. When `adbc_catalog` and `adbc_schema` are not set, fully qualified names can be specified in the `from` field. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting) for details.
 
 ### `name`
 

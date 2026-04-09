@@ -66,7 +66,7 @@ datasets:
 ```
 
 :::info
-Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `postgres:my_schema."MixedCaseTable"`. See [Identifier Case Sensitivity](/docs/components/data-connectors#identifier-case-sensitivity-and-quoting).
+Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `postgres:my_schema."MixedCaseTable"`. See [Identifier Case Sensitivity](../index.md#identifier-case-sensitivity-and-quoting).
 :::
 
 ### `name`
