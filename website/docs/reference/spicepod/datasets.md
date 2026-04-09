@@ -59,7 +59,7 @@ name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 ## `from`
@@ -130,7 +130,7 @@ name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 **ref used in spicepod.yaml**

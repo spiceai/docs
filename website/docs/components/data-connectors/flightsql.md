@@ -39,6 +39,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                 |
 | `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                    |
 | `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
+| `flightsql_tls_ca_certificate_file` | Optional. Path to a CA certificate file (PEM format) to use for TLS verification instead of system certificates. |
 
 ## Secrets
 

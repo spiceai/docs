@@ -34,7 +34,7 @@ For detailed Vortex performance benchmarks, visit [bench.vortex.dev](https://ben
 
 ## Configuration
 
-To use Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Cayenne only supports `mode: file` and stores data on disk.
+To use Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Cayenne supports `mode: file`, `mode: file_create`, and `mode: file_update` and stores data on disk.
 
 ```yaml
 datasets:
@@ -61,7 +61,7 @@ Cayenne uses Vortex's advanced columnar format, which provides:
 Consider the following limitations when using Cayenne acceleration:
 
 - **Alpha Status**: Cayenne is in active development. Configuration options may change between releases.
-- **File Mode Only**: Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
+- **File Mode Only**: Cayenne only supports `mode: file`, `mode: file_create`, and `mode: file_update` and does not support in-memory (`mode: memory`) acceleration.
 - **No `on_conflict` Support**: Cayenne does not yet support the [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict) configuration for handling duplicate keys during data refresh.
 - **Data Cleanup Requires `retention_sql`**: Data deletion and cleanup operations require configuring [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) to define retention policies. Manual `DELETE` statements can also be executed directly.
 - **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.

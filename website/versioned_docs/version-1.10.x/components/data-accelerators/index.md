@@ -32,7 +32,7 @@ Supported Data Accelerators include:
 | Name       | Description                     | Status               | Engine Modes     |
 | ---------- | ------------------------------- | -------------------- | ---------------- |
 | `arrow`    | In-Memory Arrow Records         | Stable               | `memory`         |
-| `cayenne`  | [Cayenne][cayenne]              | Alpha (v1.9.0-rc.1+) | `file`           |
+| `cayenne`  | [Cayenne][cayenne]              | Alpha (v1.9.0-rc.1+) | `file`, `file_create`, `file_update` |
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable               | `memory`, `file` |
 | `postgres` | Attached [PostgreSQL][postgres] | Release Candidate    | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate    | `memory`, `file` |
