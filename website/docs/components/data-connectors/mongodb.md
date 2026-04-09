@@ -31,6 +31,10 @@ datasets:
 
 The `from` field takes the form `mongodb:{table_name}` where `table_name` is the table identifer in the MongoDB server to read from.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a collection with mixed-case characters, wrap it in double quotes: `mongodb:"MixedCaseCollection"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
+
 ```yaml
 datasets:
   - from: mongodb:mytable

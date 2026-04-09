@@ -29,6 +29,10 @@ datasets:
 
 The `from` field takes the form `mssql:database.schema.table` where `database.schema.table` is the fully-qualified table name in the SQL server.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table, schema, or database with mixed-case characters, wrap each case-sensitive part in double quotes: `mssql:my_database."MySchema"."MyTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice.

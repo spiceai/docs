@@ -101,6 +101,23 @@ Where:
 
 - `<path>`: The path to the dataset within the source.
 
+:::info[Identifier Case Sensitivity]
+Unquoted identifiers in the `<path>` are normalized to lowercase. To reference a table or schema with mixed-case or uppercase characters, wrap each case-sensitive part in double quotes:
+
+```yaml
+datasets:
+  # Case is preserved for "ActionExecutions"
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+
+  # Quote each part individually as needed
+  - from: databricks:my_catalog."MySchema"."MyTable"
+    name: my_table
+```
+
+This applies to all federated database connectors where `<path>` references a table identifier. Connectors that interpret `<path>` as a file path (e.g. `s3`, `delta_lake`, `ftp`) do not apply identifier normalization. See [Identifier Case Sensitivity and Quoting](../../components/data-connectors/index.md#identifier-case-sensitivity-and-quoting) for details.
+:::
+
 ## `ref`
 
 An alternative to adding the dataset definition inline in the `spicepod.yaml` file. `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file. For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
@@ -151,6 +168,8 @@ SELECT * FROM "LINEITEM";
 ```
 
 Without the double quotes, the same dataset would be queryable only as `lineitem`.
+
+See [Identifier Case Sensitivity and Quoting](../../components/data-connectors/index.md#identifier-case-sensitivity-and-quoting) for full details on quoting in both the `from` and `name` fields.
 
 ## `description`
 

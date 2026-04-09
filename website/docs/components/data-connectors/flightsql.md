@@ -24,6 +24,10 @@ Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spic
 
 The `from` field takes the form `flightsql:dataset` where `dataset` is the fully qualified name of the dataset to read from.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a dataset with mixed-case characters, wrap each case-sensitive part in double quotes: `flightsql:my_catalog."MySchema"."MyTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
