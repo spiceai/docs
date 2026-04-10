@@ -21,9 +21,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 `spicepod.yaml`
@@ -37,9 +37,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / duckdb
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 Relative path example:
@@ -56,7 +56,6 @@ datasets:
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
   refresh_check_interval: 1h
@@ -127,7 +126,6 @@ An alternative to adding the dataset definition inline in the `spicepod.yaml` fi
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
   refresh_check_interval: 1h
@@ -683,6 +681,37 @@ datasets:
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert
+```
+
+## `acceleration.on_zero_results`
+
+Optional. Controls the behavior when an accelerated query returns zero results. Defaults to `return_empty`.
+
+The following values are supported:
+
+- `return_empty` - Default. Return an empty result set when the accelerated query returns no rows.
+- `use_source` - Fall back to querying the original data source when the accelerated query returns no rows.
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      on_zero_results: use_source
+```
+
+## `acceleration.partition_by`
+
+Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty).
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      partition_by: block_date
 ```
 
 ## `columns`
