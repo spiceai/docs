@@ -50,13 +50,19 @@ catalogs:
 
 When multiple datasets or catalog-discovery paths target the same SQL Warehouse (same `endpoint` + `sql_warehouse_id`), a single concurrency semaphore is shared across all of them. The `max_concurrent_requests` limit is enforced globally for that warehouse, not per dataset or per catalog.
 
-All components sharing the same warehouse must use the same `max_concurrent_requests` value. Conflicting values are treated as a configuration error.
+The `max_concurrent_requests` value only needs to be set on one dataset or catalog entry for a given warehouse — other components targeting the same warehouse that omit the parameter will share the same semaphore with the configured limit. If multiple components explicitly set `max_concurrent_requests`, the values must match; conflicting values are treated as a configuration error.
 
 ### Permanent-Disable Behavior
 
 When `disable_on_permanent_error` is `true` (default), non-retryable HTTP status codes on statement-execution requests permanently disable the connector. Subsequent queries immediately return a `PermanentlyDisabled` error instead of issuing further HTTP requests.
 
-This prevents cascading failures when credentials are revoked or a warehouse is deleted.
+The following errors trigger permanent disable:
+
+- **401 Unauthorized** — expired or invalid credentials.
+- **403 Forbidden** — the service principal or token lacks permission to execute statements on the warehouse.
+- **404 Not Found** — the SQL Warehouse has been deleted or the endpoint is incorrect.
+
+This prevents cascading failures (e.g., every dataset refresh hammering a warehouse that will never accept the request).
 
 :::info
 Permanent-disable detection is **not** applied to statement-poll or result-fetch requests. Transient 403/404 responses on those paths (e.g., expired pre-signed URLs or purged statement results) do not indicate a configuration problem.
@@ -114,7 +120,7 @@ For general information about component metrics, see [Component Metrics](/docs/f
 | `requests_total`              | Counter | Requests        | Total HTTP requests issued (excluding retries).                          |
 | `retries_total`               | Counter | Requests        | Total HTTP retries for transient failures.                               |
 | `permanent_errors_total`      | Counter | Requests        | Total non-retryable errors (401, 403, 404).                              |
-| `inflight_operations`         | Gauge   | Requests        | Current in-flight operations holding a concurrency permit. **Auto-registered.** |
+| `inflight_operations`         | Gauge   | Requests        | Current in-flight operations holding a concurrency permit. Global across datasets sharing the same warehouse. **Auto-registered.** |
 | `statements_executed_total`   | Counter | Statements      | Total SQL statements submitted.                                          |
 | `statement_polls_total`       | Counter | Statements      | Total polls for async statement completion.                              |
 | `statements_failed_total`     | Counter | Statements      | Total SQL statements that completed with FAILED status.                  |
