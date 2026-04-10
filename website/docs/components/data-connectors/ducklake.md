@@ -85,7 +85,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: /path/to/metadata.ducklake
+      ducklake_connection_string: /path/to/metadata.ducklake
 ```
 
 ### Reading from S3
@@ -115,7 +115,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres"
+      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres"
 ```
 
 ### Multiple tables with YAML anchors
@@ -152,7 +152,7 @@ datasets:
 :::warning[Limitations]
 
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
-- The `connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
+- The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.
 
 :::

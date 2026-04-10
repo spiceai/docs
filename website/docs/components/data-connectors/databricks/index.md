@@ -76,6 +76,18 @@ Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.
 | `databricks_client_id`        | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
 | `databricks_client_secret`    | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
 
+#### SQL Warehouse tuning
+
+The following parameters apply only when `mode` is `sql_warehouse` and control connection resilience and concurrency:
+
+| Parameter Name               | Description                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `max_concurrent_requests`    | Optional. Maximum number of concurrent HTTP requests to the SQL Warehouse API. Default: `8`.                                  |
+| `http_max_retries`           | Optional. Maximum number of HTTP-level retries for transient failures (429, 5xx). Default: `3`.                               |
+| `backoff_method`             | Optional. Backoff strategy for transient HTTP retries. Options: `fibonacci`, `exponential`. Default: `fibonacci`.              |
+| `statement_max_retries`      | Optional. Maximum number of poll retries when waiting for async statement completion. Default: `14`.                           |
+| `disable_on_permanent_error` | Optional. When `true`, non-retryable errors (401, 403, 404) permanently disable the connector. Default: `true`.               |
+
 ## Authentication
 
 ### Personal access token

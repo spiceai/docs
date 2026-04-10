@@ -218,7 +218,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
     mode: delta_lake
     databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
     databricks_token: ${secrets:my_token}
-    databricks_google_service_account_path: /path/to/service-account.json
+    databricks_google_service_account: /path/to/service-account.json
 ```
 
 ## Types
