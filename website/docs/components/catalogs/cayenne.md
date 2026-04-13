@@ -74,3 +74,44 @@ catalogs:
     params:
       cayenne_target_file_size_mb: '256'
 ```
+
+## Table Management
+
+### `CREATE TABLE ... LIKE`
+
+Create a new Cayenne catalog table that copies its schema and partitioning from an existing Cayenne catalog table.
+
+#### Syntax
+
+```sql
+CREATE TABLE [IF NOT EXISTS] new_table LIKE source_table
+```
+
+#### Behavior
+
+- Copies the source table's column schema.
+- Copies the source table's partition expression (if any).
+- In distributed mode, copies the source table's partition-to-executor assignments so that writes to both tables route to the same executors.
+- Primary keys are **not** copied. Staging and derived tables typically don't need them.
+
+#### Constraints
+
+- Both `source_table` and `new_table` must be in a Cayenne catalog. Using `LIKE` with a non-Cayenne source returns an error.
+- `LIKE` cannot be combined with `PARTITION BY` or `WITH` options. To create a table with a different partitioning, use a regular `CREATE TABLE` instead.
+
+#### Example
+
+```sql
+-- Source table with bucket-based partitioning
+CREATE TABLE cayenne_catalog.bench.orders (
+  order_id BIGINT,
+  customer_id BIGINT,
+  total DOUBLE
+) PARTITION BY (bucket(50, order_id));
+
+-- Staging table that inherits the same schema and partitioning
+CREATE TABLE IF NOT EXISTS cayenne_catalog.bench.orders_staging
+  LIKE cayenne_catalog.bench.orders;
+```
+
+This is the recommended way to create staging tables for [`MERGE INTO`](../../reference/sql/dml#merge-into) operations in distributed mode, ensuring the staging and target tables share partition routing.
