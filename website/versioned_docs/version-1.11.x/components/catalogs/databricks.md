@@ -139,6 +139,10 @@ To locate your SQL Warehouse ID, do the following:
 3. In the list of available warehouses, click the target warehouse's name.
 4. Next to the **Name** field, the ID follows the name in parentheses. For example: `My Serverless Warehouse (ID: 2b4e24cff378fb24)`
 
+### Delta Lake parameters
+
+- `client_timeout`: The timeout setting for the object store client. Applies when using `mode: delta_lake`.
+
 #### AWS S3
 
 | Dataset Parameter Name             | Definition                                                               |
