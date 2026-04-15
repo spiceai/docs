@@ -7,9 +7,10 @@ sidebar_position: 7
 
 To use a language model hosted on xAI, specify `xai` path in the `from` field and the associated `xai_api_key` parameter:
 
-| Param         | Description      | Default |
-| ------------- | ---------------- | ------- |
-| `xai_api_key` | The xAI API key. | -       |
+| Param             | Description                                               | Default |
+| ----------------- | --------------------------------------------------------- | ------- |
+| `xai_api_key`     | The xAI API key.                                          | -       |
+| `xai_usage_tier`  | xAI usage tier (0-4). Used for rate limit defaults.       | -       |
 
 Example:
 

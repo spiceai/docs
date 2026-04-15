@@ -129,6 +129,20 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                                                                                              |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`. |
 
+#### Pagination Parameters
+
+| Parameter Name                  | Description                                                                                                                                                                                                                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pagination`                    | Optional. Pagination mode: `auto` (default) auto-detects `Link` headers, `enabled` explicitly enables pagination with configuration below, `disabled` turns off pagination.                                                                                                                             |
+| `pagination_next_pointer`       | Optional. JSON pointer ([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901)) to the next page URL or cursor in the response body (e.g., `/next`, `/pagination/cursor`, `/links/next`).                                                                                                            |
+| `pagination_link_header`        | Optional. Whether to follow HTTP `Link` headers with `rel="next"` for pagination. Default: `enabled`. Set to `disabled` to ignore `Link` headers.                                                                                                                                                       |
+| `pagination_token_param`        | Optional. When set, the value from `pagination_next_pointer` is treated as a cursor/token and passed as this query parameter name in subsequent requests. When not set, the value is treated as a full URL.                                                                                               |
+| `pagination_data_pointer`       | Optional. JSON pointer ([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901)) to the data array in each page's response (e.g., `/data`, `/results`, `/items`). When set, only the array at this path is returned as data rows.                                                                      |
+| `pagination_max_pages`          | Optional. Maximum number of pages to fetch. Default: `100`.                                                                                                                                                                                                                                              |
+| `pagination_data_map_to_array`  | Optional. When `enabled`, if the data at `pagination_data_pointer` (or the top-level response) is a JSON object/map, extracts its values as rows instead of treating it as a single row. Default: `disabled`. Requires pagination to be enabled.                                                          |
+| `pagination_query_params`       | Optional. Query parameter template for client-driven pagination. Supports `{offset}`, `{limit}`, and `{page}` variables (e.g., `offset={offset}&limit={limit}`). Requires `pagination_page_size`. Mutually exclusive with `pagination_next_pointer` and `pagination_token_param`.                         |
+| `pagination_page_size`          | Optional. Number of items per page for query-parameter pagination. Must be a positive integer. Expands `{limit}` in `pagination_query_params` and detects the last page (fewer results than `page_size` means done). Requires `pagination_query_params`.                                                  |
+
 ## HTTP Response Headers
 
 When querying HTTP(s) datasets, Spice respects standard HTTP caching headers in responses. The connector supports the following cache-related response headers:
@@ -153,7 +167,85 @@ The stale-while-revalidate behavior in Spice is controlled by the `stale_while_r
 
 ## Advanced Features
 
-The HTTP connector provides advanced capabilities for working with dynamic APIs and RESTful services through special metadata fields.
+The HTTP connector provides advanced capabilities for working with dynamic APIs and RESTful services, including built-in pagination and special metadata fields.
+
+### Pagination
+
+The HTTP connector supports automatic pagination for REST APIs that return data across multiple pages. Pagination is configured via `params` and works transparently with acceleration (caching, append, and full refresh modes) — each page is streamed as a separate batch without buffering entire result sets in memory.
+
+#### Pagination Modes
+
+There are three pagination modes:
+
+**URL mode** — The next page URL is extracted from the response body (via `pagination_next_pointer`) or from the HTTP `Link` header with `rel="next"`.
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1/items
+    name: items
+    params:
+      pagination: enabled
+      pagination_next_pointer: /links/next
+      pagination_data_pointer: /data
+      pagination_max_pages: 50
+```
+
+**Token mode** — A cursor/token is extracted from the response body (via `pagination_next_pointer`) and passed as a query parameter (specified by `pagination_token_param`) in subsequent requests.
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1/items
+    name: items
+    params:
+      pagination: enabled
+      pagination_next_pointer: /pagination/cursor
+      pagination_token_param: cursor
+      pagination_data_pointer: /results
+```
+
+**Query-parameter mode** — The client drives pagination by expanding a template (`pagination_query_params`) with `{offset}`, `{limit}`, and `{page}` variables. Pagination stops when a page returns fewer rows than `pagination_page_size`.
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1/widgets
+    name: widgets
+    params:
+      pagination: enabled
+      pagination_query_params: "offset={offset}&limit={limit}"
+      pagination_page_size: "100"
+      pagination_max_pages: "50"
+```
+
+#### Map-to-Array Conversion
+
+Some APIs return data as a JSON object/map (e.g., `{"1": {...}, "2": {...}}`) instead of an array. Set `pagination_data_map_to_array: enabled` to extract the map values as individual rows.
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1/records
+    name: records
+    params:
+      pagination: enabled
+      pagination_data_map_to_array: enabled
+      pagination_query_params: "offset={offset}&limit={limit}"
+      pagination_page_size: "100"
+```
+
+#### Auto Mode
+
+By default, `pagination` is set to `auto`, which automatically follows HTTP `Link` headers with `rel="next"` if present in responses. Set `pagination: disabled` to turn off all pagination behavior, or `pagination: enabled` to explicitly configure pagination with the parameters above.
+
+#### Validation Rules
+
+- `pagination_query_params` requires `pagination_page_size` (and vice versa)
+- `pagination_query_params` is mutually exclusive with `pagination_next_pointer` and `pagination_token_param`
+- `pagination_query_params` must contain `{offset}` or `{page}` to ensure pages advance
+- `pagination_token_param` requires `pagination_next_pointer`
+- `pagination_next_pointer` and `pagination_data_pointer` must be valid JSON pointers starting with `/`
+
+#### SSRF Protection
+
+When using URL mode, next-page URLs extracted from response bodies are validated to share the same origin as the base URL configured in `from`. Cross-origin redirects are rejected.
 
 ### Special Metadata Fields
 
@@ -422,6 +514,10 @@ This configuration:
 - On each refresh, only fetches events created after the last refresh
 
 #### Paginated Data Loading
+
+:::tip
+For APIs with standard pagination patterns, consider using the built-in [pagination](#pagination) feature instead of manual `refresh_sql` pagination. Built-in pagination handles page traversal automatically with streaming execution.
+:::
 
 ```yaml
 datasets:
