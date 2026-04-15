@@ -37,14 +37,14 @@ These parameters are used for [Amazon Nova](https://docs.aws.amazon.com/nova/lat
 | Parameter           | Description                                                                                                                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `dimensions`        | **Required**. The number of dimensions the output embedding should have. Accepted value: 256, 384, 1024 or 3072.                                                                                                   |
-| `truncation_mode`   | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                                                                                   |
+| `truncate_mode`     | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default). Also accepted as `truncate`.                                                      |
 | `embedding_purpose` | Optional. Use the Nova embeddings model optimized for different purposes. Default `GENERIC_INDEX`. See reference [docs](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) for all options. |
 
 #### Cohere Models
 
 | Parameter    | Description                                                                                                                                                     |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `truncate`   | Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                                          |
+| `truncate`   | Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` (default) or `NONE`.                                          |
 | `input_type` | Use the Cohere embeddings model optimized for different types of inputs. One of: `search_document` (default), `search_query`, `classification` or `clustering`. |
 
 ### Example `spicepod.yaml` configuration, Cohere model
@@ -78,7 +78,7 @@ embeddings:
     name: nova-embeddings
     params:
       dimensions: '3072'
-      truncation_mode: START
+      truncate_mode: START
       embedding_purpose: GENERIC_RETRIEVAL
       aws_region: us-east-1
       aws_access_key_id: ${ secrets:AWS_ACCESS_KEY_ID }
