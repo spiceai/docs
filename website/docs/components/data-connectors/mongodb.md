@@ -88,6 +88,7 @@ The MongoDB data connector can be configured by providing the following `params`
 | `mongodb_time_zone`                | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`)</li></ul>                                                                                                                                                                                                                                                                                                                      |
 | `mongodb_auth_source`              | Optional. Authentication source database. Overrides the default auth source in the connection string.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `mongodb_direct_connection`        | Optional. Whether to connect directly to a single MongoDB host instead of discovering the topology. Accepts `true` or `false`.                                                                                                                                                                                                                                                                                                                                                                               |
+| `mongodb_srv`                      | Optional. Use the `mongodb+srv://` connection scheme for DNS SRV record discovery (MongoDB Atlas). Auto-detected (and `mongodb_port` is ignored) when `mongodb_host` ends with `.mongodb.net`. Accepts `true` or `false`. Default: `false`.                                                                                                                                                                                                                                                                  |
 | `mongodb_unnest_depth`             | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields. Default: `0`                                                                                                                                                                                                                                                                                                                                                         |
 | `mongodb_num_docs_to_infer_schema` | Optional. Number of documents to use to infer the schema. Defaults to 400.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `mongodb_pool_min`                 | The minimum number of connections to keep open in the pool, lazily created when requested. Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -219,6 +220,34 @@ datasets:
       mongodb_connection_string: mongodb://${secrets:my_user}:${secrets:my_password}@localhost:27017/my_db?authSource=admin
 ```
 
+### Connecting to MongoDB Atlas (SRV)
+
+When `mongodb_host` ends with `.mongodb.net`, `mongodb_srv` is automatically enabled and `mongodb_port` is ignored — `mongodb+srv://` discovers host/port via DNS SRV records.
+
+```yaml
+datasets:
+  - from: mongodb:my_collection
+    name: my_dataset
+    params:
+      mongodb_host: cluster0.abc123.mongodb.net
+      mongodb_db: my_database
+      mongodb_user: my_user
+      mongodb_pass: ${secrets:mongodb_pass}
+```
+
+Set `mongodb_srv: true` explicitly for non-Atlas hosts that are configured with SRV records:
+
+```yaml
+datasets:
+  - from: mongodb:my_collection
+    name: my_dataset
+    params:
+      mongodb_srv: true
+      mongodb_host: mongo.example.com
+      mongodb_db: my_database
+      mongodb_user: my_user
+      mongodb_pass: ${secrets:mongodb_pass}
+```
 
 ### With custom connection pool settings
 
