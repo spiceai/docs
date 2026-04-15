@@ -34,9 +34,9 @@ catalogs:
   - from: databricks:my_catalog
     name: my_catalog
     params:
-      endpoint: my-workspace.cloud.databricks.com
+      databricks_endpoint: my-workspace.cloud.databricks.com
       mode: sql_warehouse
-      sql_warehouse_id: abc123def456
+      databricks_sql_warehouse_id: abc123def456
       databricks_client_id: ${env:DBX_CLIENT_ID}
       databricks_client_secret: ${env:DBX_CLIENT_SECRET}
       max_concurrent_requests: '4'
@@ -140,8 +140,8 @@ datasets:
     name: my_table
     params:
       mode: sql_warehouse
-      sql_warehouse_id: abc123def456
-      endpoint: my-workspace.cloud.databricks.com
+      databricks_sql_warehouse_id: abc123def456
+      databricks_endpoint: my-workspace.cloud.databricks.com
       databricks_client_id: ${env:DBX_CLIENT_ID}
       databricks_client_secret: ${env:DBX_CLIENT_SECRET}
     metrics:

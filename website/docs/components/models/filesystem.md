@@ -11,8 +11,6 @@ To use a model hosted on a filesystem, specify the path to the model file or fol
 models:
   - from: file://models/llms/llama3.2-1b-instruct/
     name: llama3
-    params:
-      model_type: llama
 ```
 
 Supported formats include GGUF, GGML, and SafeTensor for large language models (LLMs) and ONNX for traditional machine learning (ML) models.
@@ -30,12 +28,11 @@ from: file:models/llms/llama3.2-1b-instruct/
 
 ### `params` (optional)
 
-| Param           | Description                                                                                                                                                                             |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseek` |
-| `tools`         | Which [tools](../../features/large-language-models/tools) should be made available to the model. Set to `auto` to use all available tools.                                              |
-| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                |
-| `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template).                         |
+| Param           | Description                                                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tools`         | Which [tools](../../features/large-language-models/tools) should be made available to the model. Set to `auto` to use all available tools.                      |
+| `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                        |
+| `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template). |
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 

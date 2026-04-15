@@ -178,6 +178,7 @@ The table below shows the MySQL data types supported, along with the type mappin
 | `MEDIUMTEXT` | `Utf8`                         |
 | `LONGBLOB`   | `LargeBinary`                  |
 | `LONGTEXT`   | `LargeUtf8`                    |
+| `JSON`       | `LargeUtf8`                    |
 | `SET`        | `Utf8`                         |
 | `ENUM`       | `Dictionary(UInt16, Utf8)`     |
 | `BIT`        | `UInt64`                       |
