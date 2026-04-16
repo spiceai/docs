@@ -890,7 +890,7 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
 ## `embeddings[*].chunking.trim_whitespace`
 
-Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
+Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `false`.
 
 ## `metadata` {#metadata}
 

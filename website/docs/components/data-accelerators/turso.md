@@ -92,6 +92,7 @@ By default, timestamps are stored as **RFC3339 TEXT strings** (e.g., `"2024-01-0
 - ✅ Timezone information preserved
 - ✅ All Arrow timestamp types supported (Second, Millisecond, Microsecond, Nanosecond)
 - ✅ Human-readable in database tools
+- ⚠️ Nanosecond-precision timestamps outside the range ~1677–2262 return `NULL` (i64 nanosecond overflow). Second, Millisecond, and Microsecond precisions are not affected.
 
 ### Integer Milliseconds Format
 
