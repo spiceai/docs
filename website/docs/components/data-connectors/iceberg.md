@@ -114,10 +114,17 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_s3_session_token`     | Session token for the S3-compatible endpoint.                                                                                                                                                  |
 | `iceberg_s3_role_arn`          | ARN of the IAM role to assume when accessing the S3-compatible endpoint.                                                                                                                       |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role.                                                                                                                                                |
+| `iceberg_s3_iam_role_source`   | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 | `iceberg_s3_connect_timeout`   | Connection timeout in seconds for the S3-compatible endpoint. Default: `60`                                                                                                                    |
 | `iceberg_sigv4_enabled`        | Enable SigV4 (AWS Signature Version 4) authentication when connecting to the catalog. Automatically enabled if the URL in `from` is an AWS Glue catalog. Default: `false`                      |
 | `iceberg_signing_region`       | Region to use for SigV4 authentication. Extracted from the URL in `from` if not specified.                                                                                                     |
 | `iceberg_signing_name`         | Service name to use for SigV4 authentication. Default: `glue`.                                                                                                                                 |
+| `iceberg_warehouse`            | Name of the Iceberg warehouse. Used for catalog types that support it (e.g. Lakekeeper).                                                                                                       |
+| `iceberg_gcs_project_id`      | The Google Cloud project ID for GCS storage.                                                                                                                                                   |
+| `iceberg_gcs_credentials`     | Base64-encoded Google Cloud service account credentials JSON for GCS storage.                                                                                                                  |
+| `iceberg_gcs_token`           | OAuth2 token to use for GCS authentication.                                                                                                                                                    |
+| `iceberg_gcs_service_path`    | Custom endpoint URL for GCS (for emulators or custom endpoints).                                                                                                                               |
+| `iceberg_gcs_no_auth`         | Set to `true` to allow anonymous access to GCS (for public buckets).                                                                                                                           |
 | `metadata_path`                | The path including scheme to the metadata file for the Hadoop table. Must specify a path to a `.json` file. For example, `s3a://my-bucket/warehouse/namespace/table/metadata/v1.metadata.json` |
 
 ## Authentication

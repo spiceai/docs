@@ -59,7 +59,7 @@ name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 ## `from`
@@ -113,7 +113,7 @@ name: taxi_trips
 type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 **ref used in spicepod.yaml**
@@ -359,6 +359,24 @@ Supported values:
 
 - `enabled` – Compact the database before creating each snapshot.
 - `disabled` (default) – Upload snapshots without compaction.
+
+## `acceleration.snapshots_creation_policy`
+
+Optional. Controls when new snapshots are created after data refreshes. Defaults to `on_change`.
+
+Supported values:
+
+- `on_change` (default) – Only create a new snapshot when the data has changed since the last snapshot.
+- `always` – Create a new snapshot after every refresh, regardless of whether the data has changed.
+
+## `acceleration.snapshots_reset_expiry_on_load`
+
+Optional. Controls whether the snapshot expiry timer is reset when loading from a snapshot during bootstrap. Defaults to `disabled`.
+
+Supported values:
+
+- `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
+- `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
 
 ## `acceleration.refresh_mode`
 
@@ -826,7 +844,7 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
 ## `embeddings[*].chunking.trim_whitespace`
 
-Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
+Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `false`.
 
 ## `metadata` {#metadata}
 

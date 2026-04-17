@@ -15,7 +15,6 @@ Example:
 ```yaml
 workers:
   - name: round-robin
-    type: load_balance
     description: |
       Distributes requests between 'llama3_2' and 'gpt4_1' models in a round-robin fashion.
     load_balance:
@@ -23,7 +22,6 @@ workers:
         - from: llama3_2
         - from: gpt4_1
   - name: fallback
-    type: load_balance
     description: |
       Attempts 'gpt4_1' first, then 'llama3_2', then 'anth_haiku' if previous models fail.
     load_balance:
@@ -35,7 +33,6 @@ workers:
         - from: anth_haiku
           order: 3
   - name: weighted
-    type: load_balance
     description: |
       Routes 80% of traffic to 'llama3_2'.
     load_balance:
@@ -105,6 +102,7 @@ The elements' structure uniquely determine the model worker algorithm. List elem
 | -------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | from     | String            | The `model.name` of a defined `model` spicepod component.                                                                                                 |
 | order    | Integer, positive | The priority of the model in order. The lowest value is used first, followed by increasing order. The ordering of models with equal `order` is undefined. |
+| weight   | Integer           | The weight for weighted routing. Traffic is distributed proportionally based on each model's weight relative to the total.                                 |
 
 #### Worker with round-robin routing across models
 
@@ -151,7 +149,6 @@ Example
 ```yaml
 workers:
   - name: weighted
-    type: load_balance
     description: |
       Routes 80% of traffic to 'llama3_2' (20% to 'gpt4_1').
     load_balance:

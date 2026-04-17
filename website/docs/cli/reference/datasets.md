@@ -23,16 +23,16 @@ spice datasets [flags]
 ```shell
 >>> spice datasets
 
-FROM                                            NAME          REPLICATION ACCELERATION STATUS PROPERTIES 
-spice.ai/spiceai/quickstart/datasets/taxi_trips taxi_trips    false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.customer    tpch.customer false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.lineitem    tpch.lineitem false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.nation      tpch.nation   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.orders      tpch.orders   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.part        tpch.part     false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.partsupp    tpch.partsupp false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.region      tpch.region   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.supplier    tpch.supplier false       false        Ready  map[]  
+NAME          FROM                                            REPLICATION ACCELERATION STATUS ERROR
+taxi_trips    spice.ai/spiceai/quickstart/datasets/taxi_trips false       false        Ready
+tpch.customer spice.ai/spiceai/tpch/datasets/tpch.customer   false       false        Ready
+tpch.lineitem spice.ai/spiceai/tpch/datasets/tpch.lineitem   false       false        Ready
+tpch.nation   spice.ai/spiceai/tpch/datasets/tpch.nation     false       false        Ready
+tpch.orders   spice.ai/spiceai/tpch/datasets/tpch.orders     false       false        Ready
+tpch.part     spice.ai/spiceai/tpch/datasets/tpch.part       false       false        Ready
+tpch.partsupp spice.ai/spiceai/tpch/datasets/tpch.partsupp   false       false        Ready
+tpch.region   spice.ai/spiceai/tpch/datasets/tpch.region     false       false        Ready
+tpch.supplier spice.ai/spiceai/tpch/datasets/tpch.supplier   false       false        Ready
 ```
 
 ### Additional Example
@@ -40,14 +40,14 @@ spice.ai/spiceai/tpch/datasets/tpch.supplier    tpch.supplier false       false 
 ```shell
 >>> spice datasets --tls-root-certificate-file /path/to/cert.pem
 
-FROM                                            NAME          REPLICATION ACCELERATION STATUS PROPERTIES 
-spice.ai/spiceai/quickstart/datasets/taxi_trips taxi_trips    false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.customer    tpch.customer false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.lineitem    tpch.lineitem false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.nation      tpch.nation   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.orders      tpch.orders   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.part        tpch.part     false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.partsupp    tpch.partsupp false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.region      tpch.region   false       false        Ready  map[]      
-spice.ai/spiceai/tpch/datasets/tpch.supplier    tpch.supplier false       false        Ready  map[]  
+NAME          FROM                                            REPLICATION ACCELERATION STATUS ERROR
+taxi_trips    spice.ai/spiceai/quickstart/datasets/taxi_trips false       false        Ready
+tpch.customer spice.ai/spiceai/tpch/datasets/tpch.customer   false       false        Ready
+tpch.lineitem spice.ai/spiceai/tpch/datasets/tpch.lineitem   false       false        Ready
+tpch.nation   spice.ai/spiceai/tpch/datasets/tpch.nation     false       false        Ready
+tpch.orders   spice.ai/spiceai/tpch/datasets/tpch.orders     false       false        Ready
+tpch.part     spice.ai/spiceai/tpch/datasets/tpch.part       false       false        Ready
+tpch.partsupp spice.ai/spiceai/tpch/datasets/tpch.partsupp   false       false        Ready
+tpch.region   spice.ai/spiceai/tpch/datasets/tpch.region     false       false        Ready
+tpch.supplier spice.ai/spiceai/tpch/datasets/tpch.supplier   false       false        Ready
 ```

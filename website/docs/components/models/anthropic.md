@@ -11,10 +11,12 @@ To use a specific model, include its model ID in the `from` field (see example b
 
 The following parameters are specific to Anthropic models:
 
-| Parameter           | Description                      | Default                        |
-| ------------------- | -------------------------------- | ------------------------------ |
-| `anthropic_api_key` | The Anthropic API key.           | -                              |
-| `endpoint`          | The Anthropic API base endpoint. | `https://api.anthropic.com/v1` |
+| Parameter              | Description                                                     | Default                        |
+| ---------------------- | --------------------------------------------------------------- | ------------------------------ |
+| `anthropic_api_key`    | The Anthropic API key.                                          | -                              |
+| `anthropic_auth_token` | The Anthropic Auth Token.                                       | -                              |
+| `anthropic_usage_tier` | Anthropic usage tier (1-4). Used for rate limit defaults.       | -                              |
+| `endpoint`             | The Anthropic API base endpoint.                                | `https://api.anthropic.com/v1` |
 
 Example `spicepod.yml` configuration:
 

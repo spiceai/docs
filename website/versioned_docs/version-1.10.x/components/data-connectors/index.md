@@ -51,7 +51,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
 [s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
 [spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
@@ -90,7 +90,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                   |
 | --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](/docs/reference/file_format#csv)       | `file_format: csv`     | Stable  | Comma-separated values                        |
+| [CSV](/docs/reference/file_format#csv)        | `file_format: csv`     | Stable  | Comma-separated values                        |
 | JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
@@ -157,7 +157,7 @@ Partition pruning improves query performance by reading only the relevant files.
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
-| [CSV](/docs/reference/file_format#csv)       | `file_format: csv`     | ✅         | ❌                  |
+| [CSV](/docs/reference/file_format#csv)        | `file_format: csv`     | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
 | JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |

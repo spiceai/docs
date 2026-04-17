@@ -23,8 +23,8 @@ datasets:
       mysql_db: my_database
       mysql_user: my_user
       mysql_pass: ${secrets:mysql_pass}
-      mysql_pool_min: 10
-      mysql_pool_max: 100
+      mysql_pool_min: 1
+      mysql_pool_max: 5
 ```
 
 ## Configuration
@@ -34,6 +34,10 @@ datasets:
 The `from` field takes the form `mysql:database_name.table_name` where `database_name` is the fully-qualified table name in the SQL server.
 
 If the `database_name` is omitted in the `from` field, the connector will use the database specified in the `mysql_db` parameter. If the `mysql_db` parameter is not provided, it will default to the user's default database.
+
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table or database with mixed-case characters, wrap each case-sensitive part in double quotes: `mysql:my_database."MixedCaseTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
 
 These two examples are identical:
 
@@ -96,9 +100,9 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `mysql_sslmode`           | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `mysql_sslrootcert`       | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul>                                                                                                                                                                   |
-| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `+00:00` (UTC). Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul>                                                                                                                                                                   |
+| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `mysql_pool_max`          | The maximum number of connections created in the connection pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### `metrics`
 
@@ -174,6 +178,7 @@ The table below shows the MySQL data types supported, along with the type mappin
 | `MEDIUMTEXT` | `Utf8`                         |
 | `LONGBLOB`   | `LargeBinary`                  |
 | `LONGTEXT`   | `LargeUtf8`                    |
+| `JSON`       | `LargeUtf8`                    |
 | `SET`        | `Utf8`                         |
 | `ENUM`       | `Dictionary(UInt16, Utf8)`     |
 | `BIT`        | `UInt64`                       |

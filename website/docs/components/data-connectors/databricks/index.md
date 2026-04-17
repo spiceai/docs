@@ -29,6 +29,10 @@ datasets:
 
 The `from` field for the Databricks connector takes the form `databricks:catalog.schema.table` where `catalog.schema.table` is the fully-qualified path to the table to read from.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table, schema, or catalog with mixed-case characters, wrap each case-sensitive part in double quotes: `databricks:my_catalog."MySchema"."MyTable"`. See [Identifier Case Sensitivity](../index.md#identifier-case-sensitivity-and-quoting).
+:::
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice.
@@ -62,15 +66,27 @@ Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.
 
 | Parameter Name                | Description                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mode`                        | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li></ul> |
-| `databricks_endpoint`         | The endpoint of the Databricks instance. Required for both modes.                                                                                                                                                                                                                                                                                    |
+| `mode`                        | The execution mode for querying against Databricks. The default is `spark_connect`. Possible values:<br /> <ul><li>`spark_connect`: Use Spark Connect to query against Databricks. Requires a Spark cluster to be available.</li><li>`delta_lake`: Query directly from Delta Tables. Requires the object store credentials to be provided.</li><li>`sql_warehouse`: Use the SQL Statement Execution API to query against a Databricks SQL Warehouse.</li></ul> |
+| `databricks_endpoint`         | The endpoint of the Databricks instance. Required for all modes.                                                                                                                                                                                                                                                                                     |
 | `databricks_sql_warehouse_id` | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                           |
 | `databricks_cluster_id`       | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
 | `databricks_use_ssl`          | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
-| `client_timeout`              | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. Default value is `30s` E.g. `client_timeout: 60s`                                                                                                                                                                                                     |
+| `client_timeout`              | Optional. Applicable only in `delta_lake` mode. Specifies timeout for object store operations. E.g. `client_timeout: 60s`                                                                                                                                                                                                                            |
 | `databricks_token`            | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
 | `databricks_client_id`        | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
 | `databricks_client_secret`    | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
+
+#### SQL Warehouse tuning
+
+The following parameters apply only when `mode` is `sql_warehouse` and control connection resilience and concurrency:
+
+| Parameter Name               | Description                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `max_concurrent_requests`    | Optional. Maximum number of concurrent HTTP requests to the SQL Warehouse API. Default: `8`.                                  |
+| `http_max_retries`           | Optional. Maximum number of HTTP-level retries for transient failures (429, 5xx). Default: `3`.                               |
+| `backoff_method`             | Optional. Backoff strategy for transient HTTP retries. Options: `fibonacci`, `exponential`. Default: `fibonacci`.              |
+| `statement_max_retries`      | Optional. Maximum number of poll retries when waiting for async statement completion. Default: `14`.                           |
+| `disable_on_permanent_error` | Optional. When `true`, non-retryable errors (401, 403, 404) permanently disable the connector. Default: `true`.               |
 
 ## Authentication
 
@@ -144,7 +160,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 | Parameter Name           | Description                                                  |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `databricks_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 
@@ -218,7 +234,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
     mode: delta_lake
     databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
     databricks_token: ${secrets:my_token}
-    databricks_google_service_account_path: /path/to/service-account.json
+    databricks_google_service_account: /path/to/service-account.json
 ```
 
 ## Types

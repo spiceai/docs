@@ -1,7 +1,7 @@
 ---
 title: 'Performance Tuning'
 sidebar_label: 'Performance Tuning'
-sidebar_position: 32
+sidebar_position: 33
 description: 'Comprehensive guide to optimizing query performance, acceleration, and resource utilization in Spice deployments.'
 keywords:
   - performance
@@ -221,7 +221,7 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 
 DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the number of CPU cores, providing maximum parallelism.
 
-DataFusion's [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html) divides the configured `memory_limit` evenly among partitions. With more CPU cores, each partition receives less memory, which may increase spilling for memory-intensive queries.
+DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured `memory_limit`. This approach improves throughput for high-concurrency queries with many partitions compared to dividing memory evenly.
 
 ### Join Algorithm Selection
 
@@ -380,7 +380,7 @@ runtime:
 
 ### Memory Limit
 
-Set `memory_limit` based on available container/machine memory minus accelerator requirements:
+If not specified, `memory_limit` defaults to 90% of total system memory (container-aware). For deployments with co-located accelerators, set an explicit limit based on available memory:
 
 ```text
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)

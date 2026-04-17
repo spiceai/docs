@@ -1,7 +1,7 @@
 ---
 title: 'Catalog Connectors'
 sidebar_label: 'Catalog Connectors'
-description: 'Connect to external catalog providers like Unity Catalog, Databricks, Iceberg, AWS Glue, Snowflake, PostgreSQL, MySQL, MSSQL, Oracle, and more for federated SQL query in Spice.'
+description: 'Connect to external catalog providers like Unity Catalog, Databricks, Iceberg, AWS Glue, Snowflake, ADBC, PostgreSQL, MySQL, MSSQL, Oracle, and more for federated SQL query in Spice.'
 image: /img/og/catalog-connectors.png
 sidebar_position: 4
 pagination_prev: null
@@ -35,6 +35,7 @@ Supported Catalog Connectors include:
 | `pg`            | PostgreSQL / Redshift   | Alpha  | PostgreSQL Wire Protocol     |
 | `mysql`         | MySQL                   | Alpha  | MySQL Wire Protocol          |
 | `mssql`         | Microsoft SQL Server    | Alpha  | TDS                          |
+| `adbc`          | ADBC                    | Alpha  | Arrow (ADBC)                 |
 | `oracle`        | Oracle                  | Alpha  | Oracle Net                   |
 
 ## Catalog Connector Docs

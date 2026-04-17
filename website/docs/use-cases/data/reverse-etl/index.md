@@ -40,7 +40,7 @@ datasets:
       refresh_check_interval: 10s
 ```
 
-This configuration federates the `customer_metrics` table from Databricks and accelerates it locally in DuckDB. The `refresh_mode: changes` setting uses CDC to sync only changed rows, keeping operational data current.
+This configuration federates the `customer_metrics` table from Databricks and accelerates it locally in DuckDB. The `refresh_mode: changes` setting uses CDC to sync only changed rows, keeping operational data current. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) provides a practical guide to materializing datasets for such workflows.
 
 ## Benefits
 
@@ -50,6 +50,6 @@ This configuration federates the `customer_metrics` table from Databricks and ac
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
 - **Observability**: [Documentation](../../features/observability).

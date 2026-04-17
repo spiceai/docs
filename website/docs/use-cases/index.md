@@ -46,3 +46,4 @@ For hands-on examples, see the [Spice.ai Cookbook](https://github.com/spiceai/co
 - [**Edge-Enabled AI Applications and Agents**](use-cases/ai/edge-ai): Deploys AI applications across cloud and edge for low-latency decisions in security IoT use cases.
 - [**Tool-Augmented AI with Model Context Protocol Server**](use-cases/ai/federated-mcp-server): Extends AI with custom tools via MCP server in finserv, integrating domain-specific APIs for enhanced functionality.
 - [**Agentic AI Applications and Agents**](use-cases/ai/agentic-apps): Builds intelligent, autonomous agents for SaaS applications, enabling context-aware automation and decision-making.
+- [**Multi-Tenant AI Agents**](use-cases/ai/multi-tenant-agents): Deploy AI agents across many SaaS tenants with strict isolation and no per-tenant ETL pipelines.

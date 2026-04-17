@@ -21,9 +21,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 `spicepod.yaml`
@@ -37,9 +37,9 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / duckdb
+      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # update / incremental
+      refresh_mode: full / append # / changes / caching
 ```
 
 Relative path example:
@@ -56,10 +56,9 @@ datasets:
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 ## `from`
@@ -101,6 +100,23 @@ Where:
 
 - `<path>`: The path to the dataset within the source.
 
+:::info[Identifier Case Sensitivity]
+Unquoted identifiers in the `<path>` are normalized to lowercase. To reference a table or schema with mixed-case or uppercase characters, wrap each case-sensitive part in double quotes:
+
+```yaml
+datasets:
+  # Case is preserved for "ActionExecutions"
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+
+  # Quote each part individually as needed
+  - from: databricks:my_catalog."MySchema"."MyTable"
+    name: my_table
+```
+
+This applies to all federated database connectors where `<path>` references a table identifier. Connectors that interpret `<path>` as a file path (e.g. `s3`, `delta_lake`, `ftp`) do not apply identifier normalization. See [Identifier Case Sensitivity and Quoting](../../components/data-connectors/index.md#identifier-case-sensitivity-and-quoting) for details.
+:::
+
 ## `ref`
 
 An alternative to adding the dataset definition inline in the `spicepod.yaml` file. `ref` can be use to point to a directory with a dataset defined in a `dataset.yaml` file. For example, a dataset configured in a dataset.yaml in the "datasets/sample" directory can be referenced with the following:
@@ -110,10 +126,9 @@ An alternative to adding the dataset definition inline in the `spicepod.yaml` fi
 ```yaml
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 name: taxi_trips
-type: overwrite
 acceleration:
   enabled: true
-  refresh: 1h
+  refresh_check_interval: 1h
 ```
 
 **ref used in spicepod.yaml**
@@ -151,6 +166,8 @@ SELECT * FROM "LINEITEM";
 ```
 
 Without the double quotes, the same dataset would be queryable only as `lineitem`.
+
+See [Identifier Case Sensitivity and Quoting](../../components/data-connectors/index.md#identifier-case-sensitivity-and-quoting) for full details on quoting in both the `from` and `name` fields.
 
 ## `description`
 
@@ -309,7 +326,9 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
-- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
 
 ## `acceleration.snapshots`
 
@@ -359,6 +378,24 @@ Supported values:
 
 - `enabled` – Compact the database before creating each snapshot.
 - `disabled` (default) – Upload snapshots without compaction.
+
+## `acceleration.snapshots_creation_policy`
+
+Optional. Controls when new snapshots are created after data refreshes. Defaults to `on_change`.
+
+Supported values:
+
+- `on_change` (default) – Only create a new snapshot when the data has changed since the last snapshot.
+- `always` – Create a new snapshot after every refresh, regardless of whether the data has changed.
+
+## `acceleration.snapshots_reset_expiry_on_load`
+
+Optional. Controls whether the snapshot expiry timer is reset when loading from a snapshot during bootstrap. Defaults to `disabled`.
+
+Supported values:
+
+- `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
+- `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
 
 ## `acceleration.refresh_mode`
 
@@ -469,7 +506,7 @@ See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-
 
 ## `acceleration.refresh_sql`
 
-Optional. Filters the data fetched from the source to be stored in the accelerator engine. Only supported for `full` refresh_mode datasets.
+Optional. Filters the data fetched from the source to be stored in the accelerator engine. Supported for `full` and `append` refresh mode datasets.
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
@@ -482,7 +519,7 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 
 ## `acceleration.refresh_data_window`
 
-Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Only supported for `full` refresh mode datasets.
+Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Supported for `full` and `append` refresh mode datasets.
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
@@ -524,10 +561,6 @@ Setting `refresh_on_startup: always` ensures that accelerated data is always ref
 ## `acceleration.params`
 
 Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
-
-## `acceleration.engine_secret`
-
-Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
 
 ## `acceleration.retention_check_enabled`
 
@@ -666,6 +699,37 @@ datasets:
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
         hash: upsert
+```
+
+## `acceleration.on_zero_results`
+
+Optional. Controls the behavior when an accelerated query returns zero results. Defaults to `return_empty`.
+
+The following values are supported:
+
+- `return_empty` - Default. Return an empty result set when the accelerated query returns no rows.
+- `use_source` - Fall back to querying the original data source when the accelerated query returns no rows.
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      on_zero_results: use_source
+```
+
+## `acceleration.partition_by`
+
+Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty).
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      partition_by: block_date
 ```
 
 ## `columns`
@@ -826,7 +890,7 @@ Optional. The number of tokens to overlap between chunks. Defaults to `0`.
 
 ## `embeddings[*].chunking.trim_whitespace`
 
-Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `true`.
+Optional. If enabled, the content of each chunk will be trimmed to remove leading and trailing whitespace. Defaults to `false`.
 
 ## `metadata` {#metadata}
 

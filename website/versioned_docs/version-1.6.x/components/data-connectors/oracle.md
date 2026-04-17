@@ -85,7 +85,7 @@ The Oracle data connector can be configured by providing the following `params`.
 | `oracle_password`          | The password to connect with. Required.                                                                                                                                                                                                                |
 | `oracle_service_name`      | The Oracle Database service name to connect to. Default: `XEPDB1`                                                                                                                                                                                      |
 | `oracle_wallet_sso_cert`   | The base64-encoded `cwallet.sso` (wallet auto-login certificate) to use for mTLS authentication with Oracle Cloud.                                                                                                                                     |
-| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate.                                                                                         |
+| `oracle_wallet`            | Specifies the Oracle wallet location used to save the provided mTLS certificate (`oracle_wallet_sso_cert`) or retrieve an existing/pre-downloaded certificate. Default: `.oracle`                                                                      |
 
 ## Types
 
@@ -198,4 +198,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README)
+- A cookbook recipe to connect to and accelerate data from an Oracle database in Spice. [Oracle Data Connector](https://github.com/spiceai/cookbook/blob/trunk/oracle/README.md)

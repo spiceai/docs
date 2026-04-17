@@ -18,7 +18,7 @@ datasets:
 
 The `from` field for the ClickHouse connector takes the form of `from:db.dataset` where `db.dataset` is the path to the Dataset within ClickHouse. In the example above it would be `my.dataset`.
 
-If `db` is not specified in either the `from` field or the `clickhouse_db` parameter, it will default to the `default` database.
+The `clickhouse_db` parameter is required when not using `clickhouse_connection_string`. When using a connection string without a database path, it defaults to the `default` database.
 
 ### `name`
 
@@ -61,7 +61,7 @@ The ClickHouse data connector can be configured by providing the following `para
 | `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                                               |
 | `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                               |
 | `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
-| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                                                 |
+| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds. Default is `10000` (10 seconds).                                                                                                                                                                                                                                                                                 |
 
 ## Examples
 

@@ -73,7 +73,7 @@ Supported Data Connectors include:
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
 [s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
 [spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
@@ -109,17 +109,18 @@ datasets:
 
 ### Supported Formats
 
-| Name                                          | Parameter              | Status  | Description                                   |
-| --------------------------------------------- | ---------------------- | ------- | --------------------------------------------- |
-| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics       |
-| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                        |
-| JSON                                          | `file_format: json`    | Roadmap | JavaScript Object Notation                    |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap | Open table format for large analytic datasets |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                      |
-| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)  |
-| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)            |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)    |
-| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)        |
+| Name                                          | Parameter              | Status  | Description                                                                                                    |
+| --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
+| JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
+| Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
+| Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
+| PDF                                           | `file_format: pdf`     | Beta    | Portable Document Format (document format)                                                                     |
+| Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
 
@@ -300,12 +301,13 @@ Runtime schema evolution controls are planned for a future release. When availab
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Roadmap   | ❌                  |
-| JSON                                          | `file_format: json`    | Roadmap   | ❌                  |
+| [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
+| JSON                                          | `file_format: json`    | ✅         | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| PDF                                           | `file_format: pdf`     | Beta      | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}

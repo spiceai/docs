@@ -20,6 +20,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`google`][google]         | Google AI language models                    | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
+| ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -            | -                               |
 
 [openai]: ./openai.md
 [bedrock]: ./bedrock.md
@@ -31,6 +32,7 @@ Spice supports various model providers for traditional machine learning (ML) mod
 [google]: ./google.md
 [xai]: ./xai.md
 [databricks]: ./databricks.md
+[perplexity]: ./perplexity.md
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../reference/models).
 
@@ -46,7 +48,6 @@ Spice supports a variety of features for large language models (LLMs):
 - **System Prompts**: Declaratively define system prompts and default values for [`v1/chat/completion`](../api/HTTP/post-chat-completions) parameters. See [Parameter Overrides](../features/large-language-models/parameter_overrides). Use Jinja templating to parameterize system prompts per request. See [Parameterized prompts](../features/large-language-models/parameterized_prompts).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](../features/large-language-models/memory).
 - **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](../features/search/vector-search).
-- **Evals**: Evaluate, track, compare, and improve language model performance for specific tasks. See [Evals](../features/large-language-models/evals).
 - **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](../features/large-language-models/serving).
 
 For more details, refer to the [Large Language Models documentation](../features/large-language-models).
@@ -64,7 +65,6 @@ The following provider prefixes are supported:
 | `xai`        | xAI                                   |
 | `anthropic`  | Anthropic                             |
 | `google`     | Google AI                             |
-| `perplexity` | Perplexity                            |
 | `hf`         | Hugging Face                          |
 | `file`       | Local filesystem                      |
 | `spiceai`    | Spice.ai Cloud Platform               |

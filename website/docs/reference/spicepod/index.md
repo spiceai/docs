@@ -20,7 +20,7 @@ Readers who are new to YAML can find a primer in "[Learn YAML in Y minutes](http
 
 ## `version`
 
-The version of the Spicepod manifest. The current version is `v1`.
+The version of the Spicepod manifest. The current version is `v2`.
 
 ## `kind`
 
@@ -131,7 +131,7 @@ snapshots:
 
 ### `snapshots.enabled`
 
-Enable or disable snapshot management globally. Defaults to `false`.
+Enable or disable snapshot management globally. Defaults to `true`.
 
 ### `snapshots.location`
 
@@ -193,21 +193,6 @@ embeddings:
     from: huggingface:huggingface.co/BAAI/bge-small-en-v1.5
 ```
 
-## `evals`
-
-A Spicepod can contain one or more [evaluations](spicepod/evals) referenced by relative path.
-
-**Example**
-
-```yaml
-evals:
-  - name: australia
-    description: Make sure the model understands Aussies, and importantly Cricket.
-    dataset: cricket_logic
-    scorers:
-      - Match
-```
-
 ## `dependencies`
 
 A list of dependent Spicepods.
@@ -250,7 +235,6 @@ A Spicepod can contain one or more [workers](spicepod/workers) defining configur
 ```yaml
 workers:
   - name: round-robin
-    type: load_balance
     description: |
       Distributes requests between 'llama3_2' and 'gpt4_1' models in a round-robin fashion.
     load_balance:
@@ -258,7 +242,6 @@ workers:
         - from: llama3_2
         - from: gpt4_1
   - name: fallback
-    type: load_balance
     description: |
       Attempts 'gpt4_1' first, then 'llama3_2', then 'anth_haiku' if previous models fail.
     load_balance:
@@ -270,7 +253,6 @@ workers:
         - from: anth_haiku
           order: 3
   - name: weighted
-    type: load_balance
     description: |
       Routes 80% of traffic to 'llama3_2'.
     load_balance:

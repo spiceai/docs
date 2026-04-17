@@ -55,7 +55,7 @@ Supported Data Connectors include:
 | `odbc`                             | ODBC                                  | Beta              | ODBC                         |
 | `snowflake`                        | Snowflake                             | Beta              | Arrow                        |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
-| `iceberg`                          | [Apache Iceberg][iceberg]             | Beta              | Parquet                      |
+| `iceberg`                          | [Apache Iceberg][iceberg]             | Stable            | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, JSON           |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, JSON           |
 | `smb`                              | SMB                                   | Alpha             | Parquet, CSV, JSON           |
@@ -70,19 +70,20 @@ Supported Data Connectors include:
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
-| `ducklake`                         | [DuckLake][ducklake]                  | Alpha             | Parquet                      |
+| `ducklake`                         | DuckLake                              | Alpha             | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
+| `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
 | `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
 
-[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks/delta_lake
+[databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
 [s3]: https://github.com/spiceai/cookbook/tree/trunk/s3#readme
 [spiceai]: https://github.com/spiceai/cookbook/tree/trunk/spiceai#readme
 [dremio]: https://github.com/spiceai/cookbook/tree/trunk/dremio#readme
 [localpod]: https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md
 [iceberg]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme
-[glue]: https://github.com/spiceai/cookbook/tree/trunk/glue/README.md
-[ducklake]: https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme
+[glue]: https://github.com/spiceai/cookbook/tree/trunk/glue#readme
+[adbc]: https://arrow.apache.org/adbc/
 [ODPIC]: https://oracle.github.io/odpi/
 
 ## File Formats
@@ -117,11 +118,11 @@ datasets:
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
 | JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta    | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Stable  | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
 | Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
 | Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
-| PDF                                           | `file_format: pdf`     | Alpha   | Portable Document Format (document format)                                                                     |
+| PDF                                           | `file_format: pdf`     | Beta    | Portable Document Format (document format)                                                                     |
 | Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
 
 ### Format-Specific Parameters
@@ -186,11 +187,11 @@ File-based connectors can expose per-file object store metadata as virtual colum
 
 #### Available Columns
 
-| Column           | Type                   | Description                        |
-| ---------------- | ---------------------- | ---------------------------------- |
-| `_location`      | `Utf8`                 | Full URI of the source file        |
-| `_last_modified` | `Timestamp(µs, "UTC")` | When the file was last modified    |
-| `_size`          | `UInt64`               | File size in bytes                 |
+| Column           | Type                   | Description                     |
+| ---------------- | ---------------------- | ------------------------------- |
+| `_location`      | `Utf8`                 | Full URI of the source file     |
+| `_last_modified` | `Timestamp(µs, "UTC")` | When the file was last modified |
+| `_size`          | `UInt64`               | File size in bytes              |
 
 #### Enabling Metadata Columns
 
@@ -259,11 +260,11 @@ ORDER BY _location;
 
 Metadata columns are supported by all file-based connectors:
 
-| Connector Type               | Connectors                             |
-| ---------------------------- | -------------------------------------- |
-| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS      |
-| **Network-Attached Storage** | FTP, SFTP, SMB, NFS                    |
-| **Local Storage**            | File                                   |
+| Connector Type               | Connectors                        |
+| ---------------------------- | --------------------------------- |
+| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS |
+| **Network-Attached Storage** | FTP, SFTP, SMB, NFS               |
+| **Local Storage**            | File                              |
 
 ## Schema Inference
 
@@ -273,7 +274,7 @@ Schema inference happens once, when the dataset is first registered. Some connec
 
 | Connector                             | Parameter                          | Default | Description                                         |
 | ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
-| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 10      | Number of messages sampled to infer the JSON schema |
+| [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 1       | Number of messages sampled to infer the JSON schema |
 | [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
 | [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
 | [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
@@ -304,12 +305,12 @@ Runtime schema evolution controls are planned for a future release. When availab
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
-| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Beta      | ❌                  |
+| [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
 | JSON                                          | `file_format: json`    | ✅         | ❌                  |
 | Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
-| PDF                                           | `file_format: pdf`     | Alpha     | ✅                  |
+| PDF                                           | `file_format: pdf`     | Beta      | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}
@@ -320,7 +321,7 @@ Runtime schema evolution controls are planned for a future release. When availab
 Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 
 :::warning[Note]
-Document formats in Alpha (PDF, DOCX) may not parse all structure or text from the underlying documents correctly.
+Document formats in Alpha (DOCX) may not parse all structure or text from the underlying documents correctly.
 :::
 
 #### Document Table Schema
@@ -379,6 +380,62 @@ A Document table will be created.
 |                                                    | Our Ethereum append-only dataset is incomple...  |
 +----------------------------------------------------+--------------------------------------------------+
 ```
+
+## Identifier Case Sensitivity and Quoting
+
+Spice follows [PostgreSQL conventions](../../reference/sql/select.md) for identifier handling: **unquoted identifiers are normalized to lowercase**. This applies to both the `from` field in dataset definitions and the `name` field used for SQL queries.
+
+### Quoting in the `from` field
+
+To reference a table or schema with mixed-case or uppercase characters in the `from` field, wrap each case-sensitive part in double quotes:
+
+```yaml
+datasets:
+  # Without quoting — "ActionExecutions" is lowercased to "actionexecutions"
+  - from: postgres:my_schema.ActionExecutions
+    name: action_executions
+
+  # With quoting — case is preserved for the table name
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+
+  # Quote each part individually as needed
+  - from: postgres:"MySchema"."ActionExecutions"
+    name: action_executions
+```
+
+Each dotted part of the identifier is treated independently — quote only the parts that require case preservation. For example, `postgres:my_schema."ActionExecutions"` preserves the case of `ActionExecutions` while `my_schema` is normalized to lowercase.
+
+This applies to all federated database connectors where the `from` field references a table identifier (e.g. `postgres`, `mysql`, `snowflake`, `databricks`, `clickhouse`, `mssql`, `duckdb`, `dremio`, `flightsql`, `spark`, `mongodb`, `oracle`, `adbc`). Connectors that interpret `from` as a file path (e.g. `s3`, `delta_lake`, `ftp`, `abfs`) do not apply identifier normalization.
+
+### Quoting in the `name` field
+
+The `name` field controls the table name used in Spice SQL queries and follows the same lowercase normalization. To preserve case in the dataset name, wrap the value in double quotes. In YAML, use single quotes around the double-quoted value:
+
+```yaml
+datasets:
+  - from: postgres:my_schema."ActionExecutions"
+    name: '"ActionExecutions"'
+```
+
+```sql
+-- Query using the preserved-case name
+SELECT * FROM "ActionExecutions";
+```
+
+If you don't need to preserve case in queries, a lowercase `name` works without quoting:
+
+```yaml
+datasets:
+  - from: postgres:my_schema."ActionExecutions"
+    name: action_executions
+```
+
+```sql
+SELECT * FROM action_executions;
+```
+
+Dataset `name` quoting works regardless of connector type. See the [datasets `name` reference](../../reference/spicepod/datasets.md#name) for more details.
 
 ## Data Connector Docs
 

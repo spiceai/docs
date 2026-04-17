@@ -17,6 +17,7 @@ These keywords apply to all data connectors:
 - `COUNT`
 - `FALSE`
 - `NULL`
+- `TRUE`
 - `END-EXEC`
 - `LATERAL`
 - `TABLE`

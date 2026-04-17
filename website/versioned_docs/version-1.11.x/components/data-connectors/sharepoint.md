@@ -46,7 +46,7 @@ Returns
 ````
 
 :::warning[Limitations]
-The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents (see [Document Formats](./#document-formats)).
+The sharepoint connector does not yet support creating a dataset from a single file (e.g. an Excel spreadsheet). Datasets must be created from a folder of documents.
 :::
 
 ## Configuration
@@ -87,7 +87,7 @@ from: 'sharepoint:<drive_type>:<drive_id>/<subpath_type>:<subpath_value>'
 | `me`       | A user's OneDrive           | `from: sharepoint:me/...`                             |
 
 :::note
-For the `me` drive type the user is identified based on `sharepoint_client_code` and cannot be used with `sharepoint_client_secret`
+For the `me` drive type the user is identified based on `sharepoint_bearer_token` and cannot be used with `sharepoint_client_secret`
 :::
 
 For a name-based `drive_id`, the connector will attempt to resolve the name to an ID at startup.

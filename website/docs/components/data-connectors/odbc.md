@@ -120,7 +120,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `sql_dialect`                 | string         | Override what SQL dialect is used for the ODBC connection. Supports `postgresql`, `mysql`, `sqlite`, `athena` or `databricks` values. Default is unset (auto-detected).                                |
 | `odbc_max_bytes_per_batch`    | number (bytes) | Maximum number of bytes transferred in each query record batch. A lower value may improve performance on low-memory systems. Default is `512_000_000`.                                                 |
-| `odbc_max_num_rows_per_batch` | number (rows)  | Maximum number of rows transferred in each query record batch. A higher value may speed up query results, but requires more memory in conjunction with `odbc_max_bytes_per_batch`. Default is `65536`. |
+| `odbc_max_num_rows_per_batch` | number (rows)  | Maximum number of rows transferred in each query record batch. A higher value may speed up query results, but requires more memory in conjunction with `odbc_max_bytes_per_batch`. Default is `4000`. |
 | `odbc_max_text_size`          | number (bytes) | A limit for the maximum size of text columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                        |
 | `odbc_max_binary_size`        | number (bytes) | A limit for the maximum size of binary columns transmitted between the ODBC driver and the Runtime. Default is unset (allocates driver-reported max column size).                                      |
 | `odbc_connection_string`      | string         | Connection string to use to connect to the ODBC server                                                                                                                                                 |
@@ -327,7 +327,7 @@ datasets:
       odbc_connection_string: Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=spice_demo;Uid=postgres
 ```
 
-See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README) for more help on getting started with ODBC and Postgres.
+See the [ODBC Cookbook](https://github.com/spiceai/cookbook/blob/trunk/odbc/README.md) for more help on getting started with ODBC and Postgres.
 
 ## Secrets
 

@@ -106,6 +106,8 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `kafka_consumer_group_id`                     | Kafka consumer group id to use. If not set, a unique id will be generated.                                                                                                                                                                                                                                                      |
 | `schema_infer_max_records`                    | Number of Kafka messages to sample for schema inference. Default: `1`. Increase if your data has optional fields or varying structure.                                                                                                                                                                                          |
 | `flatten_json`                                | Set `true` to flatten nested structs in JSON as separate columns.                                                                                                                                                                                                                                                               |
+| `batch_max_size`                              | Maximum number of change events to batch together before processing. Default: `10000`.                                                                                                                                                                                                                                          |
+| `batch_max_duration`                          | Maximum time to wait for a batch to fill before processing. Default: `1s`.                                                                                                                                                                                                                                                      |
 
 ### `metrics`
 
@@ -159,4 +161,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README).
+- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README.md).

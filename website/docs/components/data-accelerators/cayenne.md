@@ -52,7 +52,7 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 
 ## Configuration
 
-To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne only supports `mode: file` and stores data on disk.
+To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports `mode: file`, `mode: file_create`, and `mode: file_update` and stores data on disk.
 
 ```yaml
 datasets:
@@ -68,15 +68,16 @@ datasets:
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
-| `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. See [Data Type Support](#data-type-support).                                                                                             |
+| `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
 | `cayenne_footer_cache_mb`         | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans. Defaults to `128`.                                                        |
 | `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in megabytes, caching decompressed data segments for improved query performance. Defaults to `256`.                                                |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
-| `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Defaults to `128`. Smaller files enable better parallelism and predicate pushdown. |
+| `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Defaults to `256`. Smaller files enable better parallelism and predicate pushdown. |
 | `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). Defaults to `{spice_data_path}/metadata`.                                                                                     |
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
+| `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Defaults to `4`.                                                                                                |
 | `sort_columns`                    | Comma-separated list of columns to sort data by on refresh operations. Improves segment pruning for frequently filtered columns.                                                              |
-| `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `warn`, `ignore`, `string`.                                                                                      |
+| `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
 ### S3 Express One Zone Parameters
 
@@ -89,7 +90,8 @@ datasets:
 | `cayenne_s3_secret`         | AWS secret access key (required when `cayenne_s3_auth: key`).                                                                                   |
 | `cayenne_s3_session_token`  | AWS session token (optional, for temporary credentials).                                                                                        |
 | `cayenne_s3_endpoint`       | Custom S3 endpoint URL (optional, overrides auto-generated endpoint).                                                                           |
-| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `5m`). Defaults to 5 minutes for uploads.                                                                       |
+| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `30s`, `5m`). Defaults to `120s`.                                                                               |
+| `cayenne_s3_unsigned_payload` | Use unsigned payload for S3 Express One Zone requests. Defaults to `true`.                                                                    |
 | `cayenne_s3_allow_http`     | Set to `true` for testing with local S3-compatible storage. Defaults to `false`.                                                                |
 
 ## Performance Tuning
@@ -175,7 +177,7 @@ Spice Cayenne is DataFusion query-native, meaning all query execution uses [Apac
 - **Automatic memory management**: Query memory is tracked and spilled to disk when limits are exceeded
 - **Dynamic filter pushdown**: Filters from TopK, Join, and Aggregate operators push down to file scans
 
-DataFusion's [FairSpillPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.FairSpillPool.html) divides memory evenly among partitions, providing predictable memory usage under concurrent query load.
+DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis, improving throughput for high-concurrency queries with many partitions.
 
 ### High-Performance Columnar Storage
 

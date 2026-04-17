@@ -16,7 +16,7 @@ datasets:
   - from: ducklake:my_table
     name: my_table
     params:
-      connection_string: s3://my-bucket/path/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/path/metadata.ducklake
 ```
 
 ## Configuration
@@ -39,7 +39,7 @@ datasets:
   - from: ducklake:customer
     name: tpch_customer
     params:
-      connection_string: s3://my-bucket/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/metadata.ducklake
 ```
 
 ```sql
@@ -50,11 +50,11 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 ### `params`
 
-| Parameter Name      | Description                                                                                                    |
-| ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `connection_string` | **Required**. The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`).                     |
-| `name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                     |
-| `open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used. |
+| Parameter Name                | Description                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `ducklake_connection_string`  | **Required**. The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`).                     |
+| `ducklake_name`               | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                     |
+| `ducklake_open`               | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used. |
 
 ### Connection string formats
 
@@ -85,7 +85,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: /path/to/metadata.ducklake
+      ducklake_connection_string: /path/to/metadata.ducklake
 ```
 
 ### Reading from S3
@@ -95,7 +95,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: s3://my-bucket/lakehouse/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/lakehouse/metadata.ducklake
 ```
 
 ### Reading from a specific schema
@@ -105,7 +105,7 @@ datasets:
   - from: ducklake:analytics.events
     name: events
     params:
-      connection_string: s3://my-bucket/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/metadata.ducklake
 ```
 
 ### PostgreSQL metadata backend
@@ -115,7 +115,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres"
+      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres"
 ```
 
 ### Multiple tables with YAML anchors
@@ -125,7 +125,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params: &ducklake_params
-      connection_string: s3://my-bucket/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/metadata.ducklake
   - from: ducklake:orders
     name: orders
     params: *ducklake_params
@@ -141,7 +141,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      connection_string: s3://my-bucket/metadata.ducklake
+      ducklake_connection_string: s3://my-bucket/metadata.ducklake
     acceleration:
       enabled: true
       engine: duckdb
@@ -152,11 +152,7 @@ datasets:
 :::warning[Limitations]
 
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
-- The `connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
+- The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.
 
 :::
-
-## Cookbook
-
-- A cookbook recipe to configure DuckLake as a catalog and data connector in Spice. [DuckLake Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme)

@@ -174,10 +174,6 @@ Setting `refresh_on_startup: always` ensures that accelerated data is always ref
 
 Optional. Parameters to pass to the acceleration engine. The parameters are specific to the acceleration engine used.
 
-## `acceleration.engine_secret`
-
-Optional. The secret store key to use the acceleration engine connection credential. For supported data connectors, use `spice login` to store the secret.
-
 ## `acceleration.retention_check_enabled`
 
 Optional. Enable or disable retention policy check, defaults to `false`.

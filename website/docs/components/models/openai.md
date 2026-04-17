@@ -86,7 +86,6 @@ See [Large Language Models](../../features/large-language-models) for additional
 
 - [Tools](../../features/large-language-models/tools)
 - [Memory](../../features/large-language-models/memory)
-- [Evals](../../features/large-language-models/evals)
 - [Parameter overrides](../../features/large-language-models/parameter_overrides)
 
 ## Supported OpenAI Compatible Providers

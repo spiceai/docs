@@ -18,7 +18,11 @@ datasets:
 
 The `from` field for the ClickHouse connector takes the form of `from:db.dataset` where `db.dataset` is the path to the Dataset within ClickHouse. In the example above it would be `my.dataset`.
 
-If `db` is not specified in either the `from` field or the `clickhouse_db` parameter, it will default to the `default` database.
+The `clickhouse_db` parameter is required when not using `clickhouse_connection_string`. When using a connection string without a database path, it defaults to the `default` database.
+
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table or database with mixed-case characters, wrap each case-sensitive part in double quotes: `clickhouse:my_db."MixedCaseTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
 
 ### `name`
 
@@ -61,7 +65,33 @@ The ClickHouse data connector can be configured by providing the following `para
 | `clickhouse_user`              | The username to connect with.                                                                                                                                                                                                                                                                                                               |
 | `clickhouse_pass`              | The password to connect with.                                                                                                                                                                                                                                                                                                               |
 | `clickhouse_secure`            | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
-| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds.                                                                                                                                                                                                                                                                                 |
+| `connection_timeout`           | Optional. Specifies the connection timeout in milliseconds. Default is `10000` (10 seconds).                                                                                                                                                                                                                                                |
+
+## Types
+
+The table below shows the ClickHouse data types supported, along with the type mapping to Apache Arrow types in Spice.
+
+| ClickHouse Type  | Arrow Type                  |
+| ---------------- | --------------------------- |
+| `Bool`           | `Boolean`                   |
+| `Int8`           | `Int8`                      |
+| `Int16`          | `Int16`                     |
+| `Int32`          | `Int32`                     |
+| `Int64`          | `Int64`                     |
+| `UInt8`          | `UInt8`                     |
+| `UInt16`         | `UInt16`                    |
+| `UInt32`         | `UInt32`                    |
+| `UInt64`         | `UInt64`                    |
+| `Float32`        | `Float32`                   |
+| `Float64`        | `Float64`                   |
+| `Decimal`        | `Decimal128` / `Decimal256` |
+| `String`         | `Utf8`                      |
+| `FixedString`    | `Utf8`                      |
+| `UUID`           | `Utf8`                      |
+| `Date`           | `Date32`                    |
+| `Date32`         | `Date32`                    |
+| `DateTime`       | `Timestamp(Second, None)`   |
+| `Nullable(T)`    | Mapped inner type `T`       |
 
 ## Examples
 

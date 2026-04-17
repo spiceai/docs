@@ -54,7 +54,7 @@ datasets:
       enabled: true
 ```
 
-This configuration federates customer data from PostgreSQL, transaction data from Databricks (with CDC refresh), and report data from S3, accelerating all three locally for unified access.
+This configuration federates customer data from PostgreSQL, transaction data from Databricks (with CDC refresh), and report data from S3, accelerating all three locally for unified access. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) demonstrates unified data access patterns for such scenarios.
 
 ## Benefits
 
@@ -64,6 +64,6 @@ This configuration federates customer data from PostgreSQL, transaction data fro
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
 - **Observability**: [Documentation](../../features/observability).

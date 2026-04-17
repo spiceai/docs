@@ -24,6 +24,10 @@ Connect to any Flight SQL compatible server (e.g. Influx 3.0, CnosDB, other Spic
 
 The `from` field takes the form `flightsql:dataset` where `dataset` is the fully qualified name of the dataset to read from.
 
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a dataset with mixed-case characters, wrap each case-sensitive part in double quotes: `flightsql:my_catalog."MySchema"."MyTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+:::
+
 ### `name`
 
 The dataset name. This will be used as the table name within Spice. The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
@@ -35,6 +39,7 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                 |
 | `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                    |
 | `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
+| `flightsql_tls_ca_certificate_file` | Optional. Path to a CA certificate file (PEM format) to use for TLS verification instead of system certificates. |
 
 ## Secrets
 

@@ -29,7 +29,7 @@ Unlike centralized AI orchestration platforms (e.g., Apache Airflow for AI workf
 
 ## Example
 
-A security operations center federates external MCP servers for threat intelligence, behavioral analysis, and log parsing, delivering AI-driven threat reports enriched with real-time network data from Databricks. This streamlines incident response by unifying disparate tools, reducing response times compared to fragmented integrations, and enhances threat detection accuracy. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README) provides patterns adaptable to MCP federation workflows.
+A security operations center federates external MCP servers for threat intelligence, behavioral analysis, and log parsing, delivering AI-driven threat reports enriched with real-time network data from Databricks. This streamlines incident response by unifying disparate tools, reducing response times compared to fragmented integrations, and enhances threat detection accuracy. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) provides patterns adaptable to MCP federation workflows.
 
 ## Benefits
 
@@ -39,5 +39,5 @@ A security operations center federates external MCP servers for threat intellige
 
 ### Learn More
 
-- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **Vector and Hybrid Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **Vector and Hybrid Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).

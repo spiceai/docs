@@ -143,4 +143,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README).
+- See how to query Kafka real-time data with other datasets using federated queries in [Live Orders Analytics example](https://github.com/spiceai/cookbook/blob/trunk/kafka/README.md).

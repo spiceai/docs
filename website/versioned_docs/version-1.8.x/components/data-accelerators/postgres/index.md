@@ -34,7 +34,8 @@ The connection to PostgreSQL can be configured by providing the following `param
   - `prefer`: This mode will try to establish a secure TLS connection if possible, but will connect insecurely if the server does not support TLS.
   - `disable`: This mode will not attempt to use a TLS connection, even if the server supports it.
 - `pg_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
-- `connection_pool_size`: Optional. The maximum number of connections to keep open in the connection pool. Default is 10.
+- `pg_connection_pool_min_idle`: Optional. The minimum number of idle connections to keep open in the pool. Default is `1`.
+- `connection_pool_size`: Optional. The maximum number of connections to keep open in the connection pool. Default is `5`.
 
 Configuration `params` are provided either in the `acceleration` section of a dataset.
 

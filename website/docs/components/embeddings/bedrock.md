@@ -18,6 +18,7 @@ To use an embedding model deployed to [AWS Bedrock service](https://aws.amazon.c
 | `aws_access_key_id`          | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
 | `aws_secret_access_key`      | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
 | `aws_session_token`          | Optional. AWS session token for authentication                                                                                          |
+| `aws_iam_role_source`        | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 | `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to `40`                                                            |
 | `requests_per_min_limit`     | Optional. The maximum number of requests made per minute. Defaults to `1500`                                                            |
 
@@ -37,14 +38,14 @@ These parameters are used for [Amazon Nova](https://docs.aws.amazon.com/nova/lat
 | Parameter           | Description                                                                                                                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `dimensions`        | **Required**. The number of dimensions the output embedding should have. Accepted value: 256, 384, 1024 or 3072.                                                                                                   |
-| `truncation_mode`   | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                                                                                   |
+| `truncate_mode`     | Optional. Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default). Also accepted as `truncate`.                                                      |
 | `embedding_purpose` | Optional. Use the Nova embeddings model optimized for different purposes. Default `GENERIC_INDEX`. See reference [docs](https://docs.aws.amazon.com/nova/latest/userguide/embeddings-schema.html) for all options. |
 
 #### Cohere Models
 
 | Parameter    | Description                                                                                                                                                     |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `truncate`   | Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` or `NONE` (default).                                          |
+| `truncate`   | Specifies how the API handles inputs longer than the maximum token length. One of: `START`, `END` (default) or `NONE`.                                          |
 | `input_type` | Use the Cohere embeddings model optimized for different types of inputs. One of: `search_document` (default), `search_query`, `classification` or `clustering`. |
 
 ### Example `spicepod.yaml` configuration, Cohere model
@@ -78,7 +79,7 @@ embeddings:
     name: nova-embeddings
     params:
       dimensions: '3072'
-      truncation_mode: START
+      truncate_mode: START
       embedding_purpose: GENERIC_RETRIEVAL
       aws_region: us-east-1
       aws_access_key_id: ${ secrets:AWS_ACCESS_KEY_ID }

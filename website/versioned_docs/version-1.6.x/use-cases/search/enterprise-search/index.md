@@ -20,7 +20,7 @@ Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that lack sea
 
 ## Example
 
-A finserv firm enables traders to search a knowledge base combining structured transaction data from Databricks with unstructured compliance documents from cloud storage. Hybrid search retrieves relevant regulations semantically (via vector search) and precise contract terms (via BM25), streamlining compliance checks and reducing research time compared to siloed search tools. This improves operational efficiency and regulatory adherence. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README) and [Vector-Based Search documentation](../../features/search) provide implementation guidance for hybrid search workflows.
+A finserv firm enables traders to search a knowledge base combining structured transaction data from Databricks with unstructured compliance documents from cloud storage. Hybrid search retrieves relevant regulations semantically (via vector search) and precise contract terms (via BM25), streamlining compliance checks and reducing research time compared to siloed search tools. This improves operational efficiency and regulatory adherence. The [Searching GitHub Files recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md) and [Vector-Based Search documentation](../../features/search) provide implementation guidance for hybrid search workflows.
 
 ## Benefits
 
@@ -30,6 +30,6 @@ A finserv firm enables traders to search a knowledge base combining structured t
 
 ### Learn More
 
-- **Vector and Hybrid Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README).
-- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README).
-- **AI Gateway**: [Documentation](../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README).
+- **Vector and Hybrid Search**: [Documentation](../../features/search) and [Searching GitHub Files Recipe](https://github.com/spiceai/cookbook/blob/trunk/search_github_files/README.md).
+- **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
+- **AI Gateway**: [Documentation](../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).

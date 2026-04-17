@@ -139,6 +139,22 @@ To locate your SQL Warehouse ID, do the following:
 3. In the list of available warehouses, click the target warehouse's name.
 4. Next to the **Name** field, the ID follows the name in parentheses. For example: `My Serverless Warehouse (ID: 2b4e24cff378fb24)`
 
+#### SQL Warehouse connection tuning
+
+The following parameters control resilience and concurrency for the SQL Statement Execution API when using `mode: sql_warehouse`:
+
+| Parameter Name               | Description                                                                                                                         | Default      |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `max_concurrent_requests`    | Maximum number of concurrent HTTP requests to the SQL Warehouse API.                                                                | `8`          |
+| `http_max_retries`           | Maximum number of HTTP-level retries for transient failures (429, 5xx).                                                             | `3`          |
+| `backoff_method`             | Backoff strategy for transient HTTP retries. Options: `fibonacci`, `exponential`.                                                   | `fibonacci`  |
+| `statement_max_retries`      | Maximum number of poll retries when waiting for async statement completion.                                                          | `14`         |
+| `disable_on_permanent_error` | When `true`, non-retryable errors (401, 403, 404) permanently disable the connector to prevent a thundering herd of failed requests. | `true`       |
+
+### Delta Lake parameters
+
+- `client_timeout`: The timeout setting for the object store client. Applies when using `mode: delta_lake`.
+
 #### AWS S3
 
 | Dataset Parameter Name             | Definition                                                               |
