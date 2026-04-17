@@ -11,6 +11,10 @@ tags:
   - observability
 ---
 
+:::info Spice.ai Enterprise
+The PostgreSQL Data Accelerator is available only in [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise).
+:::
+
 Production operating guide for the PostgreSQL data accelerator — materializing source data into a dedicated PostgreSQL database or schema for durable, SQL-native acceleration.
 
 ## Authentication & Secrets

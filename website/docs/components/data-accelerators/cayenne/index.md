@@ -11,10 +11,6 @@ tags:
   - s3-express
 ---
 
-:::info Beta
-The Spice Cayenne Data Accelerator is in Beta.
-:::
-
 Spice Cayenne is a data acceleration engine designed for high-performance, scalable query on large-scale datasets. Built on [Vortex](https://github.com/vortex-data/vortex), a high-performance columnar file format, Spice Cayenne combines columnar storage with in-process metadata management to provide fast query performance to scale to datasets beyond 1TB.
 
 ## Why Vortex?
@@ -506,17 +502,12 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 Consider the following limitations when using Spice Cayenne acceleration:
 
-- **Beta Status**: Spice Cayenne is in active development. Configuration options may change between releases.
 - **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `Map`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **No File Compaction**: Automatic file compaction to reclaim space from deleted rows is not yet available.
-
-:::warning BETA SOFTWARE
-As a Beta feature, Spice Cayenne should be thoroughly tested in development environments before production deployment. Monitor release notes for updates, breaking changes, and new capabilities.
-:::
 
 ## Example Spicepod
 
