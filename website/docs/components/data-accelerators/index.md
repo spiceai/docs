@@ -36,10 +36,10 @@ By default, datasets are locally materialized using in-memory Arrow records.
 | `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate | `memory`, `file` |
 | `turso`    | Embedded [Turso][turso]         | Beta              | `memory`, `file` |
 
-[cayenne]: ./cayenne.md
-[duckdb]: ./duckdb.md
+[cayenne]: ./cayenne/index.md
+[duckdb]: ./duckdb/index.md
 [postgres]: data-accelerators/postgres
-[sqlite]: ./sqlite.md
+[sqlite]: ./sqlite/index.md
 [turso]: ./turso.md
 
 ## Choosing an Accelerator
