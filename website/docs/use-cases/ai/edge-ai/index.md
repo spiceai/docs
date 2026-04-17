@@ -9,6 +9,14 @@ pagination_next: null
 
 Spice.ai deploys AI applications and agents across cloud and edge for low-latency decisions in security IoT use cases, ensuring rapid threat detection and response in distributed environments.
 
+```mermaid
+graph LR
+    Cloud[Cloud Data] --> Spice[Spice - Edge]
+    Sensors[Edge Sensors] --> Spice
+    Spice --> Model[Local AI Model]
+    Model --> Decision[Decision]
+```
+
 Unlike cloud-centric AI platforms (e.g., AWS SageMaker, Google Vertex AI) that rely on constant connectivity and introduce latency, Spice.ai’s edge data materialization and local model inference enable real-time, resilient AI operations. This is critical for security applications requiring immediate action and functionality in low-connectivity scenarios, outperforming cloud-dependent solutions in speed and reliability.
 
 ## Why Spice.ai?

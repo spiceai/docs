@@ -9,6 +9,13 @@ pagination_next: null
 
 Spice.ai powers a cloud-native embedded search engine on object-store data for security applications, enabling semantic and precise search with real-time insights directly from distributed storage.
 
+```mermaid
+graph LR
+    S3[S3 / Object Store] --> Spice[Spice]
+    Query[Search Query] --> Spice
+    Spice -->|Vector + BM25| Results[Search Results]
+```
+
 Unlike standalone search engines (e.g., Elasticsearch, OpenSearch) that require data ingestion into centralized indexes, Spice.ai queries object-store native databases (e.g., S3, Azure Blob) with hybrid search (vector + keyword + BM25) and federated data access, eliminating data duplication and reducing infrastructure overhead. This makes it ideal for security applications needing fast, compliant, and context-aware search across vast, distributed datasets, outperforming traditional search platforms with complex ETL requirements.
 
 ## Why Spice.ai?

@@ -1,7 +1,7 @@
 ---
 title: 'AI Applications and Agents'
 sidebar_label: 'AI Apps & Agents'
-sidebar_position: 4
+sidebar_position: 5
 description: 'AI Applications and Agents'
 pagination_prev: null
 pagination_next: null

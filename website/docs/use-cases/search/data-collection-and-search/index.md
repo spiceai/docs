@@ -9,6 +9,14 @@ pagination_next: null
 
 Spice.ai processes streaming and static data with integrated search capabilities for real-time insights, focusing on application logic and enabling rapid development of data-driven features.
 
+```mermaid
+graph LR
+    Kafka[Streaming Sources] --> Spice[Spice]
+    Static[Static Sources] --> Spice
+    Query[Search Query] --> Spice
+    Spice -->|Hybrid Search| Results[Results]
+```
+
 Unlike complex streaming platforms (e.g., Apache Flink) that require extensive infrastructure, Spice.ai unifies streaming and static data with vector and hybrid search for developers. This simplifies real-time data workflows and research-driven applications, minimizing setup and maintenance overhead compared to fragmented streaming and search solutions.
 
 ## Why Spice.ai?

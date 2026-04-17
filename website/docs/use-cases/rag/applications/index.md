@@ -1,8 +1,8 @@
 ---
-title: 'Spice for Retrieval-Augmented-Generation (RAG)'
-sidebar_label: 'RAG'
-sidebar_position: 5
-description: Use Spice for Retrieval-Augmented-Generation (RAG)
+title: 'RAG for Contextual Applications'
+sidebar_label: 'Applications'
+sidebar_position: 1
+description: 'Build context-rich AI applications using Spice for Retrieval-Augmented Generation (RAG).'
 pagination_prev: null
 pagination_next: null
 ---
@@ -10,6 +10,15 @@ pagination_next: null
 Use Spice to access data across various data sources for Retrieval-Augmented-Generation (RAG).
 
 Spice enables developers to combine structured data via SQL queries and unstructured data through built-in vector similarity search. This combined data can then be fed to large language models (LLMs) through a native AI gateway, improving the models' ability to generate accurate and contextually relevant responses.
+
+```mermaid
+graph LR
+    Sources[Data Sources] -->|Embed & Store| Spice[Spice]
+    Query[User Query] --> Spice
+    Spice -->|Retrieve Context| Spice
+    Spice -->|Augmented Prompt| LLM[LLM]
+    LLM --> Response[Response]
+```
 
 ## Example Configuration
 
