@@ -29,7 +29,7 @@ Spice Cayenne uses Vortex as its storage format, providing significant performan
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance. For performance benchmarks, see [bench.vortex.dev](https://bench.vortex.dev/).
 
-While [DuckDB](./duckdb) excels for datasets up to approximately 1TB, Spice Cayenne with Vortex is designed to scale beyond these limits.
+While [DuckDB](duckdb) excels for datasets up to approximately 1TB, Spice Cayenne with Vortex is designed to scale beyond these limits.
 
 ## Architecture
 
