@@ -84,20 +84,41 @@ Spice can push metrics to an [OpenTelemetry](https://opentelemetry.io/) collecto
 
 Configure the OpenTelemetry exporter in `spicepod.yaml` under `runtime.telemetry.otel_exporter`:
 
-| Parameter       | Required | Default | Description                                                           |
-| --------------- | -------- | ------- | --------------------------------------------------------------------- |
-| `enabled`       | No       | `true`  | Whether the OpenTelemetry exporter is enabled.                        |
-| `endpoint`      | Yes      | -       | The OpenTelemetry collector endpoint.                                 |
-| `push_interval` | No       | `60s`   | How frequently metrics are pushed to the collector.                   |
-| `metrics`       | No       | `[]`    | List of metric names to export. When empty, all metrics are exported. |
+| Parameter       | Required | Default | Description                                                                                                                                                                                                 |
+| --------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`       | No       | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                                                                                                              |
+| `endpoint`      | Yes      | -       | The OpenTelemetry collector endpoint. Protocol (gRPC or HTTP) is inferred from the format.                                                                                                                  |
+| `push_interval` | No       | `60s`   | How frequently metrics are pushed to the collector.                                                                                                                                                         |
+| `metrics`       | No       | `[]`    | List of metric names to export. When empty, all metrics are exported.                                                                                                                                       |
+| `headers`       | No       | `{}`    | Map of headers to send with each export request. For HTTP: sent as HTTP headers. For gRPC: sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` replacement syntax. |
 
 ### Protocol
 
-Spice currently supports only the gRPC protocol for OpenTelemetry metrics export. Specify the collector `endpoint` as a host and port (e.g., `localhost:4317`). 
+Spice infers the OTLP protocol from the `endpoint` format:
+
+- **gRPC** — bare host:port with no scheme (e.g. `localhost:4317`). Default port: `4317`.
+- **HTTP** — includes the `http://` or `https://` scheme and ends in `/v1/metrics` (e.g. `http://localhost:4318/v1/metrics`, `https://otlp.us3.datadoghq.com/v1/metrics`). Default port: `4318`.
+
+### Authentication
+
+For collectors that require authentication (Datadog, Grafana Cloud, New Relic, Honeycomb, etc.), set the `headers` map. Secret values should be loaded from a [supported secret store](../../components/secret-stores) using the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) rather than committed to source:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'https://otlp.example.com/v1/metrics'
+      headers:
+        Authorization: 'Bearer ${secrets:otlp_token}'
+```
+
+:::tip gRPC metadata keys must be lowercase
+When exporting over gRPC, header keys are sent as gRPC metadata and **must be lowercase ASCII** — use `authorization`, not `Authorization`. The runtime fails fast at startup if any gRPC metadata key is invalid. HTTP exports preserve the casing you provide.
+:::
 
 ### Examples
 
-**gRPC (default port 4317):**
+#### Local gRPC collector
 
 ```yaml
 runtime:
@@ -106,6 +127,77 @@ runtime:
     otel_exporter:
       endpoint: 'localhost:4317'
       push_interval: '30s'
+```
+
+#### Local HTTP collector
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'http://localhost:4318/v1/metrics'
+      push_interval: '30s'
+```
+
+#### Datadog (OTLP/HTTP)
+
+Replace `us3` with your Datadog site (`us3`, `us5`, `eu`, `ap1`, etc.) and store the API key in a secret store:
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'https://otlp.us3.datadoghq.com/v1/metrics'
+      push_interval: '30s'
+      headers:
+        DD-API-KEY: ${secrets:dd_api_key}
+```
+
+Equivalent standard OTLP environment-variable form (for cross-reference):
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp.us3.datadoghq.com"
+export OTEL_EXPORTER_OTLP_HEADERS="DD-API-KEY=${DD_API_KEY}"
+```
+
+#### Grafana Cloud (OTLP/HTTP)
+
+Grafana Cloud's OTLP gateway expects HTTP Basic authentication. Obtain the base64-encoded `instanceID:accessPolicyToken` credential from the Grafana Cloud "OpenTelemetry" connection page and store it in a secret:
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'https://otlp-gateway-us-central2.grafana.net/otlp/v1/metrics'
+      push_interval: '30s'
+      headers:
+        Authorization: 'Basic ${secrets:grafana_cloud_auth}'
+```
+
+Equivalent standard OTLP environment-variable form (for cross-reference):
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-us-central2.grafana.net/otlp"
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic ${GRAFANA_CLOUD_AUTH}"
+```
+
+Match the region in the URL to your Grafana Cloud stack (`us-central2`, `eu-west-2`, `prod-ap-south-0`, etc.).
+
+#### gRPC collector with auth metadata
+
+```yaml
+runtime:
+  telemetry:
+    enabled: true
+    otel_exporter:
+      endpoint: 'otel-collector.internal:4317'
+      push_interval: '30s'
+      headers:
+        # Keys MUST be lowercase for gRPC
+        api-key: ${secrets:collector_api_key}
 ```
 
 ### Metric Filtering

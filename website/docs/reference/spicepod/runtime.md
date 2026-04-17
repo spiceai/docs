@@ -349,12 +349,13 @@ Enables or disables runtime telemetry collection. Defaults to `true`.
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
-| Parameter name  | Optional | Default | Description                                                                                      |
-| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
-| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                   |
-| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below). |
-| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).        |
-| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                  |
+| Parameter name  | Optional | Default | Description                                                                                                                                                                                                                                                   |
+| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                                                                                                                                                                |
+| `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                                                                                                                                                              |
+| `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).                                                                                                                                                                     |
+| `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                                                                                                                                                               |
+| `headers`       | Yes      | `{}`    | Map of headers to send with each export request. For HTTP these are sent as HTTP headers; for gRPC they are sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) for loading credentials from a [secret store](../../components/secret-stores). |
 
 **Protocol inference:**
 
@@ -401,6 +402,43 @@ runtime:
         - query_duration_ms
         - query_executions
         - dataset_load_state
+```
+
+**Authenticated exporters:**
+
+For collectors that require authentication, set the `headers` map. Load credentials from a [secret store](../../components/secret-stores) via `${secrets:...}` rather than committing them to source.
+
+Datadog (OTLP/HTTP) — replace `us3` with your Datadog site:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'https://otlp.us3.datadoghq.com/v1/metrics'
+      headers:
+        DD-API-KEY: ${secrets:dd_api_key}
+```
+
+Grafana Cloud (OTLP/HTTP) — use the base64 `instanceID:accessPolicyToken` from the Grafana Cloud OpenTelemetry connection page:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'https://otlp-gateway-us-central2.grafana.net/otlp/v1/metrics'
+      headers:
+        Authorization: 'Basic ${secrets:grafana_cloud_auth}'
+```
+
+gRPC collector with auth metadata (keys must be lowercase ASCII):
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector.internal:4317'
+      headers:
+        api-key: ${secrets:collector_api_key}
 ```
 
 ## `runtime.metrics`
