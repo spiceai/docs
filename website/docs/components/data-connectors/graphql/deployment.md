@@ -1,60 +1,83 @@
 ---
 title: 'GraphQL Data Connector Deployment Guide'
 sidebar_label: 'Deployment Guide'
-description: 'Production operating guide for the GraphQL data connector: resilience controls, authentication, metrics, and observability.'
+description: 'Operating guide for the GraphQL data connector in production: authentication, pagination, rate limits, and observability.'
 sidebar_position: 10
 pagination_prev: null
 pagination_next: null
 tags:
   - data-connectors
-  - deployment
+  - graphql
   - observability
 ---
 
-Production operating guide for the **GraphQL Data Connector** covering resilience tuning, authentication, capacity sizing, metrics, and observability.
-
-:::info
-This deployment guide is a work in progress. For a complete reference example, see the [Databricks Deployment Guide](../databricks/deployment).
-:::
+Production operating guide for the GraphQL data connector covering authentication, pagination, and operational tuning.
 
 ## Authentication & Secrets
 
-Guidance for production authentication, credential rotation, and secret store integration.
+Authentication is endpoint-specific. The connector supports arbitrary HTTP headers via `graphql_auth_header`:
 
-<!-- TODO: Document supported auth methods, required IAM/roles/permissions, recommended secret store, and rotation procedures. -->
+| Parameter                  | Description                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `graphql_endpoint`         | GraphQL endpoint URL.                                                         |
+| `graphql_auth_header`      | Authorization header. Typically `"Bearer ${secrets:api_token}"`.              |
+| `graphql_query`            | The GraphQL query to execute.                                                 |
+| `graphql_json_pointer`     | RFC-6901 JSON pointer to the row collection inside the response (e.g. `/data/repository/issues/nodes`). |
+| `graphql_pagination_parameters` | Cursor / page-size configuration for pagination (see the connector reference). |
+
+Tokens must be sourced from a [secret store](../../secret-stores/) in production.
+
+### TLS
+
+Use HTTPS endpoints in production. Self-signed certificates require a trusted CA bundle in the container / host OS trust store.
 
 ## Resilience Controls
 
-Production resilience parameters such as concurrency limits, retry budgets, backoff, and permanent-error handling.
+### Retry Behavior
 
-<!-- TODO: Document component-specific resilience parameters, defaults, and recommended overrides for production. -->
+HTTP-level retries follow the shared `resilient_http` policy: 408/429/5xx plus transient network errors are retried with fibonacci backoff capped at 300s. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+
+### Pagination
+
+The connector supports cursor-based pagination. Each page is a separate HTTP request; pagination errors mid-sequence cause the entire refresh to fail. Use `graphql_json_pointer` to select the row collection and configure the pagination variables to match the upstream schema's cursor fields.
+
+### Server Rate Limits
+
+GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. When a query returns a cost/rate-limit error, the connector surfaces it immediately. Reduce refresh frequency or narrow the query to stay within budget.
 
 ## Capacity & Sizing
 
-Recommended sizing guidance (CPU, memory, disk, network) and scaling behavior under load.
-
-<!-- TODO: Document per-dataset resource expectations, batch sizing, and expected throughput characteristics. -->
+- **Throughput**: Bounded by the upstream rate limit, typical GraphQL endpoints cap at 100s-1000s of requests per minute.
+- **Query cost**: Design `graphql_query` to request only the fields you need. Request fewer nested fields to reduce query cost.
+- **Pagination depth**: Large datasets requiring hundreds of pages extend refresh duration linearly; plan refresh intervals accordingly.
 
 ## Metrics
 
-Operational metrics exposed by the data connector. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The GraphQL connector does not register connector-specific instruments. Monitor via:
 
-<!-- TODO: List component metrics (counter/gauge/histogram), their meaning, and how to enable them in the spicepod. -->
+- Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
+- HTTP response status distribution via the shared `resilient_http` instrumentation.
+- The upstream GraphQL provider's rate-limit dashboards.
 
-## Task History & Tracing
+See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
-Spans emitted by the data connector for the [task history](../../../reference/task_history) system.
+## Task History
 
-<!-- TODO: List span names and input/output fields, and any trace attributes specific to this component. -->
+GraphQL requests participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
 
 ## Known Limitations
 
-Any production limitations, compatibility caveats, or unsupported features.
-
-<!-- TODO: Document known limitations (data types, query patterns, concurrency ceilings, etc.). -->
+- **Read-only**: Only GraphQL queries (not mutations or subscriptions) are supported.
+- **Single query per dataset**: Each dataset is one GraphQL query. Multi-query datasets require separate dataset definitions.
+- **Schema inference**: The connector infers schema from the first response; schemas with deeply-nested optional fields may require an explicit dataset `schema` override.
+- **Batching**: GraphQL query batching (multiple operations in one HTTP request) is not exposed.
 
 ## Troubleshooting
 
-Common failure modes and resolutions.
-
-<!-- TODO: Document common errors, diagnostic steps, and recovery procedures. -->
+| Symptom                                        | Likely cause                                          | Resolution                                                                                  |
+| ---------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `401 Unauthorized`                             | Wrong or expired token in `graphql_auth_header`.      | Rotate the token; verify the header format (`Bearer` prefix, etc.).                          |
+| Rows missing from the dataset                  | Wrong `graphql_json_pointer`.                         | Inspect the response payload; JSON pointer must navigate to the array of rows.              |
+| Refresh fails mid-pagination                   | Rate-limit or transient network failure.              | Reduce refresh frequency; the connector will retry on retriable errors. Narrow the query.   |
+| Query cost exceeded                            | Query requests too many nested fields.                | Simplify the query; fetch only required fields.                                             |
+| Inferred schema differs between refreshes      | Optional fields appear/disappear in responses.        | Provide an explicit dataset `schema` to lock down types.                                    |
