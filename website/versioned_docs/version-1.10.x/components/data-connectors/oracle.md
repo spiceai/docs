@@ -117,6 +117,7 @@ The table below shows the Oracle data types supported, along with the type mappi
 :::note
 
 - The Oracle `TIMESTAMP WITH LOCAL TIME ZONE` value is retrieved as a UTC time value.
+- `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, and `TIMESTAMP WITH LOCAL TIME ZONE` columns with non-zero precision are mapped to `Timestamp(Nanosecond)`. Timestamps outside the nanosecond range (approximately years 1677–2262) will silently return `1970-01-01 UTC`. This is an inherent limitation of Arrow's nanosecond timestamp representation.
 
 :::
 

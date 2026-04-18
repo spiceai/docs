@@ -12,6 +12,7 @@ The Microsoft SQL Server Data Connector enables federated/accelerated SQL querie
 
 1. The connector supports SQL Server authentication (SQL Login and Password) only.
 1. Spatial types (`geography`) are not supported, and columns with these types will be ignored.
+1. `DATETIME2` and `DATETIMEOFFSET` columns are mapped to Arrow `Timestamp(Nanosecond)`. Timestamps outside the nanosecond range (approximately years 1677–2262) will silently return `1970-01-01 UTC`. This is an inherent limitation of Arrow's nanosecond timestamp representation.
 
 :::
 
