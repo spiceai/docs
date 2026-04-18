@@ -68,6 +68,9 @@ The DynamoDB data connector supports the following configuration parameters:
 | `unnest_depth`                   | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields.                |
 | `schema_infer_max_records`       | Optional. The number of documents to use to infer the schema. Defaults to 10                                                                               |
 | `scan_segments`                  | Optional. Number of segments for `Scan` request. 'auto' by default, which will calculate number of segments based on number of the records in a table |
+| `scan_interval`                  | Optional. Interval between polling for new records in a DynamoDB stream. Default: `0s`. See [Streams](#streams).                                      |
+| `ready_lag`                      | Optional. When using Streams, once the table reaches this lag the dataset will be reported as Ready. Default: `2s`. See [Streams](#streams).          |
+| `endpoint_url`                   | Optional. Custom endpoint URL for DynamoDB-compatible services (e.g., DynamoDB Local, ScyllaDB Alternator).                                           |
 
 ### Authentication
 
