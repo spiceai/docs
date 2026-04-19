@@ -113,6 +113,18 @@ The connection to PostgreSQL can be configured by providing the following `param
 | `pg_connection_pool_min_idle` | Optional. The minimum number of idle connections to keep open in the pool. Default is `1`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `connection_pool_size`        | Optional. The maximum number of connections created in the connection pool. Default is `5`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
+#### Replication parameters
+
+The following parameters configure PostgreSQL [logical replication](https://www.postgresql.org/docs/current/logical-replication.html) (WAL streaming) when using `refresh_mode: changes`:
+
+| Parameter Name                     | Description                                                                                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
+| `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`. Shared across replicas for the same dataset.        |
+| `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
+| `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |
+| `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
+
 ## Types
 
 The table below shows the PostgreSQL data types supported, along with the type mapping to Apache Arrow types in Spice.

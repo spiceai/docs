@@ -299,8 +299,8 @@ This parameter uses Go-style time formatting, which uses a reference time of `Mo
 
 | Format Pattern                  | Example Value                   | Description                                |
 | ------------------------------- | ------------------------------- | ------------------------------------------ |
-| `2006-01-02T15:04:05.000Z07:00` | `2024-03-15T14:30:00.000Z`      | ISO8601 / RFC3339 with milliseconds and timezone (default) |
-| `2006-01-02T15:04:05.999Z07:00` | `2024-03-15T14:30:00.123-07:00` | ISO8601 with variable-length milliseconds and timezone     |
+| `2006-01-02T15:04:05Z07:00`     | `2024-03-15T14:30:00Z`          | ISO8601 / RFC3339 with timezone (default)  |
+| `2006-01-02T15:04:05.999Z07:00` | `2024-03-15T14:30:00.123-07:00` | ISO8601 with milliseconds and timezone     |
 | `2006-01-02T15:04:05`           | `2024-03-15T14:30:00`           | ISO8601 without timezone (naive timestamp) |
 | `2006-01-02 15:04:05`           | `2024-03-15 14:30:00`           | Date and time with space separator         |
 | `01/02/2006 15:04:05`           | `03/15/2024 14:30:00`           | US-style date with time                    |
