@@ -40,6 +40,6 @@ instances:
 
 <img width="800" src="/img/datadog/spice_datadog_dashboard_import.png"/>
 
-3. Dashbord is now configured to display Spice.ai OSS key performance metrics
+3. Dashboard is now configured to display Spice.ai OSS key performance metrics
 
 <img width="800" src="/img/datadog/spice_datadog_dashboard.png"/>
