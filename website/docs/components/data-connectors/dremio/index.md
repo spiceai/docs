@@ -24,7 +24,7 @@ This connector enables using Dremio as a data source for federated SQL queries.
 The `from` field takes the form `dremio:dataset` where `dataset` is the fully qualified name of the dataset to read from.
 
 :::info
-Unquoted identifiers are normalized to lowercase. To reference a dataset with mixed-case characters, wrap each case-sensitive part in double quotes: `dremio:my_source."MixedCaseDataset"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+Unquoted identifiers are normalized to lowercase. To reference a dataset with mixed-case characters, wrap each case-sensitive part in double quotes: `dremio:my_source."MixedCaseDataset"`. See [Identifier Case Sensitivity](../index.md#identifier-case-sensitivity-and-quoting).
 :::
 
 :::warning [Limitations]

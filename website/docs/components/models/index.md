@@ -22,10 +22,10 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -            | -                               |
 
-[openai]: ./openai.md
+[openai]: ./openai/index.md
 [bedrock]: ./bedrock.md
-[file]: ./filesystem.md
-[hf]: ./huggingface.md
+[file]: ./filesystem/index.md
+[hf]: ./huggingface/index.md
 [spice]: ./spiceai.md
 [azure]: ./azure.md
 [ant]: ./anthropic.md

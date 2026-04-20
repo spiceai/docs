@@ -28,7 +28,7 @@ The `from` field supports one of two forms:
 | `duckdb:*`                     | Read data using any DuckDB function that produces a table. For example one of the [data import](https://duckdb.org/docs/data/overview) functions such as `read_json`, `read_parquet` or `read_csv`. |
 
 :::info
-Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `duckdb:my_database."MySchema"."MyTable"`. See [Identifier Case Sensitivity](./index.md#identifier-case-sensitivity-and-quoting).
+Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `duckdb:my_database."MySchema"."MyTable"`. See [Identifier Case Sensitivity](../index.md#identifier-case-sensitivity-and-quoting).
 :::
 
 ### `name`
