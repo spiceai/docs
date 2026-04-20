@@ -49,18 +49,18 @@ For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundl
 
 The connector maintains a per-dataset connection pool:
 
-| Parameter                   | Default | Description                                          |
-| --------------------------- | ------- | ---------------------------------------------------- |
-| `connection_pool_min_idle`  | Tracks `connection_pool_size` with a floor of 1. | Minimum idle connections held by the pool. |
-| `connection_pool_size`      | `10`    | Maximum connections the pool will open.              |
+| Parameter                       | Default | Description                                          |
+| ------------------------------- | ------- | ---------------------------------------------------- |
+| `pg_connection_pool_min_idle`   | `1`     | Minimum idle connections held by the pool.            |
+| `connection_pool_size`          | `5`     | Maximum connections the pool will open.               |
 
-`connection_pool_min_idle` must be less than or equal to `connection_pool_size`; conflicting values are rejected as configuration errors at startup.
+`pg_connection_pool_min_idle` must be less than or equal to `connection_pool_size`; conflicting values are rejected as configuration errors at startup.
 
 Size the pool to match concurrent query and refresh load for the dataset. The server's `max_connections` (default 100) is a shared budget across Spice datasets, other clients, and server-side background workers — plan accordingly, or front Postgres with PgBouncer.
 
 ### Application Name
 
-`pg_application_name` defaults to the Spice.ai version string, which surfaces in `pg_stat_activity.application_name`. Override this to distinguish traffic from multiple Spice instances or environments.
+The connector automatically sets `application_name` to the Spice.ai version string, which surfaces in `pg_stat_activity.application_name`. This value is not configurable.
 
 ### Retry Behavior
 
@@ -105,7 +105,7 @@ PostgreSQL operations participate in Spice [task history](../../../reference/tas
 | -------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `FATAL: password authentication failed`      | Incorrect credentials.                                               | Verify credentials via the secret store; test with `psql` using the same credentials.              |
 | `FATAL: too many clients already`            | Pool size + other clients exceeds server `max_connections`.          | Reduce `connection_pool_size` or raise `max_connections` / front the server with PgBouncer.        |
-| `connection_pool_min_idle must be <= connection_pool_size` at startup | Misconfiguration.                               | Correct the values so `min_idle <= size`.                                                          |
+| `pg_connection_pool_min_idle must be <= connection_pool_size` at startup | Misconfiguration.                            | Correct the values so `pg_connection_pool_min_idle <= connection_pool_size`.                        |
 | Sustained `active_wait_requests > 0`         | Pool saturation.                                                     | Increase `connection_pool_size` or reduce concurrent refreshes.                                    |
 | `certificate verify failed`                  | `pg_sslmode: verify-ca` / `verify-full` with wrong CA or hostname.   | Verify `pg_sslrootcert` matches the server's issuing CA; with `verify-full` ensure hostname matches SAN. |
-| Sessions lingering with the default app name | Multiple Spice instances share the same name.                        | Set `pg_application_name` per deployment for clear `pg_stat_activity` attribution.                 |
+| Sessions lingering with the default app name | Multiple Spice instances share the same version-based name.          | The `application_name` is auto-set to the Spice.ai version and is not currently configurable.      |
