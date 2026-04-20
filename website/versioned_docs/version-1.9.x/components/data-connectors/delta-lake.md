@@ -79,7 +79,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 **One** of the following auth values must be provided for Azure Blob:
 
 - `delta_lake_azure_storage_account_key`,
-- `delta_lake_azure_storage_client_id` and `azure_storage_client_secret`, or
+- `delta_lake_azure_storage_client_id` and `delta_lake_azure_storage_client_secret`, or
 - `delta_lake_azure_storage_sas_key`.
   :::
 

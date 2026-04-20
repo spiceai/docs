@@ -6,6 +6,10 @@ description: 'PostgreSQL Data Accelerator Documentation'
 sidebar_position: 5
 ---
 
+:::info Spice.ai Enterprise
+The PostgreSQL Data Accelerator is available only in [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise).
+:::
+
 To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
 
 ```yaml
