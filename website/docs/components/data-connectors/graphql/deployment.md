@@ -19,11 +19,10 @@ Authentication is endpoint-specific. The connector supports arbitrary HTTP heade
 
 | Parameter                  | Description                                                                  |
 | -------------------------- | ---------------------------------------------------------------------------- |
-| `graphql_endpoint`         | GraphQL endpoint URL.                                                         |
-| `graphql_auth_header`      | Authorization header. Typically `"Bearer ${secrets:api_token}"`.              |
+| `graphql_auth_header`      | Custom authorization header name. The value of `graphql_auth_token` is sent as this header's value. |
+| `graphql_auth_token`       | Bearer token for GraphQL requests. Typically `"${secrets:api_token}"`.        |
 | `graphql_query`            | The GraphQL query to execute.                                                 |
-| `graphql_json_pointer`     | RFC-6901 JSON pointer to the row collection inside the response (e.g. `/data/repository/issues/nodes`). |
-| `graphql_pagination_parameters` | Cursor / page-size configuration for pagination (see the connector reference). |
+| `json_pointer`             | RFC-6901 JSON pointer to the row collection inside the response (e.g. `/data/repository/issues/nodes`). |
 
 Tokens must be sourced from a [secret store](../../secret-stores/) in production.
 
@@ -39,7 +38,7 @@ HTTP-level retries follow the shared `resilient_http` policy: 408/429/5xx plus t
 
 ### Pagination
 
-The connector supports cursor-based pagination. Each page is a separate HTTP request; pagination errors mid-sequence cause the entire refresh to fail. Use `graphql_json_pointer` to select the row collection and configure the pagination variables to match the upstream schema's cursor fields.
+The connector supports cursor-based pagination. Each page is a separate HTTP request; pagination errors mid-sequence cause the entire refresh to fail. Use `json_pointer` to select the row collection and configure the pagination variables to match the upstream schema's cursor fields.
 
 ### Server Rate Limits
 
@@ -77,7 +76,7 @@ GraphQL requests participate in [task history](../../../reference/task_history) 
 | Symptom                                        | Likely cause                                          | Resolution                                                                                  |
 | ---------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `401 Unauthorized`                             | Wrong or expired token in `graphql_auth_header`.      | Rotate the token; verify the header format (`Bearer` prefix, etc.).                          |
-| Rows missing from the dataset                  | Wrong `graphql_json_pointer`.                         | Inspect the response payload; JSON pointer must navigate to the array of rows.              |
+| Rows missing from the dataset                  | Wrong `json_pointer`.                         | Inspect the response payload; JSON pointer must navigate to the array of rows.              |
 | Refresh fails mid-pagination                   | Rate-limit or transient network failure.              | Reduce refresh frequency; the connector will retry on retriable errors. Narrow the query.   |
 | Query cost exceeded                            | Query requests too many nested fields.                | Simplify the query; fetch only required fields.                                             |
 | Inferred schema differs between refreshes      | Optional fields appear/disappear in responses.        | Provide an explicit dataset `schema` to lock down types.                                    |
