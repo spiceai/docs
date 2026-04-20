@@ -33,7 +33,10 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
 
-Currently, the only supported data connector is [Debezium](../components/data-connectors/debezium).
+Spice currently supports CDC via:
+
+- **[PostgreSQL Logical Replication](./postgres-replication)** — **recommended** for PostgreSQL sources. Spice connects directly to the source using Postgres' native logical replication protocol (`wal_level=logical` + pgoutput) and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. No Kafka, no Debezium, no external services.
+- **[Debezium](../components/data-connectors/debezium)** — for sources where Debezium + Kafka is already deployed, or for non-PostgreSQL databases (MySQL, SQL Server, etc.).
 
 ## Example
 
