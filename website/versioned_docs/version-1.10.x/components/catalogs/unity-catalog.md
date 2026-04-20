@@ -66,7 +66,7 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 One of the following auth values must be provided for Azure Blob:
 
 - `unity_catalog_azure_storage_account_key`, 
-- `unity_catalog_azure_storage_client_id` and `azure_storage_client_secret`, or 
+- `unity_catalog_azure_storage_client_id` and `unity_catalog_azure_storage_client_secret`, or 
 - `unity_catalog_azure_storage_sas_key`.
 :::
 
