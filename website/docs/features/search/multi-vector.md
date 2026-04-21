@@ -76,9 +76,9 @@ LIMIT 10;
 
 Multi-vector columns also support ColBERT-style late-interaction search, where the query itself is an array of strings. Each query is embedded independently, the best-matching element is selected for each query (`MaxSim`), and the per-row score is the sum across queries:
 
-$$
-\text{score}(d) = \sum_{q \in Q} \max_{e \in d} \cos(q, e)
-$$
+```text
+score(d) = Σ_{q ∈ Q} max_{e ∈ d} cos(q, e)
+```
 
 ```sql
 SELECT product_id, name, score
