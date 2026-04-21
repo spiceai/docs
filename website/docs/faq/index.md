@@ -98,25 +98,34 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary qu
 
 ## 17. Does Spice support Change Data Capture (CDC)?
 
-Yes. Spice supports CDC via Debezium, enabling real-time data ingestion and materialization from databases such as PostgreSQL and MySQL. [Learn More](../features/cdc).
+Yes. Spice supports streaming ingestion from several sources:
 
-## 18. Can Spice integrate with existing BI tools?
+- **Native PostgreSQL logical replication** (recommended for Postgres sources). Spice connects directly to the source using Postgres' `wal_level=logical` + pgoutput and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. [Learn more](../features/cdc/postgres-replication.md).
+- **[DynamoDB Streams](../components/data-connectors/dynamodb)** for Amazon DynamoDB sources — Spice consumes the table's change stream and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator with `refresh_mode: changes`.
+- **[Apache Kafka](../components/data-connectors/kafka)** for event-streaming topics — Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration.
+- **[Debezium](../components/data-connectors/debezium)** (over Kafka), for sources where Debezium is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.). [Learn more](../features/cdc).
+
+## 18. How do I keep an accelerated dataset incrementally up-to-date?
+
+For sources with a monotonically-increasing version column (e.g. `updated_at`), Spice incrementally ingests new and modified records using [`time_column`](../reference/spicepod/datasets#time_column) + [`refresh_mode: append`](../features/data-acceleration/data-refresh#append), with [`refresh_append_overlap`](../reference/spicepod/datasets#accelerationrefresh_append_overlap) to tolerate clock skew and [`retention_period`](../reference/spicepod/datasets#accelerationretention_period) to evict old or soft-deleted records. Pair with `primary_key` + `on_conflict: upsert` to deduplicate re-read rows within the overlap window. See [Data Refresh](../features/data-acceleration/data-refresh) for configuration details and examples.
+
+## 19. Can Spice integrate with existing BI tools?
 
 Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](../clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
-## 19. How does Spice handle data privacy and compliance?
+## 20. How does Spice handle data privacy and compliance?
 
 Spice provides secure, auditable data access through sandboxed runtimes, secure endpoint checks, and detailed telemetry and tracing. The Spice Cloud Platform (SCP) is SOC 2 Type II compliant, meeting enterprise security and compliance requirements.
 
-## 20. Can Spice be used for real-time analytics?
+## 21. Can Spice be used for real-time analytics?
 
 Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
 
-## 21. How can developers contribute to Spice?
+## 22. How can developers contribute to Spice?
 
 Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING) for guidelines.
 
-## 22. Does Spice support schema evolution?
+## 23. Does Spice support schema evolution?
 
 Spice infers the schema for datasets and views at startup and does not apply runtime schema changes by default. If the source schema changes while the runtime is running (for example, columns are added, removed, or their types change), data refreshes will fail with a schema mismatch error rather than silently applying the new schema. This behavior is intentional — it protects against unintentional or breaking schema changes propagating into accelerated tables.
 
