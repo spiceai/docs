@@ -289,6 +289,6 @@ For greenfield Postgres → Spice CDC, prefer native WAL streaming. If Kafka is 
 
 ## See also
 
-- [Change Data Capture overview](./index)
+- [Change Data Capture overview](./index.md)
 - [PostgreSQL Data Connector](../../components/data-connectors/postgres)
 - [PostgreSQL: Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html)
