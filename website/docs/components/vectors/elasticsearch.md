@@ -37,8 +37,8 @@ embeddings:
       dimensions: '1024'
 ```
 
-:::note[Build requirement]
-The Elasticsearch vector engine requires the `elasticsearch` Cargo feature, which is not enabled in the default distribution. Build Spice from source with `cargo build --release --features elasticsearch`, or use a distribution that enables it.
+:::note[Enterprise edition]
+The Elasticsearch vector engine is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions).
 :::
 
 ## Parameters
