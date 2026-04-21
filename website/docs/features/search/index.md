@@ -22,6 +22,7 @@ Spice provides comprehensive search capabilities enabling developers to query da
 Spice supports multiple search methods:
 
 - **Vector Search**: Semantic search using embeddings to retrieve data by meaning and similarity.
+- **Multi-Vector Search**: Search over columns of vectors, including ColBERT-style late-interaction queries.
 - **Full-Text Search**: Keyword-driven search optimized for text data retrieval.
 - **Hybrid Search**: Combine multiple search methods using Reciprocal Rank Fusion (RRF) for improved relevance.
 - **SQL Search**: Traditional SQL queries for precise and structured searches.
@@ -51,6 +52,27 @@ LIMIT 5
 ```
 
 For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](search/vector-search#sql-udtf).
+
+### Multi-Vector Search
+
+Multi-vector search operates on columns that store many vectors per row, such as per-tag or per-section embeddings. It also supports ColBERT-style late-interaction queries where the query itself is an array of strings.
+
+**Requirements:**
+
+- A list-typed source column (`List<Utf8>`) embedded with a multi-vector aggregation
+
+**Getting Started:**
+
+- [Multi-Vector Search Docs](search/multi-vector)
+
+**Example SQL Multi-Vector Search:**
+
+```sql
+SELECT product_id, name, score
+FROM vector_search(products, ['hiking', 'waterproof'], tags)
+ORDER BY score DESC
+LIMIT 10
+```
 
 ### Full-Text Search
 

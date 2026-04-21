@@ -18,6 +18,8 @@ Vector search uses embeddings (numerical representations of text or data) to fin
 - Retrieval-augmented generation (RAG) applications
 - Recommendation systems
 
+For embedding columns that contain many vectors per row (for example, one vector per tag or per section), see [Multi-Vector Search](multi-vector).
+
 ## Embedding Models
 
 Spice supports two types of embedding providers:
