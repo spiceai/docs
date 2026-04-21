@@ -1,7 +1,7 @@
 ---
 title: 'PostgreSQL Logical Replication (Native CDC)'
 sidebar_label: 'PostgreSQL Logical Replication'
-description: 'Stream INSERT, UPDATE, and DELETE events from PostgreSQL directly into a Spice-accelerated dataset using native logical replication — no Debezium, no Kafka.'
+description: 'Stream INSERT, UPDATE, and DELETE events from PostgreSQL directly into a Spice-accelerated dataset using native logical replication.'
 sidebar_position: 2
 pagination_prev: null
 pagination_next: null
