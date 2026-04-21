@@ -13,6 +13,7 @@ This section documents search capabilities in Spice SQL, including vector search
 - [Vector Search (`vector_search`)](#vector-search-vector_search)
   - [Usage](#usage)
     - [Example](#example)
+  - [Multi-Query (Late-Interaction) Form](#multi-query-late-interaction-form)
 - [Full-Text Search (`text_search`)](#full-text-search-text_search)
   - [Usage](#usage-1)
     - [Example](#example-1)
@@ -60,6 +61,17 @@ LIMIT 2;
 ```
 
 See [Vector-Based Search](../../features/search/vector-search) for configuration and advanced usage.
+
+### Multi-Query (Late-Interaction) Form
+
+When the target column is a [multi-vector column](../../features/search/multi-vector), `vector_search` also accepts an array of query strings. Each query is embedded independently and the per-row score is `Σ_q max_e cos(q, e)` — ColBERT-style late interaction. Passing an array to a scalar or chunked column returns an error. At most 32 query strings are accepted per call.
+
+```sql
+SELECT product_id, name, score
+FROM vector_search(products, ['hiking', 'waterproof', 'lightweight'], tags)
+ORDER BY score DESC
+LIMIT 10;
+```
 
 ---
 
