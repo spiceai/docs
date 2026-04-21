@@ -806,6 +806,38 @@ columns:
         vector_size: 1024
 ```
 
+## `columns[*].embeddings[*].aggregation`
+
+Optional. For multi-vector columns (`List<Utf8>` source), the strategy used to combine per-element similarities into a single per-row score during vector search. Only meaningful when the underlying column is list-typed.
+
+| Value  | Description                                                                        |
+| ------ | ---------------------------------------------------------------------------------- |
+| `max`  | ColBERT-style `MaxSim`. Row scores as high as its best-matching element (default). |
+| `mean` | Average similarity across elements.                                                |
+| `sum`  | Sum of similarities across elements.                                               |
+
+See [Multi-Vector Search](../../features/search/multi-vector) for details.
+
+```yaml
+columns:
+  - name: tags
+    embeddings:
+      - from: local_embedding_model
+        aggregation: max
+```
+
+## `columns[*].embeddings[*].max_elements_per_row`
+
+Optional. For multi-vector columns, the maximum number of list elements embedded per row. Defaults to `32`; hard-capped at `1024`. Excess elements are dropped with a warning log.
+
+```yaml
+columns:
+  - name: tags
+    embeddings:
+      - from: local_embedding_model
+        max_elements_per_row: 128
+```
+
 ## `columns[*].full_text_search` {#columns-search-full-text}
 
 ## `columns[*].full_text_search.enabled`
@@ -910,11 +942,11 @@ The `metadata` field serves two purposes:
 
 2. **File metadata columns** — For [file-based connectors](../../components/data-connectors/#metadata-columns) (S3, ABFS, File, FTP, SFTP, SMB, NFS, HTTP/HTTPS), the following reserved keys enable virtual columns that expose per-file object store metadata in query results:
 
-    | Key              | Value       | Column Type            | Description                        |
-    | ---------------- | ----------- | ---------------------- | ---------------------------------- |
-    | `_location`      | `enabled`   | `Utf8`                 | Full URI of the source file        |
-    | `_last_modified` | `enabled`   | `Timestamp(µs, "UTC")` | When the file was last modified    |
-    | `_size`          | `enabled`   | `UInt64`               | File size in bytes                 |
+    | Key              | Value     | Column Type            | Description                     |
+    | ---------------- | --------- | ---------------------- | ------------------------------- |
+    | `_location`      | `enabled` | `Utf8`                 | Full URI of the source file     |
+    | `_last_modified` | `enabled` | `Timestamp(µs, "UTC")` | When the file was last modified |
+    | `_size`          | `enabled` | `UInt64`               | File size in bytes              |
 
     ```yaml
     datasets:
