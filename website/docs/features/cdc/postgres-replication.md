@@ -30,7 +30,7 @@ On first start the connector:
 3. Runs a **REPEATABLE READ snapshot** of the source table so the accelerator starts with all existing rows.
 4. Starts streaming WAL changes from the slot. Each committed transaction is delivered as a `ChangeBatch` (grouped `INSERT`/`UPDATE`/`DELETE`) and applied to the accelerator.
 
-On subsequent restarts the connector detects the existing slot and **resumes from Postgres' stored `confirmed_flush_lsn`** — no rebootstrap, no gap.
+On subsequent restarts the connector detects the existing slot and **resumes from Postgres' stored `confirmed_flush_lsn`**.
 
 ## Prerequisites
 
