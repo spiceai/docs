@@ -33,10 +33,12 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
 
-Spice currently supports CDC via:
+Spice currently supports streaming ingestion via:
 
 - **[PostgreSQL Logical Replication](./postgres-replication)** — **recommended** for PostgreSQL sources. Spice connects directly to the source using Postgres' native logical replication protocol (`wal_level=logical` + pgoutput) and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. No Kafka, no Debezium, no external services.
-- **[Debezium](../components/data-connectors/debezium)** — for sources where Debezium + Kafka is already deployed, or for non-PostgreSQL databases (MySQL, SQL Server, etc.).
+- **[DynamoDB Streams](../../components/data-connectors/dynamodb#streams)** — for Amazon DynamoDB sources. Spice consumes the table's DynamoDB Streams directly and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator.
+- **[Apache Kafka](../../components/data-connectors/kafka)** — for event-streaming topics. Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration (no separate CDC connector required).
+- **[Debezium](../../components/data-connectors/debezium)** (over Kafka) — for sources where Debezium + Kafka is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.).
 
 ## Example
 
