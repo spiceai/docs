@@ -544,6 +544,39 @@ datasets:
 
 :::
 
+### End-to-End Incremental Ingestion Example
+
+The following example combines the pieces above into a single configuration for keeping an accelerated dataset incrementally up-to-date from a source that supports soft deletes:
+
+- `refresh_mode: append` with a `time_column` for incremental queries
+- `refresh_check_interval` to poll for new/changed rows
+- `refresh_append_overlap` to tolerate clock skew and late-arriving rows without missing data
+- `primary_key` + `on_conflict: upsert` so rows updated in the source overwrite the accelerated copy instead of duplicating
+- `retention_period` to bound the working set by time
+- `retention_sql` to evict soft-deleted rows (`deleted_at IS NOT NULL`)
+
+```yaml
+datasets:
+  - from: postgres:public.orders
+    name: orders
+    time_column: updated_at
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: append
+      refresh_check_interval: 1m
+      refresh_append_overlap: 5m
+      primary_key: id
+      on_conflict:
+        id: upsert
+      retention_check_enabled: true
+      retention_check_interval: 10m
+      retention_period: 90d
+      retention_sql: DELETE FROM orders WHERE deleted_at IS NOT NULL
+```
+
+With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
+
 ## Refresh Jitter
 
 |                                  |                  |
