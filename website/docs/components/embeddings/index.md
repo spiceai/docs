@@ -303,6 +303,28 @@ datasets:
             row_id: id
 ```
 
+### Multi-Vector Embeddings
+
+When the source column is `List<Utf8>` (or `LargeList<Utf8>`), Spice embeds each list element independently and produces a `List<FixedSizeList<Float32, N>>` column. This is the multi-vector (column-of-vectors) mode, useful for rows that carry several independent pieces of text such as tags, section headings, or historical queries.
+
+```yaml
+datasets:
+  - from: file:products.parquet
+    name: products
+    acceleration:
+      enabled: true
+    columns:
+      - name: tags              # List<Utf8>
+        embeddings:
+          - from: local_embedding_model
+            aggregation: max
+            max_elements_per_row: 64
+```
+
+The `aggregation` field controls how per-element similarities are combined into a per-row score during vector search. `max` (default) is ColBERT-style `MaxSim`; `mean` and `sum` are also supported. The `max_elements_per_row` field caps how many list elements are embedded per row (default `32`, hard limit `1024`). Multi-vector columns also support [ColBERT-style late-interaction search](../features/search/multi-vector#late-interaction-multi-query-search) via an array of query strings.
+
+See [Multi-Vector Search](../features/search/multi-vector) for query usage and [`columns[*].embeddings[*]`](../reference/spicepod/datasets#columnsembeddings) for the full field reference.
+
 import DocCardList from '@theme/DocCardList';
 
 <DocCardList />
