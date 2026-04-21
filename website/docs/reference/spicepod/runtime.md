@@ -345,6 +345,37 @@ runtime:
 
 Enables or disables runtime telemetry collection. Defaults to `true`.
 
+### `runtime.telemetry.metric_prefix` {#runtimetelemetrymetric_prefix}
+
+Optional string prepended to every exported metric name. Useful for namespacing Spice metrics in shared backends (e.g. Datadog, Grafana Cloud, New Relic) so they do not collide with metrics from other services. Defaults to no prefix.
+
+The prefix applies to **all** metric readers — the Prometheus scrape endpoint (`--metrics`), the cluster on-demand OTLP reader, and the `otel_exporter` push exporter — because OpenTelemetry views are configured at the meter-provider level rather than per reader.
+
+```yaml
+runtime:
+  telemetry:
+    metric_prefix: 'spiceai.'
+```
+
+With this configuration, the runtime metric `query_duration_ms` is exported as `spiceai.query_duration_ms`.
+
+### `runtime.telemetry.properties` {#runtimetelemetryproperties}
+
+Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
+
+```yaml
+runtime:
+  telemetry:
+    properties:
+      environment: prod
+      region: us-west-2
+      team: data-platform
+```
+
+The standard OpenTelemetry environment variables (`OTEL_SERVICE_NAME`, `OTEL_RESOURCE_ATTRIBUTES`) are still honored and act as defaults; explicit `properties` entries take precedence on key conflicts.
+
+For backends that map OTLP resource attributes to tags through additional configuration (e.g. Datadog), see the [Datadog OTLP guide](/docs/next/monitoring/datadog#opentelemetry-otlp-export).
+
 ### `runtime.telemetry.otel_exporter`
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
