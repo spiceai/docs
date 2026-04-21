@@ -100,7 +100,7 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary qu
 
 Yes. Spice supports streaming ingestion from several sources:
 
-- **Native PostgreSQL logical replication** (recommended for Postgres sources). Spice connects directly to the source using Postgres' `wal_level=logical` + pgoutput and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator — no Debezium, no Kafka, no external services. [Learn more](../features/cdc/postgres-replication.md).
+- **Native PostgreSQL logical replication** (recommended for Postgres sources). Spice connects directly to the source using Postgres' `wal_level=logical` + pgoutput and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. [Learn more](../features/cdc/postgres-replication.md).
 - **[DynamoDB Streams](../components/data-connectors/dynamodb)** for Amazon DynamoDB sources — Spice consumes the table's change stream and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator with `refresh_mode: changes`.
 - **[Apache Kafka](../components/data-connectors/kafka)** for event-streaming topics — Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration.
 - **[Debezium](../components/data-connectors/debezium)** (over Kafka), for sources where Debezium is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.). [Learn more](../features/cdc).
