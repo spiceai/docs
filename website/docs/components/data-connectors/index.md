@@ -73,7 +73,7 @@ Supported Data Connectors include:
 | `ducklake`                         | DuckLake                              | Alpha             | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
-| `elasticsearch`                    | ElasticSearch                         | Roadmap           |                              |
+| `elasticsearch`                    | [Elasticsearch][elasticsearch]        | Alpha             | Elasticsearch REST           |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
@@ -85,6 +85,7 @@ Supported Data Connectors include:
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue#readme
 [adbc]: https://arrow.apache.org/adbc/
 [ODPIC]: https://oracle.github.io/odpi/
+[elasticsearch]: ./elasticsearch.md
 
 ## File Formats
 

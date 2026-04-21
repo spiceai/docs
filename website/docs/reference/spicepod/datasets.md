@@ -973,6 +973,7 @@ Enable or disable vector storage, defaults to `true`.
 The vector engine to use. The following engines are supported:
 
 - [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`elasticsearch`](../../components/vectors/elasticsearch) - Vectors are created and indexed into an [Elasticsearch](https://www.elastic.co/) cluster.
 
 ## `vectors.params`
 

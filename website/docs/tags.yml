@@ -170,6 +170,10 @@ dynamodb:
   label: 'DynamoDB'
   permalink: '/dynamodb'
   description: 'Amazon DynamoDB NoSQL database integration.'
+elasticsearch:
+  label: 'Elasticsearch'
+  permalink: '/elasticsearch'
+  description: 'Elasticsearch data connector and vector engine integration.'
 embeddings:
   label: 'Embeddings'
   permalink: '/embeddings'
