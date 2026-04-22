@@ -189,6 +189,12 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::
 
+## Limitations
+
+- MySQL has no native nested or array column types (see the [MySQL data types reference](https://dev.mysql.com/doc/refman/8.4/en/data-types.html)), so columns containing Arrow `Struct`, `List`, or `LargeList` values are not supported by this connector.
+- [MySQL spatial types](https://dev.mysql.com/doc/refman/8.4/en/spatial-types.html) (`GEOMETRY`, `POINT`, `LINESTRING`, `POLYGON`, `MULTIPOINT`, `MULTILINESTRING`, `MULTIPOLYGON`, `GEOMETRYCOLLECTION`) are not currently supported — only the types listed in the [Types](#types) table are mapped to Arrow.
+- Nested or array-valued data should be stored in a `JSON` column, which is read as `LargeUtf8` and can be decoded with SQL JSON functions.
+
 ## Examples
 
 ### Connecting using username and password
