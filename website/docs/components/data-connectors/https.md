@@ -35,6 +35,14 @@ datasets:
       http_password: ${env:MY_HTTP_PASS}
 ```
 
+The username is taken from the `user-info` section of the `from` URL (`user@host`) or from the `http_username` parameter. The password comes from the `http_password` parameter. The connector then sends a standard [RFC 7617](https://datatracker.ietf.org/doc/html/rfc7617) Basic authentication header on every request:
+
+```http
+Authorization: Basic <base64(username:password)>
+```
+
+For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
+
 ### Using Custom Headers
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
