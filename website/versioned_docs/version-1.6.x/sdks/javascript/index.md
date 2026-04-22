@@ -42,7 +42,7 @@ import { SpiceClient } from '@spiceai/spice';
 const main = async () => {
   const spiceClient = new SpiceClient();
 
-  const table = await spiceClient.query(
+  const table = await spiceClient.sql(
     'SELECT trip_distance, total_amount FROM taxi_trips ORDER BY trip_distance DESC LIMIT 10;'
   );
 
@@ -56,6 +56,6 @@ Or pass custom flight address:
 
 ```js
 const spiceClient = new SpiceClient({
-  flight_url: 'my_remote_spice_instance:50051'
+  flightUrl: 'my_remote_spice_instance:50051'
 });
 ```
