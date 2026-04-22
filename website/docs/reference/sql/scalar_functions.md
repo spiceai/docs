@@ -23,8 +23,11 @@ Scalar functions help transform, compute, and manipulate data at the row level. 
 - [Struct Functions](#struct-functions)
 - [Map Functions](#map-functions)
 - [Hashing Functions](#hashing-functions)
+- [Encoding Functions](#encoding-functions)
 - [Union Functions](#union-functions)
 - [Other Functions](#other-functions)
+
+Spark-compatible scalar functions registered by Spice are documented here only when their Spark-specific behavior differs from the PostgreSQL equivalent, or when they have no PostgreSQL analogue. For functions not listed below, refer to the [Spark SQL built-in function reference](https://spark.apache.org/docs/latest/api/sql/index.html) for semantics.
 
 ---
 
@@ -610,7 +613,85 @@ Reference: [Spark SQL `width_bucket`](https://spark.apache.org/docs/latest/api/s
 
 ## Conditional Functions
 
-Conditional functions help handle null values, select among alternatives, and compare multiple expressions. Functions such as `coalesce`, `greatest`, `least`, and `nullif` are supported. These are useful for data cleaning and conditional logic in queries.
+Conditional functions help handle null values, select among alternatives, and compare multiple expressions. These are useful for data cleaning and conditional logic in queries.
+
+### `CASE`
+
+Standard SQL `CASE` expression, supported in both simple and searched forms.
+
+```sql
+CASE expression
+  WHEN value1 THEN result1
+  [WHEN value2 THEN result2 ...]
+  [ELSE default_result]
+END
+
+CASE
+  WHEN condition1 THEN result1
+  [WHEN condition2 THEN result2 ...]
+  [ELSE default_result]
+END
+```
+
+#### Example
+
+```sql
+> SELECT CASE WHEN score >= 90 THEN 'A' WHEN score >= 80 THEN 'B' ELSE 'C' END AS grade
+  FROM (VALUES (95), (82), (70)) AS t(score);
++-------+
+| grade |
++-------+
+| A     |
+| B     |
+| C     |
++-------+
+```
+
+### `coalesce`
+
+Returns the first non-null value from its arguments. Returns `NULL` only if every argument is `NULL`.
+
+```sql
+coalesce(expression1[, ..., expression_n])
+```
+
+#### Arguments
+
+- **expression1, ..., expression_n**: Expressions to evaluate in order. All arguments must share a common type.
+
+#### Example
+
+```sql
+> SELECT coalesce(NULL, NULL, 'spice', 'datafusion');
++----------------------------------------------------+
+| coalesce(NULL,NULL,Utf8("spice"),Utf8("datafusion")) |
++----------------------------------------------------+
+| spice                                              |
++----------------------------------------------------+
+```
+
+### `greatest`
+
+Returns the largest value among the arguments, ignoring `NULL`s. Returns `NULL` only if every argument is `NULL`.
+
+```sql
+greatest(expression1[, ..., expression_n])
+```
+
+#### Arguments
+
+- **expression1, ..., expression_n**: Expressions to compare. Must share a common type.
+
+#### Example
+
+```sql
+> SELECT greatest(3, 7, NULL, 4);
++------------------------------------------------+
+| greatest(Int64(3),Int64(7),NULL,Int64(4))      |
++------------------------------------------------+
+| 7                                              |
++------------------------------------------------+
+```
 
 ### `if`
 
@@ -639,6 +720,77 @@ if(condition, true_value, false_value)
 ```
 
 Reference: [Spark SQL `if`](https://spark.apache.org/docs/latest/api/sql/index.html#if).
+
+### `least`
+
+Returns the smallest value among the arguments, ignoring `NULL`s. Returns `NULL` only if every argument is `NULL`.
+
+```sql
+least(expression1[, ..., expression_n])
+```
+
+#### Arguments
+
+- **expression1, ..., expression_n**: Expressions to compare. Must share a common type.
+
+#### Example
+
+```sql
+> SELECT least(3, 7, NULL, 4);
++--------------------------------------------+
+| least(Int64(3),Int64(7),NULL,Int64(4))     |
++--------------------------------------------+
+| 3                                          |
++--------------------------------------------+
+```
+
+### `nullif`
+
+Returns `NULL` if `expression1` equals `expression2`; otherwise returns `expression1`. Useful for converting sentinel values to `NULL`.
+
+```sql
+nullif(expression1, expression2)
+```
+
+#### Arguments
+
+- **expression1**: Value to return if it differs from `expression2`.
+- **expression2**: Value to compare against.
+
+#### Example
+
+```sql
+> SELECT nullif('unknown', 'unknown');
++-------------------------------------------+
+| nullif(Utf8("unknown"),Utf8("unknown"))   |
++-------------------------------------------+
+|                                           |
++-------------------------------------------+
+> SELECT nullif('spice', 'unknown');
++-------------------------------------------+
+| nullif(Utf8("spice"),Utf8("unknown"))     |
++-------------------------------------------+
+| spice                                     |
++-------------------------------------------+
+```
+
+### `nvl`
+
+Returns `expression2` when `expression1` is `NULL`; otherwise returns `expression1`. Equivalent to `coalesce(expression1, expression2)`.
+
+```sql
+nvl(expression1, expression2)
+```
+
+Alias: `ifnull`.
+
+### `nvl2`
+
+Returns `expression2` if `expression1` is not `NULL`; otherwise returns `expression3`.
+
+```sql
+nvl2(expression1, expression2, expression3)
+```
 
 ## String Functions
 
@@ -1867,7 +2019,7 @@ regexp_count(str, regexp[, start, flags])
 
 - **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
 - **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
-- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
+- **start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function.
 - **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
   - **i**: case-insensitive: letters match both upper and lower case
   - **m**: multi-line mode: ^ and $ match begin/end of line
@@ -1898,15 +2050,15 @@ regexp_instr(str, regexp[, start[, N[, flags[, subexpr]]]])
 
 - **str**: String expression to operate on. Can be a constant, column, or function, and any combination of operators.
 - **regexp**: Regular expression to operate on. Can be a constant, column, or function, and any combination of operators.
-- **start**: **- start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1
-- **N**: **- N**: Optional The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
+- **start**: Optional start position (the first position is 1) to search for the regular expression. Can be a constant, column, or function. Defaults to 1.
+- **N**: Optional. The N-th occurrence of pattern to find. Defaults to 1 (first match). Can be a constant, column, or function.
 - **flags**: Optional regular expression flags that control the behavior of the regular expression. The following flags are supported:
   - **i**: case-insensitive: letters match both upper and lower case
   - **m**: multi-line mode: ^ and $ match begin/end of line
   - **s**: allow . to match \n
   - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
   - **U**: swap the meaning of x* and x*?
-- **subexpr**: Optional Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
+- **subexpr**: Optional. Specifies which capture group (subexpression) to return the position for. Defaults to 0, which returns the position of the entire match.
 
 #### Example
 
@@ -2853,23 +3005,569 @@ array_element(array, index)
 - list_element
 - list_extract
 
+### `array_except`
+
+Returns an array containing elements in `array1` that are not in `array2`, preserving first-occurrence order and without duplicates.
+
+```sql
+array_except(array1, array2)
+```
+
+Alias: `list_except`.
+
+### `array_has`
+
+Returns `true` if the array contains the specified element.
+
+```sql
+array_has(array, element)
+```
+
+Aliases: `array_contains`, `list_has`.
+
+### `array_has_all`
+
+Returns `true` if every element of `sub_array` is present in `array`.
+
+```sql
+array_has_all(array, sub_array)
+```
+
+Alias: `list_has_all`.
+
+### `array_has_any`
+
+Returns `true` if `array` and `sub_array` share at least one element.
+
+```sql
+array_has_any(array, sub_array)
+```
+
+Aliases: `list_has_any`, `arrays_overlap`.
+
+### `array_intersect`
+
+Returns an array of elements present in both input arrays, deduplicated.
+
+```sql
+array_intersect(array1, array2)
+```
+
+Alias: `list_intersect`.
+
+### `array_length`
+
+Returns the length of the array at the given (optional) dimension. Dimension defaults to 1.
+
+```sql
+array_length(array[, dimension])
+```
+
+Alias: `list_length`.
+
+### `array_max`
+
+Returns the maximum element of the array, ignoring `NULL`s.
+
+```sql
+array_max(array)
+```
+
+Alias: `list_max`.
+
+### `array_min`
+
+Returns the minimum element of the array, ignoring `NULL`s.
+
+```sql
+array_min(array)
+```
+
+Alias: `list_min`.
+
+### `array_ndims`
+
+Returns the number of dimensions of the array.
+
+```sql
+array_ndims(array)
+```
+
+Alias: `list_ndims`.
+
+### `array_pop_back`
+
+Returns the array with the last element removed.
+
+```sql
+array_pop_back(array)
+```
+
+Alias: `list_pop_back`.
+
+### `array_pop_front`
+
+Returns the array with the first element removed.
+
+```sql
+array_pop_front(array)
+```
+
+Alias: `list_pop_front`.
+
+### `array_position`
+
+Returns the 1-based position of the first occurrence of `element` in `array`, or `NULL` if not found. An optional `from_index` starts the search at a later position.
+
+```sql
+array_position(array, element[, from_index])
+```
+
+Aliases: `list_position`, `array_indexof`, `list_indexof`.
+
+### `array_positions`
+
+Returns a 1-based array of all positions where `element` occurs in `array`.
+
+```sql
+array_positions(array, element)
+```
+
+Alias: `list_positions`.
+
+### `array_prepend`
+
+Prepends an element to the beginning of an array.
+
+```sql
+array_prepend(element, array)
+```
+
+Aliases: `list_prepend`, `array_push_front`, `list_push_front`.
+
+### `array_remove`
+
+Returns the array with the first occurrence of `element` removed.
+
+```sql
+array_remove(array, element)
+```
+
+Alias: `list_remove`.
+
+### `array_remove_n`
+
+Returns the array with the first `max` occurrences of `element` removed.
+
+```sql
+array_remove_n(array, element, max)
+```
+
+Alias: `list_remove_n`.
+
+### `array_remove_all`
+
+Returns the array with all occurrences of `element` removed.
+
+```sql
+array_remove_all(array, element)
+```
+
+Alias: `list_remove_all`.
+
+### `array_repeat`
+
+Returns an array containing `element` repeated `count` times.
+
+```sql
+array_repeat(element, count)
+```
+
+Alias: `list_repeat`.
+
+### `array_replace`
+
+Replaces the first occurrence of `from` with `to` in `array`.
+
+```sql
+array_replace(array, from, to)
+```
+
+Alias: `list_replace`.
+
+### `array_replace_n`
+
+Replaces the first `max` occurrences of `from` with `to` in `array`.
+
+```sql
+array_replace_n(array, from, to, max)
+```
+
+Alias: `list_replace_n`.
+
+### `array_replace_all`
+
+Replaces every occurrence of `from` with `to` in `array`.
+
+```sql
+array_replace_all(array, from, to)
+```
+
+Alias: `list_replace_all`.
+
+### `array_resize`
+
+Resizes `array` to the given length, padding with `value` (or `NULL` if omitted) when growing.
+
+```sql
+array_resize(array, size[, value])
+```
+
+Alias: `list_resize`.
+
+### `array_reverse`
+
+Returns the array with elements in reverse order.
+
+```sql
+array_reverse(array)
+```
+
+Alias: `list_reverse`.
+
+### `array_slice`
+
+Returns a slice of the array from `begin` to `end` (1-based, inclusive). Negative indices count from the end.
+
+```sql
+array_slice(array, begin, end[, stride])
+```
+
+Alias: `list_slice`.
+
+### `array_sort`
+
+Returns `array` sorted in ascending order (default). Optional arguments control sort direction (`ASC`/`DESC`) and null placement (`NULLS FIRST`/`NULLS LAST`).
+
+```sql
+array_sort(array[, desc[, nulls_first]])
+```
+
+Alias: `list_sort`.
+
+### `array_to_string`
+
+Concatenates array elements into a single string using the given delimiter. Optional `null_string` replaces `NULL` elements.
+
+```sql
+array_to_string(array, delimiter[, null_string])
+```
+
+Aliases: `list_to_string`, `array_join`, `list_join`.
+
+### `array_union`
+
+Returns the set-union of two arrays, deduplicated.
+
+```sql
+array_union(array1, array2)
+```
+
+Alias: `list_union`.
+
+### `arrays_zip`
+
+Merges the given arrays element-wise into an array of structs. Shorter arrays are padded with `NULL`s.
+
+```sql
+arrays_zip(array1[, array2, ...])
+```
+
+Alias: `list_zip`.
+
+### `cardinality`
+
+Returns the total number of elements in an array (including nested elements) or the number of entries in a map.
+
+```sql
+cardinality(array_or_map)
+```
+
+### `empty`
+
+Returns `true` if the array has length 0 (or is `NULL`).
+
+```sql
+empty(array)
+```
+
+Aliases: `array_empty`, `list_empty`.
+
+### `flatten`
+
+Flattens a nested array into a single-level array.
+
+```sql
+flatten(array)
+```
+
+### `make_array`
+
+Constructs an array (Arrow list) from the given expressions. SQL `[expr1, expr2, ...]` literal syntax compiles to this function.
+
+```sql
+make_array(expression1[, ..., expression_n])
+```
+
+Alias: `make_list`.
+
+### `range`
+
+Generates a numeric or date range as an array, half-open on the upper bound. When the step is omitted, the default is `1`.
+
+```sql
+range(start, stop[, step])
+range(stop)
+```
+
+For dates, `step` is an interval literal, e.g. `interval '1 day'`. Use [`generate_series`](#generate_series) for the inclusive-upper-bound variant.
+
+### `generate_series`
+
+Like [`range`](#range), but the upper bound is inclusive.
+
+```sql
+generate_series(start, stop[, step])
+```
+
+### `string_to_array`
+
+Splits a string into an array of substrings using the given delimiter. An optional `null_string` turns matching substrings into `NULL`s.
+
+```sql
+string_to_array(str, delimiter[, null_string])
+```
+
+Alias: `string_to_list`.
+
 ---
 
 ## Struct Functions
 
-Struct functions help construct and access structured data types (Arrow structs). Functions such as `struct`, `named_struct`, and `get_field` are supported. These are useful for working with nested or composite data.
+Struct functions help construct and access structured data types (Arrow structs). These are useful for working with nested or composite data.
+
+### `struct`
+
+Constructs an anonymous Arrow struct from the given values. Field names default to `c0`, `c1`, ... in the order provided.
+
+```sql
+struct(expression1[, ..., expression_n])
+```
+
+#### Example
+
+```sql
+> SELECT struct(1, 'spice', true);
++-----------------------------------------------------+
+| struct(Int64(1),Utf8("spice"),Boolean(true))        |
++-----------------------------------------------------+
+| {c0: 1, c1: spice, c2: true}                        |
++-----------------------------------------------------+
+```
+
+### `named_struct`
+
+Constructs an Arrow struct from alternating field-name / field-value pairs.
+
+```sql
+named_struct(name1, expression1[, name2, expression2, ...])
+```
+
+#### Example
+
+```sql
+> SELECT named_struct('id', 1, 'label', 'spice');
++--------------------------------------------------------+
+| named_struct(Utf8("id"),Int64(1),Utf8("label"),Utf8("spice")) |
++--------------------------------------------------------+
+| {id: 1, label: spice}                                  |
++--------------------------------------------------------+
+```
+
+### `get_field`
+
+Extracts a field by name from a struct or map. `struct.field` and `struct['field']` sugar invoke this function.
+
+```sql
+get_field(expression, field_name)
+```
 
 ## Map Functions
 
-Map functions help construct and query key-value data structures. Functions include `map`, `map_extract`, `map_keys`, and `map_values`. These are useful for semi-structured or JSON-like data.
+Map functions help construct and query key-value data structures. These are useful for semi-structured or JSON-like data.
+
+### `map`
+
+Constructs an Arrow map from alternating key/value arguments, or from two arrays (one of keys, one of values).
+
+```sql
+map(key1, value1[, key2, value2, ...])
+map(keys_array, values_array)
+```
+
+#### Example
+
+```sql
+> SELECT map('a', 1, 'b', 2);
++-------------------------------------------------------+
+| map(Utf8("a"),Int64(1),Utf8("b"),Int64(2))            |
++-------------------------------------------------------+
+| {a: 1, b: 2}                                          |
++-------------------------------------------------------+
+```
+
+### `map_keys`
+
+Returns the keys of a map as an array.
+
+```sql
+map_keys(map)
+```
+
+### `map_values`
+
+Returns the values of a map as an array.
+
+```sql
+map_values(map)
+```
+
+### `map_entries`
+
+Returns the entries of a map as an array of structs `[{key, value}, ...]`.
+
+```sql
+map_entries(map)
+```
+
+### `map_extract`
+
+Looks up a key in a map and returns the associated value, or `NULL` if the key is absent.
+
+```sql
+map_extract(map, key)
+```
+
+Alias: `element_at`.
 
 ## Hashing Functions
 
-Hashing functions help compute cryptographic hashes and checksums, such as `md5`, `sha256`, and `digest`. These are useful for data integrity, fingerprinting, and security applications.
+Hashing functions compute cryptographic hashes and checksums for data integrity, fingerprinting, and security applications. Binary digest output is returned as a `Binary` (bytes) array; use `encode(..., 'hex')` to render as hex.
+
+### `digest`
+
+Computes the digest of the input using the named hash algorithm. Supported algorithms: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'`, `'blake2s'`, `'blake2b'`, `'blake3'`.
+
+```sql
+digest(expression, algorithm)
+```
+
+#### Example
+
+```sql
+> SELECT encode(digest('spice.ai', 'sha256'), 'hex');
+```
+
+### `md5`
+
+Computes the MD5 128-bit hash of a string and returns the result as a lowercase hex string.
+
+```sql
+md5(expression)
+```
+
+### `sha224`
+
+Computes the SHA-224 hash and returns a binary digest.
+
+```sql
+sha224(expression)
+```
+
+### `sha256`
+
+Computes the SHA-256 hash and returns a binary digest.
+
+```sql
+sha256(expression)
+```
+
+### `sha384`
+
+Computes the SHA-384 hash and returns a binary digest.
+
+```sql
+sha384(expression)
+```
+
+### `sha512`
+
+Computes the SHA-512 hash and returns a binary digest.
+
+```sql
+sha512(expression)
+```
+
+## Encoding Functions
+
+Binary encoding utilities for converting between binary data and text representations.
+
+### `encode`
+
+Encodes a string or binary value using the specified encoding. Supported encodings: `'hex'`, `'base64'`.
+
+```sql
+encode(expression, encoding)
+```
+
+#### Example
+
+```sql
+> SELECT encode('spice', 'base64');
++--------------------------------------+
+| encode(Utf8("spice"),Utf8("base64")) |
++--------------------------------------+
+| c3BpY2U=                             |
++--------------------------------------+
+```
+
+### `decode`
+
+Decodes text back to binary using the specified encoding. Supported encodings: `'hex'`, `'base64'`.
+
+```sql
+decode(expression, encoding)
+```
 
 ## Union Functions
 
-Union functions help work with union (variant) data types, such as extracting the value or tag from a union. Functions include `union_extract` and `union_tag`.
+Union functions help work with union (variant) data types.
+
+### `union_extract`
+
+Extracts the value of a named member from a union, returning `NULL` if the union's active member doesn't match.
+
+```sql
+union_extract(expression, field_name)
+```
+
+### `union_tag`
+
+Returns the name of the active member of a union value as a string.
+
+```sql
+union_tag(expression)
+```
 
 ## Other Functions
 
@@ -2908,6 +3606,14 @@ arrow_cast(expression, arrow_type)
 
 See [Data Types Reference](../../reference/datatypes) for supported Arrow types.
 
+### `arrow_try_cast`
+
+Like [`arrow_cast`](#arrow_cast) but returns `NULL` instead of erroring when the cast fails.
+
+```sql
+arrow_try_cast(expression, arrow_type)
+```
+
 ### `arrow_typeof`
 
 Returns the Arrow data type of the given expression as a string.
@@ -2945,97 +3651,25 @@ arrow_typeof(expression)
 +------------------------------+
 ```
 
-### `ai`
+### `arrow_metadata`
 
-Invokes large language models (LLMs) directly within SQL queries for text generation tasks. This asynchronous function processes prompts through configured model providers and returns generated text responses.
-
-```sql
-ai(message)
-ai(message, model_name)
-```
-
-#### Arguments
-
-- **message**: String prompt to send to the language model.
-- **model_name** (optional): Name of the model to use as configured in your Spicepod. If omitted, the default model is used (only valid when exactly one model is configured).
-
-#### Return Type
-
-Returns a string containing the generated text response. Returns NULL if an error occurs during processing (errors are logged).
-
-#### Behavior
-
-Queries execute asynchronously, processing LLM calls in parallel across rows for improved performance. Each invocation queues an asynchronous call to the specified model provider.
-
-The function honors DataFusion concurrency configuration for parallel requests. When multiple models with different providers are configured (e.g., OpenAI and Anthropic), each provider processes requests in parallel according to concurrency settings.
-
-**Limits**: Maximum batch size of 100 rows per query; maximum input message size of 1 MB per message.
-
-#### Example
+Returns the Arrow schema metadata associated with an expression as a map of key/value strings. Useful for inspecting field-level metadata (units, comments, logical type hints) attached during ingest.
 
 ```sql
--- Using default model (when only one model is configured)
-SELECT
-  zone,
-  ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.')) AS category
-FROM taxi_zones
-LIMIT 10;
-
--- Specifying a model explicitly
-SELECT
-  zone,
-  ai(concat_ws(' ', 'Categorize the zone', zone, 'in a single word. Only return the word.'), 'gpt-4o') AS category
-FROM taxi_zones
-LIMIT 10;
-
--- Example output
-+-----------------------+-------------+
-| zone                  | category    |
-+-----------------------+-------------+
-| Newark Airport        | Transport   |
-| Jamaica Bay           | Nature      |
-| Allerton/Pelham...    | Residential |
-+-----------------------+-------------+
+arrow_metadata(expression)
 ```
 
-#### Configuration
+### `version`
 
-Models must be configured in `spicepod.yaml` under the `models` section. See [Large Language Models](../../features/large-language-models) for configuration details.
-
-```yaml
-models:
-  - name: gpt-4o
-    from: openai:gpt-4o
-    params:
-      openai_api_key: ${secrets:openai_key}
-```
-
-### `embed`
-
-Generates vector embeddings for text using specified embedding models. Supports both single text strings and arrays of text for batch processing.
+Returns the underlying DataFusion runtime version string.
 
 ```sql
-embed(text, model_name)
+version()
 ```
 
-#### Arguments
+### `ai` and `embed`
 
-- **text**: String or array of strings to generate embeddings for.
-- **model_name**: Name of the embedding model to use (e.g., 'potion_2m', 'xl_embed') as configured in your Spicepod.
-
-#### Return Type
-
-Returns a list of floating-point values representing the embedding vector. For array inputs, returns embeddings for each element, preserving the input array length including NULL values.
-
-#### Example
-
-```sql
--- Single text embedding (returns a single array)
-> select embed('hello world', 'potion_2m');
-
--- Multiple text embeddings (returns an array with 3 embedding arrays)
-> select embed(['hey', 'there', 'sunshine'], 'potion_2m');
-```
+See [AI Functions](./ai) for `ai()` (LLM text generation) and `embed()` (vector embedding generation).
 
 ### `bucket`
 

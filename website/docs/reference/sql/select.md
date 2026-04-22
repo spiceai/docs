@@ -321,9 +321,15 @@ SELECT age, person FROM table
 LIMIT 10
 ```
 
-### EXCLUDE and EXCEPT clause
+### EXCLUDE, EXCEPT, REPLACE, and ILIKE clauses
 
-Excluded named columns from query results.
+Spice supports the following wildcard modifiers on `SELECT *`:
+
+- `EXCLUDE (col1, col2, ...)` / `EXCEPT (col1, col2, ...)` — omit the named columns.
+- `REPLACE (expr AS col, ...)` — substitute the named columns with a new expression.
+- `ILIKE 'pattern'` — emit only columns whose names match the case-insensitive pattern.
+
+`RENAME` is parsed but not yet implemented.
 
 Example selecting all columns except for `age` and `person`:
 
@@ -335,6 +341,20 @@ FROM table;
 ```sql
 SELECT * EXCLUDE(age, person)
 FROM table;
+```
+
+Example replacing a column's value while keeping all other columns:
+
+```sql
+SELECT * REPLACE (upper(name) AS name)
+FROM customers;
+```
+
+Example selecting all columns whose names contain "date":
+
+```sql
+SELECT * ILIKE '%date%'
+FROM events;
 ```
 
 ### Additional Example
