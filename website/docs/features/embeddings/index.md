@@ -44,4 +44,4 @@ For detailed instructions and examples on running vector searches, refer to the 
 
 ## Generating Embeddings in Queries
 
-The [`embed()` scalar function](../reference/sql/scalar_functions#embed) generates embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.
+The [`embed()` scalar function](../reference/sql/scalar_functions#ai-and-embed) generates embeddings directly within SQL queries. This function can process both single text strings and arrays of text, making it useful for ad-hoc embedding generation and comparison operations.

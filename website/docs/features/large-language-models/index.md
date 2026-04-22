@@ -54,7 +54,7 @@ Spice supports a variety of LLMs (see [Model Providers](../components/models)).
 
 ### Core Features
 
-- **SQL Integration**: Invoke LLMs directly within SQL queries using the `ai()` function for text generation tasks. See [SQL Reference: ai function](../reference/sql/scalar_functions#ai).
+- **SQL Integration**: Invoke LLMs directly within SQL queries using the `ai()` function for text generation tasks. See [SQL Reference: ai function](../reference/sql/scalar_functions#ai-and-embed).
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](large-language-models/tools).
 - **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../api/HTTP/post-chat-completions). See [Parameter Overrides](large-language-models/parameter_overrides).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](large-language-models/memory).

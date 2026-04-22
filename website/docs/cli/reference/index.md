@@ -32,7 +32,7 @@ spice [command] [--help]
 | [install](reference/install)       | Install or reinstall the Spice.ai runtime                              |
 | [login](reference/login)           | Login to Spice.ai or configure credentials for data sources            |
 | [models](reference/models)         | Lists models loaded by the Spice runtime                               |
-| nsql                               | Text-to-SQL REPL - translate natural language to SQL                   |
+| [nsql](reference/nsql)             | Text-to-SQL REPL - translate natural language to SQL                   |
 | [pods](reference/pods)             | Lists Spicepods loaded by the Spice runtime                            |
 | [query](reference/query)           | Submit an async query or start an interactive async query REPL         |
 | [refresh](reference/refresh)       | Refresh a dataset loaded by the Spice runtime                          |

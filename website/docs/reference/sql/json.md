@@ -45,6 +45,9 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
   - [`json_length`](#json_length)
     - [Arguments](#arguments-9)
     - [Example](#example-9)
+  - [`json_object_keys`](#json_object_keys)
+    - [Arguments](#arguments-13)
+    - [Example](#example-13)
 - [JSON Operators](#json-operators)
   - [`->`](#op_json_get)
     - [Arguments](#arguments-10)
@@ -313,6 +316,39 @@ json_length(json_string[, key1, key2, ...])
 +--------------------------------------+
 | 5                                    |
 +--------------------------------------+
+```
+
+### `json_object_keys`
+
+Returns the top-level keys of a JSON object as an array of strings. If a path is provided, returns the keys of the object at that path. Returns `NULL` if the value at the path is not an object.
+
+```sql
+json_object_keys(json_string[, key1, key2, ...])
+```
+
+Alias: `json_keys`.
+
+#### Arguments
+
+- **json_string**: String containing valid JSON data.
+- **key1, key2, ...**: Optional path to a nested object. If omitted, returns the keys of the root object.
+
+#### Example
+
+```sql
+> SELECT json_object_keys('{"a": 1, "b": 2, "c": 3}');
++-----------------------------------------------------+
+| json_object_keys(Utf8("{"a": 1, "b": 2, "c": 3}"))  |
++-----------------------------------------------------+
+| [a, b, c]                                           |
++-----------------------------------------------------+
+
+> SELECT json_object_keys('{"user": {"name": "John", "age": 30}}', 'user');
++-----------------------------------------------------------------------------+
+| json_object_keys(Utf8("{"user": {"name": "John", "age": 30}}"),Utf8("user")) |
++-----------------------------------------------------------------------------+
+| [name, age]                                                                 |
++-----------------------------------------------------------------------------+
 ```
 
 ---

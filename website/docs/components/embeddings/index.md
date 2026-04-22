@@ -302,7 +302,7 @@ datasets:
               target_chunk_size: 512
             row_id: id
 ```
-
+fix t
 ### Multi-Vector Embeddings
 
 When the source column is `List<Utf8>` (or `LargeList<Utf8>`), Spice embeds each list element independently and produces a `List<FixedSizeList<Float32, N>>` column. This is the multi-vector (column-of-vectors) mode, useful for rows that carry several independent pieces of text such as tags, section headings, or historical queries.

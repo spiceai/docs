@@ -27,7 +27,7 @@ Protect the DuckDB file with filesystem permissions. Store it on encrypted stora
 
 ### File Concurrency
 
-DuckDB supports a single writer with many readers per database file. If the file is shared with another process that holds a write lock, the connector returns an I/O error on open. Co-locate the writer and the Spice reader on the same host, or use DuckDB's read-only mode (`access_mode: read_only`) when federating a file produced by an upstream ETL job.
+DuckDB supports a single writer with many readers per database file. The Spice DuckDB data connector always opens the database in read-only mode, so it will not conflict with other readers. However, if another process holds a write lock, the connector may return an I/O error on open. Co-locate the writer and the Spice reader on the same host and ensure the writer releases its lock before the connector opens the file.
 
 ### Crash Recovery
 

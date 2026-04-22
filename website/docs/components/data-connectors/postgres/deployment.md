@@ -25,7 +25,6 @@ The connector uses the native PostgreSQL wire protocol with username/password au
 | `pg_user`          | Database user.                                                               |
 | `pg_pass`          | Password. Use `${secrets:...}` to resolve from a configured secret store.    |
 | `pg_connection_string` | Alternative to the individual parameters.                                |
-| `pg_application_name`  | Application identifier reported in `pg_stat_activity`. Defaults to the Spice.ai version. |
 
 Passwords must be sourced from a secret store in production. See [Secret Stores](../../secret-stores/) for configuration options (environment variables, file, Kubernetes, AWS Secrets Manager, HashiCorp Vault).
 
