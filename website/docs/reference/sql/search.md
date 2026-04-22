@@ -42,13 +42,12 @@ LIMIT 5;
 ```
 
 - `table`: Dataset name (required)
-- `query`: Search text (required)
-- `col`: Column name (optional if only one embedding column)
-- `limit`: Maximum results (optional, default: 1000)
-- `include_score`: Include relevance scores (optional, default TRUE)
-- `rank_weight`: Result rank weight (optional, named argument, default `score * 1`, only when specified as an argument in [RRF](#reciprocal-rank-fusion-rrf))
-
-By default, `vector_search` retrieves up to 1000 results. To change this, specify a limit parameter in the function call.
+- `query`: Search text, or an array of strings for [multi-query](#multi-query-late-interaction-form) search (required)
+- `column`: Column name (optional if only one embedding column; required when the table has multiple embedded columns)
+- `limit`: Maximum results (optional). When omitted, the engine-defined maximum is used.
+- `include_score`: Include relevance scores (optional, default `TRUE`)
+- `distance_metric`: Similarity metric used to rank candidate vectors (optional, named argument). Supported values: `'cosine'` (default) and `'l2'` (negated Euclidean distance). `'dot'` is parsed but not yet wired through the scan path.
+- `rank_weight`: Per-query ranking weight (optional, named argument). Only meaningful when `vector_search` is passed as a subquery to [`rrf`](#reciprocal-rank-fusion-rrf).
 
 #### Example
 
@@ -58,6 +57,15 @@ FROM vector_search(reviews, 'issues with same day shipping', 1500)
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
 ORDER BY score DESC
 LIMIT 2;
+```
+
+To override the similarity metric, pass `distance_metric` as a named argument:
+
+```sql
+SELECT id, body, score
+FROM vector_search(reviews, 'issues with shipping', distance_metric => 'l2')
+ORDER BY score DESC
+LIMIT 10;
 ```
 
 See [Vector-Based Search](../../features/search/vector-search) for configuration and advanced usage.
@@ -90,12 +98,12 @@ LIMIT 5;
 
 - `table`: Dataset name (required)
 - `query`: Keyword or phrase (required)
-- `col`: Column to search (required if multiple indexed columns)
-- `limit`: Maximum results (optional, default: 1000)
-- `include_score`: Include relevance scores (optional, default TRUE)
-- `rank_weight`: Result rank weight (optional, named argument, default `score * 1`, only when specified as an argument in [RRF](#reciprocal-rank-fusion-rrf))
+- `column`: Column to search (optional if the table has a single full-text index; required when multiple columns are indexed)
+- `limit`: Maximum results (optional). Defaults to 1000, which is the maximum supported.
+- `include_score`: Include relevance scores (optional, default `TRUE`)
+- `rank_weight`: Per-query ranking weight (optional, named argument). Only meaningful when `text_search` is passed as a subquery to [`rrf`](#reciprocal-rank-fusion-rrf).
 
-By default, `text_search` retrieves up to 1000 results. To change this, specify a limit parameter in the function call.
+By default, `text_search` retrieves up to 1000 results. To request fewer, specify a smaller `limit`.
 
 #### Example
 
@@ -138,19 +146,20 @@ LIMIT 10;
 
 Note that `rank_weight` is specified as the last argument to either a `text_search` or `vector_search` UDTF call (as shown above). All other arguments can be specified in any order after the search calls (within an `rrf` invocation).
 
-| Parameter           | Type             | Required | Description                                                        |
-| ------------------- | ---------------- | -------- | ------------------------------------------------------------------ |
-| `query_1`           | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`)          |
-| `query_2`           | Search UDTF call | Yes      | Second search query                                                |
-| `...`               | Search UDTF call | No       | Additional search queries (variadic)                               |
-| `join_key`          | String           | No       | Column name to use for joining results (default: auto-hash)        |
-| `k`                 | Float            | No       | Smoothing parameter for RRF scoring (default: 60.0)                |
-| `time_column`       | String           | No       | Column name containing timestamps for recency boosting             |
-| `recency_decay`     | String           | No       | Decay function: 'linear' or 'exponential' (default: 'exponential') |
-| `decay_constant`    | Float            | No       | Decay rate for exponential decay (default: 0.01)                   |
-| `decay_scale_secs`  | Float            | No       | Time scale in seconds for decay (default: 86400)                   |
-| `decay_window_secs` | Float            | No       | Window size for linear decay in seconds (default: 86400)           |
-| `rank_weight`       | Float            | No       | Per-query ranking weight (**specified within search functions**)   |
+| Parameter           | Type             | Required | Description                                                                                                                                  |
+| ------------------- | ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `query_1`           | Search UDTF call | Yes      | First search query (e.g., `vector_search`, `text_search`)                                                                                    |
+| `query_2`           | Search UDTF call | Yes      | Second search query. `rrf` requires at least two subqueries.                                                                                 |
+| `...`               | Search UDTF call | No       | Additional search queries (variadic)                                                                                                         |
+| `join_key`          | String           | No       | Column name to use for joining subquery results. If omitted, the primary key is inferred from the underlying tables; otherwise rows are auto-hashed. |
+| `k`                 | Float            | No       | Smoothing parameter for RRF scoring (default: 60.0)                                                                                          |
+| `limit`             | Integer          | No       | Upper bound on the fused result set. Also propagated as a default limit to any nested search subquery that does not specify its own.         |
+| `time_column`       | String           | No       | Column name containing timestamps for recency boosting                                                                                       |
+| `recency_decay`     | String           | No       | Decay function: 'linear' or 'exponential' (default: 'exponential')                                                                           |
+| `decay_constant`    | Float            | No       | Decay rate for exponential decay (default: 0.01)                                                                                             |
+| `decay_scale_secs`  | Float            | No       | Time scale in seconds for decay (default: 86400)                                                                                             |
+| `decay_window_secs` | Float            | No       | Window size for linear decay in seconds (default: 86400)                                                                                     |
+| `rank_weight`       | Float            | No       | Per-query ranking weight (**specified within the individual search subquery call**)                                                          |
 
 #### Examples
 
@@ -227,7 +236,7 @@ ORDER BY fused_score DESC;
 - **Recency boosting**: When `time_column` is specified, scores are multiplied by a decay factor
   - **Exponential decay**: `e^(-decay_constant * age_in_units)` where age is in `decay_scale_secs`
   - **Linear decay**: `max(0, 1 - (age_in_units / decay_window_secs))`
-- **Auto-join**: When no `join_key` is specified, rows are automatically hashed for joining
+- **Auto-join**: When no `join_key` is specified, `rrf` infers the primary key from the underlying tables; if none is available, rows are joined by an auto-generated row identifier
 
 ---
 
@@ -254,11 +263,13 @@ Returns rows where the column exactly matches the value.
 
 ### Regex Filtering
 
-Spice SQL does not support the `~` or `!~` operators for regular expression matching. Instead, use scalar functions such as `regexp_like`, `regexp_match`, and `regexp_replace` for regex-based filtering. For details and examples, see the [Scalar Functions documentation](./scalar_functions#regular-expression-functions).
+Spice SQL supports the PostgreSQL regex operators `~` (match), `~*` (case-insensitive match), `!~` (not match), and `!~*` (case-insensitive not match) — see [Operators](./operators#op_re_match). Alternatively, use scalar functions such as `regexp_like`, `regexp_match`, and `regexp_replace`. For details and examples, see the [Scalar Functions documentation](./scalar_functions#regular-expression-functions).
 
 #### Example
 
 ```sql
+SELECT * FROM my_table WHERE column ~ '^spice.*ai$';
+-- Or, equivalently:
 SELECT * FROM my_table WHERE regexp_like(column, '^spice.*ai$');
 ```
 
