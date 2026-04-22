@@ -100,7 +100,7 @@ The IMAP connector supports the following connection and authentication paramete
 | `imap_username` | Optional. The username to use for the IMAP connection. Defaults to the value of the `from:` mailbox field.                   |
 | `imap_password` | Optional. The password to use for the IMAP connection, in plaintext authentication mode.                                     |
 | `imap_host`     | Optional. The host or IP address of the IMAP server to connect to. Not required for known connections like Outlook or Gmail. |
-| `imap_port`     | Optional. The port of the IMAP server to connect to.                                                                         |
+| `imap_port`     | Optional. The port of the IMAP server to connect to. Defaults to `993`.                                                                         |
 | `imap_mailbox`  | Optional. The mailbox to read mail from. Defaults to `INBOX`, the standard email inbox.                                      |
 | `imap_ssl_mode` | Optional. The IMAP SSL mode to use. Defaults to `auto`, permitted values of `tls`, `starttls`, `disabled` or `auto`.          |
 
