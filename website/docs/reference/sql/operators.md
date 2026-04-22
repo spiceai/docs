@@ -531,7 +531,7 @@ Shorthand syntax for type conversion, equivalent to `CAST`.
 
 ### `||` {#op_str_cat}
 
-String Concatenation
+String or array concatenation. When both operands are strings, concatenates them. When both are arrays (lists), invokes [`array_concat`](./scalar_functions#array_concat); when one side is a list and the other is a scalar of the element type, invokes [`array_append`](./scalar_functions#array_append) or [`array_prepend`](./scalar_functions#array_prepend).
 
 ```sql
 > SELECT 'Hello, ' || 'Spice!';
@@ -540,11 +540,25 @@ String Concatenation
 +-----------------------------------+
 | Hello, Spice!                     |
 +-----------------------------------+
+
+> SELECT [1, 2] || [3, 4];
++-------------------------+
+| List([1,2]) || List([3,4]) |
++-------------------------+
+| [1, 2, 3, 4]            |
++-------------------------+
+
+> SELECT [1, 2] || 3;
++----------------------+
+| List([1,2]) || Int64(3) |
++----------------------+
+| [1, 2, 3]            |
++----------------------+
 ```
 
 ### `@>` {#op_arr_contains}
 
-Array Contains
+Array contains. Returns `true` if every element of the right array is present in the left. Equivalent to [`array_has_all`](./scalar_functions#array_has_all). Only supported with list/array arguments.
 
 ```sql
 > SELECT make_array(1,2,3) @> make_array(1,3);
@@ -557,7 +571,7 @@ Array Contains
 
 ### `<@` {#op_arr_contained_by}
 
-Array Is Contained By
+Array is contained by. Returns `true` if every element of the left array is present in the right. Equivalent to `array_has_all(right, left)`. Only supported with list/array arguments.
 
 ```sql
 > SELECT make_array(1,3) <@ make_array(1,2,3);

@@ -23,18 +23,19 @@ ai(message, model_name)
 
 ### Return Type
 
-Returns a string containing the generated text response. Returns NULL if an error occurs during processing (errors are logged).
+Returns a string containing the generated text response. Returns NULL for NULL input messages or when the model returns an empty response. If the underlying model call fails, the query errors out (errors are logged).
 
 ### Behavior
 
-Queries execute asynchronously, processing LLM calls in parallel across rows for improved performance. Each invocation queues an asynchronous call to the specified model provider.
+Queries execute asynchronously, processing LLM calls in parallel across rows for improved performance. Each invocation issues an asynchronous call to the specified model provider.
 
-**Concurrency**: The function honors DataFusion concurrency configuration for parallel requests. When multiple models with different providers are configured (e.g., OpenAI and Anthropic), each provider processes requests in parallel according to concurrency settings.
+**Concurrency**: When a per-model rate controller is configured in the Spicepod, it manages concurrency and backpressure. Otherwise, concurrency falls back to DataFusion's `execution.target_partitions` setting. When multiple models with different providers are configured (e.g., OpenAI and Anthropic), each provider's requests are controlled independently.
 
 **Limits**:
 
-- Maximum batch size: 100 rows per query
-- Maximum input message size: 1 MB per message
+- Maximum batch size: 1000 rows per invocation
+- Maximum input message size: 1,000,000 bytes (1 MB) per message
+- Maximum model name length: 256 characters
 
 ### Configuration
 
@@ -50,7 +51,7 @@ models:
 
 ### Task History
 
-Each `ai()` function invocation creates an `ai` task in the [task_history](../task_history) table, which tracks execution time, input prompts, outputs, and errors.
+Each `ai()` function invocation creates an `ai` span in the [task_history](../task_history) table, which tracks execution time, input prompts, model name, and row count. Child `ai_completion` spans capture per-row model call details.
 
 ### Examples
 
@@ -106,7 +107,7 @@ WHERE created_at > NOW() - INTERVAL '1 hour';
 
 #### Batch text processing
 
-Process multiple rows efficiently with parallel LLM calls:
+Process multiple rows efficiently with parallel LLM calls. Each `ai()` invocation is capped at 1000 rows, so use `LIMIT` to stay within this bound:
 
 ```sql
 SELECT
@@ -115,7 +116,7 @@ SELECT
   ai('Classify sentiment as positive, negative, or neutral: ' || feedback) AS sentiment
 FROM customer_feedback
 WHERE processed = false
-LIMIT 100;
+LIMIT 1000;
 ```
 
 ## `embed`
@@ -128,12 +129,13 @@ embed(text, model_name)
 
 ### Arguments
 
-- **text**: String or array of strings to generate embeddings for.
-- **model_name**: Name of the embedding model to use (e.g., 'potion_2m', 'xl_embed') as configured in your Spicepod.
+- **text**: String or array of strings to generate embeddings for. `Utf8` / `LargeUtf8` scalars and lists/arrays of strings are supported.
+- **model_name**: Name of the embedding model to use (e.g., 'potion_2m', 'xl_embed') as configured in your Spicepod. Required — unlike `ai()`, `embed()` does not auto-select a default when only one model is configured.
 
 ### Return Type
 
-Returns a list of floating-point values representing the embedding vector. For array inputs, returns embeddings for each element, preserving the input array length including NULL values.
+- For a scalar string input: `List<Float32>` — a single embedding vector.
+- For an array of strings: `List<List<Float32>>` — one embedding vector per element, preserving the input length. NULL input elements produce NULL output elements.
 
 ### Configuration
 

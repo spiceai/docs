@@ -26,7 +26,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [UNION Clause](sql/select#union-clause)
 - [ORDER BY Clause](sql/select#order-by-clause)
 - [LIMIT Clause](sql/select#limit-clause)
-- [EXCLUDE and EXCEPT Clause](sql/select#exclude-and-except-clause)
+- [EXCLUDE and EXCEPT Clause](sql/select#exclude-except-replace-and-ilike-clauses)
 
 ### [Subqueries](sql/subqueries)
 
@@ -74,6 +74,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [Struct Functions](sql/scalar_functions#struct-functions)
 - [Map Functions](sql/scalar_functions#map-functions)
 - [Hashing Functions](sql/scalar_functions#hashing-functions)
+- [Encoding Functions](sql/scalar_functions#encoding-functions)
 - [Union Functions](sql/scalar_functions#union-functions)
 - [Other Functions](sql/scalar_functions#other-functions)
 
@@ -89,7 +90,7 @@ Spark-compatible scalar functions such as `array`, `bit_get`, `date_add`, `like`
 
 ### Window Functions
 
-Window functions perform calculations across sets of rows related to the current row. Spice supports window functions using the `OVER` clause with aggregate and ranking functions. See [Aggregate Functions](sql/aggregate_functions) for functions that support the `OVER` clause, including `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, and `NTH_VALUE`.
+Window functions perform calculations across sets of rows related to the current row. Spice supports window functions using the `OVER` clause with aggregate and ranking functions. See [Aggregate Functions](sql/aggregate_functions) for functions that support the `OVER` clause, including `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `PERCENT_RANK`, `CUME_DIST`, `NTILE`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`, and `NTH_VALUE`.
 
 **Example:**
 
