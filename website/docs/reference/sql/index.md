@@ -26,7 +26,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [UNION Clause](sql/select#union-clause)
 - [ORDER BY Clause](sql/select#order-by-clause)
 - [LIMIT Clause](sql/select#limit-clause)
-- [EXCLUDE and EXCEPT Clause](sql/select#exclude-and-except-clause)
+- [EXCLUDE and EXCEPT Clause](sql/select#exclude-except-replace-and-ilike-clauses)
 
 ### [Subqueries](sql/subqueries)
 

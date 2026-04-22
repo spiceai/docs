@@ -40,7 +40,7 @@ Spice supports the following syntax for queries:
 [ [UNION](#union-clause) [ ALL | select ] ]
 [ [ORDER BY](#order-by-clause) expression \[ ASC | DESC \][, ...] ]  
 [ [LIMIT](#limit-clause) count ]  
-[ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]
+[ [EXCLUDE | EXCEPT](#exclude-except-replace-and-ilike-clauses) ]
 
 ### Window Functions (OVER Clause)
 
