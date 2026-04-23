@@ -435,6 +435,10 @@ runtime:
         - dataset_load_state
 ```
 
+:::caution Filtering happens after `metric_prefix` is applied
+The whitelist is matched against the **final** metric name, after [`runtime.telemetry.metric_prefix`](#runtimetelemetrymetric_prefix) has been prepended. If you set `metric_prefix: 'spiceai.'`, the entries under `metrics:` must include the prefix (e.g. `spiceai.query_duration_ms`), otherwise nothing will match and no metrics will be exported.
+:::
+
 **Authenticated exporters:**
 
 For collectors that require authentication, set the `headers` map. Load credentials from a [secret store](../../components/secret-stores) via `${secrets:...}` rather than committing them to source.
