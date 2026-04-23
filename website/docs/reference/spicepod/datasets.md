@@ -970,10 +970,12 @@ Enable or disable vector storage, defaults to `true`.
 
 ## `vectors.engine`
 
-The vector engine to use. The following engines are supported:
+The vector engine to use. The following engines are supported for datasets:
 
 - [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`elasticsearch`](../../components/vectors/elasticsearch) - Vectors are created and indexed into an [Elasticsearch](https://www.elastic.co/) cluster.
 
+Dataset and view support may differ. If a view uses `vectors`, refer to the views reference for the engines supported there.
 ## `vectors.params`
 
 Optional. Parameters to pass to the vector engine. The parameters are specific to the vector engine used.
