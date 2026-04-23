@@ -49,9 +49,16 @@ LIMIT 5;
 - `distance_metric`: Similarity metric used to rank candidate vectors (optional, named argument). Supported values: `'cosine'` (default) and `'l2'` (negated Euclidean distance). `'dot'` is parsed but not yet wired through the scan path.
 - `rank_weight`: Per-query ranking weight (optional, named argument). Only meaningful when `vector_search` is passed as a subquery to [`rrf`](#reciprocal-rank-fusion-rrf).
 
+#### Filter Pushdown
+
+`WHERE` predicates on base table columns (e.g., `created_at`, `product_category`) are pushed down as **pre-filters** — they are applied before the similarity ranking, so only matching rows are scored and returned. This means results reflect the top-K _within the filtered set_, not the top-K of the entire table filtered afterward.
+
+Predicates on computed columns like `score` are applied as post-filters after ranking.
+
 #### Example
 
 ```sql
+-- Filters on created_at are pushed down before ranking
 SELECT review_id, rating, customer_id, body, score
 FROM vector_search(reviews, 'issues with same day shipping', 1500)
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
@@ -160,6 +167,25 @@ Note that `rank_weight` is specified as the last argument to either a `text_sear
 | `decay_scale_secs`  | Float            | No       | Time scale in seconds for decay (default: 86400)                                                                                             |
 | `decay_window_secs` | Float            | No       | Window size for linear decay in seconds (default: 86400)                                                                                     |
 | `rank_weight`       | Float            | No       | Per-query ranking weight (**specified within the individual search subquery call**)                                                          |
+
+#### Filter Pushdown
+
+`WHERE` predicates on base table columns (e.g., `review_date`, `product_category`) are pushed down into each nested search subquery as **pre-filters** — they are applied before ranking and fusion, so each subquery only considers matching rows. This means the fused results reflect the top-K _within the filtered set_, not a post-filtered slice of unfiltered rankings.
+
+Predicates on computed columns like `fused_score` are applied as post-filters after fusion.
+
+```sql
+-- review_date and product_category are pushed into each vector_search before ranking
+SELECT review_id, review_headline
+FROM rrf(
+    vector_search(amazon_reviews, 'cannot exit the app', rank_weight => 20),
+    vector_search(amazon_reviews, 'app not working', rank_weight => 10),
+    join_key => 'review_id',
+    k => 60.0
+)
+WHERE review_date > '2015-06-15' AND product_category = 'Mobile_Apps'
+LIMIT 10;
+```
 
 #### Examples
 

@@ -157,6 +157,8 @@ FROM vector_search('sales', 'cutting edge AI', 1500)
 ORDER BY score DESC;
 ```
 
+`WHERE` predicates on base table columns are pushed down as pre-filters — only matching rows are scored and ranked. See [Search in SQL](../../reference/sql/search#vector-search-vector_search) for details.
+
 :::warning[Limitations]
 
 - `vector_search` UDTF does not yet support chunked embedding columns. Chunking support is on the roadmap.

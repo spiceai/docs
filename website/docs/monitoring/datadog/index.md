@@ -75,6 +75,10 @@ runtime:
 
 The runtime metric `query_duration_ms` is then exported as `spiceai.query_duration_ms`.
 
+:::caution Combining `metric_prefix` with metric filtering
+If you also set [`runtime.telemetry.otel_exporter.metrics`](/docs/next/reference/spicepod/runtime#runtimetelemetryotel_exporter) to whitelist specific metrics, the entries must include the prefix. The filter runs after the prefix is applied, so e.g. `query_duration_ms` will not match when `metric_prefix: 'spiceai.'` is set — use `spiceai.query_duration_ms` instead.
+:::
+
 ### Add Custom Tags via Resource Attributes
 
 Attach custom key/value pairs to every metric using [`runtime.telemetry.properties`](/docs/next/reference/spicepod/runtime#runtimetelemetryproperties). Spice sends these as OpenTelemetry resource attributes:
