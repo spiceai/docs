@@ -135,7 +135,7 @@ Enable or disable snapshot management globally. Defaults to `true`.
 
 ### `snapshots.location`
 
-The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`) and absolute or relative filesystem paths. The path must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
+The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`), Azure ADLS Gen2 URIs (`abfss://container@account.dfs.core.windows.net/path/`), Google Cloud Storage URIs (`gs://bucket/prefix/`), and absolute or relative filesystem paths. The path must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
 
 ### `snapshots.bootstrap_on_failure_behavior`
 
@@ -147,7 +147,7 @@ Controls what happens when Spice cannot load the most recent snapshot on startup
 
 ### `snapshots.params`
 
-Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`.
+Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`. Azure ADLS and GCS locations also accept their respective connector parameters for explicit credential overrides; when no overrides are supplied, Spice reads standard environment variables for each cloud provider.
 
 ## `models`
 
