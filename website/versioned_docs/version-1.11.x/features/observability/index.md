@@ -9,7 +9,7 @@ pagination_next: null
 
 Spice provides monitoring and observability through three mechanisms:
 
-- **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), and [Chronosphere](https://chronosphere.io/).
+- **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), [Middleware](https://middleware.io/) and [Chronosphere](https://chronosphere.io/).
 - **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC.
 - **Distributed tracing**: Integrates with [Zipkin](https://zipkin.io/) and compatible tracing systems for request tracing.
 
@@ -23,7 +23,7 @@ Spice provides monitoring and observability through three mechanisms:
 
 ## Prometheus Metrics Endpoint
 
-Spice exposes a Prometheus-compatible metrics endpoint that monitoring systems can scrape. The endpoint serves metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/), which is supported by most enterprise monitoring platforms including Datadog, New Relic, Chronosphere, Grafana Cloud, and others.
+Spice exposes a Prometheus-compatible metrics endpoint that monitoring systems can scrape. The endpoint serves metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/), which is supported by most enterprise monitoring platforms including Datadog, New Relic, Middleware, Chronosphere, Grafana Cloud, and others.
 
 ### Default Configuration
 
