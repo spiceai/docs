@@ -39,6 +39,7 @@ spice [command] [--help]
 | [run](reference/run)               | Run Spice - starts the Spice runtime, installing if necessary          |
 | [search](reference/search)         | Search datasets with embeddings                                        |
 | [sql](reference/sql)               | Start an interactive SQL query session against the Spice runtime       |
+| [spiced](reference/spiced)         | Spice runtime binary — direct invocation reference                     |
 | [status](reference/status)         | Spice runtime status                                                   |
 | [trace](reference/trace)           | Return traces for operations that occurred in Spice                    |
 | [upgrade](reference/upgrade)       | Upgrades the Spice CLI and runtime to the latest release               |
