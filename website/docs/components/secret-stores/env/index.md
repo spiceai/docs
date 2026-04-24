@@ -65,7 +65,11 @@ MY_PG_USER=postgres
 MY_PG_PASSWORD=postgres
 ```
 
-### Additional Parameters
+### Parameters
+
+| Parameter Name | Description                                                                                                      |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `file_path`    | Optional. Path to a specific `.env` file to load. When set, `.env` and `.env.local` in the project directory are not loaded. |
 
 To load environment variables from a specific `.env` file, use the `file_path` parameter. When a `file_path` parameter is specified, environment variables from `.env` or `.env.local` will not be loaded.
 
