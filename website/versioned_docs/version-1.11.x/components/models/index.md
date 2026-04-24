@@ -18,7 +18,6 @@ Spice supports various model providers for traditional machine learning (ML) mod
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`google`][google]         | Google AI language models                    | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
 
 [openai]: ./openai.md
