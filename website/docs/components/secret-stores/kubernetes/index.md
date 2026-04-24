@@ -35,6 +35,24 @@ secrets:
     name: k8s_other
 ```
 
+## Parameters
+
+| Parameter Name | Description                                                                                                      |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `namespace`    | Optional. The Kubernetes namespace to read the secret from. Defaults to the namespace of the running pod's service account. |
+
+```yaml
+secrets:
+  - from: kubernetes:my_secret
+    name: k8s
+    params:
+      namespace: spice
+```
+
+:::note
+Unknown parameters are rejected with an error listing the supported parameter names.
+:::
+
 ## Kubernetes Secret Store Configuration
 
 Note: This method requires the Kubernetes service account, which is running the `spiced` pod, to have extended roles for secrets API access. Configure this service account with the necessary permissions to read secrets from the Kubernetes API.
