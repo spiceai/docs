@@ -3,18 +3,18 @@ title: 'Model Context Protocol Tools'
 sidebar_label: 'MCP Tools'
 ---
 
-Spice integrates with tools and services using the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). MCP tools can be configured to run internally or connect to external servers over HTTP using the Server-Sent Events (SSE) protocol.
+Spice integrates with tools and services using the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). MCP tools can be configured to run internally or connect to external servers over HTTP using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport.
 
 ## Overview
 
 MCP helps extend the capabilities of the Spice runtime by enabling integration with external tools and services. This includes:
 
 1. Running stdio-based MCP servers internally.
-2. Connecting to external MCP servers over SSE.
+2. Connecting to external MCP servers over Streamable HTTP.
 
 ## Configuring MCP Tools
 
-To configure MCP tools, define them in the `tools` section of your `spicepod.yaml` file. The `from` field specifies the transport mechanism, such as `mcp:npx` for stdio-based tools or an HTTP URL for SSE-based tools.
+To configure MCP tools, define them in the `tools` section of your `spicepod.yaml` file. The `from` field specifies the transport mechanism, such as `mcp:npx` for stdio-based tools or an HTTP URL for Streamable HTTP-based tools.
 
 ### Example: Adding an MCP Tool (Stdio)
 
@@ -28,14 +28,14 @@ tools:
       mcp_args: -y @modelcontextprotocol/server-google-maps
 ```
 
-### Example: Connecting to an External MCP Server (SSE)
+### Example: Connecting to an External MCP Server (Streamable HTTP)
 
-This example shows how to connect to an external MCP server over SSE:
+This example shows how to connect to an external MCP server over Streamable HTTP:
 
 ```yaml
 tools:
   - name: external_mcp_server
-    from: mcp:http://example.com/v1/mcp/sse
+    from: mcp:http://example.com/v1/mcp
 ```
 
 ## Using MCP Tools with Models
@@ -52,14 +52,14 @@ models:
 
 ## Spice as an MCP Server
 
-Spice can also act as an MCP server, exposing its tools over SSE. This enables other Spice instances or external systems to connect and use the tools.
+Spice can also act as an MCP server, exposing its tools over Streamable HTTP. This enables other Spice instances or external systems to connect and use the tools.
 
 ### Example: Connecting to Another Spice Instance via MCP
 
 ```yaml
 tools:
   - name: spice_instance
-    from: mcp:http://localhost:8090/v1/mcp/sse
+    from: mcp:http://localhost:8090/v1/mcp
 ```
 
 ## Configuration Options
@@ -68,7 +68,7 @@ tools:
 
 The `from` field specifies the transport mechanism for the MCP tool:
 
-- **SSE**: Use an HTTP URL ending with `/sse` (e.g., `http://localhost:8090/v1/mcp/sse`).
+- **Streamable HTTP**: Use an HTTP URL pointing to the MCP endpoint (e.g., `http://localhost:8090/v1/mcp`).
 - **Stdio**: Use commands like `mcp:npx` or `mcp:docker`. Additional arguments can be passed via `params.mcp_args`.
 
 ### `params`

@@ -1,7 +1,7 @@
 ---
 id: mcp-event
 title: "Send message to MCP server"
-description: "Send message to the MCP endoint, for a given session."
+description: "Send a message to the MCP endpoint for a given session. Include the Mcp-Session-Id header to identify the session."
 sidebar_label: "Send message to MCP server"
 hide_title: true
 hide_table_of_contents: true
@@ -29,7 +29,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"/v1/mcp/sse"}
+  path={"/v1/mcp"}
   context={"endpoint"}
 >
   
@@ -37,7 +37,7 @@ import Heading from "@theme/Heading";
 
 
 
-Send message to the MCP endoint, for a given session.
+Send a message to the MCP endpoint for a given session. Include the `Mcp-Session-Id` header to identify the session.
 
 <Heading
   id={"request"}
@@ -48,7 +48,7 @@ Send message to the MCP endoint, for a given session.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"name":"sessionId","in":"query","required":true}]}
+  parameters={[{"name":"Mcp-Session-Id","in":"header","required":true}]}
 >
   
 </ParamsDetails>
@@ -63,7 +63,7 @@ Send message to the MCP endoint, for a given session.
 <StatusCodes
   id={undefined}
   label={undefined}
-  responses={{"202":{"description":"Message accepted. Response will stream via SSE."},"404":{"description":"Session not found. No active session for the given `session_id`."},"413":{"description":"Payload too large. Maximum allowed size is 4MB."},"500":{"description":"Internal server error. An unexpected issue occurred."}}}
+  responses={{"202":{"description":"Message accepted. Response will stream via the Streamable HTTP connection."},"404":{"description":"Session not found. No active session for the given `Mcp-Session-Id`."},"413":{"description":"Payload too large. Maximum allowed size is 32 MiB."},"500":{"description":"Internal server error. An unexpected issue occurred."}}}
 >
   
 </StatusCodes>
