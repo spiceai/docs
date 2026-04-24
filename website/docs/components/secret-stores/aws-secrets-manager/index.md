@@ -19,6 +19,32 @@ The store reads keys from the secret named in the selector. In the above example
 
 <img src="/img/secrets-aws-secrets-manager-2.png" alt="" width="800" />
 
+## Parameters
+
+| Parameter Name   | Description                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `region`         | Optional. The AWS region for the Secrets Manager API. Falls back to the SDK default credential chain if not set. |
+| `endpoint_url`   | Optional. Custom endpoint URL for the Secrets Manager API (e.g., for VPC endpoints, FIPS, or LocalStack).        |
+| `key`            | Optional. AWS access key ID. Must be set together with `secret`. Overrides the default credential chain.         |
+| `secret`         | Optional. AWS secret access key. Must be set together with `key`. Overrides the default credential chain.        |
+| `session_token`  | Optional. AWS session token for temporary (STS-issued) credentials. Only used when `key` and `secret` are set.   |
+
+Parameter values support `${ env:KEY }` references to load values from environment variables.
+
+```yaml
+secrets:
+  - from: aws_secrets_manager:my_secret_name
+    name: aws
+    params:
+      region: ${ env:AWS_REGION }
+      key: ${ env:AWS_ACCESS_KEY_ID }
+      secret: ${ env:AWS_SECRET_ACCESS_KEY }
+```
+
+:::note
+Unknown parameters are rejected with an error listing the supported parameter names. This helps catch typos — e.g., `regoin` instead of `region` will produce an immediate error instead of being silently ignored.
+:::
+
 ## Example
 
 A complete spicepod definition with a dataset that uses a secret from AWS Secrets Manager.

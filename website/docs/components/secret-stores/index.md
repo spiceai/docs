@@ -28,7 +28,9 @@ Secret Stores can be configured using the `secrets` section of the `spicepod.yml
 
 The Secret Store type and name are specified using the `from` and `name` fields. The `name` can be referenced by other components, like datasets or models. Some Secret Stores support adding a selector delimited by a colon (`:`), For example, when using the Kubernetes Secret Store, `from: kubernetes:my_secret` selects and enables the `my_secret` secret only to be referenced.
 
-Additional parameters may be specified in the `params` field, which are typically specific to the secret store type.
+Additional parameters may be specified in the `params` field, which are specific to the secret store type. Unknown parameters are rejected with an error listing the supported parameter names, helping catch typos early.
+
+Parameter values support `${ env:KEY }` references to load values from environment variables at startup.
 
 Example:
 
