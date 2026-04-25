@@ -641,6 +641,7 @@ The following [Component Metrics](../../features/observability/component_metrics
 | `records_consumed_total` | Counter | Total number of records consumed from the stream                           |
 | `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time  |
 | `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream |
+| `reinitializations_on_lag_exceeds_shard_retention_total` | Counter | Total rebootstrap operations triggered due to expired shards |
 
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
@@ -655,6 +656,7 @@ datasets:
    - name: records_consumed_total
    - name: lag_ms
    - name: errors_transient_total
+   - name: reinitializations_on_lag_exceeds_shard_retention_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
