@@ -19,10 +19,10 @@ DynamoDB authentication uses the standard AWS credential chain. Configure via th
 
 | Parameter             | Description                                                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------- |
-| `dynamodb_region`     | AWS region of the DynamoDB table.                                                                        |
-| `dynamodb_access_key_id` | Explicit access key (optional; falls back to the credential chain when unset).                       |
-| `dynamodb_secret_access_key` | Explicit secret key (optional).                                                                   |
-| `dynamodb_session_token` | Session token for temporary credentials (optional).                                                  |
+| `dynamodb_aws_region`     | AWS region of the DynamoDB table.                                                                        |
+| `dynamodb_aws_access_key_id` | Explicit access key (optional; falls back to the credential chain when unset).                       |
+| `dynamodb_aws_secret_access_key` | Explicit secret key (optional).                                                                   |
+| `dynamodb_aws_session_token` | Session token for temporary credentials (optional).                                                  |
 
 For production on EKS/ECS, leave access-key parameters unset and rely on instance-profile, IRSA, or ECS task-role credentials. Grant the role `dynamodb:Scan`, `dynamodb:Query`, and `dynamodb:DescribeTable` on the table; for streams, additionally grant `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, `dynamodb:GetRecords`, and `dynamodb:ListStreams`.
 
@@ -36,13 +36,13 @@ The DynamoDB connector supports CDC via DynamoDB Streams with an accelerated dat
 
 | Parameter                      | Default  | Description                                                                                                              |
 | ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `dynamodb_stream_poll_interval_ms` | *(stream-dependent)* | Interval between polls for new records in a DynamoDB stream.                                                 |
-| `dynamodb_stream_ready_lag_ms` | *(stream-dependent)* | Once lag falls below this threshold, the dataset is reported as `Ready`.                                                 |
-| `dynamodb_stream_shard_not_found_behavior` | `error` | Behavior when stream lag exceeds shard retention (24h): `error`, `ready_before_load`, or `ready_after_load`. |
+| `scan_interval` | `0s` | Interval between polls for new records in a DynamoDB stream.                                                 |
+| `ready_lag` | `2s` | Once lag falls below this threshold, the dataset is reported as `Ready`.                                                 |
+| `lag_exceeds_shard_retention_behavior` | `error` | Behavior when stream lag exceeds shard retention (24h): `error`, `ready_before_load`, or `ready_after_load`. |
 
 ### Shard Retention and Lag
 
-DynamoDB Streams retain records for 24 hours. If Spice is offline longer than the retention window, the checkpoint becomes stale and the next stream open returns `ShardNotFound`. Behavior is controlled by `dynamodb_stream_shard_not_found_behavior`:
+DynamoDB Streams retain records for 24 hours. If Spice is offline longer than the retention window, the checkpoint becomes stale and the next stream open returns `ShardNotFound`. Behavior is controlled by `lag_exceeds_shard_retention_behavior`:
 
 - **`error`** (default): Mark the dataset `Error`. Requires operator intervention to re-bootstrap.
 - **`ready_before_load`**: Mark the dataset `Ready` immediately, then re-bootstrap the accelerated dataset in the background. Queries see stale data until the bootstrap completes.
@@ -80,14 +80,14 @@ Stream polling and bootstrap operations emit spans that participate in [task his
 
 - **Global Secondary Indexes**: Not exposed as separate datasets. Query the base table and let DataFusion filter.
 - **Conditional writes / writes**: Read-only connector; writes are not supported.
-- **Cross-region streams**: Must configure `dynamodb_region` to match the region of the source table; cross-region access requires resource policies and is not recommended.
+- **Cross-region streams**: Must configure `dynamodb_aws_region` to match the region of the source table; cross-region access requires resource policies and is not recommended.
 - **Table with `StreamSpecification` disabled**: CDC mode is unavailable; fall back to full-table refresh.
 
 ## Troubleshooting
 
 | Symptom                                         | Likely cause                                                           | Resolution                                                                                                       |
 | ----------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Dataset stuck in `Error` after restart with stream enabled | Checkpoint older than 18h or exceeded 24h retention.              | Set `dynamodb_stream_shard_not_found_behavior: ready_after_load` to auto-recover, or trigger a manual refresh.   |
+| Dataset stuck in `Error` after restart with stream enabled | Checkpoint older than 18h or exceeded 24h retention.              | Set `lag_exceeds_shard_retention_behavior: ready_after_load` to auto-recover, or trigger a manual refresh.   |
 | `ProvisionedThroughputExceededException`         | RCU exhausted during initial scan.                                     | Switch to on-demand billing, raise RCU for the refresh window, or slow the refresh via acceleration settings.    |
 | `TrimmedDataAccessException`                     | Records trimmed from the stream before they could be processed.        | Same recovery path as `ShardNotFound` — re-bootstrap. Reduce bootstrap duration via parallel segments if supported. |
 | `AccessDeniedException` on `DescribeStream`      | IAM role lacks stream permissions.                                     | Add `dynamodb:DescribeStream`, `GetShardIterator`, `GetRecords`, `ListStreams` to the role.                     |
