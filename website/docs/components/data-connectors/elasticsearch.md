@@ -140,3 +140,7 @@ TLS is enabled automatically for `https://` endpoints.
 - Pushdown of SQL predicates to Elasticsearch query DSL is limited; complex filter expressions are evaluated locally by DataFusion after fetching results.
 
 Elasticsearch can also be configured as a [Vector Engine](../vectors/elasticsearch) for datasets sourced from other connectors (storing Spice-managed embeddings in Elasticsearch rather than querying an existing index).
+
+## Cookbook
+
+- A cookbook recipe to configure Elasticsearch as a data connector in Spice. [Elasticsearch Data Connector](https://github.com/spiceai/cookbook/tree/trunk/elasticsearch/connector#readme)
