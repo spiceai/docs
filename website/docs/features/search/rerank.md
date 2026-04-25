@@ -5,7 +5,6 @@ description: 'Rerank search results using dedicated reranker models or LLM-as-re
 sidebar_position: 4
 tags:
   - search
-  - reranking
   - features
 ---
 
