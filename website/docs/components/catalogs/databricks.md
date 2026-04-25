@@ -145,6 +145,8 @@ The following parameters control resilience and concurrency for the SQL Statemen
 
 | Parameter Name               | Description                                                                                                                         | Default      |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `connect_timeout`            | Timeout for establishing TCP/TLS connections to the Databricks API. Accepts durations like `10s`.                                   | `10s`        |
+| `client_timeout`             | Per-HTTP-call timeout (statement submit, status poll, chunk fetch). Set to the longest expected single call, not total query duration. Accepts durations like `30s` or `2m`. | `30s`        |
 | `max_concurrent_requests`    | Maximum number of concurrent HTTP requests to the SQL Warehouse API.                                                                | `8`          |
 | `http_max_retries`           | Maximum number of HTTP-level retries for transient failures (429, 5xx).                                                             | `3`          |
 | `backoff_method`             | Backoff strategy for transient HTTP retries. Options: `fibonacci`, `exponential`.                                                   | `fibonacci`  |
@@ -153,7 +155,7 @@ The following parameters control resilience and concurrency for the SQL Statemen
 
 ### Delta Lake parameters
 
-- `client_timeout`: The timeout setting for the object store client. Applies when using `mode: delta_lake`.
+- `client_timeout`: HTTP client request timeout. In `delta_lake` mode, applies to the object store client. In `sql_warehouse` mode, applies per-HTTP-call. Accepts durations like `30s` or `5m`. Default: `30s`.
 
 #### AWS S3
 
