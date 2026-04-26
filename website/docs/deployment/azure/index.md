@@ -124,9 +124,11 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 For stateful acceleration (DuckDB, SQLite, Cayenne):
 
-- Use the built-in [Azure Disks CSI driver](https://learn.microsoft.com/azure/aks/azure-disk-csi) with the `managed-csi-premium` storage class for single-pod, low-latency volumes.
-- Use the [Azure Files CSI driver](https://learn.microsoft.com/azure/aks/azure-files-csi) (`azurefile-csi`) when multiple replicas need shared `ReadWriteMany` access.
-- Set `stateful.enabled: true` and `stateful.storageClass: managed-csi-premium` in `values.yaml`.
+- **Local NVMe (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on an instance family with attached NVMe ([Lsv3 / Lasv3](https://learn.microsoft.com/azure/virtual-machines/lsv3-series), [Ddsv5 / Ddsv6](https://learn.microsoft.com/azure/virtual-machines/ddv5-ddsv5-series), [Edsv5 / Edsv6](https://learn.microsoft.com/azure/virtual-machines/edv5-edsv5-series)). Expose the local NVMe through the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) as a `local-storage` StorageClass. Local NVMe does not survive node replacement, so pair with a refresh strategy or a re-hydration source.
+- **Premium SSD v2** — when shared / replica-attachable persistence is required, [Premium SSD v2](https://learn.microsoft.com/azure/virtual-machines/disks-types#premium-ssd-v2) delivers up to 80,000 IOPS and sub-millisecond latency with independently configurable IOPS and throughput. Use the [Azure Disks CSI driver](https://learn.microsoft.com/azure/aks/azure-disk-csi) with a custom StorageClass (`skuName: PremiumV2_LRS`).
+- **Premium SSD (`managed-csi-premium`)** — use the built-in `managed-csi-premium` storage class only when Premium SSD v2 is unavailable in a region.
+- **Azure Files (`azurefile-csi`) — not recommended for acceleration** — use only for stateless shared artefacts that need `ReadWriteMany`. SMB/NFS latency negates the benefit of using a local accelerator.
+- Set `stateful.enabled: true` and `stateful.storageClass: <chosen-class>` in `values.yaml`.
 
 :::tip[Spice.ai Enterprise]
 For production stateful workloads, the [Spice.ai Enterprise](https://spice.ai) Operator's [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) provides per-replica `StatefulSet`s with automatic PVC resizing, workload-identity-aware ServiceAccount annotations, and configurable update strategies. For distributed query execution across scheduler/executor tiers backed by Azure Blob Storage, see [`SpicepodCluster`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodcluster).

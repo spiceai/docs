@@ -92,8 +92,15 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 For stateful acceleration (DuckDB, SQLite, Cayenne):
 
-- Enable the [Amazon EBS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) (`gp3` is the recommended default).
-- Set `stateful.enabled: true` and `stateful.storageClass: gp3` in `values.yaml`.
+- **Local NVMe (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on an instance-store-backed family (`i4i`, `i7ie`, `m6id`, `m7gd`, `c7gd`, `r7gd` and other `d`-suffixed instances). Provision the [NVMe local volume](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-store-volumes.html) with the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) or use [Bottlerocket's `local-volume-provisioner`](https://github.com/bottlerocket-os/bottlerocket) to expose it as a `local-storage` StorageClass. Note that local volumes do not survive node replacement, so pair with a refresh strategy or a re-hydration source.
+- **Amazon EBS io2 Block Express** — when shared / replica-attachable persistence is required and node-local capacity is insufficient, [`io2`](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html#io2-bx) delivers up to 256K IOPS and sub-millisecond latency. Use the [Amazon EBS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) and a custom StorageClass with `type: io2` and a provisioned `iops` value.
+- **Amazon EBS gp3** — use `gp3` (with provisioned IOPS bumped above the 3,000 baseline) only when `io2` is unavailable in a region or when cost outweighs the latency improvement.
+- **Amazon S3 Express One Zone (Cayenne only)** — for Cayenne acceleration that needs to be shared across replicas or persisted independently of the pod lifecycle, [S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond latency single-AZ object storage. Configure Cayenne to point at an S3 Express directory bucket — see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).
+- Set `stateful.enabled: true` and `stateful.storageClass: <chosen-class>` in `values.yaml`.
+
+:::tip
+Amazon EFS works for sharing data across replicas but is not recommended for accelerations: NFS-style latency negates the benefit of using an accelerator. Reserve EFS for stateless artefacts that need to survive pod replacement.
+:::
 
 :::tip[Spice.ai Enterprise]
 For production stateful workloads, the [Spice.ai Enterprise](https://spice.ai) Operator's [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) provides per-replica `StatefulSet`s with automatic PVC resizing, IRSA-aware ServiceAccount annotations, and configurable update strategies. For distributed query execution across scheduler/executor tiers backed by S3, see [`SpicepodCluster`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodcluster).
@@ -219,7 +226,9 @@ Front the service with a [Network Load Balancer](https://docs.aws.amazon.com/ela
 
 #### 3. Persistent storage
 
-For workloads that use file-based acceleration, mount [Amazon EFS](https://aws.amazon.com/efs/) into the task. EFS is the only persistent storage option supported by Fargate.
+Spice accelerations are latency- and IOPS-sensitive. Choose the storage type based on launch type and sharing requirements:
+
+- **ECS on EC2 with local NVMe (recommended for accelerations)** \u2014 launch the cluster on an instance-store-backed family (`i4i`, `i7ie`, `m6id`, `m7gd`, `c7gd`, `r7gd`, etc.) and bind-mount the NVMe device into the task. This delivers the lowest latency and highest IOPS available on AWS but does not survive instance replacement, so pair with a refresh strategy.\n- **Amazon EBS volume attached to an ECS service (EC2 launch type)** \u2014 use the [EBS volume task configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html) with `volumeType: io2` for high-IOPS, low-latency block storage that survives task restarts. Fall back to `gp3` (with provisioned IOPS) when `io2` is unavailable in the region.\n- **Amazon S3 Express One Zone (Cayenne only)** \u2014 for Cayenne acceleration that needs to be shared across tasks or persisted independently of task lifecycle, [S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond latency. Configure Cayenne against an S3 Express directory bucket \u2014 see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).\n- **Amazon EFS (Fargate-only fallback)** \u2014 EFS is the only persistent storage option supported by Fargate, but its NFS-style latency is not recommended for accelerations. Use it only for stateless artefacts that must survive task replacement, or switch to the EC2 launch type when low-latency local storage is required.
 
 ```json
 "volumes": [
