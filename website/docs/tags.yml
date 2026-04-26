@@ -14,6 +14,10 @@ api:
   label: 'API'
   permalink: '/api'
   description: 'HTTP, Arrow Flight SQL, ODBC, JDBC, and ADBC API reference.'
+argocd:
+  label: 'Argo CD'
+  permalink: '/argocd'
+  description: 'Argo CD declarative GitOps continuous delivery for Kubernetes.'
 arrow:
   label: 'Arrow'
   permalink: '/arrow'
@@ -46,7 +50,7 @@ blob-storage:
   label: 'Blob Storage'
   permalink: '/blob-storage'
   description: 'Object storage services and blob data access.'
-"cache control":
+'cache control':
   label: 'Cache Control'
   permalink: '/cache-control-policy'
   description: 'Cache control headers and directives.'
@@ -202,6 +206,14 @@ flightsql:
   label: 'FlightSQL'
   permalink: '/flightsql'
   description: 'Apache Arrow Flight SQL high-performance database protocol.'
+flux:
+  label: 'Flux'
+  permalink: '/flux'
+  description: 'Flux CD GitOps toolkit for Kubernetes.'
+fluxcd:
+  label: 'Flux CD'
+  permalink: '/fluxcd'
+  description: 'Flux CD GitOps toolkit for Kubernetes.'
 ftp:
   label: 'FTP'
   permalink: '/ftp'
@@ -214,6 +226,10 @@ github:
   label: 'GitHub'
   permalink: '/github'
   description: 'GitHub repository data connector and integration.'
+gitops:
+  label: 'GitOps'
+  permalink: '/gitops'
+  description: 'GitOps continuous delivery patterns for Kubernetes.'
 glue:
   label: 'Glue'
   permalink: '/glue'
@@ -234,6 +250,10 @@ graphql:
   label: 'GraphQL'
   permalink: '/graphql'
   description: 'GraphQL API data connectors and query language support.'
+helm:
+  label: 'Helm'
+  permalink: '/helm'
+  description: 'Helm package manager for deploying Spice.ai on Kubernetes.'
 https:
   label: 'HTTPS'
   permalink: '/https'
@@ -406,7 +426,7 @@ relational:
   label: 'Relational'
   permalink: '/relational'
   description: 'Relational database systems and SQL operations.'
-"results caching":
+'results caching':
   label: 'Results Caching'
   permalink: '/results-caching-feature'
   description: 'Query results caching configuration.'
