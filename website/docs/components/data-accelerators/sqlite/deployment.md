@@ -31,7 +31,7 @@ Use `mode: file` for any dataset larger than a few hundred MB or where restart s
 
 | Parameter         | Default  | Description                                                                                 |
 | ----------------- | -------- | ------------------------------------------------------------------------------------------- |
-| `busy_timeout_ms` | `5000`   | Milliseconds SQLite will wait for a table lock before returning `SQLITE_BUSY`.              |
+| `busy_timeout` | `5000`   | Milliseconds SQLite will wait for a table lock before returning `SQLITE_BUSY`.              |
 
 Raise this when you observe `database is locked` errors under sustained concurrent refresh + read load.
 
@@ -70,7 +70,7 @@ SQLite acceleration operations participate in [task history](../../../reference/
 
 | Symptom                                   | Likely cause                                              | Resolution                                                                                        |
 | ----------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `database is locked`                      | Concurrent writer contention exceeds `busy_timeout_ms`.   | Raise `busy_timeout_ms`; reduce concurrent refreshes; or switch to DuckDB/Postgres.               |
+| `database is locked`                      | Concurrent writer contention exceeds `busy_timeout`.   | Raise `busy_timeout`; reduce concurrent refreshes; or switch to DuckDB/Postgres.               |
 | Slow reads on a large file-mode database  | Default page cache is small for the working set.          | Raise `PRAGMA cache_size` via connection string; consider DuckDB for large-scan workloads.        |
 | Acceleration rejects `partition_by`       | Feature not supported.                                    | Remove `partition_by` or switch engines.                                                          |
 | Queries return stale data after refresh   | Readers using long-lived transactions hold an old snapshot. | Ensure read paths do not keep connections open across refresh boundaries (runtime handles this, but custom SQL in pre/post refresh hooks can affect it). |
