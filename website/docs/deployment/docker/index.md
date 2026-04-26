@@ -9,7 +9,7 @@ tags:
   - spiceai
 ---
 
-This guide describes how to run Spice.ai as a Docker container, either directly with `docker run`, with Docker Compose, or by building a custom image that bundles a Spicepod and data files. For Kubernetes deployments, see the [Kubernetes deployment guide](../kubernetes).
+This guide describes how to run Spice.ai as a Docker container, either directly with `docker run`, with Docker Compose, or by building a custom image that bundles a Spicepod and data files. For Kubernetes deployments, see the [Kubernetes deployment guide](../kubernetes/index.md).
 
 ## Quickstart
 

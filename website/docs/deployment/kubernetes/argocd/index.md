@@ -43,7 +43,7 @@ EOF
 ```
 
 :::info Deployment Architecture
-By default, the Spice.ai Helm chart deploys Spice as a stateless Kubernetes Deployment. To persist data between restarts (for example, to use file-based acceleration), enable the `stateful` section in the Helm values. See the [Stateful Configuration](../helm#stateful-configuration) section in the Helm guide for details.
+By default, the Spice.ai Helm chart deploys Spice as a stateless Kubernetes Deployment. To persist data between restarts (for example, to use file-based acceleration), enable the `stateful` section in the Helm values. See the [Stateful Configuration](../helm/index.md#stateful-configuration) section in the Helm guide for details.
 :::
 
 :::tip[Spice.ai Enterprise]
@@ -54,7 +54,7 @@ For production stateful or distributed deployments managed via Argo CD, the [Spi
 
 [Argo CD](https://argo-cd.readthedocs.io/) is a declarative, GitOps continuous delivery tool for Kubernetes. It watches Git repositories or Helm registries for changes and automatically applies them to the cluster, keeping the live state in sync with the desired state defined in Git.
 
-This guide uses the Spice Helm chart as the source. For a direct Helm-based deployment without Argo CD, see [Kubernetes - Helm](../helm).
+This guide uses the Spice Helm chart as the source. For a direct Helm-based deployment without Argo CD, see [Kubernetes - Helm](../helm/index.md).
 
 ## Prerequisites
 
@@ -158,7 +158,7 @@ spec:
 
 The first source supplies the chart, and the second source (`ref: values`) provides the values file referenced by `$values`. Update the Spice configuration by committing changes to `clusters/production/spiceai/values.yaml`; Argo CD reconciles the change automatically.
 
-A `values.yaml` example is available in [Example values.yaml](../helm#example-valuesyaml).
+A `values.yaml` example is available in [Example values.yaml](../helm/index.md#example-valuesyaml).
 
 ## Sync Policy
 
@@ -237,7 +237,7 @@ spec:
                 key: spiceai-key
 ```
 
-See [Environment Variables and Secrets](../helm#environment-variables-and-secrets) in the Helm guide for additional configuration patterns.
+See [Environment Variables and Secrets](../helm/index.md#environment-variables-and-secrets) in the Helm guide for additional configuration patterns.
 
 ## Monitoring
 
@@ -303,7 +303,7 @@ spec:
 
 ## Further Reading
 
-- [Kubernetes - Helm deployment guide](../helm) — full reference for the Spice Helm chart, including all configurable parameters.
+- [Kubernetes - Helm deployment guide](../helm/index.md) — full reference for the Spice Helm chart, including all configurable parameters.
 - [Argo CD Helm chart documentation](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/)
 - [Argo CD ApplicationSet controller](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/)
 - [Spice Helm chart source](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart)

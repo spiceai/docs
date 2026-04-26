@@ -52,7 +52,7 @@ EOF
 ```
 
 :::info Deployment Architecture
-By default, the Spice.ai Helm chart deploys Spice as a stateless Kubernetes Deployment. To persist data between restarts (for example, to use file-based acceleration), enable the `stateful` section in the Helm values. See the [Stateful Configuration](../helm#stateful-configuration) section in the Helm guide for details.
+By default, the Spice.ai Helm chart deploys Spice as a stateless Kubernetes Deployment. To persist data between restarts (for example, to use file-based acceleration), enable the `stateful` section in the Helm values. See the [Stateful Configuration](../helm/index.md#stateful-configuration) section in the Helm guide for details.
 :::
 
 :::tip[Spice.ai Enterprise]
@@ -63,7 +63,7 @@ For production stateful or distributed deployments managed via Flux, the [Spice.
 
 [Flux](https://fluxcd.io/) is a CNCF-graduated GitOps toolkit for Kubernetes. It is composed of focused controllers — `source-controller`, `helm-controller`, `kustomize-controller`, `notification-controller`, and `image-automation-controller` — each reconciling a Kubernetes custom resource. For Helm-based deployments, the `HelmRepository` source and the `HelmRelease` resource together replace `helm install`/`helm upgrade` invocations with a continuously reconciled, Git-managed equivalent.
 
-For a non-GitOps Helm deployment, see [Kubernetes - Helm](../helm). For an Argo CD-based GitOps workflow, see [Kubernetes - Argo CD](../argocd).
+For a non-GitOps Helm deployment, see [Kubernetes - Helm](../helm/index.md). For an Argo CD-based GitOps workflow, see [Kubernetes - Argo CD](../argocd/index.md).
 
 ## Prerequisites
 
@@ -195,7 +195,7 @@ spec:
 
 Multiple `valuesFrom` entries are merged in order, with later entries overriding earlier ones. Combine `ConfigMap` (non-sensitive defaults) with `Secret` (credentials) for layered configuration.
 
-A full `values.yaml` example is available in [Example values.yaml](../helm#example-valuesyaml).
+A full `values.yaml` example is available in [Example values.yaml](../helm/index.md#example-valuesyaml).
 
 ## Reconciliation Intervals
 
@@ -291,7 +291,7 @@ spec:
             key: spiceai-key
 ```
 
-See [Environment Variables and Secrets](../helm#environment-variables-and-secrets) in the Helm guide for additional configuration patterns.
+See [Environment Variables and Secrets](../helm/index.md#environment-variables-and-secrets) in the Helm guide for additional configuration patterns.
 
 ## Monitoring
 
@@ -342,7 +342,7 @@ Each `HelmRelease` in this directory references the shared `HelmRepository` sour
 
 ## Further Reading
 
-- [Kubernetes - Helm deployment guide](../helm) — full reference for the Spice Helm chart, including all configurable parameters.
+- [Kubernetes - Helm deployment guide](../helm/index.md) — full reference for the Spice Helm chart, including all configurable parameters.
 - [Flux Helm Controller documentation](https://fluxcd.io/flux/components/helm/)
 - [Flux `HelmRelease` API reference](https://fluxcd.io/flux/components/helm/helmreleases/)
 - [Flux `HelmRepository` API reference](https://fluxcd.io/flux/components/source/helmrepositories/)
