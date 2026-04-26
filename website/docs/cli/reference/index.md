@@ -43,6 +43,7 @@ spice [command] [--help]
 | [status](reference/status)         | Spice runtime status                                                   |
 | [trace](reference/trace)           | Return traces for operations that occurred in Spice                    |
 | [upgrade](reference/upgrade)       | Upgrades the Spice CLI and runtime to the latest release               |
+| [validate](reference/validate)     | Validate a spicepod.yaml without starting the runtime                  |
 | [version](reference/version)       | Spice CLI version                                                      |
 | workers                            | Lists workers loaded by the Spice runtime                              |
 
