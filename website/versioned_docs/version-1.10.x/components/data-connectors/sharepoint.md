@@ -84,6 +84,7 @@ from: 'sharepoint:<drive_type>:<drive_id>/<subpath_type>:<subpath_value>'
 | `siteId`   | A SharePoint site's ID      | `from: sharepoint:siteId:b!Mh8opUGD80ec7zGXgX9r/...`  |
 | `group`    | A SharePoint group's name   | `from: sharepoint:group:MyGroup/...`                  |
 | `groupId`  | A SharePoint group's ID     | `from: sharepoint:groupId:b!Mh8opUGD80ec7zGXgX9r/...` |
+| `user`     | A user's drive by user ID   | `from: sharepoint:user:48d31887-5fad-4d73-a9f5-3c356e68a038/...` |
 | `me`       | A user's OneDrive           | `from: sharepoint:me/...`                             |
 
 :::note
