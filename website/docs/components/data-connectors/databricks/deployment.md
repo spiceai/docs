@@ -19,13 +19,15 @@ Production operating guide for the Databricks connector covering resilience tuni
 
 When using `mode: sql_warehouse`, the following parameters control HTTP retry behavior and concurrency limits for the Databricks SQL Statements API.
 
-| Parameter                    | Type    | Default     | Description                                                                |
-| ---------------------------- | ------- | ----------- | -------------------------------------------------------------------------- |
-| `max_concurrent_requests`    | integer | `8`         | Maximum concurrent HTTP requests to the SQL Warehouse API.                 |
-| `http_max_retries`           | integer | `3`         | Maximum HTTP-level retries for transient failures (429, 5xx).              |
-| `backoff_method`             | string  | `fibonacci` | Backoff strategy for transient HTTP retries: `fibonacci` or `exponential`. |
-| `statement_max_retries`      | integer | `14`        | Maximum poll retries when waiting for an async SQL statement to complete.  |
-| `disable_on_permanent_error` | boolean | `true`      | Permanently disable the connector on non-retryable errors (401, 403, 404). |
+| Parameter                    | Type     | Default     | Description                                                                |
+| ---------------------------- | -------- | ----------- | -------------------------------------------------------------------------- |
+| `connect_timeout`            | duration | `10s`       | Timeout for establishing TCP/TLS connections to the Databricks API.        |
+| `client_timeout`             | duration | `30s`       | Per-HTTP-call timeout (statement submit, status poll, chunk fetch). Set to the longest expected single call, not total query duration. |
+| `max_concurrent_requests`    | integer  | `8`         | Maximum concurrent HTTP requests to the SQL Warehouse API.                 |
+| `http_max_retries`           | integer  | `3`         | Maximum HTTP-level retries for transient failures (429, 5xx).              |
+| `backoff_method`             | string   | `fibonacci` | Backoff strategy for transient HTTP retries: `fibonacci` or `exponential`. |
+| `statement_max_retries`      | integer  | `14`        | Maximum poll retries when waiting for an async SQL statement to complete.  |
+| `disable_on_permanent_error` | boolean  | `true`      | Permanently disable the connector on non-retryable errors (401, 403, 404). |
 
 #### Example
 
@@ -39,6 +41,8 @@ catalogs:
       databricks_sql_warehouse_id: abc123def456
       databricks_client_id: ${env:DBX_CLIENT_ID}
       databricks_client_secret: ${env:DBX_CLIENT_SECRET}
+      connect_timeout: 10s
+      client_timeout: 2m
       max_concurrent_requests: '4'
       http_max_retries: '5'
       backoff_method: exponential
