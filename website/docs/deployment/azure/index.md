@@ -310,4 +310,4 @@ Regardless of the credential source, the principal must have the appropriate Azu
 
 ### Azure Marketplace
 
-- [Microsoft Azure Marketplace](https://azuremarketplace.microsoft.com/) — search "Spice.ai" for managed offerings
+Spice.ai is not yet published to the [Microsoft Azure Marketplace](https://azuremarketplace.microsoft.com/) (coming soon). In the meantime, deploy using the [`spiceai/spiceai`](https://hub.docker.com/r/spiceai/spiceai) container image or the [Spice Helm chart](https://helm.spiceai.org).
