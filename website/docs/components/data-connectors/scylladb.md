@@ -287,6 +287,10 @@ The following SQL operations cannot be pushed down to ScyllaDB and are performed
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
 
+## Cookbook
+
+- A cookbook recipe to configure ScyllaDB as a data connector in Spice. [ScyllaDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/scylladb#readme)
+
 ## See Also
 
 - [ScyllaDB Documentation](https://docs.scylladb.com/)
