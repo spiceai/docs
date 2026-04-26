@@ -308,7 +308,7 @@ This parameter uses Go-style time formatting, which uses a reference time of `Mo
 
 | Format Pattern                  | Example Value                   | Description                                |
 | ------------------------------- | ------------------------------- | ------------------------------------------ |
-| `2006-01-02T15:04:05Z07:00`     | `2024-03-15T14:30:00Z`          | ISO8601 / RFC3339 with timezone (default)  |
+| `2006-01-02T15:04:05.000Z07:00` | `2024-03-15T14:30:00.000Z`      | ISO8601 / RFC3339 with milliseconds and timezone (default) |
 | `2006-01-02T15:04:05.999Z07:00` | `2024-03-15T14:30:00.123-07:00` | ISO8601 with milliseconds and timezone     |
 | `2006-01-02T15:04:05`           | `2024-03-15T14:30:00`           | ISO8601 without timezone (naive timestamp) |
 | `2006-01-02 15:04:05`           | `2024-03-15 14:30:00`           | Date and time with space separator         |
@@ -667,6 +667,7 @@ The following [Component Metrics](../../features/observability/component_metrics
 | `records_consumed_total` | Counter | Total number of records consumed from the stream                           |
 | `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time  |
 | `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream |
+| `reinitializations_on_lag_exceeds_shard_retention_total` | Counter | Total rebootstrap operations triggered due to expired shards |
 
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
@@ -681,6 +682,7 @@ datasets:
    - name: records_consumed_total
    - name: lag_ms
    - name: errors_transient_total
+   - name: reinitializations_on_lag_exceeds_shard_retention_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).
