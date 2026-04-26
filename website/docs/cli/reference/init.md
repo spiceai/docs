@@ -23,13 +23,21 @@ spice init [app_name]
 ```
 > spice init taxi-trips
 
-2025/01/09 16:43:02 INFO Initialized taxi-trips/spicepod.yaml
+Initialized taxi-trips/spicepod.yaml
+
+Next steps:
+  cd taxi-trips
+  spice dataset configure   # add a dataset interactively
+  spice run                 # start the runtime
+
+Docs: https://spiceai.org/docs/
 ```
 
-The command creates a `spicepod.yaml` with basic initial metadata about the app. For this example, the `spicepod.yaml` file is initialized to the following:
+The command creates a `spicepod.yaml` with basic initial metadata about the app, including a `yaml-language-server` schema directive for editor support (VS Code, Neovim, IntelliJ). For this example, the `spicepod.yaml` file is initialized to the following:
 ```yaml
 # File: ./taxi-trips/spicepod.yaml
 
+# yaml-language-server: $schema=https://raw.githubusercontent.com/spiceai/spiceai/trunk/.schema/spicepod.schema.json
 version: v2
 kind: Spicepod
 name: taxi-trips
@@ -40,13 +48,20 @@ If no app name is provided, Spice initializes the Spicepod in the current workin
 > spice init
 
 name: (taxi-trips)? 
-2025/01/09 16:48:37 INFO Initialized spicepod.yaml
+Initialized spicepod.yaml
+
+Next steps:
+  spice dataset configure   # add a dataset interactively
+  spice run                 # start the runtime
+
+Docs: https://spiceai.org/docs/
 ```
 
 After execution, the current working directory contains the file `spicepod.yaml` with the same configuration as the previous example:
 ```yaml
 # File: ./spicepod.yaml
 
+# yaml-language-server: $schema=https://raw.githubusercontent.com/spiceai/spiceai/trunk/.schema/spicepod.schema.json
 version: v2
 kind: Spicepod
 name: taxi-trips

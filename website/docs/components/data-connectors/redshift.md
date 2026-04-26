@@ -140,6 +140,10 @@ Redshift types are mapped to PostgreSQL types. See the [PostgreSQL connector doc
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For details, see the [secret stores documentation](../secret-stores/) and [using referenced secrets guide](../secret-stores/#using-secrets).
 
+## Cookbook
+
+- A cookbook recipe to configure Amazon Redshift as a data connector in Spice. [Redshift Data Connector](https://github.com/spiceai/cookbook/tree/trunk/redshift#readme)
+
 ## References
 
 - [Amazon Redshift Documentation](https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html)

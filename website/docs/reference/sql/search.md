@@ -20,6 +20,7 @@ This section documents search capabilities in Spice SQL, including vector search
 - [Reciprocal Rank Fusion (`rrf`)](#reciprocal-rank-fusion-rrf)
   - [Usage](#usage-2)
     - [Examples](#examples)
+- [Reranking (`rerank`)](#reranking-rerank)
 - [Lexical Search: LIKE, =, and Regex](#lexical-search-like--and-regex)
   - [LIKE (Pattern Matching)](#like-pattern-matching)
   - [= (Keyword/Exact Match)](#-keywordexact-match)
@@ -263,6 +264,85 @@ ORDER BY fused_score DESC;
   - **Exponential decay**: `e^(-decay_constant * age_in_units)` where age is in `decay_scale_secs`
   - **Linear decay**: `max(0, 1 - (age_in_units / decay_window_secs))`
 - **Auto-join**: When no `join_key` is specified, `rrf` infers the primary key from the underlying tables; if none is available, rows are joined by an auto-generated row identifier
+
+---
+
+## Reranking (`rerank`)
+
+Reranking reorders candidate results using a dedicated reranker model or an LLM-as-reranker for improved relevance. The input can be any search UDTF (`vector_search`, `text_search`, `rrf`) or a plain table.
+
+### Usage
+
+```sql
+SELECT *
+FROM rerank(
+    <input>,
+    document => 'column_name',
+    model    => 'reranker_name',
+    limit    => 10
+)
+```
+
+**Arguments:**
+
+| Parameter         | Type              | Required | Description |
+| ----------------- | ----------------- | -------- | ----------- |
+| `input`           | Table or UDTF     | Yes      | Input rows to rerank. Can be a search UDTF call (`vector_search`, `text_search`, `rrf`) or a table name. |
+| `model`           | String            | Yes      | Name of a registered reranker or chat model. |
+| `document`        | String            | Yes      | Column containing the text to send to the reranker for scoring. |
+| `query`           | String            | No       | Query string for relevance scoring. Auto-extracted from nested search UDTFs when omitted; required for bare-table inputs. |
+| `limit`           | Integer           | No       | Maximum number of results to return. |
+| `strategy`        | String            | No       | LLM reranking strategy: `'listwise'` (default) or `'pointwise'`. Only applies when the model resolves to a chat model. |
+| `prompt_template` | String            | No       | Custom prompt template for LLM-as-reranker. Use `{query}` and `{document}` placeholders. Only applies when the model resolves to a chat model. |
+
+#### Query Auto-Propagation
+
+When the input is a search UDTF (`vector_search`, `text_search`, or `rrf` wrapping search UDTFs), the query string is automatically extracted from the nested call. Single-string, `make_array(...)`, and `ARRAY[...]` query forms are all supported. For multi-query inputs, the first query string is used.
+
+For bare-table inputs, `query` must be provided explicitly.
+
+#### Examples
+
+**Rerank hybrid search results:**
+
+```sql
+SELECT * FROM rerank(
+    rrf(
+        vector_search(docs, 'delta lake time travel', limit => 50),
+        text_search(docs, 'delta lake time travel', limit => 50)
+    ),
+    document => 'content',
+    model    => 'cohere_rr',
+    limit    => 10
+);
+```
+
+**Rerank a plain table with an explicit query:**
+
+```sql
+SELECT * FROM rerank(
+    tickets,
+    query    => 'auth failures',
+    document => 'body',
+    model    => 'voyage_rr',
+    limit    => 5
+);
+```
+
+**LLM-as-reranker with custom prompt:**
+
+```sql
+SELECT * FROM rerank(
+    vector_search(kb, 'onboarding checklist', limit => 40),
+    document        => 'content',
+    model           => 'gpt_mini',
+    strategy        => 'pointwise',
+    prompt_template => 'Rate 0-1: is this useful for a new hire?\nQuery: {query}\nDoc: {document}',
+    limit           => 10
+);
+```
+
+See [Reranking](../../features/search/rerank) for configuration, provider setup, and additional examples.
 
 ---
 
