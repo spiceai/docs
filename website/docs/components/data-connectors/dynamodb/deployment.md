@@ -79,7 +79,7 @@ Stream polling and bootstrap operations emit spans that participate in [task his
 ## Known Limitations
 
 - **Global Secondary Indexes**: Not exposed as separate datasets. Query the base table and let DataFusion filter.
-- **Conditional writes / writes**: Read-only connector; writes are not supported.
+- **Conditional writes**: DynamoDB conditional expressions (e.g., `attribute_exists`) are not supported in DML operations.
 - **Cross-region streams**: Must configure `dynamodb_region` to match the region of the source table; cross-region access requires resource policies and is not recommended.
 - **Table with `StreamSpecification` disabled**: CDC mode is unavailable; fall back to full-table refresh.
 
