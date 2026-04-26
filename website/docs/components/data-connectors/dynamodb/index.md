@@ -75,6 +75,7 @@ The DynamoDB data connector supports the following configuration parameters:
 | `endpoint_url`                         | Optional. Custom endpoint URL for DynamoDB-compatible services (e.g., DynamoDB Local, ScyllaDB Alternator).                                                                                                                                                |
 | `lag_exceeds_shard_retention_behavior` | Optional. Behavior when stream lag exceeds shard retention (24h). One of `error` (default — marks dataset as Error), `ready_before_load` (marks Ready then re-bootstraps), or `ready_after_load` (re-bootstraps then marks Ready).                         |
 | `time_format`                          | Optional. Go-style time format used for parsing/formatting timestamps. See [Time Format](#time-format)                                                                                                                                                     |
+| `write_parallelism`                    | Optional. Number of parallel operations for writing and deleting data to DynamoDB. Default: `10`                                                                                                                                                           |
 
 ### Authentication
 
@@ -199,11 +200,15 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 
 ### Permission Details
 
-| Permission               | Purpose                                                           |
-| ------------------------ | ----------------------------------------------------------------- |
-| `dynamodb:Scan`          | Required. Allows reading all items from the table                 |
-| `dynamodb:Query`         | Required. Allows reading items from the table using partition key |
-| `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information   |
+| Permission               | Purpose                                                                  |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `dynamodb:Scan`          | Required. Allows reading all items from the table                        |
+| `dynamodb:Query`         | Required. Allows reading items from the table using partition key        |
+| `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information          |
+| `dynamodb:PutItem`       | Required for INSERT. Allows writing new items to the table               |
+| `dynamodb:UpdateItem`    | Required for UPDATE. Allows modifying existing items in the table        |
+| `dynamodb:DeleteItem`    | Required for DELETE. Allows removing items from the table                |
+| `dynamodb:BatchWriteItem`| Required for batch INSERT/DELETE. Allows batch write operations           |
 
 ### Example IAM Policies
 
@@ -468,6 +473,27 @@ Will produce the following Spice dataset:
 
 :::
 
+## Data Manipulation (DML)
+
+The DynamoDB connector supports `INSERT`, `UPDATE`, and `DELETE` operations.
+
+```sql
+-- Insert a new item
+INSERT INTO users (id, email, name) VALUES (42, 'user@example.com', 'Jane');
+
+-- Update existing items
+UPDATE users SET name = 'Jane Doe' WHERE id = 42;
+
+-- Delete items
+DELETE FROM users WHERE id = 42;
+```
+
+Write operations use the table's primary key (partition key and optional sort key) to identify items. The `write_parallelism` parameter controls how many DynamoDB API calls are issued concurrently for batch operations (default: `10`).
+
+:::note
+INSERT uses `BatchWriteItem` for efficiency. UPDATE and DELETE use per-item API calls (`UpdateItem` / `DeleteItem`) issued in parallel chunks sized by `write_parallelism`.
+:::
+
 ## Examples
 
 ### Basic Configuration with Environment Credentials
@@ -641,6 +667,7 @@ The following [Component Metrics](../../features/observability/component_metrics
 | `records_consumed_total` | Counter | Total number of records consumed from the stream                           |
 | `lag_ms`                 | Gauge   | Current lag in milliseconds between stream watermark and the current time  |
 | `errors_transient_total` | Counter | Total number of transient errors encountered while polling from the stream |
+| `reinitializations_on_lag_exceeds_shard_retention_total` | Counter | Total rebootstrap operations triggered due to expired shards |
 
 These metrics are not enabled by default, enable them by setting the metrics parameter:
 ```yaml
@@ -655,6 +682,7 @@ datasets:
    - name: records_consumed_total
    - name: lag_ms
    - name: errors_transient_total
+   - name: reinitializations_on_lag_exceeds_shard_retention_total
 ```
 
 You can find an example dashboard for DynamoDB Streams in [monitoring/grafana-dashboard.json](https://github.com/spiceai/spiceai/blob/trunk/monitoring/grafana-dashboard.json).

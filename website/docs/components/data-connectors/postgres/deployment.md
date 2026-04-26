@@ -35,6 +35,7 @@ TLS is controlled via `pg_sslmode`:
 | Value         | Behavior                                                    |
 | ------------- | ----------------------------------------------------------- |
 | `disable`     | No TLS.                                                     |
+| `allow`       | Try non-TLS first, retry with TLS if the server requires it. |
 | `prefer`      | Try TLS, fall back to plaintext. Not recommended for production. |
 | `require`     | Require TLS; no server certificate verification.            |
 | `verify-ca`   | Require TLS and verify the CA chain.                        |
@@ -95,7 +96,7 @@ PostgreSQL operations participate in Spice [task history](../../../reference/tas
 
 - Only TCP connections are supported. Unix sockets are not exposed through Spice configuration.
 - `pg_sslmode: prefer` silently downgrades to plaintext and is not recommended for production.
-- `LISTEN/NOTIFY` is not exposed; Postgres CDC is handled through [Debezium](../debezium) rather than the Postgres connector directly.
+- `LISTEN/NOTIFY` is not exposed. CDC is supported natively via logical replication (WAL streaming) — see the [replication parameters](index.md#replication-parameters) in the connector docs.
 - Server-side cursors are used for federated reads; long-running queries hold a backend for their duration.
 
 ## Troubleshooting

@@ -564,6 +564,10 @@ datasets:
         cayenne_target_file_size_mb: 32     # Smaller files for faster ingestion
 ```
 
+## Cookbook
+
+- A cookbook recipe to configure Cayenne as a data accelerator in Spice. [Cayenne Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/cayenne#readme)
+
 ## Related Documentation
 
 **Spice Documentation:**
