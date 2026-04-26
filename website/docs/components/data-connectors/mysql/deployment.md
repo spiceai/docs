@@ -76,6 +76,10 @@ The MySQL connector exposes observable metrics for its connection pool. Enable t
 | `discarded_superfluous_connection`  | Counter         | Connections closed because the pool already had enough idle connections.                           |
 | `discarded_unestablished_connection`| Counter         | Connections closed because they could not be established.                                          |
 | `dirty_connection_return`           | Counter         | Connections returned to the pool in a dirty state (open transactions, pending queries, etc.).      |
+| `discarded_expired_connection`      | Counter         | Connections discarded because they were expired by pool constraints (i.e. TTL expired).            |
+| `resetting_connection`              | Counter         | Connections that were reset.                                                                       |
+| `discarded_error_during_cleanup`    | Counter         | Connections discarded because they returned an error during cleanup.                               |
+| `connection_returned_to_pool`       | Counter         | Connections returned to the pool.                                                                  |
 
 Metric instruments are exposed with the prefix `dataset_mysql_`. Each instrument carries a `name` attribute set to the dataset name.
 
