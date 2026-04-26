@@ -311,3 +311,7 @@ Enable debug logging to diagnose SMB connection issues:
 ```bash
 RUST_LOG=runtime_object_store::store::smb=debug spiced
 ```
+
+## Cookbook
+
+- A cookbook recipe to configure SMB as a data connector in Spice. [SMB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/smb#readme)

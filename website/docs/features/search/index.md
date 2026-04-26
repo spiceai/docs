@@ -25,6 +25,7 @@ Spice supports multiple search methods:
 - **Multi-Vector Search**: Search over columns of vectors, including ColBERT-style late-interaction queries.
 - **Full-Text Search**: Keyword-driven search optimized for text data retrieval.
 - **Hybrid Search**: Combine multiple search methods using Reciprocal Rank Fusion (RRF) for improved relevance.
+- **Reranking**: Reorder search results using dedicated reranker models or LLM-as-reranker for improved relevance.
 - **SQL Search**: Traditional SQL queries for precise and structured searches.
 
 ### Vector Search
@@ -126,5 +127,33 @@ LIMIT 5
 ```
 
 For complete RRF syntax and parameters, see [Search SQL Reference](../reference/sql/search#reciprocal-rank-fusion-rrf).
+
+### Reranking
+
+Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint) or any registered chat model as an LLM-as-reranker. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
+
+**Requirements:**
+
+- A registered reranker (in the `rerankers:` spicepod section) or a registered chat model
+
+**Getting Started:**
+
+- [Reranking Docs](search/rerank)
+
+**Example SQL Rerank:**
+
+```sql
+SELECT * FROM rerank(
+  rrf(
+    vector_search(docs, 'delta lake time travel', limit => 50),
+    text_search(docs, 'delta lake time travel', limit => 50)
+  ),
+  document => 'content',
+  model    => 'cohere_rr',
+  limit    => 10
+);
+```
+
+For complete rerank syntax and parameters, see [Search SQL Reference](../reference/sql/search#reranking-rerank).
 
 <DocCardList />
