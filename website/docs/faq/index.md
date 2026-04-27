@@ -22,6 +22,8 @@ Spice provides four industry standard APIs in a lightweight, portable runtime (s
 
 Spice embeds [DataFusion](https://datafusion.apache.org/), the fastest single-node Parquet SQL query engine, and [DuckDB](https://duckdb.org), to serve secure, virtualized data views to data-intensive apps, AI, and agents.
 
+For a developer-focused walkthrough of when and how to use Spice, see [A Developer's Guide to Understanding Spice.ai](https://spice.ai/blog/a-developers-guide-to-understanding-spice-ai).
+
 ## 2. Why should I use Spice?
 
 Spice is primarily used for:
@@ -49,7 +51,7 @@ Spice is purpose-built for data and AI applications and agents, designed with lo
 
 Spark excels at distributed batch processing and large-scale transformations. Spice focuses on real-time, low-latency data access and AI inference. Spice materializes data locally and supports tiered storage, optimizing performance for applications requiring fast access and high concurrency.
 
-Starting in v2, Spice also supports multi-node [Distributed Query](../features/distributed-query) execution based on [Apache Ballista](https://datafusion.apache.org/ballista/), splitting a single query across scheduler and executor nodes for partitioned data lake sources. This closes much of the gap with Spark for large analytical scans while keeping Spice's low-latency, materialization-first model for application and agent workloads.
+Starting in v2, Spice also supports multi-node [Distributed Query](../features/distributed-query) execution based on [Apache Ballista](https://datafusion.apache.org/ballista/), splitting a single query across scheduler and executor nodes for partitioned data lake sources. This closes much of the gap with Spark for large analytical scans while keeping Spice's low-latency, materialization-first model for application and agent workloads. See [Apache Ballista at Spice AI](https://spice.ai/blog/apache-ballista-at-spice-ai) for the architecture and [Operationalizing Amazon S3 for AI](https://spice.ai/blog/operationalizing-amazon-s3-for-ai) for a data-lake example.
 
 ## 7. How does Spice compare to DuckDB?
 
@@ -63,7 +65,7 @@ Yes. Spice natively supports federated queries across disparate data sources wit
 
 Yes, but performance degrades as the number of sources and tables grows because the slowest source bounds end-to-end latency. For workloads that join across many tables or many heterogeneous sources, the recommended pattern is to **materialize the join into an accelerated dataset or [accelerated view](../components/views)**. This converts a multi-source federated join into a single local scan, making latency predictable and decoupling query performance from any one source's availability.
 
-Plan acceleration of hot joins proactively rather than waiting to discover them under load. See [Query Federation](../features/query-federation), [Data Acceleration](../features/data-acceleration), and [Performance Tuning](../reference/performance-tuning) for tradeoffs and configuration.
+Plan acceleration of hot joins proactively rather than waiting to discover them under load. See [Query Federation](../features/query-federation), [Data Acceleration](../features/data-acceleration), and [Performance Tuning](../reference/performance-tuning) for tradeoffs and configuration. The [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) blog post walks through a concrete federation + acceleration example.
 
 ## 10. Can Spice query nested fields (JSON / struct columns)?
 
@@ -77,7 +79,7 @@ Spice pushes JSON predicates down to the underlying engine (e.g. DuckDB) where s
 
 Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports DuckDB, SQLite, and PostgreSQL as acceleration engines. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
 
-See [Performance Tuning](../reference/performance-tuning) for sizing guidance and the [Memory](../reference/memory) reference for how Spice manages query memory and spilling under load.
+See [Performance Tuning](../reference/performance-tuning) for sizing guidance and the [Memory](../reference/memory) reference for how Spice manages query memory and spilling under load. For deeper context, see [How we use Apache DataFusion at Spice AI](https://spice.ai/blog/how-we-use-apache-datafusion-at-spice-ai) and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) on the Cayenne columnar format.
 
 ## 12. Is Spice a cache?
 
@@ -99,6 +101,8 @@ Yes. Spice supports streaming ingestion from several sources:
 - **[DynamoDB Streams](../components/data-connectors/dynamodb)** for Amazon DynamoDB sources — Spice consumes the table's change stream and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator with `refresh_mode: changes`.
 - **[Apache Kafka](../components/data-connectors/kafka)** for event-streaming topics — Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration.
 - **[Debezium](../components/data-connectors/debezium)** (over Kafka), for sources where Debezium is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.). [Learn more](../features/cdc).
+
+For a real-world architecture using DynamoDB Streams to sync data to thousands of nodes, see [Real-Time Control Plane Acceleration with DynamoDB Streams](https://spice.ai/blog/real-time-acceleration-with-dynamodb-streams).
 
 ## 16. How do I keep an accelerated dataset incrementally up-to-date?
 
@@ -124,7 +128,7 @@ Yes. Several patterns help avoid eagerly refreshing datasets that may never be q
 - **Stale-while-revalidate caching** for HTTP-backed and connector-backed datasets via [`refresh_mode: caching`](../features/data-acceleration/refresh-modes/caching), which fetches on first request and revalidates in the background.
 - **Federated fallback** with [`on_zero_results: use_source`](../features/data-acceleration/data-refresh#behavior-on-zero-results) so queries that miss the acceleration transparently fall through to the source.
 
-These patterns combine well in multi-tenant deployments where only a fraction of tenants are active at any given time.
+These patterns combine well in multi-tenant deployments where only a fraction of tenants are active at any given time. See [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) for a worked example.
 
 ## 19. Does Spice support schema evolution?
 
@@ -152,7 +156,7 @@ When embeddings must be computed at query time (e.g. user-supplied queries for [
 
 Spice supports [vector search](../features/search/vector-search), [full-text search](../features/search/full-text), [multi-vector search](../features/search/multi-vector), and [reranking](../features/search/rerank) over accelerated datasets. Vectors are stored in the acceleration alongside the source data, so search executes locally without round-tripping to a separate vector database.
 
-For best performance, store accelerated vector datasets in **file-mode DuckDB or Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](../features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](../reference/performance-tuning) and the [Memory](../reference/memory) reference for sizing accelerated vector workloads. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
+For best performance, store accelerated vector datasets in **file-mode DuckDB or Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](../features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](../reference/performance-tuning) and the [Memory](../reference/memory) reference for sizing accelerated vector workloads, and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) for the storage format underpinning Cayenne. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
 
 ## 24. What deployment options does Spice support?
 
@@ -196,7 +200,7 @@ Shards are independent groups of Spice instances, each with its own Spicepod con
 - **Use [acceleration partitioning](../features/data-acceleration/partitioning)** to control physical layout within a shard.
 - **Manage shards declaratively with the Enterprise Operator** using [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) (and [`SpicepodCluster`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodcluster) for distributed query) with rollout strategies, mTLS, and OIDC.
 
-See the [Sharded](../deployment/architectures/sharded) deployment architecture for guidance.
+See the [Sharded](../deployment/architectures/sharded) deployment architecture for guidance, and [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) for a multi-tenant blueprint.
 
 ## 29. Which secret stores does Spice support?
 
