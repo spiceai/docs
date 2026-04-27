@@ -99,7 +99,7 @@ For stateful acceleration (DuckDB, SQLite, Cayenne):
 - Set `stateful.enabled: true` and `stateful.storageClass: <chosen-class>` in `values.yaml`.
 
 :::tip
-Amazon EFS works for sharing data across replicas but is not recommended for accelerations: NFS-style latency negates the benefit of using an accelerator. Reserve EFS for stateless artefacts that need to survive pod replacement.
+Amazon EFS works for sharing data across replicas but is not recommended for accelerations: NFS-style latency negates the benefit of using an accelerator. Reserve EFS for stateless artifacts that need to survive pod replacement.
 :::
 
 :::tip[Spice.ai Enterprise]
