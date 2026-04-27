@@ -158,7 +158,17 @@ Spice supports [vector search](features/search/vector-search), [full-text search
 
 For best performance, store accelerated vector datasets in **file-mode DuckDB or Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](reference/performance-tuning) and the [Memory](reference/memory) reference for sizing accelerated vector workloads, and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) for the storage format underpinning Cayenne. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
 
-## 24. What deployment options does Spice support?
+## 24. What search APIs does Spice provide?
+
+Spice exposes search through both an HTTP API and SQL table-valued functions:
+
+- **[`POST /v1/search`](api/HTTP/post-search)** — a unified HTTP endpoint that performs vector, full-text, multi-vector, and hybrid search across configured datasets. Requests specify the dataset(s), search text, optional filters, and limit; the response returns ranked rows with relevance scores and any requested passthrough columns. Embeddings are computed automatically when an embedding model is configured on the dataset.
+- **SQL UDTFs** for in-query search — `vector_search(table, 'query')` and related functions can be composed with standard SQL `JOIN`, `WHERE`, and `ORDER BY` for hybrid filtering and ranking. See [Vector Search](features/search/vector-search), [Full-Text Search](features/search/full-text), [Multi-Vector Search](features/search/multi-vector), and [Reranking](features/search/rerank).
+- **MCP tools** — the search APIs are also exposed to AI agents through Spice's [MCP server](features/large-language-models), so agents can issue search queries without writing SQL.
+
+For an end-to-end example, see the [Search](features/search) overview and the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) blog post.
+
+## 25. What deployment options does Spice support?
 
 Spice supports multiple deployment configurations:
 
@@ -171,19 +181,19 @@ Spice Cloud Platform (SCP) provides managed, SOC 2 Type II compliant deployments
 
 For moving a deployment to production, see the [Production Readiness](https://docs.spice.ai/docs/enterprise/production/production) guide and the [Enterprise Distribution Comparison](https://docs.spice.ai/docs/enterprise/getting-started/distributions) for choosing between OSS and Enterprise distributions.
 
-## 25. Which deployment patterns are open source vs. Enterprise?
+## 26. Which deployment patterns are open source vs. Enterprise?
 
 The sidecar model, cluster model, [snapshot bootstrapping](features/data-acceleration/snapshots), and pointing instances at each other for tiered fallback are all open source. The [Distributed Query](features/distributed-query) feature — splitting a single query across multiple scheduler/executor nodes (Apache Ballista) — is available as a preview starting in v1.9. The [Spice.ai Enterprise](https://spice.ai) Kubernetes Operator additionally provides the [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) and [`SpicepodCluster`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodcluster) CRDs for declarative replica management, automatic PVC resizing, mTLS, and scheduler/executor topology.
 
 Distributed query is only required for large single-query workloads (TB/PB-scale scans, heavy embedding/indexing). See the [Enterprise Distribution Comparison](https://docs.spice.ai/docs/enterprise/getting-started/distributions) for a feature-by-feature breakdown.
 
-## 26. How does fallback work in tiered (sidecar + central cluster) deployments?
+## 27. How does fallback work in tiered (sidecar + central cluster) deployments?
 
 Reads fall through a layered chain. A request first checks the local sidecar's results cache and acceleration. On a miss, the request is delegated to the central cluster, which checks its own results cache and acceleration. If both miss, the cluster federates back to the original data source. The full chain is **results cache → acceleration → federated source**, applied at each tier.
 
 For details, see the [Sidecar](deployment/architectures/sidecar), [Cluster](deployment/architectures/cluster), and [Tiered](deployment/architectures/tiered) architecture guides, along with [Caching](features/caching), [Data Acceleration](features/data-acceleration), and [Query Federation](features/query-federation). See the [Cluster-Sidecar Architecture](https://spice.ai/blog/cluster-sidecar-architecture) blog post for a deeper walkthrough of the pattern.
 
-## 27. How do I run multiple Spice replicas for HA without each replica pulling from the source?
+## 28. How do I run multiple Spice replicas for HA without each replica pulling from the source?
 
 Separate the **ingestion (write) tier** from the **query (read) tier**:
 
@@ -192,7 +202,7 @@ Separate the **ingestion (write) tier** from the **query (read) tier**:
 
 If the ingestion tier is temporarily unavailable, read replicas continue serving (potentially stale) data from snapshots, providing a recovery window measured in hours rather than minutes. The Enterprise [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) resource manages replica sets declaratively with rolling/parallel update strategies, automatic PVC resizing, and crashloop protection. See [Cluster](deployment/architectures/cluster) and the [Cluster-Sidecar Architecture](https://spice.ai/blog/cluster-sidecar-architecture) blog post for the open-source pattern, and the [Production Readiness](https://docs.spice.ai/docs/enterprise/production/production) guide for HA checklists.
 
-## 28. How should I shard Spice for very large multi-tenant workloads?
+## 29. How should I shard Spice for very large multi-tenant workloads?
 
 Shards are independent groups of Spice instances, each with its own Spicepod configuration. Strategies that scale well:
 
@@ -202,28 +212,28 @@ Shards are independent groups of Spice instances, each with its own Spicepod con
 
 See the [Sharded](deployment/architectures/sharded) deployment architecture for guidance, and [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) for a multi-tenant blueprint.
 
-## 29. Which secret stores does Spice support?
+## 30. Which secret stores does Spice support?
 
 Spice supports [Kubernetes Secrets](components/secret-stores/kubernetes), [AWS Secrets Manager](components/secret-stores/aws-secrets-manager), [Azure Key Vault](components/secret-stores/azure-keyvault), [environment variables](components/secret-stores/env), and the local OS [keyring](components/secret-stores/keyring). See the [secret stores overview](components/secret-stores) for configuration and selectors.
 
 Additional secret backends — including HashiCorp Vault — are tracked as planned additions. Open or upvote an issue at [github.com/spiceai/spiceai](https://github.com/spiceai/spiceai/issues) to influence prioritization.
 
-## 30. How does Spice handle data privacy and compliance?
+## 31. How does Spice handle data privacy and compliance?
 
 Spice provides secure, auditable data access through sandboxed runtimes, secure endpoint checks, and detailed telemetry and tracing. The Spice Cloud Platform (SCP) is SOC 2 Type II compliant, meeting enterprise security and compliance requirements. See the [Production Readiness](https://docs.spice.ai/docs/enterprise/production/production) guide for hardening recommendations.
 
-## 31. Can Spice integrate with existing BI tools?
+## 32. Can Spice integrate with existing BI tools?
 
 Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC, Arrow Flight SQL), enabling accelerated, real-time analytics for dashboards and reporting. An official [Tableau Connector](clients/tableau) is available and a [BI Acceleration](https://www.youtube.com/watch?v=blEtLgRKu0c) demo using Apache Superset.
 
-## 32. Where can developers find examples and recipes?
+## 33. Where can developers find examples and recipes?
 
 The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
 
-## 33. How can developers get started quickly?
+## 34. How can developers get started quickly?
 
 Visit the [Spice.ai Getting Started Guide](getting-started) to install Spice, connect data sources, and begin querying. Spice installs the GPU-accelerated runtime by default (if supported).
 
-## 34. How can developers contribute to Spice?
+## 35. How can developers contribute to Spice?
 
 Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING) for guidelines.
