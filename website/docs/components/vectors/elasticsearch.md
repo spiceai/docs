@@ -50,6 +50,14 @@ The Elasticsearch vector engine is available in the Spice [Enterprise edition](h
 | `elasticsearch_pass`     | Optional. Password for HTTP basic authentication.                                                                    | `${secrets:es_pass}`          |
 | `elasticsearch_index`    | Optional. Index used to store vectors. Defaults to a sanitized `{dataset}-{column}-{model}` value.                   | `products-embeddings`         |
 | `elasticsearch_vector_field` | Optional. Name of the `dense_vector` field in Elasticsearch. Defaults to `{column}_embedding`.                   | `description_embedding`       |
+| `elasticsearch_distance_metric` | Optional. Vector similarity metric for kNN search. One of: `cosine`, `l2_norm`, `dot_product`, `max_inner_product`. | `cosine`               |
+| `elasticsearch_hnsw_m`  | Optional. HNSW graph parameter `m` (links per node). Higher values improve recall at the cost of more memory. Elasticsearch default: `16`. | `16`                  |
+| `elasticsearch_hnsw_ef_construction` | Optional. HNSW build parameter `ef_construction` (candidate list size at build time). Elasticsearch default: `100`. | `100`              |
+| `client_timeout`         | Optional. Total request timeout for the Elasticsearch HTTP client, in time unit format. Default: `30s`.              | `30s`                         |
+| `connect_timeout`        | Optional. Connect timeout for the Elasticsearch HTTP client, in time unit format. Default: `10s`.                    | `10s`                         |
+| `elasticsearch_max_retries` | Optional. Maximum retry attempts for transient Elasticsearch errors (HTTP 429 / 5xx). Default: `3`.              | `3`                           |
+| `elasticsearch_retry_initial_backoff` | Optional. Initial backoff duration between retries, in time unit format. Default: `200ms`.                | `200ms`                       |
+| `elasticsearch_batch_write_rows` | Optional. Maximum rows per Elasticsearch `_bulk` request. Controls memory usage and payload size during writes. Default: `1000`. | `1000`       |
 
 ## Overview
 
