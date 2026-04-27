@@ -1,8 +1,8 @@
 ---
 title: 'Spice.ai Deployment Guide'
 sidebar_label: 'Deployment'
-description: 'Deploy Spice.ai in your environment using Docker, Kubernetes, AWS, or the Spice Cloud Platform. Learn about sidecar, microservice, tiered, and cluster deployment architectures.'
-keywords: [spice.ai, deployment, docker, kubernetes, aws, sidecar, microservice, cluster, helm, cloud platform]
+description: 'Deploy Spice.ai in your environment using Docker, Kubernetes, AWS, Azure, or the Spice Cloud Platform. Learn about sidecar, microservice, tiered, and cluster deployment architectures.'
+keywords: [spice.ai, deployment, docker, kubernetes, aws, azure, sidecar, microservice, cluster, helm, cloud platform]
 image: /img/og/spiceai.png
 sidebar_position: 11
 ---
@@ -22,7 +22,8 @@ Spice supports flexible deployment options ranging from a single binary to fully
 
 ## Deployment Guides
 
-- [Kubernetes (Helm)](deployment/kubernetes)
+- [Kubernetes](deployment/kubernetes) — Helm, Argo CD, and Flux
 - [Docker](deployment/docker)
 - [Spice Cloud](deployment/cloud)
 - [AWS](deployment/aws)
+- [Azure](deployment/azure)
