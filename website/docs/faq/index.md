@@ -49,6 +49,8 @@ Spice is purpose-built for data and AI applications and agents, designed with lo
 
 Spark excels at distributed batch processing and large-scale transformations. Spice focuses on real-time, low-latency data access and AI inference. Spice materializes data locally and supports tiered storage, optimizing performance for applications requiring fast access and high concurrency.
 
+Starting in v2, Spice also supports multi-node [Distributed Query](../features/distributed-query) execution based on [Apache Ballista](https://datafusion.apache.org/ballista/), splitting a single query across scheduler and executor nodes for partitioned data lake sources. This closes much of the gap with Spark for large analytical scans while keeping Spice's low-latency, materialization-first model for application and agent workloads.
+
 ## 7. How does Spice compare to DuckDB?
 
 DuckDB is an embedded analytics database optimized for OLAP queries. Spice integrates DuckDB for data acceleration, combining DuckDB's analytical capabilities with Spice's broader federation, multi-engine support, and flexible deployment. Spice can be considered an enterprise/production productization of DuckDB for data-intensive applications.
