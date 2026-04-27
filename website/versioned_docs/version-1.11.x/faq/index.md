@@ -97,10 +97,9 @@ Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), 
 
 Yes. Spice supports streaming ingestion from several sources:
 
-- **Native PostgreSQL logical replication** (recommended for Postgres sources). Spice connects directly to the source using Postgres' `wal_level=logical` + pgoutput and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. [Learn more](features/cdc/postgres-replication.md).
 - **[DynamoDB Streams](components/data-connectors/dynamodb)** for Amazon DynamoDB sources — Spice consumes the table's change stream and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator with `refresh_mode: changes`.
 - **[Apache Kafka](components/data-connectors/kafka)** for event-streaming topics — Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration.
-- **[Debezium](components/data-connectors/debezium)** (over Kafka), for sources where Debezium is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.). [Learn more](features/cdc).
+- **[Debezium](components/data-connectors/debezium)** (over Kafka), for sources where Debezium is already deployed, including PostgreSQL, MySQL, SQL Server, and other databases. [Learn more](features/cdc).
 
 For a real-world architecture using DynamoDB Streams to sync data to thousands of nodes, see [Real-Time Control Plane Acceleration with DynamoDB Streams](https://spice.ai/blog/real-time-acceleration-with-dynamodb-streams).
 
@@ -113,7 +112,7 @@ For sources with a monotonically-increasing version column (e.g. `updated_at`), 
 Spice provides several controls for tuning ingestion pressure:
 
 - **Incremental refresh** with [`refresh_mode: append`](features/data-acceleration/data-refresh#append) and a [`time_column`](reference/spicepod/datasets#time_column) to fetch only new or changed rows instead of reloading the full dataset.
-- **Per-connector concurrency, connection pooling, backoff, and retry**. For example, the [Databricks connector](components/data-connectors/databricks/deployment) exposes `max_concurrent_requests` (shared per SQL Warehouse), and the [GitHub connector](components/data-connectors/github) exposes `github_max_concurrent_connections` (shared per token / app installation). Most connectors also expose pool and timeout parameters.
+- **Per-connector concurrency, connection pooling, backoff, and retry**. For example, the [Databricks connector](components/data-connectors/databricks.md) exposes `max_concurrent_requests` (shared per SQL Warehouse), and the [GitHub connector](components/data-connectors/github) exposes `github_max_concurrent_connections` (shared per token / app installation). Most connectors also expose pool and timeout parameters.
 - **Runtime-level parallel dataset loading** via [`runtime.num_of_parallel_loading_at_start_up`](reference/spicepod/runtime) to bound how many datasets initialize concurrently at startup.
 - **Refresh scheduling controls** — `refresh_check_interval`, `refresh_jitter`, and `refresh_retry_*` parameters in [Data Refresh](features/data-acceleration/data-refresh) — to spread load over time and avoid thundering-herd patterns.
 
@@ -150,11 +149,11 @@ Spice supports local model serving (e.g., Llama3) and gateways to hosted AI plat
 
 For most deployments, the recommended pattern is to **embed in the central ingestion tier** with GPU-equipped nodes: the embedding model runs once per row during ingestion, vectors are stored in the acceleration, and read-tier replicas access them via [snapshots](features/data-acceleration/snapshots) or direct query. This minimizes data movement and keeps the read tier inexpensive to scale.
 
-When embeddings must be computed at query time (e.g. user-supplied queries for [vector search](features/search/vector-search)), dedicated embedding instances co-located with the read tier — or a shared, horizontally-scaled embedding service — provide better latency than per-replica GPUs. See the [Local](components/embeddings/local/deployment) and [Hugging Face TEI](components/embeddings/huggingface/deployment) deployment guides for sizing.
+When embeddings must be computed at query time (e.g. user-supplied queries for [vector search](features/search/vector-search)), dedicated embedding instances co-located with the read tier — or a shared, horizontally-scaled embedding service — provide better latency than per-replica GPUs. See the [Local](components/embeddings/local.md) and [Hugging Face](components/embeddings/huggingface.md) embedding component guides for sizing.
 
 ## 23. How does Spice handle vector / hybrid search at scale?
 
-Spice supports [vector search](features/search/vector-search), [full-text search](features/search/full-text), [multi-vector search](features/search/multi-vector), and [reranking](features/search/rerank) over accelerated datasets. Vectors are stored in the acceleration alongside the source data, so search executes locally without round-tripping to a separate vector database.
+Spice supports [vector search](features/search/vector-search) and [full-text search](features/search/full-text) over accelerated datasets. Vectors are stored in the acceleration alongside the source data, so search executes locally without round-tripping to a separate vector database.
 
 For best performance, store accelerated vector datasets in **file-mode DuckDB or Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](reference/performance-tuning) and the [Memory](reference/memory) reference for sizing accelerated vector workloads, and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) for the storage format underpinning Cayenne. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
 
@@ -163,7 +162,7 @@ For best performance, store accelerated vector datasets in **file-mode DuckDB or
 Spice exposes search through both an HTTP API and SQL table-valued functions:
 
 - **[`POST /v1/search`](api/HTTP/post-search)** — a unified HTTP endpoint that performs vector, full-text, multi-vector, and hybrid search across configured datasets. Requests specify the dataset(s), search text, optional filters, and limit; the response returns ranked rows with relevance scores and any requested passthrough columns. Embeddings are computed automatically when an embedding model is configured on the dataset.
-- **SQL UDTFs** for in-query search — `vector_search(table, 'query')` and related functions can be composed with standard SQL `JOIN`, `WHERE`, and `ORDER BY` for hybrid filtering and ranking. See [Vector Search](features/search/vector-search), [Full-Text Search](features/search/full-text), [Multi-Vector Search](features/search/multi-vector), and [Reranking](features/search/rerank).
+- **SQL UDTFs** for in-query search — `vector_search(table, 'query')` and related functions can be composed with standard SQL `JOIN`, `WHERE`, and `ORDER BY` for hybrid filtering and ranking. See [Vector Search](features/search/vector-search) and [Full-Text Search](features/search/full-text).
 - **MCP tools** — the search APIs are also exposed to AI agents through Spice's [MCP server](features/large-language-models), so agents can issue search queries without writing SQL.
 
 For an end-to-end example, see the [Search](features/search) overview and the [Amazon S3 Vectors with Spice](https://spice.ai/blog/amazon-s3-vectors-with-spice) blog post.
@@ -214,7 +213,7 @@ See the [Sharded](deployment/architectures/sharded) deployment architecture for 
 
 ## 30. Which secret stores does Spice support?
 
-Spice supports [Kubernetes Secrets](components/secret-stores/kubernetes), [AWS Secrets Manager](components/secret-stores/aws-secrets-manager), [Azure Key Vault](components/secret-stores/azure-keyvault), [environment variables](components/secret-stores/env), and the local OS [keyring](components/secret-stores/keyring). See the [secret stores overview](components/secret-stores) for configuration and selectors.
+Spice supports [Kubernetes Secrets](components/secret-stores/kubernetes), [AWS Secrets Manager](components/secret-stores/aws-secrets-manager), Azure Key Vault, [environment variables](components/secret-stores/env), and the local OS [keyring](components/secret-stores/keyring). See the [secret stores overview](components/secret-stores) for configuration and selectors.
 
 Additional secret backends — including HashiCorp Vault — are tracked as planned additions. Open or upvote an issue at [github.com/spiceai/spiceai](https://github.com/spiceai/spiceai/issues) to influence prioritization.
 
