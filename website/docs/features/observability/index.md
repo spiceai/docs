@@ -19,6 +19,7 @@ Spice provides monitoring and observability through three mechanisms:
 
 - [Datadog](../monitoring/datadog)
 - [Grafana & Prometheus](../monitoring/grafana)
+- [New Relic](../monitoring/new-relic)
 - [Zipkin](../monitoring/zipkin)
 
 ## Prometheus Metrics Endpoint
