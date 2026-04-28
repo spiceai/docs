@@ -37,7 +37,17 @@ Raise this when you observe `database is locked` errors under sustained concurre
 
 ### Journal Mode
 
-The SQLite accelerator leans on SQLite's default durability settings. The Spice-level accelerator does not override `journal_mode`, `synchronous`, or `checkpoint` pragmas; for custom durability tuning, set pragmas via a custom connection string or post-startup SQL.
+For file-mode databases, the connection pool automatically sets the following pragmas on each connection:
+
+| Pragma           | Value    | Purpose                                            |
+| ---------------- | -------- | -------------------------------------------------- |
+| `journal_mode`   | `WAL`    | Enables concurrent readers during writes.          |
+| `synchronous`    | `NORMAL` | Balances durability with write performance.        |
+| `cache_size`     | `-20000` | Sets the page cache to ~20 MB.                     |
+| `foreign_keys`   | `true`   | Enables foreign key constraint enforcement.        |
+| `temp_store`     | `memory` | Stores temporary tables and indices in memory.     |
+
+These are no-ops for in-memory databases. For custom durability tuning beyond these defaults, set pragmas via a custom connection string or post-startup SQL.
 
 ### Federation Across Files
 
@@ -46,7 +56,7 @@ File-mode SQLite datasets on the same runtime can be federated using SQLite's `A
 ## Capacity & Sizing
 
 - **Single writer**: SQLite serializes writes globally per file. High-concurrency write workloads (e.g., very short refresh intervals on many datasets) hit the write mutex — prefer [DuckDB](../duckdb/deployment) or [PostgreSQL](../postgres/deployment) for those cases.
-- **Memory**: SQLite's page cache defaults are modest; set `PRAGMA cache_size = -<KB>` via the connection string for read-heavy workloads on large databases.
+- **Memory**: The default page cache is ~20 MB (`cache_size = -20000`). For read-heavy workloads on large databases, increase this via `PRAGMA cache_size = -<KB>` in post-startup SQL.
 - **Disk**: Plan for 1.2–1.5× the raw data size (SQLite uses row-oriented storage with no strong compression by default).
 
 ## Metrics
