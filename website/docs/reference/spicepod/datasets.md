@@ -252,16 +252,17 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 ## `ready_state`
 
-Supports one of two values:
+Supports the following values:
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
-- `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_load`: (default) Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete.
+- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh to complete. Queries fall back to the federated source until the initial load completes. Subsequent refresh failures are still reported via dataset status and metrics.
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset/
     name: my_dataset
-    ready_state: on_registration # or on_load
+    ready_state: on_schema_resolved # or on_registration or on_load
     params: ...
     acceleration:
       enabled: true
