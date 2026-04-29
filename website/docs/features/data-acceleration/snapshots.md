@@ -5,6 +5,10 @@ description: 'Bootstrap file-mode accelerations from managed snapshots to elimin
 sidebar_position: 3
 ---
 
+:::note[Enterprise edition]
+Acceleration Snapshots are available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions).
+:::
+
 ## Spicepod Example
 
 ```yaml
