@@ -181,6 +181,40 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `pagination_query_params`      | Optional. Query parameter template for client-driven pagination. Supports `{offset}`, `{limit}`, and `{page}` variables (e.g., `offset={offset}&limit={limit}`). Requires `pagination_page_size`. Mutually exclusive with `pagination_next_pointer` and `pagination_token_param`. |
 | `pagination_page_size`         | Optional. Number of items per page for query-parameter pagination. Must be a positive integer. Expands `{limit}` in `pagination_query_params` and detects the last page (fewer results than `page_size` means done). Requires `pagination_query_params`.                          |
 
+### Caching Mode Parameters
+
+When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-modes/caching), cache freshness is controlled by additional parameters placed under `acceleration.params` — **not** under the top-level `params` block.
+
+| Parameter                            | Description                                                                                                                                                       | Default    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `caching_ttl`                        | How long cached data is considered fresh. After this period, data becomes stale and a background refresh is triggered. **Defaults to `30s`.**                     | `30s`      |
+| `caching_stale_while_revalidate_ttl` | How long after `caching_ttl` expires to continue serving stale data while a background refresh runs. If omitted, queries wait for fresh data once TTL expires.    | None       |
+| `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error rather than failing the query.                                           | `disabled` |
+
+:::warning[`caching_ttl` defaults to 30 seconds]
+If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
+:::
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_cache
+    params:
+      file_format: json
+      allowed_request_paths: '/data/**'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 15m
+      on_zero_results: use_source
+      params:
+        caching_ttl: 15m                        # explicit — default is only 30s
+        caching_stale_while_revalidate_ttl: 5m  # serve stale data while refreshing
+```
+
+See [Caching Refresh Mode](../../features/data-acceleration/refresh-modes/caching) for full TTL semantics, stale-while-revalidate behaviour, and cache persistence options.
+
 ## HTTP Response Headers
 
 When querying HTTP(s) datasets, Spice respects standard HTTP caching headers in responses. The connector supports the following cache-related response headers:
