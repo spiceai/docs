@@ -85,7 +85,7 @@ See [Performance Tuning](../reference/performance-tuning) for sizing guidance an
 
 Not solely. Spice functions as an active cache or working dataset prefetcher. A _working dataset_ is a subset of data actively used by an application or model, such as recent records or frequently accessed tables. Unlike traditional caches that fetch data reactively, Spice proactively prefetches and materializes data based on filters, intervals, triggers, or Change Data Capture (CDC), ensuring data readiness for queries. Spice also supports [results caching](../features/caching).
 
-## 13. Is Spice a CDN for databases?
+## 13. Can Spice be used as a CDN for databases?
 
 Yes. Spice acts as a CDN for databases by loading and materializing datasets close to applications, reducing latency and improving query efficiency. [Read more](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
 
