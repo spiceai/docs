@@ -45,6 +45,37 @@ embeddings:
 | `duckdb_hnsw_ef_construction` | Optional. HNSW build-time parameter — the size of the dynamic candidate list during index construction. Higher values improve recall at the cost of build time. | DuckDB VSS default |
 | `duckdb_hnsw_ef_search`       | Optional. HNSW query-time parameter — the size of the dynamic candidate list during search. Higher values improve recall at the cost of query latency.     | DuckDB VSS default |
 
+## Configuring HNSW Indexes via the `embeddings` Syntax
+
+When a dataset is accelerated with DuckDB and has embedding columns configured, the DuckDB vector engine can be enabled implicitly by placing HNSW parameters directly on the DuckDB accelerator's `params`. This avoids the separate `vectors:` block when an HNSW index is the only vector-engine configuration needed.
+
+```yaml
+datasets:
+  - from: file:products.parquet
+    name: products
+    acceleration:
+      enabled: true
+      engine: duckdb
+      params:
+        duckdb_distance_metric: cosine
+        duckdb_hnsw_m: '16'
+        duckdb_hnsw_ef_construction: '128'
+        duckdb_hnsw_ef_search: '64'
+    columns:
+      - name: description
+        embeddings:
+          - from: local_embedding_model
+```
+
+Spice detects the HNSW parameters on the accelerator config and automatically attaches a DuckDB vector engine to the dataset. The recognized keys are `duckdb_distance_metric` (or `duckdb_metric`), `duckdb_hnsw_m`, `duckdb_hnsw_ef_construction`, and `duckdb_hnsw_ef_search`; any non-vector accelerator parameters are passed through to DuckDB unchanged.
+
+The two configurations are equivalent:
+
+- **`embeddings` syntax** — HNSW params on `acceleration.params`. Inferred when the dataset has DuckDB acceleration and at least one recognized HNSW parameter.
+- **`vectors` block** — `vectors.engine: duckdb` with HNSW params on `vectors.params`. Required if the engine name needs to be set explicitly or to disable the vector engine without removing the HNSW parameters.
+
+If both are set, the explicit `vectors:` block takes precedence.
+
 ## Overview
 
 When configured as a vector engine, Spice:
@@ -61,7 +92,7 @@ The DuckDB VSS extension is installed and loaded automatically by the runtime; n
 
 - A dataset or view must be accelerated with the DuckDB accelerator (`datasets[].acceleration.engine: duckdb`) for the DuckDB vector engine to be used.
 - The dataset must have a resolvable primary key, either via the underlying schema or an explicit [`row_id`](../../reference/spicepod/datasets#columnsembeddingsrow_id).
-- [Chunking](../../reference/spicepod/datasets#columnsembeddingschunkingenabled) is not yet supported for the DuckDB vector engine.
+- [Chunking](../../reference/spicepod/datasets#columns-embeddings-chunking) is not yet supported for the DuckDB vector engine.
 - `partition_by` is not yet supported for the DuckDB vector engine.
 - `spill_writes` is not supported for the DuckDB vector engine.
 - DuckDB VSS uses approximate nearest neighbor search and returns probabilistically closest results.
