@@ -87,7 +87,7 @@ Not solely. Spice functions as an active cache or working dataset prefetcher. A 
 
 ## 13. Can Spice be used as a CDN for databases?
 
-Yes. Spice acts as a CDN for databases by loading and materializing datasets close to applications, reducing latency and improving query efficiency. [Read more](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
+Yes. Spice can be deployed as a CDN for databases by loading and materializing datasets close to applications, reducing latency and improving query efficiency. [Read more](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai).
 
 ## 14. Can Spice be used for real-time analytics?
 
