@@ -32,6 +32,8 @@ Spice is primarily used for:
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
 - **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
 
+For example, deploy Spice as a sidecar alongside applications served by centralized platforms like Databricks or Snowflake, materializing hot datasets locally to reduce latency and offload query volume from the source.
+
 ## 3. How is Spice different?
 
 - **Application-Centric Design:** Spice is designed for 1:1 or 1:N mappings between applications and Spice instances, making it flexible for tenant-specific or customer-specific configurations. Unlike traditional databases designed for many applications sharing one data system, Spice often runs one instance per application or tenant.
