@@ -38,11 +38,14 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 ## `params`
 
-| Parameter Name                | Description                                           | Default              |
-| ----------------------------- | ----------------------------------------------------- | -------------------- |
-| `cayenne_data_dir`            | Local directory for table data files (Vortex format). | Spice data directory |
-| `cayenne_metadata_dir`        | Local directory for Cayenne SQLite metadata.          | Spice data directory |
-| `cayenne_target_file_size_mb` | Target Vortex file size in MB.                        | `128`                |
+| Parameter Name                   | Description                                                                            | Default      |
+| -------------------------------- | -------------------------------------------------------------------------------------- | ------------ |
+| `cayenne_data_dir`               | Local directory for table data files (Vortex format).                                  | Spice data directory |
+| `cayenne_metadata_dir`           | Local directory for Cayenne SQLite metadata.                                           | Spice data directory |
+| `cayenne_target_file_size_mb`    | Target Vortex file size in MB.                                                         | `128`        |
+| `cayenne_footer_cache_mb`        | Size of the in-memory Vortex footer cache in MB for query performance.                 | `128`        |
+| `cayenne_segment_cache_mb`       | Size of the in-memory Vortex segment cache in MB for caching decompressed data.        | `256`        |
+| `cayenne_compression_strategy`   | Compression algorithm for Vortex files. Options: `btrblocks`, `zstd`.                  | `btrblocks`  |
 
 ## Examples
 
