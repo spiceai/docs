@@ -21,7 +21,7 @@ datasets:
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
-      mongodb_pool_min: 0
+      mongodb_pool_min: 1
       mongodb_pool_max: 10
 ```
 
