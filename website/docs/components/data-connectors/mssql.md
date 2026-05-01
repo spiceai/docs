@@ -98,6 +98,35 @@ datasets:
       mssql_trust_server_certificate: true
 ```
 
+## Performance
+
+### TopK / ORDER BY ... LIMIT pushdown
+
+Spice pushes `ORDER BY ... LIMIT N` queries down to SQL Server as `SELECT TOP N ... ORDER BY ...`, avoiding transferring unnecessary rows over the network. This pushdown is applied when the sort can be satisfied exactly by SQL Server — which depends on NULL ordering.
+
+SQL Server treats `NULL` as the smallest possible value, so its native ordering is:
+
+| Direction | NULLs position |
+| --------- | -------------- |
+| `ASC`     | First          |
+| `DESC`    | Last           |
+
+Most SQL clients and tools (including Spice's default planner) use the opposite convention (`ASC NULLS LAST`, `DESC NULLS FIRST`). When the requested NULL ordering doesn't match SQL Server's native behavior, Spice falls back to fetching all matching rows and applying the limit locally.
+
+**To guarantee TopK pushdown on nullable columns**, explicitly specify the NULL ordering that matches SQL Server's native behavior:
+
+```sql
+-- Pushed down: DESC NULLS LAST matches SQL Server native ordering
+SELECT id, value FROM my_dataset ORDER BY value DESC NULLS LAST LIMIT 10;
+
+-- Pushed down: ASC NULLS FIRST matches SQL Server native ordering
+SELECT id, value FROM my_dataset ORDER BY value ASC NULLS FIRST LIMIT 10;
+```
+
+:::tip
+Sorting on `NOT NULL` columns (e.g. primary keys) always pushes the limit down regardless of the `NULLS` clause, since there are no NULLs to order.
+:::
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
