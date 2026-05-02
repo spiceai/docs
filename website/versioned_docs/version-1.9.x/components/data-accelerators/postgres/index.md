@@ -28,10 +28,10 @@ The connection to PostgreSQL can be configured by providing the following `param
 - `pg_user`: The username to connect with.
 - `pg_pass`: The password to connect with. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.
 - `pg_sslmode`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
-  - `verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
+  - `verify-full`: This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
   - `verify-ca`: This mode requires a TLS connection and a valid root certificate.
   - `require`: This mode requires a TLS connection.
-  - `prefer`: This mode will try to establish a secure TLS connection if possible, but will connect insecurely if the server does not support TLS.
+  - `prefer`: (default) This mode will try to establish a secure TLS connection if possible, but will connect insecurely if the server does not support TLS.
   - `disable`: This mode will not attempt to use a TLS connection, even if the server supports it.
   - `allow`: This mode will try a non-TLS connection first, then retry with TLS if the server requires it.
 - `pg_sslrootcert`: Optional parameter specifying the path to a custom PEM certificate that the connector will trust.
