@@ -59,7 +59,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 
 | Parameter Name   | Description                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `client_timeout` | Optional. Specifies timeout for object store operations. Default value is `30s`. E.g. `client_timeout: 60s` |
+| `client_timeout` | Optional. Specifies timeout for object store operations. No default; uses the underlying HTTP client timeout when not set. E.g. `client_timeout: 60s` |
 
 ## Delta Lake object store parameters
 
