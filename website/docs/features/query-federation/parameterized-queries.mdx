@@ -31,7 +31,7 @@ Instead of embedding values directly in SQL strings, parameterized queries use p
 Spice uses positional placeholders following the PostgreSQL convention:
 
 ```sql
-SELECT * FROM users WHERE id = $1 AND status = $2
+SELECT * FROM users WHERE id = $1 AND status = $2;
 ```
 
 Parameters are bound in order: `$1` receives the first parameter, `$2` the second, and so on.

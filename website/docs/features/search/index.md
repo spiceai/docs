@@ -49,7 +49,7 @@ SELECT id, extra_column, score
 FROM vector_search(my_table, 'search query')
 WHERE date_published > '2021-01-01'
 ORDER BY score DESC
-LIMIT 5
+LIMIT 5;
 ```
 
 For complete SQL UDTF specifications, see [Vector-Based Search SQL UDTF](search/vector-search#sql-udtf).
@@ -72,7 +72,7 @@ Multi-vector search operates on columns that store many vectors per row, such as
 SELECT product_id, name, score
 FROM vector_search(products, ['hiking', 'waterproof'], tags)
 ORDER BY score DESC
-LIMIT 10
+LIMIT 10;
 ```
 
 ### Full-Text Search
@@ -94,7 +94,7 @@ SELECT id, extra_column, score
 FROM text_search(my_table, 'search terms')
 WHERE date_published > '2021-01-01'
 ORDER BY score DESC
-LIMIT 5
+LIMIT 5;
 ```
 
 For detailed SQL UDTF instructions, see [Full-Text Search SQL UDTF](search/full-text#searching-with-sql).
@@ -123,7 +123,7 @@ FROM rrf(
     join_key => 'id'  -- join key for optimal performance
 )
 ORDER BY fused_score DESC
-LIMIT 5
+LIMIT 5;
 ```
 
 For complete RRF syntax and parameters, see [Search SQL Reference](../reference/sql/search#reciprocal-rank-fusion-rrf).

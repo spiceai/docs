@@ -40,7 +40,7 @@ runtime:
 Query a single file by specifying its full URL:
 
 ```sql
-SELECT * FROM 's3://my-bucket/data/sales.parquet' LIMIT 10
+SELECT * FROM 's3://my-bucket/data/sales.parquet' LIMIT 10;
 ```
 
 ### Directory or Prefix
@@ -49,10 +49,10 @@ Query all files under a directory or prefix by including a trailing slash:
 
 ```sql
 -- All files in a directory
-SELECT * FROM 's3://my-bucket/data/'
+SELECT * FROM 's3://my-bucket/data/';
 
 -- All files in a bucket
-SELECT * FROM 's3://my-bucket/'
+SELECT * FROM 's3://my-bucket/';
 ```
 
 ### Glob Patterns
@@ -61,10 +61,10 @@ Use glob patterns to match specific files:
 
 ```sql
 -- All parquet files in a directory
-SELECT * FROM 's3://my-bucket/data/*.parquet'
+SELECT * FROM 's3://my-bucket/data/*.parquet';
 
 -- Files matching a pattern across subdirectories
-SELECT * FROM 's3://my-bucket/year=2024/month=*/data.parquet'
+SELECT * FROM 's3://my-bucket/year=2024/month=*/data.parquet';
 ```
 
 ### Hive-Style Partitions
@@ -74,7 +74,7 @@ Hive-style partitions are automatically inferred from the path structure, enabli
 ```sql
 -- If data is stored at s3://bucket/data/year=2024/month=01/file.parquet
 -- the year and month columns are available for filtering
-SELECT * FROM 's3://my-bucket/data/' WHERE year = '2024' AND month = '01'
+SELECT * FROM 's3://my-bucket/data/' WHERE year = '2024' AND month = '01';
 ```
 
 ## Authentication
@@ -102,7 +102,7 @@ export AZURE_STORAGE_ACCOUNT=mystorageaccount
 Alternatively, include the account name in the URL:
 
 ```sql
-SELECT * FROM 'abfss://container@mystorageaccount.dfs.core.windows.net/path/file.parquet'
+SELECT * FROM 'abfss://container@mystorageaccount.dfs.core.windows.net/path/file.parquet';
 ```
 
 Additional authentication options:
@@ -125,7 +125,7 @@ runtime:
 -- Query a public S3 dataset
 SELECT VendorID, passenger_count, trip_distance
 FROM 's3://spiceai-public-datasets/taxi_small_samples/taxi_sample.parquet'
-LIMIT 5
+LIMIT 5;
 ```
 
 ### Azure Blob Storage Query
@@ -148,7 +148,7 @@ Or include the account in the URL:
 ```sql
 SELECT *
 FROM 'abfss://mycontainer@mystorageaccount.dfs.core.windows.net/data/'
-LIMIT 10
+LIMIT 10;
 ```
 
 ### Cross-Source Query
@@ -172,7 +172,7 @@ datasets:
 -- Join a registered dataset with an ad-hoc S3 query
 SELECT o.order_id, o.customer_id, s.product_name
 FROM orders o
-JOIN 's3://my-bucket/products.parquet' s ON o.product_id = s.id
+JOIN 's3://my-bucket/products.parquet' s ON o.product_id = s.id;
 ```
 
 ## Considerations

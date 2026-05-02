@@ -28,7 +28,7 @@ This example uses a `bucket` user-defined function (UDF) to hash the `PULocation
 This enables partition pruning for queries that filter on the column referenced in the `partition_by` expression:
 
 ```sql
-SELECT * FROM taxi_trips WHERE PULocationID IN (1, 2, 3, 4, 5)
+SELECT * FROM taxi_trips WHERE PULocationID IN (1, 2, 3, 4, 5);
 ```
 
 This will result in a scan plan that only reads from the partitions that contain the values from the `IN` list.
