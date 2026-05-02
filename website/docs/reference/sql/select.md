@@ -78,14 +78,14 @@ SELECT list can be an expression or wildcards.
 Example:
 
 ```sql
-SELECT a, b, a + b FROM table
+SELECT a, b, a + b FROM table;
 ```
 
 The `DISTINCT` quantifier can be added to make the query return all distinct rows.
 By default `ALL` will be used, which returns all the rows.
 
 ```sql
-SELECT DISTINCT person, age FROM employees
+SELECT DISTINCT person, age FROM employees;
 ```
 
 ### FROM clause
@@ -95,7 +95,7 @@ The `FROM` clause is used to specify which table to select data from.
 Example:
 
 ```sql
-SELECT t.a FROM table AS t
+SELECT t.a FROM table AS t;
 ```
 
 ### WHERE clause
@@ -105,7 +105,7 @@ The `WHERE` clause is used define the conditions to filter the query results.
 Example:
 
 ```sql
-SELECT a FROM table WHERE a > 10
+SELECT a FROM table WHERE a > 10;
 ```
 
 ### JOIN clause
@@ -218,7 +218,7 @@ included, the query with a `GROUP BY` clause is the same as `SELECT DISTINCT`.
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY a, b
+SELECT a, b, MAX(c) FROM table GROUP BY a, b;
 ```
 
 Some aggregation functions accept optional ordering requirement, such as `ARRAY_AGG`. If a requirement is given,
@@ -227,7 +227,7 @@ aggregation is calculated in the order of the requirement.
 Example:
 
 ```sql
-SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
+SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b;
 ```
 
 #### `GROUP BY ALL`
@@ -237,7 +237,7 @@ Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY ALL
+SELECT a, b, MAX(c) FROM table GROUP BY ALL;
 ```
 
 ### HAVING clause
@@ -247,7 +247,7 @@ The `HAVING` clause can be used with `GROUP BY` to eliminate groups that don't s
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10
+SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10;
 ```
 
 ### QUALIFY clause
@@ -286,7 +286,7 @@ SELECT
     a,
     b,
     c
-FROM table2
+FROM table2;
 ```
 
 ### ORDER BY clause
@@ -318,7 +318,7 @@ Example:
 
 ```sql
 SELECT age, person FROM table
-LIMIT 10
+LIMIT 10;
 ```
 
 ### EXCLUDE, EXCEPT, REPLACE, and ILIKE clauses

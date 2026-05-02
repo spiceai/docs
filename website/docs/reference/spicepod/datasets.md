@@ -297,7 +297,7 @@ SELECT
   "p_comment"
 FROM
   spiceai_sandbox.tpch.part
-LIMIT 1
+LIMIT 1;
 ```
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.

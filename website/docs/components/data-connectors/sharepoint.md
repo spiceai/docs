@@ -20,7 +20,7 @@ datasets:
 #### Example
 
 ```sql
-SELECT * FROM important_documents limit 1
+SELECT * FROM important_documents limit 1;
 ```
 
 Returns
