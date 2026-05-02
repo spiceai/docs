@@ -297,10 +297,40 @@ SELECT
   "p_comment"
 FROM
   spiceai_sandbox.tpch.part
-LIMIT 1
+LIMIT 1;
 ```
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
+
+## `load`
+
+Optional. Controls when the dataset is loaded by the runtime. Defaults to `on_startup`.
+
+- `on_startup` (default): The dataset is initialized during runtime startup — the connector is created, schema is inferred, and acceleration (if configured) begins immediately.
+- `on_demand`: The dataset is **not** initialized at startup. Initialization is deferred until the first SQL query that references the dataset, or until an explicit refresh is triggered via `POST /v1/datasets/{name}/acceleration/refresh`.
+
+When a dataset is configured with `load: on_demand`, the runtime:
+- Parses and validates the dataset configuration at startup, but does **not** create the connector, infer the schema, or start any refresh tasks.
+- Reports the dataset status as `NotLoaded` until it is triggered.
+- On the first query (or explicit refresh), initializes the dataset transparently — subsequent queries proceed normally.
+- Coordinates concurrent triggers so the dataset is only initialized once.
+
+```yaml
+datasets:
+  - from: postgres:public.large_table
+    name: large_table
+    load: on_demand
+    params:
+      pg_host: localhost
+      pg_port: 5432
+      pg_db: my_db
+      pg_user: ${secrets:pg_user}
+      pg_pass: ${secrets:pg_pass}
+```
+
+:::tip
+Use `load: on_demand` for large or infrequently accessed datasets to reduce startup time and resource consumption. The dataset will be loaded transparently on first access.
+:::
 
 ## `acceleration`
 
