@@ -74,17 +74,25 @@ Transient query failures are not automatically retried at the connector layer. D
 
 ## Metrics
 
-The PostgreSQL connector exposes observable metrics for its connection pool. Enable them in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The PostgreSQL connector exposes observable metrics for its replication pipeline. Enable them in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
-| Metric Name                         | Type            | Description                                                                  |
-| ----------------------------------- | --------------- | ---------------------------------------------------------------------------- |
-| `connection_count`                  | ObservableGauge | Active connections to the database server.                                   |
-| `connections_in_pool`               | ObservableGauge | Idle connections sitting in the pool.                                        |
-| `active_wait_requests`              | ObservableGauge | Requests waiting for a connection (saturation signal).                       |
-| `create_failed`                     | Counter         | Connections that failed to be created.                                       |
-| `discarded_excess_idle_connection`  | Counter         | Connections closed because the pool already had enough idle connections.     |
-| `discarded_unestablished_connection`| Counter         | Connections closed because they could not be established.                    |
-| `dirty_connection_return`           | Counter         | Connections returned in a dirty state (open transaction, pending queries).   |
+| Metric Name                                  | Type            | Description                                                       |
+| -------------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| `replication_lag_ms`                         | ObservableGauge | Replication lag in milliseconds.                                  |
+| `replication_lag_bytes`                      | ObservableGauge | Replication lag in bytes.                                         |
+| `replication_confirmed_flush_lsn`            | ObservableGauge | Confirmed flush LSN position.                                     |
+| `replication_server_wal_end_lsn`             | ObservableGauge | Server WAL end LSN position.                                      |
+| `replication_transactions_total`             | ObservableCounter | Total transactions received via replication.                    |
+| `replication_inserts_total`                  | ObservableCounter | Total insert operations received.                               |
+| `replication_updates_total`                  | ObservableCounter | Total update operations received.                               |
+| `replication_deletes_total`                  | ObservableCounter | Total delete operations received.                               |
+| `replication_truncates_total`                | ObservableCounter | Total truncate operations received.                             |
+| `replication_bootstrap_rows_total`           | ObservableGauge | Total rows fetched during initial bootstrap.                      |
+| `replication_bootstrap_complete`             | ObservableCounter | Bootstrap completion status.                                    |
+| `replication_decode_errors_total`            | ObservableCounter | Total WAL decode errors.                                        |
+| `replication_schema_mismatch_errors_total`   | ObservableCounter | Total schema mismatch errors during replication.                |
+| `replication_recv_errors_total`              | ObservableCounter | Total receive errors during replication.                        |
+| `replication_reconnects_total`               | ObservableCounter | Total reconnection attempts.                                    |
 
 Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name.
 
