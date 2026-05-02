@@ -41,7 +41,7 @@ TLS is controlled via `pg_sslmode`:
 | `verify-ca`   | Require TLS and verify the CA chain.                        |
 | `verify-full` | Require TLS, verify CA chain, and verify server hostname.   |
 
-For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundle.
+For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundle (file path or inline PEM content).
 
 ## Resilience Controls
 

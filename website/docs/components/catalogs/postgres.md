@@ -59,7 +59,7 @@ Connection can be configured using a connection string or individual parameters.
 | `pg_user`        | The PostgreSQL username for authentication.                            |
 | `pg_pass`        | The PostgreSQL password for authentication.                            |
 | `pg_sslmode`     | The SSL mode for the connection (e.g. `require`, `prefer`, `disable`). |
-| `pg_sslrootcert` | Path to the SSL root certificate file.                                 |
+| `pg_sslrootcert` | Path to the SSL root certificate file, or inline PEM content.          |
 
 ## Authentication
 
