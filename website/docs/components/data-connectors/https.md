@@ -763,6 +763,51 @@ This example demonstrates:
 - Executing complex search queries against REST APIs
 - Fetching results based on structured query syntax
 
+#### Subquery-Driven HTTP Requests
+
+The HTTP connector supports `IN (SELECT ...)` subqueries on filter columns (`request_path`, `request_query`, `request_body`, `request_headers`). Instead of fetching the entire HTTP dataset and joining in memory, the optimizer produces one HTTP request per unique subquery value.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/org_list.csv
+    name: orgs
+
+  - from: https://api.example.com
+    name: org_api
+    params:
+      file_format: json
+      allowed_request_paths: '/headers'
+      http_headers: 'x-static-header: static-value'
+      request_header_filters: enabled
+      request_header_allowlist: x-org-id
+      max_request_partitions: 100
+```
+
+```sql
+WITH org_headers AS (
+    SELECT '{"x-org-id":"' || org_id || '"}' AS hdr
+    FROM orgs
+)
+SELECT request_headers, content
+FROM org_api
+WHERE request_path = '/headers'
+  AND request_headers IN (SELECT hdr FROM org_headers);
+```
+
+Each unique `hdr` value from the subquery triggers a separate HTTP request with the corresponding `x-org-id` header. The connector deduplicates values and caps the build side at 20,000 unique values. Use `max_request_partitions` to limit the total number of HTTP requests.
+
+:::warning JOIN is not supported for HTTP filter columns
+`JOIN ... ON` queries where the join key is an HTTP filter column (e.g., `request_headers`, `request_path`) are not supported and will return an error. Use `IN (SELECT ...)` instead:
+
+```sql
+-- This will error:
+SELECT h.content, p.path FROM http_api h JOIN params p ON h.request_path = p.path;
+
+-- Use this instead:
+SELECT content FROM http_api WHERE request_path IN (SELECT path FROM params);
+```
+:::
+
 ### Processing JSON Responses
 
 APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions](../../reference/sql/json) to process and transform JSON responses directly in SQL queries.
@@ -942,6 +987,12 @@ request_body filters are disabled for this dataset. Enable request_body_filters 
 #### Partition Limits
 
 When multiple filter columns are used together with `AND`, the connector creates a cross product of all filter values. For example, 3 `request_path` values × 2 `request_headers` values = 6 HTTP requests. Use the `max_request_partitions` parameter to cap this cross product and prevent runaway request counts.
+
+#### Subquery Limitations
+
+- **`IN (SELECT ...)` only**: Subqueries against HTTP filter columns must use `IN (SELECT ...)`. `JOIN ... ON` with HTTP filter columns is not supported and returns an error.
+- **Build-side value cap**: The subquery (build side) is capped at 20,000 unique values. Values are deduplicated before creating HTTP requests.
+- **Partition limit applies**: The expanded partitions from subquery values are subject to `max_request_partitions`. If the cross product of existing partitions and subquery values exceeds the limit, the query fails with an error.
 
 ### Configuration Requirements
 
