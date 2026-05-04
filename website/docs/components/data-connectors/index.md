@@ -74,6 +74,7 @@ Supported Data Connectors include:
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
 | `elasticsearch`                    | [Elasticsearch][elasticsearch]        | Alpha             | Elasticsearch REST           |
+| `cosmosdb`                         | [Azure Cosmos DB][cosmosdb]           | Release Candidate | Cosmos DB NoSQL / Core SQL   |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
@@ -86,6 +87,7 @@ Supported Data Connectors include:
 [adbc]: https://arrow.apache.org/adbc/
 [ODPIC]: https://oracle.github.io/odpi/
 [elasticsearch]: ./elasticsearch/index.md
+[cosmosdb]: ./cosmosdb/index.md
 
 ## File Formats
 

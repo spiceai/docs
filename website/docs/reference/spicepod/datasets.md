@@ -93,6 +93,7 @@ Where:
   - [`http`, `https`](../../components/data-connectors/https)
   - [`clickhouse`](../../components/data-connectors/clickhouse)
   - [`graphql`](../../components/data-connectors/graphql)
+  - [`cosmosdb`](../../components/data-connectors/cosmosdb)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
