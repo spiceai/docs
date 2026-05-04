@@ -70,23 +70,51 @@ The `access` field controls what operations are allowed on the catalog:
 
 ## `params`
 
-| Parameter Name               | Description                                                                                                                                           |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ducklake_connection_string` | The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). If omitted, the value from `from: ducklake:<connection_string>` is used. |
-| `ducklake_name`              | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                                                            |
-| `ducklake_open`              | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used.                                        |
+| Parameter Name                     | Description                                                                                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ducklake_connection_string`       | The DuckLake metadata location (e.g., `s3://bucket/path/metadata.ducklake`). If omitted, the value from `from: ducklake:<connection_string>` is used. |
+| `ducklake_name`                    | The name to attach the DuckLake catalog as in DuckDB. Default: `ducklake`.                                                                            |
+| `ducklake_open`                    | Path to an existing DuckDB file for persistent storage. If not provided, an in-memory DuckDB instance is used.                                        |
+| `ducklake_aws_region`              | Optional. The AWS region for S3 storage. Default: `us-east-1` when explicit credentials are provided.                                                 |
+| `ducklake_aws_access_key_id`       | Optional. The AWS access key ID for S3 storage. Must be set together with `ducklake_aws_secret_access_key`.                                           |
+| `ducklake_aws_secret_access_key`   | Optional. The AWS secret access key for S3 storage. Must be set together with `ducklake_aws_access_key_id`.                                           |
+| `ducklake_aws_endpoint`            | Optional. Custom S3-compatible endpoint URL (e.g., for MinIO).                                                                                        |
+| `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                                                                  |
 
 ## Authentication
 
-DuckLake relies on DuckDB's credential resolution for cloud storage access. No Spice-specific authentication parameters are needed.
-
 ### AWS S3
 
-Uses the standard AWS credential chain:
+When no explicit S3 credentials are configured, DuckDB falls back to its built-in credential chain provider:
 
 1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
 2. Shared credentials file (`~/.aws/credentials`)
 3. IAM instance profiles (on EC2/ECS)
+
+To provide explicit S3 credentials, use the `ducklake_aws_*` parameters:
+
+```yaml
+catalogs:
+  - from: ducklake:s3://my-bucket/metadata.ducklake
+    name: my_lakehouse
+    params:
+      ducklake_aws_region: us-west-2
+      ducklake_aws_access_key_id: ${secrets:AWS_ACCESS_KEY_ID}
+      ducklake_aws_secret_access_key: ${secrets:AWS_SECRET_ACCESS_KEY}
+```
+
+For S3-compatible storage (e.g., MinIO), use `ducklake_aws_endpoint`:
+
+```yaml
+catalogs:
+  - from: ducklake:s3://my-bucket/metadata.ducklake
+    name: my_lakehouse
+    params:
+      ducklake_aws_endpoint: http://minio:9000
+      ducklake_aws_access_key_id: ${secrets:MINIO_ACCESS_KEY}
+      ducklake_aws_secret_access_key: ${secrets:MINIO_SECRET_KEY}
+      ducklake_aws_allow_http: true
+```
 
 ## Examples
 
