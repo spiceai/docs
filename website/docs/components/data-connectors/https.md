@@ -171,6 +171,35 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `auth_scopes`              | Optional. Space-separated OAuth2 scopes to request when refreshing (e.g. `read:data offline_access`). Omit to inherit the scopes bound to the refresh token.                                                                                                                                                                                                                                                                              |
 | `auth_client_auth`         | Optional. How client credentials are sent to the token endpoint: `basic` (HTTP Basic header, default per RFC 6749 §2.3.1) or `body` (`client_id`/`client_secret` in the form body). Default: `basic`.                                                                                                                                                                                                                                     |
 
+#### Rate Control Parameters
+
+HTTP-based connectors share a rate control system that limits concurrency and request rate per upstream origin. These parameters can be set per-dataset (in `params`) or globally (in `runtime.params`). Dataset-level settings override the global defaults.
+
+| Parameter Name              | Description                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
+| `requests_per_second_limit` | Maximum number of HTTP requests per second to the same upstream origin. Overrides `runtime.params.http_requests_per_second_limit`. If both are unset, no per-second rate limit is applied.    |
+| `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
+| `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
+| `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
+
+Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin.
+
+```yaml
+runtime:
+  params:
+    http_max_concurrent_requests: 10
+    http_requests_per_second_limit: 5
+
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+      allowed_request_paths: '/data/**'
+      max_concurrent_requests: 3        # Override: this dataset uses at most 3 concurrent requests
+```
+
 #### Pagination Parameters
 
 | Parameter Name                 | Description                                                                                                                                                                                                                                                                       |
@@ -763,6 +792,51 @@ This example demonstrates:
 - Executing complex search queries against REST APIs
 - Fetching results based on structured query syntax
 
+#### Subquery-Driven HTTP Requests
+
+The HTTP connector supports `IN (SELECT ...)` subqueries on filter columns (`request_path`, `request_query`, `request_body`, `request_headers`). Instead of fetching the entire HTTP dataset and joining in memory, the optimizer produces one HTTP request per unique subquery value.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/org_list.csv
+    name: orgs
+
+  - from: https://api.example.com
+    name: org_api
+    params:
+      file_format: json
+      allowed_request_paths: '/headers'
+      http_headers: 'x-static-header: static-value'
+      request_header_filters: enabled
+      request_header_allowlist: x-org-id
+      max_request_partitions: 100
+```
+
+```sql
+WITH org_headers AS (
+    SELECT '{"x-org-id":"' || org_id || '"}' AS hdr
+    FROM orgs
+)
+SELECT request_headers, content
+FROM org_api
+WHERE request_path = '/headers'
+  AND request_headers IN (SELECT hdr FROM org_headers);
+```
+
+Each unique `hdr` value from the subquery triggers a separate HTTP request with the corresponding `x-org-id` header. The connector deduplicates values and caps the build side at 20,000 unique values. Use `max_request_partitions` to limit the total number of HTTP requests.
+
+:::warning JOIN is not supported for HTTP filter columns
+`JOIN ... ON` queries where the join key is an HTTP filter column (e.g., `request_headers`, `request_path`) are not supported and will return an error. Use `IN (SELECT ...)` instead:
+
+```sql
+-- This will error:
+SELECT h.content, p.path FROM http_api h JOIN params p ON h.request_path = p.path;
+
+-- Use this instead:
+SELECT content FROM http_api WHERE request_path IN (SELECT path FROM params);
+```
+:::
+
 ### Processing JSON Responses
 
 APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions](../../reference/sql/json) to process and transform JSON responses directly in SQL queries.
@@ -942,6 +1016,12 @@ request_body filters are disabled for this dataset. Enable request_body_filters 
 #### Partition Limits
 
 When multiple filter columns are used together with `AND`, the connector creates a cross product of all filter values. For example, 3 `request_path` values × 2 `request_headers` values = 6 HTTP requests. Use the `max_request_partitions` parameter to cap this cross product and prevent runaway request counts.
+
+#### Subquery Limitations
+
+- **`IN (SELECT ...)` only**: Subqueries against HTTP filter columns must use `IN (SELECT ...)`. `JOIN ... ON` with HTTP filter columns is not supported and returns an error.
+- **Build-side value cap**: The subquery (build side) is capped at 20,000 unique values. Values are deduplicated before creating HTTP requests.
+- **Partition limit applies**: The expanded partitions from subquery values are subject to `max_request_partitions`. If the cross product of existing partitions and subquery values exceeds the limit, the query fails with an error.
 
 ### Configuration Requirements
 

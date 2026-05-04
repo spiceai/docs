@@ -56,7 +56,6 @@ Dremio queries participate in [task history](../../../reference/task_history) vi
 
 ## Known Limitations
 
-- **Read-only**: The connector is read-only; writes to Dremio are not supported.
 - **Temporary tables**: Dremio temporary objects are not visible to Spice; use Dremio views for shared logic.
 - **Reflection-aware routing**: The connector does not explicitly hint Dremio reflections; they are still applied by the coordinator transparently.
 

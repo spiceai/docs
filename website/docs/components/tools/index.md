@@ -36,15 +36,19 @@ models:
   - name: full-runtime
     from: openai:gpt-4o
     params:
-      tools: auto # Use all default tools
+      tools: auto # Automatically choose direct or registry-based discovery
 ```
 
 #### Available tool groups
 
-| Name         | Description                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| `auto`       | All default tools (see above table)                                                          |
-| `memory`     | Memory tools for storing and retrieving information across conversations.                    |
-| [`MCP`][mcp] | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE |
+| Name              | Description                                                                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auto`            | Automatically choose between direct tools and searchable registry discovery based on the number of tools and embedding model availability.           |
+| `all`             | All built-in and Spicepod-configured tools, provided directly to the LLM.                                                                           |
+| `search_registry` | Use searchable tool registry discovery via `tool_search` and `tool_invoke` meta-tools. Requires an embedding model (see `tool_embedding_model`).    |
+| `memory`          | Memory tools for storing and retrieving information across conversations.                                                                            |
+| [`MCP`][mcp]      | Tools provided from an MCP server. Can be run within Spice, or connected to over HTTP(s) SSE                                                        |
 
 [mcp]: tools/mcp
+
+For details on `auto`, `all`, and `search_registry` tool modes, see [Language Model Tools](../features/large-language-models/tools#tool-modes).
