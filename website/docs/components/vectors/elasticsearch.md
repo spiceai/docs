@@ -59,6 +59,15 @@ The Elasticsearch vector engine is available in the Spice [Enterprise edition](h
 | `elasticsearch_retry_initial_backoff` | Optional. Initial backoff duration between retries, in time unit format. Default: `200ms`.                | `200ms`                       |
 | `elasticsearch_batch_write_rows` | Optional. Maximum rows per Elasticsearch `_bulk` request. Controls memory usage and payload size during writes. Default: `1000`. | `1000`       |
 
+:::warning[Not yet supported]
+The Elasticsearch vector engine does **not** currently support:
+
+- `partition_by` — Partitioned vector indexes. Setting this parameter (or the dataset-level `vectors.partition_by`) returns a configuration error at startup. Use the [S3 Vectors](./s3_vectors) engine for partitioned workloads.
+- `spill_writes` — Spilling writes to disk for backpressure. Setting `spill_writes: true` returns a configuration error at startup.
+
+Remove these parameters from the `vectors:` block, or choose a different vector engine.
+:::
+
 ## Overview
 
 When configured as a vector engine, Spice:
