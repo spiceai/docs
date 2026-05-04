@@ -6,7 +6,7 @@ description: 'Learn how Spice AI uses anonymous telemetry.'
 pagination_next: null
 ---
 
-Spice collects anonymous telemetry data to help improve the product. Telemetry is enabled by default but can be disabled at any time.
+Spice collects anonymous telemetry data to help improve the product. Usage telemetry is anonymous and aggregated.
 
 ## Data Collected
 
@@ -22,9 +22,33 @@ Data collected is sent to `https://telemetry.spiceai.org` once every hour.
 
 ## Disabling Telemetry
 
-Telemetry can be disabled in one of three ways:
+:::warning[Open Source builds]
+In Spice.ai Open Source builds that include the `anonymous_telemetry` feature (the default), setting `runtime.telemetry.enabled: false` in a Spicepod or passing `--telemetry-enabled=false` **does not** disable anonymous usage telemetry. The runtime will log a warning when these settings are detected but cannot be honored.
 
-1. Running the Spice runtime with the CLI flag `--telemetry-enabled false`:
+To fully remove anonymous telemetry from an Open Source build, compile from source without the `anonymous_telemetry` feature (option 3 below), or use Spice.ai Enterprise.
+:::
+
+Telemetry can be disabled in the following ways:
+
+1. **Spice.ai Enterprise**: Anonymous telemetry respects the `runtime.telemetry.enabled` and `--telemetry-enabled` settings.
+
+2. **Compile without the `anonymous_telemetry` feature** (Open Source):
+
+```bash
+cargo build --release --no-default-features --features "<other_default_features>"
+```
+
+i.e.
+
+```bash
+cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
+```
+
+### Configuration Settings (Enterprise only)
+
+The following settings disable telemetry in Spice.ai Enterprise builds:
+
+Running the Spice runtime with the CLI flag `--telemetry-enabled false`:
 
 ```bash
 spice run -- --telemetry-enabled false
@@ -36,22 +60,10 @@ or
 spiced --telemetry-enabled false
 ```
 
-2. Add the following configuration to the Spicepod configuration file (`spicepod.yaml`):
+Adding the following configuration to the Spicepod configuration file (`spicepod.yaml`):
 
 ```yaml
 runtime:
   telemetry:
     enabled: false
-```
-
-3. Compile the Spice runtime without the `anonymous_telemetry` default feature:
-
-```bash
-cargo build --release --no-default-features --features "<other_default_features>"
-```
-
-i.e.
-
-```bash
-cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
 ```
