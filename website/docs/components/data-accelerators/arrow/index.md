@@ -47,8 +47,8 @@ datasets:
     acceleration:
       engine: arrow
       primary_key: order_id
-    params:
-      hash_index: enabled
+      params:
+        hash_index: enabled
 ```
 
 See [Hash Index](../../features/data-acceleration/hash-index) for configuration details, supported data types, and performance characteristics.
