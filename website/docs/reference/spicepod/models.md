@@ -115,6 +115,14 @@ Example uses include:
 - Enabling language models to perform actions against Spice (e.g. making SQL queries), via language model tool use, see [runtime tools](../../features/large-language-models/tools).
 - Invoking language models directly from SQL queries using the [`ai()` function](../sql/scalar_functions#ai-and-embed).
 
+#### `params.tools`
+
+Which tools should be made available to the model. Supported values: `auto`, `all`, `search_registry`, or a comma-separated list of specific tool names. See [Tool Modes](../../features/large-language-models/tools#tool-modes).
+
+#### `params.tool_embedding_model`
+
+The name of an embedding model (defined in the `embeddings` section) to use for searchable tool discovery. Required when `tools: search_registry` is set. When `tools: auto` is used, this model enables registry-based discovery if the tool count exceeds the auto-search threshold (20 tools). If only one embedding model is configured, it is used automatically.
+
 ### `datasets`
 
 Optional. A list of [dataset names](./datasets#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
