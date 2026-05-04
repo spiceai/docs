@@ -85,7 +85,7 @@ Supported Data Connectors include:
 [glue]: https://github.com/spiceai/cookbook/tree/trunk/glue#readme
 [adbc]: https://arrow.apache.org/adbc/
 [ODPIC]: https://oracle.github.io/odpi/
-[elasticsearch]: ./elasticsearch.md
+[elasticsearch]: ./elasticsearch/index.md
 
 ## File Formats
 
