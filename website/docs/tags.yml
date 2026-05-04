@@ -218,6 +218,10 @@ ftp:
   label: 'FTP'
   permalink: '/ftp'
   description: 'FTP and SFTP file transfer protocol data connectors.'
+functions:
+  label: 'Functions'
+  permalink: '/functions'
+  description: 'User-defined SQL scalar functions and remote function endpoints.'
 getting-started:
   label: 'Getting Started'
   permalink: '/getting-started'
@@ -514,6 +518,10 @@ turso:
   label: 'Turso'
   permalink: '/turso'
   description: 'Turso data accelerator integration.'
+udf:
+  label: 'UDF'
+  permalink: '/udf'
+  description: 'User-defined functions registered with the SQL engine.'
 unity-catalog:
   label: 'Unity Catalog'
   permalink: '/unity-catalog'

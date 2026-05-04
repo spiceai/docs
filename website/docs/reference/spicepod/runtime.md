@@ -145,6 +145,24 @@ runtime:
     http_requests_per_minute_limit: 200
 ```
 
+## `runtime.functions`
+
+Controls whether [functions](../../features/functions) declared in the top-level `functions:` section (and `tools:` entries with `as_sql: true`) are registered with the SQL engine. Defaults to disabled.
+
+```yaml
+runtime:
+  functions:
+    enabled: true
+```
+
+| Parameter | Optional | Default | Description                                                                                       |
+| --------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `enabled` | Yes      | `false` | When `true`, the runtime registers `functions:` entries and exposes them via SQL and `/v1/functions`. |
+
+When disabled, the `functions:` block is parsed but not registered, `list_udfs()` returns no `user`-source rows, and `GET /v1/functions` returns an empty array.
+
+See the [Functions Spicepod reference](./functions) for the function declaration schema.
+
 ## `runtime.shutdown_timeout`
 
 Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds.
