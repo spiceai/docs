@@ -90,6 +90,10 @@ configuration:
   label: 'Configuration'
   permalink: '/configuration'
   description: 'System configuration files and runtime settings.'
+cosmosdb:
+  label: 'Cosmos DB'
+  permalink: '/cosmosdb'
+  description: 'Azure Cosmos DB (NoSQL / Core SQL) data connector.'
 csharp:
   label: 'C#'
   permalink: '/csharp'
