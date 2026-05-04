@@ -8,7 +8,6 @@ pagination_next: null
 tags:
   - data-connectors
   - https
-  - http
   - observability
 ---
 
