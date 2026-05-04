@@ -125,6 +125,26 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 
 Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, `xxh64` or `xxh128` for reduced collision probability when caching a large number of queries. Use `blake3` when cryptographic security is required. Use `siphash` when protection against hash flooding attacks is a priority.
 
+## `runtime.params`
+
+Optional. Global key-value parameters for the runtime. HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+
+| Parameter Name                    | Description                                                                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `http_max_concurrent_requests`    | Default maximum concurrent HTTP requests per upstream origin. Can be overridden per-dataset with `max_concurrent_requests`.                                    |
+| `http_requests_per_second_limit`  | Default maximum HTTP requests per second per upstream origin. Can be overridden per-dataset with `requests_per_second_limit`.                                  |
+| `http_requests_per_minute_limit`  | Default maximum HTTP requests per minute per upstream origin. Can be overridden per-dataset with `requests_per_minute_limit`.                                  |
+| `http_rate_control_jitter_min`    | Default minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Can be overridden per-dataset. |
+| `http_rate_control_jitter_max`    | Default maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Can be overridden per-dataset. |
+
+```yaml
+runtime:
+  params:
+    http_max_concurrent_requests: 10
+    http_requests_per_second_limit: 5
+    http_requests_per_minute_limit: 200
+```
+
 ## `runtime.shutdown_timeout`
 
 Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds.
