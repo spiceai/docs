@@ -788,6 +788,34 @@ datasets:
 
 The name of the column in the table schema.
 
+## `columns[*].type`
+
+Optional. Declares the expected data type for the column, overriding the type inferred from the data source. Accepts three families of type expressions:
+
+- **Arrow display forms** — `Int64`, `Utf8`, `Float64`, `Bool`, `Date32`, `Timestamp(Microsecond, UTC)`, `List<Int64>`, `Decimal128(p, s)`, `Map<Utf8, Int64>`, etc.
+- **SQL / Postgres forms** — `BIGINT`, `INTEGER`, `TEXT`, `VARCHAR(n)`, `BOOLEAN`, `DOUBLE PRECISION`, `NUMERIC(p,s)`, `DATE`, `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, `BYTEA`, etc.
+- **Postgres aliases** — `int2`, `int4`, `int8`, `float4`, `float8`, `serial`, `bigserial`, `timestamptz`, `uuid`, and the `T[]` array suffix (e.g. `int4[]`).
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    columns:
+      - name: event_id
+        type: bigint
+        nullable: false
+      - name: payload
+        type: Map<Utf8, Utf8>
+      - name: tags
+        type: text[]
+      - name: amount
+        type: numeric(18,4)
+```
+
+## `columns[*].nullable`
+
+Optional. Declares whether the column allows null values. When omitted, the column defaults to nullable. Set to `false` to enforce a non-null constraint.
+
 ## `columns[*].description`
 
 Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
