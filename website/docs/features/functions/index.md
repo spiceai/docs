@@ -1,7 +1,7 @@
 ---
-title: 'User-Defined Functions'
-sidebar_label: 'User-Defined Functions'
-description: 'Define custom scalar SQL functions inline (SQL tier) or by calling remote HTTP services (Remote tier), automatically exposed as SQL UDFs and LLM tools.'
+title: 'Functions'
+sidebar_label: 'Functions'
+description: 'Define custom scalar SQL functions inline (SQL tier) or by calling remote HTTP services (Remote tier), automatically exposed as SQL functions and LLM tools.'
 sidebar_position: 11
 pagination_prev: null
 pagination_next: null
@@ -12,17 +12,17 @@ tags:
   - tools
 ---
 
-User-defined functions (UDFs) extend Spice's SQL engine with custom logic declared in your Spicepod. UDFs are scalar functions that can be:
+Functions extend Spice's SQL engine with custom scalar logic declared in your Spicepod. Each function can be:
 
 - **Called directly in SQL** like any built-in function (`SELECT my_fn(col) FROM ...`).
 - **Surfaced to LLMs as tools** for tool-calling workflows.
 - **Listed via SQL** with the `list_udfs()` UDTF and via the HTTP API at `GET /v1/functions`.
 
-UDFs are declared in the top-level `functions:` block of `spicepod.yaml`. The full YAML reference is on the [Functions Spicepod reference](../../reference/spicepod/functions.md) page.
+Functions are declared in the top-level `functions:` block of `spicepod.yaml`. The full YAML reference is on the [Functions Spicepod reference](../../reference/spicepod/functions.md) page.
 
 ## Quickstart
 
-Enable user-defined functions and declare a SQL function:
+Enable functions and declare a SQL function:
 
 ```yaml
 runtime:
@@ -47,11 +47,11 @@ Call it from SQL:
 SELECT double_it(21); -- 42
 ```
 
-The function is automatically registered both as a SQL UDF and as a callable LLM tool (set `as_tool: false` to keep it SQL-only).
+The function is automatically registered both as a SQL function and as a callable LLM tool (set `as_tool: false` to keep it SQL-only).
 
 ## Execution Tiers
 
-Spice supports two tiers for user-defined functions, selected by the `from:` field:
+Spice supports two tiers for functions, selected by the `from:` field:
 
 | Tier   | `from:` scheme        | Where it runs                       | When to use                                                                  |
 | ------ | --------------------- | ----------------------------------- | ---------------------------------------------------------------------------- |
@@ -229,7 +229,7 @@ The corresponding Arrow display forms (e.g. `Int64`, `List(Int64)`, `Decimal128(
 SELECT * FROM list_udfs() WHERE source = 'user';
 ```
 
-The `list_udfs()` UDTF returns every UDF registered in the runtime, including built-ins. Filter by `source = 'user'` to see only user-defined functions:
+The `list_udfs()` UDTF returns every function registered in the runtime, including built-ins. Filter by `source = 'user'` to see only declared functions:
 
 | Column        | Description                                                           |
 | ------------- | --------------------------------------------------------------------- |

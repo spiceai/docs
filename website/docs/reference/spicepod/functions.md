@@ -4,9 +4,9 @@ sidebar_label: 'Functions'
 description: 'User-defined functions YAML reference'
 ---
 
-User-defined functions extend Spice's SQL engine with custom scalar functions. Each entry in the top-level `functions:` block is registered as a callable SQL UDF and (by default) as an LLM tool.
+Functions extend Spice's SQL engine with custom scalar logic. Each entry in the top-level `functions:` block is registered as a callable SQL function and (by default) as an LLM tool.
 
-For an overview, examples, and execution-tier details, see [User-Defined Functions](../../features/user-defined-functions).
+For an overview, examples, and execution-tier details, see [Functions](../../features/functions).
 
 :::warning[Registration is off by default]
 The `functions:` section is only honored when [`runtime.functions.enabled`](./runtime#runtimefunctions) is set to `true`.
@@ -14,7 +14,7 @@ The `functions:` section is only honored when [`runtime.functions.enabled`](./ru
 
 ## `functions`
 
-The `functions:` section in your configuration declares one or more user-defined scalar functions.
+The `functions:` section in your configuration declares one or more scalar functions.
 
 Example:
 
@@ -46,7 +46,7 @@ Source URI selecting the execution tier:
 - `sql` — Inline SQL body executed in-process.
 - `http://...` / `https://...` — Remote endpoint invoked over HTTP + JSON.
 
-Other schemes are rejected at startup. See [Execution Tiers](../../features/user-defined-functions#execution-tiers).
+Other schemes are rejected at startup. See [Execution Tiers](../../features/functions#execution-tiers).
 
 ### `enabled`
 
@@ -70,7 +70,7 @@ Optional. Defaults to `volatile`. Controls how the optimizer treats the function
 | `stable`    | Stable within a single query but may change across queries. Cached per query.                |
 | `volatile`  | (default) Unpredictable on every call. Never cached.                                         |
 
-Choose the strongest level that's actually true. See [Volatility](../../features/user-defined-functions#volatility).
+Choose the strongest level that's actually true. See [Volatility](../../features/functions#volatility).
 
 ### `signature`
 
@@ -91,7 +91,7 @@ Optional. Positional argument list. Empty for niladic functions.
 Each entry has:
 
 - `name` — Argument name. Used inside SQL `body` expressions and as the JSON key for remote tier requests.
-- `type` — Arrow type. Accepts Spicepod aliases (`int64`, `utf8`, `list<int64>`, `decimal(38,10)`, `timestamp(us, utc)`) and Arrow display forms (`Int64`, `List(Int64)`, etc.). See [Types](../../features/user-defined-functions#types).
+- `type` — Arrow type. Accepts Spicepod aliases (`int64`, `utf8`, `list<int64>`, `decimal(38,10)`, `timestamp(us, utc)`) and Arrow display forms (`Int64`, `List(Int64)`, etc.). See [Types](../../features/functions#types).
 
 #### `signature.returns`
 
@@ -183,4 +183,4 @@ After startup, registered functions can be inspected:
 - **From SQL** — `SELECT * FROM list_udfs() WHERE source = 'user';`
 - **From the HTTP API** — `GET /v1/functions` returns a JSON array of user functions.
 
-See [Discovering registered functions](../../features/user-defined-functions#discovering-registered-functions).
+See [Discovering registered functions](../../features/functions#discovering-registered-functions).

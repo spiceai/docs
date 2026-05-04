@@ -147,7 +147,7 @@ runtime:
 
 ## `runtime.functions`
 
-Controls whether [user-defined functions](../../features/user-defined-functions) declared in the top-level `functions:` section (and `tools:` entries with `as_sql: true`) are registered with the SQL engine. Defaults to disabled.
+Controls whether [functions](../../features/functions) declared in the top-level `functions:` section (and `tools:` entries with `as_sql: true`) are registered with the SQL engine. Defaults to disabled.
 
 ```yaml
 runtime:
