@@ -4,7 +4,7 @@ sidebar_label: 'Functions'
 description: 'User-defined functions YAML reference'
 ---
 
-Functions extend Spice's SQL engine with custom scalar logic. Each entry in the top-level `functions:` block is registered as a callable SQL function and (by default) as an LLM tool.
+Functions extend Spice's SQL engine with custom scalar and table logic. Each entry in the top-level `functions:` block is registered as a callable SQL function and (for scalar functions, by default) as an LLM tool.
 
 For an overview, examples, and execution-tier details, see [Functions](../../features/functions).
 
@@ -14,7 +14,7 @@ The `functions:` section is only honored when [`runtime.functions.enabled`](./ru
 
 ## `functions`
 
-The `functions:` section in your configuration declares one or more scalar functions.
+The `functions:` section in your configuration declares one or more scalar or table functions.
 
 Example:
 
@@ -58,7 +58,12 @@ Optional. Free-form description surfaced in `list_udfs()`, `GET /v1/functions`, 
 
 ### `kind`
 
-Optional. Defaults to `scalar`. Only scalar functions are supported in the current beta.
+Optional. Defaults to `scalar`.
+
+| Value    | Description                                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| `scalar` | (default) Returns a single value per row. Called as `SELECT my_fn(x) FROM ...`.                           |
+| `table`  | Returns multiple rows and columns. Called as `SELECT ... FROM my_fn(x)`. Always SQL-only (`as_tool` is ignored). |
 
 ### `volatility`
 
@@ -95,11 +100,21 @@ Each entry has:
 
 #### `signature.returns`
 
-Required for scalar functions. The Arrow type of the function's output, in the same format as argument types.
+Required. For **scalar functions**, a single Arrow type string (e.g., `int64`, `utf8`). For **table functions**, a list of output column definitions:
+
+```yaml
+# Scalar function
+returns: int64
+
+# Table function
+returns:
+  - { name: value, type: int64 }
+  - { name: label, type: utf8 }
+```
 
 ### `body`
 
-Inline SQL expression body. Required when `from: sql` (unless `body_ref` is set instead). Must be a single SQL expression (not a statement) referencing the function's arguments by name.
+Inline SQL body. Required when `from: sql` (unless `body_ref` is set instead). For **scalar functions**, must be a single SQL expression referencing the function's arguments by name. For **table functions**, must be a single `SELECT` query; scalar arguments are available via a virtual `args` table.
 
 ```yaml
 body: |
@@ -153,7 +168,7 @@ metadata:
 
 ### `as_tool`
 
-Optional. Defaults to `true`. When `true`, the function is registered as an LLM tool with the same name and description and becomes callable from chat completions, `POST /v1/tools/<name>`, and the `/v1/tools` listing.
+Optional. Defaults to `true` for scalar functions. When `true`, the function is registered as an LLM tool with the same name and description and becomes callable from chat completions, `POST /v1/tools/<name>`, and the `/v1/tools` listing. Table functions (`kind: table`) are always SQL-only regardless of this setting.
 
 Set to `false` to keep the function SQL-only:
 
