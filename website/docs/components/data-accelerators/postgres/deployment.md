@@ -43,7 +43,7 @@ The accelerator creates and writes tables in the configured database. Grant the 
 
 | Parameter                 | Default | Description                                                             |
 | ------------------------- | ------- | ----------------------------------------------------------------------- |
-| `connection_pool_min`     | `5`     | Minimum idle connections held by the pool.                              |
+| `pg_connection_pool_min`  | `5`     | Minimum idle connections held by the pool.                              |
 | `connection_pool_size`    | `10`    | Maximum connections the pool will open.                                 |
 
 `connection_pool_min <= connection_pool_size` is enforced at startup; mismatched values are rejected as configuration errors.
