@@ -80,7 +80,7 @@ The data connector supports the following `params`. Use the [secret replacement 
 | `mssql_database`                 | (Optional) The name of the database to connect to. The default database (`master`) will be used if not specified.                                                                                                                                                                                                                                                           |
 | `mssql_username`                 | The username for the SQL Server authentication.                                                                                                                                                                                                                                                                                                                             |
 | `mssql_password`                 | The password for the SQL Server authentication.                                                                                                                                                                                                                                                                                                                             |
-| `mssql_encrypt`                  | (Optional) Specifies whether encryption is required for the connection.<br /> <ul><li>`true`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false`: This mode will not attempt to use an SSL connection, even if the server supports it. Only the login procedure is encrypted.</li></ul> |
+| `mssql_encrypt`                  | (Optional) Specifies whether encryption is required for the connection.<br /> <ul><li>`true` or `require`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`false` or `disable`: This mode will not attempt to use an SSL connection, even if the server supports it. Only the login procedure is encrypted.</li></ul> |
 | `mssql_trust_server_certificate` | (Optional) Specifies whether the server certificate should be trusted without validation when encryption is enabled.<br /> <ul><li>`true`: The server certificate will not be validated and it is accepted as-is.</li><li>`false`: (default) Server certificate will be validated against system's certificate storage.</li></ul>                                           |
 
 ### Example
@@ -97,6 +97,35 @@ datasets:
       mssql_encrypt: true
       mssql_trust_server_certificate: true
 ```
+
+## Performance
+
+### TopK / ORDER BY ... LIMIT pushdown
+
+Spice pushes `ORDER BY ... LIMIT N` queries down to SQL Server as `SELECT TOP N ... ORDER BY ...`, avoiding transferring unnecessary rows over the network. This pushdown is applied when the sort can be satisfied exactly by SQL Server — which depends on NULL ordering.
+
+SQL Server treats `NULL` as the smallest possible value, so its native ordering is:
+
+| Direction | NULLs position |
+| --------- | -------------- |
+| `ASC`     | First          |
+| `DESC`    | Last           |
+
+Most SQL clients and tools (including Spice's default planner) use the opposite convention (`ASC NULLS LAST`, `DESC NULLS FIRST`). When the requested NULL ordering doesn't match SQL Server's native behavior, Spice falls back to fetching all matching rows and applying the limit locally.
+
+**To guarantee TopK pushdown on nullable columns**, explicitly specify the NULL ordering that matches SQL Server's native behavior:
+
+```sql
+-- Pushed down: DESC NULLS LAST matches SQL Server native ordering
+SELECT id, value FROM my_dataset ORDER BY value DESC NULLS LAST LIMIT 10;
+
+-- Pushed down: ASC NULLS FIRST matches SQL Server native ordering
+SELECT id, value FROM my_dataset ORDER BY value ASC NULLS FIRST LIMIT 10;
+```
+
+:::tip
+Sorting on `NOT NULL` columns (e.g. primary keys) always pushes the limit down regardless of the `NULLS` clause, since there are no NULLs to order.
+:::
 
 ## Secrets
 

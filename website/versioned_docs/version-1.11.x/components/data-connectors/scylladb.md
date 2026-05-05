@@ -74,7 +74,7 @@ The ScyllaDB data connector can be configured by providing the following `params
 | `scylladb_user`       | Username for authentication.                                       | No       | -       |
 | `scylladb_pass`       | Password for authentication.                                       | No       | -       |
 | `scylladb_datacenter` | Preferred datacenter for connection routing.                       | No       | -       |
-| `scylladb_ssl`        | Enable SSL/TLS for connections.                                    | No       | `false` |
+| `scylladb_ssl`        | Enable SSL/TLS for connections. Not yet implemented — the parameter is accepted but has no effect. | No       | `false` |
 | `connection_timeout`  | Connection timeout in milliseconds.                                | No       | `10000` |
 
 ## Types

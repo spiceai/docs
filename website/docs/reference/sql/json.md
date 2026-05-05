@@ -45,6 +45,9 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
   - [`json_length`](#json_length)
     - [Arguments](#arguments-9)
     - [Example](#example-9)
+  - [`json_object_keys`](#json_object_keys)
+    - [Arguments](#arguments-13)
+    - [Example](#example-13)
 - [JSON Operators](#json-operators)
   - [`->`](#op_json_get)
     - [Arguments](#arguments-10)
@@ -315,6 +318,39 @@ json_length(json_string[, key1, key2, ...])
 +--------------------------------------+
 ```
 
+### `json_object_keys`
+
+Returns the top-level keys of a JSON object as an array of strings. If a path is provided, returns the keys of the object at that path. Returns `NULL` if the value at the path is not an object.
+
+```sql
+json_object_keys(json_string[, key1, key2, ...])
+```
+
+Alias: `json_keys`.
+
+#### Arguments
+
+- **json_string**: String containing valid JSON data.
+- **key1, key2, ...**: Optional path to a nested object. If omitted, returns the keys of the root object.
+
+#### Example
+
+```sql
+> SELECT json_object_keys('{"a": 1, "b": 2, "c": 3}');
++-----------------------------------------------------+
+| json_object_keys(Utf8("{"a": 1, "b": 2, "c": 3}"))  |
++-----------------------------------------------------+
+| [a, b, c]                                           |
++-----------------------------------------------------+
+
+> SELECT json_object_keys('{"user": {"name": "John", "age": 30}}', 'user');
++-----------------------------------------------------------------------------+
+| json_object_keys(Utf8("{"user": {"name": "John", "age": 30}}"),Utf8("user")) |
++-----------------------------------------------------------------------------+
+| [name, age]                                                                 |
++-----------------------------------------------------------------------------+
+```
+
 ---
 
 ## JSON Operators
@@ -440,6 +476,124 @@ SELECT
   json_get_int(properties, 'stock') as stock_count
 FROM products;
 ```
+
+## JSON Table Functions (UDTFs)
+
+Spice includes table-valued functions for decomposing JSON structures into relational rows. Each function is available as both a UDTF (in the `FROM` clause with literal input) and a scalar UDF returning a list of structs (for per-row use with `UNNEST`).
+
+### `flatten_json`
+
+Walks an arbitrary JSON value and emits one row per reachable leaf.
+
+```sql
+flatten_json(input Utf8 [, options...]) -> TABLE(
+    path         Utf8,
+    parent_path  Utf8,
+    key          Utf8,
+    value        Utf8,
+    type         Utf8     -- "object"|"array"|"string"|"number"|"integer"|"boolean"|"null"
+)
+```
+
+**Options (named arguments):**
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `max_depth` | UInt | `64` | Maximum recursion depth. |
+| `max_rows` | UInt | `1000000` | Per-document row cap. |
+| `max_bytes` | UInt | `8388608` | Input size limit (bytes). |
+| `path_style` | Utf8 | `"dot"` | `"dot"` or `"json-pointer"`. |
+| `include_internal` | Bool | `false` | Also emit interior object/array rows. |
+| `array_wildcard` | Bool | `false` | Collapse array indices to `[*]` instead of `[0]`, `[1]`, etc. |
+
+**UDTF example:**
+
+```sql
+SELECT path, value, type
+FROM flatten_json('{"user": {"name": "Alice", "scores": [95, 87]}}');
+```
+
+| path | value | type |
+| --- | --- | --- |
+| `user.name` | `Alice` | `string` |
+| `user.scores[0]` | `95` | `integer` |
+| `user.scores[1]` | `87` | `integer` |
+
+**Scalar UDF example (per-row with `UNNEST`):**
+
+```sql
+SELECT rows.path, rows.value, rows.type
+FROM (SELECT UNNEST(flatten_json(body)) AS rows FROM documents);
+```
+
+### `flatten_json_properties`
+
+Decomposes a JSON Schema document into one row per field, extracting metadata such as types, descriptions, required status, enums, and format.
+
+```sql
+flatten_json_properties(input Utf8 [, options...]) -> TABLE(
+    path         Utf8,
+    parent_path  Utf8,
+    name         Utf8,
+    description  Utf8,
+    type         Utf8,
+    required     Boolean,
+    format       Utf8,
+    enum_values  List<Utf8>,
+    metadata     Utf8
+)
+```
+
+Handles `properties` recursion, `items.properties` (arrays of objects), `additionalProperties` maps, `allOf`/`oneOf`/`anyOf` merging, and local `$ref` pointers with cycle detection.
+
+**Options (named arguments):**
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `max_depth` | UInt | `32` | Maximum recursion depth. |
+| `max_rows` | UInt | `100000` | Per-document row cap. |
+| `max_bytes` | UInt | `8388608` | Input size limit (bytes). |
+| `path_style` | Utf8 | `"dot"` | `"dot"` or `"json-pointer"`. |
+| `dialect` | Utf8 | `"json-schema"` | `"json-schema"` or `"openapi"` (metrics tagging). |
+| `include_internal` | Bool | `false` | Also emit container rows (objects, arrays). |
+| `expand_maps` | Bool | `false` | Walk into `additionalProperties` and emit child paths with a wildcard segment (e.g., `parent.[*].child`). |
+| `map_wildcard` | Utf8 | `"[*]"` | Wildcard segment for map values when `expand_maps` is `true`. |
+
+**Example:**
+
+```sql
+SELECT path, type, required, description
+FROM flatten_json_properties('{
+  "type": "object",
+  "properties": {
+    "name": {"type": "string", "description": "User name"},
+    "age": {"type": "integer"}
+  },
+  "required": ["name"]
+}');
+```
+
+| path | type | required | description |
+| --- | --- | --- | --- |
+| `name` | `string` | `true` | `User name` |
+| `age` | `integer` | `false` | |
+
+**Expanding maps:**
+
+When a JSON Schema uses `additionalProperties` to describe map values, enable `expand_maps` to produce JSONPath-style paths:
+
+```sql
+SELECT path, type
+FROM flatten_json_properties(
+  '{"type": "object", "additionalProperties": {"type": "object", "properties": {"id": {"type": "string"}, "primary": {"type": "boolean"}}}}',
+  expand_maps => true
+);
+```
+
+| path | type |
+| --- | --- |
+| `[*].id` | `string` |
+| `[*].primary` | `boolean` |
 
 ## Further Reading
 

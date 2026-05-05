@@ -37,9 +37,8 @@ TLS is controlled via `mysql_sslmode`:
 | `disabled`    | No TLS.                                                          |
 | `preferred`   | Try TLS, fall back to plaintext. Not recommended for production. |
 | `required`    | Require TLS; do **not** verify the server certificate.           |
-| `verify_ca`   | Require TLS and verify the CA chain.                             |
 
-For production, use `verify_ca` with `mysql_sslrootcert` pointing to the CA bundle. The default is `required`, which encrypts the connection but does not validate the server's identity.
+For production, use `required` with `mysql_sslrootcert` pointing to the CA bundle. The default is `required`, which encrypts the connection but does not validate the server's identity.
 
 ## Resilience Controls
 
@@ -49,10 +48,10 @@ The connector uses a per-dataset connection pool with the following defaults:
 
 | Parameter                   | Default | Description                                    |
 | --------------------------- | ------- | ---------------------------------------------- |
-| `connection_pool_min_idle`  | `1`     | Minimum idle connections held by the pool.     |
-| `connection_pool_size`      | `5`     | Maximum connections the pool will open.        |
+| `mysql_pool_min`            | `1`     | Minimum idle connections held by the pool.     |
+| `mysql_pool_max`            | `5`     | Maximum connections the pool will open.        |
 
-Invalid values (non-integers) are logged as a warning and silently replaced with the defaults. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
+Invalid values (non-integers) are logged as a warning and silently replaced with the defaults. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients. `mysql_pool_min` must be less than or equal to `mysql_pool_max`; conflicting values are rejected at startup.
 
 ### Retry Behavior
 
@@ -60,7 +59,7 @@ Transient query failures are not automatically retried at the connector layer. D
 
 ## Capacity & Sizing
 
-- **Network**: MySQL traffic is TCP. Plan for the sum of `connection_pool_size` across all Spice datasets targeting the same MySQL instance when sizing database `max_connections`.
+- **Network**: MySQL traffic is TCP. Plan for the sum of `mysql_pool_max` across all Spice datasets targeting the same MySQL instance when sizing database `max_connections`.
 - **Memory**: Each pooled connection holds a small amount of client-side state. Result sets stream in batches; memory footprint for federated reads is bounded by DataFusion's record batch size (8192 rows default).
 - **Throughput**: For full-table materialization (acceleration refresh), query latency scales with the source table size and the presence of indexes on the refresh partitioning/ordering columns.
 
@@ -74,15 +73,19 @@ The MySQL connector exposes observable metrics for its connection pool. Enable t
 | `connections_in_pool`               | ObservableGauge | Idle connections sitting in the pool.                                                              |
 | `active_wait_requests`              | ObservableGauge | Requests waiting for a connection (saturation signal).                                             |
 | `create_failed`                     | Counter         | Connections that failed to be created.                                                             |
-| `discarded_excess_idle_connection`  | Counter         | Connections closed because the pool already had enough idle connections.                           |
+| `discarded_superfluous_connection`  | Counter         | Connections closed because the pool already had enough idle connections.                           |
 | `discarded_unestablished_connection`| Counter         | Connections closed because they could not be established.                                          |
 | `dirty_connection_return`           | Counter         | Connections returned to the pool in a dirty state (open transactions, pending queries, etc.).      |
+| `discarded_expired_connection`      | Counter         | Connections discarded because they were expired by pool constraints (i.e. TTL expired).            |
+| `resetting_connection`              | Counter         | Connections that were reset.                                                                       |
+| `discarded_error_during_cleanup`    | Counter         | Connections discarded because they returned an error during cleanup.                               |
+| `connection_returned_to_pool`       | Counter         | Connections returned to the pool.                                                                  |
 
 Metric instruments are exposed with the prefix `dataset_mysql_`. Each instrument carries a `name` attribute set to the dataset name.
 
 Key signals to alert on:
 
-- `active_wait_requests > 0` sustained → pool is saturated, increase `connection_pool_size` or the server's `max_connections`.
+- `active_wait_requests > 0` sustained → pool is saturated, increase `mysql_pool_max` or the server's `max_connections`.
 - `create_failed` increasing → credentials, network, or server availability problem.
 - `dirty_connection_return` increasing → a query is not cleaning up its transaction state; investigate long-running or aborted queries.
 
@@ -93,7 +96,7 @@ MySQL operations participate in Spice [task history](../../../reference/task_his
 ## Known Limitations
 
 - Only TCP connections are supported. Unix socket connections are not exposed through Spice configuration.
-- TLS with full hostname verification (`verify_identity`) is not a documented option; use `verify_ca` with a trusted CA bundle.
+- TLS with certificate verification (`verify_ca`, `verify_identity`) is not supported; only `disabled`, `preferred`, and `required` modes are available.
 - Large text/blob columns are fetched in their entirety per row; consider selecting only the columns you need when federating.
 - `mysql_sslmode: preferred` silently downgrades to plaintext on TLS negotiation failure and is not recommended for production.
 
@@ -102,7 +105,7 @@ MySQL operations participate in Spice [task history](../../../reference/task_his
 | Symptom                                                   | Likely cause                                              | Resolution                                                                                           |
 | --------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `Access denied for user`                                  | Incorrect credentials or user lacks `SELECT` on the DB.   | Verify credentials; confirm the user has read access on the required tables.                          |
-| `Too many connections`                                    | Sum of Spice pool sizes + other clients exceeds server `max_connections`. | Reduce `connection_pool_size` or raise the server limit.                                             |
-| Sustained `active_wait_requests > 0`                      | Pool saturation.                                          | Increase `connection_pool_size`; reduce concurrent dataset refreshes.                                |
-| `SSL connection error`                                    | Certificate mismatch with `mysql_sslmode: verify_ca`.     | Verify `mysql_sslrootcert` matches the server's issuing CA. Use `openssl s_client -connect` to inspect. |
-| Silent plaintext connection                               | `mysql_sslmode: preferred` falling back.                  | Switch to `required` or `verify_ca`.                                                                 |
+| `Too many connections`                                    | Sum of Spice pool sizes + other clients exceeds server `max_connections`. | Reduce `mysql_pool_max` or raise the server limit.                                             |
+| Sustained `active_wait_requests > 0`                      | Pool saturation.                                          | Increase `mysql_pool_max`; reduce concurrent dataset refreshes.                                |
+| `SSL connection error`                                    | Certificate mismatch or TLS negotiation failure.          | Verify `mysql_sslrootcert` matches the server's issuing CA. Use `openssl s_client -connect` to inspect. |
+| Silent plaintext connection                               | `mysql_sslmode: preferred` falling back.                  | Switch to `required`.                                                                                |

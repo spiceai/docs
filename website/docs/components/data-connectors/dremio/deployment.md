@@ -15,14 +15,13 @@ Production operating guide for the Dremio data connector covering authentication
 
 ## Authentication & Secrets
 
-The Dremio connector connects over [Arrow Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) with username/password or personal-access-token (PAT) authentication.
+The Dremio connector connects over [Arrow Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) with username/password authentication.
 
 | Parameter              | Description                                                                                                     |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `dremio_endpoint`      | Flight SQL endpoint, e.g. `grpc+tls://dremio.internal:32010`.                                                   |
-| `dremio_username`      | Dremio user (username/password auth).                                                                           |
+| `dremio_username`      | Dremio user.                                                                                                    |
 | `dremio_password`      | Dremio password. Use `${secrets:...}` from a secret store.                                                      |
-| `dremio_token`         | Alternatively, a PAT or session token.                                                                          |
 
 Use TLS endpoints (`grpc+tls://`) in production. Credentials must be sourced from a [secret store](../../secret-stores/).
 
@@ -57,7 +56,6 @@ Dremio queries participate in [task history](../../../reference/task_history) vi
 
 ## Known Limitations
 
-- **Read-only**: The connector is read-only; writes to Dremio are not supported.
 - **Temporary tables**: Dremio temporary objects are not visible to Spice; use Dremio views for shared logic.
 - **Reflection-aware routing**: The connector does not explicitly hint Dremio reflections; they are still applied by the coordinator transparently.
 

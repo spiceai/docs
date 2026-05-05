@@ -40,7 +40,7 @@ Spice supports the following syntax for queries:
 [ [UNION](#union-clause) [ ALL | select ] ]
 [ [ORDER BY](#order-by-clause) expression \[ ASC | DESC \][, ...] ]  
 [ [LIMIT](#limit-clause) count ]  
-[ [EXCLUDE | EXCEPT](#exclude-and-except-clause) ]
+[ [EXCLUDE | EXCEPT](#exclude-except-replace-and-ilike-clauses) ]
 
 ### Window Functions (OVER Clause)
 
@@ -78,14 +78,14 @@ SELECT list can be an expression or wildcards.
 Example:
 
 ```sql
-SELECT a, b, a + b FROM table
+SELECT a, b, a + b FROM table;
 ```
 
 The `DISTINCT` quantifier can be added to make the query return all distinct rows.
 By default `ALL` will be used, which returns all the rows.
 
 ```sql
-SELECT DISTINCT person, age FROM employees
+SELECT DISTINCT person, age FROM employees;
 ```
 
 ### FROM clause
@@ -95,7 +95,7 @@ The `FROM` clause is used to specify which table to select data from.
 Example:
 
 ```sql
-SELECT t.a FROM table AS t
+SELECT t.a FROM table AS t;
 ```
 
 ### WHERE clause
@@ -105,7 +105,7 @@ The `WHERE` clause is used define the conditions to filter the query results.
 Example:
 
 ```sql
-SELECT a FROM table WHERE a > 10
+SELECT a FROM table WHERE a > 10;
 ```
 
 ### JOIN clause
@@ -218,7 +218,7 @@ included, the query with a `GROUP BY` clause is the same as `SELECT DISTINCT`.
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY a, b
+SELECT a, b, MAX(c) FROM table GROUP BY a, b;
 ```
 
 Some aggregation functions accept optional ordering requirement, such as `ARRAY_AGG`. If a requirement is given,
@@ -227,7 +227,7 @@ aggregation is calculated in the order of the requirement.
 Example:
 
 ```sql
-SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b
+SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b;
 ```
 
 #### `GROUP BY ALL`
@@ -237,7 +237,7 @@ Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY ALL
+SELECT a, b, MAX(c) FROM table GROUP BY ALL;
 ```
 
 ### HAVING clause
@@ -247,7 +247,7 @@ The `HAVING` clause can be used with `GROUP BY` to eliminate groups that don't s
 Example:
 
 ```sql
-SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10
+SELECT a, b, MAX(c) FROM table GROUP BY a, b HAVING MAX(c) > 10;
 ```
 
 ### QUALIFY clause
@@ -286,7 +286,7 @@ SELECT
     a,
     b,
     c
-FROM table2
+FROM table2;
 ```
 
 ### ORDER BY clause
@@ -318,12 +318,18 @@ Example:
 
 ```sql
 SELECT age, person FROM table
-LIMIT 10
+LIMIT 10;
 ```
 
-### EXCLUDE and EXCEPT clause
+### EXCLUDE, EXCEPT, REPLACE, and ILIKE clauses
 
-Excluded named columns from query results.
+Spice supports the following wildcard modifiers on `SELECT *`:
+
+- `EXCLUDE (col1, col2, ...)` / `EXCEPT (col1, col2, ...)` — omit the named columns.
+- `REPLACE (expr AS col, ...)` — substitute the named columns with a new expression.
+- `ILIKE 'pattern'` — emit only columns whose names match the case-insensitive pattern.
+
+`RENAME` is parsed but not yet implemented.
 
 Example selecting all columns except for `age` and `person`:
 
@@ -335,6 +341,20 @@ FROM table;
 ```sql
 SELECT * EXCLUDE(age, person)
 FROM table;
+```
+
+Example replacing a column's value while keeping all other columns:
+
+```sql
+SELECT * REPLACE (upper(name) AS name)
+FROM customers;
+```
+
+Example selecting all columns whose names contain "date":
+
+```sql
+SELECT * ILIKE '%date%'
+FROM events;
 ```
 
 ### Additional Example

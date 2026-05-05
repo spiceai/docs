@@ -35,6 +35,14 @@ datasets:
       http_password: ${env:MY_HTTP_PASS}
 ```
 
+The username is taken from the `user-info` section of the `from` URL (`user@host`) or from the `http_username` parameter. The password comes from the `http_password` parameter. The connector then sends a standard [RFC 7617](https://datatracker.ietf.org/doc/html/rfc7617) Basic authentication header on every request:
+
+```http
+Authorization: Basic <base64(username:password)>
+```
+
+For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
+
 ### Using Custom Headers
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
@@ -150,7 +158,11 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `retry_max_duration`       | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                                                                                                                                                                                                                                                   |
 | `retry_jitter`             | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                                                                                                                                                                                                                                               |
 | `max_request_query_length` | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                                                                                                                                                                                                                                               |
-| `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).                                                                                                                                                                                                                                                                                                                   |
+| `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).
+| `request_header_filters`   | Optional. Set to `enabled` to allow `request_headers` filters to push down dynamic HTTP request headers. Default: `disabled`. Requires `request_header_allowlist`.
+| `request_header_allowlist` | Comma-separated list of HTTP header names that `request_headers` filters may set (e.g., `x-sandbox-id, x-region`). **Required** when `request_header_filters` is enabled. The `authorization` header cannot be allowlisted when HTTP authentication is configured.
+| `max_request_headers_length` | Optional. Maximum size in bytes for `request_headers` filter values. Default: `16384` (16 KiB).
+| `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. If unset, partition count is unlimited.                                                                                                                                                                                                                                                                                                                   |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`.                                                                                                                                                      |
 | `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). When set together with `http_auth_refresh_token`, the connector exchanges the refresh token for short-lived access tokens and attaches `Authorization: Bearer <token>` to all data requests. Applies to JSON API endpoints only. See [OAuth2 Refresh-Token Authentication](#oauth2-refresh-token-authentication). |
 | `http_auth_refresh_token`  | Optional. OAuth2 refresh token exchanged against `auth_token_url` to obtain access tokens. **Required** when `auth_token_url` is set. Use a secret store, e.g. `${secrets:my_refresh_token}`.                                                                                                                                                                                                                                             |
@@ -158,6 +170,35 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_auth_client_secret`  | Optional. OAuth2 `client_secret` presented to the token endpoint. Required when the client is confidential; must be set together with `http_auth_client_id`. Use a secret store, e.g. `${secrets:my_client_secret}`.                                                                                                                                                                                                                      |
 | `auth_scopes`              | Optional. Space-separated OAuth2 scopes to request when refreshing (e.g. `read:data offline_access`). Omit to inherit the scopes bound to the refresh token.                                                                                                                                                                                                                                                                              |
 | `auth_client_auth`         | Optional. How client credentials are sent to the token endpoint: `basic` (HTTP Basic header, default per RFC 6749 §2.3.1) or `body` (`client_id`/`client_secret` in the form body). Default: `basic`.                                                                                                                                                                                                                                     |
+
+#### Rate Control Parameters
+
+HTTP-based connectors share a rate control system that limits concurrency and request rate per upstream origin. These parameters can be set per-dataset (in `params`) or globally (in `runtime.params`). Dataset-level settings override the global defaults.
+
+| Parameter Name              | Description                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
+| `requests_per_second_limit` | Maximum number of HTTP requests per second to the same upstream origin. Overrides `runtime.params.http_requests_per_second_limit`. If both are unset, no per-second rate limit is applied.    |
+| `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
+| `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
+| `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
+
+Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin.
+
+```yaml
+runtime:
+  params:
+    http_max_concurrent_requests: 10
+    http_requests_per_second_limit: 5
+
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+      allowed_request_paths: '/data/**'
+      max_concurrent_requests: 3        # Override: this dataset uses at most 3 concurrent requests
+```
 
 #### Pagination Parameters
 
@@ -172,6 +213,40 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `pagination_data_map_to_array` | Optional. When `enabled`, if the data at `pagination_data_pointer` (or the top-level response) is a JSON object/map, extracts its values as rows instead of treating it as a single row. Default: `disabled`. Requires pagination to be enabled.                                  |
 | `pagination_query_params`      | Optional. Query parameter template for client-driven pagination. Supports `{offset}`, `{limit}`, and `{page}` variables (e.g., `offset={offset}&limit={limit}`). Requires `pagination_page_size`. Mutually exclusive with `pagination_next_pointer` and `pagination_token_param`. |
 | `pagination_page_size`         | Optional. Number of items per page for query-parameter pagination. Must be a positive integer. Expands `{limit}` in `pagination_query_params` and detects the last page (fewer results than `page_size` means done). Requires `pagination_query_params`.                          |
+
+### Caching Mode Parameters
+
+When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-modes/caching), cache freshness is controlled by additional parameters placed under `acceleration.params` — **not** under the top-level `params` block.
+
+| Parameter                            | Description                                                                                                                                                       | Default    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `caching_ttl`                        | How long cached data is considered fresh. After this period, data becomes stale and a background refresh is triggered. **Defaults to `30s`.**                     | `30s`      |
+| `caching_stale_while_revalidate_ttl` | How long after `caching_ttl` expires to continue serving stale data while a background refresh runs. If omitted, queries wait for fresh data once TTL expires.    | None       |
+| `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error rather than failing the query.                                           | `disabled` |
+
+:::warning[`caching_ttl` defaults to 30 seconds]
+If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
+:::
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_cache
+    params:
+      file_format: json
+      allowed_request_paths: '/data/**'
+      request_query_filters: enabled
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      refresh_check_interval: 15m
+      on_zero_results: use_source
+      params:
+        caching_ttl: 15m                        # explicit — default is only 30s
+        caching_stale_while_revalidate_ttl: 5m  # serve stale data while refreshing
+```
+
+See [Caching Refresh Mode](../../features/data-acceleration/refresh-modes/caching) for full TTL semantics, stale-while-revalidate behaviour, and cache persistence options.
 
 ## HTTP Response Headers
 
@@ -287,13 +362,15 @@ For security, these metadata fields require explicit configuration to prevent un
 - `request_path` requires `allowed_request_paths` to be configured with glob patterns
 - `request_query` requires `request_query_filters: enabled`
 - `request_body` requires `request_body_filters: enabled`
+- `request_headers` requires `request_header_filters: enabled` and `request_header_allowlist`
   :::
 
-| Field Name      | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
-| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `request_path`  | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. **Requires `allowed_request_paths` parameter.** |
-| `request_query` | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `request_query_filters: enabled`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).              |
-| `request_body`  | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `request_body_filters: enabled`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                                |
+| Field Name        | Type   | Description                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request_path`    | String | Specifies the URL path to append to the base URL from the `from` field. When using a base domain/path in `from`, `request_path` constructs the complete endpoint. Example: If `from: https://api.example.com` and `request_path: /users/123`, the request will be made to `https://api.example.com/users/123`. **Requires `allowed_request_paths` parameter.** |
+| `request_query`   | String | Defines query parameters to append to the request URL. Formatted as a query string (e.g., `key1=value1&key2=value2`). These parameters are appended to the URL after any path specified in `request_path`. **Requires `request_query_filters: enabled`.** Maximum length: configurable via `max_request_query_length` (default: 1024 characters).              |
+| `request_body`    | String | Contains the request body for POST/PUT requests. Typically used with REST APIs that require a JSON or form-encoded payload. The content type should be specified using `http_headers`. **Requires `request_body_filters: enabled`.** Maximum size: configurable via `max_request_body_bytes` (default: 16 KiB).                                                |
+| `request_headers` | String | A JSON object of HTTP request headers to set on a per-request basis (e.g., `'{"x-sandbox-id":"sandbox-1"}'`). Only headers listed in `request_header_allowlist` are permitted. **Requires `request_header_filters: enabled` and `request_header_allowlist`.** Maximum size: configurable via `max_request_headers_length` (default: 16 KiB).                   |
 
 These metadata fields work in combination:
 
@@ -302,6 +379,11 @@ These metadata fields work in combination:
 - `request_path` is appended to the base URL
 - `request_query` is appended as query parameters
 - `request_body` is sent as the request payload (requires appropriate HTTP method configuration)
+- `request_headers` sets per-request HTTP headers (allowlisted names only)
+
+:::note OR filter restriction
+`OR` expressions across **different** filter columns (e.g., `WHERE request_query = 'a' OR request_headers = 'b'`) are rejected because the connector would issue a single combined HTTP request instead of separate ones. Use `UNION ALL` for alternative requests across different columns. `OR` within a single column (e.g., `WHERE request_path = '/a' OR request_path = '/b'`) is supported.
+:::
 
 ### Response Metadata Fields
 
@@ -710,6 +792,51 @@ This example demonstrates:
 - Executing complex search queries against REST APIs
 - Fetching results based on structured query syntax
 
+#### Subquery-Driven HTTP Requests
+
+The HTTP connector supports `IN (SELECT ...)` subqueries on filter columns (`request_path`, `request_query`, `request_body`, `request_headers`). Instead of fetching the entire HTTP dataset and joining in memory, the optimizer produces one HTTP request per unique subquery value.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/org_list.csv
+    name: orgs
+
+  - from: https://api.example.com
+    name: org_api
+    params:
+      file_format: json
+      allowed_request_paths: '/headers'
+      http_headers: 'x-static-header: static-value'
+      request_header_filters: enabled
+      request_header_allowlist: x-org-id
+      max_request_partitions: 100
+```
+
+```sql
+WITH org_headers AS (
+    SELECT '{"x-org-id":"' || org_id || '"}' AS hdr
+    FROM orgs
+)
+SELECT request_headers, content
+FROM org_api
+WHERE request_path = '/headers'
+  AND request_headers IN (SELECT hdr FROM org_headers);
+```
+
+Each unique `hdr` value from the subquery triggers a separate HTTP request with the corresponding `x-org-id` header. The connector deduplicates values and caps the build side at 20,000 unique values. Use `max_request_partitions` to limit the total number of HTTP requests.
+
+:::warning JOIN is not supported for HTTP filter columns
+`JOIN ... ON` queries where the join key is an HTTP filter column (e.g., `request_headers`, `request_path`) are not supported and will return an error. Use `IN (SELECT ...)` instead:
+
+```sql
+-- This will error:
+SELECT h.content, p.path FROM http_api h JOIN params p ON h.request_path = p.path;
+
+-- Use this instead:
+SELECT content FROM http_api WHERE request_path IN (SELECT path FROM params);
+```
+:::
+
 ### Processing JSON Responses
 
 APIs often return JSON data that requires parsing to extract specific fields. Spice provides [JSON functions](../../reference/sql/json) to process and transform JSON responses directly in SQL queries.
@@ -878,15 +1005,34 @@ Example error when body filters are not enabled:
 request_body filters are disabled for this dataset. Enable request_body_filters to use them.
 ```
 
+#### Request Headers Limitations
+
+- **Explicit Enable Required**: The `request_headers` field requires `request_header_filters: enabled`
+- **Allowlist Required**: Every header name in the JSON object must be listed in `request_header_allowlist`
+- **Size Limit**: Header filter values are limited to 16 KiB (16,384 bytes) by default (configurable via `max_request_headers_length`)
+- **Authorization Blocked**: The `authorization` header cannot be allowlisted when HTTP authentication (Basic or OAuth2) is configured
+- **OR Across Columns Not Supported**: `OR` expressions that span different filter columns (e.g., `request_headers OR request_query`) are rejected. Use `UNION ALL` for cross-column alternatives.
+
+#### Partition Limits
+
+When multiple filter columns are used together with `AND`, the connector creates a cross product of all filter values. For example, 3 `request_path` values × 2 `request_headers` values = 6 HTTP requests. Use the `max_request_partitions` parameter to cap this cross product and prevent runaway request counts.
+
+#### Subquery Limitations
+
+- **`IN (SELECT ...)` only**: Subqueries against HTTP filter columns must use `IN (SELECT ...)`. `JOIN ... ON` with HTTP filter columns is not supported and returns an error.
+- **Build-side value cap**: The subquery (build side) is capped at 20,000 unique values. Values are deduplicated before creating HTTP requests.
+- **Partition limit applies**: The expanded partitions from subquery values are subject to `max_request_partitions`. If the cross product of existing partitions and subquery values exceeds the limit, the query fails with an error.
+
 ### Configuration Requirements
 
-To use the special metadata fields (`request_path`, `request_query`, `request_body`), you must:
+To use the special metadata fields (`request_path`, `request_query`, `request_body`, `request_headers`), you must:
 
 1. **For `request_path`**: Configure `allowed_request_paths` with a comma-separated list of allowed path patterns (supports glob patterns)
 2. **For `request_query`**: Set `request_query_filters: enabled` in params
 3. **For `request_body`**: Set `request_body_filters: enabled` in params
+4. **For `request_headers`**: Set `request_header_filters: enabled` and `request_header_allowlist` in params
 
-Example minimal configuration for all three fields:
+Example minimal configuration for all four fields:
 
 ```yaml
 datasets:
@@ -896,14 +1042,22 @@ datasets:
       allowed_request_paths: '/users,/posts,/comments,/api/**'
       request_query_filters: enabled
       request_body_filters: enabled
+      request_header_filters: enabled
+      request_header_allowlist: x-sandbox-id, x-region
+      max_request_partitions: 10000
 ```
 
 ### Performance Considerations
 
 - **Connection Pooling**: The connector maintains up to 10 idle connections per host by default
 - **Retry Overhead**: With the default 3 retries and Fibonacci backoff, failed requests may take several seconds before returning an error
-- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, and body parameters
+- **Cache Behavior**: HTTP responses are cached based on the combination of path, query, body, and headers parameters
+- **Partition Limits**: Use `max_request_partitions` to cap the number of HTTP requests created from cross-product filters
 
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure an HTTP/HTTPS endpoint as a data connector in Spice. [HTTP Data Connector](https://github.com/spiceai/cookbook/tree/trunk/http#readme)

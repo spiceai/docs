@@ -49,8 +49,8 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `snowflake_account`                | Required, specifies the Snowflake account-identifier                                                            |
 | `snowflake_username`               | Required, specifies the Snowflake username to use for accessing Snowflake data                                  |
 | `snowflake_password`               | Required when `snowflake_auth_type` is `snowflake` (default). Specifies the Snowflake password for authentication |
-| `snowflake_private_key_path`       | Optional, specifies the path to Snowflake private key                                                           |
-| `snowflake_private_key_passphrase` | Optional, specifies the Snowflake private key passphrase                                                        |
+| `snowflake_private_key_path`       | Required when `snowflake_auth_type` is `keypair`. Specifies the path to the private key file.                   |
+| `snowflake_private_key_passphrase` | Required when the private key is encrypted. Specifies the passphrase to decrypt the private key.                |
 
 ## Auth
 

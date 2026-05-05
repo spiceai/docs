@@ -77,6 +77,8 @@ With GitHub App Installation authentication, the connector's functionality depen
 
 ## Advanced Configuration
 
+### Rate Limiting
+
 When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_max_concurrent_connections` runtime parameter. This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
 
 Example Configuration:
@@ -103,6 +105,18 @@ datasets:
       enabled: true
 # ... other configuration ...
 ```
+
+The GitHub connector also supports the shared HTTP rate control parameters for per-dataset concurrency and request rate limits:
+
+| Parameter Name              | Description                                                                                                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
+| `requests_per_second_limit` | Maximum number of HTTP requests per second to the same upstream origin. Overrides `runtime.params.http_requests_per_second_limit`. If both are unset, no per-second rate limit is applied.    |
+| `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
+| `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Defaults to `5ms` when a request-rate limit is configured.                                                      |
+| `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Defaults to `10ms` when a request-rate limit is configured.                                                     |
+
+Multiple datasets targeting the same GitHub endpoint share the same rate controller.
 
 ## Filter Push Down
 
@@ -273,8 +287,8 @@ datasets:
       # Specifies the types of comments to fetch: 'all', 'review', 'discussion', or 'none'. Defaults to 'none'.
       github_include_comments: none
       # Number of comments to fetch per discussion or review thread.
-      # Defaults to 100, and is capped at 100
-      github_max_comments_fetched: 100
+      # Defaults to 25, and is capped at 75
+      github_max_comments_fetched: 50
 ```
 
 #### Schema
@@ -354,7 +368,7 @@ datasets:
     params:
       github_token: ${secrets:GITHUB_TOKEN}
       github_include_comments: all
-      github_max_comments_fetched: 100
+      github_max_comments_fetched: 75
     acceleration:
       enabled: true
 ```

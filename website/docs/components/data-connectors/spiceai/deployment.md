@@ -21,7 +21,6 @@ The connector authenticates to the Spice.ai Cloud Platform using an API key supp
 | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `spiceai_api_key`      | Spice.ai Cloud Platform API key. Use `${secrets:...}` to resolve from a configured secret store.                |
 | `endpoint`             | Flight endpoint URL. Defaults to the production cluster. Override for VPC / regional endpoints.                 |
-| `flight_channel_secret` | Optional shared secret for Flight gRPC channel authentication, used by internal or on-prem deployments.         |
 
 API keys must be sourced from a [secret store](../../secret-stores/) in production. Rotate keys from the Spice.ai Console and update the secret store without restarting the runtime if the secret store supports live reloads.
 

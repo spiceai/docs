@@ -103,6 +103,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `+00:00` (UTC). Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul>                                                                                                                                                                   |
 | `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `mysql_pool_max`          | The maximum number of connections created in the connection pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `mysql_zero_date_behavior` | Optional. How to handle the MySQL `0000-00-00` / `0000-00-00 00:00:00` zero-date sentinel for DATE/DATETIME/TIMESTAMP columns. Supported values:<br /> <ul><li>`null`: (default) Coerces zero dates to NULL and reports such columns as nullable in the Arrow schema.</li><li>`error`: Fails the scan when a zero date is encountered and honors the source NOT NULL constraint exactly.</li></ul> |
 
 ### `metrics`
 
@@ -188,6 +189,12 @@ The table below shows the MySQL data types supported, along with the type mappin
 - The MySQL `TIMESTAMP` value is [retrieved as a UTC time value](https://dev.mysql.com/doc/refman/8.4/en/datetime.html) by default. Use the `mysql_time_zone` configuration parameter to specify the desired time zone for interpreting `TIMESTAMP` values during data retrieval.
 
 :::
+
+## Limitations
+
+- MySQL has no native nested or array column types (see the [MySQL data types reference](https://dev.mysql.com/doc/refman/8.4/en/data-types.html)), so columns containing Arrow `Struct`, `List`, or `LargeList` values are not supported by this connector.
+- [MySQL spatial types](https://dev.mysql.com/doc/refman/8.4/en/spatial-types.html) (`GEOMETRY`, `POINT`, `LINESTRING`, `POLYGON`, `MULTIPOINT`, `MULTILINESTRING`, `MULTIPOLYGON`, `GEOMETRYCOLLECTION`) are not currently supported — only the types listed in the [Types](#types) table are mapped to Arrow.
+- Nested or array-valued data should be stored in a `JSON` column, which is read as `LargeUtf8` and can be decoded with SQL JSON functions.
 
 ## Examples
 

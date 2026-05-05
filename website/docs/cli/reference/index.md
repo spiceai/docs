@@ -32,16 +32,18 @@ spice [command] [--help]
 | [install](reference/install)       | Install or reinstall the Spice.ai runtime                              |
 | [login](reference/login)           | Login to Spice.ai or configure credentials for data sources            |
 | [models](reference/models)         | Lists models loaded by the Spice runtime                               |
-| nsql                               | Text-to-SQL REPL - translate natural language to SQL                   |
+| [nsql](reference/nsql)             | Text-to-SQL REPL - translate natural language to SQL                   |
 | [pods](reference/pods)             | Lists Spicepods loaded by the Spice runtime                            |
 | [query](reference/query)           | Submit an async query or start an interactive async query REPL         |
 | [refresh](reference/refresh)       | Refresh a dataset loaded by the Spice runtime                          |
 | [run](reference/run)               | Run Spice - starts the Spice runtime, installing if necessary          |
 | [search](reference/search)         | Search datasets with embeddings                                        |
 | [sql](reference/sql)               | Start an interactive SQL query session against the Spice runtime       |
+| [spiced](reference/spiced)         | Spice runtime binary — direct invocation reference                     |
 | [status](reference/status)         | Spice runtime status                                                   |
 | [trace](reference/trace)           | Return traces for operations that occurred in Spice                    |
 | [upgrade](reference/upgrade)       | Upgrades the Spice CLI and runtime to the latest release               |
+| [validate](reference/validate)     | Validate a spicepod.yaml without starting the runtime                  |
 | [version](reference/version)       | Spice CLI version                                                      |
 | workers                            | Lists workers loaded by the Spice runtime                              |
 

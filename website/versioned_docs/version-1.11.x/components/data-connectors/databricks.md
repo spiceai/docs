@@ -127,7 +127,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 **One** of the following auth values must be provided for Azure Blob:
 
 - `databricks_azure_storage_account_key`,
-- `databricks_azure_storage_client_id` and `azure_storage_client_secret`, or
+- `databricks_azure_storage_client_id` and `databricks_azure_storage_client_secret`, or
 - `databricks_azure_storage_sas_key`.
   :::
 
@@ -144,7 +144,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 | Parameter Name           | Description                                                  |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `databricks_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 

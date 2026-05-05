@@ -125,6 +125,44 @@ Use `sql` for the lowest latency with identical queries that do not include dyna
 
 Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, `xxh64` or `xxh128` for reduced collision probability when caching a large number of queries. Use `blake3` when cryptographic security is required. Use `siphash` when protection against hash flooding attacks is a priority.
 
+## `runtime.params`
+
+Optional. Global key-value parameters for the runtime. HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+
+| Parameter Name                    | Description                                                                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `http_max_concurrent_requests`    | Default maximum concurrent HTTP requests per upstream origin. Can be overridden per-dataset with `max_concurrent_requests`.                                    |
+| `http_requests_per_second_limit`  | Default maximum HTTP requests per second per upstream origin. Can be overridden per-dataset with `requests_per_second_limit`.                                  |
+| `http_requests_per_minute_limit`  | Default maximum HTTP requests per minute per upstream origin. Can be overridden per-dataset with `requests_per_minute_limit`.                                  |
+| `http_rate_control_jitter_min`    | Default minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Can be overridden per-dataset. |
+| `http_rate_control_jitter_max`    | Default maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Can be overridden per-dataset. |
+
+```yaml
+runtime:
+  params:
+    http_max_concurrent_requests: 10
+    http_requests_per_second_limit: 5
+    http_requests_per_minute_limit: 200
+```
+
+## `runtime.functions`
+
+Controls whether [functions](../../features/functions) declared in the top-level `functions:` section (and `tools:` entries with `as_sql: true`) are registered with the SQL engine. Defaults to disabled.
+
+```yaml
+runtime:
+  functions:
+    enabled: true
+```
+
+| Parameter | Optional | Default | Description                                                                                       |
+| --------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `enabled` | Yes      | `false` | When `true`, the runtime registers `functions:` entries and exposes them via SQL and `/v1/functions`. |
+
+When disabled, the `functions:` block is parsed but not registered, `list_udfs()` returns no `user`-source rows, and `GET /v1/functions` returns an empty array.
+
+See the [Functions Spicepod reference](./functions) for the function declaration schema.
+
 ## `runtime.shutdown_timeout`
 
 Controls how long Spice waits for connections to be gracefully drained and for components to shut down cleanly during runtime termination. Defaults to 30 seconds.
@@ -345,6 +383,37 @@ runtime:
 
 Enables or disables runtime telemetry collection. Defaults to `true`.
 
+### `runtime.telemetry.metric_prefix` {#runtimetelemetrymetric_prefix}
+
+Optional string prepended to every exported metric name. Useful for namespacing Spice metrics in shared backends (e.g. Datadog, Grafana Cloud, New Relic) so they do not collide with metrics from other services. Defaults to no prefix.
+
+The prefix applies to **all** metric readers — the Prometheus scrape endpoint (`--metrics`), the cluster on-demand OTLP reader, and the `otel_exporter` push exporter — because OpenTelemetry views are configured at the meter-provider level rather than per reader.
+
+```yaml
+runtime:
+  telemetry:
+    metric_prefix: 'spiceai.'
+```
+
+With this configuration, the runtime metric `query_duration_ms` is exported as `spiceai.query_duration_ms`.
+
+### `runtime.telemetry.properties` {#runtimetelemetryproperties}
+
+Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
+
+```yaml
+runtime:
+  telemetry:
+    properties:
+      environment: prod
+      region: us-west-2
+      team: data-platform
+```
+
+The standard OpenTelemetry environment variables (`OTEL_SERVICE_NAME`, `OTEL_RESOURCE_ATTRIBUTES`) are still honored and act as defaults; explicit `properties` entries take precedence on key conflicts.
+
+For backends that map OTLP resource attributes to tags through additional configuration (e.g. Datadog), see the [Datadog OTLP guide](/docs/next/monitoring/datadog#opentelemetry-otlp-export).
+
 ### `runtime.telemetry.otel_exporter`
 
 Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
@@ -403,6 +472,10 @@ runtime:
         - query_executions
         - dataset_load_state
 ```
+
+:::caution Filtering happens after `metric_prefix` is applied
+The whitelist is matched against the **final** metric name, after [`runtime.telemetry.metric_prefix`](#runtimetelemetrymetric_prefix) has been prepended. If you set `metric_prefix: 'spiceai.'`, the entries under `metrics:` must include the prefix (e.g. `spiceai.query_duration_ms`), otherwise nothing will match and no metrics will be exported.
+:::
 
 **Authenticated exporters:**
 

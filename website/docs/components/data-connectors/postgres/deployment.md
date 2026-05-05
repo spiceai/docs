@@ -25,7 +25,6 @@ The connector uses the native PostgreSQL wire protocol with username/password au
 | `pg_user`          | Database user.                                                               |
 | `pg_pass`          | Password. Use `${secrets:...}` to resolve from a configured secret store.    |
 | `pg_connection_string` | Alternative to the individual parameters.                                |
-| `pg_application_name`  | Application identifier reported in `pg_stat_activity`. Defaults to the Spice.ai version. |
 
 Passwords must be sourced from a secret store in production. See [Secret Stores](../../secret-stores/) for configuration options (environment variables, file, Kubernetes, AWS Secrets Manager, HashiCorp Vault).
 
@@ -36,12 +35,13 @@ TLS is controlled via `pg_sslmode`:
 | Value         | Behavior                                                    |
 | ------------- | ----------------------------------------------------------- |
 | `disable`     | No TLS.                                                     |
+| `allow`       | Try non-TLS first, retry with TLS if the server requires it. |
 | `prefer`      | Try TLS, fall back to plaintext. Not recommended for production. |
 | `require`     | Require TLS; no server certificate verification.            |
 | `verify-ca`   | Require TLS and verify the CA chain.                        |
 | `verify-full` | Require TLS, verify CA chain, and verify server hostname.   |
 
-For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundle.
+For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundle (file path or inline PEM content).
 
 ## Resilience Controls
 
@@ -49,18 +49,18 @@ For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundl
 
 The connector maintains a per-dataset connection pool:
 
-| Parameter                   | Default | Description                                          |
-| --------------------------- | ------- | ---------------------------------------------------- |
-| `connection_pool_min_idle`  | Tracks `connection_pool_size` with a floor of 1. | Minimum idle connections held by the pool. |
-| `connection_pool_size`      | `10`    | Maximum connections the pool will open.              |
+| Parameter                       | Default | Description                                          |
+| ------------------------------- | ------- | ---------------------------------------------------- |
+| `pg_connection_pool_min_idle`   | `1`     | Minimum idle connections held by the pool.            |
+| `connection_pool_size`          | `5`     | Maximum connections the pool will open.               |
 
-`connection_pool_min_idle` must be less than or equal to `connection_pool_size`; conflicting values are rejected as configuration errors at startup.
+`pg_connection_pool_min_idle` must be less than or equal to `connection_pool_size`; conflicting values are rejected as configuration errors at startup.
 
 Size the pool to match concurrent query and refresh load for the dataset. The server's `max_connections` (default 100) is a shared budget across Spice datasets, other clients, and server-side background workers — plan accordingly, or front Postgres with PgBouncer.
 
 ### Application Name
 
-`pg_application_name` defaults to the Spice.ai version string, which surfaces in `pg_stat_activity.application_name`. Override this to distinguish traffic from multiple Spice instances or environments.
+The connector automatically sets `application_name` to the Spice.ai version string, which surfaces in `pg_stat_activity.application_name`. This value is not configurable.
 
 ### Retry Behavior
 
@@ -74,17 +74,25 @@ Transient query failures are not automatically retried at the connector layer. D
 
 ## Metrics
 
-The PostgreSQL connector exposes observable metrics for its connection pool. Enable them in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The PostgreSQL connector exposes observable metrics for its replication pipeline. Enable them in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
-| Metric Name                         | Type            | Description                                                                  |
-| ----------------------------------- | --------------- | ---------------------------------------------------------------------------- |
-| `connection_count`                  | ObservableGauge | Active connections to the database server.                                   |
-| `connections_in_pool`               | ObservableGauge | Idle connections sitting in the pool.                                        |
-| `active_wait_requests`              | ObservableGauge | Requests waiting for a connection (saturation signal).                       |
-| `create_failed`                     | Counter         | Connections that failed to be created.                                       |
-| `discarded_excess_idle_connection`  | Counter         | Connections closed because the pool already had enough idle connections.     |
-| `discarded_unestablished_connection`| Counter         | Connections closed because they could not be established.                    |
-| `dirty_connection_return`           | Counter         | Connections returned in a dirty state (open transaction, pending queries).   |
+| Metric Name                                  | Type            | Description                                                       |
+| -------------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| `replication_lag_ms`                         | ObservableGauge | Replication lag in milliseconds.                                  |
+| `replication_lag_bytes`                      | ObservableGauge | Replication lag in bytes.                                         |
+| `replication_confirmed_flush_lsn`            | ObservableGauge | Confirmed flush LSN position.                                     |
+| `replication_server_wal_end_lsn`             | ObservableGauge | Server WAL end LSN position.                                      |
+| `replication_transactions_total`             | ObservableCounter | Total transactions received via replication.                    |
+| `replication_inserts_total`                  | ObservableCounter | Total insert operations received.                               |
+| `replication_updates_total`                  | ObservableCounter | Total update operations received.                               |
+| `replication_deletes_total`                  | ObservableCounter | Total delete operations received.                               |
+| `replication_truncates_total`                | ObservableCounter | Total truncate operations received.                             |
+| `replication_bootstrap_rows_total`           | ObservableGauge | Total rows fetched during initial bootstrap.                      |
+| `replication_bootstrap_complete`             | ObservableCounter | Bootstrap completion status.                                    |
+| `replication_decode_errors_total`            | ObservableCounter | Total WAL decode errors.                                        |
+| `replication_schema_mismatch_errors_total`   | ObservableCounter | Total schema mismatch errors during replication.                |
+| `replication_recv_errors_total`              | ObservableCounter | Total receive errors during replication.                        |
+| `replication_reconnects_total`               | ObservableCounter | Total reconnection attempts.                                    |
 
 Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name.
 
@@ -96,7 +104,7 @@ PostgreSQL operations participate in Spice [task history](../../../reference/tas
 
 - Only TCP connections are supported. Unix sockets are not exposed through Spice configuration.
 - `pg_sslmode: prefer` silently downgrades to plaintext and is not recommended for production.
-- `LISTEN/NOTIFY` is not exposed; Postgres CDC is handled through [Debezium](../debezium) rather than the Postgres connector directly.
+- `LISTEN/NOTIFY` is not exposed. CDC is supported natively via logical replication (WAL streaming) — see the [replication parameters](index.md#replication-parameters) in the connector docs.
 - Server-side cursors are used for federated reads; long-running queries hold a backend for their duration.
 
 ## Troubleshooting
@@ -105,7 +113,7 @@ PostgreSQL operations participate in Spice [task history](../../../reference/tas
 | -------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `FATAL: password authentication failed`      | Incorrect credentials.                                               | Verify credentials via the secret store; test with `psql` using the same credentials.              |
 | `FATAL: too many clients already`            | Pool size + other clients exceeds server `max_connections`.          | Reduce `connection_pool_size` or raise `max_connections` / front the server with PgBouncer.        |
-| `connection_pool_min_idle must be <= connection_pool_size` at startup | Misconfiguration.                               | Correct the values so `min_idle <= size`.                                                          |
+| `pg_connection_pool_min_idle must be <= connection_pool_size` at startup | Misconfiguration.                            | Correct the values so `pg_connection_pool_min_idle <= connection_pool_size`.                        |
 | Sustained `active_wait_requests > 0`         | Pool saturation.                                                     | Increase `connection_pool_size` or reduce concurrent refreshes.                                    |
 | `certificate verify failed`                  | `pg_sslmode: verify-ca` / `verify-full` with wrong CA or hostname.   | Verify `pg_sslrootcert` matches the server's issuing CA; with `verify-full` ensure hostname matches SAN. |
-| Sessions lingering with the default app name | Multiple Spice instances share the same name.                        | Set `pg_application_name` per deployment for clear `pg_stat_activity` attribution.                 |
+| Sessions lingering with the default app name | Multiple Spice instances share the same version-based name.          | The `application_name` is auto-set to the Spice.ai version and is not currently configurable.      |

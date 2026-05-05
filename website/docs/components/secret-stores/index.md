@@ -10,7 +10,7 @@ pagination_next: null
 
 A Secret Store is a secure location where secrets (such as passwords, tokens, and API keys) are stored. Spice retrieves secrets from configured stores at runtime and injects them into component parameters.
 
-Supported secret stores include: [`env`](secret-stores/env), [`kubernetes`](secret-stores/kubernetes), [`keyring`](secret-stores/keyring), and [`aws_secrets_manager`](secret-stores/aws-secrets-manager). The `env` secret store is loaded by default.
+Supported secret stores include: [`env`](secret-stores/env), [`kubernetes`](secret-stores/kubernetes), [`keyring`](secret-stores/keyring), [`aws_secrets_manager`](secret-stores/aws-secrets-manager), [`azure_keyvault`](secret-stores/azure-keyvault), and [`hashicorp_vault`](secret-stores/hashicorp-vault). The `env` secret store is loaded by default.
 
 ### Default
 
@@ -28,7 +28,9 @@ Secret Stores can be configured using the `secrets` section of the `spicepod.yml
 
 The Secret Store type and name are specified using the `from` and `name` fields. The `name` can be referenced by other components, like datasets or models. Some Secret Stores support adding a selector delimited by a colon (`:`), For example, when using the Kubernetes Secret Store, `from: kubernetes:my_secret` selects and enables the `my_secret` secret only to be referenced.
 
-Additional parameters may be specified in the `params` field, which are typically specific to the secret store type.
+Additional parameters may be specified in the `params` field, which are specific to the secret store type. Unknown parameters are rejected with an error listing the supported parameter names, helping catch typos early.
+
+Parameter values support `${ env:KEY }` references to load values from environment variables at startup.
 
 Example:
 

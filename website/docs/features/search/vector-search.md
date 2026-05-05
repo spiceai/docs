@@ -18,6 +18,8 @@ Vector search uses embeddings (numerical representations of text or data) to fin
 - Retrieval-augmented generation (RAG) applications
 - Recommendation systems
 
+For embedding columns that contain many vectors per row (for example, one vector per tag or per section), see [Multi-Vector Search](multi-vector).
+
 ## Embedding Models
 
 Spice supports two types of embedding providers:
@@ -154,6 +156,8 @@ SELECT id, title, score
 FROM vector_search('sales', 'cutting edge AI', 1500)
 ORDER BY score DESC;
 ```
+
+`WHERE` predicates on base table columns are pushed down as pre-filters — only matching rows are scored and ranked. See [Search in SQL](../../reference/sql/search#vector-search-vector_search) for details.
 
 :::warning[Limitations]
 

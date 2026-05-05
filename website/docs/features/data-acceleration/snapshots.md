@@ -5,6 +5,10 @@ description: 'Bootstrap file-mode accelerations from managed snapshots to elimin
 sidebar_position: 3
 ---
 
+:::note[Enterprise edition]
+Acceleration Snapshots are available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions).
+:::
+
 ## Spicepod Example
 
 ```yaml
@@ -51,7 +55,7 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 ## Configure snapshot storage
 
-Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location must point to a folder on S3 or the local filesystem. When the location is an S3 bucket, the configuration accepts any S3 dataset parameters under `params`.
+Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location can point to S3, Azure ADLS Gen2, Google Cloud Storage, or the local filesystem.
 
 ```yaml
 snapshots:
@@ -61,6 +65,17 @@ snapshots:
   params:
     s3_auth: iam_role                     # Defaults to iam_role for snapshots
 ```
+
+### Supported storage backends
+
+| Backend | URL scheme | Environment variables |
+| --- | --- | --- |
+| Amazon S3 | `s3://` | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.) |
+| Azure ADLS Gen2 | `abfss://`, `abfs://` | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
+| Google Cloud Storage | `gs://` | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity |
+| Local filesystem | Absolute or relative path | N/A |
+
+When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
 
 ### Failure behavior
 

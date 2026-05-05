@@ -7,6 +7,8 @@ pagination_next: null
 
 Run Spice - starts the Spice runtime, installing if necessary.
 
+`spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It installs `spiced` on first use, applies developer-friendly defaults, and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
+
 ### Usage
 
 ```shell

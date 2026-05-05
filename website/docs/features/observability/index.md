@@ -19,6 +19,7 @@ Spice provides monitoring and observability through three mechanisms:
 
 - [Datadog](../monitoring/datadog)
 - [Grafana & Prometheus](../monitoring/grafana)
+- [New Relic](../monitoring/new-relic)
 - [Zipkin](../monitoring/zipkin)
 
 ## Prometheus Metrics Endpoint
@@ -162,6 +163,8 @@ export OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp.us3.datadoghq.com"
 export OTEL_EXPORTER_OTLP_HEADERS="DD-API-KEY=${DD_API_KEY}"
 ```
 
+For a complete Datadog setup including metric prefixing and custom tags via OTLP resource attributes, see the [Datadog monitoring guide](/docs/next/monitoring/datadog#opentelemetry-otlp-export).
+
 #### Grafana Cloud (OTLP/HTTP)
 
 Grafana Cloud's OTLP gateway expects HTTP Basic authentication. Obtain the base64-encoded `instanceID:accessPolicyToken` credential from the Grafana Cloud "OpenTelemetry" connection page and store it in a secret:
@@ -200,6 +203,25 @@ runtime:
         api-key: ${secrets:collector_api_key}
 ```
 
+## Metric Naming and Custom Tags
+
+Two runtime fields control how exported metrics are named and labeled across **all** readers (Prometheus scrape, cluster OTLP reader, and the `otel_exporter` push exporter):
+
+- [`runtime.telemetry.metric_prefix`](/docs/next/reference/spicepod/runtime#runtimetelemetrymetric_prefix) — prepends a string to every metric name (e.g. `spiceai.query_duration_ms`). Useful for namespacing in shared backends.
+- [`runtime.telemetry.properties`](/docs/next/reference/spicepod/runtime#runtimetelemetryproperties) — attaches custom key/value attributes as OpenTelemetry resource attributes, which most backends surface as dimensions or tags.
+
+```yaml
+runtime:
+  telemetry:
+    metric_prefix: 'spiceai.'
+    properties:
+      environment: prod
+      region: us-west-2
+      team: data-platform
+```
+
+Both fields apply to every exporter the runtime has enabled. See the [Datadog monitoring guide](/docs/next/monitoring/datadog#opentelemetry-otlp-export) for backend-specific notes (Datadog requires `dd-otel-metric-config` to map resource attributes to tags).
+
 ### Metric Filtering
 
 To export only specific metrics, use the `metrics` parameter:
@@ -217,6 +239,10 @@ runtime:
 ```
 
 When `metrics` is empty or omitted, all available metrics are exported.
+
+:::caution Filtering happens after `metric_prefix` is applied
+The whitelist is matched against the **final** metric name, after `runtime.telemetry.metric_prefix` has been prepended. If you set `metric_prefix: 'spiceai.'`, the entries under `metrics:` must include the prefix (e.g. `spiceai.query_duration_ms`), otherwise nothing will match and no metrics will be exported.
+:::
 
 For full configuration details, see the [runtime.telemetry reference](../reference/spicepod/runtime#runtimetelemetry).
 

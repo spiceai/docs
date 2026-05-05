@@ -286,6 +286,10 @@ dynamodb:
   label: 'dynamodb'
   permalink: '/dynamodb'
   description: 'DynamoDB database topics and usage'
+elasticsearch:
+  label: 'elasticsearch'
+  permalink: '/elasticsearch'
+  description: 'Elasticsearch related topics and usage.'
 embedding:
   label: 'Embedding'
   permalink: '/embedding'

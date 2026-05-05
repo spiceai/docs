@@ -14,6 +14,10 @@ api:
   label: 'API'
   permalink: '/api'
   description: 'HTTP, Arrow Flight SQL, ODBC, JDBC, and ADBC API reference.'
+argocd:
+  label: 'Argo CD'
+  permalink: '/argocd'
+  description: 'Argo CD declarative GitOps continuous delivery for Kubernetes.'
 arrow:
   label: 'Arrow'
   permalink: '/arrow'
@@ -46,7 +50,7 @@ blob-storage:
   label: 'Blob Storage'
   permalink: '/blob-storage'
   description: 'Object storage services and blob data access.'
-"cache control":
+'cache control':
   label: 'Cache Control'
   permalink: '/cache-control-policy'
   description: 'Cache control headers and directives.'
@@ -86,6 +90,10 @@ configuration:
   label: 'Configuration'
   permalink: '/configuration'
   description: 'System configuration files and runtime settings.'
+cosmosdb:
+  label: 'Cosmos DB'
+  permalink: '/cosmosdb'
+  description: 'Azure Cosmos DB (NoSQL / Core SQL) data connector.'
 csharp:
   label: 'C#'
   permalink: '/csharp'
@@ -170,6 +178,10 @@ dynamodb:
   label: 'DynamoDB'
   permalink: '/dynamodb'
   description: 'Amazon DynamoDB NoSQL database integration.'
+elasticsearch:
+  label: 'Elasticsearch'
+  permalink: '/elasticsearch'
+  description: 'Elasticsearch data connector and vector engine integration.'
 embeddings:
   label: 'Embeddings'
   permalink: '/embeddings'
@@ -198,10 +210,22 @@ flightsql:
   label: 'FlightSQL'
   permalink: '/flightsql'
   description: 'Apache Arrow Flight SQL high-performance database protocol.'
+flux:
+  label: 'Flux'
+  permalink: '/flux'
+  description: 'Flux CD GitOps toolkit for Kubernetes.'
+fluxcd:
+  label: 'Flux CD'
+  permalink: '/fluxcd'
+  description: 'Flux CD GitOps toolkit for Kubernetes.'
 ftp:
   label: 'FTP'
   permalink: '/ftp'
   description: 'FTP and SFTP file transfer protocol data connectors.'
+functions:
+  label: 'Functions'
+  permalink: '/functions'
+  description: 'User-defined SQL scalar functions and remote function endpoints.'
 getting-started:
   label: 'Getting Started'
   permalink: '/getting-started'
@@ -210,6 +234,10 @@ github:
   label: 'GitHub'
   permalink: '/github'
   description: 'GitHub repository data connector and integration.'
+gitops:
+  label: 'GitOps'
+  permalink: '/gitops'
+  description: 'GitOps continuous delivery patterns for Kubernetes.'
 glue:
   label: 'Glue'
   permalink: '/glue'
@@ -230,6 +258,10 @@ graphql:
   label: 'GraphQL'
   permalink: '/graphql'
   description: 'GraphQL API data connectors and query language support.'
+helm:
+  label: 'Helm'
+  permalink: '/helm'
+  description: 'Helm package manager for deploying Spice.ai on Kubernetes.'
 https:
   label: 'HTTPS'
   permalink: '/https'
@@ -402,7 +434,7 @@ relational:
   label: 'Relational'
   permalink: '/relational'
   description: 'Relational database systems and SQL operations.'
-"results caching":
+'results caching':
   label: 'Results Caching'
   permalink: '/results-caching-feature'
   description: 'Query results caching configuration.'
@@ -490,6 +522,10 @@ turso:
   label: 'Turso'
   permalink: '/turso'
   description: 'Turso data accelerator integration.'
+udf:
+  label: 'UDF'
+  permalink: '/udf'
+  description: 'User-defined functions registered with the SQL engine.'
 unity-catalog:
   label: 'Unity Catalog'
   permalink: '/unity-catalog'

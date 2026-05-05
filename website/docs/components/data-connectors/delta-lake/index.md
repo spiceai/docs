@@ -59,7 +59,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 
 | Parameter Name   | Description                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `client_timeout` | Optional. Specifies timeout for object store operations. Default value is `30s`. E.g. `client_timeout: 60s` |
+| `client_timeout` | Optional. Specifies timeout for object store operations. No default; uses the underlying HTTP client timeout when not set. E.g. `client_timeout: 60s` |
 
 ## Delta Lake object store parameters
 
@@ -194,3 +194,7 @@ The table below shows the Delta Lake data types supported, along with the type m
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure Delta Lake as a data connector in Spice. [Delta Lake Data Connector](https://github.com/spiceai/cookbook/tree/trunk/delta-lake#readme)

@@ -84,12 +84,11 @@ The table below shows the ClickHouse data types supported, along with the type m
 | `UInt64`         | `UInt64`                    |
 | `Float32`        | `Float32`                   |
 | `Float64`        | `Float64`                   |
-| `Decimal`        | `Decimal128` / `Decimal256` |
+| `Decimal`        | `Decimal128`                |
 | `String`         | `Utf8`                      |
 | `FixedString`    | `Utf8`                      |
 | `UUID`           | `Utf8`                      |
 | `Date`           | `Date32`                    |
-| `Date32`         | `Date32`                    |
 | `DateTime`       | `Timestamp(Second, None)`   |
 | `Nullable(T)`    | Mapped inner type `T`       |
 

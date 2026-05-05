@@ -93,6 +93,7 @@ Where:
   - [`http`, `https`](../../components/data-connectors/https)
   - [`clickhouse`](../../components/data-connectors/clickhouse)
   - [`graphql`](../../components/data-connectors/graphql)
+  - [`cosmosdb`](../../components/data-connectors/cosmosdb)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -297,10 +298,40 @@ SELECT
   "p_comment"
 FROM
   spiceai_sandbox.tpch.part
-LIMIT 1
+LIMIT 1;
 ```
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
+
+## `load`
+
+Optional. Controls when the dataset is loaded by the runtime. Defaults to `on_startup`.
+
+- `on_startup` (default): The dataset is initialized during runtime startup — the connector is created, schema is inferred, and acceleration (if configured) begins immediately.
+- `on_demand`: The dataset is **not** initialized at startup. Initialization is deferred until the first SQL query that references the dataset, or until an explicit refresh is triggered via `POST /v1/datasets/{name}/acceleration/refresh`.
+
+When a dataset is configured with `load: on_demand`, the runtime:
+- Parses and validates the dataset configuration at startup, but does **not** create the connector, infer the schema, or start any refresh tasks.
+- Reports the dataset status as `NotLoaded` until it is triggered.
+- On the first query (or explicit refresh), initializes the dataset transparently — subsequent queries proceed normally.
+- Coordinates concurrent triggers so the dataset is only initialized once.
+
+```yaml
+datasets:
+  - from: postgres:public.large_table
+    name: large_table
+    load: on_demand
+    params:
+      pg_host: localhost
+      pg_port: 5432
+      pg_db: my_db
+      pg_user: ${secrets:pg_user}
+      pg_pass: ${secrets:pg_pass}
+```
+
+:::tip
+Use `load: on_demand` for large or infrequently accessed datasets to reduce startup time and resource consumption. The dataset will be loaded transparently on first access.
+:::
 
 ## `acceleration`
 
@@ -758,6 +789,34 @@ datasets:
 
 The name of the column in the table schema.
 
+## `columns[*].type`
+
+Optional. Declares the expected data type for the column, overriding the type inferred from the data source. Accepts three families of type expressions:
+
+- **Arrow display forms** — `Int64`, `Utf8`, `Float64`, `Bool`, `Date32`, `Timestamp(Microsecond, UTC)`, `List<Int64>`, `Decimal128(p, s)`, `Map<Utf8, Int64>`, etc.
+- **SQL / Postgres forms** — `BIGINT`, `INTEGER`, `TEXT`, `VARCHAR(n)`, `BOOLEAN`, `DOUBLE PRECISION`, `NUMERIC(p,s)`, `DATE`, `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, `BYTEA`, etc.
+- **Postgres aliases** — `int2`, `int4`, `int8`, `float4`, `float8`, `serial`, `bigserial`, `timestamptz`, `uuid`, and the `T[]` array suffix (e.g. `int4[]`).
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    columns:
+      - name: event_id
+        type: bigint
+        nullable: false
+      - name: payload
+        type: Map<Utf8, Utf8>
+      - name: tags
+        type: text[]
+      - name: amount
+        type: numeric(18,4)
+```
+
+## `columns[*].nullable`
+
+Optional. Declares whether the column allows null values. When omitted, the column defaults to nullable. Set to `false` to enforce a non-null constraint.
+
 ## `columns[*].description`
 
 Optional. A description of the column's contents and purpose. Used as part of the [Semantic Data Model](../../features/semantic-model).
@@ -804,6 +863,38 @@ columns:
     embeddings:
       - from: embed-static-retrieval
         vector_size: 1024
+```
+
+## `columns[*].embeddings[*].aggregation`
+
+Optional. For multi-vector columns (`List<Utf8>` source), the strategy used to combine per-element similarities into a single per-row score during vector search. Only meaningful when the underlying column is list-typed.
+
+| Value  | Description                                                                        |
+| ------ | ---------------------------------------------------------------------------------- |
+| `max`  | ColBERT-style `MaxSim`. Row scores as high as its best-matching element (default). |
+| `mean` | Average similarity across elements.                                                |
+| `sum`  | Sum of similarities across elements.                                               |
+
+See [Multi-Vector Search](../../features/search/multi-vector) for details.
+
+```yaml
+columns:
+  - name: tags
+    embeddings:
+      - from: local_embedding_model
+        aggregation: max
+```
+
+## `columns[*].embeddings[*].max_elements_per_row`
+
+Optional. For multi-vector columns, the maximum number of list elements embedded per row. Defaults to `32`; hard-capped at `1024`. Excess elements are dropped with a warning log.
+
+```yaml
+columns:
+  - name: tags
+    embeddings:
+      - from: local_embedding_model
+        max_elements_per_row: 128
 ```
 
 ## `columns[*].full_text_search` {#columns-search-full-text}
@@ -910,11 +1001,11 @@ The `metadata` field serves two purposes:
 
 2. **File metadata columns** — For [file-based connectors](../../components/data-connectors/#metadata-columns) (S3, ABFS, File, FTP, SFTP, SMB, NFS, HTTP/HTTPS), the following reserved keys enable virtual columns that expose per-file object store metadata in query results:
 
-    | Key              | Value       | Column Type            | Description                        |
-    | ---------------- | ----------- | ---------------------- | ---------------------------------- |
-    | `_location`      | `enabled`   | `Utf8`                 | Full URI of the source file        |
-    | `_last_modified` | `enabled`   | `Timestamp(µs, "UTC")` | When the file was last modified    |
-    | `_size`          | `enabled`   | `UInt64`               | File size in bytes                 |
+    | Key              | Value     | Column Type            | Description                     |
+    | ---------------- | --------- | ---------------------- | ------------------------------- |
+    | `_location`      | `enabled` | `Utf8`                 | Full URI of the source file     |
+    | `_last_modified` | `enabled` | `Timestamp(µs, "UTC")` | When the file was last modified |
+    | `_size`          | `enabled` | `UInt64`               | File size in bytes              |
 
     ```yaml
     datasets:
@@ -938,10 +1029,12 @@ Enable or disable vector storage, defaults to `true`.
 
 ## `vectors.engine`
 
-The vector engine to use. The following engines are supported:
+The vector engine to use. The following engines are supported for datasets:
 
 - [`s3_vectors`](../../components/vectors/s3_vectors) - Vectors are created and indexed into [Amazon S3 Vectors](https://aws.amazon.com/s3/features/vectors/).
+- [`elasticsearch`](../../components/vectors/elasticsearch) - Vectors are created and indexed into an [Elasticsearch](https://www.elastic.co/) cluster.
 
+Dataset and view support may differ. If a view uses `vectors`, refer to the views reference for the engines supported there.
 ## `vectors.params`
 
 Optional. Parameters to pass to the vector engine. The parameters are specific to the vector engine used.

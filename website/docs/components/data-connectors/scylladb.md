@@ -74,7 +74,7 @@ The ScyllaDB data connector can be configured by providing the following `params
 | `scylladb_user`       | Username for authentication.                                       | No       | -       |
 | `scylladb_pass`       | Password for authentication.                                       | No       | -       |
 | `scylladb_datacenter` | Preferred datacenter for connection routing.                       | No       | -       |
-| `scylladb_ssl`        | Enable SSL/TLS for connections.                                    | No       | `false` |
+| `scylladb_ssl`        | Enable SSL/TLS for connections. Not yet implemented — the parameter is accepted but has no effect. | No       | `false` |
 | `connection_timeout`  | Connection timeout in milliseconds.                                | No       | `10000` |
 
 ## Types
@@ -286,6 +286,10 @@ The following SQL operations cannot be pushed down to ScyllaDB and are performed
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to configure ScyllaDB as a data connector in Spice. [ScyllaDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/scylladb#readme)
 
 ## See Also
 
