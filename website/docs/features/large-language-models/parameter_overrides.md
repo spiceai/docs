@@ -194,3 +194,23 @@ Example response:
 ```
 
 Visit [OpenAI Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) for more information on how to use structured output formats.
+
+### Prompt Caching
+
+Spice supports provider-aware prompt caching to reduce latency and cost for repeated prompts. Set `prompt_cache_key` on a model to enable the provider's native caching mechanism.
+
+```yaml
+models:
+  - from: openai:gpt-4o
+    name: my_model
+    params:
+      prompt_cache_key: "schema-context"
+```
+
+When `prompt_cache_key` is set as a model default, it is injected into every Chat API and Responses API request to that model (unless the request itself provides one). The key is mapped into the appropriate provider-native mechanism — for example, Anthropic's `cache_control`, xAI's `x-grok-conv-id` header, or Bedrock's `CachePoint` block. See the [full provider mapping](../../reference/spicepod/models#paramsprompt_cache_key).
+
+For the OpenAI Responses API, `prompt_cache_retention` can also be set to request a retention duration (e.g. `"24h"`).
+
+The `prompt_cache_key` can also be passed per-request in the [`/v1/nsql` API](../../api/HTTP/post-nsql) body to enable caching for text-to-SQL queries.
+
+For local models using mistral-rs, paged-attention scheduling is enabled automatically on supported backends (CUDA + Unix) for KV-cache prefix reuse — no configuration is needed.
