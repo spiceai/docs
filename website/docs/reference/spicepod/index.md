@@ -118,7 +118,7 @@ datasets:
 
 ## `snapshots` {#snapshots}
 
-Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. Only DuckDB and SQLite accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
+Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. DuckDB, SQLite, Cayenne, and Turso accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
 
 ```yaml
 snapshots:
