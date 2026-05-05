@@ -23,7 +23,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 `spicepod.yaml`
@@ -39,7 +39,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 Relative path example:
@@ -436,6 +436,7 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
 ## `acceleration.refresh_check_interval`
 
