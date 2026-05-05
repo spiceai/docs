@@ -18,6 +18,8 @@ Locally accelerated datasets can also have [primary key constraints](data-accele
 
 [Acceleration snapshots](data-acceleration/snapshots) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
+For larger datasets, [partitioning](data-acceleration/partitioning) splits the acceleration into smaller physical units (Hive-style files, per-partition tables, or in-memory tables) keyed by an expression. Queries that filter on the partitioning column read only the relevant partitions, dramatically reducing scan size.
+
 ## Example Use Case
 
 Consider a high-volume e-trading frontend application backed by an AWS RDS database containing a table of trades. To retrieve all trades over the last 24 hours, the application would need to query the remote database and transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme), the data is brought to the application, saving round trip time and data transfer time.
