@@ -41,14 +41,9 @@ The connector does not currently expose certificate-pinning or custom CA-bundle 
 
 ### Retries
 
-The underlying HTTP client retries transient Elasticsearch errors (HTTP 429 and 5xx) and connection-level failures with exponential backoff. The data connector uses the client's defaults:
+The Elasticsearch client library includes a retry mechanism with exponential backoff for transient errors (HTTP 429 and 5xx). However, retries are currently only active on the **write path** used by the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`bulk_index` operations). The data connector's read operations (`_search`, `_mapping`) do **not** retry transient errors — failures are surfaced immediately.
 
-| Setting           | Default | Notes                                                                       |
-| ----------------- | ------- | --------------------------------------------------------------------------- |
-| Max retries       | `3`     | Each subsequent attempt doubles the backoff, capped at `30s`.               |
-| Initial backoff   | `200ms` | Doubled per retry up to `30s`.                                              |
-
-Retry tuning is exposed only on the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`elasticsearch_max_retries`, `elasticsearch_retry_initial_backoff`); the data connector currently uses the defaults.
+Retry tuning is exposed only on the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`elasticsearch_max_retries`, `elasticsearch_retry_initial_backoff`).
 
 ### Timeouts
 
