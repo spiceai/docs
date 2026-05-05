@@ -58,33 +58,13 @@ models:
 
 For details on tool groups, see [Tool Components](../../components/tools#tool-groups).
 
-### Searchable Tool Registry
+### Tool Registry
 
-When many tools are available, passing all tool definitions directly to the LLM can consume a large portion of the context window and reduce response quality. The searchable tool registry addresses this by replacing individual tool definitions with two meta-tools:
+When the runtime exposes many tools (multiple MCP servers, lots of dataset-bound tools, or many [Functions](../functions) declared with `as_tool: true`), passing every tool definition into every chat turn consumes a large portion of the context window and degrades selection accuracy. The **Tool Registry** replaces individual tool definitions with two meta-tools — `tool_search` and `tool_invoke` — backed by a hybrid search index over the runtime's tool catalog. This typically saves **~10×** the per-turn tool-definition tokens for tool-heavy Spicepods.
 
-- **`tool_search`** — Searches the registry for tools relevant to a query, returning the top matches with descriptions and parameter schemas.
-- **`tool_invoke`** — Invokes a tool returned by `tool_search` by name with the provided arguments.
+`tools: auto` enables the registry automatically when there are more than 20 tools and an embedding model is configured; `tools: search_registry` requires it.
 
-The registry uses hybrid search (full-text, keyword, parameter schema, and vector similarity) to find the most relevant tools for each query.
-
-#### Configuring `tool_embedding_model`
-
-When using `tools: search_registry`, an embedding model must be available. You can specify which embedding model to use with the `tool_embedding_model` parameter. If only one embedding model is configured in the Spicepod, it is used automatically.
-
-```yaml
-embeddings:
-  - name: tool_embeddings
-    from: openai:text-embedding-3-small
-
-models:
-  - name: my-model
-    from: openai:gpt-4o
-    params:
-      tools: search_registry
-      tool_embedding_model: tool_embeddings
-```
-
-When using `tools: auto`, the registry is used opportunistically — if an embedding model is available and the number of tools exceeds 20, `auto` switches to registry-based discovery. If no embedding model is configured, `auto` falls back to providing tools directly.
+See **[Tool Registry](../tool-registry)** for the full reference, including the hybrid-search algorithm, `tool_search` / `tool_invoke` parameters and response shapes, and guidance on when to prefer direct tools.
 
 ### Example: Specifying tools and tool groups
 

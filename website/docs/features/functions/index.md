@@ -252,6 +252,10 @@ Returns a JSON array of user functions only (built-ins are excluded). Each entry
 
 Every declared function is automatically callable from LLMs as a tool with the same name and description. This lets a model reason in natural language and then invoke `haversine_km(...)` or `classify_intent(...)` directly.
 
+:::tip[Many functions? Use the Tool Registry]
+A Spicepod with many functions can quickly cross the threshold where injecting every function definition into every chat turn becomes expensive. The [Tool Registry](../tool-registry/index.md) replaces individual tool definitions with searchable `tool_search` / `tool_invoke` meta-tools, typically saving ~10× the per-turn tool-definition tokens. Set `tools: auto` on the model and the registry kicks in automatically once the function count crosses the threshold.
+:::
+
 To keep a function SQL-only:
 
 ```yaml

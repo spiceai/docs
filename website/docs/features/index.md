@@ -33,6 +33,10 @@ Spice provides a set of features for building data-driven applications and AI ag
 
 [Functions](./functions/index.md) extend SQL with custom scalar functions declared in a Spicepod. Inline SQL bodies run in-process and can use any DataFusion built-in; remote `http://` / `https://` endpoints batch row inputs over JSON for delegating logic to ML models, internal services, or custom code. Every function is automatically callable from SQL and (by default) surfaced as an LLM tool.
 
+### Tool Registry
+
+[Tool Registry](./tool-registry/index.md) keeps per-turn token cost bounded as the runtime's tool catalog grows. It replaces individual tool definitions with searchable `tool_search` and `tool_invoke` meta-tools backed by a hybrid full-text, keyword, schema, and vector search. Applies uniformly to built-in tools, MCP tools, and Functions declared with `as_tool: true` — typically a ~10× reduction in tool-definition tokens for tool-heavy Spicepods.
+
 ### Monitoring and Observability
 
 [Observability](./observability/index.md) exposes Prometheus-compatible metrics, OpenTelemetry metric export, and distributed tracing with Zipkin. Integrations are available for Datadog, Grafana, and other monitoring platforms.
