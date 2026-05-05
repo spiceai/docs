@@ -27,3 +27,4 @@ Spice supports flexible deployment options ranging from a single binary to fully
 - [Spice Cloud](deployment/cloud)
 - [AWS](deployment/aws)
 - [Azure](deployment/azure)
+- [CI/CD](deployment/ci-cd) — GitHub Actions and Kubernetes GitOps
