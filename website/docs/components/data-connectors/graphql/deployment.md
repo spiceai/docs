@@ -36,7 +36,7 @@ Use HTTPS endpoints in production. Self-signed certificates require a trusted CA
 
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408/429/5xx plus transient network errors are retried with fibonacci backoff capped at 300s. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+The GraphQL connector retries transient errors (HTTP 408 and 5xx) and connection-level failures with exponential backoff. HTTP 429 responses are surfaced as rate-limit errors and are **not** automatically retried — reduce refresh frequency or narrow the query when rate-limited.
 
 ### Pagination
 
@@ -56,8 +56,7 @@ GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate lim
 
 The GraphQL connector does not register connector-specific instruments. Monitor via:
 
-- Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
-- HTTP response status distribution via the shared `resilient_http` instrumentation.
+- Spice query execution metrics (e.g. `query_duration_ms`) from `runtime.metrics`.
 - The upstream GraphQL provider's rate-limit dashboards.
 
 See [Component Metrics](../../../features/observability/component_metrics) for general configuration.

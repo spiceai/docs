@@ -130,20 +130,6 @@ datasets:
 | not set | not set | set | HTTP Basic Auth |
 | not set | not set | not set | No auth |
 
-### Rate Control Parameters
-
-The GraphQL connector supports shared HTTP rate control to limit concurrency and request rate per upstream origin. These parameters can be set per-dataset (in `params`) or globally (in `runtime.params`). Dataset-level settings override the global defaults.
-
-| Parameter Name              | Description                                                                                                                                                                                  |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
-| `requests_per_second_limit` | Maximum number of HTTP requests per second to the same upstream origin. Overrides `runtime.params.http_requests_per_second_limit`. If both are unset, no per-second rate limit is applied.    |
-| `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
-| `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
-| `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
-
-Multiple datasets targeting the same GraphQL endpoint share the same rate controller.
-
 ## Pagination
 
 The GraphQL Data Connector supports automatic pagination of the response for queries using [cursor pagination](https://graphql.org/learn/pagination/).
