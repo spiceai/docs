@@ -92,7 +92,7 @@ Use `zstd` when maximizing cache efficiency is important, especially for large q
 
 ## Per-Principal Cache Isolation
 
-When [authentication](../auth) is enabled, all cache layers (SQL results, search results, and caching-mode acceleration storage) are automatically scoped per principal. Each authenticated caller has an isolated cache namespace — one caller's cached output is never served to a different caller.
+When [authentication](../../api/auth) is enabled, all cache layers (SQL results, search results, and caching-mode acceleration storage) are automatically scoped per principal. Each authenticated caller has an isolated cache namespace — one caller's cached output is never served to a different caller.
 
 | Scenario | Cache namespace |
 | --- | --- |
