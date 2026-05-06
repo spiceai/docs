@@ -64,7 +64,7 @@ For burst or low-utilization workloads, use [GKE Autopilot](https://cloud.google
 
 #### 2. Configure Workload Identity for GCP access
 
-Most Spice connectors (Cloud Storage via the [S3 connector](../../components/data-connectors/s3) with HMAC, BigQuery via [ADBC](../../components/data-connectors/adbc), Cloud SQL via [PostgreSQL](../../components/data-connectors/postgres) or [MySQL](../../components/data-connectors/mysql)) accept GCP credentials from [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Use Workload Identity so pods receive scoped, short-lived tokens without static keys:
+Most Spice connectors (Cloud Storage via the [S3 connector](../components/data-connectors/s3) with HMAC, BigQuery via [ADBC](../components/data-connectors/adbc), Cloud SQL via [PostgreSQL](../components/data-connectors/postgres) or [MySQL](../components/data-connectors/mysql)) accept GCP credentials from [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Use Workload Identity so pods receive scoped, short-lived tokens without static keys:
 
 ```bash
 # 1. Create a Google service account and grant it the roles the Spicepod needs

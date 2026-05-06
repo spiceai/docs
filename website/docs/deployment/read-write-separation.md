@@ -87,14 +87,14 @@ It is overkill when one Spice instance is sufficient (start with [Sidecar](archi
 
 ### The cluster (write tier)
 
-The cluster owns every refresh, acceleration, and search index for the datasets in scope. It runs as a standalone Spice deployment — typically a Kubernetes [`Deployment`](deployment/kubernetes/helm) or [`StatefulSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset), or a managed [Spice Cloud](deployment/cloud) app — and holds the only credentials to the source systems.
+The cluster owns every refresh, acceleration, and search index for the datasets in scope. It runs as a standalone Spice deployment — typically a Kubernetes [`Deployment`](./kubernetes/helm) or [`StatefulSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset), or a managed [Spice Cloud](./cloud) app — and holds the only credentials to the source systems.
 
 Cluster Spicepod responsibilities:
 
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
 - Accelerate to file-mode engines (DuckDB or SQLite) so the materialization can be exported as a snapshot.
-- Write [snapshots](features/data-acceleration/snapshots) to a shared object store after each refresh.
+- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh.
 
 ```yaml
 # cluster spicepod.yaml
@@ -138,7 +138,7 @@ datasets:
         duckdb_file: /data/customers.db
 ```
 
-Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), so retention is a normal object-store lifecycle rule. See [Snapshots](features/data-acceleration/snapshots) for the full configuration reference.
+Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), so retention is a normal object-store lifecycle rule. See [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
 
 ### The read instances (read tier)
 
@@ -187,7 +187,7 @@ datasets:
 
 ### Live delegation for the long tail
 
-Snapshots cover the working set. For queries that span beyond it — historical analytics, cross-dataset joins, distributed search — read instances delegate to the cluster using a [`spiceai` connector](components/data-connectors/spiceai) entry pointing at the cluster's Arrow Flight endpoint.
+Snapshots cover the working set. For queries that span beyond it — historical analytics, cross-dataset joins, distributed search — read instances delegate to the cluster using a [`spiceai` connector](../components/data-connectors/spiceai) entry pointing at the cluster's Arrow Flight endpoint.
 
 ```yaml
 # read instance spicepod.yaml (continued)
@@ -251,7 +251,7 @@ Whichever approach is chosen, treat schema changes as backward-compatible by def
 
 ## Deploy on Kubernetes
 
-The reference topology runs the cluster as a `StatefulSet` (or [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) on Spice.ai Enterprise) and the read instances as sidecars in application pods. Both use the same [Spice Helm chart](deployment/kubernetes/helm).
+The reference topology runs the cluster as a `StatefulSet` (or [`SpicepodSet`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodset) on Spice.ai Enterprise) and the read instances as sidecars in application pods. Both use the same [Spice Helm chart](./kubernetes/helm).
 
 ### Cluster release
 
@@ -362,9 +362,9 @@ A high delegation rate is a signal to expand the materialized working set. A gro
 ## Related
 
 - [Cluster-Sidecar Architecture](architectures/cluster-sidecar) — the conceptual model and live-delegation pattern.
-- [Snapshots](features/data-acceleration/snapshots) — full reference for snapshot configuration, triggers, and modes.
+- [Snapshots](../features/data-acceleration/snapshots) — full reference for snapshot configuration, triggers, and modes.
 - [Sidecar Architecture](architectures/sidecar) — single-instance precursor to this pattern.
 - [Cluster Architecture](architectures/cluster) — internal scheduler/executor split for the cluster tier (Spice.ai Enterprise).
-- [Kubernetes Deployment Guide](deployment/kubernetes) — Helm, Argo CD, and Flux options for the cluster.
-- [CI/CD](deployment/ci-cd) — automating cluster and read-instance rollouts.
+- [Kubernetes Deployment Guide](./kubernetes) — Helm, Argo CD, and Flux options for the cluster.
+- [CI/CD](./ci-cd) — automating cluster and read-instance rollouts.
 - [Spice.ai Enterprise Kubernetes Operator](https://docs.spice.ai/docs/enterprise/kubernetes-operator/kubernetes) — recommended for production self-hosted deployments.
