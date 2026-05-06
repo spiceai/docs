@@ -184,6 +184,9 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `stateful.size`                 | Size of each PV in the StatefulSet.                                                                                                                                                       | `1Gi`             |
 | `stateful.storageClass`         | Storage class for the volume claim template in the StatefulSet.                                                                                                                           | `standard`        |
 | `tolerations`                   | List of node taints to tolerate.                                                                                                                                                          | `[]`              |
+| `livenessProbe`                 | Liveness probe configuration for the Spice.ai container. See [Health and Readiness](#health-and-readiness).                                                                               | See below         |
+| `readinessProbe`                | Readiness probe configuration for the Spice.ai container. See [Health and Readiness](#health-and-readiness).                                                                              | See below         |
+| `startupProbe`                  | Startup probe configuration for the Spice.ai container. See [Health and Readiness](#health-and-readiness).                                                                                | See below         |
 
 ## Environment Variables and Secrets
 
@@ -241,7 +244,37 @@ Once the monitoring is enabled, import the [Spice Grafana dashboard](../monitori
 
 ### Health and Readiness
 
-Spice provides two HTTP endpoints for monitoring the runtime state: `/health` and `/v1/ready`. These endpoints are used for Kubernetes health and readiness probes in the Spice deployment. The Spice Helm chart automatically configures these probes.
+Spice provides two HTTP endpoints for monitoring the runtime state: `/health` and `/v1/ready`. These endpoints are used for Kubernetes health and readiness probes in the Spice deployment. The Spice Helm chart automatically configures these probes with sensible defaults that can be overridden in `values.yaml`.
+
+#### Default Probe Configuration
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8090
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /v1/ready
+    port: 8090
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8090
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
+```
+
+Override any probe field in your `values.yaml` to adjust timing, thresholds, or endpoints.
 
 #### Health Probe
 
