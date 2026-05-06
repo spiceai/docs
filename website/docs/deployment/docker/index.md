@@ -2,7 +2,7 @@
 title: 'Docker'
 description: 'Run Spice.ai as a Docker container.'
 sidebar_label: 'Docker'
-sidebar_position: 3
+sidebar_position: 4
 tags:
   - deployment
   - docker

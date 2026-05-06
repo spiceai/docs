@@ -1,6 +1,6 @@
 Modern applications have two fundamentally different data access patterns, and no single deployment model serves both well. Large analytical queries — scanning terabytes of Iceberg data, joining Delta Lake tables, running cross-dataset aggregations — need distributed execution across many nodes. Hot operational queries — serving the working set a microservice actually uses, answering user-facing requests in under 5 milliseconds, feeding fresh context to an AI agent — need data materialized right next to the application, with no network hop.
 
-The hybrid cluster-sidecar architecture addresses both patterns in a single platform. Application sidecars handle the hot path with locally accelerated data, while a centralized Spice [cluster](./cluster) (or the [Spice Cloud Platform](./hosted)) provides distributed compute for heavy queries, data ingestion, acceleration, and refresh. When a sidecar needs to reach beyond its materialized working set — a historical query, a cross-dataset join, a broad search — it transparently delegates to the cluster, which executes the query and returns results. The sidecar can then cache those results for future use.
+The [cluster-sidecar architecture](https://spice.ai/blog/cluster-sidecar-architecture) addresses both patterns in a single platform. Application sidecars handle the hot path with locally accelerated data, while a centralized Spice [cluster](./cluster) (or the [Spice Cloud Platform](./hosted)) provides distributed compute for heavy queries, data ingestion, acceleration, and refresh. When a sidecar needs to reach beyond its materialized working set — a historical query, a cross-dataset join, a broad search — it transparently delegates to the cluster, which executes the query and returns results. The sidecar can then cache those results for future use.
 
 From the application's perspective, everything is localhost. From an infrastructure perspective, the system delivers the throughput of a distributed query engine and the latency of an embedded database — without ETL between them, sync jobs, or consistency gaps.
 
@@ -39,7 +39,7 @@ Each sidecar is configured declaratively via a `spicepod.yaml` — the datasets,
 - Transparent query delegation — sidecars automatically route queries beyond their cached working set to the cluster.
 - Sidecars remain lightweight — only caching, no ingestion or acceleration overhead.
 - Cluster (or Spice Cloud) handles complex operations: data ingestion, [Spice Cayenne](../../components/data-accelerators/cayenne) acceleration, distributed query, hybrid search, and refresh from sources.
-- Works with both self-managed Spice clusters and the managed [Spice Cloud Platform](./hosted) as the centralized backend. The Spice Cloud hybrid model is the most common production topology.
+- Works with both self-managed Spice clusters and the managed [Spice Cloud Platform](./hosted) as the centralized backend. The Spice Cloud cluster-sidecar model is the most common production topology.
 - Sidecars can run anywhere — in your VPC, on-premises, at the edge, or in any Kubernetes cluster — while connecting securely to the managed cluster.
 - Horizontal scalability — add sidecars without increasing load on data sources.
 - Resilience — sidecars serve cached data even if the cluster is temporarily unavailable.
@@ -69,3 +69,7 @@ Each sidecar is configured declaratively via a `spicepod.yaml` — the datasets,
 **Example Use Case**
 
 A multi-tenant SaaS platform where each tenant's application pod includes a Spice sidecar caching frequently queried datasets. The sidecars pull from a shared Spice cluster (or Spice Cloud) that handles ingestion from PostgreSQL, S3, and Databricks, runs Cayenne acceleration and refresh schedules, and serves distributed queries. Tenants get sub-millisecond reads from their local sidecar while the cluster manages data freshness and heavy query workloads centrally. When a tenant's application issues a query that spans beyond the sidecar's cached working set — such as a historical analysis or cross-dataset join — the sidecar transparently delegates to the cluster and caches the results.
+
+**See also**
+
+- [Read/Write Separation](../read-write-separation) — production guide for splitting ingest from reads using shared acceleration snapshots, including Spicepod and Helm reference configurations.

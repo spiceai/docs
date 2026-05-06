@@ -2,7 +2,7 @@
 title: 'Spice Cloud Platform Deployment'
 description: 'Guide to deploying data and AI applications using the managed Spice Cloud Platform'
 sidebar_label: 'Spice Cloud Platform'
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 The Spice Cloud Platform is a managed, cloud-hosted solution designed for deploying data and AI applications and agents. It provides a secure and efficient compute environment powered by Spice.ai OSS, offering building blocks including high-speed SQL queries, LLM inference, vector search, and retrieval-augmented generation (RAG).
