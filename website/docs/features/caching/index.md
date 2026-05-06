@@ -90,16 +90,34 @@ The encoding algorithm determines how cached results are compressed in memory, t
 
 Use `zstd` when maximizing cache efficiency is important, especially for large queries that would otherwise quickly fill the cache. Use `none` for the lowest latency when memory is not constrained.
 
+## Per-Principal Cache Isolation
+
+When [authentication](../auth) is enabled, all cache layers (SQL results, search results, and caching-mode acceleration storage) are automatically scoped per principal. Each authenticated caller has an isolated cache namespace — one caller's cached output is never served to a different caller.
+
+| Scenario | Cache namespace |
+| --- | --- |
+| Auth disabled or anonymous request | `public` — all callers share the cache |
+| Authenticated principal (e.g., API key) | Per-principal — isolated by a hash of the principal's identity |
+| Background / system tasks (e.g., SWR revalidation) | Inherits the originating principal's namespace |
+
+There are no user-facing knobs to disable isolation. Scope follows authentication presence by construction.
+
+:::warning[Breaking change for caching accelerator]
+The caching accelerator storage schema gains an internal `__spice_cache_namespace` column. Existing accelerator storage from earlier versions must be deleted (e.g., remove the `duckdb_file`, drop the backing table) before upgrading. The runtime errors with a clear message at startup if it encounters a non-extended schema.
+
+The SQL results cache and search cache are in-memory and require no migration.
+:::
+
 ## Cached Responses
 
-Responses from HTTP APIs include a header that indicates the cache status of the applicable cache:
+Responses from HTTP APIs include headers that indicate the cache status and scope:
 
-| Cache            | Header Key                    |
-| ---------------- | ----------------------------- |
-| `sql_results`    | `Results-Cache-Status`        |
-| `search_results` | `Search-Results-Cache-Status` |
+| Cache            | Status Header                 | Scope Header                    |
+| ---------------- | ----------------------------- | ------------------------------- |
+| `sql_results`    | `Results-Cache-Status`        | `Results-Cache-Scope`           |
+| `search_results` | `Search-Results-Cache-Status` | `Search-Results-Cache-Scope`    |
 
-The value of the header indicates the status of the cache:
+The status header indicates the cache status:
 
 | Header value         | Description                                                                                                                              |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -108,6 +126,14 @@ The value of the header indicates the status of the cache:
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
 | `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table).                                       |
+
+The scope header indicates the cache namespace:
+
+| Scope value | Description |
+| --- | --- |
+| `shared` | The cache entry is in the public namespace (auth disabled or anonymous). |
+| `user` | The cache entry is scoped to the authenticated principal. When the scope is `user`, the response also includes `Vary: Authorization`. |
+| `system` | The cache entry is in the system/background namespace. |
 
 ### Examples
 
@@ -118,6 +144,7 @@ $ curl -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
 results-cache-status: HIT
+results-cache-scope: shared
 vary: origin, access-control-request-method, access-control-request-headers
 content-length: 416
 date: Thu, 13 Feb 2025 03:05:39 GMT
@@ -130,6 +157,7 @@ $ curl -XPOST -i http://localhost:8090/v1/sql -d 'select * from taxi_trips limit
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
 results-cache-status: MISS
+results-cache-scope: shared
 vary: origin, access-control-request-method, access-control-request-headers
 content-length: 416
 date: Thu, 13 Feb 2025 03:13:19 GMT
