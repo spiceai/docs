@@ -87,8 +87,8 @@ The PostgreSQL connector exposes observable metrics for its replication pipeline
 | `replication_updates_total`                  | ObservableCounter | Total update operations received.                               |
 | `replication_deletes_total`                  | ObservableCounter | Total delete operations received.                               |
 | `replication_truncates_total`                | ObservableCounter | Total truncate operations received.                             |
-| `replication_bootstrap_rows_total`           | ObservableGauge | Total rows fetched during initial bootstrap.                      |
-| `replication_bootstrap_complete`             | ObservableCounter | Bootstrap completion status.                                    |
+| `replication_bootstrap_rows_total`           | ObservableCounter | Total rows fetched during initial bootstrap.                    |
+| `replication_bootstrap_complete`             | ObservableGauge | Bootstrap completion status.                                      |
 | `replication_decode_errors_total`            | ObservableCounter | Total WAL decode errors.                                        |
 | `replication_schema_mismatch_errors_total`   | ObservableCounter | Total schema mismatch errors during replication.                |
 | `replication_recv_errors_total`              | ObservableCounter | Total receive errors during replication.                        |
