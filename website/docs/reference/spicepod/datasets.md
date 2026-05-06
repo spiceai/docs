@@ -255,7 +255,7 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 Supports one of two values:
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
 - `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
 
 ```yaml
@@ -303,34 +303,38 @@ LIMIT 1;
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
 
-## `load`
+## Deferred dataset initialization
 
-Optional. Controls when the dataset is loaded by the runtime. Defaults to `on_startup`.
+Datasets can defer connector creation and schema inference until the first query by combining `ready_state: on_registration` with fully declared `columns[].type` entries. When every column has an explicit type, the runtime registers a placeholder table with the declared Arrow schema at startup — SQL planning and federation analysis work against this schema **without contacting the source**. On first query, the placeholder is swapped for the real provider.
 
-- `on_startup` (default): The dataset is initialized during runtime startup — the connector is created, schema is inferred, and acceleration (if configured) begins immediately.
-- `on_demand`: The dataset is **not** initialized at startup. Initialization is deferred until the first SQL query that references the dataset, or until an explicit refresh is triggered via `POST /v1/datasets/{name}/acceleration/refresh`.
-
-When a dataset is configured with `load: on_demand`, the runtime:
-- Parses and validates the dataset configuration at startup, but does **not** create the connector, infer the schema, or start any refresh tasks.
-- Reports the dataset status as `NotLoaded` until it is triggered.
-- On the first query (or explicit refresh), initializes the dataset transparently — subsequent queries proceed normally.
-- Coordinates concurrent triggers so the dataset is only initialized once.
+A dataset is eligible for deferred initialization when:
+- It is read-only.
+- `ready_state: on_registration` is set.
+- It has no embedding or full-text-search columns.
+- Every column has an explicit [`columns[].type`](#columnstype).
 
 ```yaml
 datasets:
-  - from: postgres:public.large_table
-    name: large_table
-    load: on_demand
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: my_db
-      pg_user: ${secrets:pg_user}
-      pg_pass: ${secrets:pg_pass}
+  - from: https://api.example.com/data.json
+    name: my_data
+    ready_state: on_registration
+    columns:
+      - name: id
+        type: bigint
+      - name: name
+        type: text
+      - name: created_at
+        type: timestamptz
 ```
 
-:::tip
-Use `load: on_demand` for large or infrequently accessed datasets to reduce startup time and resource consumption. The dataset will be loaded transparently on first access.
+When deferred initialization is active, the runtime:
+- Registers the dataset immediately with the declared schema — queries can reference the table in planning before the source is contacted.
+- On the first query that references the dataset, initializes the connector and loads the real data transparently.
+- Coordinates concurrent triggers so the dataset is only initialized once.
+- Supports acceleration — after deferred initialization, the acceleration table, refresh loop, and health monitor are set up normally.
+
+:::warning[Breaking change]
+`load: on_demand` has been removed. Replace it with `ready_state: on_registration` combined with explicit `columns[].type` declarations.
 :::
 
 ## `acceleration`
