@@ -59,8 +59,8 @@ DuckDB self-tunes its memory limit based on system memory. For containers, set a
 
 | Parameter                    | Description                                                                                             |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `index_scan_percentage`      | Optimizer hint: fraction of rows below which index scan is preferred over table scan.                   |
-| `index_scan_max_count`       | Optimizer hint: maximum rows for which index scan is preferred.                                         |
+| `duckdb_index_scan_percentage`      | Optimizer hint: fraction of rows below which index scan is preferred over table scan.                   |
+| `duckdb_index_scan_max_count`       | Optimizer hint: maximum rows for which index scan is preferred.                                         |
 | `on_refresh_sort_columns`    | Columns to sort by during refresh. **Caution**: current implementation uses `CREATE OR REPLACE`, which drops constraints and indexes. |
 
 DuckDB supports traditional B-tree / ART indexes via SQL `CREATE INDEX` against the accelerated table. Define them once the dataset schema is stable.
@@ -94,6 +94,6 @@ DuckDB acceleration operations participate in [task history](../../../reference/
 | Slow first startup after restart                       | WAL replay due to ungraceful shutdown.                        | Use graceful shutdown (`SIGTERM`). Subsequent starts will be fast once the checkpoint is clean.             |
 | OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set a `memory_limit` pragma via the connection string.                                                      |
 | Disk fills during large queries                        | Spill directory on undersized volume.                         | Point `runtime.query.temp_directory` at a larger volume; monitor free space.                                |
-| Query uses table scan when an index exists             | `index_scan_percentage` / `index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
+| Query uses table scan when an index exists             | `duckdb_index_scan_percentage` / `duckdb_index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
 | Indexes disappear after refresh                        | `on_refresh_sort_columns` triggers `CREATE OR REPLACE`.       | Re-create indexes post-refresh, or avoid sort-column refreshes until the underlying behavior is updated.    |
 | `IO Error: Could not set lock on file`                 | Another process holds a write lock.                           | Ensure single-writer semantics; verify no other Spice instance is using the same file.                      |

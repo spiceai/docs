@@ -207,7 +207,7 @@ When a query includes a `WHERE` clause, Spice Cayenne evaluates whether each seg
 For a table with segments containing timestamp ranges `[2024-01-01, 2024-01-15]`, `[2024-01-16, 2024-01-31]`, `[2024-02-01, 2024-02-15]`, a query:
 
 ```sql
-SELECT * FROM events WHERE timestamp > '2024-01-20'
+SELECT * FROM events WHERE timestamp > '2024-01-20';
 ```
 
 Prunes the first segment (max < 2024-01-20) and reads only the second and third segments.

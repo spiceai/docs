@@ -59,7 +59,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 
 | Parameter Name   | Description                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `client_timeout` | Optional. Specifies timeout for object store operations. Default value is `30s`. E.g. `client_timeout: 60s` |
+| `client_timeout` | Optional. Specifies timeout for object store operations. No default; uses the underlying HTTP client timeout when not set. E.g. `client_timeout: 60s` |
 
 ## Delta Lake object store parameters
 
@@ -80,7 +80,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 **One** of the following auth values must be provided for Azure Blob:
 
 - `delta_lake_azure_storage_account_key`,
-- `delta_lake_azure_storage_client_id` and `delta_lake_azure_storage_client_secret`, or
+- `delta_lake_azure_storage_client_id`, `delta_lake_azure_storage_client_secret`, and `delta_lake_azure_storage_tenant_id`, or
 - `delta_lake_azure_storage_sas_key`.
   :::
 
@@ -90,6 +90,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 | `delta_lake_azure_storage_account_key`   | The Azure Storage master key for accessing the storage account.        |
 | `delta_lake_azure_storage_client_id`     | The service principal client id for accessing the storage account.     |
 | `delta_lake_azure_storage_client_secret` | The service principal client secret for accessing the storage account. |
+| `delta_lake_azure_storage_tenant_id`     | The service principal tenant id for accessing the storage account.     |
 | `delta_lake_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
 | `delta_lake_azure_storage_endpoint`      | Optional. The endpoint for the Azure Blob storage account.             |
 
@@ -146,6 +147,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
     # OR Service Principal + Secret
     delta_lake_azure_storage_client_id: my_client_id
     delta_lake_azure_storage_client_secret: ${secrets:my_secret}
+    delta_lake_azure_storage_tenant_id: ${secrets:my_tenant_id}
 
     # OR SAS Key
     delta_lake_azure_storage_sas_key: my_sas_key

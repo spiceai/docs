@@ -59,7 +59,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 | Parameter Name   | Description                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `client_timeout` | Optional. Specifies timeout for object store operations. Default value is `30s`. E.g. `client_timeout: 60s` |
+| `client_timeout` | Optional. Specifies timeout for object store operations. No default; uses the underlying HTTP client timeout when not set. E.g. `client_timeout: 60s` |
 
 ## Delta Lake object store parameters
 
@@ -96,7 +96,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 | Parameter Name           | Description                                                  |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `delta_lake_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 
@@ -154,7 +154,7 @@ Use the [secret replacement syntax](../secret-stores/index.md) to reference a se
 
 ```yaml
 params:
-  delta_lake_google_service_account_path: /path/to/service-account.json
+  delta_lake_google_service_account: /path/to/service-account.json
 ```
 
 ## Types

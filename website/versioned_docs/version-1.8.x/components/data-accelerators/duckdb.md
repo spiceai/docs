@@ -85,7 +85,7 @@ datasets:
         duckdb_memory_limit: '4GB'
 ```
 
-Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duck_memory_limit` so ensure adequate memory is provisioned.
+Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duckdb_memory_limit` so ensure adequate memory is provisioned.
 
 Allocate at least 30% more container/machine memory for the runtime process.
 

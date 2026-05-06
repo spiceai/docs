@@ -290,6 +290,5 @@ For the full reference, see [`snapshots` in the Spicepod specification](../../re
 :::warning[Limitations]
 
 - Only datasets are supported for snapshots. Views are not supported.
-- When using Cayenne accelerations, snapshots are supported only when one dataset is configured per spicepod.
 
 :::

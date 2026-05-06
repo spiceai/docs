@@ -144,7 +144,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 
 | Parameter Name           | Description                                                  |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `databricks_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 ## Examples
 

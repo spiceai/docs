@@ -23,8 +23,8 @@ datasets:
       mysql_db: my_database
       mysql_user: my_user
       mysql_pass: ${secrets:mysql_pass}
-      mysql_pool_min: 10
-      mysql_pool_max: 100
+      mysql_pool_min: 1
+      mysql_pool_max: 5
 ```
 
 ## Configuration
@@ -97,8 +97,8 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_sslmode`           | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `mysql_sslrootcert`       | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `mysql_time_zone`         | Optional. Specifies connection time zone. Default is `+00:00` (UTC). Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`), if supported by the MySQL server.</li><li>`system`: The MySQL server host’s OS time zone.</li><li>`local_system`: The local runtime OS time zone.</li></ul> |
-| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `mysql_pool_min`          | The minimum number of connections to keep open in the pool, lazily created when requested.  Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `mysql_pool_max`          | The maximum number of connections to allow in the pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ### `metrics`
 

@@ -58,17 +58,17 @@ A checkpoint older than **18 hours** is treated as near-expired and triggers the
 
 ## Metrics
 
-The DynamoDB connector collects stream metrics via the embedded `MetricsCollector`. Metrics include:
+The DynamoDB connector registers the following metrics:
 
-| Metric                               | Description                                                                     |
-| ------------------------------------ | ------------------------------------------------------------------------------- |
-| `dynamodb_stream_records_total`      | Total stream records processed.                                                 |
-| `dynamodb_stream_lag_ms`             | Current lag behind the stream head (approximate, per shard).                    |
-| `dynamodb_stream_shard_count`        | Active shard count.                                                             |
-| `dynamodb_stream_errors_total`       | Stream read errors.                                                             |
-| `dynamodb_stream_checkpoint_age_ms`  | Time since the last successful checkpoint.                                      |
+| Metric                               | Type    | Description                                                                     |
+| ------------------------------------ | ------- | ------------------------------------------------------------------------------- |
+| `shards_active`                      | Gauge   | Number of active DynamoDB Streams shards being consumed.                        |
+| `records_consumed_total`             | Counter | Total stream records consumed.                                                  |
+| `lag_ms`                             | Gauge   | Current lag behind the stream head in milliseconds (approximate, summed across shards). |
+| `errors_transient_total`             | Counter | Transient stream read errors (retried automatically).                           |
+| `reinitializations_on_lag_exceeds_shard_retention_total` | Counter | Number of times the stream was reinitialized due to lag exceeding shard retention. |
 
-Metric names are exposed with the prefix `dataset_dynamodb_`. Monitor `dynamodb_stream_lag_ms` and `dynamodb_stream_checkpoint_age_ms` together — a climbing lag with a stale checkpoint indicates the connector is falling behind retention.
+Metrics are exposed with the `dataset_dynamodb_` prefix. Monitor `lag_ms` together with `errors_transient_total` — a climbing lag with rising transient errors indicates the connector is falling behind retention.
 
 See [Component Metrics](../../../features/observability/component_metrics) for enabling and exporting metrics.
 
@@ -80,7 +80,7 @@ Stream polling and bootstrap operations emit spans that participate in [task his
 
 - **Global Secondary Indexes**: Not exposed as separate datasets. Query the base table and let DataFusion filter.
 - **Conditional writes**: DynamoDB conditional expressions (e.g., `attribute_exists`) are not supported in DML operations.
-- **Cross-region streams**: Must configure `dynamodb_region` to match the region of the source table; cross-region access requires resource policies and is not recommended.
+- **Cross-region streams**: Must configure `dynamodb_aws_region` to match the region of the source table; cross-region access requires resource policies and is not recommended.
 - **Table with `StreamSpecification` disabled**: CDC mode is unavailable; fall back to full-table refresh.
 
 ## Troubleshooting

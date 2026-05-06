@@ -21,8 +21,8 @@ datasets:
       mongodb_db: my_database
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
-      mongodb_pool_min: 0
-      mongodb_pool_max: 10
+      mongodb_pool_min: 1
+      mongodb_pool_max: 5
 ```
 
 ## Configuration
@@ -85,8 +85,8 @@ The MongoDB data connector can be configured by providing the following `params`
 | `mongodb_auth_source`              | Optional. Authentication source database. Overrides the default auth source in the connection string.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `mongodb_unnest_depth`             | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields. Default: `0`                                                                                                                                                                                                                                                                                                                                                         |
 | `mongodb_num_docs_to_infer_schema` | Optional. Number of documents to use to infer the schema. Defaults to 400.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `mongodb_pool_min`                 | The minimum number of connections to keep open in the pool, lazily created when requested. Default: `0`                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `mongodb_pool_max`                 | The maximum number of connections to allow in the pool. Default: `10`                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `mongodb_pool_min`                 | The minimum number of connections to keep open in the pool, lazily created when requested. Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `mongodb_pool_max`                 | The maximum number of connections to allow in the pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
 ## Types
 
@@ -228,7 +228,7 @@ datasets:
       mongodb_user: my_user
       mongodb_pass: ${secrets:mongodb_pass}
       mongodb_pool_min: 5
-      mongodb_pool_max: 10
+      mongodb_pool_max: 5
 ```
 
 ## Secrets

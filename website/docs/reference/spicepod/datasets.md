@@ -23,7 +23,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 `spicepod.yaml`
@@ -39,7 +39,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 Relative path example:
@@ -93,6 +93,7 @@ Where:
   - [`http`, `https`](../../components/data-connectors/https)
   - [`clickhouse`](../../components/data-connectors/clickhouse)
   - [`graphql`](../../components/data-connectors/graphql)
+  - [`cosmosdb`](../../components/data-connectors/cosmosdb)
 
   If the Data Connector is not explicitly specified, it defaults to `spiceai`.
 
@@ -254,7 +255,7 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 Supports one of two values:
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
 - `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
 
 ```yaml
@@ -297,10 +298,44 @@ SELECT
   "p_comment"
 FROM
   spiceai_sandbox.tpch.part
-LIMIT 1
+LIMIT 1;
 ```
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
+
+## Deferred dataset initialization
+
+Datasets can defer connector creation and schema inference until the first query by combining `ready_state: on_registration` with fully declared `columns[].type` entries. When every column has an explicit type, the runtime registers a placeholder table with the declared Arrow schema at startup — SQL planning and federation analysis work against this schema **without contacting the source**. On first query, the placeholder is swapped for the real provider.
+
+A dataset is eligible for deferred initialization when:
+- It is read-only.
+- `ready_state: on_registration` is set.
+- It has no embedding or full-text-search columns.
+- Every column has an explicit [`columns[].type`](#columnstype).
+
+```yaml
+datasets:
+  - from: https://api.example.com/data.json
+    name: my_data
+    ready_state: on_registration
+    columns:
+      - name: id
+        type: bigint
+      - name: name
+        type: text
+      - name: created_at
+        type: timestamptz
+```
+
+When deferred initialization is active, the runtime:
+- Registers the dataset immediately with the declared schema — queries can reference the table in planning before the source is contacted.
+- On the first query that references the dataset, initializes the connector and loads the real data transparently.
+- Coordinates concurrent triggers so the dataset is only initialized once.
+- Supports acceleration — after deferred initialization, the acceleration table, refresh loop, and health monitor are set up normally.
+
+:::warning[Breaking change]
+`load: on_demand` has been removed. Replace it with `ready_state: on_registration` combined with explicit `columns[].type` declarations.
+:::
 
 ## `acceleration`
 
@@ -332,7 +367,7 @@ Optional. The mode of acceleration. The following values are supported:
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -405,6 +440,7 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
 ## `acceleration.refresh_check_interval`
 
@@ -757,6 +793,34 @@ datasets:
 ## `columns[*].name`
 
 The name of the column in the table schema.
+
+## `columns[*].type`
+
+Optional. Declares the expected data type for the column, overriding the type inferred from the data source. Accepts three families of type expressions:
+
+- **Arrow display forms** — `Int64`, `Utf8`, `Float64`, `Bool`, `Date32`, `Timestamp(Microsecond, UTC)`, `List<Int64>`, `Decimal128(p, s)`, `Map<Utf8, Int64>`, etc.
+- **SQL / Postgres forms** — `BIGINT`, `INTEGER`, `TEXT`, `VARCHAR(n)`, `BOOLEAN`, `DOUBLE PRECISION`, `NUMERIC(p,s)`, `DATE`, `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, `BYTEA`, etc.
+- **Postgres aliases** — `int2`, `int4`, `int8`, `float4`, `float8`, `serial`, `bigserial`, `timestamptz`, `uuid`, and the `T[]` array suffix (e.g. `int4[]`).
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    columns:
+      - name: event_id
+        type: bigint
+        nullable: false
+      - name: payload
+        type: Map<Utf8, Utf8>
+      - name: tags
+        type: text[]
+      - name: amount
+        type: numeric(18,4)
+```
+
+## `columns[*].nullable`
+
+Optional. Declares whether the column allows null values. When omitted, the column defaults to nullable. Set to `false` to enforce a non-null constraint.
 
 ## `columns[*].description`
 

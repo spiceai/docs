@@ -21,18 +21,23 @@ Acceleration data can be refreshed (updated) by:
 
 ## Refresh Modes
 
-Spice supports four modes to refresh/update local data from a connected data source. `full` is the default mode.
+Spice supports five modes to refresh/update local data from a connected data source. `full` is the default mode.
 
-| Mode      | Description                                          | Example                                                          |
-| --------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `full`    | Replace/overwrite the entire dataset on each refresh | A table of users                                                 |
-| `append`  | Append/add data to the dataset on each refresh       | Append-only, immutable datasets, such as time-series or log data |
-| `changes` | Apply incremental changes                            | Customer order lifecycle table                                   |
-| `caching` | Read-through caching for SQL queries                 | API search results or dynamic content endpoints                  |
+| Mode       | Description                                          | Example                                                          |
+| ---------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
+| `full`     | Replace/overwrite the entire dataset on each refresh | A table of users                                                 |
+| `append`   | Append/add data to the dataset on each refresh       | Append-only, immutable datasets, such as time-series or log data |
+| `changes`  | Apply incremental changes                            | Customer order lifecycle table                                   |
+| `caching`  | Read-through caching for SQL queries                 | API search results or dynamic content endpoints                  |
+| `snapshot` | Reload exclusively from the snapshot store           | Read-only replicas bootstrapped from centralized snapshots       |
 
 Learn more about each mode:
 
+- [Full Mode](./refresh-modes/full)
+- [Append Mode](./refresh-modes/append)
+- [Changes Mode](./refresh-modes/changes)
 - [Caching Mode](./refresh-modes/caching)
+- [Snapshot Mode](./refresh-modes/snapshot)
 
 Example:
 
@@ -135,6 +140,48 @@ Datasets configured with acceleration `refresh_mode: changes` requires a [Change
 The `caching` refresh mode is designed for HTTP-based datasets where request metadata acts as cache keys. This mode is particularly useful for API responses that return multiple rows for a single request, such as search results or dynamic content endpoints.
 
 See [Caching Mode](./refresh-modes/caching) for detailed documentation and examples.
+
+### Snapshot
+
+The `snapshot` refresh mode creates a read-only acceleration that reloads exclusively from the [snapshot store](./snapshots). The federated data source is never queried for refreshes — instead, the runtime polls the snapshot store on a configurable interval and atomically swaps in newer snapshots when available.
+
+```yaml
+snapshots:
+  enabled: true
+  location: s3://my-bucket/snapshots/
+  params:
+    s3_auth: iam_role
+
+datasets:
+  - from: postgres:public.my_table
+    name: my_table
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file
+      refresh_mode: snapshot
+      refresh_check_interval: 30s  # Poll interval; defaults to 1m
+      snapshots: enabled
+      params:
+        duckdb_file: /nvme/my_table.db
+```
+
+**Requirements:**
+
+- `acceleration.snapshots` must be `enabled` or `bootstrap_only`
+- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**
+
+**Behavior:**
+
+- On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes)
+- After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
+- When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
+- The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
+- `INSERT INTO` statements are rejected with an error since the acceleration is driven exclusively from snapshots
+
+:::tip
+Use `refresh_mode: snapshot` for read-only replicas that don't need direct access to the federated source — for example, edge nodes that receive snapshots from a centralized writer.
+:::
 
 ## Ready State
 

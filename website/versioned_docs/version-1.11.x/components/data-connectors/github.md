@@ -273,8 +273,8 @@ datasets:
       # Specifies the types of comments to fetch: 'all', 'review', 'discussion', or 'none'. Defaults to 'none'.
       github_include_comments: none
       # Number of comments to fetch per discussion or review thread.
-      # Defaults to 100, and is capped at 100
-      github_max_comments_fetched: 100
+      # Defaults to 75, and is capped at 75
+      github_max_comments_fetched: 75
 ```
 
 #### Schema
@@ -354,7 +354,7 @@ datasets:
     params:
       github_token: ${secrets:GITHUB_TOKEN}
       github_include_comments: all
-      github_max_comments_fetched: 100
+      github_max_comments_fetched: 75
     acceleration:
       enabled: true
 ```

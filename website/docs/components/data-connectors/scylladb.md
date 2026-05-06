@@ -123,11 +123,24 @@ For decimals that exceed this precision, values may be truncated or rounded.
 
 ## Query Execution
 
-Due to fundamental differences between CQL and SQL, the connector implements a local filtering strategy. All data is fetched from ScyllaDB using `SELECT *` queries, and filtering, joins, aggregations, and other SQL operations are performed locally by DataFusion.
+The connector pushes down partition key and clustering key filters to CQL where possible. Filters that CQL cannot express are evaluated locally by DataFusion after data retrieval. Joins, aggregations, and other SQL operations are always performed locally.
 
-### Why Filter Pushdown is Disabled
+### Filter Pushdown
 
-CQL lacks many SQL constructs:
+The following filters are pushed down to ScyllaDB:
+
+| Filter type | Operators | Pushdown behavior |
+| --- | --- | --- |
+| Partition key equality | `=` | Always pushed down (Exact) |
+| Clustering key comparison | `=`, `<`, `<=`, `>`, `>=` | Pushed down when a partition key equality filter is present (Inexact) |
+| Regular column filters | Any | Not pushed down — evaluated locally by DataFusion |
+| OR conditions, complex expressions | Any | Not pushed down — evaluated locally by DataFusion |
+
+Clustering key filters are marked as **Inexact**, meaning DataFusion re-checks them after retrieval to ensure correctness.
+
+### CQL vs SQL
+
+CQL lacks many SQL constructs, which is why most filter types cannot be pushed down:
 
 | Feature          | SQL | CQL |
 | ---------------- | --- | --- |
@@ -141,19 +154,17 @@ CQL lacks many SQL constructs:
 | COUNT(DISTINCT)  | ✅   | ❌   |
 | Arbitrary WHERE  | ✅   | ❌   |
 
-Because of these limitations, the connector:
+### Projection Pushdown
 
-1. Fetches full table data using `SELECT * FROM keyspace.table`
-2. Lets DataFusion handle all filtering locally after data retrieval
-3. Supports projection pushdown—only requested columns are transferred
+Projection pushdown is supported — only the columns referenced in the query are fetched from ScyllaDB.
 
 ### Streaming Execution
 
-Query results are streamed using the scylla driver's paging mechanism in batches of 8192 rows by default, minimizing memory usage for large result sets.
+Query results are streamed using the scylla driver's paging mechanism in batches of 8192 rows, minimizing memory usage for large result sets.
 
 ## Performance Considerations
 
-Since filter pushdown is disabled, all table data is transferred for each query. Consider the following optimizations:
+Partition key and clustering key filters reduce the amount of data transferred from ScyllaDB, but queries without these filters fetch all table data. Consider the following optimizations:
 
 ### Enable Acceleration
 
@@ -266,7 +277,7 @@ The following SQL operations cannot be pushed down to ScyllaDB and are performed
 - **Aggregations**: COUNT, SUM, AVG, etc. are computed locally
 - **Subqueries**: Nested queries are not supported in CQL
 - **Window functions**: RANK, ROW_NUMBER, etc. not supported
-- **Complex WHERE clauses**: CQL requires partition key in WHERE; Spice fetches all data
+- **Complex WHERE clauses**: Only partition key equality and clustering key comparisons are pushed down; other filters are evaluated locally
 - **ORDER BY**: Sorting is done locally
 
 ### Connector Limitations

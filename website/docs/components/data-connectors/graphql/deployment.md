@@ -15,12 +15,14 @@ Production operating guide for the GraphQL data connector covering authenticatio
 
 ## Authentication & Secrets
 
-Authentication is endpoint-specific. The connector supports arbitrary HTTP headers via `graphql_auth_header`:
+Authentication is endpoint-specific. The connector supports bearer tokens, custom headers via `graphql_auth_header`, and HTTP Basic Auth:
 
 | Parameter                  | Description                                                                  |
 | -------------------------- | ---------------------------------------------------------------------------- |
 | `graphql_auth_header`      | Custom authorization header name. The value of `graphql_auth_token` is sent as this header's value. |
 | `graphql_auth_token`       | Bearer token for GraphQL requests. Typically `"${secrets:api_token}"`.        |
+| `graphql_auth_user`        | Username for HTTP Basic Auth.                                                 |
+| `graphql_auth_pass`        | Password for HTTP Basic Auth.                                                 |
 | `graphql_query`            | The GraphQL query to execute.                                                 |
 | `json_pointer`             | RFC-6901 JSON pointer to the row collection inside the response (e.g. `/data/repository/issues/nodes`). |
 
