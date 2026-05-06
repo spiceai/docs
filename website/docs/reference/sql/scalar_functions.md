@@ -3681,12 +3681,12 @@ bucket(num_buckets, value)
 
 #### Arguments
 
-- **num_buckets**: Positive integer indicating how many buckets to distribute values across. Values less than 1 produce an error.
+- **num_buckets**: Positive integer literal indicating how many buckets to distribute values across. Must be in the range `[1, 1_000_000]`. The literal's integer type (`Int8` … `Int64`, `UInt8` … `UInt64`) determines the return type.
 - **value**: Expression to hash. Accepts strings, numbers, and other scalar types supported by the query engine.
 
 #### Return Type
 
-Returns an `Int64` in the range `[0, num_buckets - 1]`. The same input value always maps to the same bucket for a given `num_buckets`.
+Returns an integer in the range `[0, num_buckets - 1]`, matching the integer type of `num_buckets`. The same input value always maps to the same bucket for a given `num_buckets` (the hash uses a fixed seed, so buckets are stable across processes and runtime restarts).
 
 #### Example
 
@@ -3711,7 +3711,7 @@ datasets:
 
 ### `truncate`
 
-Rounds numeric values down to the nearest multiple of the specified width. Useful when partitioning timestamps or numeric identifiers into wider ranges.
+Iceberg-style truncate transform. For numeric values, rounds down to the nearest multiple of `width`. For strings and binary, returns the first `width` characters/bytes. Useful for partitioning by wide numeric ranges or string prefixes.
 
 ```sql
 truncate(width, value)
@@ -3719,21 +3719,30 @@ truncate(width, value)
 
 #### Arguments
 
-- **width**: Positive numeric value that defines the bucket size (for example, `10`, `900`, or `3600`).
-- **value**: Numeric expression to truncate. Works with integers, decimals, and timestamps cast to integers (for example, epoch seconds).
+- **width**: Positive `Int64` literal that defines the bucket size or, for strings/binary, the number of leading units to retain. Maximum: `i64::MAX / 2`.
+- **value**: Expression to truncate. Accepts:
+  - Signed integers: `Int8`, `Int16`, `Int32`, `Int64`
+  - Unsigned integers: `UInt8`, `UInt16`, `UInt32`, `UInt64`
+  - Decimals: `Decimal128`, `Decimal256`
+  - Strings: `Utf8`
+  - Binary: `Binary`
 
 #### Return Type
 
-Returns a numeric value of the same type as `value`, rounded down so that the result is evenly divisible by `width`.
+Returns the same type as `value`. For numbers, the result is the largest multiple of `width` that is less than or equal to `value`. For strings/binary, the result is the first `width` characters/bytes.
 
 #### Example
 
 ```sql
+-- Numeric: floor-bucket integers into ranges of 10
 SELECT truncate(10, 101) AS truncated_id;  -- returns 100
 
 -- Truncate event timestamps to the start of each hour (3600 seconds)
 SELECT truncate(3600, extract(epoch FROM event_time)) AS hour_start
 FROM events;
+
+-- String: keep the first 2 characters (e.g., country prefix)
+SELECT truncate(2, 'United Kingdom');  -- returns 'Un'
 ```
 
 ---

@@ -41,28 +41,23 @@ The connector does not currently expose certificate-pinning or custom CA-bundle 
 
 ### Retries
 
-The underlying HTTP client retries transient Elasticsearch errors (HTTP 429 and 5xx) and connection-level failures with exponential backoff. The data connector uses the client's defaults:
+The Elasticsearch client library includes a retry mechanism with exponential backoff for transient errors (HTTP 429 and 5xx). However, retries are currently only active on the **write path** used by the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`bulk_index` operations). The data connector's read operations (`_search`, `_mapping`) do **not** retry transient errors — failures are surfaced immediately.
 
-| Setting           | Default | Notes                                                                       |
-| ----------------- | ------- | --------------------------------------------------------------------------- |
-| Max retries       | `3`     | Each subsequent attempt doubles the backoff, capped at `30s`.               |
-| Initial backoff   | `200ms` | Doubled per retry up to `30s`.                                              |
-
-Retry tuning is exposed only on the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`elasticsearch_max_retries`, `elasticsearch_retry_initial_backoff`); the data connector currently uses the defaults.
+Retry tuning is exposed only on the [Elasticsearch Vector Engine](../../vectors/elasticsearch) (`elasticsearch_max_retries`, `elasticsearch_retry_initial_backoff`).
 
 ### Timeouts
 
 | Setting         | Default | Behavior                                                                     |
 | --------------- | ------- | ---------------------------------------------------------------------------- |
 | Connect timeout | `10s`   | Maximum time to establish a TCP/TLS connection to the cluster.               |
-| Request timeout | `30s`   | Maximum time for the entire request/response cycle, including retries.       |
+| Request timeout | `30s`   | Maximum time for each individual HTTP request.                               |
 
 Long-running search responses (very large `LIMIT`, deep pagination, or expensive aggregations) may exceed the default request timeout. Either narrow the query, accelerate the dataset, or use the [vector engine](../../vectors/elasticsearch) `client_timeout` parameter when running the workload through the embedding-write path.
 
 ## Capacity & Sizing
 
 - **Throughput**: Bounded by the Elasticsearch cluster's request handling and (for kNN) HNSW search cost. Plan refresh intervals and concurrent query load to stay within the cluster's tested capacity.
-- **Result size**: Each `_search` request returns up to `size` hits. The connector translates `LIMIT` to `size`; very large limits incur higher cluster memory and network cost.
+- **Result size**: Each `_search` request returns up to `size` hits, hard-capped at **10,000** (the Elasticsearch default `index.max_result_window`). The connector translates `LIMIT` to `size` but clamps the value to 10,000; queries without `LIMIT` also default to 10,000. For full-index access, accelerate the dataset into a local engine.
 - **Mapping fetches**: At dataset registration the connector fetches the index mapping once via `GET /<index>/_mapping`. Mapping changes after registration are not picked up until the runtime restarts.
 - **Pagination**: Spice does not currently use Elasticsearch's `search_after` or scroll APIs from the data connector. For full-table scans of very large indexes, prefer accelerating into a local engine.
 
