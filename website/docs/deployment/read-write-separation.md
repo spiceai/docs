@@ -20,9 +20,8 @@ keywords:
   ]
 tags:
   - deployment
-  - architecture
-  - snapshots
-  - sidecar
+  - kubernetes
+  - helm
 ---
 
 Production data and AI applications typically have two very different workloads on the same data:
