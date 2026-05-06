@@ -33,7 +33,11 @@ Spice supports five modes to refresh/update local data from a connected data sou
 
 Learn more about each mode:
 
+- [Full Mode](./refresh-modes/full)
+- [Append Mode](./refresh-modes/append)
+- [Changes Mode](./refresh-modes/changes)
 - [Caching Mode](./refresh-modes/caching)
+- [Snapshot Mode](./refresh-modes/snapshot)
 
 Example:
 
