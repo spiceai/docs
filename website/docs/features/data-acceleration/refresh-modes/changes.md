@@ -17,7 +17,7 @@ Use `changes` when:
 
 ## Configuration
 
-`refresh_mode: changes` requires a CDC-capable data connector. Initial CDC support in Spice is provided by the [Debezium data connector](../../../components/data-connectors/debezium).
+`refresh_mode: changes` requires a CDC-capable data connector. Spice supports CDC via [PostgreSQL Logical Replication](../../cdc/postgres-replication), [DynamoDB Streams](../../../components/data-connectors/dynamodb#streams), [Apache Kafka](../../../components/data-connectors/kafka), and [Debezium](../../../components/data-connectors/debezium). See [Supported Data Connectors](../../cdc#supported-data-connectors) for details.
 
 ```yaml
 datasets:
