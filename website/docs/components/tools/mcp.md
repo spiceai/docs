@@ -62,6 +62,20 @@ tools:
     from: mcp:http://localhost:8090/v1/mcp
 ```
 
+### Allowed Hosts
+
+By default the `/v1/mcp` endpoint only accepts requests with a `Host` header matching `localhost`, `127.0.0.1`, or `::1` to prevent DNS rebinding attacks. To allow additional hosts, configure [`runtime.mcp.allowed_hosts`](../../reference/spicepod/runtime#runtimemcp):
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - localhost
+      - my-host.internal:8090
+```
+
+Set `allowed_hosts: ["*"]` to disable host checking entirely.
+
 ## Configuration Options
 
 ### `from`
