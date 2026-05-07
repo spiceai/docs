@@ -123,11 +123,11 @@ datasets:
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `pg_connection_string`      | Optional. A [PostgreSQL connection string](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING). Overrides individual connection parameters when provided. |
 | `pg_host`                   | Hostname or IP address of the Redshift cluster                                                                    |
-| `pg_port`                   | Port for Redshift (default: 5439)                                                                                 |
+| `pg_port`                   | The PostgreSQL TCP port. Redshift uses port `5439` by default — set this explicitly.                              |
 | `pg_db`                     | Database name                                                                                                     |
 | `pg_user`                   | Username for authentication                                                                                       |
 | `pg_pass`                   | Password for authentication (use secret reference)                                                                |
-| `pg_sslmode`                | SSL mode (e.g., `prefer`, `require`, `verify-ca`, `verify-full`)                                                  |
+| `pg_sslmode`                | SSL mode (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`)                                    |
 | `pg_sslrootcert`            | Optional. Path to a custom root certificate for SSL verification                                                  |
 | `pg_connection_pool_min_idle` | Optional. The minimum number of idle connections to keep open in the pool. Default is `1`.                       |
 | `connection_pool_size`      | Optional. The maximum number of connections in the connection pool. Default is `5`.                               |
