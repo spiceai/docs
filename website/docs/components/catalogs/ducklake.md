@@ -198,6 +198,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 :::warning[Limitations]
 
+- Spice uses DuckDB 1.4.4, which supports DuckLake format versions 0.1, 0.2, 0.3-dev1, and 0.3 only. Catalogs created with DuckDB 1.5.x or later use format v0.4+, which is not compatible.
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `information_schema` and `pg_catalog` system schemas are automatically filtered out during discovery.
 - Catalog refresh is non-incremental — a full re-query of `information_schema` is performed on each refresh cycle.
