@@ -74,8 +74,8 @@ Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.
 | `client_timeout`              | Optional. Specifies timeout for HTTP operations. In `delta_lake` mode, applies to object store operations. In `sql_warehouse` mode, applies per-HTTP-call (statement submit, status poll, chunk fetch) — not total query duration. Default: `30s`. E.g. `client_timeout: 2m` |
 | `connect_timeout`             | Optional. Timeout for establishing TCP/TLS connections. Applies in `sql_warehouse` mode. Default: `10s`. E.g. `connect_timeout: 15s`                                                                                                                   |
 | `databricks_token`            | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
-| `databricks_client_id`        | The Databricks Service Principal Client ID. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                                   |
-| `databricks_client_secret`    | The Databricks Service Principal Client Secret. Can't be used with `databricks_token`.                                                                                                                                                                                                                                                               |
+| `databricks_client_id`        | The Databricks OAuth client ID. Used with `databricks_client_secret` for service-principal (M2M) auth, or alone for interactive User-to-Machine (U2M) auth. Can't be used with `databricks_token`.                                                                                                                                                   |
+| `databricks_client_secret`    | The Databricks Service Principal Client Secret. Required for M2M auth; omit for U2M auth. Can't be used with `databricks_token`.                                                                                                                                                                                                                     |
 
 #### SQL Warehouse tuning
 
@@ -124,6 +124,29 @@ datasets:
       databricks_cluster_id: 1234-567890-abcde123
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
+```
+
+### User-to-Machine (U2M) OAuth
+
+Spice supports the User-to-Machine (U2M) OAuth flow for interactive sign-in against Databricks. To use U2M auth, supply only `databricks_client_id` (without `databricks_token` or `databricks_client_secret`).
+
+When U2M auth is configured, the connector defers initialization until first use. On the first query the runtime opens a browser to complete the Databricks OAuth sign-in, then caches and refreshes the resulting token for subsequent requests.
+
+To learn more about how to set up U2M OAuth, see the [Databricks U2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-u2m).
+
+:::note
+U2M auth is supported with `mode: delta_lake` and `mode: sql_warehouse`. It is not supported with `mode: spark_connect` — use a personal access token or service principal credentials when querying through Spark Connect.
+:::
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      mode: sql_warehouse
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # OAuth app client id
 ```
 
 ## Delta Lake object store parameters
