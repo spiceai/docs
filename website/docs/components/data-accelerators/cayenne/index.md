@@ -418,6 +418,7 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 - Timestamps (normalized to Microsecond precision)
 - Date32 and Date64
 - Lists and FixedSizeLists
+- Maps
 - Structs
 
 ### Automatically Converted Types
@@ -433,7 +434,6 @@ The following types require the `unsupported_type_action` parameter:
 
 - `Interval` types
 - `Duration` types
-- `Map` types
 - `FixedSizeBinary`
 
 **`unsupported_type_action` options:**
@@ -504,7 +504,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
-- **Unsupported Data Types**: `Interval`, `Duration`, `Map`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
+- **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **No File Compaction**: Automatic file compaction to reclaim space from deleted rows is not yet available.

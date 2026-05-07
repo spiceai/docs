@@ -68,9 +68,11 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [File Formats](./#file-formats) for details. |
 | `abfs_account`              | Azure storage account name                                                                                                                          |
+| `abfs_container_name`       | Azure container name                                                                                                                                |
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                        |
 | `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                |
-| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator. Default: `false`                                                                              |
+| `abfs_use_fabric_endpoint`  | Use Microsoft Fabric endpoint. Default: `false`                                                                                                     |
 | `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                            |
 | `abfs_proxy_url`            | Proxy URL                                                                                                                                           |
 | `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                        |
@@ -107,7 +109,7 @@ If none of these are set the connector will default to using a [managed identity
 
 | Parameter name                  | Description                                  |
 | ------------------------------- | -------------------------------------------- |
-| `abfs_max_retries`              | Maximum retries                              |
+| `abfs_max_retries`              | Maximum retries. Default: `3`                |
 | `abfs_retry_timeout`            | Total timeout for retries (e.g., `5s`, `1m`) |
 | `abfs_backoff_initial_duration` | Initial retry delay (e.g., `5s`)             |
 | `abfs_backoff_max_duration`     | Maximum retry delay (e.g., `1m`)             |

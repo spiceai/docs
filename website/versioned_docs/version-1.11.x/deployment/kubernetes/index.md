@@ -178,6 +178,9 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | `{}`              |
 | `service.type`                  | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                               | `null`            |
 | `serviceAccount.create`         | Specifies whether a ServiceAccount should be created.                                                                                                                                     | `false`           |
+| `livenessProbe`                 | Kubernetes liveness probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).                | see `values.yaml` |
+| `readinessProbe`                | Kubernetes readiness probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).               | see `values.yaml` |
+| `startupProbe`                  | Kubernetes startup probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).                 | see `values.yaml` |
 | `spicepod`                      | Define the [Spicepod](https://spiceai.org/docs/getting-started/spicepods) to be loaded by the Spice.ai runtime.                                                                           | `{}`              |
 | `stateful.enabled`              | Use a StatefulSet with a PVC (Persistent Volume Claim) for the data volume.                                                                                                               | `false`           |
 | `stateful.mountPath`            | Mount path in container for the persistent volume.                                                                                                                                        | `/data`           |
@@ -241,34 +244,58 @@ Once the monitoring is enabled, import the [Spice Grafana dashboard](../monitori
 
 ### Health and Readiness
 
-Spice provides two HTTP endpoints for monitoring the runtime state: `/health` and `/v1/ready`. These endpoints are used for Kubernetes health and readiness probes in the Spice deployment. The Spice Helm chart automatically configures these probes.
+Spice provides two HTTP endpoints for monitoring the runtime state: `/health` and `/v1/ready`. These endpoints are used for Kubernetes health and readiness probes in the Spice deployment. The Spice Helm chart automatically configures these probes with sensible defaults, and all three probes (`livenessProbe`, `readinessProbe`, `startupProbe`) can be customized via Helm values.
 
-#### Health Probe
+#### Health Probe (Liveness + Startup)
 
-The `/health` endpoint indicates whether the Spice process is up and running, ready to receive requests. A probe can be configured for custom deployment as follows:
+The `/health` endpoint indicates whether the Spice process is up and running. The default liveness and startup probes use this endpoint:
 
 ```yaml
 livenessProbe:
   httpGet:
     path: /health
     port: 8090
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
 ```
-
-In Kubernetes, the pod will not be marked as healthy until the `/health` endpoint returns a `200` status.
 
 #### Readiness Probe
 
-The `/ready` endpoint indicates **whether the Spice components (datasets, models, etc) are ready**. While the `/health` endpoint might show that Spice is up and running, the `/ready` endpoint must return a `200` status to ensure that queries will return results.
+The `/v1/ready` endpoint indicates **whether the Spice components (datasets, models, etc.) are ready**. While `/health` shows that Spice is running, `/v1/ready` must return `200` to ensure queries will return results:
 
 ```yaml
 readinessProbe:
   httpGet:
     path: /v1/ready
     port: 8090
+  timeoutSeconds: 1
+  periodSeconds: 10
+  failureThreshold: 3
+```
+
+#### Customizing Probes
+
+Probe values can be partially overridden — omitted fields keep the defaults from `values.yaml`. If `exec`, `tcpSocket`, or `grpc` is configured, the chart omits the default `httpGet` handler:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8090
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8090
+  failureThreshold: 30
+  periodSeconds: 5
 ```
 
 :::note
-For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes)
+For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).
 :::
 
 ## Service Configuration
