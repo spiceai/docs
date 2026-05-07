@@ -63,15 +63,15 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     ```bash
     # Password-based
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PASSWORD=<password> \
     spice run
     # Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
-    SPICE_SECRET_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
+    SPICE_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     ```
 
@@ -150,9 +150,9 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
         params:
           snowflake_warehouse: COMPUTE_WH
           snowflake_role: accountadmin
-          snowflake_username: ${snowflake.username}
-          snowflake_password: ${snowflake.password}
-          snowflake_account: ${snowflake.account}
+          snowflake_username: ${snowflake:username}
+          snowflake_password: ${snowflake:password}
+          snowflake_account: ${snowflake:account}
     ```
 
     Learn more about [Kubernetes Secret Store](../../components/secret-stores/kubernetes).

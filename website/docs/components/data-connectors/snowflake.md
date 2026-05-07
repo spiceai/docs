@@ -65,21 +65,21 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     ```bash
     # Password-based
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PASSWORD=<password> \
     spice run
     # Key-pair using private key file (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     ```
 
