@@ -554,6 +554,39 @@ runtime:
 | `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
 
+## `runtime.mcp`
+
+Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
+
+### `runtime.mcp.allowed_hosts`
+
+Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This prevents [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks against the MCP server.
+
+| Behavior | Configuration |
+| --- | --- |
+| **Default** (not set) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
+| **Explicit list** | Replaces the defaults entirely. Only the listed hosts are accepted. |
+| **Wildcard** (`["*"]`) | Disables host checking — all `Host` header values are accepted. |
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - localhost
+      - my-host.internal:8090
+```
+
+To disable host checking entirely:
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - "*"
+```
+
+Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
+
 ## `runtime.ready_state`
 
 Controls when the runtime readiness probe (`/v1/ready`) reports the runtime as ready. This is particularly useful for Kubernetes readiness probes.
