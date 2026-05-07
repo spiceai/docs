@@ -1026,6 +1026,41 @@ The `metadata` field serves two purposes:
 
     If a data file already contains a column with the same name as a metadata column, the metadata column is not added.
 
+## `full_text_search` {#dataset-full-text-search}
+
+Optional. Dataset-level full-text search engine configuration. When absent, the built-in Tantivy in-process engine is used (controlled by column-level [`columns[*].full_text_search`](#columns-search-full-text) settings).
+
+## `full_text_search.enabled`
+
+Enable or disable the dataset-level FTS engine, defaults to `true`.
+
+## `full_text_search.engine`
+
+The full-text search engine to use. Currently only `elasticsearch` is supported. When absent, the built-in Tantivy engine is used.
+
+## `full_text_search.params`
+
+Optional. Engine-specific connection and tuning parameters. See [Full-Text Search — Elasticsearch](../../features/search/full-text#using-elasticsearch-as-the-fts-engine) for available parameters.
+
+```yaml
+datasets:
+  - from: file:./articles.parquet
+    name: articles
+    acceleration:
+      enabled: true
+    full_text_search:
+      engine: elasticsearch
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_index: articles-fts
+    columns:
+      - name: body
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+```
+
 ## `vectors`
 
 ## `vectors.enabled`

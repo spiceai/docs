@@ -58,6 +58,13 @@ The Elasticsearch vector engine is available in the Spice [Enterprise edition](h
 | `elasticsearch_max_retries` | Optional. Maximum retry attempts for transient Elasticsearch errors (HTTP 429 / 5xx). Default: `3`.              | `3`                           |
 | `elasticsearch_retry_initial_backoff` | Optional. Initial backoff duration between retries, in time unit format. Default: `200ms`.                | `200ms`                       |
 | `elasticsearch_batch_write_rows` | Optional. Maximum rows per Elasticsearch `_bulk` request. Controls memory usage and payload size during writes. Default: `1000`. | `1000`       |
+| `elasticsearch_index_settings` | Optional. JSON object passed as Elasticsearch index settings when creating the index. Existing indexes are not recreated. | `{"index":{"codec":"best_compression"}}` |
+| `elasticsearch_number_of_shards` | Optional. ES `number_of_shards` index setting, applied at index creation only. | `1` |
+| `elasticsearch_number_of_replicas` | Optional. ES `number_of_replicas` index setting, applied at index creation only. | `0` |
+| `elasticsearch_refresh_interval` | Optional. ES `refresh_interval` index setting, applied at index creation only. | `1s` |
+| `elasticsearch_bulk_load_refresh_interval` | Optional. Temporary `refresh_interval` during bulk writes, restored afterward. Set to `-1` to disable refresh during loading. | `-1` |
+| `elasticsearch_force_merge_after_write` | Optional. Run `_forcemerge` after full/append writes. Default: `false`. | `true` |
+| `elasticsearch_force_merge_segments` | Optional. Max segments for `_forcemerge`. Setting this also enables force merge. Default when force merge enabled: `1`. | `1` |
 
 :::warning[Not yet supported]
 The Elasticsearch vector engine does **not** currently support:

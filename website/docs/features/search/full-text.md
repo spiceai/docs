@@ -15,6 +15,17 @@ Spice provides full-text search functionality with BM25 scoring. This search met
 
 Datasets can be augmented with a full-text search index that enables efficient search. Dataset columns are included in the full-text index based on the column configuration.
 
+## Engines
+
+Spice supports two full-text search engines:
+
+| Engine | Description |
+| --- | --- |
+| **Tantivy** (default) | Built-in, in-process BM25 engine. No external dependencies. |
+| **Elasticsearch** | Delegates BM25 indexing and search to an external Elasticsearch cluster. Useful when Elasticsearch is already part of the infrastructure or when its operational characteristics (sharding, replication, snapshots) are preferred. |
+
+When no engine is specified, Tantivy is used automatically.
+
 ## Enabling Full-Text Search
 
 To enable full-text search, configure your dataset columns within your dataset definition as follows:
@@ -38,7 +49,136 @@ datasets:
           enabled: true
 ```
 
-In this example, full-text search indexing is enabled on both the `title` and `body` columns. The `row_id` specifies a unique identifier for referencing search results and retrieving additional data.
+In this example, full-text search indexing is enabled on both the `title` and `body` columns using the default Tantivy engine. The `row_id` specifies a unique identifier for referencing search results and retrieving additional data.
+
+## Using Elasticsearch as the FTS Engine
+
+To use Elasticsearch instead of the built-in Tantivy engine, add a dataset-level `full_text_search` block with `engine: elasticsearch` and the connection parameters:
+
+```yaml
+datasets:
+  - from: file:./articles.parquet
+    name: articles
+    acceleration:
+      enabled: true
+      engine: arrow
+    full_text_search:
+      engine: elasticsearch
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_user: ${secrets:ES_USER}
+        elasticsearch_pass: ${secrets:ES_PASS}
+        elasticsearch_index: articles-fts
+    columns:
+      - name: title
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+      - name: body
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+```
+
+The dataset-level `full_text_search` block selects the engine and provides connection parameters. Column-level `full_text_search.enabled` controls which columns are indexed.
+
+:::note[Enterprise edition]
+The Elasticsearch full-text search engine is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions).
+:::
+
+### Elasticsearch FTS Parameters
+
+| Parameter | Description | Example |
+| --- | --- | --- |
+| `elasticsearch_endpoint` | Required. Elasticsearch cluster URL. | `http://localhost:9200` |
+| `elasticsearch_user` | Optional. Username for HTTP basic authentication. | `${secrets:ES_USER}` |
+| `elasticsearch_pass` | Optional. Password for HTTP basic authentication. | `${secrets:ES_PASS}` |
+| `elasticsearch_index` | Optional. ES index name for FTS documents. Defaults to the dataset name. | `articles-fts` |
+| `client_timeout` | Optional. Total HTTP request timeout. Default: `30s`. | `30s` |
+| `connect_timeout` | Optional. HTTP connect timeout. Default: `10s`. | `10s` |
+
+### Elasticsearch Ingestion Tuning
+
+Optional parameters to control Elasticsearch index creation and write behavior:
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `number_of_shards` | ES `number_of_shards` index setting (applied at index creation). | ES default |
+| `number_of_replicas` | ES `number_of_replicas` index setting (applied at index creation). | ES default |
+| `refresh_interval` | ES `refresh_interval` index setting (applied at index creation). | ES default |
+| `bulk_load_refresh_interval` | Temporary `refresh_interval` during bulk writes. Set to `-1` to disable refresh during loading. | Not set |
+| `force_merge_after_write` | Run `_forcemerge` after full/append writes. | `false` |
+| `force_merge_segments` | Max segments for `_forcemerge`. Setting this also enables force merge. | `1` (when force merge enabled) |
+| `batch_write_rows` | Max rows per `_bulk` request. | `1000` |
+| `index_settings` | JSON object passed as ES index settings at creation. | Not set |
+
+### YAML Anchor Reuse
+
+When multiple datasets or columns share the same Elasticsearch connection, use YAML anchors to avoid repeating config:
+
+```yaml
+x-elasticsearch-fts: &elasticsearch_fts
+  enabled: true
+  engine: elasticsearch
+  params:
+    elasticsearch_endpoint: http://localhost:9200
+    elasticsearch_user: ${secrets:ES_USER}
+    elasticsearch_pass: ${secrets:ES_PASS}
+
+datasets:
+  - from: file:./articles.parquet
+    name: articles
+    acceleration:
+      enabled: true
+    full_text_search:
+      <<: *elasticsearch_fts
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_index: articles-fts
+    columns:
+      - name: title
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+```
+
+### Combining with the Elasticsearch Vector Engine
+
+Elasticsearch can serve as both the vector engine and the FTS engine for the same dataset. Configure `vectors` and `full_text_search` independently:
+
+```yaml
+datasets:
+  - from: file:./articles.parquet
+    name: articles
+    acceleration:
+      enabled: true
+    vectors:
+      enabled: true
+      engine: elasticsearch
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_index: articles-vectors
+    full_text_search:
+      engine: elasticsearch
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_index: articles-fts
+    columns:
+      - name: body
+        embeddings:
+          - from: my_embedding_model
+            row_id:
+              - id
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+```
+
+Use [`rrf()`](../../reference/sql/search#reciprocal-rank-fusion-rrf) to combine vector and full-text results with hybrid search.
 
 ## Searching with the HTTP API
 
