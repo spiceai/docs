@@ -80,9 +80,26 @@ runtime:
 
 To learn more about secrets, see [Secret Stores](../../components/secret-stores).
 
+## Certificate Hot-Reload
+
+When TLS is configured using **file paths** (`certificate_file` / `key_file` or `--tls-certificate-file` / `--tls-key-file`), the runtime automatically watches the certificate and key files for changes and reloads them without restarting. This is useful when certificates are rotated by external tools such as SPIRE, cert-manager, or kubelet.
+
+- In-flight TLS connections are unaffected — only new handshakes use the rotated certificate.
+- If a rotated file contains invalid PEM data, the runtime logs the error and continues serving with the previous certificate.
+- File changes are detected via polling (every 2 seconds). Atomic file renames are handled correctly.
+
+When TLS is configured using **inline values** (`certificate` / `key`, including `${secrets:…}` references), certificates are loaded once at startup and are not automatically reloaded.
+
+The `runtime_tls_reload_total` OTel counter tracks reload attempts:
+
+| Label    | Values                    |
+| -------- | ------------------------- |
+| `scope`  | `public`, `cluster`       |
+| `result` | `ok`, `io_error`, `parse_error` |
+
 :::info
 
-Changes to TLS configuration are not applied at runtime and will only take effect on startup.
+When using inline certificates or secrets (`certificate` / `key`), changes are not applied at runtime and will only take effect on restart.
 
 :::
 
