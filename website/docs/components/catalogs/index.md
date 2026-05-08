@@ -29,7 +29,7 @@ Supported Catalog Connectors include:
 | `databricks`    | Databricks              | Beta   | Spark Connect, S3/Delta Lake |
 | `iceberg`       | Apache Iceberg          | Beta   | Parquet                      |
 | `spice.ai`      | Spice.ai Cloud Platform | Beta   | Arrow Flight                 |
-| `ducklake`      | DuckLake                | Alpha  | Parquet                      |
+| `ducklake`      | DuckLake                | Beta   | Parquet                      |
 | `glue`          | AWS Glue                | Alpha  | Parquet, Iceberg             |
 | `snowflake`     | Snowflake               | Alpha  | Snowflake SQL                |
 | `pg`            | PostgreSQL / Redshift   | Alpha  | PostgreSQL Wire Protocol     |
