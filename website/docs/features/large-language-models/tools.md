@@ -21,7 +21,7 @@ The `tools` parameter on a model controls how tools are provided to the LLM:
 
 | Value | Description |
 | --- | --- |
-| `auto` | Automatically choose between direct tools and searchable registry discovery. When the number of available tools exceeds 20 and an embedding model is available, `auto` switches to registry-based discovery; otherwise it uses direct tools. |
+| `auto` | Automatically choose between direct tools and searchable registry discovery, excluding data sampling tools. When the number of available tools exceeds 20 and an embedding model is available, `auto` switches to registry-based discovery; otherwise it uses direct tools. |
 | `all` | Provide all built-in and Spicepod-configured tools directly to the LLM. |
 | `search_registry` | Use searchable registry discovery. The LLM receives `tool_search` and `tool_invoke` meta-tools instead of individual tool definitions. Requires an embedding model (see `tool_embedding_model`). |
 | `<tool1>, <tool2>, ...` | Provide only the named tools directly. |

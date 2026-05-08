@@ -984,12 +984,12 @@
               },
               "example": {
                 "query": "Get the top 5 customers by total sales",
-                "model": "nql",
                 "stream": false,
-                "sample_data_enabled": true,
+                "sample_data_enabled": false,
                 "datasets": [
                   "sales_data"
-                ]
+                ],
+                "prompt_cache_key": "sales-dashboard"
               }
             }
           },
@@ -1739,7 +1739,7 @@
           "Tools"
         ],
         "summary": "Run Tool",
-        "description": "The request body and JSON response formats match the tool’s specification.",
+        "description": "The request body and JSON response formats match the tool\u2019s specification.",
         "operationId": "post",
         "parameters": [
           {
@@ -4808,7 +4808,7 @@
           },
           "model": {
             "type": "string",
-            "description": "The name of the model to use for SQL generation. Default: \"nql\""
+            "description": "The name of the model to use for SQL generation. If omitted, Spice defaults to the only compatible LLM model configured in the Spicepod."
           },
           "query": {
             "type": "string",
@@ -4816,11 +4816,18 @@
           },
           "sample_data_enabled": {
             "type": "boolean",
-            "description": "Whether sample data is included in the context for SQL generation. Default: true"
+            "description": "Whether sample data is included in the context for SQL generation. Default: false"
           },
           "stream": {
             "type": "boolean",
             "description": "If true, streams the response instead of waiting for completion"
+          },
+          "prompt_cache_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stable prompt-cache key forwarded to the configured NSQL model for provider-specific cache handling."
           }
         }
       },
