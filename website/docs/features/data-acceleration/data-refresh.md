@@ -342,6 +342,10 @@ If a query against the accelerated data returns some results, the query will not
 | Required                    | No               |
 | Default Value               | `return_empty`   |
 
+:::warning
+`on_zero_results` is ignored when `refresh_mode: caching` is set. Caching mode always queries the source on a cache miss, regardless of this setting. Remove `on_zero_results` from caching-mode dataset configurations to silence the runtime warning.
+:::
+
 By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
 
 To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
