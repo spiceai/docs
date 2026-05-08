@@ -13,7 +13,7 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 ### `from`
 
-The `from` field specifies the GitHub resource to query. It supports the following formats:
+The `from` field specifies the GitHub resource to query. The owner and repository name are extracted from the path (e.g., `github:github.com/spiceai/spiceai/issues` targets the `spiceai/spiceai` repository). It supports the following formats:
 
 | Format                                         | Description                                               |
 | ---------------------------------------------- | --------------------------------------------------------- |
@@ -72,8 +72,6 @@ With GitHub App Installation authentication, the connector's functionality depen
 | Parameter Name      | Description                                                                                                                                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
-| `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
-| `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
 
 ## Advanced Configuration
 
@@ -174,6 +172,7 @@ datasets:
 | ------------ | --------- | ----------- |
 | name         | Utf8      | YES         |
 | path         | Utf8      | YES         |
+| ref          | Utf8      | NO          |
 | size         | Int64     | YES         |
 | sha          | Utf8      | YES         |
 | mode         | Utf8      | YES         |
@@ -315,6 +314,7 @@ datasets:
 | reviews_count   | Int64                                                         | YES         |
 | state           | Utf8                                                          | YES         |
 | title           | Utf8                                                          | YES         |
+| updated_at      | Timestamp                                                     | YES         |
 | url             | Utf8                                                          | YES         |
 
 **Note**: The `discussion` and `review_comments` columns are only included in the schema when the `github_include_comments` parameter is set accordingly.
@@ -414,18 +414,25 @@ datasets:
 
 #### Schema
 
-| Column Name       | Data Type | Is Nullable |
-| ----------------- | --------- | ----------- |
-| additions         | Int64     | YES         |
-| author_email      | Utf8      | YES         |
-| author_name       | Utf8      | YES         |
-| committed_date    | Timestamp | YES         |
-| deletions         | Int64     | YES         |
-| id                | Utf8      | YES         |
-| message           | Utf8      | YES         |
-| message_body      | Utf8      | YES         |
-| message_head_line | Utf8      | YES         |
-| sha               | Utf8      | YES         |
+| Column Name                    | Data Type | Is Nullable |
+| ------------------------------ | --------- | ----------- |
+| additions                      | Int64     | YES         |
+| associated_pull_request_number | Int64     | YES         |
+| author_email                   | Utf8      | YES         |
+| author_name                    | Utf8      | YES         |
+| changed_files                  | Int64     | YES         |
+| committed_date                 | Timestamp | YES         |
+| committer_date                 | Timestamp | YES         |
+| committer_email                | Utf8      | YES         |
+| committer_name                 | Utf8      | YES         |
+| deletions                      | Int64     | YES         |
+| id                             | Utf8      | YES         |
+| message                        | Utf8      | YES         |
+| message_body                   | Utf8      | YES         |
+| message_head_line              | Utf8      | YES         |
+| ref                            | Utf8      | YES         |
+| sha                            | Utf8      | YES         |
+| status                         | Utf8      | YES         |
 
 #### Example
 
