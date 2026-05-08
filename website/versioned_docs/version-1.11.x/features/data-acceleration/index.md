@@ -37,10 +37,10 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 | Engine     | Best For                                           | Mode               |
 | ---------- | -------------------------------------------------- | ------------------ |
 | `arrow`    | Read-heavy analytics, in-memory speed              | `memory`           |
-| `duckdb`   | Complex analytical queries, file-based persistence | `memory` or `file` |
-| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `file`             |
+| `duckdb`   | Complex analytical queries, file-based persistence | `memory`, `file`, or `file_create` |
+| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, or `file_create` |
 | `postgres` | When a full SQL database is needed as accelerator  | External           |
-| `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file`             |
+| `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file` or `file_create`            |
 
 ## Example
 
