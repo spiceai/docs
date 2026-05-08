@@ -19,8 +19,8 @@ The Delta Lake connector reads Delta tables directly from an underlying object s
 
 | Object store            | Auth parameters                                                                                                                                |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **S3** / S3-compatible  | `delta_lake_aws_region`, `delta_lake_aws_access_key_id`, `delta_lake_aws_secret_access_key`, `delta_lake_aws_session_token`, `delta_lake_aws_endpoint`. Defaults to the AWS credential chain when unset. |
-| **Azure ADLS**          | `delta_lake_azure_storage_account_name`, `delta_lake_azure_storage_account_key`, `delta_lake_azure_storage_client_id`, `delta_lake_azure_storage_client_secret`, `delta_lake_azure_storage_sas_key`, `delta_lake_azure_storage_endpoint`. |
+| **S3** / S3-compatible  | `delta_lake_aws_region`, `delta_lake_aws_access_key_id`, `delta_lake_aws_secret_access_key`, `delta_lake_aws_session_token`, `delta_lake_aws_endpoint`, `delta_lake_aws_allow_http`. Defaults to the AWS credential chain when unset. |
+| **Azure ADLS**          | `delta_lake_azure_storage_account_name`, `delta_lake_azure_storage_account_key`, `delta_lake_azure_storage_client_id`, `delta_lake_azure_storage_client_secret`, `delta_lake_azure_storage_sas_key`, `delta_lake_azure_storage_endpoint`, `delta_lake_azure_storage_tenant_id`. |
 | **Google Cloud Storage**| `delta_lake_google_service_account`.                                                                                                                      |
 | **Local filesystem**    | No auth. Ensure the Spice process has read permission on the Delta table directory.                                                            |
 
