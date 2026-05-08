@@ -541,7 +541,7 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_check_interval` | How often to refresh cached data in the background                    | None           |
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
-| `on_zero_results`        | Behavior when cache returns no results (`return_empty`, `use_source`) | `return_empty` |
+| `on_zero_results`        | **Ignored in caching mode.** Caching mode always queries the source on a cache miss, regardless of this setting. | `return_empty` |
 | `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `arrow`        |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
