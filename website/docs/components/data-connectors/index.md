@@ -70,7 +70,7 @@ Supported Data Connectors include:
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
-| `ducklake`                         | DuckLake                              | Alpha             | Parquet                      |
+| `ducklake`                         | DuckLake                              | Beta              | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
 | `elasticsearch`                    | [Elasticsearch][elasticsearch]        | Alpha             | Elasticsearch REST           |
