@@ -57,9 +57,8 @@ Long-running search responses (very large `LIMIT`, deep pagination, or expensive
 ## Capacity & Sizing
 
 - **Throughput**: Bounded by the Elasticsearch cluster's request handling and (for kNN) HNSW search cost. Plan refresh intervals and concurrent query load to stay within the cluster's tested capacity.
-- **Result size**: Each `_search` request returns up to `size` hits, hard-capped at **10,000** (the Elasticsearch default `index.max_result_window`). The connector translates `LIMIT` to `size` but clamps the value to 10,000; queries without `LIMIT` also default to 10,000. For full-index access, accelerate the dataset into a local engine.
+- **Result size**: The connector pages through results using point-in-time (PIT) queries with `search_after`, fetching up to 10,000 hits per batch (bounded by the Elasticsearch `index.max_result_window` setting). Queries with `LIMIT` fetch only the requested number of rows. Queries without `LIMIT` page through the entire index.
 - **Mapping fetches**: At dataset registration the connector fetches the index mapping once via `GET /<index>/_mapping`. Mapping changes after registration are not picked up until the runtime restarts.
-- **Pagination**: Spice does not currently use Elasticsearch's `search_after` or scroll APIs from the data connector. For full-table scans of very large indexes, prefer accelerating into a local engine.
 
 ## Search Routing
 
