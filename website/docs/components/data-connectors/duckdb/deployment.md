@@ -19,7 +19,7 @@ DuckDB is an embedded engine; the connector reads a local DuckDB database file. 
 
 | Parameter          | Description                                                            |
 | ------------------ | ---------------------------------------------------------------------- |
-| `duckdb_open`      | Absolute path to the DuckDB database file. If omitted, uses in-memory mode. |
+| `duckdb_open`      | Path to the DuckDB database file. If omitted, uses in-memory mode. |
 
 Protect the DuckDB file with filesystem permissions. Store it on encrypted storage (LUKS/dm-crypt, EBS encryption, etc.) for data-at-rest protection. For data loaded from cloud object stores inside DuckDB, configure AWS/Azure/GCS credentials via DuckDB extensions rather than Spice parameters.
 
