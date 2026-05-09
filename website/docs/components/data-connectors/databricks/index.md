@@ -91,6 +91,17 @@ The following parameters apply only when `mode` is `sql_warehouse` and control c
 | `statement_max_retries`      | Optional. Maximum number of poll retries when waiting for async statement completion. Default: `14`.                           |
 | `disable_on_permanent_error` | Optional. When `true`, non-retryable errors (401, 403, 404) permanently disable the connector. Default: `true`.               |
 
+#### Rate control
+
+The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](/reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. When [`runtime.source_rate_control.state_location`](/reference/spicepod/runtime#runtimesource_rate_control) is configured, rate limits are coordinated across the cluster.
+
+| Parameter Name              | Description                                                                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requests_per_second_limit` | Optional. Maximum HTTP requests per second to the Databricks endpoint. Overrides `runtime.params.http_requests_per_second_limit`.                                |
+| `requests_per_minute_limit` | Optional. Maximum HTTP requests per minute to the Databricks endpoint. Overrides `runtime.params.http_requests_per_minute_limit`.                                |
+| `rate_control_jitter_min`   | Optional. Minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Accepts durations like `5ms`. |
+| `rate_control_jitter_max`   | Optional. Maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Accepts durations like `10ms`. |
+
 ## Authentication
 
 ### Personal access token
