@@ -93,7 +93,7 @@ The following parameters apply only when `mode` is `sql_warehouse` and control c
 
 #### Rate control
 
-The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](/reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. When [`runtime.source_rate_control.state_location`](/reference/spicepod/runtime#runtimesource_rate_control) is configured, rate limits are coordinated across the cluster.
+The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](../../../reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. When [`runtime.source_rate_control.state_location`](../../../reference/spicepod/runtime#runtimesource_rate_control) is configured, rate limits are coordinated across the cluster.
 
 | Parameter Name              | Description                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
