@@ -38,14 +38,34 @@ Use the `include` field to specify which tables to include from the catalog. The
 
 ## `params`
 
-| Parameter Name                   | Description                                                                            | Default      |
-| -------------------------------- | -------------------------------------------------------------------------------------- | ------------ |
-| `cayenne_data_dir`               | Local directory for table data files (Vortex format).                                  | Spice data directory |
-| `cayenne_metadata_dir`           | Local directory for Cayenne SQLite metadata.                                           | Spice data directory |
-| `cayenne_target_file_size_mb`    | Target Vortex file size in MB.                                                         | `128`        |
-| `cayenne_footer_cache_mb`        | Size of the in-memory Vortex footer cache in MB for query performance.                 | `128`        |
-| `cayenne_segment_cache_mb`       | Size of the in-memory Vortex segment cache in MB for caching decompressed data.        | `256`        |
-| `cayenne_compression_strategy`   | Compression algorithm for Vortex files. Options: `btrblocks`, `zstd`.                  | `btrblocks`  |
+| Parameter Name                    | Description                                                                                                                                 | Default              |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `cayenne_data_dir`                | Local directory for table data files (Vortex format).                                                                                       | Spice data directory |
+| `cayenne_metadata_dir`            | Local directory for Cayenne SQLite metadata.                                                                                                | Spice data directory |
+| `cayenne_target_file_size_mb`     | Target Vortex file size in MB.                                                                                                              | `128`                |
+| `cayenne_footer_cache_mb`         | Size of the in-memory Vortex footer cache in MB for query performance.                                                                      | `128`                |
+| `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in MB for caching decompressed data.                                                             | `256`                |
+| `cayenne_compression_strategy`    | Compression algorithm for Vortex files. Options: `btrblocks`, `zstd`.                                                                       | `btrblocks`          |
+| `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`). | -                    |
+| `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Options: `error`, `string`, `warn`, `ignore`.                                          | `error`              |
+| `cayenne_metastore`               | Metastore backend type. Supports `sqlite` or `turso` (requires `turso` feature flag).                                                       | `sqlite`             |
+
+### S3 Express One Zone Parameters
+
+When `cayenne_file_path` is set to an S3 Express One Zone URL (or `cayenne_s3_zone_ids` is configured), the following parameters control S3 connectivity:
+
+| Parameter                     | Description                                                                                                                                     | Default    |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `cayenne_s3_zone_ids`         | Comma-separated availability zone IDs (e.g., `usw2-az1,usw2-az2`). Auto-generates bucket names in format `spice-{app}-{dataset}--{zone}--x-s3`. | -          |
+| `cayenne_s3_region`           | AWS region (e.g., `us-west-2`). Auto-derived from zone ID if not specified.                                                                     | -          |
+| `cayenne_s3_auth`             | Authentication method: `iam_role` or `key`.                                                                                                     | `iam_role` |
+| `cayenne_s3_key`              | AWS access key ID (required when `cayenne_s3_auth: key`).                                                                                       | -          |
+| `cayenne_s3_secret`           | AWS secret access key (required when `cayenne_s3_auth: key`).                                                                                   | -          |
+| `cayenne_s3_session_token`    | AWS session token (optional, for temporary credentials).                                                                                        | -          |
+| `cayenne_s3_endpoint`         | Custom S3 endpoint URL (optional, overrides auto-generated endpoint).                                                                           | -          |
+| `cayenne_s3_client_timeout`   | Request timeout duration (e.g., `30s`, `5m`).                                                                                                   | `120s`     |
+| `cayenne_s3_unsigned_payload` | Use unsigned payload for S3 Express One Zone requests.                                                                                          | `true`     |
+| `cayenne_s3_allow_http`       | Set to `true` for testing with local S3-compatible storage.                                                                                     | `false`    |
 
 ## Examples
 
