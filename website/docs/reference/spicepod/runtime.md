@@ -127,7 +127,11 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 ## `runtime.params`
 
-Optional. Global key-value parameters for the runtime. HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+Optional. Global key-value parameters for the runtime.
+
+### HTTP Rate Control
+
+HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
 
 | Parameter Name                    | Description                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -143,6 +147,28 @@ runtime:
     http_max_concurrent_requests: 10
     http_requests_per_second_limit: 5
     http_requests_per_minute_limit: 200
+```
+
+### CDC Pipeline Tuning
+
+Datasets using `refresh_mode: changes` (CDC) support the following pipeline tunables. These control how change envelopes from CDC sources (e.g. PostgreSQL logical replication, Kafka, DynamoDB Streams) are buffered, coalesced, and committed.
+
+| Parameter Name                 | Default      | Range             | Description                                                                                                                                  |
+| ------------------------------ | ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cdc_prefetch_buffer`          | `32`         | `1`–`1024`        | Channel depth between the CDC source-stream reader and the apply loop. Each slot holds one decoded change envelope.                          |
+| `cdc_max_coalesced_envelopes`  | `64`         | `1`–`4096`        | Maximum number of change envelopes coalesced into a single accelerator write. Coalescing amortizes per-envelope planning cost.               |
+| `cdc_max_coalesced_bytes`      | `67108864`   | `1`–`1073741824`  | Byte budget for a coalesced burst (default 64 MiB, max 1 GiB). A single envelope may exceed this; otherwise the next envelope starts a new burst. |
+| `cdc_commit_timeout_ms`        | `30000`      | `1`–`3600000`     | Maximum time in milliseconds to wait for a source-side commit before logging a stall warning (default 30s, max 1hr).                         |
+
+Out-of-range or unparseable values fall back to defaults with a warning. Environment variables (`SPICE_CDC_PREFETCH_BUFFER`, `SPICE_CDC_MAX_COALESCED_ENVELOPES`, `SPICE_CDC_MAX_COALESCED_BYTES`, `SPICE_CDC_COMMIT_TIMEOUT_MS`) are used as fallback when the corresponding `runtime.params` key is not set.
+
+```yaml
+runtime:
+  params:
+    cdc_prefetch_buffer: "32"
+    cdc_max_coalesced_envelopes: "64"
+    cdc_max_coalesced_bytes: "67108864"
+    cdc_commit_timeout_ms: "30000"
 ```
 
 ## `runtime.functions`
