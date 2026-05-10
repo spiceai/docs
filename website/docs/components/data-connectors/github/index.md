@@ -77,15 +77,19 @@ With GitHub App Installation authentication, the connector's functionality depen
 
 ### Rate Limiting
 
-When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_max_concurrent_connections` runtime parameter. This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_concurrent_connections_limit` setting under [`runtime.source_rate_control`](../../reference/spicepod/runtime#runtimesource_rate_control). This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+
+:::warning[Deprecated]
+`runtime.params.github_max_concurrent_connections` is deprecated. Use `runtime.source_rate_control.github_concurrent_connections_limit` instead.
+:::
 
 Example Configuration:
 
 ```yaml
 # ... other configuration ...
 runtime:
-  params:
-    github_max_concurrent_connections: 5 # Defaults to 10
+  source_rate_control:
+    github_concurrent_connections_limit: 5 # Defaults to 10
 
 datasets:
   - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta

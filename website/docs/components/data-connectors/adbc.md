@@ -112,6 +112,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_schema`              | Optional. Sets the default schema for the connection.                                                                                |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default: `5`.                                                        |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections in the pool. Default: `1`.                                                              |
+| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`.              |
 
 :::warning[In-memory databases]
 In-memory database URIs (e.g., `:memory:` or URIs containing `mode=memory`) are not supported.
