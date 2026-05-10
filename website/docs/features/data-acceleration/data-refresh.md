@@ -211,7 +211,7 @@ datasets:
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (DuckDB, SQLite, Cayenne, or Turso) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 
@@ -341,6 +341,10 @@ If a query against the accelerated data returns some results, the query will not
 | Supported in `refresh_mode` | `full`, `append` |
 | Required                    | No               |
 | Default Value               | `return_empty`   |
+
+:::warning
+`on_zero_results` is ignored when `refresh_mode: caching` is set. Caching mode always queries the source on a cache miss, regardless of this setting. Remove `on_zero_results` from caching-mode dataset configurations to silence the runtime warning.
+:::
 
 By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
 

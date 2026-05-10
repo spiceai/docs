@@ -41,7 +41,7 @@ datasets:
 ## Requirements
 
 - `acceleration.snapshots` must be `enabled` or `bootstrap_only`.
-- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, or **Cayenne**.
+- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**.
 
 ## Behavior
 

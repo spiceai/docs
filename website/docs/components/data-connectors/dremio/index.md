@@ -64,9 +64,9 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 | Parameter Name    | Description                                                                                                                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `dremio_endpoint` | The endpoint used to connect to the Dremio server.                                                                                                                             |
-| `dremio_username` | The username used to connect to the Dremio endpoint.                                                                                                                           |
-| `dremio_password` | The password used to connect to the Dremio endpoint. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
+| `dremio_endpoint` | Required. The endpoint used to connect to the Dremio server.                                                                                                                             |
+| `dremio_username` | Optional. The username used to connect to the Dremio endpoint.                                                                                                                           |
+| `dremio_password` | Optional. The password used to connect to the Dremio endpoint. Use the [secret replacement syntax](#secrets) to load the password from a secret store, e.g. `${secrets:my_dremio_pass}`. |
 
 ## Examples
 
@@ -134,8 +134,6 @@ WHERE ws_item_sk NOT IN (
     SELECT DISTINCT ss_item_sk FROM store_sales
 );
 ```
-
-:::
 
 ## Cookbook
 

@@ -181,6 +181,7 @@ datasets:
 
 :::warning[Limitations]
 
+- Spice uses DuckDB 1.4.4, which supports DuckLake format versions 0.1, 0.2, and 0.3 only. Catalogs created with DuckDB 1.5.x or later use format v0.4+, which is not currently supported.
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.

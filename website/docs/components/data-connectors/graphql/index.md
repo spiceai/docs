@@ -44,15 +44,15 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 The GraphQL data connector can be configured by providing the following `params`. Use the [secret replacement syntax](../secret-stores) to load the password from a secret store, e.g. `${secrets:my_graphql_auth_token}`.
 
-| Parameter Name       | Description                                                                                                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `unnest_depth`       | Depth level to automatically unnest objects to. By default, disabled if unspecified or `0`.                                                                                     |
-| `graphql_auth_header` | A custom header name to use for authentication instead of the default `Authorization: Bearer` header. When set, the value of `graphql_auth_token` is sent as the value of this header. Useful for APIs that require authentication via a custom header (e.g. `X-Shopify-Access-Token`). |
-| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication by default, or sent via the custom header specified by `graphql_auth_header`.                                                                                   |
-| `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           |
-| `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   |
-| `graphql_query`      | The GraphQL query to execute. See [examples](#examples) for a sample GraphQL query                                                                                        |
-| `json_pointer`       | The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred. |
+| Parameter Name       | Description                                                                                                                                                                     | Required | Default |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| `graphql_query`      | The GraphQL query to execute. See [examples](#examples) for a sample GraphQL query.                                                                                       | Yes      | -       |
+| `json_pointer`       | The [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) into the response body. When `graphql_query` is [paginated](#pagination), the `json_pointer` can be inferred. | No       | -       |
+| `unnest_depth`       | Depth level to automatically unnest objects to. Disabled if unspecified or `0`. Maximum value is `50`.                                                                          | No       | `0`     |
+| `graphql_auth_header` | A custom header name to use for authentication instead of the default `Authorization: Bearer` header. When set, the value of `graphql_auth_token` is sent as the value of this header. Useful for APIs that require authentication via a custom header (e.g. `X-Shopify-Access-Token`). | No | - |
+| `graphql_auth_token` | The authentication token to use to connect to the GraphQL server. Uses bearer authentication by default, or sent via the custom header specified by `graphql_auth_header`.                                                                                   | No | - |
+| `graphql_auth_user`  | The username to use for basic auth. E.g. `graphql_auth_user: my_user`                                                                                                           | No | - |
+| `graphql_auth_pass`  | The password to use for basic auth. E.g. `graphql_auth_pass: ${secrets:my_graphql_auth_pass}`                                                                                   | No | - |
 
 #### GraphQL Query Example
 

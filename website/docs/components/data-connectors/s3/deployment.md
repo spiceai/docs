@@ -53,7 +53,7 @@ Keys must be sourced from a secret store in production. See [Secret Stores](../.
 
 ### Region Validation
 
-`s3_region` is validated against AWS's known region set and must be lowercase. Invalid regions are rejected at startup. Custom S3-compatible endpoints still require a valid-looking AWS region code.
+`s3_region` is validated against AWS's known region set. Uppercase regions are auto-corrected to lowercase with a warning. Unrecognized regions produce a startup warning but do not prevent the connector from starting. Custom S3-compatible endpoints still require a valid-looking AWS region code.
 
 ## Resilience Controls
 
