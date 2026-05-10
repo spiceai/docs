@@ -58,7 +58,7 @@ For point-lookup-heavy workloads, size `cayenne_segment_cache_mb` generously —
 
 | Parameter             | Description                                               |
 | --------------------- | --------------------------------------------------------- |
-| `upload_concurrency`  | Parallel segment uploads during refresh / append commits. |
+| `cayenne_upload_concurrency` | Parallel segment uploads during refresh / append commits. |
 
 For S3 Express One Zone, 8–16 parallel uploads typically maximize throughput. For standard S3 across regions, higher concurrency helps hide per-request latency.
 
