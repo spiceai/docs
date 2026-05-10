@@ -127,7 +127,11 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 ## `runtime.params`
 
-Optional. Global key-value parameters for the runtime. HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+Optional. Global key-value parameters for the runtime.
+
+### HTTP Rate Control
+
+HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
 
 | Parameter Name                    | Description                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |

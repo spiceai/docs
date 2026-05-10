@@ -181,6 +181,7 @@ The table below shows the Delta Lake data types supported, along with the type m
 | `Decimal`       | `Decimal128`                          |
 | `Array`         | `List`                                |
 | `Struct`        | `Struct`                              |
+| `Variant`       | `Struct`                              |
 | `Map`           | `Map`                                 |
 
 ## Limitations
