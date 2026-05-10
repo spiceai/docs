@@ -361,9 +361,9 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
-- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
-- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
 ## `acceleration.snapshots`
 
