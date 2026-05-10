@@ -149,27 +149,38 @@ runtime:
     http_requests_per_minute_limit: 200
 ```
 
-### CDC Pipeline Tuning
+## `runtime.source_rate_control`
 
-Datasets using `refresh_mode: changes` (CDC) support the following pipeline tunables. These control how change envelopes from CDC sources (e.g. PostgreSQL logical replication, Kafka, DynamoDB Streams) are buffered, coalesced, and committed.
+Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
 
-| Parameter Name                 | Default      | Range             | Description                                                                                                                                  |
-| ------------------------------ | ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cdc_prefetch_buffer`          | `32`         | `1`–`1024`        | Channel depth between the CDC source-stream reader and the apply loop. Each slot holds one decoded change envelope.                          |
-| `cdc_max_coalesced_envelopes`  | `64`         | `1`–`4096`        | Maximum number of change envelopes coalesced into a single accelerator write. Coalescing amortizes per-envelope planning cost.               |
-| `cdc_max_coalesced_bytes`      | `67108864`   | `1`–`1073741824`  | Byte budget for a coalesced burst (default 64 MiB, max 1 GiB). A single envelope may exceed this; otherwise the next envelope starts a new burst. |
-| `cdc_commit_timeout_ms`        | `30000`      | `1`–`3600000`     | Maximum time in milliseconds to wait for a source-side commit before logging a stall warning (default 30s, max 1hr).                         |
-
-Out-of-range or unparseable values fall back to defaults with a warning. Environment variables (`SPICE_CDC_PREFETCH_BUFFER`, `SPICE_CDC_MAX_COALESCED_ENVELOPES`, `SPICE_CDC_MAX_COALESCED_BYTES`, `SPICE_CDC_COMMIT_TIMEOUT_MS`) are used as fallback when the corresponding `runtime.params` key is not set.
+Without `state_location`, rate limits are local to each Spice instance. When `state_location` is set, Spice instances coordinate through object storage so that a configured limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 RPS total across all replicas, not 20 RPS per replica.
 
 ```yaml
 runtime:
-  params:
-    cdc_prefetch_buffer: "32"
-    cdc_max_coalesced_envelopes: "64"
-    cdc_max_coalesced_bytes: "67108864"
-    cdc_commit_timeout_ms: "30000"
+  source_rate_control:
+    state_location: s3://my-bucket/spice/rate-control/
+    refresh_interval: 30s
+    params:
+      s3_region: us-west-2
+      s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
+      s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
+    github_concurrent_connections_limit: 10
 ```
+
+| Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
+| ------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `state_location`                      | Yes      | -       | Root URI for globally persisted rate-control state (e.g. `s3://bucket/path/`). Enables cluster-wide rate control when set. Without this, limits are local to each Spice instance.                                                  |
+| `params`                              | Yes      | -       | Object-store authentication parameters for `state_location`. Supports the same keys as other object-store configurations (e.g. `s3_region`, `s3_key`, `s3_secret` for S3; `account`, `access_key` for Azure). Supports `${ secrets:NAME }` references. |
+| `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-source rate-control state. Longer intervals reduce object-store writes but adapt more slowly to demand changes.                                                                 |
+| `github_concurrent_connections_limit` | Yes      | `10`    | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
+
+HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
+
+```text
+dataset param > runtime.params.http_* default > unset
+```
+
+When `state_location` is set, the configured RPS/RPM quota is converted into a token budget per lease window and distributed across replicas using a demand-weighted leased token-bucket model.
 
 ## `runtime.functions`
 
