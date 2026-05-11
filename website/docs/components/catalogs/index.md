@@ -22,21 +22,21 @@ Catalog Connectors connect to external catalog providers and make their tables a
 
 Supported Catalog Connectors include:
 
-| Name            | Description             | Status | Protocol/Format              |
-| --------------- | ----------------------- | ------ | ---------------------------- |
-| `cayenne`       | Cayenne Lakehouse       | Alpha  | Vortex                       |
-| `unity_catalog` | Unity Catalog           | Stable | Delta Lake                   |
-| `databricks`    | Databricks              | Beta   | Spark Connect, S3/Delta Lake |
-| `iceberg`       | Apache Iceberg          | Beta   | Parquet                      |
-| `spice.ai`      | Spice.ai Cloud Platform | Beta   | Arrow Flight                 |
-| `ducklake`      | DuckLake                | Beta   | Parquet                      |
-| `glue`          | AWS Glue                | Alpha  | Parquet, Iceberg             |
-| `snowflake`     | Snowflake               | Alpha  | Snowflake SQL                |
-| `pg`            | PostgreSQL / Redshift   | Alpha  | PostgreSQL Wire Protocol     |
-| `mysql`         | MySQL                   | Alpha  | MySQL Wire Protocol          |
-| `mssql`         | Microsoft SQL Server    | Alpha  | TDS                          |
-| `adbc`          | ADBC                    | Alpha  | Arrow (ADBC)                 |
-| `oracle`        | Oracle                  | Alpha  | Oracle Net                   |
+| Name            | Description             | Status            | Protocol/Format              |
+| --------------- | ----------------------- | ----------------- | ---------------------------- |
+| `cayenne`       | Cayenne Lakehouse       | Release Candidate | Vortex                       |
+| `unity_catalog` | Unity Catalog           | Stable            | Delta Lake                   |
+| `databricks`    | Databricks              | Beta              | Spark Connect, S3/Delta Lake |
+| `iceberg`       | Apache Iceberg          | Beta              | Parquet                      |
+| `spice.ai`      | Spice.ai Cloud Platform | Beta              | Arrow Flight                 |
+| `ducklake`      | DuckLake                | Beta              | Parquet                      |
+| `glue`          | AWS Glue                | Alpha             | Parquet, Iceberg             |
+| `snowflake`     | Snowflake               | Alpha             | Snowflake SQL                |
+| `pg`            | PostgreSQL / Redshift   | Alpha             | PostgreSQL Wire Protocol     |
+| `mysql`         | MySQL                   | Alpha             | MySQL Wire Protocol          |
+| `mssql`         | Microsoft SQL Server    | Alpha             | TDS                          |
+| `adbc`          | ADBC                    | Alpha             | Arrow (ADBC)                 |
+| `oracle`        | Oracle                  | Alpha             | Oracle Net                   |
 
 ## Catalog Connector Docs
 
