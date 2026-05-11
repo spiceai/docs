@@ -5,7 +5,7 @@ sidebar_label: 'xAI'
 sidebar_position: 7
 ---
 
-To use a language model hosted on xAI, specify `xai` path in the `from` field and the associated `xai_api_key` parameter:
+To use a language model hosted on xAI, specify `xai` path in the `from` field and the associated `xai_api_key` parameter. When no model is specified in the `from` field (i.e., `from: xai`), the default model is `grok-4.3`.
 
 | Param             | Description                                               | Default |
 | ----------------- | --------------------------------------------------------- | ------- |
@@ -16,7 +16,7 @@ Example:
 
 ```yaml
 models:
-  - from: xai:grok4
+  - from: xai:grok-4.3
     name: xai
     params:
       xai_api_key: ${secrets:SPICE_GROK_API_KEY}
