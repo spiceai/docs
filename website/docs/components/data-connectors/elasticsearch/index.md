@@ -138,7 +138,7 @@ TLS is enabled automatically for `https://` endpoints.
 - Nested object fields are exposed as JSON strings rather than structured columns.
 - `date` and `date_nanos` fields are preserved as strings because Elasticsearch accepts heterogeneous date formats; cast to a timestamp in SQL when numeric comparison is required.
 - `dense_vector` fields without a declared `dims` value fall back to `Utf8` and are not usable as a vector column.
-- The connector issues a single `_search` request per query. The result set is capped at 10,000 hits (the Elasticsearch `index.max_result_window` default). Queries with `LIMIT N` fetch `min(N, 10000)` rows; queries without `LIMIT` return at most 10,000 rows. For larger result sets, accelerate the dataset.
+- For queries with `LIMIT N` where N ≤ 10,000, the connector issues a single `_search` request. For larger result sets or queries without `LIMIT`, the connector automatically paginates using Point-In-Time (PIT) + `search_after`, fetching all matching documents in 10,000-hit batches.
 - Pushdown of SQL predicates to Elasticsearch query DSL is limited; complex filter expressions are evaluated locally by DataFusion after fetching results.
 
 Elasticsearch can also be configured as a [Vector Engine](../vectors/elasticsearch) for datasets sourced from other connectors (storing Spice-managed embeddings in Elasticsearch rather than querying an existing index).
