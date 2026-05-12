@@ -67,14 +67,14 @@ The ScyllaDB data connector can be configured by providing the following `params
 
 | Parameter Name        | Description                                                        | Required | Default |
 | --------------------- | ------------------------------------------------------------------ | -------- | ------- |
-| `scylladb_host`       | Hostname(s) of ScyllaDB nodes. Comma-separated for multiple nodes. | Yes      | -       |
-| `scylladb_hosts`      | Alternative to `scylladb_host`. Comma-separated list of hostnames. | No       | -       |
+| `scylladb_host`       | Hostname(s) of ScyllaDB nodes. Comma-separated for multiple nodes. Either `scylladb_host` or `scylladb_hosts` must be provided. | Yes*     | -       |
+| `scylladb_hosts`      | Alternative to `scylladb_host`. Comma-separated list of hostnames. Either `scylladb_host` or `scylladb_hosts` must be provided. | Yes*     | -       |
 | `scylladb_port`       | ScyllaDB CQL native transport port.                                | No       | `9042`  |
 | `scylladb_keyspace`   | The keyspace to use for queries.                                   | Yes      | -       |
 | `scylladb_user`       | Username for authentication.                                       | No       | -       |
 | `scylladb_pass`       | Password for authentication.                                       | No       | -       |
 | `scylladb_datacenter` | Preferred datacenter for connection routing.                       | No       | -       |
-| `scylladb_ssl`        | Enable SSL/TLS for connections. Not yet implemented — the parameter is accepted but has no effect. | No       | `false` |
+| `scylladb_ssl`        | Enable SSL/TLS for connections. Not yet implemented — the parameter is accepted but has no effect. | No       | -       |
 | `connection_timeout`  | Connection timeout in milliseconds.                                | No       | `10000` |
 
 ## Types
