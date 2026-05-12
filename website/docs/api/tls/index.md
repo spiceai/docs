@@ -118,3 +118,70 @@ When TLS is enabled in the runtime, the Spice CLI can be configured to connect t
 ```bash
 spice sql --tls-root-certificate-file /path/to/root.pem
 ```
+
+## Mutual TLS (mTLS)
+
+:::info Enterprise Feature
+mTLS (client certificate authentication) is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
+:::
+
+mTLS extends standard TLS by requiring the client to also present a certificate during the TLS handshake. This provides cryptographic authentication of both the server and the client.
+
+### Enable mTLS via spicepod.yaml
+
+Set `client_auth_mode` to `request` or `required` and provide a CA bundle to verify client certificates:
+
+```yaml
+runtime:
+  tls:
+    enabled: true
+    certificate_file: /path/to/server.crt
+    key_file: /path/to/server.key
+    client_auth_mode: required
+    client_auth_ca_file: /path/to/client-ca.pem
+```
+
+### Enable mTLS via command line
+
+```bash
+spiced --tls-enabled true \
+  --tls-certificate-file /path/to/server.crt \
+  --tls-key-file /path/to/server.key \
+  --tls-client-auth-mode required \
+  --tls-client-auth-ca-file /path/to/client-ca.pem
+```
+
+### Client auth modes
+
+| Mode | Behavior |
+|------|----------|
+| `none` *(default)* | Standard one-way TLS. No client certificate is requested. |
+| `request` | The server requests a client certificate but accepts connections without one. Presented certificates are verified against the CA. Useful for migration or audit-only deployments. |
+| `required` | A valid client certificate is required. The Flight listener rejects no-cert connections at the TLS handshake. The HTTP listener admits no-cert connections so `/health` and `/v1/ready` remain accessible for Kubernetes probes, but all other HTTP endpoints return 401 without a verified client certificate. |
+
+### Connecting with a client certificate
+
+Use cURL with a client certificate:
+
+```bash
+curl --cacert ca.pem --cert client.crt --key client.key \
+  https://localhost:8090/v1/sql -d 'SELECT 1'
+```
+
+Use the Spice CLI with a client certificate:
+
+```bash
+spice sql --tls-root-certificate-file ./ca.pem \
+  --client-tls-certificate-file ./client.crt \
+  --client-tls-key-file ./client.key
+```
+
+### Probe and metrics access
+
+Kubernetes liveness/readiness probes (`/health`, `/v1/ready`) and the metrics endpoint (`/metrics`) are always accessible without a client certificate, even under `client_auth_mode: required`.
+
+### Client CA hot-reload
+
+When `client_auth_ca_file` is used, the CA bundle is watched for changes and reloaded atomically alongside the server certificate and key. When `client_auth_ca` (inline) is used, the CA is loaded once at startup.
+
+For a complete walkthrough, see the [mTLS Cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/mtls).
