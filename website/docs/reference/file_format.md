@@ -15,9 +15,9 @@ These parameters apply across multiple file formats.
 | Parameter                   | Type    | Default        | Description                                                                                                                   |
 | --------------------------- | ------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | String  | Inferred       | Selects the file reader. If omitted, format is inferred from the file extension. See [Supported Formats](#supported-formats). |
-| `file_extension`            | String  | Derived        | Overrides the file extension filter used when listing files. Defaults to the extension matching the resolved format.          |
+| `file_extension`            | String  | Derived        | Overrides the file extension filter used when listing files. Defaults to the extension matching the resolved format. Compound extensions like `.csv.gz` set both format and compression at once. |
 | `schema_infer_max_records`  | Integer | `1000`         | Maximum number of records scanned to infer the schema.                                                                        |
-| `file_compression_type`     | String  | `UNCOMPRESSED` | File-level compression for CSV, TSV, and JSON files. Valid values: `GZIP`, `BZIP2`, `XZ`, `ZSTD`, `UNCOMPRESSED`.             |
+| `file_compression_type`     | String  | Inferred       | File-level compression for CSV, TSV, and JSON files. Valid values: `GZIP`, `BZIP2`, `XZ`, `ZSTD`, `UNCOMPRESSED`. If unset, Spice infers compression from compound file extensions such as `.gz`, `.bz2`, `.xz`, and `.zst` (see [Compressed File Extensions](#compressed-file-extensions)). |
 | `hive_partitioning_enabled` | Boolean | `false`        | Enables Hive-style partition discovery from directory structure.                                                              |
 
 ## Supported Formats {#supported-formats}
@@ -33,6 +33,37 @@ The `file_format` parameter accepts these values:
 | `jsonl`   | JSON Lines          | `.jsonl`          | Line-delimited JSON.                        |
 
 When `file_format` is omitted, Spice infers the format from the dataset path extension. If the extension does not match one of the values above, a configuration error is returned.
+
+## Compressed File Extensions {#compressed-file-extensions}
+
+For CSV, TSV, JSON, and JSONL files, Spice auto-detects both the file format and the compression codec from compound file extensions. Files matching one of the recognized format extensions followed by a recognized compression suffix are read transparently — no `file_compression_type` parameter is required.
+
+Recognized compression suffixes: `.gz` (GZIP), `.bz2` (BZIP2), `.xz` (XZ), `.zst` (ZSTD).
+
+| Path / extension       | Format inferred | Compression inferred |
+| ---------------------- | --------------- | -------------------- |
+| `data.csv.gz`          | `csv`           | `GZIP`               |
+| `events.jsonl.zst`     | `jsonl`         | `ZSTD`               |
+| `report.tsv.xz`        | `tsv`           | `XZ`                 |
+| `data.json.bz2`        | `json`          | `BZIP2`              |
+| `data.csv`             | `csv`           | `UNCOMPRESSED`       |
+
+The `.ndjson` and `.ldjson` extensions are also accepted as JSON Lines aliases — `events.ndjson.gz` is read as JSONL with GZIP compression.
+
+Auto-detection works the same way when reading a single file or listing a directory: object-store listings are filtered by the compound extension, and the same compression codec is applied to every file matched.
+
+To override auto-detection — for example, to force a specific compression codec — set `file_compression_type` explicitly. Explicit values always take precedence over the inferred value.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/exports/
+    name: exports
+    params:
+      file_format: csv          # Listing only includes matching files
+      file_extension: .csv.gz   # Reads gzipped CSVs in the directory
+```
+
+Auto-detection applies to listing data connectors (S3, ABFS, GCS, HTTP/HTTPS, FTP, SFTP, SMB, NFS, file) and to the HTTPS connector's auto-format detection. Parquet handles compression internally and is not affected by this setting — see [Parquet](#parquet) for the codecs Parquet supports natively.
 
 ## Parquet
 
