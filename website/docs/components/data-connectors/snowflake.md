@@ -217,7 +217,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
 ## Write Support
 
-This connector supports writing data to Snowflake tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert), [`UPDATE`](../../reference/sql/dml#update), and [`DELETE FROM`](../../reference/sql/dml#delete) statements.
+This connector supports writing data to Snowflake tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert), `UPDATE`, and `DELETE FROM` statements.
 
 To enable writes, set `access: read_write` on the dataset:
 
