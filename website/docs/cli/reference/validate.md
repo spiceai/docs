@@ -14,7 +14,7 @@ Checks YAML syntax and schema, component references, duplicate component names, 
 spice validate [path]
 ```
 
-- `path`: Path to a `spicepod.yaml` file or a directory containing one. Defaults to the current directory (`.`).
+- `path`: Path to a Spicepod YAML file or a directory containing one. Defaults to the current directory (`.`). Directories must contain a `spicepod.yaml` (or `spicepod.yml`); file paths accept any name as long as the file declares `kind: Spicepod` and a recognized `version`.
 
 #### Flags
 
