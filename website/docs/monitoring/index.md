@@ -14,4 +14,5 @@ Spice provides integration with monitoring systems for production deployments:
 - [Datadog](monitoring/datadog) - Enterprise monitoring and analytics
 - [Grafana & Prometheus](monitoring/grafana) - Open source metrics and visualization
 - [New Relic](monitoring/new-relic) - Observability platform with OTLP intake
+- [Spice Cloud Platform](monitoring/spice-cloud) - Centralize task history from self-hosted runtimes
 - [Zipkin](monitoring/zipkin) - Distributed tracing

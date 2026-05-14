@@ -34,7 +34,7 @@ SELECT * FROM sales LIMIT 10;
 | --------------- | ------------------------- | ------------------------------ |
 | Default Port    | 21                        | 22                             |
 | Encryption      | None (plain text)         | SSH encryption                 |
-| Authentication  | Username/password         | Username/password or SSH keys  |
+| Authentication  | Username/password         | Username/password              |
 | Recommended Use | Internal/trusted networks | Production and public networks |
 
 :::tip[Security Recommendation]
