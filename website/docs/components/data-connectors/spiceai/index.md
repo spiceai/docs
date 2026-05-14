@@ -69,6 +69,10 @@ Plain `grpc://` (without TLS) is rejected at startup. Use `http://` for unencryp
 | `spiceai_endpoint`                | Built from `spiceai_region` (Cloud)  | Override the Flight endpoint URL. Use for VPC / regional Cloud endpoints, or to point at a self-hosted Spice runtime. Schemes: `http://`, `https://`, `grpc+tls://`. |
 | `spiceai_flight_endpoint`         | None                                 | Legacy alias for `spiceai_endpoint`.                                                                                                                              |
 | `spiceai_tls_ca_certificate_file` | System cert store                    | Path to a CA certificate file (PEM) to verify a self-hosted upstream that uses a private CA. Ignored for `http://` endpoints.                                     |
+| `spiceai_tls_client_certificate_file` | None                            | Path to a PEM client certificate chain for mutual TLS (mTLS). Must be set together with `spiceai_tls_client_key_file`. Mutually exclusive with `spiceai_tls_client_certificate`. |
+| `spiceai_tls_client_key_file`     | None                                 | Path to the PEM private key matching `spiceai_tls_client_certificate_file`. Must be set together with `spiceai_tls_client_certificate_file`. Mutually exclusive with `spiceai_tls_client_key`. |
+| `spiceai_tls_client_certificate`  | None                                 | Inline PEM client certificate chain for mutual TLS (mTLS). Use the [secret replacement syntax](../secret-stores/) to load from a secret store, e.g. `${secrets:my_cert}`. Must be set together with `spiceai_tls_client_key`. Mutually exclusive with `spiceai_tls_client_certificate_file`. |
+| `spiceai_tls_client_key`          | None                                 | Inline PEM private key for mutual TLS (mTLS). Use the [secret replacement syntax](../secret-stores/) to load from a secret store, e.g. `${secrets:my_key}`. Must be set together with `spiceai_tls_client_certificate`. Mutually exclusive with `spiceai_tls_client_key_file`. |
 
 #### Endpoint resolution order
 
@@ -169,6 +173,33 @@ params:
 ```
 
 For local development and trusted internal networks, `http://` (no TLS) is also supported and avoids cert configuration entirely.
+
+### Mutual TLS (mTLS)
+
+When the upstream Spice runtime enforces mutual TLS (e.g. `runtime.tls.client_auth_mode: required`), the connector can present a client certificate during the handshake. Configure it in one of two mutually exclusive forms:
+
+**File-based** — point at PEM files on disk:
+
+```yaml
+params:
+  spiceai_endpoint: grpc+tls://upstream.cluster.svc:50051
+  spiceai_tls_ca_certificate_file: /etc/spice/clients/server-ca.pem
+  spiceai_tls_client_certificate_file: /etc/spice/clients/client.pem
+  spiceai_tls_client_key_file: /etc/spice/clients/client.key
+```
+
+**Inline** — supply PEM material directly, typically from a [secret store](../secret-stores/):
+
+```yaml
+params:
+  spiceai_endpoint: grpc+tls://upstream.cluster.svc:50051
+  spiceai_tls_client_certificate: ${secrets:CLIENT_CERT_PEM}
+  spiceai_tls_client_key: ${secrets:CLIENT_KEY_PEM}
+```
+
+Within each form, cert and key must be set together — setting only one is rejected at dataset-load time with a clear error naming both fields. The file-based and inline forms are mutually exclusive; mixing them is also rejected.
+
+The cached Flight `Channel` is built once at dataset-load time, so certificate rotation requires a runtime restart.
 
 ### Append streams (real-time CDC)
 
