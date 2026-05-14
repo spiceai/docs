@@ -41,6 +41,10 @@ The connector authenticates to the upstream Spice runtime using `spiceai_api_key
 | `spiceai_endpoint`                | Override the Flight endpoint URL. Schemes: `http://`, `https://`, `grpc+tls://`.                                                                                   |
 | `spiceai_flight_endpoint`         | Legacy alias for `spiceai_endpoint`.                                                                                                                               |
 | `spiceai_tls_ca_certificate_file` | Path to a CA PEM file for verifying a self-hosted upstream that uses a private CA. Ignored for `http://` endpoints.                                                |
+| `spiceai_tls_client_certificate_file` | Path to a PEM client certificate chain for mutual TLS (mTLS). Must be set together with `spiceai_tls_client_key_file`. Mutually exclusive with `spiceai_tls_client_certificate`. |
+| `spiceai_tls_client_key_file`     | Path to the PEM private key matching `spiceai_tls_client_certificate_file`. Must be set together with `spiceai_tls_client_certificate_file`. Mutually exclusive with `spiceai_tls_client_key`. |
+| `spiceai_tls_client_certificate`  | Inline PEM client certificate chain for mutual TLS (mTLS). Resolve from a [secret store](../../secret-stores/) via `${secrets:...}`. Must be set together with `spiceai_tls_client_key`. Mutually exclusive with `spiceai_tls_client_certificate_file`. |
+| `spiceai_tls_client_key`          | Inline PEM private key for mutual TLS (mTLS). Resolve from a [secret store](../../secret-stores/) via `${secrets:...}`. Must be set together with `spiceai_tls_client_certificate`. Mutually exclusive with `spiceai_tls_client_key_file`. |
 
 Always source production keys from a managed secret store rather than from a checked-in `.env` file. API keys do not expire — rotate manually in the issuing system and update the secret store. Secret stores that support live reload (Kubernetes, Vault) pick up rotations without restarting the runtime.
 
@@ -67,6 +71,29 @@ params:
 ```
 
 The CA file is loaded once at startup; updates require a runtime restart. Mount it via Kubernetes ConfigMap or Secret in containerized deployments.
+
+### Mutual TLS (mTLS)
+
+When the upstream Spice runtime enforces mutual TLS (e.g. `runtime.tls.client_auth_mode: required`), the connector presents a client certificate during the handshake. Configure it as PEM files mounted into the pod, or as inline PEM material from a managed secret store:
+
+```yaml
+# File-based
+params:
+  spiceai_endpoint: grpc+tls://upstream.cluster.svc:50051
+  spiceai_tls_ca_certificate_file: /etc/spice/clients/server-ca.pem
+  spiceai_tls_client_certificate_file: /etc/spice/clients/client.pem
+  spiceai_tls_client_key_file: /etc/spice/clients/client.key
+```
+
+```yaml
+# Inline / secrets
+params:
+  spiceai_endpoint: grpc+tls://upstream.cluster.svc:50051
+  spiceai_tls_client_certificate: ${secrets:CLIENT_CERT_PEM}
+  spiceai_tls_client_key: ${secrets:CLIENT_KEY_PEM}
+```
+
+Certificate and key must be set as a pair within each form, and the file-based and inline forms are mutually exclusive. The cached Flight `Channel` is built once at dataset-load time, so cert rotation requires a runtime restart.
 
 ### Append Streams
 
