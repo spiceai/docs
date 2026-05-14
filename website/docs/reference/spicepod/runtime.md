@@ -290,6 +290,57 @@ runtime:
     key_file: /path/to/key.pem
 ```
 
+### `runtime.tls.client_auth_mode`
+
+:::info Enterprise Feature
+mTLS (client certificate authentication) is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
+:::
+
+Controls whether the runtime requires, requests, or ignores client certificates on its public endpoints (HTTP, Flight, Metrics). Defaults to `none`.
+
+| Mode | Behavior |
+|------|----------|
+| `none` *(default)* | Standard one-way TLS. No client certificate is requested. |
+| `request` | The server sends a `CertificateRequest` but accepts connections without a certificate. Presented certificates are verified against the configured CA. Useful for migration or audit-only deployments. |
+| `required` | A valid client certificate is required. The Flight (gRPC) listener rejects connections without a certificate at the TLS handshake. The HTTP listener admits no-cert connections so `/health` and `/v1/ready` remain accessible for Kubernetes probes, but all other HTTP endpoints return 401 without a verified client certificate. The metrics listener has no client-auth gate. |
+
+Requires `client_auth_ca_file` or `client_auth_ca` to be set when mode is `request` or `required`.
+
+```yaml
+runtime:
+  tls:
+    enabled: true
+    certificate_file: /path/to/cert.pem
+    key_file: /path/to/key.pem
+    client_auth_mode: required
+    client_auth_ca_file: /path/to/client-ca.pem
+```
+
+### `runtime.tls.client_auth_ca_file`
+
+Path to a PEM-encoded CA bundle used to verify client certificates. The file is watched for changes and reloaded atomically alongside the server certificate and key.
+
+```yaml
+runtime:
+  tls:
+    ...
+    client_auth_ca_file: /path/to/client-ca.pem
+```
+
+### `runtime.tls.client_auth_ca`
+
+Inline PEM (or `${ secrets:... }`) form of the client CA bundle. Mutually exclusive with `client_auth_ca_file`. Inline material is loaded once at startup and is not hot-reloaded.
+
+```yaml
+runtime:
+  tls:
+    ...
+    client_auth_ca: |
+      -----BEGIN CERTIFICATE-----
+      ...
+      -----END CERTIFICATE-----
+```
+
 ## `runtime.task_history`
 
 The task history section specifies runtime task history configuration. For more details, see the [Task History documentation](../task_history).

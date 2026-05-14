@@ -86,11 +86,15 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 #### Authentication parameters
 
-The following parameters are used when authenticating with Azure. Only one of these parameters can be used at a time:
+The following authentication methods are mutually exclusive — only one can be used at a time:
 
 - `abfs_access_key`
 - `abfs_bearer_token`
-- `abfs_client_secret`
+- `abfs_sas_string`
+- Client credentials (`abfs_client_id` + `abfs_client_secret` + `abfs_tenant_id`)
+- `abfs_use_cli`
+- `abfs_msi_endpoint`
+- `abfs_federated_token_file`
 - `abfs_skip_signature`
 
 If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
