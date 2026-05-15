@@ -22,7 +22,7 @@ The hash index is an optional, high-performance indexing feature for Arrow-accel
 
 ## Configuration
 
-To use the hash index, explicitly enable it and specify a primary key:
+Hash indexing activates automatically on Arrow-accelerated datasets when a `primary_key` or [secondary index](./indexes) is configured. No additional parameter is required.
 
 ```yaml
 datasets:
@@ -31,9 +31,13 @@ datasets:
     acceleration:
       engine: arrow
       primary_key: order_id
-      params:
-        hash_index: enabled
 ```
+
+The hash index activates whenever:
+
+- `engine` is `arrow` or `partitioned_arrow`,
+- `acceleration.enabled` is `true`,
+- and either `indexes` is set, or `primary_key` is set with a non-`caching` `refresh_mode`.
 
 ### Secondary Indexes
 
@@ -50,8 +54,6 @@ datasets:
         email: unique
         status: enabled
         '(region, category)': unique
-      params:
-        hash_index: enabled
 ```
 
 Index types:
@@ -67,11 +69,14 @@ Only single-column `unique` secondary indexes currently accelerate queries. Non-
 
 ### Configuration Options
 
-| Parameter     | Type                 | Required                    | Default    | Description                                  |
-| ------------- | -------------------- | --------------------------- | ---------- | -------------------------------------------- |
-| `hash_index`  | `enabled`/`disabled` | No                          | `disabled` | Enable hash indexing                         |
-| `primary_key` | string or list       | Yes (if hash_index enabled) | None       | Column(s) for the primary key index          |
-| `indexes`     | YAML map             | No                          | None       | Secondary indexes (see [indexes](./indexes)) |
+| Parameter     | Type           | Required                                 | Default | Description                                  |
+| ------------- | -------------- | ---------------------------------------- | ------- | -------------------------------------------- |
+| `primary_key` | string or list | Yes (unless `indexes` is set)            | None    | Column(s) for the primary key index          |
+| `indexes`     | YAML map       | No                                       | None    | Secondary indexes (see [indexes](./indexes)) |
+
+:::note `hash_index` parameter is ignored
+The legacy `hash_index: enabled` parameter is accepted but no longer activates indexing on its own. When set, the runtime logs a warning and falls back to the automatic rules above. Remove `hash_index` from `params` to clear the warning.
+:::
 
 ## Supported Data Types
 
@@ -239,16 +244,17 @@ Uses XXH3_64 with a fixed seed (`0x5370_6963_6541_4920` = "SpiceAI ") for:
 
 **Solution**: This is expected behavior for small datasets. The full scan is faster than index overhead.
 
-### Warning: "Add 'hash_index: enabled' to use primary_key for fast lookups"
+### Warning: "The hash_index acceleration parameter is ignored for Arrow acceleration"
 
-**Cause**: `primary_key` is specified but `hash_index` is not enabled.
+**Cause**: `hash_index: enabled` is set in `params` but no longer activates indexing on its own.
 
-**Solution**: Add `hash_index: enabled` to `params`:
+**Solution**: Remove `hash_index` from `params`. Hash indexing activates automatically when `primary_key` or `indexes` is configured on an Arrow-accelerated dataset (see [Configuration](#configuration)).
 
-```yaml
-params:
-  hash_index: enabled
-```
+### Hash index not active despite `primary_key` being set
+
+**Cause**: `refresh_mode: caching` disables hash indexing even when `primary_key` is set; the caching path uses its own lookup strategy.
+
+**Solution**: Use a non-caching `refresh_mode` (e.g. `full`, `append`, `changes`) for datasets that need point-lookup acceleration via the hash index.
 
 ### High Memory Usage
 
@@ -256,5 +262,5 @@ params:
 
 **Solution**:
 
-- Disable hash_index for datasets where point lookups are rare
+- Remove `primary_key` for datasets where point lookups are rare (hash indexing stops being applied)
 - Consider using a different acceleration engine for very large datasets
