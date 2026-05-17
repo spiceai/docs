@@ -15,9 +15,9 @@ datasets:
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
       file_format: md
-      github_client_id: ${secrets:GITHUB_CLIENT_ID}
-      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
-      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_client_id: ${secrets:APP_GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:APP_GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:APP_GITHUB_INSTALLATION_ID}
       include: 'website/docs/**/*.md'
     acceleration:
       enabled: true
@@ -44,9 +44,9 @@ datasets:
       reference_base_url: https://github.com/spiceai/cookbook/tree/trunk/<recipe_path>
     params:
       file_format: md
-      github_client_id: ${secrets:GITHUB_CLIENT_ID}
-      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
-      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_client_id: ${secrets:APP_GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:APP_GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:APP_GITHUB_INSTALLATION_ID}
       include: '**/*.md'
     acceleration:
       enabled: true
@@ -74,9 +74,9 @@ datasets:
       reference_base_url: https://github.com/spiceai/docs/tree/trunk/website/releases/<post_path>
     params:
       file_format: md
-      github_client_id: ${secrets:GITHUB_CLIENT_ID}
-      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
-      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_client_id: ${secrets:APP_GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:APP_GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:APP_GITHUB_INSTALLATION_ID}
       include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
@@ -99,9 +99,9 @@ datasets:
     name: spiceai.issues
     description: Spice.ai OSS issues from https://github.com/spiceai/spiceai/issues
     params:
-      github_client_id: ${secrets:GITHUB_CLIENT_ID}
-      github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
-      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_client_id: ${secrets:APP_GITHUB_CLIENT_ID}
+      github_private_key: ${secrets:APP_GITHUB_PRIVATE_KEY}
+      github_installation_id: ${secrets:APP_GITHUB_INSTALLATION_ID}
     acceleration:
       enabled: true
       refresh_check_interval: 4h
