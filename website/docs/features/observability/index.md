@@ -22,7 +22,6 @@ Spice provides monitoring and observability through three mechanisms:
 - [New Relic](../monitoring/new-relic)
 - [Zipkin](../monitoring/zipkin)
 
-
 ## Prometheus Metrics Endpoint
 
 Spice exposes a Prometheus-compatible metrics endpoint that monitoring systems can scrape. The endpoint serves metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/), which is supported by most enterprise monitoring platforms including Datadog, New Relic, Chronosphere, Grafana Cloud, and others.

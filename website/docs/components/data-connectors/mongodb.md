@@ -27,41 +27,6 @@ datasets:
 
 ## Configuration
 
-### Real-Time Change Data Capture (CDC) with MongoDB Change Streams
-
-Spice supports real-time Change Data Capture (CDC) from MongoDB using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/). This enables streaming inserts, updates, and deletes from your MongoDB collections directly into Spice accelerators, without requiring Debezium or Kafka.
-
-#### Enabling CDC with `refresh_mode: changes`
-
-To enable real-time CDC, set `refresh_mode: changes` in your dataset configuration:
-
-```yaml
-datasets:
-  - from: mongodb:my_collection
-    name: my_collection
-    params:
-      host: my-cluster.mongodb.net
-      db: mydb
-    acceleration:
-      enabled: true
-      engine: duckdb
-      refresh_mode: changes
-```
-
-- `refresh_mode: changes` tells Spice to use MongoDB Change Streams for this dataset.
-- No Debezium or Kafka is required—Spice connects directly to MongoDB.
-- Changes are streamed in real time into the configured accelerator (e.g., DuckDB, Arrow).
-
-#### Use Cases
-- Real-time analytics on operational data
-- Low-latency dashboards and event-driven pipelines
-
-#### Notes
-- Requires MongoDB 4.0+ and a replica set or sharded cluster.
-- Ensure your MongoDB user has `changeStream` privileges.
-
----
-
 ### `from`
 
 The `from` field takes the form `mongodb:{table_name}` where `table_name` is the table identifer in the MongoDB server to read from.
@@ -299,6 +264,32 @@ datasets:
       mongodb_pool_min: 5
       mongodb_pool_max: 10
 ```
+
+### Using MongoDB Change Streams
+
+Spice supports real-time Change Data Capture (CDC) from MongoDB using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/). This enables streaming inserts, updates, and deletes from your MongoDB collections directly into Spice accelerators.
+
+To enable real-time CDC, set `refresh_mode: changes` in the dataset's configuration:
+
+```yaml
+datasets:
+  - from: mongodb:my_collection
+    name: my_collection
+    params:
+      host: my-cluster.mongodb.net
+      db: mydb
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+```
+
+#### Notes
+- Requires MongoDB 4.0+ and a replica set or sharded cluster.
+- Ensure your MongoDB user has `changeStream` privileges.
+
+---
+
 
 ## Secrets
 
