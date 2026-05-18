@@ -134,7 +134,7 @@ INSERT INTO customer (c_custkey, c_name) VALUES (1, 'Acme Corp');
 datasets:
   - from: ducklake:customer
     name: customer
-    params
+    params:
       ducklake_connection_string: /path/to/metadata.ducklake
 ```
 
