@@ -7,9 +7,8 @@ sidebar_position: 30
 
 Data Manipulation Language (DML) statements are used to insert, update, and delete data in tables. Spice supports DML operations on [write-capable data connectors](../../tags/write) configured with `access: read_write`.
 
-:::info[Supported Operations]
-Spice supports `INSERT`, `UPDATE`, and `DELETE` for write-capable connectors that support these operations. As of v2.0.0-rc.5, the [Snowflake](../../components/data-connectors/snowflake) connector supports all three DML operations when `access: read_write` is set. For Cayenne, use `MERGE INTO` for updates and deletes.
-:::
+:::warning[Supported Operations]
+Spice supports `INSERT` for write-capable connectors and `MERGE INTO` for [Spice Cayenne](../../components/data-accelerators/cayenne) catalog tables. `UPDATE` and `DELETE` statements are not yet supported as standalone operations. For data modifications, use `MERGE INTO` or the source database directly.
 
 :::info
 Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects.

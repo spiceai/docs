@@ -46,23 +46,6 @@ For optimal performance, store Cayenne data files on NVMe storage. NVMe provides
 
 Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
 
-## Advanced Internals
-
-
-### Sequence-based Upserts and Deletes
-Cayenne uses Iceberg-style sequence numbers to enable upsert and delete semantics. Each row is tagged with a sequence number, allowing efficient handling of row-level changes without rewriting entire files. Deletes are tracked as tombstones, and upserts are resolved at query time.
-
-### Metadata Management
-Cayenne maintains in-process metadata for fast query planning. Metadata includes file listings, statistics, and sequence maps. This enables fast discovery and pruning of data files during query execution.
-
-### Persistent Acceleration
-Cayenne stores acceleration data on NVMe or S3 Express One Zone. Acceleration state is durable across restarts, and future releases will support sharing acceleration across multiple Spice instances.
-
-### Vortex Format
-Cayenne leverages the Vortex columnar format for zero-copy Arrow compatibility, fast random access, and extensible encoding.
-
----
-
 ## Configuration
 
 To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports `mode: file`, `mode: file_create`, and `mode: file_update` and stores data on disk.

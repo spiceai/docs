@@ -244,7 +244,7 @@ runtime:
   tls:
     certificate: |
       -----BEGIN CERTIFICATE-----
-      (certificate contents)
+      ...
       -----END CERTIFICATE-----
 ```
 
@@ -340,7 +340,7 @@ runtime:
   tls:
     client_auth_ca: |
       -----BEGIN CERTIFICATE-----
-      (CA certificate contents)
+      ...
       -----END CERTIFICATE-----
 ```
 
