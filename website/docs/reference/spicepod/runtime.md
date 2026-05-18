@@ -149,6 +149,27 @@ runtime:
     http_requests_per_minute_limit: 200
 ```
 
+### Spatial SQL Functions (opt-in)
+
+PostGIS-style spatial `ST_*` SQL functions (via [`geodatafusion`](https://github.com/datafusion-contrib/geodatafusion)) can be optionally registered with the SQL engine.
+
+| Parameter Name | Description                                                                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `geo`          | Set to `enabled` to register `ST_*` spatial functions. Requires a `spiced` binary built with the `geo` Cargo feature (`cargo build -p spiced --features geo`). Unset by default.       |
+
+Both gates must be satisfied: the binary must be built with `--features geo` **and** `runtime.params.geo: enabled` must be set in the Spicepod. Standard distributions of `spiced` do not include the `geo` feature, so spatial functions remain unregistered unless you produce a custom build.
+
+```yaml
+runtime:
+  params:
+    geo: enabled
+```
+
+```sql
+SELECT ST_AsText(ST_Point(0.0, 0.0)) AS geom;
+-- POINT(0 0)
+```
+
 ## `runtime.source_rate_control`
 
 Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
