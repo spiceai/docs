@@ -53,6 +53,33 @@ datasets:
 
 See [Hash Index](../../features/data-acceleration/hash-index) for configuration details, supported data types, and performance characteristics.
 
+## Native Upserts with Primary Key Matching
+
+Spice supports efficient upsert (update-or-insert) operations on Arrow-accelerated tables using primary key matching. When a dataset is accelerated with Arrow and a `primary_key` is specified, incoming rows with matching primary key values will update existing records; otherwise, new records are inserted.
+
+### Example Upsert Configuration
+
+```yaml
+datasets:
+  - from: s3://bucket/orders.parquet
+    name: orders
+    acceleration:
+      engine: arrow
+      primary_key: order_id
+```
+
+- When you insert or load data, if a row's `order_id` matches an existing record, the record is updated in-place.
+- If the `order_id` is new, a new record is inserted.
+
+This enables efficient update-or-insert semantics for in-memory datasets, ideal for CDC, streaming, and real-time analytics workloads.
+
+### Notes
+- Upsert support requires a defined `primary_key`.
+- Upserts are performed in-memory and are not persisted after runtime shutdown.
+- For persistent upserts, use a persistent accelerator (e.g., DuckDB, Cayenne).
+
+---
+
 ## Limitations
 
 - The In-Memory Arrow Data Accelerator does not support persistent storage. Data is stored in-memory and will be lost when the Spice runtime is stopped.

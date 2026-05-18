@@ -22,6 +22,20 @@ Spice provides monitoring and observability through three mechanisms:
 - [New Relic](../monitoring/new-relic)
 - [Zipkin](../monitoring/zipkin)
 
+## HTTP Rate-Control Persistence
+
+Spice persists HTTP rate-control (rate-limiting) state in object storage, ensuring that per-endpoint throttle counters survive restarts and are consistent across replicas. This enables reliable rate-limiting for all HTTP endpoints, including `/metrics`, even in distributed or containerized deployments.
+
+### Key Features
+- Persistent rate-limiting: Throttle state is saved to object storage and restored on restart.
+- Consistent across replicas: All instances share the same rate-limit state.
+- `/metrics` endpoint is independently rate-limited to prevent scraping from impacting query serving.
+
+### Usage
+No special configuration is required—rate-control persistence is enabled by default when object storage is configured for the runtime.
+
+---
+
 ## Prometheus Metrics Endpoint
 
 Spice exposes a Prometheus-compatible metrics endpoint that monitoring systems can scrape. The endpoint serves metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/), which is supported by most enterprise monitoring platforms including Datadog, New Relic, Chronosphere, Grafana Cloud, and others.

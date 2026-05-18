@@ -29,6 +29,20 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 :::
 
+## Kafka CDC Offset Persistence
+
+Spice now persists Kafka CDC offsets in sidecar tables, enabling durable and resumable CDC streams. When consuming from Kafka topics, Spice records the last committed offset for each partition in a dedicated sidecar table. On restart or failover, Spice resumes from the last committed offset, ensuring no data loss or duplicate processing.
+
+### Benefits
+- Durable CDC: Survives restarts and failover without replaying the entire topic.
+- Fast recovery: Resumes from the last processed event, not the earliest available.
+- No external offset store required.
+
+### Example
+No special configuration is required—offset persistence is automatic for all Kafka CDC datasets.
+
+---
+
 ## Supported Data Connectors
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
