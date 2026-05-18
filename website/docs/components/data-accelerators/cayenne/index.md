@@ -48,6 +48,7 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 
 ## Advanced Internals
 
+
 ### Sequence-based Upserts and Deletes
 Cayenne uses Iceberg-style sequence numbers to enable upsert and delete semantics. Each row is tagged with a sequence number, allowing efficient handling of row-level changes without rewriting entire files. Deletes are tracked as tombstones, and upserts are resolved at query time.
 
