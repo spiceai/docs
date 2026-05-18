@@ -93,6 +93,11 @@ The MongoDB data connector can be configured by providing the following `params`
 | `mongodb_num_docs_to_infer_schema` | Optional. Number of documents to use to infer the schema. Defaults to 400.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `mongodb_pool_min`                 | The minimum number of connections to keep open in the pool, lazily created when requested. Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `mongodb_pool_max`                 | The maximum number of connections to allow in the pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `mongodb_resume_token_invalid_behavior` | Optional. Used with `refresh_mode: changes`. Behavior when a persisted Change Stream resume token is rejected by the server (e.g. it is past the oplog window). `error` (default) surfaces a clear error; `rebootstrap` drops the persisted token and re-snapshots the collection. See [Using MongoDB Change Streams](#using-mongodb-change-streams).                                                                                                                                                          |
+| `change_stream_batch_max_size`     | Optional. Used with `refresh_mode: changes`. Maximum number of Change Stream events grouped into one CDC batch before applying it. Default: `1000`.                                                                                                                                                                                                                                                                                                                                                          |
+| `change_stream_batch_max_duration` | Optional. Used with `refresh_mode: changes`. Maximum time to wait for a Change Stream batch to fill before applying it. Accepts [fundu](https://docs.rs/fundu) duration strings. Default: `1s`.                                                                                                                                                                                                                                                                                                              |
+| `change_stream_max_await_time`     | Optional. Used with `refresh_mode: changes`. Maximum time MongoDB waits for new Change Stream events before returning an empty server batch. Accepts [fundu](https://docs.rs/fundu) duration strings. Default: `1s`.                                                                                                                                                                                                                                                                                         |
+| `change_stream_batch_size`         | Optional. Used with `refresh_mode: changes`. Number of Change Stream events MongoDB should request from the server per batch. Default: `1000`.                                                                                                                                                                                                                                                                                                                                                               |
 
 ## Types
 
@@ -267,26 +272,74 @@ datasets:
 
 ### Using MongoDB Change Streams
 
-Spice supports real-time Change Data Capture (CDC) from MongoDB using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/). This enables streaming inserts, updates, and deletes from your MongoDB collections directly into Spice accelerators.
+Spice supports real-time Change Data Capture (CDC) from MongoDB using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/). This streams inserts, updates, replacements, deletes, and collection-level invalidation events from MongoDB collections directly into Spice accelerators.
 
-To enable real-time CDC, set `refresh_mode: changes` in the dataset's configuration:
+#### How it works
+
+On startup, Spice opens a Change Stream on the source collection (`fullDocument=updateLookup`), emits a CDC `TRUNCATE`, applies a full snapshot of the collection as upsert rows, signals readiness, then processes Change Stream events in batches. Opening the Change Stream before the snapshot prevents gaps between the snapshot and the live stream.
+
+File-accelerated datasets persist resume tokens and resume from the last committed token on restart. In-memory accelerators re-bootstrap from a fresh snapshot.
+
+#### Prerequisites
+
+- MongoDB 4.0+ with Change Streams enabled. MongoDB requires a replica set or sharded cluster for Change Streams.
+- The MongoDB user must have `changeStream` privileges.
+- The accelerator must support upsert behavior. Use `duckdb`, `sqlite`, `postgres`, `turso`, or `cayenne`.
+- `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
+- `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows.
+
+#### Minimal configuration
 
 ```yaml
 datasets:
-  - from: mongodb:my_collection
-    name: my_collection
+  - from: mongodb:users
+    name: users
     params:
-      host: my-cluster.mongodb.net
-      db: mydb
+      mongodb_host: localhost
+      mongodb_port: '27017'
+      mongodb_db: my_database
+      mongodb_user: my_user
+      mongodb_pass: ${secrets:mongodb_pass}
     acceleration:
       enabled: true
       engine: duckdb
       refresh_mode: changes
+      primary_key: _id
+      on_conflict:
+        _id: upsert
 ```
 
-#### Notes
-- Requires MongoDB 4.0+ and a replica set or sharded cluster.
-- Ensure your MongoDB user has `changeStream` privileges.
+#### Change Stream parameters
+
+These optional runtime parameters live under dataset `params:`. The first four are not prefixed with `mongodb_`.
+
+| Parameter Name                            | Default | Description                                                                                                                                                                                                                                                            |
+| ----------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `change_stream_batch_max_size`            | `1000`  | Maximum number of Change Stream events to group into one CDC batch before applying it. Must be greater than 0.                                                                                                                                                         |
+| `change_stream_batch_max_duration`        | `1s`    | Maximum time to wait for a Change Stream batch to fill before applying it. Accepts [fundu](https://docs.rs/fundu) duration strings; must be greater than 0.                                                                                                            |
+| `change_stream_max_await_time`            | `1s`    | Maximum time MongoDB waits for new Change Stream events before returning an empty server batch. Accepts [fundu](https://docs.rs/fundu) duration strings; must be greater than 0.                                                                                       |
+| `change_stream_batch_size`                | `1000`  | Number of Change Stream events MongoDB should request from the server per batch. Must fit in a `u32` and be greater than 0.                                                                                                                                            |
+| `mongodb_resume_token_invalid_behavior`   | `error` | Behavior when a persisted Change Stream resume token cannot be honored by the server (e.g. the token is past the oplog retention window). `error` surfaces a clear error so the operator can decide; `rebootstrap` drops the persisted token and re-snapshots the collection. |
+
+The existing `mongodb_unnest_depth` parameter also applies to Change Stream documents, so nested BSON is flattened the same way as normal MongoDB reads.
+
+#### Event mapping
+
+- `insert`: create/upsert, using `fullDocument`.
+- `update`: update/upsert, using `fullDocument` from `fullDocument=updateLookup`.
+- `replace`: update/upsert, using `fullDocument`.
+- `delete`: delete, using `documentKey`; non-key columns are `null`.
+- `drop`, `rename`, `dropDatabase`, `invalidate`: truncate, because collection continuity is no longer guaranteed.
+
+If MongoDB does not include `fullDocument` for an update or replace event, Spice fails the stream with a clear error instead of applying a partial row.
+
+#### Resumability across restarts
+
+For file-accelerated datasets (acceleration `mode: file` / `file_create` / `file_update`, or `engine: postgres`), Spice persists the most recent Change Stream resume token in a sidecar table named `spice_sys_mongodb`, stored alongside the accelerator data. The token is committed only after the downstream accelerator write succeeds (at-least-once semantics).
+
+On restart with a persisted token, Spice resumes the Change Stream from that token and skips the collection snapshot. If MongoDB rejects the token (typical codes `ChangeStreamHistoryLost` 286 or `ChangeStreamFatalError` 280, e.g. when the oplog window has rolled past the token's position), the behavior is governed by `mongodb_resume_token_invalid_behavior` above. Re-snapshotting a large collection is opt-in by default.
+
+Datasets that are not file-accelerated (in-memory Arrow, etc.) do not get a sidecar row; restarts re-bootstrap from a fresh snapshot.
 
 ---
 
