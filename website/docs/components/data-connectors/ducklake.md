@@ -5,6 +5,7 @@ description: 'DuckLake Data Connector Documentation'
 tags:
   - data-connectors
   - ducklake
+  - write
 ---
 
 [DuckLake](https://ducklake.select/) is an open lakehouse format that stores metadata in a SQLite-compatible database (or PostgreSQL) and data in Parquet files. This connector enables querying individual DuckLake tables as datasets in Spice.
@@ -106,6 +107,25 @@ datasets:
       ducklake_aws_allow_http: true
 ```
 
+## Write Support
+
+This connector supports writing data to DuckLake tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements when `access` is set to `read_write`:
+
+```yaml
+datasets:
+  - from: ducklake:customer
+    name: customer
+    access: read_write
+    params:
+      ducklake_connection_string: s3://my-bucket/metadata.ducklake
+```
+
+```sql
+INSERT INTO customer (c_custkey, c_name) VALUES (1, 'Acme Corp');
+```
+
+`UPDATE` and `DELETE FROM` are not supported. For DDL operations (`CREATE TABLE`, `DROP TABLE`), use the [DuckLake Catalog Connector](../catalogs/ducklake) with `access: read_write_create`.
+
 ## Examples
 
 ### Reading from a local DuckLake catalog
@@ -181,9 +201,10 @@ datasets:
 
 :::warning[Limitations]
 
-- Spice uses DuckDB 1.4.4, which supports DuckLake format versions 0.1, 0.2, and 0.3 only. Catalogs created with DuckDB 1.5.x or later use format v0.4+, which is not currently supported.
+- Spice uses DuckDB 1.5.2, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use. See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.
+- Writes are limited to `INSERT INTO`. `UPDATE`, `DELETE FROM`, and DDL (`CREATE TABLE`, `DROP TABLE`) are not supported on the data connector — use the [DuckLake Catalog Connector](../catalogs/ducklake) for schema operations.
 
 :::

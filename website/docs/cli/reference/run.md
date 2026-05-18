@@ -42,7 +42,7 @@ Flags that are passed to the `spiced` runtime directly using `--`.
 - `-v`, `--verbose` Enable verbose logging (use `-vv` for more detail)
 - `--very-verbose` Enable very verbose logging
 - `--set-runtime` Override [runtime configuration](../../reference/spicepod/#runtime) with a name/value pair specified as `name=value`. Multiple overrides can be specified by using the flag multiple times.
-- `[PATH]` Positional argument specifying the path to a Spicepod directory or file. Supports local paths and `s3://` remote URLs.
+- `[PATH]` Positional argument specifying the path to a Spicepod directory or file. Supports local paths and `s3://` remote URLs. Directories must contain a `spicepod.yaml` (or `spicepod.yml`); file paths can use any name as long as the file declares `kind: Spicepod` and a recognized `version`.
 
 ### Examples
 

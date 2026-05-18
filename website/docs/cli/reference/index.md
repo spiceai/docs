@@ -27,6 +27,7 @@ spice [command] [--help]
 | [connect](reference/connect)       | Connect to a Spice.ai Cloud Platform app                               |
 | [dataset](reference/dataset)       | Dataset operations (configure datasets)                                |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
+| [feedback](reference/feedback)     | Open the Spice.ai community Slack to share feedback                    |
 | help                               | Help about any command                                                 |
 | [init](reference/init)             | Initialize Spice app - creates a new spicepod.yaml                     |
 | [install](reference/install)       | Install or reinstall the Spice.ai runtime                              |

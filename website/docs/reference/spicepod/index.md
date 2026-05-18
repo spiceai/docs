@@ -10,7 +10,7 @@ tags:
   - manifest
 ---
 
-Spicepod manifests use YAML syntax. They are stored in the root directory of the application and must be named `spicepod.yaml` or `spicepod.yml`.
+Spicepod manifests use YAML syntax. By default they are stored in the root directory of the application and named `spicepod.yaml` or `spicepod.yml` — when the runtime is given a directory path, it looks for one of those two filenames. The runtime also accepts any YAML file path directly (e.g. `spiced ./configs/my-app.yaml`); files passed by path must declare `kind: Spicepod` and a recognized `version` and are otherwise rejected with an explicit error.
 
 :::info[Tip]
 

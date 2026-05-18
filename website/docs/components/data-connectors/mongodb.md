@@ -265,6 +265,32 @@ datasets:
       mongodb_pool_max: 10
 ```
 
+### Using MongoDB Change Streams
+
+Spice supports real-time Change Data Capture (CDC) from MongoDB using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/). This enables streaming inserts, updates, and deletes from your MongoDB collections directly into Spice accelerators.
+
+To enable real-time CDC, set `refresh_mode: changes` in the dataset's configuration:
+
+```yaml
+datasets:
+  - from: mongodb:my_collection
+    name: my_collection
+    params:
+      host: my-cluster.mongodb.net
+      db: mydb
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+```
+
+#### Notes
+- Requires MongoDB 4.0+ and a replica set or sharded cluster.
+- Ensure your MongoDB user has `changeStream` privileges.
+
+---
+
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
