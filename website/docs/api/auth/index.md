@@ -36,7 +36,7 @@ The API key authentication is applied on startup and changes will not take effec
 
 ## HTTP
 
-For HTTP routes, the API key is expected to be included in the `X-API-Key` header.
+For HTTP routes, the API key can be supplied in either the `X-API-Key` header or the `Authorization: Bearer ${ api_key }` header. The `Bearer` scheme is matched case-insensitively. If both headers are present, `X-API-Key` takes precedence.
 
 ```bash
 > curl -i "http://localhost:8090/v1/sql" -H "X-API-Key: 1234567890" -d 'SELECT 1'
@@ -48,6 +48,12 @@ content-length: 16
 date: Fri, 08 Nov 2024 07:14:24 GMT
 
 [{"Int64(1)":1}]
+```
+
+Or using `Authorization: Bearer`:
+
+```bash
+> curl -i "http://localhost:8090/v1/sql" -H "Authorization: Bearer 1234567890" -d 'SELECT 1'
 ```
 
 The `/health` and `/v1/ready` endpoints are not protected and can be accessed without an API key.
