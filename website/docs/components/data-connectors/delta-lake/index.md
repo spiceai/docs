@@ -184,6 +184,10 @@ The table below shows the Delta Lake data types supported, along with the type m
 | `Variant`       | `Struct`                              |
 | `Map`           | `Map`                                 |
 
+## Column Mapping
+
+Delta Lake tables that use [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) with `columnMapping.mode = name` or `columnMapping.mode = id` are supported. Tables in either mode store data in Parquet files under opaque physical column names (e.g., `col-b70f7585-…`) that differ from the logical names exposed by the table schema. Spice resolves logical-to-physical names at read time, including for partitions, predicate pushdown, and nested `Struct`, `List`, and `Map` field renames.
+
 ## Limitations
 
 - Delta Lake connector does not support reading Delta tables with the `V2Checkpoint` feature enabled. To use the Delta Lake connector with such tables, drop the `V2Checkpoint` feature by executing the following command:
