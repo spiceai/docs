@@ -467,6 +467,15 @@ Optional. How to refresh the dataset. The following values are supported:
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
 - `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
+## `acceleration.write_mode`
+
+Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write` and the source connector supports writes.
+
+Supported values:
+
+- `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
+- `write_back` – Writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to the federated source. Choose this for write throughput when eventual consistency at the source is acceptable.
+
 ## `acceleration.refresh_check_interval`
 
 Optional. How often data should be refreshed. For `append` datasets without a specific `time_column`, this config is not used. If not defined, the accelerator will not refresh after it initially loads data. Cannot be specified in conjunction with a `refresh_cron`.
