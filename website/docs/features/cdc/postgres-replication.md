@@ -131,6 +131,7 @@ All replication-specific parameters live under `params:` on the dataset and star
 | `pg_replication_initial_snapshot`    | `true`                                           | If `true`, take an initial snapshot of the table's existing rows before streaming. Set to `false` if you are pre-seeding the accelerator yourself.                                                     |
 | `pg_replication_temporary_slot`      | `false`                                          | If `true`, the slot is dropped when Spice disconnects. Every restart re-bootstraps.                                                                                                                    |
 | `pg_replication_status_interval`     | `10s`                                            | How often `StandbyStatusUpdate` (LSN acknowledgement) is sent back to Postgres. Lower values free WAL faster; higher values reduce network chatter. Accepts any duration string (`500ms`, `30s`, `2m`). |
+| `pg_replication_bootstrap_batch_size` | `8192`                                          | Rows per emitted batch during the initial-snapshot bootstrap. Larger batches reduce per-batch overhead at the cost of more memory per batch. Maximum: `1048576`.                                       |
 
 All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, `pg_connection_string` parameters continue to apply — see the [PostgreSQL Data Connector](../../components/data-connectors/postgres) reference.
 
