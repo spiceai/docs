@@ -595,6 +595,56 @@ FROM flatten_json_properties(
 | `[*].id` | `string` |
 | `[*].primary` | `boolean` |
 
+### `json_tree`
+
+Recursive depth-first walk of an arbitrary JSON document. Schema-agnostic sibling of `flatten_json_properties` that mirrors the `json_tree` table function in DuckDB and SQLite: one row per node (interior and leaf) in depth-first order, with JSON-Path addresses and a parent pointer for reconstructing the tree.
+
+```sql
+json_tree(input Utf8 [, options...]) -> TABLE(
+    key       Utf8,    -- key under the parent (object field name) or array index; NULL for the root
+    value     Utf8,    -- JSON-encoded value of the node
+    type      Utf8,    -- "object"|"array"|"string"|"number"|"integer"|"boolean"|"null"
+    atom      Utf8,    -- scalar value for primitive nodes; NULL for objects and arrays
+    id        Int64,   -- depth-first row id (root = 0)
+    parent    Int64,   -- id of the parent node; NULL at the root
+    fullkey   Utf8,    -- absolute JSON-Path of this node, e.g. $.user.scores[0]
+    path      Utf8     -- JSON-Path of the parent node; NULL at the root
+)
+```
+
+**Options (named arguments, UDTF form only):**
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `max_depth` | UInt | `64` | Maximum recursion depth. |
+| `max_rows` | UInt | `1000000` | Per-document row cap. |
+| `max_bytes` | UInt | `8388608` | Input size limit (bytes). |
+
+**UDTF example:**
+
+```sql
+SELECT id, parent, fullkey, type, atom
+FROM json_tree('{"user": {"name": "Alice", "scores": [95, 87]}}');
+```
+
+| id | parent | fullkey | type | atom |
+| --- | --- | --- | --- | --- |
+| `0` |  | `$` | `object` |  |
+| `1` | `0` | `$.user` | `object` |  |
+| `2` | `1` | `$.user.name` | `string` | `Alice` |
+| `3` | `1` | `$.user.scores` | `array` |  |
+| `4` | `3` | `$.user.scores[0]` | `integer` | `95` |
+| `5` | `3` | `$.user.scores[1]` | `integer` | `87` |
+
+**Scalar UDF example (per-row with `UNNEST`):**
+
+```sql
+SELECT rows.fullkey, rows.atom
+FROM (SELECT UNNEST(json_tree(body)) AS rows FROM documents);
+```
+
+The scalar form takes only the JSON argument and always runs with default caps; the named options above are only accepted in the UDTF (`FROM` clause) form.
+
 ## Further Reading
 
 - [datafusion-functions-json](https://github.com/datafusion-contrib/datafusion-functions-json) - The underlying JSON manipulation library
