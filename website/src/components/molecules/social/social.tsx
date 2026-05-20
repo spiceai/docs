@@ -29,7 +29,7 @@ export const Social = () => {
           <Icon iconName='twitter' className='h-7 w-7 hover:text-primary' />
         </Link>
         <Link
-          href='https://spiceai.org/slack'
+          href='https://spice.ai/slack'
           target='_blank'
           rel='noreferrer'
           aria-label='Spice.ai Slack Community'
