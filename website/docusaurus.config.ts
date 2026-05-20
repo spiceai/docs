@@ -269,7 +269,7 @@ const config: Config = {
         },
         {
           label: 'Slack',
-          href: 'https://spiceai.org/slack',
+          href: 'https://spice.ai/slack',
           position: 'right'
         },
         {
@@ -318,7 +318,7 @@ const config: Config = {
             },
             {
               label: 'Slack',
-              href: 'https://spiceai.org/slack'
+              href: 'https://spice.ai/slack'
             },
             {
               label: 'X',
