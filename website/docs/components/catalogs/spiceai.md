@@ -20,7 +20,8 @@ catalogs:
   - from: spice.ai:demo-org/tpch # Load tables from the `demo-org` organization's `tpch` app
     name: marketplace # Tables will be available in the "marketplace" catalog
     params:
-      spiceai_api_key: ${secrets:SPICEAI_API_KEY} # Spice.ai API key to login to the organization and app
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY} # Spice.ai API key
+      spiceai_region: us-east-1 # Required: Spice Cloud region
     include:
       - "tpch.part*" # include only the tables from the "tpch" schema and that start with "part"
       - "tpch.supplier" # also include the "supplier" table
@@ -44,12 +45,12 @@ sql> show tables;
 The `from` field specifies which organization and application to load tables from. The format is:
 
 ```shell
-spice.ai/[organization]/[application][/catalog_name]
+spice.ai/<organization>/<application>[/<catalog_name>]
 ```
 
-- `organization`: The Spice.ai organization that owns the application
-- `application`: The specific application to load tables from
-- `catalog_name`: (optional): A specific catalog within the application. If not specified, the application's default catalog is used
+- `organization`: The Spice.ai organization that owns the application.
+- `application`: The specific application to load tables from.
+- `catalog_name` (optional): A specific catalog within the application. Defaults to `spice` if not specified.
 
 For example:
 
@@ -161,11 +162,28 @@ include:
 
 ## `params`
 
-The following parameters are supported for configuring the connection to the Spice Cloud catalog/tables:
+### Authentication
 
-| Parameter Name | Definition |
+| Parameter Name | Description |
 |---------------|------------|
-| `spiceai_api_key` | Authorization API key from the Spice.ai Cloud Platform, used to login to the specified organization and app. |
+| `spiceai_api_key` | API key from the Spice.ai Cloud Platform. Takes precedence over `spiceai_token`. |
+| `spiceai_token` | Legacy alias for `spiceai_api_key`. Used only if `spiceai_api_key` is not set. |
+
+### Region
+
+| Parameter Name | Description |
+|---------------|------------|
+| `spiceai_region` | The Spice Cloud region to connect to (e.g. `us-east-1`). **Required** unless `spiceai_http_endpoint` is set. To list available regions, run `spice cloud regions`. |
+
+### Endpoint Overrides
+
+These parameters override the default endpoints derived from `spiceai_region`. They are typically only needed for development or custom deployments.
+
+| Parameter Name | Description |
+|---------------|------------|
+| `spiceai_http_endpoint` | Custom HTTP endpoint for the Spice Cloud catalog API (Iceberg REST catalog compatible). If set, `spiceai_region` is not required and region validation is skipped. |
+| `spiceai_endpoint` | Custom Arrow Flight endpoint for query execution. Takes precedence over `spiceai_flight_endpoint`. |
+| `spiceai_flight_endpoint` | Legacy alias for `spiceai_endpoint`. Used only if `spiceai_endpoint` is not set. |
 
 ## Cookbook
 
