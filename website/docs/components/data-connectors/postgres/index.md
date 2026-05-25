@@ -2,6 +2,10 @@
 title: 'PostgreSQL Data Connector'
 sidebar_label: 'PostgreSQL Data Connector'
 description: 'PostgreSQL Data Connector Documentation'
+tags:
+  - data-connectors
+  - postgres
+  - write
 ---
 
 PostgreSQL is an advanced open-source relational database management system known for its reliability, extensibility, and support for SQL compliance.
@@ -124,6 +128,7 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 | `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
 | `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |
 | `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
+| `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
 
 ## Types
 
@@ -169,6 +174,69 @@ The table below shows the PostgreSQL data types supported, along with the type m
 The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
 
 :::
+
+## Write Support
+
+The PostgreSQL connector supports writing data to PostgreSQL tables using SQL [`INSERT INTO`](../../../reference/sql/dml#insert), `UPDATE`, and `DELETE FROM` statements.
+
+To enable writes, set `access: read_write` on the dataset:
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    access: read_write
+    params:
+      pg_host: localhost
+      pg_port: '5432'
+      pg_db: mydb
+      pg_user: spice_writer
+      pg_pass: ${secrets:PG_PASSWORD}
+```
+
+```sql
+-- Insert rows
+INSERT INTO events (id, name, amount)
+VALUES (1, 'Alice', 100.0), (2, 'Bob', 200.0);
+
+-- Update rows
+UPDATE events SET amount = 150.0 WHERE id = 1;
+
+-- Delete rows
+DELETE FROM events WHERE id = 2;
+```
+
+### Write modes with acceleration
+
+When PostgreSQL is used as the federated source for an accelerated dataset, `acceleration.write_mode` selects how writes propagate between the local accelerator and PostgreSQL:
+
+- `write_through` (default) — writes are sent to PostgreSQL synchronously. The client receives an ACK only after the source commits. The local accelerator is updated via the configured refresh path. Choose this for ACID guarantees.
+- `write_back` — writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to PostgreSQL. Choose this for write throughput when eventual consistency at the source is acceptable.
+
+`acceleration.refresh_mode: changes` is supported for `access: read_write` datasets: writes go to PostgreSQL and the WAL replication stream applies the resulting changes back to the accelerator.
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    access: read_write
+    params:
+      pg_host: localhost
+      pg_port: '5432'
+      pg_db: mydb
+      pg_user: spice_writer
+      pg_pass: ${secrets:PG_PASSWORD}
+      # Replication-mode parameters (see Configuration above)
+      pg_replication_publication: spice_pub
+      pg_replication_slot_name: spice_slot
+    acceleration:
+      engine: duckdb
+      mode: file
+      refresh_mode: changes
+      write_mode: write_through # default; use write_back for fast async writes
+```
+
+For more details, see [Data Ingestion](../../../features/data-ingestion).
 
 ## Examples
 

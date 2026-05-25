@@ -60,6 +60,7 @@ The connector derives an Arrow schema from each index's mapping via `GET /<index
 | ---------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------- |
 | `text`, `keyword`, `wildcard`, `constant_keyword`, `match_only_text` | `Utf8`                            |                                                             |
 | `long`                                                           | `Int64`                              |                                                             |
+| `unsigned_long`                                                  | `UInt64`                             | Accepts both numeric values and digit strings (JS clients commonly serialize values > 2<sup>53</sup>-1 as strings). |
 | `integer`                                                        | `Int32`                              |                                                             |
 | `short`                                                          | `Int16`                              |                                                             |
 | `byte`                                                           | `Int8`                               |                                                             |

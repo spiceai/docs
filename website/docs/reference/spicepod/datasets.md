@@ -365,6 +365,31 @@ Optional. The mode of acceleration. The following values are supported:
 - `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 - `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
+## `acceleration.storage_profile`
+
+Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (`duckdb`, `sqlite`, `turso`, and Spice Cayenne); memory-mode accelerators ignore this setting.
+
+Supported values:
+
+- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. On other platforms, detection returns unknown and the engine defaults apply.
+- `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
+- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Reduces connection-pool size and raises DuckDB's checkpoint threshold so per-IO latency is amortized across larger flushes. Spice Cayenne uses smaller per-file targets to reduce write amplification.
+- `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Raises DuckDB's checkpoint threshold so steady-state workloads don't pay checkpoint cost on small amounts of dirty data; Spice Cayenne uses larger per-file targets to improve scan throughput.
+
+Example:
+
+```yaml
+datasets:
+  - from: s3://bucket/data/
+    name: analytics
+    acceleration:
+      engine: duckdb
+      mode: file
+      storage_profile: ebs
+      params:
+        duckdb_file: /mnt/ebs/analytics.db
+```
+
 ## `acceleration.snapshots`
 
 Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
@@ -441,6 +466,15 @@ Optional. How to refresh the dataset. The following values are supported:
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
 - `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
+
+## `acceleration.write_mode`
+
+Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write` and the source connector supports writes.
+
+Supported values:
+
+- `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
+- `write_back` – Writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to the federated source. Choose this for write throughput when eventual consistency at the source is acceptable.
 
 ## `acceleration.refresh_check_interval`
 

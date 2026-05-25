@@ -106,13 +106,22 @@ When using `refresh_mode: caching`, transient HTTP errors (5xx, 429) are exclude
 
 When rate control is active, the connector exposes per-origin metrics that can be enabled per-dataset:
 
-| Metric Name                                | Description                                                                                           |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `rate_control_max_concurrent_requests`     | Configured maximum concurrent HTTP requests for this upstream origin; `0` means disabled.             |
-| `rate_control_requests_per_second_limit`   | Configured HTTP request-per-second limit for this upstream origin; `0` means disabled.                |
-| `rate_control_requests_per_minute_limit`   | Configured HTTP request-per-minute limit for this upstream origin; `0` means disabled.                |
-| `rate_control_jitter_min_ms`               | Minimum jitter (in milliseconds) added before HTTP requests when rate control is active.              |
-| `rate_control_jitter_max_ms`               | Maximum jitter (in milliseconds) added before HTTP requests when rate control is active.              |
+| Metric Name                                 | Type    | Description                                                                                              |
+| ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `inflight_operations`                       | Gauge   | Current number of HTTP requests holding a rate-control permit.                                           |
+| `rate_control_max_concurrent_requests`      | Gauge   | Configured maximum concurrent HTTP requests for this upstream origin; `0` means disabled.                |
+| `rate_control_requests_per_second_limit`    | Gauge   | Configured HTTP request-per-second limit for this upstream origin; `0` means disabled.                   |
+| `rate_control_requests_per_minute_limit`    | Gauge   | Configured HTTP request-per-minute limit for this upstream origin; `0` means disabled.                   |
+| `rate_control_jitter_min_ms`                | Gauge   | Configured minimum rate-control jitter (ms) before HTTP requests.                                        |
+| `rate_control_jitter_max_ms`                | Gauge   | Configured maximum rate-control jitter (ms) before HTTP requests.                                        |
+| `rate_control_available_permits`            | Gauge   | Current available permits in the HTTP request concurrency semaphore; `0` when concurrency is disabled.   |
+| `rate_control_acquisitions_total`           | Counter | Total HTTP request rate-control permits acquired.                                                        |
+| `rate_control_acquire_errors_total`         | Counter | Total HTTP request rate-control permit acquisition errors.                                               |
+| `rate_control_wait_duration_ms`             | Counter | Cumulative time (ms) spent waiting for HTTP rate-control permits, quotas, and jitter.                    |
+| `rate_limit_retry_after_updates_total`      | Counter | Total upstream cooldown hints accepted from `Retry-After` or `RateLimit` reset headers.                  |
+| `rate_limit_retry_after_waits_total`        | Counter | Total waits caused by `Retry-After` or `RateLimit` reset headers.                                        |
+| `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
+| `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
 
 Enable component metrics in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 

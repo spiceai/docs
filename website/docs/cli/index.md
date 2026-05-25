@@ -84,6 +84,51 @@ Common commands are:
 
 See [Spice CLI command reference](./reference) for the full list of available commands.
 
+## Direct Command Shortcuts
+
+For quick scripting and shell workflows, the CLI accepts top-level shortcuts that skip the subcommand name:
+
+| Shortcut                | Equivalent                          | Description                            |
+| ----------------------- | ----------------------------------- | -------------------------------------- |
+| `spice -sql <query>`    | `spice sql --query <query>`         | Run a single SQL statement and exit.   |
+| `spice -p <prompt>`     | `spice chat <prompt>` (one-shot)    | Send a single chat prompt and exit.    |
+| `spice -chat <prompt>`  | `spice chat <prompt>` (one-shot)    | Alias for `-p`.                        |
+
+The shortcut consumes the first non-flag argument as the value; any other flags (including global flags such as `--cloud`, `--api-key`, `--endpoint`, and `--machine`) are forwarded to the underlying command. Use `--` to terminate flag parsing when the prompt or query begins with a `-`.
+
+```bash
+# One-shot SQL against the local runtime
+spice -sql "select count(*) from taxi_trips"
+
+# One-shot chat prompt
+spice -p "summarize the orders table"
+
+# Same against Spice.ai Cloud
+spice --cloud --api-key $SPICE_KEY -sql "select 1"
+```
+
+## Machine-readable Mode
+
+Pass `--machine` (alias `--programmatic`) as a global flag to make the CLI output JSON wherever supported and emit structured JSON for errors. This is intended for LLM agents, CI scripts, and other automation that needs to parse `spice` output reliably.
+
+```bash
+# Default human output
+spice version
+
+# Same command, JSON output for automation
+spice --machine version
+
+# Works with subcommands
+spice --machine status
+spice --machine query list
+spice --machine cloud secrets list
+
+# Combine with direct shortcuts
+spice --machine -sql "select 1"
+```
+
+`--machine` is global and may appear before or after the subcommand (`spice status --machine` is also valid). When set, mutating commands that support JSON output also default to JSON, and clap parsing errors are emitted as JSON to stderr.
+
 ## Updating
 
 To update to latest CLI, run the upgrade command.

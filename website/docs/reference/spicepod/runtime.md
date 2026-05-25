@@ -149,6 +149,27 @@ runtime:
     http_requests_per_minute_limit: 200
 ```
 
+### Spatial SQL Functions (opt-in)
+
+PostGIS-style spatial `ST_*` SQL functions (via [`geodatafusion`](https://github.com/datafusion-contrib/geodatafusion)) can be optionally registered with the SQL engine.
+
+| Parameter Name | Description                                                                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `geo`          | Set to `enabled` to register `ST_*` spatial functions. Requires a `spiced` binary built with the `geo` Cargo feature (`cargo build -p spiced --features geo`). Unset by default.       |
+
+Both gates must be satisfied: the binary must be built with `--features geo` **and** `runtime.params.geo: enabled` must be set in the Spicepod. Standard distributions of `spiced` do not include the `geo` feature, so spatial functions remain unregistered unless you produce a custom build.
+
+```yaml
+runtime:
+  params:
+    geo: enabled
+```
+
+```sql
+SELECT ST_AsText(ST_Point(0.0, 0.0)) AS geom;
+-- POINT(0 0)
+```
+
 ## `runtime.source_rate_control`
 
 Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
@@ -215,6 +236,15 @@ The TLS section specifies the configuration for enabling Transport Layer Securit
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
+### Certificate Hot-Reload
+
+Spice can hot-reload TLS certificates and client CA files for runtime endpoints. Update the certificate, key, or CA file on disk, then send `SIGHUP` to the Spice process to reload without restart. Only file-based certificates/keys/CA are hot-reloaded (not inline PEM). Existing connections are not interrupted; only new connections use the updated files. If reload fails, the previous certificate remains active and a warning is logged.
+
+**Steps:**
+1. Replace the certificate/key/CA file on disk.
+2. Send `SIGHUP` to the Spice process (e.g., `kill -SIGHUP <pid>`).
+3. Check logs for reload confirmation or errors.
+
 ### `runtime.tls.enabled`
 
 Enables or disables TLS for the runtime endpoints.
@@ -233,7 +263,6 @@ The TLS certificate to use for securing the runtime endpoints. The certificate c
 ```yaml
 runtime:
   tls:
-    ...
     certificate: |
       -----BEGIN CERTIFICATE-----
       ...
@@ -254,7 +283,6 @@ The path to the TLS PEM-encoded certificate file. Only one of `certificate` or `
 ```yaml
 runtime:
   tls:
-    ...
     certificate_file: /path/to/cert.pem
 ```
 
@@ -265,10 +293,9 @@ The TLS key to use for securing the runtime endpoints. The key can also come fro
 ```yaml
 runtime:
   tls:
-    ...
     key: |
       -----BEGIN PRIVATE KEY-----
-      ...
+      (private key contents)
       -----END PRIVATE KEY-----
 ```
 
@@ -286,7 +313,6 @@ The path to the TLS PEM-encoded key file. Only one of `key` or `key_file` must b
 ```yaml
 runtime:
   tls:
-    ...
     key_file: /path/to/key.pem
 ```
 
@@ -323,7 +349,6 @@ Path to a PEM-encoded CA bundle used to verify client certificates. The file is 
 ```yaml
 runtime:
   tls:
-    ...
     client_auth_ca_file: /path/to/client-ca.pem
 ```
 
@@ -334,7 +359,6 @@ Inline PEM (or `${ secrets:... }`) form of the client CA bundle. Mutually exclus
 ```yaml
 runtime:
   tls:
-    ...
     client_auth_ca: |
       -----BEGIN CERTIFICATE-----
       ...

@@ -57,7 +57,7 @@ Long-running search responses (very large `LIMIT`, deep pagination, or expensive
 ## Capacity & Sizing
 
 - **Throughput**: Bounded by the Elasticsearch cluster's request handling and (for kNN) HNSW search cost. Plan refresh intervals and concurrent query load to stay within the cluster's tested capacity.
-- **Result size**: The connector issues a single `_search` request per query, returning at most 10,000 hits (bounded by the Elasticsearch `index.max_result_window` setting). Queries with `LIMIT N` fetch `min(N, 10000)` rows. For result sets larger than 10,000, accelerate the dataset.
+- **Result size**: For queries with `LIMIT N` where N ≤ 10,000, the connector issues a single `_search` request. For larger result sets or queries without `LIMIT`, the connector automatically paginates using Point-In-Time (PIT) + `search_after`, fetching all matching documents in 10,000-hit batches (bounded by the Elasticsearch `index.max_result_window` setting per batch).
 - **Mapping fetches**: At dataset registration the connector fetches the index mapping once via `GET /<index>/_mapping`. Mapping changes after registration are not picked up until the runtime restarts.
 
 ## Search Routing
