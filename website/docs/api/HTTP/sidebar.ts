@@ -74,6 +74,24 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Evaluations",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/list",
+          label: "List Evals",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/post-eval",
+          label: "Run Eval",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "Iceberg",
       items: [
         {
@@ -178,6 +196,12 @@ const sidebar: SidebarsConfig = {
       type: "category",
       label: "Tools",
       items: [
+        {
+          type: "doc",
+          id: "api/HTTP/list",
+          label: "List Tools",
+          className: "api-method get",
+        },
         {
           type: "doc",
           id: "api/HTTP/post",

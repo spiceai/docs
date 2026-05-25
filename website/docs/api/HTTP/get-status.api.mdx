@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -43,27 +44,24 @@ Return the status of all connections (http, flight, metrics, opentelemetry) in t
   id={"request"}
   as={"h2"}
   className={"openapi-tabs__heading"}
-  children={"Request"}
 >
+  <Translate id="theme.openapi.request.title">Request</Translate>
 </Heading>
 
 <ParamsDetails
-  parameters={[{"name":"format","in":"query","description":"The format of the response, either \"json\" or \"csv\". Defaults to \"json\".","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}}]}
+  {...require("./get-status.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-status.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"List of connection statuses","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","required":["name","endpoint","status"],"properties":{"endpoint":{"type":"string","description":"The endpoint of the connection (e.g., URL or IP address)"},"name":{"type":"string","description":"The name of the connection (e.g., \"http\", \"flight\", \"metrics\", \"opentelemetry\")"},"status":{"description":"The status of the component (e.g., Ready, Initializing, Disabled, Error, etc.)","type":"string","enum":["Initializing","Ready","Disabled","Error","Refreshing","ShuttingDown"],"title":"ComponentStatus"}},"title":"ConnectionDetails"}},"example":[{"name":"http","endpoint":"http://127.0.0.1:8080","status":"Ready"},{"name":"flight","endpoint":"http://127.0.0.1:9000","status":"Initializing"},{"name":"metrics","endpoint":"N/A","status":"Disabled"},{"name":"opentelemetry","endpoint":"http://127.0.0.1:4317","status":"Error"}]},"text/csv":{"schema":{"type":"string"},"example":"name,endpoint,status\nhttp,http://127.0.0.1:8080,Ready\nflight,http://127.0.0.1:9000,Initializing\nmetrics,N/A,Disabled\nopentelemetry,http://127.0.0.1:4317,Error"}}},"500":{"description":"Error converting to CSV","content":{"text/plain":{"schema":{"type":"string"},"example":"Error converting to CSV"}}}}}
+  {...require("./get-status.StatusCodes.json")}
 >
   
 </StatusCodes>

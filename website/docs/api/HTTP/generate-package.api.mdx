@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -43,8 +44,8 @@ This endpoint generates a zip package from a specified GitHub source.
   id={"request"}
   as={"h2"}
   className={"openapi-tabs__heading"}
-  children={"Request"}
 >
+  <Translate id="theme.openapi.request.title">Request</Translate>
 </Heading>
 
 <ParamsDetails
@@ -54,16 +55,13 @@ This endpoint generates a zip package from a specified GitHub source.
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"Parameters required to generate a package","content":{"application/json":{"schema":{"type":"object","required":["from","params"],"properties":{"from":{"type":"string","description":"The GitHub source path in the format `github:{org}/{repo}/{sha}/{path_to_spicepod.yaml}`"},"params":{"type":"object","description":"A key-value map of optional parameters (e.g., `github_token`)","additionalProperties":{"type":"string"},"propertyNames":{"type":"string"}}},"title":"GeneratePackageRequest"},"example":{"from":"github:myorg/myrepo/abc12345/spicepod.yaml","params":{"github_token":"ghp_exampleToken12345"}}}},"required":true}}
+  {...require("./generate-package.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"Package generated successfully","content":{"application/zip":{"schema":{"type":"array","items":{"type":"integer","format":"int32","minimum":0}},"example":"<binary zip file response>"}}},"400":{"description":"Invalid request parameters","content":{"application/json":{"schema":{},"example":{"error":"Invalid `from` field, specify a github source and retry (e.g. github:{org}/{repo}/{sha}/{path_to_spicepod.yaml})"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred"}}}}}}
+  {...require("./generate-package.StatusCodes.json")}
 >
   
 </StatusCodes>

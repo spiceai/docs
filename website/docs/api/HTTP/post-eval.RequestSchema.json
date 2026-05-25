@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"Parameters to run the evaluation","content":{"application/json":{"schema":{"type":"object","description":"Input parameters to start an evaluation run for a given model.","required":["model"],"properties":{"model":{"type":"string"}},"title":"RunEval"},"example":{"model":"example_model"}}},"required":true}}

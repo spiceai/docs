@@ -1,8 +1,8 @@
 ---
 id: operation-id
-title: "Establish an MCP Streamable HTTP Connection"
-description: "Initiates a Streamable HTTP connection using the Model Context Protocol (MCP) to interact with Spice tools."
-sidebar_label: "Establish an MCP Streamable HTTP Connection"
+title: "Establish an MCP SSE Connection"
+description: "Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools."
+sidebar_label: "Establish an MCP SSE Connection"
 hide_title: true
 hide_table_of_contents: true
 api: eJzlU8Fu2zAM/RWCpxZwnGanzbchCIYCKxrA2akLGlVmYmKypEm0t8Lwvw90tjbrPmHWxdYT36Men0cUc8pYPWBnI+4LbCjbxFE4eKzw1rOwEcpgoKY0UFrU5AU2A3nJcFXXm2uwwXuyWgF9Zn8CaQnuQkMO1sEL/RTYpiDBBgdXd+vtNUgA9kLJWIEfLC3UkS2BhOBy+dXrgsvn3lv6I0NNAdbxrG+Nh0y+gY5yNifKMLCBw/a+3sFyWC07G5c50wGMbyCRJR4IEuUYfKYM0qbQn1qQljPU9QayJDJdiQWGSMnolW4brF6/HrnBAl8YsBqnAjuSNuixEwkWGI20WOGFPhaYZ/PU6BH75LDCViRWy6UL1rg2ZKne33y4wbcD+KwwNDSQC7FT689MpVp75FOf6OzgYbFQxkOJ017lbJ9Ynmc9E/nxG+n7XjH2x4DViMLiCCtMvRfu6B/pXUuQdS4NvB5xbMln0npvOi3/GI1tafGu1Oa5IS98ZEp/I1OBev0z8apcrcqbRe+zmCdHCsaQpTP+gnYzg5xbMB7u1tt5PuuXpL3tdkSrUfPyP4dWnqNap80vozPs1do5bePvVD7gsMJi/tcL1GTuC9TwKTKOTybTl+SmSbe/95TmzBQ4mMTzpDRBF3n/tNnhNP0CfeNyCQ==
@@ -19,17 +19,18 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Establish an MCP Streamable HTTP Connection"}
+  children={"Establish an MCP SSE Connection"}
 >
 </Heading>
 
 <MethodEndpoint
   method={"get"}
-  path={"/v1/mcp"}
+  path={"/v1/mcp/sse"}
   context={"endpoint"}
 >
   
@@ -37,10 +38,10 @@ import Heading from "@theme/Heading";
 
 
 
-Initiates a Streamable HTTP connection using the Model Context Protocol (MCP) to interact with Spice tools.
+Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools.
 
 
-             Once connected, clients can send messages via `POST /v1/mcp` with an `Mcp-Session-Id` header and receive responses through this stream.
+             Once connected, clients can send messages via `POST /v1/mcp/sse` and receive responses through this SSE stream.
 
 <ParamsDetails
   parameters={undefined}
@@ -49,16 +50,13 @@ Initiates a Streamable HTTP connection using the Model Context Protocol (MCP) to
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./operation-id.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{}}
+  {...require("./operation-id.StatusCodes.json")}
 >
   
 </StatusCodes>

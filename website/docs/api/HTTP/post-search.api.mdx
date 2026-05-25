@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -46,8 +47,8 @@ The datasets queries should have an embedding column, and the appropriate embedd
   id={"request"}
   as={"h2"}
   className={"openapi-tabs__heading"}
-  children={"Request"}
 >
+  <Translate id="theme.openapi.request.title">Request</Translate>
 </Heading>
 
 <ParamsDetails
@@ -57,16 +58,13 @@ The datasets queries should have an embedding column, and the appropriate embedd
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"Search request parameters","content":{"application/json":{"schema":{"allOf":[{"type":"object","required":["text"],"properties":{"additional_columns":{"type":"array","items":{"type":"string"},"description":"Additional columns to return from the dataset. If the column is a primary key, it will be\n returned within the response under `.primary_key`, not `.data`."},"datasets":{"type":["array","null"],"items":{"type":"string"},"description":"The datasets to search for similarity. If None, search across all datasets. For available datasets, use the `list_datasets` tool and ensure `can_search_documents==true`."},"limit":{"type":["integer","null"],"description":"Number of documents to return for each dataset","minimum":0},"text":{"type":"string","description":"The text to search documents for similarity"},"where":{"type":["string","null"],"description":"An SQL filter predicate to apply. Format: 'WHERE `where_cond`'."}},"title":"SearchRequestBaseJson"},{"type":"object","properties":{"keywords":{"type":["array","null"],"items":{"type":"string"}}}}],"description":"HTTP request schema is separate from AI requests, so that keywords can be supplied as an optional field for HTTP calls.\n`schemars` doesn't allow setting `#[serde(default)]` as well as `#[schemars(required)]` - the field does not become required.\nWhen the field is not required, the model ignores it.","title":"SearchRequestHTTPJson"},"example":{"datasets":["app_messages"],"text":"Tokyo plane tickets","where":"user=1234321","additional_columns":["timestamp"],"limit":3,"keywords":["plane","tickets"]}}},"required":true}}
+  {...require("./post-search.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"Search completed successfully","content":{"application/json":{"schema":{"type":"object","required":["results","duration_ms"],"properties":{"duration_ms":{"type":"integer","description":"Total time taken to execute the search, in milliseconds","minimum":0},"results":{"type":"array","items":{"type":"object","required":["matches","score","dataset"],"properties":{"data":{"type":"object","description":"Addditional data from the `dataset` requested by the user.","additionalProperties":{},"propertyNames":{"type":"string"}},"dataset":{"type":"string","description":"The name of the dataset where the match was found"},"matches":{"type":"object","description":"The matches for this result","additionalProperties":{"oneOf":[{},{"type":"array","items":{}}],"title":"MatchType"},"propertyNames":{"type":"string"}},"metadata":{"type":"object","additionalProperties":{},"propertyNames":{"type":"string"}},"primary_key":{"type":"object","description":"Primary key(s) identifying the matched item in the dataset","additionalProperties":{},"propertyNames":{"type":"string"}},"score":{"type":"number","format":"double","description":"The similarity of the match to the query"}},"title":"Match"},"description":"List of matches that were found in the datasets"}},"title":"SearchResponse"},"example":{"results":[{"matches":{"message":"I booked use some tickets"},"dataset":"app_messages","primary_key":{"id":"6fd5a215-0881-421d-ace0-b293b83452b5"},"data":{"timestamp":1724716542},"score":0.914321},{"matches":{"message":"direct to Narata"},"dataset":"app_messages","primary_key":{"id":"8a25595f-99fb-4404-8c82-e1046d8f4c4b"},"data":{"timestamp":1724715881},"score":0.83221},{"matches":{"message":"Yes, we're sitting together"},"dataset":"app_messages","primary_key":{"id":"8421ed84-b86d-4b10-b4da-7a432e8912c0"},"data":{"timestamp":1724716123},"score":0.787654321}],"duration_ms":42}}}},"400":{"description":"Invalid request parameters","content":{"application/json":{"schema":{},"example":{"error":"No data sources provided"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{},"example":{"error":"Unexpected internal server error occurred"}}}}}}
+  {...require("./post-search.StatusCodes.json")}
 >
   
 </StatusCodes>

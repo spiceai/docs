@@ -1,0 +1,70 @@
+---
+id: post-eval
+title: "Run Eval"
+description: "Evaluate a model against a eval spice specification"
+sidebar_label: "Run Eval"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVV0uP2zYQ/ivEnBqUfm5SNLqlwR4CBGmw3VxqG14uNbaYSqRCUt4Ysv57MaJkSba6WxS9xBdTw+E8vhkOZ0rwYu8gWsHtQaSF8MpoBxsOMTppVU7fELWbyATLTIwpE3uhtPNMMDyIlLlcSWQuR6l2StZSgIPJ0dbrDzFEkBvnt8QNHHJhRYYeLakuQYsMIQp/HBRpzIVP4NKMTyJDZnbMJ1jrDfYyb5gtSKHFb4WyGEPkbYEcnEwwExCV4I85aXDeKr2HqtoEZnT+NxMfiWOo6fPZwEb6hU7gII32qD2dFXmeNm7PvjoSUF7rNo9fUfornz7ovPAsH+hzXljPhO47STbsjGWC7dUBdYjDdOD0CmoihS+3BL5X6MiCQB6BgYNXPiXSXaEpyFBxwO8iy4l4PtiStuG7ooNDrGuCy412QeNyPr8G9XbojSukROd2RZoe/z887zC36FB7V4estSpgd4noBXy5VZmwx+1fSAZ5leFWmrTIiC8WXjgkfQEEDs4LXzhaSGMplTlk6K2S7joC7emrGFyaf58g0700bw6ywmFc+3CRhxQva43dZuic2GOnYdWp0EWaXl9qUlWfZc1Zpq6u1k6oFGPOjE/QPimH7OGT0fhAeltnXwzJO5aJnBwKJ2r/6jz3CSrLpLEhSrHSe0a6kbAUcaxIgEg/D6BsdOkie0QLHHbGZsJDBLEpHlMkyxrsj1Qv3Hje/8OVGMMoVLxnAtBPmxclftHqW4FMxai92im0I0Lr1Ky6xOqECmsF5abymI15dqnto3KekG8kBS/UVTWrztn8rxAJvCOV+Cec7qecrUEaqhce4zXQZ0gjWqOX01dQDW/Xy0pVhs6LLGdKx3Vl0Hv2lOClI+xJOCYtCo8xMzbg2KtyVIHuCn3XFIWLajeII5DU7WJ58/rNRS2IYDlfvp4slpPF2/vFMrp5Hb355c9eiYggO24v68VlEe0Q78CCq8tMN7eXB6tmuThXnSXd695NbPZnQsrCCnmEaD59++bMPaTf1JXc43c/k+5Ax89o9MHgPe954xevveDBBz6wmjfm8saste6g5GPQ8Q4uPgCJn5HhfA2rNaxb/2hJidUSlrTcrIGvoeyxnd0lWkCif+hq+6ZaA7SQ5KlQegjKz5P+b/g1Rr3keG5vTNy4hhG+tWa934n1osdOrBe/Hk/7tNA61Lhur7nh9XoQXCLUv7aiBJ4m1Oz532lo5g+DZpe/9DWWwifW5fCJDZKYndg5jVvw+sKbVOXNYslOrFxDl5kRa/M2tyiVU0Y3xJvqh0GUesbQMiSmHQbqOcAnEMHssJgRxm5WUm9QUXVDe2jHg8JS+Uy8z6PZLDVSpIlxPvp1/nZ+9VJ8pG0W4wFTk2eoPQuSpuy90Tu1LyyyJ+UT9jCZkMSHKdAw4FAWVvljrU/kKrwBqw3tUQd61w0Lt9ftcff6Kr0z9XPWPDi20HT5xl9RGppi1rGkSiK9StF5InqXC5ngZDklR7uWYbhTcSCoguDFdLGYzieFdl603ZBxPhO6J/au0Ow2TGIDs8quCf+PI1/zjPfqZ8VD/Mom2Cs40OtVhxs4RLVJGw4UUtoty0fh8ItNq4rI3wq0dSQ4HIRVtU8Uo1g5WscQ7UTq8BlHfrprOvxX7KX5cdT6tvPS1HfV3SlEABxCl1CbX20qDgmKmEKzKput98GEyT0J6I5eDTcVb0+8kxJz/yzvpneJPv/+xz1weGwmWAoTpZx4orFGPAUzTR5m+qgMtBJSofdF3V1AkEm/vwF9wSKR
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Run Eval"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/evals/{name}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Evaluate a model against a eval spice specification
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./post-eval.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-eval.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-eval.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

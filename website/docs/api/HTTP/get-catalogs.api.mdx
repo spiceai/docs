@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -43,27 +44,24 @@ List Catalogs
   id={"request"}
   as={"h2"}
   className={"openapi-tabs__heading"}
-  children={"Request"}
 >
+  <Translate id="theme.openapi.request.title">Request</Translate>
 </Heading>
 
 <ParamsDetails
-  parameters={[{"name":"from","in":"query","description":"Filters catalogs by source (e.g., 'spiceai').","required":false,"schema":{"type":["string","null"]}}]}
+  {...require("./get-catalogs.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-catalogs.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"List of catalogs","content":{"application/json":{"schema":{"type":"object","required":["from","name"],"properties":{"from":{"type":"string"},"name":{"type":"string"}},"title":"CatalogResponseItem"},"example":[{"from":"spiceai","name":"spiceai"}]},"text/csv":{"schema":{"type":"string"},"example":"\nfrom,name\nspiceai,spiceai\n"}}},"500":{"description":"Internal server error occurred while processing catalogs","content":{"application/json":{"schema":{},"example":{"error":"An unexpected error occurred while processing the catalogs"}}}}}}
+  {...require("./get-catalogs.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -46,16 +47,13 @@ This endpoint returns the Iceberg Catalog API configuration, including details a
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-config.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"API configuration retrieved successfully","content":{"application/json":{"schema":{},"example":{"overrides":{},"defaults":{},"endpoints":["GET /v1/iceberg/namespaces","HEAD /v1/iceberg/namespaces/{namespace}","GET /v1/iceberg/namespaces/{namespace}/tables","HEAD /v1/iceberg/namespaces/{namespace}/tables/{table}","GET /v1/iceberg/namespaces/{namespace}/tables/{table}"]}}}}}}
+  {...require("./get-config.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -46,16 +47,13 @@ This endpoint returns a 200 OK response if the namespace exists, otherwise it re
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./head-namespace.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"Namespace exists"},"404":{"description":"Namespace does not exist"}}}
+  {...require("./head-namespace.StatusCodes.json")}
 >
   
 </StatusCodes>

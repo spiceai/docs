@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Namespace exists"},"404":{"description":"Namespace does not exist"}}}

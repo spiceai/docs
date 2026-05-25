@@ -1,125 +1,73 @@
 ---
 id: patch-dataset-acceleration
-title: 'Update Refresh SQL'
+title: "Update Refresh SQL"
 description: "Update the refresh SQL for a dataset's acceleration."
-sidebar_label: 'Update Refresh SQL'
+sidebar_label: "Update Refresh SQL"
 hide_title: true
 hide_table_of_contents: true
 api: eJztVt9v2zYQ/leIe+kWKLJddMCmhwJZmqEDUmxzU/QhNRxaPFtsKVIhT3YMQf/7cJTkH7EXbNjj5hdL4vH48fvuPrIBkqsA2T28kyQDUoBZAgpD7nVF2lnI4FOlJKGgAoXHpcdQiI9/3Iql80IK1U17FYTMczToJc9Kv9gv9q7QQaBVldOWhDTGbUKcVXNCbVcx5UOfcx4ezYOopJclEvoX0wtJwteWdIkpr4MiL6RdodBBXFwQlpXz0m8vLoS0Smy0McLjGj0Jct2iodI5Vk6l29I8CIVLbfWQmQMsPu2WEB4DSU8pJOCqHsKvCjKoJOXFvMc4P0QICey2wvQ2YGWJkHV/CWjbTS/gOdu8Gw4SbhmR9NkZeeQNGYbHx1p7VJCRrzGBkBdYSsgaoG3FywTy2q6gbWddMAb62aktR5wu1+VVUdVAkrBES1GAAwCvwqA+A8idJbTE+WRVGZ3HXY++Bk7anOJxi6+YE7PimULSGHj0QPt98P2APgFbG3NakMc464BqB3aAKN7hUtaGwk7xozILFeZ6qVEJbePwrh6gbRMgTYZRXx0oOu1YhDYBfJJlxQHPNgAfb25vru/Ehfhl+tsHgVTMPeZoab4wLv8WxOf3N9MbEV/mti4X6MVbMRmPoeVVj0WNH0LlbOioej0en1fvsCc3MuzUDHWeYwjL2phtyrDfjN+cz7BnYyg2zmMd10Bt1b+Re7+neygxBLlC1vO4CoaBk/I91xt9sOhGFoONeAy1oaFp/CDWgZgfuonTntRnQu4wDEZ4Rr49I20U7IdzklxZoS2ht9KIgH6NXqD3zguX57X3qMSm0AaPTfBAw/8Y231biaXUBlUq/jF9B9SlUZc2gRKpcDuDjl5MBWQwWk9GfYmHUcMu246euXa3ZmfZteemLoiqbDQyLpemcIGyH8c/jU/IuuVhoXCNxlXRl7pMqbh2dqlXtUex0VSIh8tLzviQAntzwLz2mrZxPVnp+Tfk5xmPsd7TvXff/JXrDF7Pp8rSRV17EfoD7Kyy0fGU2IcYnSMrle3OqqtK5gVevk55u1qhJXYJfzzSJsCEdYkn6WSSji9rG0guTFS9coFKaQ/S9veJ6VHNHwFs9i3w/+3j4PbR9yvhE40qI7VlgmOVNn2J38N6wmwOl7kEsv7GcVTnswS4lDm+aRYy4Cdv2pY/P9boYwUmsJZeRxW5NpUO/KwgW0oT8AXBvpv2LvS9+Ft3mbOb6j9KuwUGYmp+gwRie3SF1M7aBAqUiivyvumHrjscl3ecYD/1xEfbZJjBh3xFL8bODizl96u76/eQwKK/TpVOxVaTGzZguelwukhMd8fhbw0YaVd153ldUv79CfhKCg4=
-sidebar_class_name: 'patch api-method'
+sidebar_class_name: "patch api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
 proxy: http://localhost:8090
 ---
 
-import MethodEndpoint from '@theme/ApiExplorer/MethodEndpoint'
-import ParamsDetails from '@theme/ParamsDetails'
-import RequestSchema from '@theme/RequestSchema'
-import StatusCodes from '@theme/StatusCodes'
-import OperationTabs from '@theme/OperationTabs'
-import TabItem from '@theme/TabItem'
-import Heading from '@theme/Heading'
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
-<Heading as={'h1'} className={'openapi__heading'} children={'Update Refresh SQL'}></Heading>
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update Refresh SQL"}
+>
+</Heading>
 
 <MethodEndpoint
-  method={'patch'}
-  path={'/v1/datasets/{name}/acceleration'}
-  context={'endpoint'}
-></MethodEndpoint>
+  method={"patch"}
+  path={"/v1/datasets/{name}/acceleration"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
 
 Update the refresh SQL for a dataset's acceleration.
 
-This endpoint updates the `refresh_sql` parameter for a dataset's acceleration at runtime.
+This endpoint allows for updating the `refresh_sql` parameter for a dataset's acceleration at runtime.
 The change is **temporary** and will revert to the `spicepod.yml` definition at the next runtime restart.
 
 <Heading
-  id={'request'}
-  as={'h2'}
-  className={'openapi-tabs__heading'}
-  children={'Request'}
-></Heading>
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
 
 <ParamsDetails
-  parameters={[
-    {
-      name: 'name',
-      in: 'path',
-      description: 'The name of the dataset to update.',
-      required: true,
-      schema: { type: 'string' }
-    }
-  ]}
-></ParamsDetails>
+  {...require("./patch-dataset-acceleration.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
 
 <RequestSchema
-  title={'Body'}
-  body={{
-    description: "The updated SQL statement for the dataset's refresh.",
-    content: {
-      'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            refresh_sql: {
-              type: ['string', 'null'],
-              description:
-                'SQL statement used for the refresh. Defaults to the `refresh_sql` specified in the spicepod.'
-            }
-          },
-          title: 'AccelerationRequest'
-        },
-        example: { refresh_sql: 'SELECT * FROM eth_recent_blocks WHERE block_number > 100' }
-      }
-    },
-    required: true
-  }}
-></RequestSchema>
+  {...require("./patch-dataset-acceleration.RequestSchema.json")}
+>
+  
+</RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{
-    '200': { description: 'The refresh SQL was updated successfully.' },
-    '404': {
-      description: 'The specified dataset was not found',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            required: ['message'],
-            properties: {
-              message: {
-                type: 'string',
-                description: 'The message describing the result of the request'
-              }
-            },
-            title: 'MessageResponse'
-          },
-          example: { message: 'Dataset eth_recent_blocks not found' }
-        }
-      }
-    },
-    '500': {
-      description: 'An internal server error occurred while updating the refresh SQL',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            required: ['message'],
-            properties: {
-              message: {
-                type: 'string',
-                description: 'The message describing the result of the request'
-              }
-            },
-            title: 'MessageResponse'
-          },
-          example: {
-            message: 'Request failed. An internal server error occurred while updating refresh SQL.'
-          }
-        }
-      }
-    }
-  }}
-></StatusCodes>
+  {...require("./patch-dataset-acceleration.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
