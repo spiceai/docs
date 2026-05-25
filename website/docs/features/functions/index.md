@@ -223,6 +223,31 @@ body: |
 
 The query's output columns must match the declared `returns` schema.
 
+### Filter pushdown with args
+
+Scalar args are inlined as literals before logical planning, so they participate in filter pushdown. This makes it possible to parameterize a table function against connectors that require concrete filter values — for example, the HTTP connector's `request_path`:
+
+```yaml
+functions:
+  - name: hn_user
+    from: sql
+    kind: table
+    signature:
+      args:
+        - { name: username, type: utf8 }
+      returns:
+        - { name: username, type: utf8 }
+        - { name: karma, type: utf8 }
+    body: |
+      SELECT
+        json_get_str(content, 'username') AS username,
+        json_get_str(content, 'karma')    AS karma
+      FROM raw_users
+      WHERE request_path = concat('/users/', (SELECT username FROM args))
+```
+
+Calling `SELECT * FROM hn_user('pg')` resolves the `(SELECT username FROM args)` subquery to the literal `'pg'` before planning, so the resulting `WHERE request_path = '/users/pg'` predicate is pushed down to the HTTP connector.
+
 ## Volatility
 
 Volatility tells the optimizer how the function behaves across calls. Pick the strongest level that's actually true — the default (`volatile`) is the safest but disables constant folding, query-level caching, and pushdown.
