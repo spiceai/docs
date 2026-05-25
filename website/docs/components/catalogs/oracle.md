@@ -67,10 +67,10 @@ Connection can be configured using a connection string or individual parameters.
 
 ### Wallet parameters (for Oracle Cloud ADB)
 
-| Parameter Name           | Description                                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| `oracle_wallet`          | Path to the Oracle wallet directory for mTLS connections.                                 |
-| `oracle_wallet_sso_cert` | Path to the Oracle wallet certificate file, or base64-encoded wallet certificate content. |
+| Parameter Name           | Description                                                                                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `oracle_wallet`          | Path to the Oracle wallet directory used for mTLS connections. Also used as the destination directory when `oracle_wallet_sso_cert` is set. Default: `.oracle`. |
+| `oracle_wallet_sso_cert` | Base64-encoded `cwallet.sso` (wallet auto-login certificate) content. The runtime writes the decoded certificate to `oracle_wallet`.                     |
 
 ## Authentication
 
