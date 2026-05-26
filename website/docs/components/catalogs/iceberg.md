@@ -46,7 +46,6 @@ catalogs:
       iceberg_s3_session_token: ${secrets:aws_session_token} # Optional. Session token for the S3-compatible endpoint.
       iceberg_s3_role_arn: arn:aws:iam::123456789012:role/my-role # Optional. ARN of the IAM role to assume when accessing the S3-compatible endpoint.
       iceberg_s3_role_session_name: my-session # Optional. Session name to use when assuming the IAM role.
-      iceberg_s3_connect_timeout: 60 # Optional. Connection timeout for the S3-compatible endpoint (default: 60).
 
   # AWS Glue Catalog (see also the [AWS Glue Catalog Connector documentation](./glue))
   - from: iceberg:https://glue.us-east-1.amazonaws.com/iceberg/v1/catalogs/123456789012/namespaces
@@ -125,7 +124,7 @@ The following parameters are supported for configuring the connection to the Ice
 | `iceberg_s3_role_session_name` | An optional identifier for the assumed role session for auditing purposes.                                                                                                                           |
 | `iceberg_s3_role_arn`          | The Amazon Resource Name (ARN) of the role to assume. If provided instead of iceberg_s3_access_key_id and iceberg_s3_secret_access_key, temporary credentials will be fetched by assuming this role. |
 | `iceberg_s3_iam_role_source`   | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
-| `iceberg_s3_connect_timeout`   | Configure socket connection timeout, in seconds (default: `60`).                                                                                                                                     |
+| `iceberg_s3_connect_timeout`   | Connection timeout in seconds for the S3-compatible endpoint. Default: `60`. **Note:** This parameter is currently accepted but has no effect — it is not consumed by any code path.                |
 | `iceberg_gcs_project_id`      | The Google Cloud project ID for GCS storage.                                                                                                                                                         |
 | `iceberg_gcs_credentials`     | Base64-encoded Google Cloud service account credentials JSON for GCS storage.                                                                                                                        |
 | `iceberg_gcs_token`           | OAuth2 token to use for GCS authentication.                                                                                                                                                          |
