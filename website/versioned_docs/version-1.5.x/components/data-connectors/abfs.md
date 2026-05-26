@@ -74,7 +74,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                                                                                        |
 | `abfs_proxy_url`            | Proxy URL                                                                                                                                                                                                       |
 | `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                                                                                    |
-| `abfs_proxy_exludes`        | A list of hosts to exclude from proxy connections                                                                                                                                                               |
+| `abfs_proxy_excludes`        | A list of hosts to exclude from proxy connections                                                                                                                                                               |
 | `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                                                                                    |
 | `allow_http`                | Allow insecure HTTP connections                                                                                                                                                                                 |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                |
@@ -82,11 +82,15 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 #### Authentication parameters
 
-The following parameters are used when authenticating with Azure. Only one of these parameters can be used at a time:
+The following authentication methods are mutually exclusive — only one can be used at a time:
 
 - `abfs_access_key`
 - `abfs_bearer_token`
-- `abfs_client_secret`
+- `abfs_sas_string`
+- Client credentials (`abfs_client_id` + `abfs_client_secret` + `abfs_tenant_id`)
+- `abfs_use_cli`
+- `abfs_msi_endpoint`
+- `abfs_federated_token_file`
 - `abfs_skip_signature`
 
 If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)

@@ -6,9 +6,9 @@ sidebar_position: 3
 pagination_next: null
 ---
 
-DuckDB can be used as a vector engine in Spice to store embeddings and execute vector similarity search using HNSW indexes via the [DuckDB VSS](https://duckdb.org/docs/extensions/vss) extension. This is useful when a dataset is already accelerated with DuckDB and a fully embedded, single-process vector store is preferred over an external service.
+DuckDB can be used as a vector engine in Spice to store embeddings and execute vector similarity search using HNSW indexes via the [DuckDB VSS](https://duckdb.org/docs/extensions/vss) extension. This is useful when a dataset or view is already accelerated with DuckDB and a fully embedded, single-process vector store is preferred over an external service.
 
-The DuckDB vector engine requires the dataset to be accelerated with the [DuckDB accelerator](../data-accelerators/duckdb). Spice computes embeddings on the configured columns during refresh and write, stores them in the DuckDB accelerator alongside the source data, and creates an HNSW index that is used to answer `vector_search` and `/v1/search` queries.
+The DuckDB vector engine requires the dataset or view to be accelerated with the [DuckDB accelerator](../data-accelerators/duckdb). Spice computes embeddings on the configured columns during refresh and write, stores them in the DuckDB accelerator alongside the source data, and creates an HNSW index that is used to answer `vector_search` and `/v1/search` queries.
 
 ```yaml
 datasets:
@@ -33,6 +33,36 @@ datasets:
 embeddings:
   - from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2
     name: local_embedding_model
+```
+
+### View example
+
+Accelerated views also support DuckDB HNSW vector indexes. Configure `columns[].embeddings` and `vectors` on the view:
+
+```yaml
+views:
+  - name: review_title_view
+    sql: select review_date, review_id, product_title, review_body from amazon_reviews
+    columns:
+      - name: product_title
+        embeddings:
+          - from: local_embedding_model
+    acceleration:
+      enabled: true
+      engine: duckdb
+      primary_key: review_id
+      mode: memory
+    vectors:
+      enabled: true
+      engine: duckdb
+      params:
+        duckdb_distance_metric: cosine
+```
+
+```sql
+SELECT product_title
+FROM vector_search(review_title_view, 'wireless headphones')
+LIMIT 10;
 ```
 
 ## Parameters
@@ -90,8 +120,8 @@ The DuckDB VSS extension is installed and loaded automatically by the runtime; n
 
 :::warning[Limitations]
 
-- A dataset or view must be accelerated with the DuckDB accelerator (`datasets[].acceleration.engine: duckdb`) for the DuckDB vector engine to be used.
-- The dataset must have a resolvable primary key, either via the underlying schema or an explicit [`row_id`](../../reference/spicepod/datasets#columnsembeddingsrow_id).
+- The dataset or view must be accelerated with the DuckDB accelerator (`acceleration.engine: duckdb`) for the DuckDB vector engine to be used.
+- The dataset or view must have a resolvable primary key, either via the underlying schema or an explicit [`row_id`](../../reference/spicepod/datasets#columnsembeddingsrow_id).
 - [Chunking](../../reference/spicepod/datasets#columns-embeddings-chunking) is not yet supported for the DuckDB vector engine.
 - `partition_by` is not yet supported for the DuckDB vector engine.
 - `spill_writes` is not supported for the DuckDB vector engine.

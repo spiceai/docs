@@ -1,7 +1,7 @@
 ---
 title: 'Kubernetes Deployment'
 sidebar_label: 'Kubernetes'
-sidebar_position: 4
+sidebar_position: 5
 description: 'Deploy Spice.ai on Kubernetes using Helm, Argo CD, or Flux.'
 tags:
   - deployment

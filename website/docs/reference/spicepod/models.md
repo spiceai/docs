@@ -123,6 +123,41 @@ Which tools should be made available to the model. Supported values: `auto`, `al
 
 The name of an embedding model (defined in the `embeddings` section) to use for searchable tool discovery. Required when `tools: search_registry` is set. When `tools: auto` is used, this model enables registry-based discovery if the tool count exceeds the auto-search threshold (20 tools). If only one embedding model is configured, it is used automatically.
 
+#### `params.prompt_cache_key`
+
+Optional. A stable key forwarded to the LLM provider to enable prompt/prefix caching. When set, Spice maps this key into the provider-native caching mechanism:
+
+| Provider | Behavior |
+| --- | --- |
+| OpenAI / Azure OpenAI | Passed through on Chat and Responses API requests |
+| Anthropic | Adds `cache_control: { type: "ephemeral" }` to the request |
+| Google Gemini | Maps to `cached_content.name` (must be a valid cached-content resource name) |
+| xAI (Grok) | Sent as the `x-grok-conv-id` HTTP header |
+| AWS Bedrock (Converse) | Appends a native `CachePoint` block |
+| Databricks (hosted Claude) | Adds Claude-style `cache_control` to the last content part |
+| Local (mistral-rs) | Paged-attention scheduling is enabled automatically on supported backends (CUDA + Unix) |
+
+```yaml
+models:
+  - from: openai:gpt-4o
+    name: my_model
+    params:
+      prompt_cache_key: "schema-context"
+```
+
+#### `params.prompt_cache_retention`
+
+Optional. Retention hint for prompt caching, applicable to the OpenAI Responses API only. For example, `"24h"` requests that the cached content be retained for 24 hours.
+
+```yaml
+models:
+  - from: openai:gpt-4o
+    name: my_model
+    params:
+      prompt_cache_key: "schema-context"
+      prompt_cache_retention: "24h"
+```
+
 ### `datasets`
 
 Optional. A list of [dataset names](./datasets#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.

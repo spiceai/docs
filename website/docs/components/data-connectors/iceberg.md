@@ -114,7 +114,7 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_s3_role_arn`          | ARN of the IAM role to assume when accessing the S3-compatible endpoint.                                                                                                                       |
 | `iceberg_s3_role_session_name` | Session name to use when assuming the IAM role.                                                                                                                                                |
 | `iceberg_s3_iam_role_source`   | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
-| `iceberg_s3_connect_timeout`   | Connection timeout in seconds for the S3-compatible endpoint. Default: `60`                                                                                                                    |
+| `iceberg_s3_connect_timeout`   | Connection timeout in seconds for the S3-compatible endpoint. Default: `60`. **Note:** This parameter is currently accepted but has no effect — it is not consumed by any code path.            |
 | `iceberg_sigv4_enabled`        | Enable SigV4 (AWS Signature Version 4) authentication when connecting to the catalog. Automatically enabled if the URL in `from` is an AWS Glue catalog. Default: `false`                      |
 | `iceberg_signing_region`       | Region to use for SigV4 authentication. Extracted from the URL in `from` if not specified.                                                                                                     |
 | `iceberg_signing_name`         | Service name to use for SigV4 authentication. Default: `glue`.                                                                                                                                 |
@@ -264,7 +264,7 @@ INSERT INTO my_table
 SELECT * FROM source_table;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported via equality delete files. `UPDATE` operations are not currently supported.
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 

@@ -122,7 +122,7 @@ datasets:
 | Parameter Name | Description                                        |
 | -------------- | -------------------------------------------------- |
 | `pg_host`      | Hostname or IP address of the Redshift cluster     |
-| `pg_port`      | Port for Redshift (default: 5439)                  |
+| `pg_port`      | The PostgreSQL TCP port. Redshift uses port `5439` by default — set this explicitly. |
 | `pg_sslmode`   | SSL mode (e.g., `prefer`)                          |
 | `pg_db`        | Database name                                      |
 | `pg_user`      | Username for authentication                        |

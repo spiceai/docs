@@ -23,7 +23,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 `spicepod.yaml`
@@ -39,7 +39,7 @@ datasets:
       mode: memory # / file
       engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
-      refresh_mode: full / append # / changes / caching
+      refresh_mode: full / append # / changes / caching / snapshot
 ```
 
 Relative path example:
@@ -255,7 +255,7 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 Supports one of two values:
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete
+- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
 - `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
 
 ```yaml
@@ -303,34 +303,38 @@ LIMIT 1;
 
 If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
 
-## `load`
+## Deferred dataset initialization
 
-Optional. Controls when the dataset is loaded by the runtime. Defaults to `on_startup`.
+Datasets can defer connector creation and schema inference until the first query by combining `ready_state: on_registration` with fully declared `columns[].type` entries. When every column has an explicit type, the runtime registers a placeholder table with the declared Arrow schema at startup — SQL planning and federation analysis work against this schema **without contacting the source**. On first query, the placeholder is swapped for the real provider.
 
-- `on_startup` (default): The dataset is initialized during runtime startup — the connector is created, schema is inferred, and acceleration (if configured) begins immediately.
-- `on_demand`: The dataset is **not** initialized at startup. Initialization is deferred until the first SQL query that references the dataset, or until an explicit refresh is triggered via `POST /v1/datasets/{name}/acceleration/refresh`.
-
-When a dataset is configured with `load: on_demand`, the runtime:
-- Parses and validates the dataset configuration at startup, but does **not** create the connector, infer the schema, or start any refresh tasks.
-- Reports the dataset status as `NotLoaded` until it is triggered.
-- On the first query (or explicit refresh), initializes the dataset transparently — subsequent queries proceed normally.
-- Coordinates concurrent triggers so the dataset is only initialized once.
+A dataset is eligible for deferred initialization when:
+- It is read-only.
+- `ready_state: on_registration` is set.
+- It has no embedding or full-text-search columns.
+- Every column has an explicit [`columns[].type`](#columnstype).
 
 ```yaml
 datasets:
-  - from: postgres:public.large_table
-    name: large_table
-    load: on_demand
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: my_db
-      pg_user: ${secrets:pg_user}
-      pg_pass: ${secrets:pg_pass}
+  - from: https://api.example.com/data.json
+    name: my_data
+    ready_state: on_registration
+    columns:
+      - name: id
+        type: bigint
+      - name: name
+        type: text
+      - name: created_at
+        type: timestamptz
 ```
 
-:::tip
-Use `load: on_demand` for large or infrequently accessed datasets to reduce startup time and resource consumption. The dataset will be loaded transparently on first access.
+When deferred initialization is active, the runtime:
+- Registers the dataset immediately with the declared schema — queries can reference the table in planning before the source is contacted.
+- On the first query that references the dataset, initializes the connector and loads the real data transparently.
+- Coordinates concurrent triggers so the dataset is only initialized once.
+- Supports acceleration — after deferred initialization, the acceleration table, refresh loop, and health monitor are set up normally.
+
+:::warning[Breaking change]
+`load: on_demand` has been removed. Replace it with `ready_state: on_registration` combined with explicit `columns[].type` declarations.
 :::
 
 ## `acceleration`
@@ -357,13 +361,38 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
-- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
-- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb` and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+
+## `acceleration.storage_profile`
+
+Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (`duckdb`, `sqlite`, `turso`, and Spice Cayenne); memory-mode accelerators ignore this setting.
+
+Supported values:
+
+- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. On other platforms, detection returns unknown and the engine defaults apply.
+- `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
+- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Reduces connection-pool size and raises DuckDB's checkpoint threshold so per-IO latency is amortized across larger flushes. Spice Cayenne uses smaller per-file targets to reduce write amplification.
+- `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Raises DuckDB's checkpoint threshold so steady-state workloads don't pay checkpoint cost on small amounts of dirty data; Spice Cayenne uses larger per-file targets to improve scan throughput.
+
+Example:
+
+```yaml
+datasets:
+  - from: s3://bucket/data/
+    name: analytics
+    acceleration:
+      engine: duckdb
+      mode: file
+      storage_profile: ebs
+      params:
+        duckdb_file: /mnt/ebs/analytics.db
+```
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -436,6 +465,16 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
+
+## `acceleration.write_mode`
+
+Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write` and the source connector supports writes.
+
+Supported values:
+
+- `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
+- `write_back` – Writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to the federated source. Choose this for write throughput when eventual consistency at the source is acceptable.
 
 ## `acceleration.refresh_check_interval`
 
@@ -1020,6 +1059,41 @@ The `metadata` field serves two purposes:
     ```
 
     If a data file already contains a column with the same name as a metadata column, the metadata column is not added.
+
+## `full_text_search` {#dataset-full-text-search}
+
+Optional. Dataset-level full-text search engine configuration. When absent, the built-in Tantivy in-process engine is used (controlled by column-level [`columns[*].full_text_search`](#columns-search-full-text) settings).
+
+## `full_text_search.enabled`
+
+Enable or disable the dataset-level FTS engine, defaults to `true`.
+
+## `full_text_search.engine`
+
+The full-text search engine to use. Currently only `elasticsearch` is supported. When absent, the built-in Tantivy engine is used.
+
+## `full_text_search.params`
+
+Optional. Engine-specific connection and tuning parameters. See [Full-Text Search — Elasticsearch](../../features/search/full-text#using-elasticsearch-as-the-fts-engine) for available parameters.
+
+```yaml
+datasets:
+  - from: file:./articles.parquet
+    name: articles
+    acceleration:
+      enabled: true
+    full_text_search:
+      engine: elasticsearch
+      params:
+        elasticsearch_endpoint: http://localhost:9200
+        elasticsearch_index: articles-fts
+    columns:
+      - name: body
+        full_text_search:
+          enabled: true
+          row_id:
+            - id
+```
 
 ## `vectors`
 

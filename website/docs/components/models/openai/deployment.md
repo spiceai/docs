@@ -26,7 +26,7 @@ API keys must be sourced from a [secret store](../../secret-stores/) in producti
 
 ### OpenAI-Compatible Providers
 
-Set `endpoint` to target any OpenAI-compatible provider (Azure OpenAI, xAI, Groq, Together, on-prem vLLM, etc.). See the [OpenAI model reference](./) for provider-specific configuration examples. When using the Responses API (`responses_api: enabled`), confirm the target provider implements OpenAI's Responses API.
+Set `endpoint` to target any OpenAI-compatible provider (Azure OpenAI, xAI, Groq, Together, on-prem vLLM, etc.). See the [OpenAI model reference](./) for provider-specific configuration examples. The `/v1/responses` endpoint works with all OpenAI-compatible providers through automatic format adaptation. When setting `responses_api: enabled` (which proxies Chat Completions through the Responses API backend), confirm the target provider implements OpenAI's Responses API natively.
 
 ## Resilience Controls
 
@@ -64,9 +64,11 @@ The built-in rate controller queues and paces outbound requests to stay within t
 
 ### Responses API
 
+All configured models are registered for the `/v1/responses` endpoint. For OpenAI-compatible providers, Spice automatically adapts between Chat Completions and Responses API formats, so `/v1/responses` works even when the backend only supports `/v1/chat/completions`.
+
 | Parameter              | Default    | Description                                                                                    |
 | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| `responses_api`        | `disabled` | `enabled` routes `/v1/responses` traffic through the OpenAI Responses API.                     |
+| `responses_api`        | `disabled` | Controls the Chat Completions backend. `disabled` proxies `/v1/chat/completions` to the backend's `/v1/chat/completions`. `enabled` proxies `/v1/chat/completions` to the backend's `/v1/responses`, which can improve tool-use and reasoning for providers that natively support the Responses API. |
 | `openai_responses_tools`| -         | Comma-separated list of OpenAI-hosted tools (`code_interpreter`, `web_search`) exposed via Responses. |
 
 Note: Responses API hosted tools are **not** available from the `/v1/chat/completions` endpoint.
@@ -118,5 +120,5 @@ Chat and Responses operations emit these [task history](../../../reference/task_
 | `401 Unauthorized`                           | Wrong / revoked API key.                               | Rotate the key, update the secret store.                                                             |
 | `429 rate_limit_exceeded`                    | Tier budget too low or burst exceeds concurrency.      | Raise `openai_usage_tier`, reduce `max_concurrency`, or upgrade the OpenAI tier.                     |
 | `429 tokens_per_min` errors despite pacing   | Spice rate-limits requests, not tokens.                | Reduce per-request token budget; throttle via `max_concurrency`.                                     |
-| Responses API returns `404`                  | Provider does not implement Responses.                 | Set `responses_api: disabled`; or point at a Responses-capable endpoint.                             |
+| Responses API returns `404`                  | Provider does not implement Responses natively and `responses_api: enabled` is set. | Set `responses_api: disabled` (default) to use the automatic Chat Completions adapter for `/v1/responses`. |
 | Slow first-token latency                     | `stream=false` waits for full completion.              | Use `stream=true` for interactive chat.                                                              |

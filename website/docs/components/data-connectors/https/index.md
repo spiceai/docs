@@ -209,7 +209,7 @@ datasets:
 | `pagination_link_header`       | Optional. Whether to follow HTTP `Link` headers with `rel="next"` for pagination. Default: `enabled`. Set to `disabled` to ignore `Link` headers.                                                                                                                                 |
 | `pagination_token_param`       | Optional. When set, the value from `pagination_next_pointer` is treated as a cursor/token and passed as this query parameter name in subsequent requests. When not set, the value is treated as a full URL.                                                                       |
 | `pagination_data_pointer`      | Optional. JSON pointer ([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901)) to the data array in each page's response (e.g., `/data`, `/results`, `/items`). When set, only the array at this path is returned as data rows.                                               |
-| `pagination_max_pages`         | Optional. Maximum number of pages to fetch. Default: `100`.                                                                                                                                                                                                                       |
+| `pagination_max_pages`         | Optional. Maximum number of pages to fetch. Default: `100`. Set to `nolimit` to disable the page cap and fetch all available pages.                                                                                                                                                |
 | `pagination_data_map_to_array` | Optional. When `enabled`, if the data at `pagination_data_pointer` (or the top-level response) is a JSON object/map, extracts its values as rows instead of treating it as a single row. Default: `disabled`. Requires pagination to be enabled.                                  |
 | `pagination_query_params`      | Optional. Query parameter template for client-driven pagination. Supports `{offset}`, `{limit}`, and `{page}` variables (e.g., `offset={offset}&limit={limit}`). Requires `pagination_page_size`. Mutually exclusive with `pagination_next_pointer` and `pagination_token_param`. |
 | `pagination_page_size`         | Optional. Number of items per page for query-parameter pagination. Must be a positive integer. Expands `{limit}` in `pagination_query_params` and detects the last page (fewer results than `page_size` means done). Requires `pagination_query_params`.                          |
@@ -412,6 +412,42 @@ WHERE request_path = '/api/data';
 :::note
 When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), transient HTTP error responses (5xx server errors and 429 Too Many Requests) are automatically excluded from the cache. These responses are still returned to the querying client but are not persisted, preventing temporary failures from polluting cached data.
 :::
+
+### Metadata Columns with JSON Schema Decomposition
+
+When a dataset uses JSON schema decomposition (`metadata.json_object: "*"`), columns whose names match a reserved HTTP metadata field are populated from the HTTP request/response — with their original Arrow types — instead of being decomposed from the JSON body. This lets a single dataset expose both decomposed body columns and typed HTTP metadata.
+
+Reserved metadata field names: `request_path`, `request_query`, `request_body`, `request_headers`, `content`, `response_status`, `response_headers`, `fetched_at`.
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com/shows
+    name: tvmaze_shows
+    columns:
+      - name: request_path        # Utf8, from HTTP request metadata
+      - name: response_status     # UInt16, from HTTP response metadata
+      - name: fetched_at          # Timestamp(ns), from response Date header
+      - name: id                  # Utf8, decomposed from JSON body
+      - name: name                # Utf8, decomposed from JSON body
+      - name: premiered           # Utf8, decomposed from JSON body
+      - name: details             # catch-all for remaining JSON keys
+        metadata:
+          json_object: "*"
+```
+
+```sql
+SELECT id, name, response_status, fetched_at
+FROM tvmaze_shows
+WHERE request_path = '/shows/1' AND response_status = 200;
+```
+
+Metadata columns retain their native types (`UInt16` for `response_status`, `Timestamp(Nanosecond)` for `fetched_at`, `Map(String, String)` for `response_headers`), while body-derived columns are `Utf8`.
+
+**Collision rules:**
+
+- A JSON body key that collides with a reserved metadata name is dropped — it does not shadow the real HTTP value and does not leak into the catch-all column.
+- Declaring the catch-all column itself (`json_object: "*"`) with a reserved metadata name is rejected at registration time.
+- Datasets that don't use JSON schema decomposition are unaffected.
 
 ### Endpoint Validation
 

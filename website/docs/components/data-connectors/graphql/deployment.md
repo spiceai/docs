@@ -36,7 +36,7 @@ Use HTTPS endpoints in production. Self-signed certificates require a trusted CA
 
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408/429/5xx plus transient network errors are retried with fibonacci backoff capped at 300s. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+HTTP-level retries cover 408 (request timeout) and 5xx (server errors) plus transient network errors. 429 responses are handled proactively by the built-in rate limiter rather than retried. Retries use fibonacci backoff with a maximum of 5 attempts.
 
 ### Pagination
 
@@ -77,7 +77,7 @@ GraphQL requests participate in [task history](../../../reference/task_history) 
 
 | Symptom                                        | Likely cause                                          | Resolution                                                                                  |
 | ---------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `401 Unauthorized`                             | Wrong or expired token in `graphql_auth_header`.      | Rotate the token; verify the header format (`Bearer` prefix, etc.).                          |
+| `401 Unauthorized`                             | Wrong or expired token in `graphql_auth_token`.      | Rotate the token; verify the header format (`Bearer` prefix, etc.).                          |
 | Rows missing from the dataset                  | Wrong `json_pointer`.                         | Inspect the response payload; JSON pointer must navigate to the array of rows.              |
 | Refresh fails mid-pagination                   | Rate-limit or transient network failure.              | Reduce refresh frequency; the connector will retry on retriable errors. Narrow the query.   |
 | Query cost exceeded                            | Query requests too many nested fields.                | Simplify the query; fetch only required fields.                                             |

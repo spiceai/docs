@@ -127,7 +127,11 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 ## `runtime.params`
 
-Optional. Global key-value parameters for the runtime. HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+Optional. Global key-value parameters for the runtime.
+
+### HTTP Rate Control
+
+HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
 
 | Parameter Name                    | Description                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -144,6 +148,60 @@ runtime:
     http_requests_per_second_limit: 5
     http_requests_per_minute_limit: 200
 ```
+
+### Spatial SQL Functions (opt-in)
+
+PostGIS-style spatial `ST_*` SQL functions (via [`geodatafusion`](https://github.com/datafusion-contrib/geodatafusion)) can be optionally registered with the SQL engine.
+
+| Parameter Name | Description                                                                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `geo`          | Set to `enabled` to register `ST_*` spatial functions. Requires a `spiced` binary built with the `geo` Cargo feature (`cargo build -p spiced --features geo`). Unset by default.       |
+
+Both gates must be satisfied: the binary must be built with `--features geo` **and** `runtime.params.geo: enabled` must be set in the Spicepod. Standard distributions of `spiced` do not include the `geo` feature, so spatial functions remain unregistered unless you produce a custom build.
+
+```yaml
+runtime:
+  params:
+    geo: enabled
+```
+
+```sql
+SELECT ST_AsText(ST_Point(0.0, 0.0)) AS geom;
+-- POINT(0 0)
+```
+
+## `runtime.source_rate_control`
+
+Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
+
+Without `state_location`, rate limits are local to each Spice instance. When `state_location` is set, Spice instances coordinate through object storage so that a configured limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 RPS total across all replicas, not 20 RPS per replica.
+
+```yaml
+runtime:
+  source_rate_control:
+    state_location: s3://my-bucket/spice/rate-control/
+    refresh_interval: 30s
+    params:
+      s3_region: us-west-2
+      s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
+      s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
+    github_concurrent_connections_limit: 10
+```
+
+| Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
+| ------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `state_location`                      | Yes      | -       | Root URI for globally persisted rate-control state (e.g. `s3://bucket/path/`). Enables cluster-wide rate control when set. Without this, limits are local to each Spice instance.                                                  |
+| `params`                              | Yes      | -       | Object-store authentication parameters for `state_location`. Supports the same keys as other object-store configurations (e.g. `s3_region`, `s3_key`, `s3_secret` for S3; `account`, `access_key` for Azure). Supports `${ secrets:NAME }` references. |
+| `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-source rate-control state. Longer intervals reduce object-store writes but adapt more slowly to demand changes.                                                                 |
+| `github_concurrent_connections_limit` | Yes      | `10`    | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
+
+HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
+
+```text
+dataset param > runtime.params.http_* default > unset
+```
+
+When `state_location` is set, the configured RPS/RPM quota is converted into a token budget per lease window and distributed across replicas using a demand-weighted leased token-bucket model.
 
 ## `runtime.functions`
 
@@ -178,6 +236,15 @@ The TLS section specifies the configuration for enabling Transport Layer Securit
 
 In addition to configuring TLS via the manifest, TLS can also be configured via `spiced` command line arguments using the `--tls-enabled true` flag along with `--tls-certificate`/`--tls-certificate-file` and `--tls-key`/`--tls-key-file`.
 
+### Certificate Hot-Reload
+
+Spice can hot-reload TLS certificates and client CA files for runtime endpoints. Update the certificate, key, or CA file on disk, then send `SIGHUP` to the Spice process to reload without restart. Only file-based certificates/keys/CA are hot-reloaded (not inline PEM). Existing connections are not interrupted; only new connections use the updated files. If reload fails, the previous certificate remains active and a warning is logged.
+
+**Steps:**
+1. Replace the certificate/key/CA file on disk.
+2. Send `SIGHUP` to the Spice process (e.g., `kill -SIGHUP <pid>`).
+3. Check logs for reload confirmation or errors.
+
 ### `runtime.tls.enabled`
 
 Enables or disables TLS for the runtime endpoints.
@@ -196,7 +263,6 @@ The TLS certificate to use for securing the runtime endpoints. The certificate c
 ```yaml
 runtime:
   tls:
-    ...
     certificate: |
       -----BEGIN CERTIFICATE-----
       ...
@@ -217,7 +283,6 @@ The path to the TLS PEM-encoded certificate file. Only one of `certificate` or `
 ```yaml
 runtime:
   tls:
-    ...
     certificate_file: /path/to/cert.pem
 ```
 
@@ -228,10 +293,9 @@ The TLS key to use for securing the runtime endpoints. The key can also come fro
 ```yaml
 runtime:
   tls:
-    ...
     key: |
       -----BEGIN PRIVATE KEY-----
-      ...
+      (private key contents)
       -----END PRIVATE KEY-----
 ```
 
@@ -249,8 +313,56 @@ The path to the TLS PEM-encoded key file. Only one of `key` or `key_file` must b
 ```yaml
 runtime:
   tls:
-    ...
     key_file: /path/to/key.pem
+```
+
+### `runtime.tls.client_auth_mode`
+
+:::info Enterprise Feature
+mTLS (client certificate authentication) is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
+:::
+
+Controls whether the runtime requires, requests, or ignores client certificates on its public endpoints (HTTP, Flight, Metrics). Defaults to `none`.
+
+| Mode | Behavior |
+|------|----------|
+| `none` *(default)* | Standard one-way TLS. No client certificate is requested. |
+| `request` | The server sends a `CertificateRequest` but accepts connections without a certificate. Presented certificates are verified against the configured CA. Useful for migration or audit-only deployments. |
+| `required` | A valid client certificate is required. The Flight (gRPC) listener rejects connections without a certificate at the TLS handshake. The HTTP listener admits no-cert connections so `/health` and `/v1/ready` remain accessible for Kubernetes probes, but all other HTTP endpoints return 401 without a verified client certificate. The metrics listener has no client-auth gate. |
+
+Requires `client_auth_ca_file` or `client_auth_ca` to be set when mode is `request` or `required`.
+
+```yaml
+runtime:
+  tls:
+    enabled: true
+    certificate_file: /path/to/cert.pem
+    key_file: /path/to/key.pem
+    client_auth_mode: required
+    client_auth_ca_file: /path/to/client-ca.pem
+```
+
+### `runtime.tls.client_auth_ca_file`
+
+Path to a PEM-encoded CA bundle used to verify client certificates. The file is watched for changes and reloaded atomically alongside the server certificate and key.
+
+```yaml
+runtime:
+  tls:
+    client_auth_ca_file: /path/to/client-ca.pem
+```
+
+### `runtime.tls.client_auth_ca`
+
+Inline PEM (or `${ secrets:... }`) form of the client CA bundle. Mutually exclusive with `client_auth_ca_file`. Inline material is loaded once at startup and is not hot-reloaded.
+
+```yaml
+runtime:
+  tls:
+    client_auth_ca: |
+      -----BEGIN CERTIFICATE-----
+      ...
+      -----END CERTIFICATE-----
 ```
 
 ## `runtime.task_history`
@@ -553,6 +665,39 @@ runtime:
 | --------------------------- | -------- | ------- | -------------------------------------------------------------------- |
 | `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
+
+## `runtime.mcp`
+
+Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
+
+### `runtime.mcp.allowed_hosts`
+
+Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This prevents [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks against the MCP server.
+
+| Behavior | Configuration |
+| --- | --- |
+| **Default** (not set) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
+| **Explicit list** | Replaces the defaults entirely. Only the listed hosts are accepted. |
+| **Wildcard** (`["*"]`) | Disables host checking — all `Host` header values are accepted. |
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - localhost
+      - my-host.internal:8090
+```
+
+To disable host checking entirely:
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - "*"
+```
+
+Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
 
 ## `runtime.ready_state`
 

@@ -18,6 +18,8 @@ Locally accelerated datasets can also have [primary key constraints](data-accele
 
 [Acceleration snapshots](data-acceleration/snapshots) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
+For larger datasets, [partitioning](data-acceleration/partitioning) splits the acceleration into smaller physical units (Hive-style files, per-partition tables, or in-memory tables) keyed by an expression. Queries that filter on the partitioning column read only the relevant partitions, dramatically reducing scan size.
+
 ## Example Use Case
 
 Consider a high-volume e-trading frontend application backed by an AWS RDS database containing a table of trades. To retrieve all trades over the last 24 hours, the application would need to query the remote database and transfer the data over the network. By accelerating the trades table locally using the [AWS RDS Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme), the data is brought to the application, saving round trip time and data transfer time.
@@ -38,9 +40,10 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 | ---------- | -------------------------------------------------- | ------------------------------------------------- |
 | `arrow`    | Read-heavy analytics, in-memory speed              | `memory`                                          |
 | `duckdb`   | Complex analytical queries, file-based persistence | `memory`, `file`, `file_create`, or `file_update` |
-| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `file`, `file_create`, or `file_update`           |
+| `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, `file_create`, or `file_update` |
 | `postgres` | When a full SQL database is needed as accelerator  | External                                          |
 | `cayenne`  | Large datasets (1TB+), high-performance columnar   | `file`, `file_create`, or `file_update`           |
+| `turso`    | Embedded libSQL, lightweight file-based caching    | `memory`, `file`, `file_create`, or `file_update` |
 
 ## Example
 

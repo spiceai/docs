@@ -22,7 +22,15 @@ spice sql [flags]
 - `--client-tls-certificate-file <file>` The path to the client certificate file for mTLS authentication. Required when connecting to a cluster node that enforces mutual TLS. Must be used together with `--client-tls-key-file`.
 - `--client-tls-key-file <file>` The path to the client private key file for mTLS authentication. Must be used together with `--client-tls-certificate-file`.
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
+- `-x`, `--expanded` Start the REPL in expanded view, rendering each column on its own line per record. Useful for wide tables. Can be toggled at runtime with the `.expanded` meta-command.
 - `-h`, `--help` Print this help message.
+
+#### REPL Meta-commands
+
+Inside the REPL, the following meta-commands are available:
+
+- `.expanded` Toggle expanded (column-per-line) display, similar to PostgreSQL's `\x`. Pass `.expanded on` or `.expanded off` to set the mode explicitly.
+- `help` Print the list of available commands.
 
 ### Examples
 
@@ -57,6 +65,22 @@ $ spice sql --tls-root-certificate-file /path/to/ca.pem \
   --client-tls-certificate-file /path/to/client-cert.pem \
   --client-tls-key-file /path/to/client-key.pem
 Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+```
+
+#### Expanded view for wide tables
+
+Use `--expanded` (or `-x`) to start the REPL with each column on its own line, which is easier to read when tables are wider than the terminal. The mode can also be toggled at runtime with `.expanded`:
+
+```shell
+$ spice sql --expanded
+Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+
+sql> SELECT * FROM eth.recent_blocks LIMIT 1;
+-[ RECORD 1 ]----------+----------------------------------------
+number                 | 18000000
+hash                   | 0x9c2f1e8...
+timestamp              | 2023-08-14T00:00:00Z
+gas_used               | 12500000
 ```
 
 #### Remote and Cloud Examples

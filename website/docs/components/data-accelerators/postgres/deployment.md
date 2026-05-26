@@ -29,7 +29,7 @@ The accelerator uses the same Postgres wire-protocol authentication as the [Post
 | `pg_user`             | Postgres user. Must have `CREATE`, `INSERT`, `UPDATE`, `DELETE`, `SELECT` on the target schema. |
 | `pg_pass`             | Password. Use `${secrets:...}` to resolve from a configured secret store.  |
 | `pg_sslmode`          | TLS mode: `disable` / `prefer` / `require` / `verify-ca` / `verify-full`.  |
-| `pg_sslrootcert`      | CA bundle path or inline PEM content for `verify-ca` / `verify-full`.      |
+| `pg_sslrootcert`      | CA bundle file path for `verify-ca` / `verify-full`.      |
 
 For production, use `pg_sslmode: verify-full` and source passwords from a [secret store](../../secret-stores/). The accelerator sets `application_name` on each connection to the Spice.ai version, which surfaces in `pg_stat_activity` for attribution.
 
@@ -43,7 +43,7 @@ The accelerator creates and writes tables in the configured database. Grant the 
 
 | Parameter                 | Default | Description                                                             |
 | ------------------------- | ------- | ----------------------------------------------------------------------- |
-| `connection_pool_min`     | `5`     | Minimum idle connections held by the pool.                              |
+| `pg_connection_pool_min`  | `5`     | Minimum idle connections held by the pool.                              |
 | `connection_pool_size`    | `10`    | Maximum connections the pool will open.                                 |
 
 `connection_pool_min <= connection_pool_size` is enforced at startup; mismatched values are rejected as configuration errors.

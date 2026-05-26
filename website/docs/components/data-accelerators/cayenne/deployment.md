@@ -58,7 +58,7 @@ For point-lookup-heavy workloads, size `cayenne_segment_cache_mb` generously —
 
 | Parameter             | Description                                               |
 | --------------------- | --------------------------------------------------------- |
-| `upload_concurrency`  | Parallel segment uploads during refresh / append commits. |
+| `cayenne_upload_concurrency` | Parallel segment uploads during refresh / append commits. |
 
 For S3 Express One Zone, 8–16 parallel uploads typically maximize throughput. For standard S3 across regions, higher concurrency helps hide per-request latency.
 
@@ -72,7 +72,24 @@ Vortex compression typically delivers 2–4× better compression than Parquet Sn
 
 ## Metrics
 
-Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne-specific OpenTelemetry instruments are not currently registered at the runtime layer; use Cayenne's footer/segment cache hit rates surfaced via query plan explain and the generic acceleration counters.
+Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne also registers the following OpenTelemetry instruments for CDC ingestion and scan-path observability, all tagged by `dataset`:
+
+### CDC Apply Metrics
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `dataset_acceleration_cdc_apply_burst_duration_ms` | Histogram | ms | Duration to apply one coalesced CDC burst. |
+| `dataset_acceleration_cdc_apply_burst_bytes` | Histogram | bytes | Arrow in-memory bytes in one coalesced CDC apply burst. |
+| `dataset_acceleration_cdc_apply_burst_envelopes` | Histogram | envelopes | Number of source envelopes in one coalesced CDC apply burst. |
+| `dataset_acceleration_cdc_apply_fixed_cost_ms` | Histogram | ms | Duration for fixed-cost phases of CDC apply (with `phase` label: `finalize_wait`, `commit_wait`, etc.). |
+
+### Scan-Path Metrics
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_scan_listing_table_cache_entries` | Gauge | entries | Number of entries in the scan `ListingTable` cache. Cleared on snapshot change (compaction/sort/overwrite). |
+| `cayenne_listing_fence_wait_duration_ms` | Histogram | ms | Time spent waiting on listing-fence reads during scans. |
+| `cayenne_listing_scan_duration_ms` | Histogram | ms | Duration of listing-table scans. |
 
 See [Component Metrics](../../../features/observability/component_metrics) for enabling and exporting metrics.
 

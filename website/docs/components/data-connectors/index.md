@@ -57,6 +57,7 @@ Supported Data Connectors include:
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `iceberg`                          | [Apache Iceberg][iceberg]             | Stable            | Parquet                      |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, JSON           |
+| `gcs`, `gs`                        | Google Cloud Storage                  | Alpha             | Parquet, CSV, JSON           |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, JSON           |
 | `smb`                              | SMB                                   | Alpha             | Parquet, CSV, JSON           |
 | `nfs`                              | NFS                                   | Alpha             | Parquet, CSV, JSON           |
@@ -70,7 +71,7 @@ Supported Data Connectors include:
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
-| `ducklake`                         | DuckLake                              | Alpha             | Parquet                      |
+| `ducklake`                         | DuckLake                              | Beta              | Parquet                      |
 | `scylladb`                         | ScyllaDB                              | Alpha             | CQL, Alternator (DynamoDB)   |
 | `adbc`                             | [ADBC][adbc]                          | Alpha             | Arrow (ADBC)                 |
 | `elasticsearch`                    | [Elasticsearch][elasticsearch]        | Alpha             | Elasticsearch REST           |

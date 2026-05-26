@@ -1,7 +1,7 @@
 ---
 title: 'Functions'
 sidebar_label: 'Functions'
-description: 'Define custom scalar SQL functions inline (SQL tier) or by calling remote HTTP services (Remote tier), automatically exposed as SQL functions and LLM tools.'
+description: 'Define custom scalar and table SQL functions inline (SQL tier) or by calling remote HTTP services (Remote tier), automatically exposed as SQL functions and LLM tools.'
 sidebar_position: 11
 pagination_prev: null
 pagination_next: null
@@ -12,7 +12,7 @@ tags:
   - tools
 ---
 
-Functions extend Spice's SQL engine with custom scalar logic declared in your Spicepod. Each function can be:
+Functions extend Spice's SQL engine with custom logic declared in your Spicepod. Functions can be **scalar** (one value per row) or **table** (returning multiple rows and columns). Each function can be:
 
 - **Called directly in SQL** like any built-in function (`SELECT my_fn(col) FROM ...`).
 - **Surfaced to LLMs as tools** for tool-calling workflows.
@@ -169,6 +169,85 @@ The runtime sends a single HTTP `POST` per batch with `Content-Type: application
 
 Calls to remote functions require the runtime to be configured with [`runtime.auth.api-key`](../../reference/spicepod/runtime#runtimeauth) — they execute under the read-write API key context.
 
+## Table Functions
+
+Table functions (`kind: table`) return multiple rows and columns instead of a single scalar value. They are called using standard SQL table-function syntax: `SELECT ... FROM my_table_fn(args)`.
+
+### Declaring a table function
+
+Set `kind: table` and provide `returns` as a list of output columns (instead of a single type string):
+
+```yaml
+functions:
+  - name: emit_pair
+    from: sql
+    kind: table
+    description: Emit an input row and its successor.
+    volatility: immutable
+    signature:
+      args: [{ name: x, type: int64 }]
+      returns:
+        - { name: value, type: int64 }
+        - { name: doubled, type: int64 }
+    body: |
+      SELECT x AS value, x * 2 AS doubled FROM args
+      UNION ALL
+      SELECT x + 1 AS value, (x + 1) * 2 AS doubled FROM args
+```
+
+```sql
+SELECT value, doubled FROM emit_pair(4) ORDER BY value;
+-- value | doubled
+-- ------+--------
+--     4 |       8
+--     5 |      10
+```
+
+### Key differences from scalar functions
+
+| Aspect | Scalar | Table |
+| --- | --- | --- |
+| `kind:` | `scalar` (default) | `table` |
+| `signature.returns:` | Single Arrow type string (e.g., `int64`) | List of `{name, type}` output columns |
+| `body:` (SQL tier) | Single SQL expression | Full SQL `SELECT` query |
+| LLM tool exposure | `as_tool: true` (default) | Always SQL-only |
+
+### SQL body for table functions
+
+The `body` of a SQL table function is a complete `SELECT` query (not an expression). Scalar arguments are exposed through a virtual one-row table named `args`:
+
+```yaml
+body: |
+  SELECT x AS value, x * 2 AS doubled FROM args
+```
+
+The query's output columns must match the declared `returns` schema.
+
+### Filter pushdown with args
+
+Scalar args are inlined as literals before logical planning, so they participate in filter pushdown. This makes it possible to parameterize a table function against connectors that require concrete filter values — for example, the HTTP connector's `request_path`:
+
+```yaml
+functions:
+  - name: hn_user
+    from: sql
+    kind: table
+    signature:
+      args:
+        - { name: username, type: utf8 }
+      returns:
+        - { name: username, type: utf8 }
+        - { name: karma, type: utf8 }
+    body: |
+      SELECT
+        json_get_str(content, 'username') AS username,
+        json_get_str(content, 'karma')    AS karma
+      FROM raw_users
+      WHERE request_path = concat('/users/', (SELECT username FROM args))
+```
+
+Calling `SELECT * FROM hn_user('pg')` resolves the `(SELECT username FROM args)` subquery to the literal `'pg'` before planning, so the resulting `WHERE request_path = '/users/pg'` predicate is pushed down to the HTTP connector.
+
 ## Volatility
 
 Volatility tells the optimizer how the function behaves across calls. Pick the strongest level that's actually true — the default (`volatile`) is the safest but disables constant folding, query-level caching, and pushdown.
@@ -235,7 +314,7 @@ The `list_udfs()` UDTF returns every function registered in the runtime, includi
 | ------------- | --------------------------------------------------------------------- |
 | `name`        | Function identifier.                                                  |
 | `source`      | `user` for declared functions, `builtin` for Spice/DataFusion ones.    |
-| `kind`        | `scalar` for user functions, `NULL` for built-ins.                    |
+| `kind`        | `scalar` or `table` for user functions, `NULL` for built-ins.         |
 | `volatility`  | `immutable` / `stable` / `volatile`.                                  |
 | `from`        | `sql`, `http://...`, or `https://...`.                                |
 | `description` | The declared description, if any.                                     |
@@ -250,7 +329,7 @@ Returns a JSON array of user functions only (built-ins are excluded). Each entry
 
 ## Functions as LLM tools
 
-Every declared function is automatically callable from LLMs as a tool with the same name and description. This lets a model reason in natural language and then invoke `haversine_km(...)` or `classify_intent(...)` directly.
+Every declared scalar function is automatically callable from LLMs as a tool with the same name and description. This lets a model reason in natural language and then invoke `haversine_km(...)` or `classify_intent(...)` directly. Table functions (`kind: table`) are always SQL-only and are not surfaced as LLM tools.
 
 :::tip[Many functions? Use the Tool Registry]
 A Spicepod with many functions can quickly cross the threshold where injecting every function definition into every chat turn becomes expensive. The [Tool Registry](../tool-registry/index.md) replaces individual tool definitions with searchable `tool_search` / `tool_invoke` meta-tools, typically saving ~10× the per-turn tool-definition tokens. Set `tools: auto` on the model and the registry kicks in automatically once the function count crosses the threshold.

@@ -32,7 +32,7 @@ datasets:
 
 ## Overview
 
-Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB or SQLite) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
+Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB, SQLite, Cayenne, or Turso) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
 
 ## How it works
 
@@ -61,19 +61,19 @@ Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The
 snapshots:
   enabled: true
   location: s3://some_bucket/some_folder/ # Folder where snapshots are written
-  bootstrap_on_failure_behavior: warn     # retry | fallback | warn
+  bootstrap_on_failure_behavior: warn # retry | fallback | warn
   params:
-    s3_auth: iam_role                     # Defaults to iam_role for snapshots
+    s3_auth: iam_role # Defaults to iam_role for snapshots
 ```
 
 ### Supported storage backends
 
-| Backend | URL scheme | Environment variables |
-| --- | --- | --- |
-| Amazon S3 | `s3://` | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.) |
-| Azure ADLS Gen2 | `abfss://`, `abfs://` | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
-| Google Cloud Storage | `gs://` | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity |
-| Local filesystem | Absolute or relative path | N/A |
+| Backend              | URL scheme                | Environment variables                                                                                                       |
+| -------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Amazon S3            | `s3://`                   | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.)                                               |
+| Azure ADLS Gen2      | `abfss://`, `abfs://`     | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
+| Google Cloud Storage | `gs://`                   | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity                                                                         |
+| Local filesystem     | Absolute or relative path | N/A                                                                                                                         |
 
 When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
 
@@ -95,13 +95,14 @@ Each dataset opts into snapshotting through the `acceleration.snapshots` field. 
 - `disabled` – disable snapshot usage for this dataset. (Default.)
 
 Complete configuration:
+
 ```yaml
 acceleration:
-  snapshots: enabled | disabled          # default: disabled
-  snapshots_trigger: <trigger_mode>      # see trigger modes below
-  snapshots_trigger_threshold: <value>   # threshold for time_interval or stream_batches
-  snapshots_compaction: enabled | disabled  # default: disabled (DuckDB only)
-  snapshots_reset_expiry_on_load: enabled | disabled  # default: disabled (DuckDB only with Caching refresh mode)
+  snapshots: enabled | disabled # default: disabled
+  snapshots_trigger: <trigger_mode> # see trigger modes below
+  snapshots_trigger_threshold: <value> # threshold for time_interval or stream_batches
+  snapshots_compaction: enabled | disabled # default: disabled (DuckDB only)
+  snapshots_reset_expiry_on_load: enabled | disabled # default: disabled (DuckDB only with Caching refresh mode)
 ```
 
 ### Snapshot triggers
@@ -287,9 +288,10 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).
 
+For the production deployment pattern that uses snapshots to separate ingest from read workloads, see [Read/Write Separation](../../deployment/read-write-separation).
+
 :::warning[Limitations]
 
 - Only datasets are supported for snapshots. Views are not supported.
-- When using Cayenne accelerations, snapshots are supported only when one dataset is configured per spicepod.
 
 :::

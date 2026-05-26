@@ -66,27 +66,35 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 | Parameter name              | Description                                                                                                                                         |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`. Refer to [File Formats](./#file-formats) for details. |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details. |
 | `abfs_account`              | Azure storage account name                                                                                                                          |
+| `abfs_container_name`       | Azure container name                                                                                                                                |
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                        |
 | `abfs_endpoint`             | Storage endpoint, default: `https://{account}.blob.core.windows.net`                                                                                |
-| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator                                                                                                |
+| `abfs_use_emulator`         | Use `true` or `false` to connect to a local emulator. Default: `false`                                                                              |
+| `abfs_use_fabric_endpoint`  | Use Microsoft Fabric endpoint. Default: `false`                                                                                                     |
 | `abfs_authority_host`       | Alternative authority host, default: `https://login.microsoftonline.com`                                                                            |
 | `abfs_proxy_url`            | Proxy URL                                                                                                                                           |
 | `abfs_proxy_ca_certificate` | CA certificate for the proxy                                                                                                                        |
 | `abfs_proxy_excludes`       | A list of hosts to exclude from proxy connections                                                                                                   |
 | `abfs_disable_tagging`      | Disable tagging objects. Use this if your backing store doesn't support tags                                                                        |
 | `allow_http`                | Allow insecure HTTP connections                                                                                                                     |
+| `client_timeout`            | Optional. Timeout for Azure client operations.                                                                                                      |
+| `abfs_versioning`           | Enable Azure blob versioning. Default: `disabled`                                                                                                   |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                    |
 | `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                      |
 
 #### Authentication parameters
 
-The following parameters are used when authenticating with Azure. Only one of these parameters can be used at a time:
+The following authentication methods are mutually exclusive — only one can be used at a time:
 
 - `abfs_access_key`
 - `abfs_bearer_token`
-- `abfs_client_secret`
+- `abfs_sas_string`
+- Client credentials (`abfs_client_id` + `abfs_client_secret` + `abfs_tenant_id`)
+- `abfs_use_cli`
+- `abfs_msi_endpoint`
+- `abfs_federated_token_file`
 - `abfs_skip_signature`
 
 If none of these are set the connector will default to using a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
@@ -107,7 +115,7 @@ If none of these are set the connector will default to using a [managed identity
 
 | Parameter name                  | Description                                  |
 | ------------------------------- | -------------------------------------------- |
-| `abfs_max_retries`              | Maximum retries                              |
+| `abfs_max_retries`              | Maximum retries. Default: `3`                |
 | `abfs_retry_timeout`            | Total timeout for retries (e.g., `5s`, `1m`) |
 | `abfs_backoff_initial_duration` | Initial retry delay (e.g., `5s`)             |
 | `abfs_backoff_max_duration`     | Maximum retry delay (e.g., `1m`)             |

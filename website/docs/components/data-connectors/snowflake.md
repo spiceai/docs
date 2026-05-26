@@ -3,6 +3,9 @@ title: 'Snowflake Data Connector'
 sidebar_label: 'Snowflake Data Connector'
 description: 'Snowflake Data Connector Documentation'
 pagination_prev: null
+tags:
+  - data-connectors
+  - write
 ---
 
 import Tabs from '@theme/Tabs';
@@ -65,21 +68,21 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     ```bash
     # Password-based
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PASSWORD=<password> \
     spice run
     # Key-pair using private key file (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SNOWFLAKE_ACCOUNT=<account-identifier> \
+    SPICE_SNOWFLAKE_USERNAME=<username> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
+    SPICE_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
     spice run
     ```
 
@@ -214,6 +217,36 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
   </TabItem>
 </Tabs>
+
+## Write Support
+
+This connector supports writing data to Snowflake tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert), `UPDATE`, and `DELETE FROM` statements.
+
+To enable writes, set `access: read_write` on the dataset:
+
+```yaml
+datasets:
+  - from: snowflake:DATABASE.SCHEMA.TABLE
+    name: table
+    access: read_write
+    params:
+      snowflake_warehouse: COMPUTE_WH
+      snowflake_role: accountadmin
+```
+
+```sql
+-- Insert rows
+INSERT INTO table (id, name, amount)
+VALUES (1, 'Alice', 100.0), (2, 'Bob', 200.0);
+
+-- Update rows
+UPDATE table SET amount = 150.0 WHERE id = 1;
+
+-- Delete rows
+DELETE FROM table WHERE id = 2;
+```
+
+For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Example
 

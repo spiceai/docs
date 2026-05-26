@@ -17,7 +17,7 @@ Most users invoke `spiced` indirectly via [`spice run`](./run), which installs t
 spiced [flags] [SPICEPOD_PATH]
 ```
 
-If `SPICEPOD_PATH` is omitted, `spiced` uses the current working directory.
+If `SPICEPOD_PATH` is omitted, `spiced` uses the current working directory. When the path resolves to a directory, the runtime loads `spicepod.yaml` (or `spicepod.yml`) from inside it. When the path resolves to a file, any YAML filename is accepted (e.g. `spiced ./configs/my-app.yaml`); the file must declare `kind: Spicepod` and a recognized `version` — otherwise `spiced` exits with an explicit validation error.
 
 ### Runtime flags
 

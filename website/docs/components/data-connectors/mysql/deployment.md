@@ -36,9 +36,9 @@ TLS is controlled via `mysql_sslmode`:
 | ------------- | ---------------------------------------------------------------- |
 | `disabled`    | No TLS.                                                          |
 | `preferred`   | Try TLS, fall back to plaintext. Not recommended for production. |
-| `required`    | Require TLS; do **not** verify the server certificate.           |
+| `required`    | Require TLS and verify the server certificate against system root CAs. |
 
-For production, use `required` with `mysql_sslrootcert` pointing to the CA bundle. The default is `required`, which encrypts the connection but does not validate the server's identity.
+For production, use `required` (the default). To verify against a specific CA rather than the system trust store, also set `mysql_sslrootcert` to the CA bundle path.
 
 ## Resilience Controls
 
@@ -96,7 +96,7 @@ MySQL operations participate in Spice [task history](../../../reference/task_his
 ## Known Limitations
 
 - Only TCP connections are supported. Unix socket connections are not exposed through Spice configuration.
-- TLS with certificate verification (`verify_ca`, `verify_identity`) is not supported; only `disabled`, `preferred`, and `required` modes are available.
+- Only `disabled`, `preferred`, and `required` SSL modes are exposed. The `required` mode verifies the server certificate and domain name (equivalent to `verify_identity`). There is no mode that encrypts without verifying.
 - Large text/blob columns are fetched in their entirety per row; consider selecting only the columns you need when federating.
 - `mysql_sslmode: preferred` silently downgrades to plaintext on TLS negotiation failure and is not recommended for production.
 

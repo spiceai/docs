@@ -13,7 +13,7 @@ The GitHub Data Connector enables federated SQL queries on various GitHub resour
 
 ### `from`
 
-The `from` field specifies the GitHub resource to query. It supports the following formats:
+The `from` field specifies the GitHub resource to query. The owner and repository name are extracted from the path (e.g., `github:github.com/spiceai/spiceai/issues` targets the `spiceai/spiceai` repository). It supports the following formats:
 
 | Format                                         | Description                                               |
 | ---------------------------------------------- | --------------------------------------------------------- |
@@ -72,22 +72,24 @@ With GitHub App Installation authentication, the connector's functionality depen
 | Parameter Name      | Description                                                                                                                                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `github_query_mode` | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`. |
-| `owner`             | Required. Specifies the owner of the GitHub repository.                                                                                                                                                                               |
-| `repo`              | Required. Specifies the name of the GitHub repository.                                                                                                                                                                                |
 
 ## Advanced Configuration
 
 ### Rate Limiting
 
-When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_max_concurrent_connections` runtime parameter. This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+When using multiple GitHub datasets sharing the same GitHub token or GitHub app credentials, it is possible to exceed GitHub's primary and secondary rate limits. To mitigate this, use the `github_concurrent_connections_limit` setting under [`runtime.source_rate_control`](../../reference/spicepod/runtime#runtimesource_rate_control). This connections limit applies per GitHub token and per GitHub app installation, following GitHub's rate limit policy.
+
+:::warning[Deprecated]
+`runtime.params.github_max_concurrent_connections` is deprecated. Use `runtime.source_rate_control.github_concurrent_connections_limit` instead.
+:::
 
 Example Configuration:
 
 ```yaml
 # ... other configuration ...
 runtime:
-  params:
-    github_max_concurrent_connections: 5 # Defaults to 10
+  source_rate_control:
+    github_concurrent_connections_limit: 5 # Defaults to 10
 
 datasets:
   - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
@@ -106,17 +108,13 @@ datasets:
 # ... other configuration ...
 ```
 
-The GitHub connector also supports the shared HTTP rate control parameters for per-dataset concurrency and request rate limits:
+The GitHub connector supports the following HTTP concurrency parameter:
 
 | Parameter Name              | Description                                                                                                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
-| `requests_per_second_limit` | Maximum number of HTTP requests per second to the same upstream origin. Overrides `runtime.params.http_requests_per_second_limit`. If both are unset, no per-second rate limit is applied.    |
-| `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
-| `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Defaults to `5ms` when a request-rate limit is configured.                                                      |
-| `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Defaults to `10ms` when a request-rate limit is configured.                                                     |
 
-Multiple datasets targeting the same GitHub endpoint share the same rate controller.
+The GitHub connector uses its own rate limiter based on GitHub API `X-RateLimit-*` response headers. Multiple datasets targeting the same GitHub endpoint share this rate limiter.
 
 ## Filter Push Down
 
@@ -174,6 +172,7 @@ datasets:
 | ------------ | --------- | ----------- |
 | name         | Utf8      | YES         |
 | path         | Utf8      | YES         |
+| ref          | Utf8      | NO          |
 | size         | Int64     | YES         |
 | sha          | Utf8      | YES         |
 | mode         | Utf8      | YES         |
@@ -315,6 +314,7 @@ datasets:
 | reviews_count   | Int64                                                         | YES         |
 | state           | Utf8                                                          | YES         |
 | title           | Utf8                                                          | YES         |
+| updated_at      | Timestamp                                                     | YES         |
 | url             | Utf8                                                          | YES         |
 
 **Note**: The `discussion` and `review_comments` columns are only included in the schema when the `github_include_comments` parameter is set accordingly.
@@ -414,18 +414,25 @@ datasets:
 
 #### Schema
 
-| Column Name       | Data Type | Is Nullable |
-| ----------------- | --------- | ----------- |
-| additions         | Int64     | YES         |
-| author_email      | Utf8      | YES         |
-| author_name       | Utf8      | YES         |
-| committed_date    | Timestamp | YES         |
-| deletions         | Int64     | YES         |
-| id                | Utf8      | YES         |
-| message           | Utf8      | YES         |
-| message_body      | Utf8      | YES         |
-| message_head_line | Utf8      | YES         |
-| sha               | Utf8      | YES         |
+| Column Name                    | Data Type | Is Nullable |
+| ------------------------------ | --------- | ----------- |
+| additions                      | Int64     | YES         |
+| associated_pull_request_number | Int64     | YES         |
+| author_email                   | Utf8      | YES         |
+| author_name                    | Utf8      | YES         |
+| changed_files                  | Int64     | YES         |
+| committed_date                 | Timestamp | YES         |
+| committer_date                 | Timestamp | YES         |
+| committer_email                | Utf8      | YES         |
+| committer_name                 | Utf8      | YES         |
+| deletions                      | Int64     | YES         |
+| id                             | Utf8      | YES         |
+| message                        | Utf8      | YES         |
+| message_body                   | Utf8      | YES         |
+| message_head_line              | Utf8      | YES         |
+| ref                            | Utf8      | YES         |
+| sha                            | Utf8      | YES         |
+| status                         | Utf8      | YES         |
 
 #### Example
 

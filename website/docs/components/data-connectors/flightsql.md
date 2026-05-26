@@ -36,10 +36,14 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 
 | Parameter name       | Description                                                                                                                                                                                                                                          |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `flightsql_endpoint` | The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                 |
+| `flightsql_endpoint` | Required. The Apache Flight endpoint used to connect to the Flight SQL server.                                                                                                                                                                                 |
 | `flightsql_username` | Optional. The username to use in the underlying Apache flight Handshake Request to authenticate to the server (see [reference](https://arrow.apache.org/docs/format/Flight.html#authentication)).                                                    |
 | `flightsql_password` | Optional. The password to use in the underlying Apache flight Handshake Request to authenticate to the server. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_flightsql_pass}`. |
 | `flightsql_tls_ca_certificate_file` | Optional. Path to a CA certificate file (PEM format) to use for TLS verification instead of system certificates. |
+| `flightsql_tls_client_certificate_file` | Optional. Path to a PEM client certificate chain for mutual TLS (mTLS). Must be set together with `flightsql_tls_client_key_file`. Mutually exclusive with `flightsql_tls_client_certificate`. |
+| `flightsql_tls_client_key_file` | Optional. Path to the PEM private key matching `flightsql_tls_client_certificate_file`. Must be set together with `flightsql_tls_client_certificate_file`. Mutually exclusive with `flightsql_tls_client_key`. |
+| `flightsql_tls_client_certificate` | Optional. Inline PEM client certificate chain for mutual TLS (mTLS). Use the [secret replacement syntax](../secret-stores/) to load from a secret store, e.g. `${secrets:my_cert}`. Must be set together with `flightsql_tls_client_key`. Mutually exclusive with `flightsql_tls_client_certificate_file`. |
+| `flightsql_tls_client_key` | Optional. Inline PEM private key for mutual TLS (mTLS). Use the [secret replacement syntax](../secret-stores/) to load from a secret store, e.g. `${secrets:my_key}`. Must be set together with `flightsql_tls_client_certificate`. Mutually exclusive with `flightsql_tls_client_key_file`. |
 
 ## Secrets
 

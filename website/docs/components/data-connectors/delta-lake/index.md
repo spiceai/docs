@@ -80,7 +80,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 **One** of the following auth values must be provided for Azure Blob:
 
 - `delta_lake_azure_storage_account_key`,
-- `delta_lake_azure_storage_client_id` and `delta_lake_azure_storage_client_secret`, or
+- `delta_lake_azure_storage_client_id`, `delta_lake_azure_storage_client_secret`, and `delta_lake_azure_storage_tenant_id`, or
 - `delta_lake_azure_storage_sas_key`.
   :::
 
@@ -90,6 +90,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
 | `delta_lake_azure_storage_account_key`   | The Azure Storage master key for accessing the storage account.        |
 | `delta_lake_azure_storage_client_id`     | The service principal client id for accessing the storage account.     |
 | `delta_lake_azure_storage_client_secret` | The service principal client secret for accessing the storage account. |
+| `delta_lake_azure_storage_tenant_id`     | The service principal tenant id for accessing the storage account.     |
 | `delta_lake_azure_storage_sas_key`       | The shared access signature key for accessing the storage account.     |
 | `delta_lake_azure_storage_endpoint`      | Optional. The endpoint for the Azure Blob storage account.             |
 
@@ -146,6 +147,7 @@ Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g
     # OR Service Principal + Secret
     delta_lake_azure_storage_client_id: my_client_id
     delta_lake_azure_storage_client_secret: ${secrets:my_secret}
+    delta_lake_azure_storage_tenant_id: ${secrets:my_tenant_id}
 
     # OR SAS Key
     delta_lake_azure_storage_sas_key: my_sas_key
@@ -179,7 +181,12 @@ The table below shows the Delta Lake data types supported, along with the type m
 | `Decimal`       | `Decimal128`                          |
 | `Array`         | `List`                                |
 | `Struct`        | `Struct`                              |
+| `Variant`       | `Struct`                              |
 | `Map`           | `Map`                                 |
+
+## Column Mapping
+
+Delta Lake tables that use [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) with `columnMapping.mode = name` or `columnMapping.mode = id` are supported. Tables in either mode store data in Parquet files under opaque physical column names (e.g., `col-b70f7585-…`) that differ from the logical names exposed by the table schema. Spice resolves logical-to-physical names at read time, including for partitions, predicate pushdown, and nested `Struct`, `List`, and `Map` field renames.
 
 ## Limitations
 

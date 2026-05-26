@@ -38,6 +38,34 @@ tools:
     from: mcp:http://example.com/v1/mcp
 ```
 
+### Example: Connecting to an Auth-Enabled MCP Server (Streamable HTTP)
+
+Streamable HTTP MCP tools support sending an `Authorization: Bearer` token via `mcp_auth_token`, or arbitrary HTTP headers via `mcp_headers`. Both parameters resolve [secret references](../secret-stores/) before the MCP client is constructed.
+
+Sending a bearer token:
+
+```yaml
+tools:
+  - name: remote_spice
+    from: mcp:https://my-spice.example.com/v1/mcp
+    params:
+      # Sends: Authorization: Bearer <expanded secret value>
+      mcp_auth_token: ${ secrets:MCP_SERVER_API_KEY }
+```
+
+Sending a custom header (e.g., API key):
+
+```yaml
+tools:
+  - name: remote_spice
+    from: mcp:https://my-spice.example.com/v1/mcp
+    params:
+      # Sends: X-API-Key: <expanded secret value>
+      mcp_headers: 'X-API-Key: ${ secrets:MCP_SERVER_API_KEY }'
+```
+
+If both `mcp_auth_token` and a custom `Authorization` header in `mcp_headers` are set, `mcp_auth_token` wins and a warning is logged.
+
 ## Using MCP Tools with Models
 
 Once configured, MCP tools can be assigned to models via the `tools` parameter. For example:
@@ -62,6 +90,20 @@ tools:
     from: mcp:http://localhost:8090/v1/mcp
 ```
 
+### Allowed Hosts
+
+By default the `/v1/mcp` endpoint only accepts requests with a `Host` header matching `localhost`, `127.0.0.1`, or `::1` to prevent DNS rebinding attacks. To allow additional hosts, configure [`runtime.mcp.allowed_hosts`](../../reference/spicepod/runtime#runtimemcp):
+
+```yaml
+runtime:
+  mcp:
+    allowed_hosts:
+      - localhost
+      - my-host.internal:8090
+```
+
+Set `allowed_hosts: ["*"]` to disable host checking entirely.
+
 ## Configuration Options
 
 ### `from`
@@ -73,7 +115,9 @@ The `from` field specifies the transport mechanism for the MCP tool:
 
 ### `params`
 
-The `params` field provides additional configuration for MCP tools. For stdio-based tools, use `mcp_args` to specify command-line arguments.
+The `params` field provides additional configuration for MCP tools.
+
+For stdio-based tools, use `mcp_args` to specify command-line arguments:
 
 ```yaml
 tools:
@@ -82,6 +126,13 @@ tools:
     params:
       mcp_args: -y @custom/tool
 ```
+
+For Streamable HTTP tools, the following auth parameters are supported:
+
+- `mcp_auth_token` — Sends `Authorization: Bearer <token>` on every request to the MCP server.
+- `mcp_headers` — Sends additional HTTP headers using the same `Header: Value` comma- or semicolon-delimited format as the [HTTP data connector's `http_headers`](../data-connectors/https). Header values are marked sensitive.
+
+Both parameters support [secret expansion](../secret-stores/). When `mcp_auth_token` is set, an `Authorization` header in `mcp_headers` is ignored and a warning is logged to avoid duplicate auth headers.
 
 ### `env`
 

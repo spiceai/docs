@@ -27,3 +27,16 @@ The Spice Runtime instances can be sharded based on specific criteria, such as b
 
 **Example Use Case**
 A multi-tenant application where each customer has a dedicated Spice Runtime instance. This helps ensure that heavy usage by one customer does not impact others, and allows for customer-specific optimizations.
+
+**Sharding vs. partitioning**
+
+Sharding splits load across **multiple Spice instances**, each backing a logical slice of the system (a customer, a region, a workload). Each shard runs an independent runtime with its own datasets, accelerations, and resources.
+
+Within a single Spice instance, [acceleration partitioning](../../features/data-acceleration/partitioning) splits a single dataset into multiple physical units (files, tables, or in-memory tables) so that filtered queries only read the relevant subset. The two are complementary: a shard can also use partitioning internally to keep individual datasets pruneable.
+
+| Concern                    | Sharded deployment                                       | Acceleration partitioning                                       |
+| -------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| Splits across…             | Multiple runtimes/processes                               | One acceleration on one runtime                                 |
+| Routing                    | Application picks which Spice instance to query           | Spice prunes partitions automatically based on filter pushdown  |
+| Failure isolation          | Per-shard                                                 | None — single runtime                                           |
+| Use when                   | Tenants/regions have very different load or data volumes  | A single dataset is too large to scan whole on every query      |
