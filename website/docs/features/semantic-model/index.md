@@ -61,3 +61,17 @@ Each column in the dataset can be defined with the following attributes:
 - `embeddings`: Optional. Vector embeddings configuration for this column.
 
 For detailed `columns` configuration, see the [Dataset Reference](../reference/spicepod/datasets#columns)
+
+## Source-Side Comments
+
+When a dataset is loaded from a source that exposes table or column comments, Spice automatically imports those comments into the Arrow schema metadata under the `comment` key. This means database-native `COMMENT ON TABLE` and `COMMENT ON COLUMN` annotations show up alongside Spicepod-defined `description` values, giving the semantic model the same context that already lives in the source database.
+
+Source-side comments are imported automatically from:
+
+- **PostgreSQL** — via `obj_description` / `col_description` in `pg_catalog`.
+- **MySQL** — via `information_schema.tables.table_comment` and `information_schema.columns.column_comment`.
+- **Snowflake** — via `information_schema.tables.comment` and `information_schema.columns.comment`.
+- **Databricks SQL Warehouse** — via the table and column metadata returned by the SQL Warehouse driver.
+- **BigQuery (via ADBC catalog)** — via `INFORMATION_SCHEMA.TABLE_OPTIONS` (`description`) and the column field-path descriptions.
+
+Spicepod-defined `description` values continue to take precedence: when both a Spicepod `description` and a source-side comment are present for the same table or column, the Spicepod value wins.
