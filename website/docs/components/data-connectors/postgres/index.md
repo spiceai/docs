@@ -227,8 +227,8 @@ datasets:
       pg_user: spice_writer
       pg_pass: ${secrets:PG_PASSWORD}
       # Replication-mode parameters (see Configuration above)
-      pg_replication_publication: spice_pub
-      pg_replication_slot_name: spice_slot
+      pg_publication: spice_pub
+      pg_replication_slot: spice_slot
     acceleration:
       engine: duckdb
       mode: file
