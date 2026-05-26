@@ -118,3 +118,71 @@ tools:
 ```
 
 For more details, see the [MCP Tools Reference](../../components/tools/mcp).
+
+## Example: Spice as an MCP gateway for GitHub and Jira
+
+Spice can act as a unified MCP gateway, proxying multiple external MCP servers alongside its own built-in tools. Clients connect to a single `/v1/mcp` endpoint and see one combined tool catalog.
+
+```yaml
+version: v1
+kind: Spicepod
+name: mcp-gateway
+
+# GitHub issues and PRs accelerated in-memory for fast SQL queries
+datasets:
+  - from: github:github.com/your-org/your-repo/issues
+    name: github_issues
+    description: GitHub issues — filterable by state, label, assignee, or milestone
+    params:
+      github_token: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
+      github_query_mode: search
+    time_column: updated_at
+    acceleration:
+      enabled: true
+      refresh_check_interval: 5m
+
+  - from: github:github.com/your-org/your-repo/pulls
+    name: github_pulls
+    description: GitHub pull requests — open, merged, or closed
+    params:
+      github_token: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
+      github_query_mode: search
+    time_column: updated_at
+    acceleration:
+      enabled: true
+      refresh_check_interval: 5m
+
+# MCP servers proxied through Spice's /v1/mcp endpoint
+tools:
+  - name: github
+    from: mcp:npx
+    description: GitHub tools — create issues, review PRs, search code
+    params:
+      mcp_args: -y @modelcontextprotocol/server-github
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
+
+  - name: jira
+    from: mcp:uvx
+    description: Jira and Confluence tools — query tickets, update status, search projects
+    params:
+      mcp_args: mcp-atlassian
+    env:
+      JIRA_URL: ${secrets:JIRA_URL}
+      JIRA_USERNAME: ${secrets:JIRA_USERNAME}
+      JIRA_API_TOKEN: ${secrets:JIRA_API_TOKEN}
+```
+
+With this configuration, clients connecting to `/v1/mcp` see a single catalog that includes:
+
+- Spice built-in tools: `sql`, `list_datasets`, `table_schema`, `search`, and more
+- GitHub MCP tools: `github/create_issue`, `github/list_pull_requests`, `github/search_code`, and more
+- Jira MCP tools: `jira/get_issue`, `jira/search_issues`, `jira/create_issue`, and more
+
+Connect Claude Code to this gateway with a single command:
+
+```bash
+claude mcp add --transport http spice http://localhost:8090/v1/mcp --header "X-API-KEY: <key>"
+```
+
+See the [mcp-server cookbook](https://github.com/spiceai/cookbook/tree/trunk/mcp-server) for a complete runnable example.
