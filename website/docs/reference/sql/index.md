@@ -113,6 +113,8 @@ FROM employees;
 
 - [Vector Search (`vector_search`)](sql/search#vector-search-vector_search)
 - [Full-Text Search (`text_search`)](sql/search#full-text-search-text_search)
+- [Reciprocal Rank Fusion (`rrf`)](sql/search#reciprocal-rank-fusion-rrf)
+- [Reranking (`rerank`)](sql/search#reranking-rerank)
 - [Lexical Search: LIKE, =, and Regex](sql/search#lexical-search-like--and-regex)
 
 ### [Prepared Statements](sql/prepared_statements)
