@@ -2,7 +2,7 @@
 title: 'Tool Registry'
 sidebar_label: 'Tool Registry'
 description: 'Reduce per-turn token cost and improve LLM tool selection accuracy by replacing individual tool definitions with searchable tool_search and tool_invoke meta-tools backed by hybrid full-text, keyword, schema, and vector search.'
-sidebar_position: 12
+sidebar_position: 13
 pagination_prev: null
 pagination_next: null
 tags:

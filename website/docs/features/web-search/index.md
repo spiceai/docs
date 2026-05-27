@@ -2,7 +2,7 @@
 title: 'Web Search'
 sidebar_label: 'Web Search'
 description: 'Learn how Spice can perform web search'
-sidebar_position: 13
+sidebar_position: 15
 tags:
   - search
   - models

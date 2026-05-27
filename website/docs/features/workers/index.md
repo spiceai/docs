@@ -1,11 +1,11 @@
 ---
-title: 'Workers Overview'
-description: 'Detailed documentation for workers in the Spice runtime.'
-sidebar_label: 'Workers Overview'
-sidebar_position: 8
+title: 'Workers'
+description: 'Configure workers in the Spice runtime to coordinate interactions between LLMs and tools, with load-balancing, round-robin, and fallback strategies.'
+sidebar_label: 'Workers'
+sidebar_position: 17
 ---
 
-Workers in the Spice runtime represent configurable units of compute that help coordinate and manage interactions between models and tools. Each worker is defined as a component in the `spicepod.yaml` file, specifying its behavior and interaction logic.
+Workers in the Spice runtime coordinate and manage interactions between models and tools — providing load-balancing strategies such as round-robin and fallback across multiple LLM providers. Each worker is defined in the `workers` section of the `spicepod.yaml` file, specifying its behavior and interaction logic.
 
 ## Configuration
 

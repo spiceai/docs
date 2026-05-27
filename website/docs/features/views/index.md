@@ -3,7 +3,7 @@ title: 'Views'
 sidebar_label: 'Views'
 description: 'Documentation for defining Views in Spice'
 image: /img/og/views.png
-sidebar_position: 7
+sidebar_position: 16
 ---
 
 Views in Spice are virtual tables defined by SQL queries. They help simplify complex queries and promote reuse across different applications by encapsulating query logic in a single, reusable entity.
@@ -37,7 +37,7 @@ views:
 
 - `name`: The view's identifier, used for referencing in queries.
 - `sql`: The SQL query defining the view, supporting joins, subqueries, and aggregations.
-- `acceleration`: Views can be [locally accelerated](../features/data-acceleration).
+- `acceleration`: Views can be [locally accelerated](../data-acceleration/index.md).
 
 ## Limitations and Considerations
 
@@ -51,4 +51,4 @@ Views derive their schema from the SQL query that defines them. When a view is a
 
 If the underlying dataset schemas change while the runtime is running, the accelerated view will fail to refresh because the materialized schema no longer matches the source data. Restart the runtime to re-derive the view schema from the updated datasets.
 
-For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](data-connectors#schema-inference) documentation.
+For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](../../components/data-connectors/index.md#schema-inference) documentation.

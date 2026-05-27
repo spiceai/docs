@@ -65,7 +65,7 @@ Yes. Spice natively supports federated queries across disparate data sources wit
 
 ## 9. Can Spice federate joins across many tables and data sources?
 
-Yes, but performance degrades as the number of sources and tables grows because the slowest source bounds end-to-end latency. For workloads that join across many tables or many heterogeneous sources, the recommended pattern is to **materialize the join into an accelerated dataset or [accelerated view](../components/views)**. This converts a multi-source federated join into a single local scan, making latency predictable and decoupling query performance from any one source's availability.
+Yes, but performance degrades as the number of sources and tables grows because the slowest source bounds end-to-end latency. For workloads that join across many tables or many heterogeneous sources, the recommended pattern is to **materialize the join into an accelerated dataset or [accelerated view](../features/views/index.md)**. This converts a multi-source federated join into a single local scan, making latency predictable and decoupling query performance from any one source's availability.
 
 Plan acceleration of hot joins proactively rather than waiting to discover them under load. See [Query Federation](../features/query-federation), [Data Acceleration](../features/data-acceleration), and [Performance Tuning](../reference/performance-tuning) for tradeoffs and configuration. The [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) blog post walks through a concrete federation + acceleration example.
 

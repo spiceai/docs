@@ -23,11 +23,9 @@ Spice runtime components are the building blocks for configuring data access, ac
 
 **[Tools](./components/tools)** define callable functions that LLMs can invoke during inference, including MCP (Model Context Protocol) integrations for connecting to external services.
 
-**[Views](./components/views)** create virtual tables from SQL queries over other datasets, similar to database views.
+**[Vector Engines](./components/vectors)** index dataset embedding columns and serve nearest-neighbour search backed by DuckDB, Elasticsearch, or Amazon S3 Vectors.
 
 **[Secret Stores](./components/secret-stores)** manage credentials and sensitive configuration values using environment variables, files, or external secret managers like AWS Secrets Manager and Azure Key Vault.
-
-**[Workers](./components/workers)** coordinate interactions between models and tools, supporting load balancing strategies like round-robin and fallback across multiple LLM providers.
 
 import DocCardList from '@theme/DocCardList';
 

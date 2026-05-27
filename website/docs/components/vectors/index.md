@@ -2,7 +2,7 @@
 title: 'Vector Engines'
 sidebar_label: 'Vector Engines'
 description: 'Configure vector engines for efficient embedding storage and similarity search in Spice.'
-sidebar_position: 7
+sidebar_position: 8
 pagination_prev: null
 pagination_next: null
 ---
