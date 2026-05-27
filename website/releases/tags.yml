@@ -818,6 +818,10 @@ training:
   label: 'Training'
   permalink: '/training'
   description: 'Training related topics and usage.'
+udf:
+  label: 'udf'
+  permalink: '/udf'
+  description: 'User-defined function related topics and usage.'
 "unity catalog":
   label: 'Unity Catalog'
   permalink: '/unity-catalog'
