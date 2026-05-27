@@ -5,7 +5,7 @@ description: "This endpoint returns a 200 OK response if the namespace exists, o
 sidebar_label: "Check Namespace exists"
 hide_title: true
 hide_table_of_contents: true
-api: eJzFU8Fu2zAM/RWCZ8V2ghw234puRYsN3aU7FUGr2ExE1JE0iU5bGP73gUmbpCmw604SRPLx8fFpQLHrjPU93jS0pLTGhcGWcpM4CgePNd45zkC+jYG9QCLpk89gYVZV8OsHJMox+EzAKxBH4O2GcrQNAb1wlmwgiKP0zJpyWj+v5nAbBK5C79sDTIEGQ6RktftNizU6su3DARUNvqdmrAecVZUeHynfnnHA0eC8mv8rsQ2UwQfZV+A4GtyQuPDOAA1GKw5rLLfTkvdilQdauRwO9xENZkpbSirsgH3qFEQk1mXZhcZ2LmSpv1RfKzwX+6eGoaUtdSFuyAvskQq4DH7F6z4RPLM4eJxMFPGxwHGh7Zo+sbzu+tnID0+k94XG2K+CTi4sHWGNqffCG/rU+s4R5MgNtXBM6bghn0nrdT6s8SLaxtFkVih5bskLr5jSx8hoUMffA0+L6bSoJr3PYpcdaTCGLBvrT2AvHTVP8GlxZyQHbIIX8vJffCmvUakKvUgZO8teR9ltd3gzxz1upyrL218yeDQIGqyPLl4YVBNoxTAsbabfqRtHff7TU9rtzuDWJt4ppps88eP194tvOI5/ASH+R1M=
+api: eJzFU8Fu2zAM/RWCZ8V2gxw234p2w4IN3aU7FUGr2ExM1JY0iXZbGP73gUmbpOmw604WTPK9R72nEcVuE5Z3uKxoTXGLK4M1pSpyEPYOS7xtOAG5Onh2ApGkjy6BhXlRwM/vECkF7xIBb0AaAmc7SsFWBPTMSZIBLw3FJ9aW0/lFsYAbL/DV964+wGRo0AeKVtmXNZbYkK3vD6ho8K01YTnivCj0817yzZkGnAwu/ta4dINtuT4RvfGxs7IfWPwLufaUwHnZU+A0GexIGv8mGQ0GKw2WmA8XOe9vNz8QpXw8nCc0mCgOFNWJEfvYKohIKPO89ZVtG5+k/FR8LvDcnR9ahpoGan3oyAnskTK48m7D2z4SPLE08DCbKeJDhtNK6ao+srzs+Gzg+0fS80pr7DZeNxeWlrDE2Dvhjj5Q3zYEKXBFNRxbWq7IJdJ53Q9LvAy2amg2z1Q81+SEN0zxfWUyqOvvgedZkRWz3iWx65a0FnySzroT1KuGqkf4YPSZxhEr74Sc/Jccy0tQqULPkofWstNVduaOr9m4w+FCb+X17Rk85gMNlsfUrwxqBnRiHNc20a/YTpP+/t1T3FlncLCRdzemRp7E8duXy2ucpj+yxlf7
 sidebar_class_name: "head api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -46,16 +47,13 @@ This endpoint returns a 200 OK response if the namespace exists, otherwise it re
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./head-namespace.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"Namespace exists"},"404":{"description":"Namespace does not exist"}}}
+  {...require("./head-namespace.StatusCodes.json")}
 >
   
 </StatusCodes>

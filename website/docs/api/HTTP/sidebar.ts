@@ -8,31 +8,13 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Datasets",
+      label: "Catalogs",
       items: [
         {
           type: "doc",
           id: "api/HTTP/get-catalogs",
           label: "List Catalogs",
           className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/get-datasets",
-          label: "List Datasets",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/patch-dataset-acceleration",
-          label: "Update Refresh SQL",
-          className: "api-method patch",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/post-dataset-refresh",
-          label: "Refresh Dataset",
-          className: "api-method post",
         },
       ],
     },
@@ -70,6 +52,36 @@ const sidebar: SidebarsConfig = {
           label: "Batch ML Predictions",
           className: "api-method post",
         },
+        {
+          type: "doc",
+          id: "api/HTTP/post-responses",
+          label: "post_responses",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Datasets",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/get-datasets",
+          label: "List Datasets",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/patch-dataset-acceleration",
+          label: "Update Refresh SQL",
+          className: "api-method patch",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/post-dataset-refresh",
+          label: "Refresh Dataset",
+          className: "api-method post",
+        },
       ],
     },
     {
@@ -90,8 +102,32 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/HTTP/get-namespace",
+          label: "Check if a namespace exists.",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/HTTP/head-namespace",
           label: "Check Namespace exists",
+          className: "api-method head",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/list-tables",
+          label: "list_tables",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-table",
+          label: "Get a table.",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/head-table",
+          label: "Check if a table exists.",
           className: "api-method head",
         },
       ],
@@ -122,12 +158,6 @@ const sidebar: SidebarsConfig = {
           type: "doc",
           id: "api/HTTP/post-nsql",
           label: "Text-to-SQL (NSQL)",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/post-search",
-          label: "Search",
           className: "api-method post",
         },
         {
@@ -176,13 +206,43 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Search",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/post-search",
+          label: "Search",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "Tools",
       items: [
         {
           type: "doc",
-          id: "api/HTTP/post",
+          id: "api/HTTP/list-tools",
+          label: "List Tools",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/run-tool",
           label: "Run Tool",
           className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Workers",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/get-workers",
+          label: "List Workers",
+          className: "api-method get",
         },
       ],
     },
