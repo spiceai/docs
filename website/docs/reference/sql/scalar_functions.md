@@ -25,6 +25,7 @@ Scalar functions help transform, compute, and manipulate data at the row level. 
 - [Hashing Functions](#hashing-functions)
 - [Encoding Functions](#encoding-functions)
 - [Union Functions](#union-functions)
+- [Metadata Functions](#metadata-functions)
 - [Other Functions](#other-functions)
 
 Spark-compatible scalar functions registered by Spice are documented here only when their Spark-specific behavior differs from the PostgreSQL equivalent, or when they have no PostgreSQL analogue. For functions not listed below, refer to the [Spark SQL built-in function reference](https://spark.apache.org/docs/latest/api/sql/index.html) for semantics.
@@ -3568,6 +3569,73 @@ Returns the name of the active member of a union value as a string.
 ```sql
 union_tag(expression)
 ```
+
+## Metadata Functions
+
+PostgreSQL-compatible functions for reading table and column comments from registered datasets. Comments originate from the dataset's source (for connectors that surface `COMMENT ON TABLE` / `COMMENT ON COLUMN` metadata, such as PostgreSQL, MySQL, Snowflake, and Databricks) or from `description` metadata attached to the dataset schema.
+
+### `obj_description`
+
+Returns the comment attached to a registered table, or `NULL` if the table has no comment.
+
+```sql
+obj_description(table_identifier)
+obj_description(table_identifier, catalog_name)
+obj_description(schema_name, table_name)
+obj_description(catalog_name, schema_name, table_name)
+```
+
+#### Arguments
+
+- **table_identifier**: Either a string holding a possibly-qualified table name (`'table'`, `'schema.table'`, or `'catalog.schema.table'`) or an integer table OID. Unqualified names are resolved against the session's default catalog and schema.
+- **catalog_name**: When supplied as the second argument with `'pg_class'`, the call is treated as PostgreSQL-style `obj_description(oid, 'pg_class')`; any other value returns `NULL`.
+- **schema_name**, **table_name**: Explicit schema and table parts. The three-argument form additionally takes the catalog as the first argument.
+
+#### Example
+
+```sql
+> SELECT obj_description('public.taxi_trips');
++----------------------------------------+
+| obj_description(Utf8("public.taxi_trips")) |
++----------------------------------------+
+| NYC yellow-cab trip records             |
++----------------------------------------+
+```
+
+### `col_description`
+
+Returns the comment attached to a column on a registered table, or `NULL` if no comment exists.
+
+```sql
+col_description(table_identifier, column)
+col_description(catalog_name, schema_name, table_name, column)
+```
+
+#### Arguments
+
+- **table_identifier**: Possibly-qualified table name (string) or table OID (integer), resolved the same way as in [`obj_description`](#obj_description).
+- **column**: Either a column name (string) or a 1-based ordinal position (integer).
+- **catalog_name**, **schema_name**, **table_name**: Explicit catalog, schema, and table parts when the four-argument form is used.
+
+#### Example
+
+```sql
+> SELECT col_description('public.taxi_trips', 'fare_amount');
++---------------------------------------------------------+
+| col_description(Utf8("public.taxi_trips"),Utf8("fare_amount")) |
++---------------------------------------------------------+
+| Total fare in USD, excluding tip                        |
++---------------------------------------------------------+
+
+> SELECT col_description('public.taxi_trips', 3);
++--------------------------------------------------+
+| col_description(Utf8("public.taxi_trips"),Int64(3)) |
++--------------------------------------------------+
+| Pickup datetime in source-local time             |
++--------------------------------------------------+
+```
+
+---
 
 ## Other Functions
 
