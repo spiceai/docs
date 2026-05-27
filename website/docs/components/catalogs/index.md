@@ -24,7 +24,6 @@ Supported Catalog Connectors include:
 
 | Name            | Description             | Status            | Protocol/Format              |
 | --------------- | ----------------------- | ----------------- | ---------------------------- |
-| `cayenne`       | Cayenne Lakehouse       | Release Candidate | Vortex                       |
 | `unity_catalog` | Unity Catalog           | Stable            | Delta Lake                   |
 | `databricks`    | Databricks              | Beta              | Spark Connect, S3/Delta Lake |
 | `iceberg`       | Apache Iceberg          | Beta              | Parquet                      |
