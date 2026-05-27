@@ -802,7 +802,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/NamespacePath"
+              "type": "string"
             }
           },
           {
@@ -4493,7 +4493,11 @@
             "description": "Array of filters to combine. Items can be ComparisonFilter or CompoundFilter."
           },
           "type": {
-            "$ref": "#/components/schemas/CompoundType",
+            "type": "string",
+            "enum": [
+              "and",
+              "or"
+            ],
             "description": "'Type of operation: `and` or `or`.'"
           }
         }
