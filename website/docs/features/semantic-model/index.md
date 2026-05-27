@@ -2,7 +2,7 @@
 title: 'Semantic Model'
 sidebar_label: 'Semantic Model'
 description: 'Learn how to define and use semantic data models with Spice.'
-sidebar_position: 11
+sidebar_position: 12
 pagination_prev: null
 pagination_next: null
 ---

@@ -88,7 +88,7 @@ The following Apache Arrow / DataFusion SQL types are supported. Other types wil
 
 ### LargeUtf8 Data Type Is Not Supported
 
-To work around this limitation, use [views](https://spiceai.org/docs/components/views) to manually convert `LargeUtf8` columns to `Utf8` by casting them with `::TEXT`.
+To work around this limitation, use [views](../../features/views/index.md) to manually convert `LargeUtf8` columns to `Utf8` by casting them with `::TEXT`.
 
 **Example:**
 

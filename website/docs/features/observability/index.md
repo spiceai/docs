@@ -2,7 +2,7 @@
 title: 'Observability & Monitoring'
 sidebar_label: 'Observability'
 description: 'Monitor Spice with Prometheus metrics, OpenTelemetry, and distributed tracing.'
-sidebar_position: 12
+sidebar_position: 14
 pagination_prev: null
 pagination_next: null
 ---

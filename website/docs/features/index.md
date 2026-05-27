@@ -21,9 +21,13 @@ Spice provides a set of features for building data-driven applications and AI ag
 
 [Data Acceleration](./data-acceleration/index.md) materializes remote datasets locally in memory or on disk using engines like Arrow, DuckDB, SQLite, or PostgreSQL. Accelerated datasets stay current through scheduled refreshes, append mode, or [Change Data Capture (CDC)](./cdc/index.md). [Caching](./caching/index.md) stores query and search results in memory with configurable TTLs and eviction policies to avoid redundant computation.
 
+### Views
+
+[Views](./views/index.md) create virtual tables from SQL queries over other datasets, similar to database views — useful for encapsulating query logic and (when accelerated) materializing precomputed joins or aggregates.
+
 ### AI and Language Models
 
-[Large Language Models](./large-language-models/index.md) provides an OpenAI-compatible API gateway for hosted models (OpenAI, Anthropic, xAI) and locally served models (Llama, Phi) with CUDA and Metal acceleration. Models can call tools to query datasets, run SQL, and retrieve schemas. [Embeddings](./embeddings/index.md) generates vector representations of text for semantic search and RAG workflows.
+[Large Language Models](./large-language-models/index.md) provides an OpenAI-compatible API gateway for hosted models (OpenAI, Anthropic, xAI) and locally served models (Llama, Phi) with CUDA and Metal acceleration. Models can call tools to query datasets, run SQL, and retrieve schemas. [Embeddings](./embeddings/index.md) generates vector representations of text for semantic search and RAG workflows. [Workers](./workers/index.md) coordinate interactions between models and tools, supporting load-balancing strategies such as round-robin and fallback across multiple LLM providers.
 
 ### Search
 
