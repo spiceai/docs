@@ -1,11 +1,11 @@
 ---
 id: mcp-event
 title: "Send message to MCP server"
-description: "Send a message to the MCP endpoint for a given session. Include the Mcp-Session-Id header to identify the session."
+description: "Send message to the MCP endoint, for a given session."
 sidebar_label: "Send message to MCP server"
 hide_title: true
 hide_table_of_contents: true
-api: eJydU8Fu2zAM/RWCpw1wnKTrgM23rtihwLIVTXcqglaVmFiYLKkS7TYL/O8DbQ9rG/Sykw1Reu+Rj++ArHYZqxtsdMRNgYayTjayDR4rXJM30FDOakfAAbgmWJ1fAnkTrOcCtiGBgp3tyEOmnG3wJRYYIiUlGBcGK4G+pY48Y4FRJdUQUxLSA3rVEFY4Pb0wWKAV4oeW0h4LTPTQ2kQGK04t9Rs5yTH4TBmrA54sTuTzUvRq0qu0pshkSria3sCjdQ4yJ1INdFbBev21xL7A08XpMc56FAU+MGxD600J3wMozbajv80OA5CpjCO4m45vrbkbgZcfjoEv1d4FZYBDAKfSjkpYqSfbtA0o58IjGcj2N4HNcLr6MuB8XCyOcS48U/LKQabUUQJKKaQSzjy0np4iaSYDNueWIGjdpkSmxL4vsCGugzgTQx5N4RornHfLeaPjPGfCAkfQ0aY2OaywZo7VfO6CVq4OmatPi88LfL0z36QMhjpyITbkeZJXwnnwW7trk/jANdzNZoIog9oInW6T5f3Ap6K9/UXyv5Ga9dsg7bNlJ+uSWs+2oSPq65ogR6vJwL8rzmrymeT9tG1nUemaZieliLeGPNutpfSy0hco7Y/Ay3K5LBez1mdW946kKKNrlH8G+zosEpSx9ddCD6iDZwnE/0eM91FImZ54Hp2yXkQNPh0mP2+wW2IxBLtA8XRToNgmlcPhXmX6mVzfy/EYN5n8mzrfXU1RfA9vsQ+Ovchyp1wr9waHO5XsMD1x9dkSXv5YX2Pf/wEUrori
+api: eJydU8Fu2zAM/RWCpw1wHDfrgM23rtihwLIVTXcqgla1mFiYLKkS7TYz/O8DbQ9rG/Sykw1Reu+Rj69HVvuE5Q02VcBthppSFU1g4x2WuCGnoaGU1J6APXBNsD6/BHLaG8cZ7HwEBXvTkYNEKRnvcszQB4pKMC40lgJ9Sx05xgyDiqohpiikPTrVEJY4P73QmKER4oeW4gEzjPTQmkgaS44tDVs5ScG7RAnLHlfFSj4vRa9nvaqqKDDpHK7mN/BorIXEkVQDnVGw2XzNccjwtDg9xtlMosB5hp1vnc7huwdVsenob7PjAGQq0wju5uNbo+8m4JMPx8CX6mC90sDeg1VxTzms1ZNp2gaUtf6RNCTzm8AkOF1/GXE+FsUxzoVjik5ZSBQ7ikAx+pjDmYPW0VOgikmDSakl8FXVxkg6x2HIsCGuvTgTfJpM4RpLXHYny6YKy5QIM5xAJ5vaaLHEmjmUy6X1lbK1T1x+Kj4X+HpnvkkZNHVkfWjI8Swvh3PvdmbfRvGBa7hbLARRBrUVuqqNhg8jnwrm9hfJ/1Zqxu28tM+GraxLbB2bho6or2uCFExFGv5dsaYil0jez9t2FlRV02KVi3ijybHZGYovK0OG0v4EvMqLvFi0LrG6tyQ1mVyj3DPU11mRnEydv9bZY+UdSx7+P2F8CELK9MTLYJVxImq0qZ/tvMHuBLMx1xmKpdsMxTWp9P29SvQz2mGQ4yltMvg3db67mpP4Ht5iHw17EeVO2VbujQZ3KppxemLqsx28/LG5xmH4A7yDirE=
 sidebar_class_name: "post api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -29,7 +30,7 @@ import Heading from "@theme/Heading";
 
 <MethodEndpoint
   method={"post"}
-  path={"/v1/mcp"}
+  path={"/v1/mcp/sse"}
   context={"endpoint"}
 >
   
@@ -37,33 +38,30 @@ import Heading from "@theme/Heading";
 
 
 
-Send a message to the MCP endpoint for a given session. Include the `Mcp-Session-Id` header to identify the session.
+Send message to the MCP endoint, for a given session.
 
 <Heading
   id={"request"}
   as={"h2"}
   className={"openapi-tabs__heading"}
-  children={"Request"}
 >
+  <Translate id="theme.openapi.request.title">Request</Translate>
 </Heading>
 
 <ParamsDetails
-  parameters={[{"name":"Mcp-Session-Id","in":"header","required":true}]}
+  {...require("./mcp-event.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./mcp-event.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"202":{"description":"Message accepted. Response will stream via the Streamable HTTP connection."},"404":{"description":"Session not found. No active session for the given `Mcp-Session-Id`."},"413":{"description":"Payload too large. Maximum allowed size is 32 MiB."},"500":{"description":"Internal server error. An unexpected issue occurred."}}}
+  {...require("./mcp-event.StatusCodes.json")}
 >
   
 </StatusCodes>

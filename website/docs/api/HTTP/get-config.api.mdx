@@ -5,7 +5,7 @@ description: "This endpoint returns the Iceberg Catalog API configuration, inclu
 sidebar_label: "Get Iceberg API config"
 hide_title: true
 hide_table_of_contents: true
-api: eJzNVE1v2zAM/SsCz0qc9LT5VnRFV2CHHbJTELSKxMTaZEmTKK+B4f8+0HHdL3RAb/NFgkg9ku89uQdSxwz1Fm417jEdYSfBYNbJRrLBQw2bxmaB3sRgPYmEVJLPghoU0xVxpUi5cBSX32+FDv5gjyUpvi2F9doVY/1RGCRlXRZqHwqJ0GFK1mCWwuBBFUdZCuWNUJ2yTu0dziXzEiSEiGfIWwM1HJHuzoVAQsIcg8+Yoe7hYrXi5eUEb/riKZLFDo3IRWvM+VCcO4EEHTyhJ8ZQMTqrx/zqZ2agHrJusFVQ94MEfFBtdMjH8zTnyONEU97jHMzyzfVGVN26smfqKq9azFFpzCDh6/Xll3eiVT/vB5D/gHmeWBET+QHk6ULVj+uHC833dgN/ElqkJkyCgYSoqIEanuPNKmZMHSbmqIeSHNTQEMW6qlzQyjUhU/1p9XkFr935jcPCYIcuxBY9iTPSUlxNiqP4Y6kR94sFI94vYdhxOV2SpdNYT0V79wt5v+OY9YfAqpIllhdS8WRbfFN606DI0Wo04inFWY0+j65gfth9UekGFxdLbt4a9GQPFtPLyCCBxz8Dr5fr9XK1KD6PfHIwhkyt8s9gb5DmB/hk8NdN9k+O/j8eMp0id0/4QFV0ynqebhS8n/yxhW7NTE3/o/FN8mQ7CWwDTuj7vcr4I7lh4OPfBdOonoROJTtyxlpKaFAZpnrbwygwXGqNkb3YKVe4kTevnB0w+/bmegPD8BdITMss
+api: eJzNVE1v2zAM/SsCz0qc9rT5VnRFV2CHHbJTEbSKxMTcZEmTaK+F4f8+0PHcL2xAb/NFgkg9ku89eQA2xwL1LdxY3GM+wk6Dw2IzJaYYoIZtQ0VhcClSYJWRuxyK4gbVfEVdGjY+HtXF1xtlYzjQsctGbmtFwfrOUTgqh2zIF2X2sWMVe8yZHBatHB5M57loZYJTpjfkzd7jUrKsQUNMeIK8cVDDEfnuVAg0ZCwphoIF6gHONxtZXk7wpi+ZIhP26FTprMVSDp33j6DBxsAYWDBMSp7slF99LwI0QLENtgbqYdSAD6ZNHuV4meYU+TPRnPdnDmH5+mqrqv6sohN1VTAtlmQsFtDw+eri01+i1bDsR9D/gHmeWLEQ+Q7k+UI1TOu7Cy33dqN8GlrkJs6CgYZkuIEanuMtKhbMPWbhaIAue6ihYU51VflojW9i4frD5uMGXrvzi4SVwx59TC0GViektbqcFUf1i7hR96uVIN6vYdxJOdtl4sepnkl09wNlv5MYhUMUVZlY5IXcBaYW35TeNqhKIotOPaV4shjK5ArhR9yXjG1wdb6W5slhYDoQ5peRUYOMfwI+X2/Wm1UXykSnxFIs3JrwDPUaeXl/T/5+3ePwZOj/4x3zY5LuGR+4St5QkOkmvYfZHrfQnwlR8+9oepIy2U6DuEAShmFvCn7Lfhzl+GeHeRJPQ28yTZyJlBoaNE6Yvh1g0hcurMUkVuyN76SRN49cDLDY9vpqC+P4G7n+yvs=
 sidebar_class_name: "get api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -19,6 +19,7 @@ import StatusCodes from "@theme/StatusCodes";
 import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
 
 <Heading
   as={"h1"}
@@ -46,16 +47,13 @@ This endpoint returns the Iceberg Catalog API configuration, including details a
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-config.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"API configuration retrieved successfully","content":{"application/json":{"schema":{},"example":{"overrides":{},"defaults":{},"endpoints":["GET /v1/iceberg/namespaces","HEAD /v1/iceberg/namespaces/{namespace}","GET /v1/iceberg/namespaces/{namespace}/tables","HEAD /v1/iceberg/namespaces/{namespace}/tables/{table}","GET /v1/iceberg/namespaces/{namespace}/tables/{table}"]}}}}}}
+  {...require("./get-config.StatusCodes.json")}
 >
   
 </StatusCodes>
