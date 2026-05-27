@@ -12,10 +12,46 @@ tags:
 
 Data can be ingested into the Spice runtime using the following methods:
 
-1. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL syntax.
-2. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
+1. **Acceleration Refresh Modes** – Pull data from a source connector into a local accelerator using one of the standard [refresh modes](../data-acceleration/refresh-modes/index.md) (`full`, `append`, `changes`, `snapshot`, `caching`). This is the most common ingestion path for keeping a local accelerator in sync with an upstream system.
+2. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL `INSERT` (and, where supported, `UPDATE`/`DELETE`) syntax.
+3. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
 
-Data ingestion is useful for scenarios such as collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
+Data ingestion is useful for scenarios such as keeping a local accelerator continuously in sync with an upstream database, collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
+
+## Ingestion via Acceleration Refresh Modes
+
+When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Arrow, DuckDB, SQLite, PostgreSQL, or Cayenne). The `refresh_mode` controls how that ingestion happens.
+
+| Refresh Mode                                                            | What it ingests                                                                                                                                                                              | Typical source                                                                                |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`full`](../data-acceleration/refresh-modes/full.md)                    | Replaces the accelerator's contents with a fresh read of the source on every refresh.                                                                                                        | Slowly-changing reference tables; small lookup datasets.                                      |
+| [`append`](../data-acceleration/refresh-modes/append.md)                | Inserts only rows newer than the highest seen `time_column` value on each refresh.                                                                                                           | Time-series, event/log data, append-only tables.                                              |
+| [`changes`](../data-acceleration/refresh-modes/changes.md)              | Streams row-level inserts, updates, and deletes from a source [CDC feed](../cdc/index.md) (PostgreSQL logical replication, DynamoDB Streams, MongoDB Change Streams, Debezium, Kafka, etc.). | Operational databases where you need near real-time mirror of the source.                     |
+| [`snapshot`](../data-acceleration/refresh-modes/snapshot.md)            | Loads exclusively from an external snapshot store; no source reads.                                                                                                                          | Read-only replicas bootstrapped from a centralized snapshot, e.g. for fan-out reader fleets.  |
+| [`caching`](../data-acceleration/refresh-modes/caching.md)              | Read-through caches per-request HTTP/HTTPS responses with a TTL.                                                                                                                             | API search results or other request-keyed content fetched lazily.                             |
+
+For cross-cutting refresh behavior — refresh intervals, on-demand refresh, retries, retention, and zero-results handling — see [Data Refresh](../data-acceleration/data-refresh.md).
+
+### Example: continuous CDC ingestion into an accelerator
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params:
+      pg_host: pg.internal
+      pg_port: '5432'
+      pg_user: spice
+      pg_pass: ${secrets:pg_pass}
+      pg_db: myapp
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file        # Persistence so resume across restarts is cheap
+      refresh_mode: changes
+```
+
+This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local DuckDB accelerator with low latency.
 
 ## SQL Statements
 
