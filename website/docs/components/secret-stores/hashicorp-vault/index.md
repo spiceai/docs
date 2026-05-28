@@ -7,6 +7,14 @@ description: 'HashiCorp Vault Secret Store Documentation'
 
 The `hashicorp_vault` store enables Spice to read secrets from a [HashiCorp Vault](https://developer.hashicorp.com/vault) KV secrets engine (v1 or v2). The selector is the path *under the mount* — Spice automatically inserts the `data/` segment for KV v2.
 
+:::note[Build requirement]
+The official Spice Open Source prebuilt binary does not include `hashicorp_vault` in its default feature set. To use the HashiCorp Vault secret store, [build Spice from source](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md#building) with the `hashicorp_vault` feature enabled, for example:
+
+```bash
+cargo build --release --features release,models,hashicorp_vault -p spiced
+```
+:::
+
 ```yaml
 secrets:
   - from: hashicorp_vault:myapp/config
