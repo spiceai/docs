@@ -50,7 +50,6 @@ Spice combines SQL query, search, and LLM inference in a single runtime. This pa
 | **Accelerated Data Access**   | ✅                                   | ❌                  | ❌                  | ❌                             |
 | **Tools/Functions**           | ✅ (MCP HTTP+SSE)                    | ✅                  | ✅                  | ✅                             |
 | **LLM Memory**                | ✅                                   | ✅                  | ✅                  | ❌                             |
-| **Evaluations (Evals)**       | ✅                                   | Limited            | Limited            | ❌                             |
 | **Search**                    | ✅ (Keyword, Vector, Full-Text)      | ✅                  | ✅                  | Limited                       |
 | **Caching**                   | ✅ (Query and results caching)       | Limited            | ❌                  | ❌                             |
 | **Embeddings**                | ✅ (Built-in & pluggable models/DBs) | ✅                  | ✅                  | ✅                             |
