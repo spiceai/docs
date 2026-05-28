@@ -6,6 +6,10 @@ description: 'ODBC Data Connector Documentation'
 
 ODBC (Open Database Connectivity) is a standard API for connecting applications to various database management systems using a common interface. To connect to any ODBC database for federated/accelerated SQL queries, specify `odbc` as the selector in the `from` value for the dataset. The `odbc_connection_string` parameter is required.
 
+:::note[Enterprise edition]
+The ODBC Data Connector is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions). It is feature-gated and not included in the default open source build; open source users can [build it from source](#building-spice-with-odbc).
+:::
+
 :::warning
 
 Spice must be [built with the `odbc` feature](#building-spice-with-odbc), and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).

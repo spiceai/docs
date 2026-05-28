@@ -58,14 +58,14 @@ Supported Data Connectors include:
 | `ducklake`                         | [DuckLake][ducklake]                  | Beta              | Parquet                      |
 | `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
-| `odbc`                             | ODBC                                  | Beta              | ODBC                         |
+| `odbc`                             | ODBC (Spice.ai Enterprise)            | Beta              | ODBC                         |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Beta              | Object-store listing         |
 | `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | ClickHouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
-| `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF)      | Alpha             |                              |
+| `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
 | `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON           |
 | `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
@@ -76,7 +76,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB                               | Alpha             |                              |
 | `scylladb`                         | ScyllaDB                              | Alpha             |                              |
 | `smb`                              | SMB 3.1.1                             | Alpha             | SMB                          |
-| `nfs`                              | NFS                                   | Alpha             | Parquet, CSV, JSON           |
+| `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON           |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html

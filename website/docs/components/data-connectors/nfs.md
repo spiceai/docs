@@ -8,6 +8,10 @@ NFS (Network File System) is a distributed file system protocol that provides tr
 
 The NFS Data Connector enables federated SQL query across [supported file formats](./#file-formats) stored on NFS exports.
 
+:::note[Enterprise edition]
+The NFS Data Connector is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions). It is feature-gated and not included in the default open source build; open source users can build it from source with the `nfs` feature (requires the system `libnfs` library).
+:::
+
 :::note[Platform Support]
 The NFS Data Connector is available on Linux and macOS. It is not supported on Windows.
 :::
