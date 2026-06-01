@@ -59,6 +59,16 @@ The following parameters are supported for configuring the connection to the Glu
 | `glue_session_token`   | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                                     |
 | `glue_iam_role_source` | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 
+The following parameters control how the embedded S3 reader fetches Parquet/CSV data files referenced by Glue table metadata. They are inherited from the [S3 data connector](./s3/) and do not apply to Iceberg-format tables, whose object I/O is handled by the Iceberg client.
+
+| Parameter Name    | Definition                                                                                                                                                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `glue_endpoint`   | Optional. Custom S3-compatible endpoint URL used when reading Parquet/CSV data files (e.g. `https://s3.us-east-1.amazonaws.com`, `http://minio.local:9000`). Leave unset for AWS S3.                                             |
+| `glue_url_style`  | Optional. S3 URL addressing style for Parquet/CSV data files. One of `vhost` or `path`. Auto-detected from the endpoint when unset.                                                                                              |
+| `glue_versioning` | Optional. Enables S3 object versioning support for Parquet/CSV data files when set to `enabled`. Defaults to `enabled`.                                                                                                          |
+| `client_timeout`  | Optional. Timeout for the underlying S3 client used to fetch Parquet/CSV data files. E.g. `30s`.                                                                                                                                 |
+| `allow_http`      | Optional. Set to `true` to allow insecure HTTP for the S3 endpoint used to read Parquet/CSV data files. Defaults to `false`. Required when `glue_endpoint` uses an `http://` scheme.                                             |
+
 ## Examples
 
 ### Basic Glue Table
