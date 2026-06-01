@@ -30,7 +30,21 @@ catalogs:
 
 ### `from`
 
-The `from` field is used to specify the catalog provider. For Glue, you need only specify `glue`. The catalog is unique for each AWS account and AWS region.
+The `from` field is used to specify the catalog provider. For Glue, use either `glue` (which targets the default Glue catalog for the AWS account and region) or `glue:<catalog_id>` to target a specific Glue catalog.
+
+The catalog id appears after the first `:` in the `from` value. For [Amazon S3 Tables](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables.html), use the format `glue:<account_id>:s3tablescatalog/<table_bucket_name>`. The catalog id is otherwise the AWS account id when overriding the default catalog explicitly.
+
+Examples:
+
+```yaml
+catalogs:
+  # Default Glue catalog for the configured AWS account and region.
+  - from: glue
+    name: glue_default
+  # Specific S3 Tables-backed Glue catalog.
+  - from: glue:123456789012:s3tablescatalog/my_table_bucket
+    name: glue_s3_tables
+```
 
 ### `name`
 
@@ -47,7 +61,6 @@ The following parameters are supported for configuring the connection to the Glu
 | Parameter Name       | Definition                                                                                                                                                                  |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `glue_region`        | The AWS region for the Glue Data Catalog. E.g. `us-west-2`.                                                                                                                 |
-| `glue_catalog_id`    | The Glue catalog ID. For Amazon S3 Tables, use the format `<account_id>:s3tablescatalog/<table_bucket_name>`. If not provided, the default catalog for the account is used. |
 | `glue_key`           | Access key (e.g. AWS_ACCESS_KEY_ID for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                           |
 | `glue_secret`        | Secret key (e.g. AWS_SECRET_ACCESS_KEY for AWS). If not provided, credentials will be loaded from environment variables or IAM roles.                                       |
 | `glue_session_token` | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                    |
@@ -62,6 +75,7 @@ The following parameters control how the embedded S3 reader fetches Parquet/CSV 
 | `glue_versioning` | Optional. Enables S3 object versioning support for Parquet/CSV data files when set to `enabled`. Defaults to `enabled`.                                                                                                          |
 | `client_timeout`  | Optional. Timeout for the underlying S3 client used to fetch Parquet/CSV data files. E.g. `30s`.                                                                                                                                 |
 | `allow_http`      | Optional. Set to `true` to allow insecure HTTP for the S3 endpoint used to read Parquet/CSV data files. Defaults to `false`. Required when `glue_endpoint` uses an `http://` scheme.                                             |
+To target a non-default Glue catalog (for example, an S3 Tables catalog), specify the catalog id in the `from` field as `glue:<catalog_id>` — see [`from`](#from) above.
 
 ## Authentication
 

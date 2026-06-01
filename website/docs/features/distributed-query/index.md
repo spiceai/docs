@@ -136,9 +136,14 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 
 :::warning[Limitations]
 
-- Accelerated datasets are not yet supported; distributed query currently targets partitioned data lake sources.
+- In open source, distributed query targets partitioned data lake sources (e.g. Parquet, Delta Lake, Iceberg). Distributing **accelerated** datasets across executors is a Spice.ai Enterprise feature (see below).
 - As a preview feature, clusters may encounter stability or performance issues.
-- Accelerator support is planned for future releases; follow release notes for updates.
+
+:::
+
+:::tip[Spice.ai Enterprise]
+
+[**Distributed Accelerations**](https://docs.spice.ai/docs/enterprise/features/distributed-accelerations) partition-shard accelerated datasets across executors — each executor materializes and serves only the partitions it owns, with partition-aware read routing and write-through semantics. This is available in [Spice.ai Enterprise](https://spice.ai) and requires a [`SpicepodCluster`](https://docs.spice.ai/docs/enterprise/kubernetes-operator/spicepodcluster).
 
 :::
 
