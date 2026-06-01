@@ -24,8 +24,8 @@ catalogs:
     name: my_lakehouse
     # access: read_write  # Optional. Enable write operations.
     params:
-      name: ducklake # Optional. Name to attach the catalog as in DuckDB. Defaults to 'ducklake'.
-      open: /path/to/local.duckdb # Optional. Path to a DuckDB file for persistent storage.
+      ducklake_name: ducklake # Optional. Name to attach the catalog as in DuckDB. Defaults to 'ducklake'.
+      ducklake_open: /path/to/local.duckdb # Optional. Path to a DuckDB file for persistent storage.
 ```
 
 ## `from`
