@@ -35,11 +35,10 @@ TLS is controlled via `pg_sslmode`:
 | Value         | Behavior                                                    |
 | ------------- | ----------------------------------------------------------- |
 | `disable`     | No TLS.                                                     |
-| `allow`       | Try non-TLS first, retry with TLS if the server requires it. |
 | `prefer`      | Try TLS, fall back to plaintext. Not recommended for production. |
 | `require`     | Require TLS; no server certificate verification.            |
 | `verify-ca`   | Require TLS and verify the CA chain.                        |
-| `verify-full` | Require TLS, verify CA chain, and verify server hostname.   |
+| `verify-full` | (default) Require TLS, verify CA chain, and verify server hostname. |
 
 For production, use `verify-full` with `pg_sslrootcert` pointing to the CA bundle file path.
 
