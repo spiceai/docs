@@ -127,7 +127,7 @@ datasets:
 | `pg_db`                     | Database name                                                                                                     |
 | `pg_user`                   | Username for authentication                                                                                       |
 | `pg_pass`                   | Password for authentication (use secret reference)                                                                |
-| `pg_sslmode`                | SSL mode (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`)                                    |
+| `pg_sslmode`                | SSL mode. Default `verify-full`. Supported values: `disable`, `prefer`, `require`, `verify-ca`, `verify-full`.    |
 | `pg_sslrootcert`            | Optional. Path to a custom root certificate for SSL verification                                                  |
 | `pg_connection_pool_min_idle` | Optional. The minimum number of idle connections to keep open in the pool. Default is `1`.                       |
 | `connection_pool_size`      | Optional. The maximum number of connections in the connection pool. Default is `5`.                               |
