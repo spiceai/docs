@@ -394,13 +394,13 @@ In addition to request metadata, the HTTP connector includes response metadata f
 | `content`          | String                 | The response body content.                                                                                                                                                                  |
 | `response_status`  | UInt16                 | The HTTP status code of the response (e.g., `200`, `404`, `500`).                                                                                                                           |
 | `response_headers` | Map(String, String)    | The HTTP response headers as key-value pairs. Each header name maps to its value. Available for inspection in queries, e.g., to check `content-type` or custom headers returned by the API. |
-| `fetched_at`       | Timestamp (Nanosecond) | The timestamp when the data was fetched. Uses the HTTP `Date` response header when available, falling back to the current system time.                                                      |
+| `_fetched_at`      | Timestamp (Nanosecond) | The timestamp when the data was fetched. Uses the HTTP `Date` response header when available, falling back to the current system time. Always present in the dataset schema, even when not declared explicitly — this is required for caching TTL eviction and for append-mode datasets that set `time_column: _fetched_at`. |
 
 #### Querying Response Metadata
 
 ```sql
 -- Check the HTTP status of cached responses
-SELECT request_path, response_status, fetched_at
+SELECT request_path, response_status, _fetched_at
 FROM my_http_dataset;
 
 -- Inspect response headers
@@ -417,7 +417,7 @@ When using [caching refresh mode](../../features/data-acceleration/refresh-modes
 
 When a dataset uses JSON schema decomposition (`metadata.json_object: "*"`), columns whose names match a reserved HTTP metadata field are populated from the HTTP request/response — with their original Arrow types — instead of being decomposed from the JSON body. This lets a single dataset expose both decomposed body columns and typed HTTP metadata.
 
-Reserved metadata field names: `request_path`, `request_query`, `request_body`, `request_headers`, `content`, `response_status`, `response_headers`, `fetched_at`.
+Reserved metadata field names: `request_path`, `request_query`, `request_body`, `request_headers`, `content`, `response_status`, `response_headers`, `_fetched_at`. `_fetched_at` is auto-injected into the schema even when not declared.
 
 ```yaml
 datasets:
@@ -426,7 +426,7 @@ datasets:
     columns:
       - name: request_path        # Utf8, from HTTP request metadata
       - name: response_status     # UInt16, from HTTP response metadata
-      - name: fetched_at          # Timestamp(ns), from response Date header
+      - name: _fetched_at         # Timestamp(ns), from response Date header (auto-injected if omitted)
       - name: id                  # Utf8, decomposed from JSON body
       - name: name                # Utf8, decomposed from JSON body
       - name: premiered           # Utf8, decomposed from JSON body
@@ -436,12 +436,12 @@ datasets:
 ```
 
 ```sql
-SELECT id, name, response_status, fetched_at
+SELECT id, name, response_status, _fetched_at
 FROM tvmaze_shows
 WHERE request_path = '/shows/1' AND response_status = 200;
 ```
 
-Metadata columns retain their native types (`UInt16` for `response_status`, `Timestamp(Nanosecond)` for `fetched_at`, `Map(String, String)` for `response_headers`), while body-derived columns are `Utf8`.
+Metadata columns retain their native types (`UInt16` for `response_status`, `Timestamp(Nanosecond)` for `_fetched_at`, `Map(String, String)` for `response_headers`), while body-derived columns are `Utf8`. `_fetched_at` is appended to the schema automatically when omitted, so caching TTL eviction and `time_column: _fetched_at` work without requiring the column to be declared.
 
 **Collision rules:**
 
