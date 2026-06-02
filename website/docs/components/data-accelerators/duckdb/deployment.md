@@ -46,7 +46,7 @@ DuckDB does not require explicit `VACUUM`; its storage layout compacts on checkp
 
 | Parameter               | Default                                                                                          | Description                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| `connection_pool_size`  | `max(floor, number of datasets on the same instance)`, where `floor` is `4` for `ebs` and `10` otherwise | Maximum connections in the shared DuckDB pool. Floor depends on the resolved [`acceleration.storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile). |
+| `connection_pool_size`  | `max(floor, number of datasets on the same instance)`, where `floor` is `4` for `ebs` and `10` otherwise | Maximum connections in the shared DuckDB pool. Floor depends on the resolved [`acceleration.storage_profile`](../../../reference/spicepod/datasets#accelerationstorage_profile). |
 | *(pool min idle)*       | Same as the `floor` above (`4` for `ebs`, `10` otherwise), capped at `connection_pool_size`      | Minimum idle connections.                        |
 
 Datasets sharing a DuckDB instance share the pool. For write-heavy refresh plus read-heavy query workloads, size the pool to cover expected concurrency plus a small headroom; DuckDB's serializable concurrency model limits benefit beyond the point of write contention.
