@@ -56,7 +56,7 @@ Use the `include` field to specify which tables to include from the catalog. The
 | `snowflake_password`               | The Snowflake password for authentication. Use the [secret replacement syntax](../secret-stores).        |
 | `snowflake_warehouse`              | The Snowflake [warehouse](https://docs.snowflake.com/en/user-guide/warehouses-tasks) to use for queries. |
 | `snowflake_role`                   | The Snowflake [role](https://docs.snowflake.com/en/user-guide/security-access-control-overview) to use.  |
-| `snowflake_auth_type`              | Authentication type: `snowflake` (default) or `keypair`.                                                 |
+| `snowflake_auth_type`              | Authentication type. Accepts `password` (or `snowflake`) and `keypair` (or `snowflake_jwt`); matched case-insensitively. Defaults to password authentication unless only key-pair credentials (`snowflake_private_key` or `snowflake_private_key_path`) are provided, in which case key-pair is selected automatically. |
 | `snowflake_private_key`            | The private key content for key pair authentication. Used when `auth_type` is `keypair`.                 |
 | `snowflake_private_key_path`       | Path to a private key file for key pair authentication. Used when `auth_type` is `keypair`.              |
 | `snowflake_private_key_passphrase` | Passphrase for the private key file, if encrypted.                                                       |

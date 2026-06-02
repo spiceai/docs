@@ -51,10 +51,10 @@ The dataset name. This will be used as the table name within Spice. The dataset 
 | `snowflake_role`                   | Optional, specifies the role to use for accessing Snowflake data                                                |
 | `snowflake_account`                | Required, specifies the Snowflake account-identifier                                                            |
 | `snowflake_username`               | Required, specifies the Snowflake username to use for accessing Snowflake data                                  |
-| `snowflake_auth_type`              | Optional, specifies the authentication type: `snowflake` (default, password-based) or `keypair`                 |
-| `snowflake_password`               | Required when `snowflake_auth_type` is `snowflake` (default). Specifies the Snowflake password for authentication |
-| `snowflake_private_key`            | Required (one of) when `snowflake_auth_type` is `keypair`. Mutually exclusive with `snowflake_private_key_path`. Specifies the private key content as a string. |
-| `snowflake_private_key_path`       | Required (one of) when `snowflake_auth_type` is `keypair`. Mutually exclusive with `snowflake_private_key`. Specifies the path to the private key file. |
+| `snowflake_auth_type`              | Optional, specifies the authentication type. Accepts `password` (or `snowflake`) and `keypair` (or `snowflake_jwt`); matched case-insensitively. Defaults to password authentication unless only key-pair credentials (`snowflake_private_key` or `snowflake_private_key_path`) are provided, in which case key-pair is selected automatically. |
+| `snowflake_password`               | Required for password authentication. Specifies the Snowflake password for authentication. |
+| `snowflake_private_key`            | Required (one of) for key-pair authentication. Mutually exclusive with `snowflake_private_key_path`. Specifies the private key content as a string. |
+| `snowflake_private_key_path`       | Required (one of) for key-pair authentication. Mutually exclusive with `snowflake_private_key`. Specifies the path to the private key file. |
 | `snowflake_private_key_passphrase` | Required when the private key is encrypted. Specifies the passphrase to decrypt the private key.                |
 
 ## Auth
@@ -259,10 +259,17 @@ datasets:
       snowflake_role: accountadmin
 ```
 
-:::warning[Limitations]
+:::info[Account Identifier Formats]
 
-1. Account identifier does not support the [Legacy account locator in a region format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-2-legacy-account-locator-in-a-region). Use [Snowflake preferred name in organization format](https://docs.snowflake.com/en/user-guide/admin-account-identifier#format-1-preferred-account-name-in-your-organization).
-1. The connector supports password-based and [key-pair](https://docs.snowflake.com/en/user-guide/key-pair-auth) authentication.
+The `snowflake_account` parameter accepts any of the [Snowflake account identifier formats](https://docs.snowflake.com/en/user-guide/admin-account-identifier):
+
+- Preferred org/account names (`myorg-myaccount`)
+- SQL/data-sharing org-qualified names (`myorg.myaccount`)
+- Full `snowflakecomputing.com` account URLs (`https://myorg-myaccount.snowflakecomputing.com`)
+- Legacy account locators (`xy12345`, `xy12345.us-east-2.aws`)
+- SnowGov locators (`xy12345.fhplus.us-gov-west-1.aws`)
+
+Invalid identifiers fail at startup with an actionable error.
 
 :::
 
