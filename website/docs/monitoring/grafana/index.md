@@ -100,3 +100,29 @@ This tutorial creates and configures Grafana and Prometheus locally to scrape an
 1. The dashboard will have data from the Spice runtimes.
 
 <img src="/img/grafana/screenshot.png" />
+
+## Query Spice as a Grafana Data Source
+
+In addition to monitoring Spice with Grafana, you can query datasets served by Spice and visualize the results in Grafana panels using the [Infinity data source](https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource/), which can query Spice's [HTTP SQL API](../../api/HTTP/post-sql.api.mdx).
+
+1. Install the [Infinity data source](https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource/) plugin from the Grafana plugin catalog.
+
+1. Add a new Infinity data source. No base URL or authentication is required at the data source level when targeting a Spice runtime that does not require an API key — credentials can be configured per query if needed (see [API Auth](../../api/auth/index.md)).
+
+1. Create a panel backed by the Infinity data source and configure the query as an HTTP request against the Spice SQL endpoint:
+
+   - **Type**: `JSON`
+   - **Method**: `POST`
+   - **URL**: `http://localhost:8090/v1/sql`
+   - **Headers**: `Content-Type: application/json`
+   - **Body** (raw):
+
+     ```json
+     { "sql": "SELECT passenger_count, AVG(total_amount) FROM taxi_trips GROUP BY passenger_count ORDER BY passenger_count" }
+     ```
+
+   The endpoint returns a JSON array of row objects (the default `application/json` response format), which Infinity parses directly into table rows for visualization.
+
+:::note
+The legacy `spiceai-spicexyz-datasource` Grafana plugin is no longer maintained and targets the earlier Spice.ai product, not the current runtime. Use the Infinity data source against the HTTP SQL API as shown above.
+:::
