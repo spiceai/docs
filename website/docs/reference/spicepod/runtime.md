@@ -723,18 +723,17 @@ runtime:
     state_location: s3://my-bucket/spice-cluster-state/
     params:
       s3_region: us-east-1
-    partition_management:
-      interval: 30s
-      max_assignments_per_cycle: 100
-      max_partitions_per_executor: 1000
-      discovery_timeout: 60s
+    partition_assignment_interval: 30s
+    max_partition_assignments_per_interval: 100
+    max_partitions_per_executor: 1000
+    partition_discovery_timeout: 60s
 ```
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
 | `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
-| `partition_management.interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
-| `partition_management.max_assignments_per_cycle`   | Yes      | `100`   | Maximum number of partition assignments per cycle.                     |
-| `partition_management.max_partitions_per_executor` | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
-| `partition_management.discovery_timeout`           | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
+| `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
+| `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
+| `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
+| `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
