@@ -72,6 +72,7 @@ datasets:
 | `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). Defaults to `{spice_data_path}/metadata`.                                                                                     |
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Defaults to `4`.                                                                                                |
+| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `position` (merge-on-read). See [Deletion Strategies](#deletion-strategies).         |
 | `sort_columns`                    | Comma-separated list of columns to sort data by on refresh operations. Improves segment pruning for frequently filtered columns.                                                              |
 | `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
@@ -248,16 +249,32 @@ Spice Cayenne implements efficient deletes without rewriting data files using de
 
 ### Deletion Strategies
 
-Cayenne supports two deletion vector strategies based on your table configuration:
+How deletions are recorded and applied is controlled by the `cayenne_deletion_mode` parameter:
 
-| Strategy           | Use Case                   | Configuration            | Memory per Delete        |
-| ------------------ | -------------------------- | ------------------------ | ------------------------ |
-| **Position-based** | Tables without primary key | No `primary_key` set     | ~4 bytes (RoaringBitmap) |
-| **Key-based**      | Tables with primary key    | `primary_key` configured | 8+ bytes per key         |
+| Mode               | How deletes are applied                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auto` (default)   | Resolves to `position` (merge-on-read) for every table.                                                                                                                                |
+| `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
+| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. The explicit opt-out from merge-on-read for primary-key tables.    |
 
-**Position-based deletion** uses row position within the table. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
+```yaml
+datasets:
+  - from: s3://bucket/events/
+    name: events
+    acceleration:
+      engine: cayenne
+      mode: file
+      primary_key: event_id
+      params:
+        cayenne_deletion_mode: auto # default; set to `key` to opt out of merge-on-read
+```
 
-**Key-based deletion** uses the byte representation of primary key columns. This approach is position-independent and survives data reorganization, making it more reliable for tables with primary keys.
+Under the default `auto` (`position`) mode:
+
+- **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
+- **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
+
+**Key-based deletion** (`cayenne_deletion_mode: key`) uses the byte representation of primary key columns and applies deletes above the scan. This approach is position-independent and survives data reorganization.
 
 ### Primary Key Optimization
 
