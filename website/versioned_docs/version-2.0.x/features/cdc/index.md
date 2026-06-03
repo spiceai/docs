@@ -1,0 +1,65 @@
+---
+title: 'Change Data Capture (CDC)'
+sidebar_label: 'Change Data Capture'
+description: 'Learn how to use Change Data Capture (CDC) in Spice.'
+sidebar_position: 5
+pagination_prev: null
+pagination_next: null
+---
+
+Change Data Capture (CDC) captures insert, update, and delete events from a database's transaction log and delivers them to consumers with low latency. This technique enables Spice to keep [locally accelerated](data-acceleration) datasets synchronized with the source data in near real-time. CDC is efficient because it transfers only changed rows instead of re-fetching the entire dataset.
+
+## Benefits
+
+Using locally accelerated datasets configured with CDC enables Spice to provide high-performance accelerated queries and efficient real-time updates.
+
+## Example Use Case
+
+Consider a fraud detection application that needs to determine whether a pending transaction is likely fraudulent. The application queries a Spice-accelerated, real-time updated table of recent transactions to check if a pending transaction resembles known fraudulent ones. With CDC, the table is kept up-to-date, so the application can quickly identify potential fraud.
+
+## Considerations
+
+When configuring datasets to be accelerated with CDC, ensure that the [data connector](../components/data-connectors) supports CDC and can return a stream of row-level changes. See the [Supported Data Connectors](#supported-data-connectors) section for more information.
+
+The startup time for CDC-accelerated datasets may be longer than for non-CDC-accelerated datasets due to the initial synchronization.
+
+:::tip
+
+It is recommended to use CDC-accelerated datasets with persistent data accelerator configurations (i.e., `file` mode for [`DuckDB`](../components/data-accelerators/duckdb)/[`SQLite`](../components/data-accelerators/sqlite) or [`PostgreSQL`](../components/data-accelerators/postgres)). This ensures that when Spice restarts, it can resume from the last known state of the dataset instead of re-fetching the entire dataset.
+
+:::
+
+## Supported Data Connectors
+
+Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
+
+Spice currently supports streaming ingestion via:
+
+- **[PostgreSQL Logical Replication](./postgres-replication.md)** — **recommended** for PostgreSQL sources. Spice connects directly to the source using Postgres' native logical replication protocol (`wal_level=logical` + pgoutput) and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. No Kafka, no Debezium, no external services.
+- **[DynamoDB Streams](./dynamodb-streams.md)** — for Amazon DynamoDB sources. Spice consumes the table's DynamoDB Streams directly and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator.
+- **[MongoDB Change Streams](./mongodb-streams.md)** — for MongoDB replica sets and sharded clusters. Spice opens a native Change Stream on the source collection and applies inserts, updates, replaces, and deletes to the accelerator.
+- **[Apache Kafka](../../components/data-connectors/kafka.md)** — for event-streaming topics. Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration (no separate CDC connector required).
+- **[Debezium](./debezium.md)** (over Kafka) — for sources where Debezium + Kafka is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.).
+
+## Example
+
+See an example of configuring a dataset to use CDC with Debezium by following the recipe at [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium#readme).
+
+```yaml
+version: v1
+kind: Spicepod
+name: cdc-debezium
+datasets:
+  - from: debezium:cdc.public.customer_addresses
+    name: cdc
+    params:
+      debezium_transport: kafka
+      debezium_message_format: json
+      kafka_bootstrap_servers: localhost:19092
+      kafka_security_protocol: PLAINTEXT
+    acceleration:
+      enabled: true
+      engine: sqlite
+      mode: file
+      refresh_mode: changes
+```
