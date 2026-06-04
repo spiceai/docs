@@ -8,7 +8,9 @@ tags:
   - search
 ---
 
-The Elasticsearch Data Connector exposes Elasticsearch indexes as SQL tables in Spice. Index mappings are translated to Arrow schemas so that documents can be queried with federated SQL alongside data from other connectors. The connector also bridges Elasticsearch's native kNN and full-text search into Spice, enabling [hybrid search](../../features/search) through the standard `vector_search`, `text_search`, and `rrf` UDTFs.
+The Elasticsearch Data Connector exposes Elasticsearch indexes as SQL tables in Spice. Index mappings are translated to Arrow schemas so that documents can be queried with federated SQL alongside data from other connectors.
+
+To run [vector, full-text, or hybrid search](../../features/search) (the `vector_search`, `text_search`, and `rrf` UDTFs) against an Elasticsearch index, the dataset must additionally be configured for search — as an [Elasticsearch Vector Engine](../vectors/elasticsearch) with an embedding model for vector search, and/or with full-text search columns for `text_search`. See [Vector and Full-Text Search](#vector-and-full-text-search) below. Registering an index through the data connector alone exposes it for federated SQL but does not make it searchable through those UDTFs.
 
 ```yaml
 datasets:
@@ -92,7 +94,12 @@ LIMIT 10;
 
 ### Vector and Full-Text Search
 
-When an index contains a `dense_vector` field, the Elasticsearch connector wires it into Spice's search pipeline. This enables:
+An Elasticsearch dataset is **not** searchable through the search UDTFs by virtue of being registered with the data connector. To enable search against an Elasticsearch index, configure the dataset for search:
+
+- For **vector** and **hybrid** search, configure the dataset as an [Elasticsearch Vector Engine](../vectors/elasticsearch) (`vectors: { engine: elasticsearch, enabled: true }`) with a column-level `embeddings` entry naming an embedding model. The embedding model is required — it is used to embed the query text at search time.
+- For **full-text** search, enable `full_text_search` on the column(s) to search.
+
+Once configured, the following UDTFs are available against the dataset:
 
 - **Vector similarity search** via [`vector_search`](../../reference/sql/search#vector-search-vector_search) — executed natively as an Elasticsearch kNN query.
 - **Full-text search** via [`text_search`](../../reference/sql/search#full-text-search-text_search) — executed using Elasticsearch's native BM25 ranking.
