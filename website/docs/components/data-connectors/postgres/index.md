@@ -130,6 +130,12 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 | `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
 | `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
 
+:::warning[`pg_sslmode` default differs on the WAL replication transport]
+
+The `pg_sslmode` default of `verify-full` documented above applies to the federated read/query path. On the WAL replication transport used by `refresh_mode: changes`, an unset `pg_sslmode` defaults to **`prefer`**, which negotiates a **plaintext** connection (no certificate verification). Set `pg_sslmode` to `require`, `verify-ca`, or `verify-full` to force TLS on the WAL stream — see [`pg_sslmode` for WAL streaming](../../features/cdc/postgres-replication#pg_sslmode-for-wal-streaming).
+
+:::
+
 ## Types
 
 The table below shows the PostgreSQL data types supported, along with the type mapping to Apache Arrow types in Spice.
