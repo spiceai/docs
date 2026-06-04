@@ -72,16 +72,17 @@ Vortex compression typically delivers 2–4× better compression than Parquet Sn
 
 ## Metrics
 
-Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne also registers the following OpenTelemetry instruments for CDC ingestion and scan-path observability, all tagged by `dataset`:
+Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne also registers the following OpenTelemetry instruments for CDC ingestion, write/compaction, scan-path, and segment-cache observability, all tagged by `dataset`:
 
 ### CDC Apply Metrics
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
 | `dataset_acceleration_cdc_apply_burst_duration_ms` | Histogram | ms | Duration to apply one coalesced CDC burst. |
-| `dataset_acceleration_cdc_apply_burst_bytes` | Histogram | bytes | Arrow in-memory bytes in one coalesced CDC apply burst. |
+| `dataset_acceleration_cdc_apply_burst_bytes` | Histogram | By | Arrow in-memory bytes in one coalesced CDC apply burst. |
 | `dataset_acceleration_cdc_apply_burst_envelopes` | Histogram | envelopes | Number of source envelopes in one coalesced CDC apply burst. |
 | `dataset_acceleration_cdc_apply_fixed_cost_ms` | Histogram | ms | Duration for fixed-cost phases of CDC apply (with `phase` label: `finalize_wait`, `commit_wait`, etc.). |
+| `dataset_acceleration_cdc_source_recv_wait_ms` | Histogram | ms | Duration the CDC apply loop waited to receive the next batch from the source-reader channel. High values indicate the apply loop is source-bound (slot read / WAL decode can't keep up); near-zero indicates it is apply-bound. |
 
 ### Scan-Path Metrics
 
@@ -90,6 +91,27 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `cayenne_scan_listing_table_cache_entries` | Gauge | entries | Number of entries in the scan `ListingTable` cache. Cleared on snapshot change (compaction/sort/overwrite). |
 | `cayenne_listing_fence_wait_duration_ms` | Histogram | ms | Time spent waiting on listing-fence reads during scans. |
 | `cayenne_listing_scan_duration_ms` | Histogram | ms | Duration of listing-table scans. |
+
+### Write & Compaction Metrics
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_write_phase_duration_ms` | Histogram | ms | Time spent in Cayenne write-path phases. |
+| `cayenne_compaction_duration_ms` | Histogram | ms | Wall-clock time of Cayenne background compaction passes. The histogram's count doubles as the compaction-pass counter. |
+| `cayenne_compaction_memory_pool_bytes` | Gauge | By | Size of the dedicated compaction memory pool carved from the query memory limit (see `cayenne_compaction_memory_fraction`). |
+| `cayenne_compaction_memory_exhausted_total` | Counter | passes | Compaction passes that hit `ResourcesExhausted` on the dedicated compaction memory pool. |
+
+### Segment Cache Metrics
+
+The segment cache is the per-dataset Vortex decompressed-segment cache (`cayenne_segment_cache_mb`). The `accesses` and `hits` instruments are cumulative.
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_segment_cache_accesses` | Gauge | accesses | Cumulative Vortex segment cache `get()` calls. |
+| `cayenne_segment_cache_hits` | Gauge | hits | Cumulative Vortex segment cache hits. (Hit rate = `hits / accesses`.) |
+| `cayenne_segment_cache_entries` | Gauge | entries | Live Vortex segment cache entry count. |
+| `cayenne_segment_cache_weighted_bytes` | Gauge | By | Live Vortex segment cache size in bytes. |
+| `cayenne_segment_cache_capacity_bytes` | Gauge | By | Configured Vortex segment cache capacity in bytes. |
 
 See [Component Metrics](../../../features/observability/component_metrics) for enabling and exporting metrics.
 
