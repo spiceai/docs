@@ -61,10 +61,10 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 
 **Memory Configuration Parameters:**
 
-| Parameter                  | Default | Description                                                                                                                                  |
-| -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`  | `128`   | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans by caching file metadata. |
-| `cayenne_segment_cache_mb` | `256`   | Size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.                   |
+| Parameter                  | Scope                  | Default | Description                                                                                                                                  |
+| -------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`  | `runtime.params`       | `128`   | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. |
+| `cayenne_segment_cache_mb` | `acceleration.params`  | `256`   | Per-dataset size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.        |
 
 **Memory Usage Guidelines:**
 
@@ -76,6 +76,11 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 **Example Configuration:**
 
 ```yaml
+runtime:
+  params:
+    # Engine-global footer cache (shared by all Cayenne datasets)
+    cayenne_footer_cache_mb: 256
+
 datasets:
   - from: s3://my-bucket/large-dataset/
     name: large_dataset
@@ -83,7 +88,7 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 256
+        # Per-dataset segment cache
         cayenne_segment_cache_mb: 512
 ```
 
