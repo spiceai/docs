@@ -205,10 +205,12 @@ The IAM role or user needs the following permissions to access DynamoDB tables:
 | `dynamodb:Scan`          | Required. Allows reading all items from the table                        |
 | `dynamodb:Query`         | Required. Allows reading items from the table using partition key        |
 | `dynamodb:DescribeTable` | Required. Allows fetching table metadata and schema information          |
-| `dynamodb:PutItem`       | Required for INSERT. Allows writing new items to the table               |
+| `dynamodb:BatchWriteItem`| Required for INSERT and DELETE. Both write paths issue `BatchWriteItem` requests |
 | `dynamodb:UpdateItem`    | Required for UPDATE. Allows modifying existing items in the table        |
-| `dynamodb:DeleteItem`    | Required for DELETE. Allows removing items from the table                |
-| `dynamodb:BatchWriteItem`| Required for batch INSERT/DELETE. Allows batch write operations           |
+
+:::note[Streams / CDC permissions]
+When using `refresh_mode: changes` (DynamoDB Streams), the IAM role or user additionally needs `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, and `dynamodb:GetRecords`, scoped to the table's stream ARN (`arn:aws:dynamodb:*:*:table/YOUR_TABLE_NAME/stream/*`).
+:::
 
 ### Example IAM Policies
 
@@ -491,7 +493,7 @@ DELETE FROM users WHERE id = 42;
 Write operations use the table's primary key (partition key and optional sort key) to identify items. The `write_parallelism` parameter controls how many DynamoDB API calls are issued concurrently for batch operations (default: `10`).
 
 :::note
-INSERT uses `BatchWriteItem` for efficiency. UPDATE and DELETE use per-item API calls (`UpdateItem` / `DeleteItem`) issued in parallel chunks sized by `write_parallelism`.
+INSERT and DELETE both use `BatchWriteItem` (with `PutRequest` and `DeleteRequest` items respectively) for efficiency. UPDATE uses per-item `UpdateItem` calls. All write operations are issued in parallel chunks sized by `write_parallelism`.
 :::
 
 ## Examples
