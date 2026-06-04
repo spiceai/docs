@@ -59,13 +59,23 @@ datasets:
       mode: file
 ```
 
-### `params`
+### Parameters
+
+Spice Cayenne is configured through two distinct parameter scopes:
+
+- **Acceleration parameters** are set per dataset under `acceleration.params` and control how that dataset's accelerated data is stored, compressed, written, and compacted.
+- **Runtime parameters** are set once per instance under `runtime.params` and control engine-global behavior — caches, optimizer rules, and dedicated memory pools — shared by every Cayenne-accelerated dataset.
+
+The two scopes are not interchangeable: setting a runtime parameter under `acceleration.params` (or a per-dataset parameter under `runtime.params`) has no effect — the value is ignored.
+
+#### Acceleration parameters (`acceleration.params`)
+
+Set under a dataset's `acceleration.params`:
 
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
-| `cayenne_footer_cache_mb`         | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans. Defaults to `128`.                                                        |
 | `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in megabytes, caching decompressed data segments for improved query performance. Defaults to `256`.                                                |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
 | `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Defaults to `256`. Smaller files enable better parallelism and predicate pushdown. |
@@ -78,7 +88,9 @@ datasets:
 | `sort_columns`                    | Comma-separated list of columns to sort data by on refresh operations. Improves segment pruning for frequently filtered columns.                                                              |
 | `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
-### S3 Express One Zone Parameters
+##### S3 Express One Zone parameters
+
+These are acceleration parameters (set under `acceleration.params`) used when storing Cayenne data files in S3 Express One Zone:
 
 | Parameter                   | Description                                                                                                                                     |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -93,6 +105,37 @@ datasets:
 | `cayenne_s3_unsigned_payload` | Use unsigned payload for S3 Express One Zone requests. Defaults to `true`.                                                                    |
 | `cayenne_s3_allow_http`     | Set to `true` for testing with local S3-compatible storage. Defaults to `false`.                                                                |
 
+#### Runtime parameters (`runtime.params`)
+
+Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. These are **not** valid under a dataset's `acceleration.params`:
+
+| Parameter                                  | Description                                                                                                                                                                                                                                                            |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Defaults to `128`. |
+| `cayenne_filter_propagation`               | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                                                                         |
+| `cayenne_optimizer_rules`                  | Selects which Cayenne optimizer rules run. Accepts `auto` (default — enables the recommended set, gated by `cayenne_filter_propagation`), `all`, `none` / `disabled`, or a comma-separated list of individual rule names.                                               |
+| `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one Cayenne-accelerated dataset is enabled and dedicated thread pools are not disabled. |
+| `cayenne_sort_merge_min_rows`              | Advanced anti-join tuning: row-count threshold above which the filter-propagation optimizer switches to a sort-merge strategy. Defaults to an internally tuned value; override only when profiling indicates a need.                                                    |
+| `cayenne_sort_merge_memory_pool_fraction`  | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Defaults to an internally tuned value.                                                                                                                                |
+
+```yaml
+runtime:
+  params:
+    # Engine-global Cayenne tuning, shared by every Cayenne-accelerated dataset
+    cayenne_footer_cache_mb: 512
+    cayenne_filter_propagation: enabled
+
+datasets:
+  - from: s3://analytics-bucket/events/
+    name: events
+    acceleration:
+      engine: cayenne
+      mode: file
+      params:
+        # Per-dataset Cayenne tuning
+        cayenne_segment_cache_mb: 1024
+```
+
 ## Performance Tuning
 
 Spice Cayenne performance can be optimized through cache configuration, compression strategy selection, and resource allocation.
@@ -101,17 +144,17 @@ Spice Cayenne performance can be optimized through cache configuration, compress
 
 Spice Cayenne uses two in-memory caches to accelerate query performance:
 
-**Footer Cache (`cayenne_footer_cache_mb`):**
+**Footer Cache (`cayenne_footer_cache_mb`) — runtime parameter:**
 
-The footer cache stores Vortex file metadata, including schemas, statistics, and encoding information. Larger cache sizes benefit workloads with many files.
+The footer cache stores Vortex file metadata, including schemas, statistics, and encoding information. It is engine-global and shared across every Cayenne-accelerated dataset, so it is set under `runtime.params`, not per dataset. Larger cache sizes benefit workloads with many files.
 
 - Default: 128 MB
 - Increase for datasets with many small files
 - Each file requires approximately 1-10 KB of footer cache
 
-**Segment Cache (`cayenne_segment_cache_mb`):**
+**Segment Cache (`cayenne_segment_cache_mb`) — acceleration parameter:**
 
-The segment cache stores decompressed data segments. Larger cache sizes benefit workloads with repeated queries on the same data.
+The segment cache stores decompressed data segments. It is configured per dataset under `acceleration.params`. Larger cache sizes benefit workloads with repeated queries on the same data.
 
 - Default: 256 MB
 - Increase for workloads with hot data patterns
@@ -120,6 +163,11 @@ The segment cache stores decompressed data segments. Larger cache sizes benefit 
 **Example - High-throughput configuration:**
 
 ```yaml
+runtime:
+  params:
+    # Engine-global footer cache, shared by all Cayenne datasets
+    cayenne_footer_cache_mb: 512
+
 datasets:
   - from: s3://analytics-bucket/events/
     name: events
@@ -127,7 +175,7 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 512
+        # Per-dataset segment cache
         cayenne_segment_cache_mb: 1024
 ```
 
@@ -490,6 +538,10 @@ Spice Cayenne manages memory efficiently through columnar storage and selective 
 **Example - Memory-constrained environment:**
 
 ```yaml
+runtime:
+  params:
+    cayenne_footer_cache_mb: 64
+
 datasets:
   - from: s3://my-bucket/data/
     name: constrained_data
@@ -497,7 +549,6 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 64
         cayenne_segment_cache_mb: 128
 ```
 
@@ -541,6 +592,9 @@ runtime:
   query:
     memory_limit: 4GiB
     temp_directory: /tmp/spice
+  params:
+    # Engine-global Cayenne runtime tuning (shared by all Cayenne datasets)
+    cayenne_footer_cache_mb: 256
 
 datasets:
   # Local file storage example with upsert
@@ -560,7 +614,6 @@ datasets:
       refresh_check_interval: 1h
       params:
         cayenne_compression_strategy: btrblocks
-        cayenne_footer_cache_mb: 256
         cayenne_segment_cache_mb: 512
         cayenne_target_file_size_mb: 64
         sort_columns: created_at,id

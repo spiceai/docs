@@ -170,6 +170,26 @@ SELECT ST_AsText(ST_Point(0.0, 0.0)) AS geom;
 -- POINT(0 0)
 ```
 
+### Spice Cayenne (engine-global)
+
+Engine-global tuning for the [Spice Cayenne](../../components/data-accelerators/cayenne) data accelerator. These apply to every Cayenne-accelerated dataset in the instance and are **not** valid under a dataset's `acceleration.params` (per-dataset Cayenne parameters are documented on the [Cayenne accelerator page](../../components/data-accelerators/cayenne#acceleration-parameters-accelerationparams)).
+
+| Parameter Name                            | Description                                                                                                                                                                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`                 | Size of the engine-wide in-memory Vortex footer cache in megabytes, shared across all Cayenne datasets. Defaults to `128`.                                                                                              |
+| `cayenne_filter_propagation`              | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                          |
+| `cayenne_optimizer_rules`                 | Selects which Cayenne optimizer rules run. Accepts `auto` (default), `all`, `none` / `disabled`, or a comma-separated list of rule names.                                                                               |
+| `cayenne_compaction_memory_fraction`      | Fraction of the query memory pool reserved for the dedicated Cayenne compaction pool. Defaults to `0.2` (clamped to a supported range). Applied only when a Cayenne dataset is enabled and dedicated thread pools are not disabled. |
+| `cayenne_sort_merge_min_rows`             | Advanced anti-join tuning: row-count threshold above which filter propagation switches to a sort-merge strategy. Internally tuned default.                                                                              |
+| `cayenne_sort_merge_memory_pool_fraction` | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Internally tuned default.                                                                                             |
+
+```yaml
+runtime:
+  params:
+    cayenne_footer_cache_mb: 512
+    cayenne_filter_propagation: enabled
+```
+
 ## `runtime.source_rate_control`
 
 Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.

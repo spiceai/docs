@@ -47,10 +47,10 @@ Cayenne enforces single-writer-per-table concurrency via the metastore. Multiple
 
 Two in-memory caches tune the random-read vs memory tradeoff:
 
-| Parameter                    | Description                                                                       |
-| ---------------------------- | --------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`    | Footer cache (Vortex file footers). Low memory cost; enables fast plan-time decisions. |
-| `cayenne_segment_cache_mb`   | Segment (data page) cache. Set proportional to your hot working set.              |
+| Parameter                    | Scope                 | Description                                                                       |
+| ---------------------------- | --------------------- | --------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`    | `runtime.params`      | Engine-global footer cache (Vortex file footers), shared by all Cayenne datasets. Low memory cost; enables fast plan-time decisions. |
+| `cayenne_segment_cache_mb`   | `acceleration.params` | Per-dataset segment (data page) cache. Set proportional to your hot working set.  |
 
 For point-lookup-heavy workloads, size `cayenne_segment_cache_mb` generously — Vortex random-access reads are ~100× faster for cached segments than cold S3 reads.
 

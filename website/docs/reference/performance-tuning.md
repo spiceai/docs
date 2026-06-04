@@ -47,9 +47,13 @@ For point lookups on large datasets, Spice Cayenne often matches or exceeds the 
 
 ### Cache Configuration
 
-Spice Cayenne maintains two in-memory caches that significantly impact query performance:
+Spice Cayenne maintains two in-memory caches that significantly impact query performance. The footer cache is engine-global and set under `runtime.params`; the segment cache is configured per dataset under `acceleration.params`:
 
 ```yaml
+runtime:
+  params:
+    cayenne_footer_cache_mb: 256   # Engine-global; increase for many files
+
 datasets:
   - from: s3://bucket/data/
     name: analytics
@@ -57,8 +61,7 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 256   # Increase for many files
-        cayenne_segment_cache_mb: 512  # Increase for hot data patterns
+        cayenne_segment_cache_mb: 512  # Per-dataset; increase for hot data patterns
 ```
 
 **Footer Cache Sizing:**
