@@ -35,7 +35,7 @@ TLS is controlled via `mysql_sslmode`:
 | Value         | Behavior                                                         |
 | ------------- | ---------------------------------------------------------------- |
 | `disabled`    | No TLS.                                                          |
-| `preferred`   | Try TLS, fall back to plaintext. Not recommended for production. |
+| `preferred`   | Use TLS but skip certificate and hostname verification (accepts invalid or self-signed certs). The connection is still encrypted and does not fall back to plaintext — it fails if the server lacks TLS support. Not recommended for production. |
 | `required`    | Require TLS and verify the server certificate against system root CAs. |
 
 For production, use `required` (the default). To verify against a specific CA rather than the system trust store, also set `mysql_sslrootcert` to the CA bundle path.
@@ -96,9 +96,9 @@ MySQL operations participate in Spice [task history](../../../reference/task_his
 ## Known Limitations
 
 - Only TCP connections are supported. Unix socket connections are not exposed through Spice configuration.
-- Only `disabled`, `preferred`, and `required` SSL modes are exposed. The `required` mode verifies the server certificate and domain name (equivalent to `verify_identity`). There is no mode that encrypts without verifying.
+- Only `disabled`, `preferred`, and `required` SSL modes are exposed. The `required` mode verifies the server certificate and domain name (equivalent to `verify_identity`); `preferred` encrypts the connection but skips certificate and hostname verification.
 - Large text/blob columns are fetched in their entirety per row; consider selecting only the columns you need when federating.
-- `mysql_sslmode: preferred` silently downgrades to plaintext on TLS negotiation failure and is not recommended for production.
+- `mysql_sslmode: preferred` encrypts the connection but skips certificate and hostname verification (accepting invalid or self-signed certificates), so it does not protect against man-in-the-middle attacks and is not recommended for production. It does not fall back to plaintext — connecting to a server without TLS support fails.
 
 ## Troubleshooting
 
@@ -108,4 +108,4 @@ MySQL operations participate in Spice [task history](../../../reference/task_his
 | `Too many connections`                                    | Sum of Spice pool sizes + other clients exceeds server `max_connections`. | Reduce `mysql_pool_max` or raise the server limit.                                             |
 | Sustained `active_wait_requests > 0`                      | Pool saturation.                                          | Increase `mysql_pool_max`; reduce concurrent dataset refreshes.                                |
 | `SSL connection error`                                    | Certificate mismatch or TLS negotiation failure.          | Verify `mysql_sslrootcert` matches the server's issuing CA. Use `openssl s_client -connect` to inspect. |
-| Silent plaintext connection                               | `mysql_sslmode: preferred` falling back.                  | Switch to `required`.                                                                                |
+| Connection accepted despite an invalid or self-signed server certificate | `mysql_sslmode: preferred` skips certificate and hostname verification. | Switch to `required` (optionally with `mysql_sslrootcert`) to enforce verification.                  |
