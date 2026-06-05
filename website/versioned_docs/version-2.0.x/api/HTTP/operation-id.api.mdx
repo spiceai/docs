@@ -1,0 +1,65 @@
+---
+id: operation-id
+title: "Establish an MCP SSE Connection"
+description: "Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools."
+sidebar_label: "Establish an MCP SSE Connection"
+hide_title: true
+hide_table_of_contents: true
+api: eJzlU8Fu2zAM/RWCpxZwnLSnzbchCIYCKxrA2akLGlVmY2KypEm0t8Lwvw90tjbtPmHWxdYT36Men0cUc8xY3WNnI+4LbCjbxFE4eKzwxrOwEcpgoKY0UFrU5AU2A3nJcFHXm0uwwXuyWgF9Zn8EaQluQ0MO1sEL/RLYpiDBBgcXt+vtJUgA9kLJWIGfLC3UkS2BhOBy+c3rgvPnzlv6K0NNAdbxrG+Nh0y+gY5yNkfKMLCBw/au3sFyuFp2Ni5zpgMY30AiSzwQJMox+EwZpE2hP7YgLWeo6w1kSWS6EgsMkZLRK900WL1+PXCDBb4wYDVOBXYkbdBjRxIsMBppscIzfSwwz+ap0SP2yWGFrUislksXrHFtyFJ9WH1c4fsBfFEYGhrIhdip9SemUq194mOf6OTgYbFQxkOJ017lbJ9Ynmc9E/nhO+n7XjH2TwGrEYXFEVaYei/c0T/Su5Yg61waeD3i2JLPpPXedFr+KRrb0uK61Oa5IS/8xJTeIlOBev0T8XW5KleL3mcxj44UiyFLZ/wZ62YGObdgPNyut/N41i9Be9/siFaT5uV/zqw8R7VOm19GZ9irtXPYxj+hvMfhCov5Vy9Qg7kvULOnyDg+mkxfk5sm3f7RU5ojU+BgEs+T0gCdxf3zZofT9BtPaXHY
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Establish an MCP SSE Connection"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/mcp/sse"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Initiates a Server-Sent Events (SSE) connection using the Model Context Protocol (MCP) to interact with Spice tools.
+
+
+             Once connected, clients can send messages via `POST /v1/mcp/sse` and receive responses through this SSE stream.
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./operation-id.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./operation-id.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
