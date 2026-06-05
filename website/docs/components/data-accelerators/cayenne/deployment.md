@@ -96,10 +96,33 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
-| `cayenne_write_phase_duration_ms` | Histogram | ms | Time spent in Cayenne write-path phases. |
+| `cayenne_write_phase_duration_ms` | Histogram | ms | Time spent in Cayenne write-path phases. Labelled by `table` and `phase` (see [Write-phase labels](#write-phase-labels)). |
 | `cayenne_compaction_duration_ms` | Histogram | ms | Wall-clock time of Cayenne background compaction passes. The histogram's count doubles as the compaction-pass counter. |
 | `cayenne_compaction_memory_pool_bytes` | Gauge | By | Size of the dedicated compaction memory pool carved from the query memory limit (see `cayenne_compaction_memory_fraction`). |
 | `cayenne_compaction_memory_exhausted_total` | Counter | passes | Compaction passes that hit `ResourcesExhausted` on the dedicated compaction memory pool. |
+
+#### Write-phase labels
+
+`cayenne_write_phase_duration_ms` carries a `table` label (the accelerated dataset) and a `phase` label that attributes time across the write path. The `phase` values are:
+
+| `phase` | Description |
+| ------- | ----------- |
+| `cdc_path_synchronous` | Total latency of a synchronous CDC write, from slot-apply through publish completion. |
+| `cdc_path_inlined` | A pipelined CDC append that completed as a small inlined write. |
+| `cdc_path_staged` | A staged (pipelined) CDC write: time to durable WAL and return. Publish/finalize is backgrounded, so this **excludes** publish. |
+| `cdc_path_inline_fallback` | A staged inline-bearing upsert that could not be represented as a staged commit and fell back to the synchronous write path. Tracks fallback frequency. |
+| `vortex_write` | Encoding and writing Vortex data files. |
+| `stage_wal_prepare` | Preparing the staged-append write-ahead log. |
+| `apply_on_conflict_deletions` | Applying merge-on-read deletions for on-conflict (upsert) writes. |
+| `publish` | Total publish/finalization of a new snapshot. |
+| `publish_lock_wait` | Waiting to acquire the visibility and listing-fence locks before publishing. |
+| `publish_seq` | Durably recording the new snapshot's sequence number before it becomes visible. |
+| `publish_cas` | The compare-and-swap that makes the new protected snapshot visible. |
+| `publish_wal_write` | Writing the staging WAL during backgrounded finalize. |
+| `publish_move_files` | Moving staged files into place during finalize. |
+| `publish_commit` | Committing the new snapshot during finalize. |
+
+The `cdc_path_*` phases are mutually exclusive per write and measure end-to-end (or staged-prepare) latency; the remaining phases are sub-components useful for attributing where write time is spent.
 
 ### Segment Cache Metrics
 
