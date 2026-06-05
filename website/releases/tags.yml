@@ -118,9 +118,13 @@ cayenne:
   label: 'cayenne'
   permalink: '/cayenne'
   description: 'Cayenne (Vortex) data accelerator related topics and usage'
-"change data capture":
-  label: 'Change Data Capture'
-  permalink: '/change-data-capture'
+cedar:
+  label: 'cedar'
+  permalink: '/cedar'
+  description: 'Cedar policy language related topics and usage'
+cdc:
+  label: 'CDC'
+  permalink: '/cdc'
   description: 'Change Data Capture related topics and usage.'
 chunking:
   label: 'Chunking'
@@ -406,6 +410,10 @@ hot-reload:
   label: 'Hot Reload'
   permalink: '/hot-reload'
   description: 'Hot Reload related topics and usage.'
+http:
+  label: 'http'
+  permalink: '/http'
+  description: 'HTTP(s) data connector related topics and usage'
 huggingface:
   label: 'huggingface'
   permalink: '/huggingface'
