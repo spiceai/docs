@@ -70,6 +70,7 @@ Consider the following limitations when using DuckDB acceleration:
 
 - DuckDB does not support [enum and dictionary field types](https://duckdb.org/docs/sql/data_types/overview).
 - DuckDB's maximum decimal precision is 38 digits. `Decimal256` (76 digits) is unsupported.
+- Timezone-aware timestamp columns (e.g. a PostgreSQL `timestamptz` source) are stored at microsecond precision. DuckDB's `TIMESTAMP WITH TIME ZONE` type has no nanosecond variant, so a nanosecond-precision timezone-aware column is normalized to microsecond when accelerated, and sub-microsecond precision is not preserved. Timezone-naive timestamp columns are unaffected (DuckDB has a native nanosecond `TIMESTAMP_NS` type).
 - Queries using `on_zero_results: use_source` cannot filter binary columns directly (e.g., `WHERE col_blob <> ''`). Instead, cast binary columns to another type (e.g., `WHERE CAST(col_blob AS TEXT) <> ''`).
 - DuckDB indexes currently do not support spilling to disk.
 - Hot-reloading dataset configurations while the Spice Runtime is active disables DuckDB query federation until the runtime restarts.
