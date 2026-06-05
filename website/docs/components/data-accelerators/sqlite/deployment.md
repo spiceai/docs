@@ -31,7 +31,7 @@ Use `mode: file` for any dataset larger than a few hundred MB or where restart s
 
 | Parameter         | Default  | Description                                                                                 |
 | ----------------- | -------- | ------------------------------------------------------------------------------------------- |
-| `busy_timeout` | `5000`   | Milliseconds SQLite will wait for a table lock before returning `SQLITE_BUSY`.              |
+| `busy_timeout` | `5000`   | Milliseconds SQLite will wait for a table lock before returning `SQLITE_BUSY`. Defaults to `15000` when the acceleration `storage_profile` resolves to EBS-class network storage. |
 
 Raise this when you observe `database is locked` errors under sustained concurrent refresh + read load.
 
