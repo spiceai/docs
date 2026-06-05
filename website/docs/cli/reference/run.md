@@ -22,7 +22,7 @@ spice run [flags] -- [spiced flags]
 - `--endpoint` Configure the runtime endpoint. The URL scheme determines the endpoint type: `http://` or `https://` sets the HTTP endpoint, `grpc://` or `grpc+tls://` sets the Flight endpoint. Cannot be combined with `--http-endpoint` or `--flight-endpoint` for the same endpoint type.
 - `--flight-endpoint` Configure runtime Flight endpoint. Defaults to `http://127.0.0.1:50051`.
 - `--http-endpoint` Configure runtime HTTP endpoint. Defaults to `http://127.0.0.1:8090`.
-- `--metrics-endpoint` Configure runtime Prometheus metrics endpoint. Defaults to `http://127.0.0.1:9090`.
+- `--metrics-endpoint` Configure the runtime Prometheus metrics endpoint (disabled by default).
 
 #### Spiced Flags
 
