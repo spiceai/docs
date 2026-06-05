@@ -122,9 +122,9 @@ cedar:
   label: 'cedar'
   permalink: '/cedar'
   description: 'Cedar policy language related topics and usage'
-"change data capture":
+change data capture:
   label: 'Change Data Capture'
-  permalink: '/change-data-capture'
+  permalink: '/cdc'
   description: 'Change Data Capture related topics and usage.'
 chunking:
   label: 'Chunking'
