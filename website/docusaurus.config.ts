@@ -214,7 +214,7 @@ const config: Config = {
       { name: 'twitter:creator', content: '@spice_ai' }
     ],
     announcementBar: {
-      content: '<a href="/releases/v2.0-rc.5">Spice.ai OSS v2.0-rc.5</a> is now available! 🔥',
+      content: '<a href="/releases/v2.0-stable">Spice.ai OSS v2.0-stable</a> is now available! 🎉',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true
