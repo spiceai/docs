@@ -30,13 +30,7 @@ Spice listens on three ports:
 - `9090` — Prometheus metrics (optional)
 - `50051` — Arrow Flight (gRPC) for high-throughput query results
 
-To use AI features (embeddings, models, search), substitute the `latest-models` tag:
-
-```bash
-docker run --rm -it -p 8090:8090 -p 50051:50051 \
-  -v "$(pwd)":/app \
-  spiceai/spiceai:latest-models
-```
+As of Spice v2.0, AI features (embeddings, local model inference, search) are included in the default image — no separate tag is required. The data-only image, without AI/ML dependencies, is published only in nightly builds for open source and is available as a production-ready distribution through [Spice Cloud and Spice.ai Enterprise](https://spice.ai/pricing).
 
 Browse all published tags at [hub.docker.com/r/spiceai/spiceai/tags](https://hub.docker.com/r/spiceai/spiceai/tags).
 
@@ -48,17 +42,19 @@ Browse all published tags at [hub.docker.com/r/spiceai/spiceai/tags](https://hub
 
 ## Image Tags
 
-| Tag                | Description                                                                                        |
-| ------------------ | -------------------------------------------------------------------------------------------------- |
-| `latest`           | Latest stable release. Excludes large model dependencies for a smaller image.                      |
-| `latest-models`    | Latest stable release including AI features (embeddings, local model inference, vector search).    |
-| `<version>`        | A specific stable release, e.g. `1.11.5`. Recommended for production for reproducible deployments. |
-| `<version>-models` | A specific stable release with AI features included.                                               |
+| Tag         | Description                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `latest`    | Latest stable release. Includes AI features (embeddings, local model inference, vector search) by default.                 |
+| `<version>` | A specific stable release, e.g. `2.0.0`. Recommended for production for reproducible deployments.                          |
+
+:::note
+The `-models` image tags were removed in Spice v2.0 — AI/ML support is now part of the default image. The data-only image (without AI/ML dependencies) is published only in nightly builds for open source.
+:::
 
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 8090:8090 spiceai/spiceai:1.11.5
+docker run -p 8090:8090 spiceai/spiceai:2.0.0
 ```
 
 ## Run with Docker Compose
@@ -98,9 +94,9 @@ docker compose up
 For deployments that ship a Spicepod and data with the runtime, build a custom image that copies them in:
 
 ```dockerfile
-# Use spiceai/spiceai:latest-models for AI features.
+# AI features are included in the default image as of Spice v2.0.
 # See https://hub.docker.com/r/spiceai/spiceai/tags for all tags.
-FROM spiceai/spiceai:1.11.5
+FROM spiceai/spiceai:2.0.0
 
 WORKDIR /app
 

@@ -350,7 +350,7 @@ metadata:
 spec:
   containers:
     - name: spice
-      image: spiceai/spiceai:latest-models
+      image: spiceai/spiceai:latest
       resources:
         requests:
           memory: '8Gi'

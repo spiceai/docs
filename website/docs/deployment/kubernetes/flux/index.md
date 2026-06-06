@@ -125,7 +125,7 @@ spec:
     replicaCount: 1
     image:
       repository: spiceai/spiceai
-      tag: latest-models
+      tag: latest
     spicepod:
       name: app
       version: v1
