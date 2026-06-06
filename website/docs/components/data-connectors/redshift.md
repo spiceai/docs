@@ -16,7 +16,7 @@ Use the format `postgres:schema.table` to reference a Redshift table. The connec
 ### Example Spicepod
 
 ```yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: tpch-read
 datasets:
