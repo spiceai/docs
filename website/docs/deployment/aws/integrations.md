@@ -367,7 +367,7 @@ aws configure
 
 ```yaml
 # spicepod.yaml
-version: v1beta1
+version: v1
 kind: Spicepod
 name: aws_quickstart
 
