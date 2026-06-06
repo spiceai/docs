@@ -201,7 +201,7 @@ az containerapp create \
   --name spiceai \
   --resource-group $RG \
   --environment $ENV \
-  --image spiceai/spiceai:1.11.5-models \
+  --image spiceai/spiceai:2.0.0 \
   --target-port 8090 \
   --ingress external \
   --transport http \

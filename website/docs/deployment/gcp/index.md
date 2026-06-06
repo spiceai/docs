@@ -170,7 +170,7 @@ Cloud Run pulls the [Spice.ai container image](https://hub.docker.com/r/spiceai/
 gcloud run deploy spiceai \
   --project $PROJECT \
   --region $REGION \
-  --image spiceai/spiceai:1.11.5-models \
+  --image spiceai/spiceai:2.0.0 \
   --port 8090 \
   --service-account spiceai-runtime@${PROJECT}.iam.gserviceaccount.com \
   --min-instances 1 --max-instances 5 \

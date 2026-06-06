@@ -173,7 +173,7 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `additionalLabels`              | Additional labels to add to all resources.                                                                                                                                                | `{}`              |
 | `image.pullSecrets`             | Specify Docker registry secret names as an array.                                                                                                                                         | `[]`              |
 | `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai/spiceai` |
-| `image.tag`                     | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `latest-models`   |
+| `image.tag`                     | Replace with a specific version of Spice.ai to run.                                                                                                                                       | `latest`          |
 | `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`           |
 | `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`               |
 | `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | `{}`              |
@@ -393,7 +393,7 @@ additionalLabels:
 
 image:
   repository: spiceai/spiceai
-  tag: latest-models
+  tag: latest
 replicaCount: 1
 
 service:
