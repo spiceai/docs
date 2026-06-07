@@ -29,6 +29,26 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 :::
 
+## Tuning ingestion
+
+Spice applies CDC events through a single apply loop that coalesces a contiguous run of buffered change events ("envelopes") into one accelerator write. The coalescing behavior is controlled by the following instance-wide `runtime.params` (set once under the top-level `runtime.params`, not per-dataset). Each parameter also accepts a `SPICE_`-prefixed environment variable; the `runtime.params` value takes precedence, falling back to the environment variable, then the default.
+
+| Parameter                     | Description                                                                                                                                                                                                                                                                                                                              | Default               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `cdc_prefetch_buffer`         | Number of source change events buffered ahead of the apply loop. Range `1`–`16384`.                                                                                                                                                                                                                                                     | `128`                 |
+| `cdc_max_coalesced_envelopes` | Maximum number of change events combined into a single accelerator write. Range `1`–`16384`.                                                                                                                                                                                                                                            | `256`                 |
+| `cdc_max_coalesced_bytes`     | Maximum in-memory Arrow size (bytes) of a single coalesced write. Range `1`–`1073741824` (1 GiB).                                                                                                                                                                                                                                       | `134217728` (128 MiB) |
+| `cdc_max_coalesce_age_ms`     | Apply-loop linger window in milliseconds. When `> 0`, the loop keeps accumulating change events into one write until the envelope cap, the byte budget, or this window elapses — whichever comes first. The window is measured from the start of the previous apply. `0` disables lingering, so each buffered event is applied as soon as it arrives. | `0` (no linger)       |
+| `cdc_commit_timeout_ms`       | Maximum time to wait for the previous source-side commit before surfacing ingestion as stalled. Range `1`–`3600000` (1 hour).                                                                                                                                                                                                           | `30000` (30s)         |
+
+```yaml
+runtime:
+  params:
+    cdc_max_coalesce_age_ms: 250 # linger up to 250ms to coalesce slowly-arriving events into fewer writes
+```
+
+Out-of-range or unparseable values are rejected with a warning and fall back to the default.
+
 ## Supported Data Connectors
 
 Enabling CDC by setting `refresh_mode: changes` in the acceleration settings requires support from the data connector to provide a stream of row-level changes.
