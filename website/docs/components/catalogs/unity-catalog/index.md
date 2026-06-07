@@ -46,6 +46,18 @@ Use the `include` field to specify which tables to include from the catalog. The
 The `params` field is used to configure the connection to the Unity Catalog. The following parameters are supported:
 
 - `unity_catalog_token`: The [personal access token](https://docs.unitycatalog.io/server/auth/#use-admin-token-to-verify-admin-user-is-in-local-database) used to authenticate against the Unity Catalog API.
+- `unity_catalog_credential_vending`: When set to `enabled`, short-lived storage credentials for each table are fetched from the Unity Catalog [credential vending](https://docs.databricks.com/api/workspace/temporarytablecredentials) API instead of using the static storage credentials in `dataset_params`. Defaults to `disabled`. Works with both Databricks Unity Catalog and OSS Unity Catalog.
+
+When credential vending is enabled, the static object-store credentials below (`unity_catalog_aws_*`, `unity_catalog_azure_*`, `unity_catalog_google_*`) are not required:
+
+```yaml
+catalogs:
+  - from: unity_catalog:https://<host>/api/2.1/unity-catalog/catalogs/my_catalog
+    name: uc
+    params:
+      unity_catalog_token: ${secrets:UC_TOKEN}
+      unity_catalog_credential_vending: enabled
+```
 
 ## `dataset_params`
 
