@@ -122,7 +122,7 @@ For broader observability, also monitor:
 
 ## Task History
 
-Cosmos DB requests participate in [task history](../../../reference/task_history) through the connector span. Each `_search` and `query` call is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+Cosmos DB requests participate in [task history](../../../reference/task_history) through the connector span. Each query is captured as a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
 
 ## Known Limitations
 
