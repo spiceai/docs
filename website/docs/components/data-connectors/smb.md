@@ -6,7 +6,7 @@ description: 'SMB Data Connector Documentation'
 
 SMB (Server Message Block) is a network file sharing protocol that provides shared access to files, printers, and serial ports. It is commonly used in Windows environments for network shares but is also supported on Linux (via Samba) and macOS.
 
-The SMB Data Connector enables federated SQL query across [supported file formats](../data-connectors#file-formats) stored on SMB/CIFS network shares. It supports SMB 2.0, 2.1, 3.0, and 3.1.1 protocols, compatible with Windows Server file shares, Samba servers, NAS devices (Synology, QNAP, etc.), and Azure Files.
+The SMB Data Connector enables federated SQL query across [supported file formats](../data-connectors#file-formats) stored on SMB/CIFS network shares. It requires the SMB 3.1.1 dialect — the only protocol version the connector negotiates — and is compatible with Windows Server 2016+ and Samba 4.x file shares, NAS devices (Synology, QNAP, etc.) configured for SMB 3.1.1, and Azure Files.
 
 ## Quickstart
 
