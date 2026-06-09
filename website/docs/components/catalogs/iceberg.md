@@ -277,7 +277,7 @@ INSERT INTO ice.sales.transactions
 SELECT * FROM staging_transactions;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
+Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported via equality delete files (Iceberg v2+ tables only). `UPDATE` operations are not currently supported.
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 
