@@ -75,7 +75,7 @@ With GitHub App Installation authentication, the connector's functionality depen
 | `github_endpoint`             | Optional. Base URL of the GitHub API. Defaults to `https://api.github.com`. Override to target a GitHub Enterprise Server instance (e.g., `https://github.example.com/api/v3`).                                                                                                                                       |
 | `github_include_comments`     | Optional. Pull-request connector only. Specifies the types of comments to fetch: `all`, `review`, `discussion`, or `none`. Defaults to `none`. See [Comments Example](#comments-example).                                                                                                                             |
 | `github_max_comments_fetched` | Optional. Pull-request connector only. Maximum number of comments to fetch per review thread (when `github_include_comments` is set to `review` or `all`) or per pull-request discussion (when set to `discussion` or `all`). Defaults to `25`, and is capped at `75` to protect against GitHub secondary rate limits. |
-| `github_include_commits`      | Optional. Files connector only. Whether to fetch commit metadata (`committed_date`, `committer_date`) for each file. Set to `true` to enable. Defaults to `false`.                                                                                                                                                    |
+| `github_include_commits`      | Optional. Files connector only. Whether to fetch commit metadata (adds the `created_at` and `updated_at` timestamp columns) for each file. Set to `true` to enable. Defaults to `false`.                                                                                                                                                    |
 | `github_workflow_logs`        | Optional. Workflow-runs connector only (`github.com/<owner>/<repo>/workflows/<workflow_file.yml>/runs`). Set to `enabled` to download and include the workflow run logs for each row. Defaults to `disabled`.                                                                                                         |
 
 ## Advanced Configuration
@@ -183,7 +183,11 @@ datasets:
 | mode         | Utf8      | YES         |
 | url          | Utf8      | YES         |
 | download_url | Utf8      | YES         |
+| created_at   | Timestamp | YES         |
+| updated_at   | Timestamp | YES         |
 | content      | Utf8      | YES         |
+
+`created_at` and `updated_at` are present only when `github_include_commits` is set to `true`.
 
 #### Example
 
