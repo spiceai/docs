@@ -105,13 +105,13 @@ Append streams are append-only — deletes and updates from the upstream are **n
 
 ### Message Sizing
 
-Arrow Flight record batches may exceed the default gRPC 4 MiB message limit for wide or dense schemas:
+Arrow Flight record batches can be large for wide or dense schemas. Spice raises the gRPC message limit to `100MiB` by default (well above gRPC's built-in 4 MiB); raise it further with the runtime-level `runtime.flight.max_message_size` setting:
 
-| Parameter           | Default | Description                                                                                  |
-| ------------------- | ------- | -------------------------------------------------------------------------------------------- |
-| `max_message_size`  | `4MB`   | Maximum inbound gRPC message size. Raise for wide result sets or many string columns.        |
+| Setting                           | Default  | Description                                                                                                                       |
+| --------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `runtime.flight.max_message_size` | `100MiB` | Maximum inbound and outbound gRPC message size, applied to all Flight clients. Raise for wide result sets or many string columns. |
 
-Set in spicepod parameters or via environment at runtime startup. Accepted units: `B`, `KB`, `MB`, `GB`. The same limit applies to the upstream's Flight server — raising it on the client without raising it on the server still fails.
+This is a runtime-level setting under `runtime.flight` (not a dataset connector parameter). Accepted units: `B`, `KB`, `MB`, `GB`. The same limit applies to the upstream's Flight server — raising it on the client without raising it on the server still fails.
 
 ### Network
 
@@ -208,7 +208,7 @@ Queries to the upstream Spice runtime participate in [task history](../../../ref
 | `CloudEndpointRegionMismatch`                        | `spiceai_endpoint` is a Cloud regional URL but `spiceai_region` doesn't match. | Set both to the same region, or remove one and let Spice pick the other.                                                            |
 | `UNAUTHENTICATED` on Flight handshake                | Invalid / expired / wrong-environment API key.                | For Cloud: regenerate in the Console; update the secret store. For self-hosted: confirm the key is in the upstream's `runtime.auth.api-key.keys`. |
 | TLS handshake failure with self-signed upstream cert | System cert store doesn't trust the upstream CA.              | Set `spiceai_tls_ca_certificate_file` to the upstream's CA PEM, or have the upstream present a publicly-trusted certificate.        |
-| `message size exceeded` / `ResourceExhausted`        | Row batch exceeds gRPC message limit.                         | Increase `max_message_size` on both client and server, or narrow the query projection.                                              |
+| `message size exceeded` / `ResourceExhausted`        | Row batch exceeds gRPC message limit.                         | Increase `runtime.flight.max_message_size` on both client and server, or narrow the query projection.                                              |
 | Append stream stalled; acceleration lag climbing     | Network partition or upstream dataset paused.                 | Check upstream status; verify the source dataset is healthy; restart the runtime to re-establish the stream.                        |
 | Sudden 5xx / `UNAVAILABLE` errors                    | Transient service-side issue.                                 | Flight client auto-retries; if persistent, check upstream runtime health (or the [Spice.ai status page](https://status.spice.ai)).  |
 | `MissingRequiredParameter: api_key or token`         | Targeting a Cloud endpoint with no API key configured.        | Set `spiceai_api_key` (Cloud requires authentication; self-hosted endpoints accept anonymous if upstream auth is off).              |
