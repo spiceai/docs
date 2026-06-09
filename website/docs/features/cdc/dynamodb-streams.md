@@ -60,8 +60,7 @@ The credentials Spice uses need both table and stream actions:
         "dynamodb:Scan",
         "dynamodb:DescribeStream",
         "dynamodb:GetShardIterator",
-        "dynamodb:GetRecords",
-        "dynamodb:ListStreams"
+        "dynamodb:GetRecords"
       ],
       "Resource": [
         "arn:aws:dynamodb:*:*:table/orders",
