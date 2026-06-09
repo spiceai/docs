@@ -24,7 +24,7 @@ DynamoDB authentication uses the standard AWS credential chain. Configure via th
 | `dynamodb_aws_secret_access_key` | Explicit secret key (optional).                                                                   |
 | `dynamodb_aws_session_token` | Session token for temporary credentials (optional).                                                  |
 
-For production on EKS/ECS, leave access-key parameters unset and rely on instance-profile, IRSA, or ECS task-role credentials. Grant the role `dynamodb:Scan`, `dynamodb:Query`, and `dynamodb:DescribeTable` on the table; for streams, additionally grant `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, `dynamodb:GetRecords`, and `dynamodb:ListStreams`.
+For production on EKS/ECS, leave access-key parameters unset and rely on instance-profile, IRSA, or ECS task-role credentials. Grant the role `dynamodb:Scan`, `dynamodb:Query`, and `dynamodb:DescribeTable` on the table; for streams, additionally grant `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, and `dynamodb:GetRecords`.
 
 Secrets should be sourced from a [secret store](../../secret-stores/) when not using IAM role auth.
 
@@ -90,5 +90,5 @@ Stream polling and bootstrap operations emit spans that participate in [task his
 | Dataset stuck in `Error` after restart with stream enabled | Checkpoint older than 18h or exceeded 24h retention.              | Set `lag_exceeds_shard_retention_behavior: ready_after_load` to auto-recover, or trigger a manual refresh.   |
 | `ProvisionedThroughputExceededException`         | RCU exhausted during initial scan.                                     | Switch to on-demand billing, raise RCU for the refresh window, or slow the refresh via acceleration settings.    |
 | `TrimmedDataAccessException`                     | Records trimmed from the stream before they could be processed.        | Same recovery path as `ShardNotFound` — re-bootstrap. Reduce bootstrap duration via parallel segments if supported. |
-| `AccessDeniedException` on `DescribeStream`      | IAM role lacks stream permissions.                                     | Add `dynamodb:DescribeStream`, `GetShardIterator`, `GetRecords`, `ListStreams` to the role.                     |
+| `AccessDeniedException` on `DescribeStream`      | IAM role lacks stream permissions.                                     | Add `dynamodb:DescribeStream`, `GetShardIterator`, `GetRecords` to the role.                     |
 | `ResourceNotFoundException` on stream start      | Stream not enabled on the table.                                       | Enable streams on the DynamoDB table (`NEW_AND_OLD_IMAGES` recommended).                                         |
