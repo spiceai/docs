@@ -253,10 +253,11 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 ## `ready_state`
 
-Supports one of two values:
+Supports one of three values (defaults to `on_load`):
 
 - `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
-- `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_load`: (default) Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
 
 ```yaml
 datasets:
