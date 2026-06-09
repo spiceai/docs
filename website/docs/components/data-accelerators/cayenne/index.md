@@ -74,7 +74,7 @@ Set under a dataset's `acceleration.params`:
 
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` (default) or `adaptive`. `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. `adaptive` requires `schema_inference: extended` and a non-zero `cayenne_compaction_background_interval_ms`; if either is missing it falls back to `auto`. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](#self-tuning). |
+| `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` (default) or `adaptive` (preview). `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. `adaptive` requires `schema_inference: extended` and a non-zero `cayenne_compaction_background_interval_ms`; if either is missing it falls back to `auto`. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](#self-tuning). |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_delta_encoding`          | Encoding effort applied to delta (incremental) writes such as appends and inline-memtable flushes. Accepts `auto` (default) or a fixed level `0`–`10`. Higher levels search more encoding schemes for a better compression ratio at the cost of more write-time CPU; `auto` uses light encoding for small deltas and the full cascade for large writes. Levels `7`–`10` all apply the full default cascade, so set `7` to opt out of size-gating. Applies at write time only — changing it never re-encodes existing data or forces a table re-create. Invalid values fall back to `auto` with a warning. |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
@@ -155,7 +155,7 @@ Cayenne sizes its memory-, CPU-, and storage-sensitive knobs automatically so it
 The mode is controlled by the `cayenne_tuning` acceleration parameter:
 
 - **`auto`** (default) — derive the correct configuration values statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key). No feedback loop runs.
-- **`adaptive`** — in addition to the static derivation, run a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time. Adjustments are bounded by the same environment-derived `[floor, ceiling]` the static tier uses, so the loop can only ever pick a value the static tier could have picked.
+- **`adaptive`** (preview) — in addition to the static derivation, run a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time. Adjustments are bounded by the same environment-derived `[floor, ceiling]` the static tier uses, so the loop can only ever pick a value the static tier could have picked.
 
 ```yaml
 acceleration:
@@ -163,6 +163,12 @@ acceleration:
   params:
     cayenne_tuning: adaptive
 ```
+
+:::warning[Preview]
+
+`cayenne_tuning: adaptive` is in preview. Cayenne logs a startup warning when it is enabled; verify query correctness and performance before using it for production workloads. The default `auto` mode is recommended for production.
+
+:::
 
 `adaptive` requires `schema_inference: extended` on the dataset — the loop's data-aware warm-start needs the inferred cardinality and size — and a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick. If either prerequisite is missing, Cayenne logs a warning and falls back to `auto`.
 
