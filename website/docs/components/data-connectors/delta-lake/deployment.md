@@ -28,7 +28,7 @@ Credentials must be sourced from a [secret store](../../secret-stores/) in produ
 
 ### Databricks Unity Catalog
 
-To access Delta tables registered in Unity Catalog, use the [Databricks connector](../databricks) in `mode: delta_lake`. It handles UC metadata resolution and credential vending automatically — see the [Databricks Deployment Guide](../databricks/deployment) for details.
+To access Delta tables registered in Unity Catalog, use the [Databricks connector](../databricks) in `mode: delta_lake`. It handles UC metadata resolution automatically, and can optionally fetch short-lived storage credentials via Unity Catalog credential vending when `databricks_credential_vending: enabled` is set (defaults to `disabled`) — see the [Databricks Deployment Guide](../databricks/deployment) for details.
 
 ## Resilience Controls
 
