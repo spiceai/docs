@@ -27,6 +27,7 @@ The `file_format` parameter accepts these values:
 | Value     | Reader              | Default Extension | Notes                                       |
 | --------- | ------------------- | ----------------- | ------------------------------------------- |
 | `parquet` | Apache Parquet      | `.parquet`        |                                             |
+| `vortex`  | Vortex              | `.vortex`         | Columnar format. Not available on Windows.  |
 | `csv`     | CSV                 | `.csv`            | Uses `csv_*` parameters.                    |
 | `tsv`     | TSV (tab-delimited) | `.tsv`            | Uses `tsv_*` parameters. Delimiter is tab.  |
 | `json`    | JSON                | `.json`           | Auto-detects format. Uses `json_format` to control parsing mode. |
@@ -90,6 +91,12 @@ Supported data encodings:
 - [`DELTA_LENGTH_BYTE_ARRAY`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#delta-length-byte-array-delta_length_byte_array--6)
 - [`DELTA_BYTE_ARRAY`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#delta-strings-delta_byte_array--7)
 - [`BYTE_STREAM_SPLIT`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#byte-stream-split-byte_stream_split--9)
+
+## Vortex
+
+[Vortex](https://github.com/vortex-data/vortex) is a columnar file format read everywhere Parquet is, including the S3, ABFS, GCS, file, and HTTPS connectors. Set `file_format: vortex` or use a `.vortex` file extension (auto-detection also resolves `.vortex` files when `file_format` is omitted or set to `auto`).
+
+Vortex has no format-specific parameters. It is not available on Windows builds.
 
 ## CSV
 
