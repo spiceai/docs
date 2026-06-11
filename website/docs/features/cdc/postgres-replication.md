@@ -126,8 +126,8 @@ All replication-specific parameters live under `params:` on the dataset and star
 
 | Parameter                            | Default                                          | Description                                                                                                                                                                                            |
 |--------------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot. Must be unique per replica.                                                                                                                                              |
-| `pg_publication`                     | `spice_<dataset>_<dataset-hash>_pub`             | Publication name. Shared across replicas. Auto-created if missing.                                                                                                                                     |
+| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot to create/reuse. Datasets on the same connection that name the same slot **share** it — one slot, one publication, one replication connection — see [Sharing one slot across datasets](#sharing-one-slot-across-datasets). Each Spice replica must still use its own unique slot.                                          |
+| `pg_publication`                     | `spice_<dataset>_<dataset-hash>_pub`             | Publication name. Defaults to `<slot>_pub` when `pg_replication_slot` is set explicitly (so datasets sharing a slot agree on it). Shared across replicas. Auto-created if missing.                                                                  |
 | `pg_replication_initial_snapshot`    | `true`                                           | If `true`, take an initial snapshot of the table's existing rows before streaming. Set to `false` if you are pre-seeding the accelerator yourself.                                                     |
 | `pg_replication_temporary_slot`      | `false`                                          | If `true`, the slot is dropped when Spice disconnects. Every restart re-bootstraps.                                                                                                                    |
 | `pg_replication_status_interval`     | `10s`                                            | How often `StandbyStatusUpdate` (LSN acknowledgement) is sent back to Postgres. Lower values free WAL faster; higher values reduce network chatter. Accepts any duration string (`500ms`, `30s`, `2m`). |
@@ -162,6 +162,49 @@ All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, 
 | `arrow`    |    ✅    | ✅ (upsert with primary key) |    ✅    | Arrow's in-memory engine uses a hash index for primary-key upserts. Without a primary key, `UPDATE`s are appended as new rows. `DELETE` and `TRUNCATE` are applied via Arrow's `DeletionTableProvider`. |
 
 For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. DuckDB, SQLite, PostgreSQL, and Cayenne also support upsert behavior.
+
+## Sharing one slot across datasets
+
+By default each changes-mode dataset gets its own replication slot and publication. On the source database that costs one logical slot **and** one walsender decoder over the full WAL stream per dataset, so mirroring many tables can exhaust `max_replication_slots` and multiply decode work.
+
+When several datasets on the **same connection** name the same `pg_replication_slot`, Spice multiplexes them onto **one slot, one publication, and one replication connection**, routing decoded changes to each dataset's accelerator by `(schema, table)`. Sharing is implicit — name the same slot and the datasets share it:
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params: &repl
+      pg_host: db.internal
+      pg_db: app
+      pg_user: spice
+      pg_pass: ${secrets:pg_pass}
+      pg_replication_slot: spice_app_cdc   # same slot ⇒ shared
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+  - from: postgres:public.orders
+    name: orders
+    params: *repl                          # same connection + slot ⇒ shares the slot above
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+```
+
+Notes:
+
+- A slot named by only one dataset behaves exactly as before (a single member).
+- Datasets without an explicit `pg_replication_slot` keep their dedicated per-dataset slot and publication.
+- Members of a shared slot must agree on the publication. The default becomes `<slot>_pub`; an explicit `pg_publication` still wins and is validated for consistency across members.
+- Each source table can back **at most one dataset per shared slot**. Pointing two datasets at the same `(schema, table)` through one slot is rejected — give the second dataset a different `pg_replication_slot` (or remove the param for a dedicated slot).
+- Sharing is per Spice instance. Across replicas, each replica must still use its own unique slot — see [Multi-replica deployments](#multi-replica-deployments).
 
 ## Multi-replica deployments
 
