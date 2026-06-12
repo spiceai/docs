@@ -31,7 +31,7 @@ It is recommended to use CDC-accelerated datasets with persistent data accelerat
 
 ## Tuning ingestion
 
-Spice applies CDC events through a single apply loop that coalesces a contiguous run of buffered change events ("envelopes") into one accelerator write. The coalescing behavior is controlled by the following instance-wide `runtime.params` (set once under the top-level `runtime.params`, not per-dataset). Each parameter also accepts a `SPICE_`-prefixed environment variable; the `runtime.params` value takes precedence, falling back to the environment variable, then the default.
+Spice applies CDC events through a single apply loop that coalesces a contiguous run of buffered change events ("envelopes") into one accelerator write. The coalescing behavior is controlled by the following `runtime.params`, set once under the top-level `runtime.params` and applied to every CDC-accelerated dataset in the instance. Each parameter also accepts a `SPICE_`-prefixed environment variable; the `runtime.params` value takes precedence, falling back to the environment variable, then the default. Cayenne-accelerated datasets can additionally override any of these values per-dataset — see [Per-dataset overrides](#per-dataset-overrides) below.
 
 | Parameter                     | Description                                                                                                                                                                                                                                                                                                                              | Default               |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
@@ -48,6 +48,26 @@ runtime:
 ```
 
 Out-of-range or unparseable values are rejected with a warning and fall back to the default.
+
+### Per-dataset overrides
+
+For [Cayenne](../../components/data-accelerators/cayenne/index.md)-accelerated datasets, any of the five parameters above can also be set per-dataset under the dataset's `acceleration.params` to override the instance-wide value for that dataset only. A per-dataset value layers on top of the resolved global configuration (`runtime.params` → environment variable → default): a dataset overrides only the parameters it sets and inherits the global value for the rest. Out-of-range or unparseable per-dataset values are rejected with a warning and keep the global value.
+
+```yaml
+runtime:
+  params:
+    cdc_max_coalesce_age_ms: 250 # global default for every CDC-accelerated dataset
+
+datasets:
+  - from: postgres:public.orders
+    name: orders
+    acceleration:
+      engine: cayenne
+      refresh_mode: changes
+      params:
+        cdc_max_coalesce_age_ms: 1000 # this dataset lingers longer than the global 250ms
+        cdc_prefetch_buffer: 1024 # ...and buffers more aggressively
+```
 
 ## Supported Data Connectors
 
