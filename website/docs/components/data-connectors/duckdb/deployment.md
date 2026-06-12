@@ -19,7 +19,7 @@ DuckDB is an embedded engine; the connector reads a local DuckDB database file. 
 
 | Parameter          | Description                                                            |
 | ------------------ | ---------------------------------------------------------------------- |
-| `duckdb_open`      | Path to the DuckDB database file. If omitted, uses in-memory mode. |
+| `duckdb_open`      | Path to the DuckDB database file. Required when reading from a table reference (`from: duckdb:database.schema.table`); it may be omitted only when the dataset's `from:` uses a DuckDB table function (e.g. `duckdb:read_csv(...)`), which runs against an in-memory database. Omitting it for a table-reference dataset fails with a `MissingDuckDBFile` error. |
 
 Protect the DuckDB file with filesystem permissions. Store it on encrypted storage (LUKS/dm-crypt, EBS encryption, etc.) for data-at-rest protection. For data loaded from cloud object stores inside DuckDB, configure AWS/Azure/GCS credentials via DuckDB extensions rather than Spice parameters.
 
