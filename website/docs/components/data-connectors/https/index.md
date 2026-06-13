@@ -171,6 +171,17 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `auth_scopes`              | Optional. Space-separated OAuth2 scopes to request when refreshing (e.g. `read:data offline_access`). Omit to inherit the scopes bound to the refresh token.                                                                                                                                                                                                                                                                              |
 | `auth_client_auth`         | Optional. How client credentials are sent to the token endpoint: `basic` (HTTP Basic header, default per RFC 6749 §2.3.1) or `body` (`client_id`/`client_secret` in the form body). Default: `basic`.                                                                                                                                                                                                                                     |
 
+#### Mutual TLS (mTLS) Client Authentication
+
+For upstream servers that require mutual TLS, the connector can present a client certificate during the TLS handshake. Provide the certificate and key either as file paths or inline PEM — the file-path and inline forms are mutually exclusive, and the certificate and key must always be set together. mTLS client identity applies to dynamic JSON API endpoints only; structured HTTP file datasets reject these parameters.
+
+| Parameter Name                     | Description                                                                                                                                                                              |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `http_tls_client_certificate_file` | Optional. Path to a PEM client certificate chain to present during the TLS handshake. Must be set together with `http_tls_client_key_file`. Mutually exclusive with the inline forms.   |
+| `http_tls_client_key_file`         | Optional. Path to the PEM private key matching `http_tls_client_certificate_file`. Must be set together with it. Mutually exclusive with the inline forms.                              |
+| `http_tls_client_certificate`      | Optional. Inline PEM client certificate chain (or `${secrets:...}` reference). Must be set together with `http_tls_client_key`. Mutually exclusive with the file-path forms.            |
+| `http_tls_client_key`              | Optional. Inline PEM private key (or `${secrets:...}` reference) matching `http_tls_client_certificate`. Must be set together with it. Mutually exclusive with the file-path forms.     |
+
 #### Rate Control Parameters
 
 HTTP-based connectors share a rate control system that limits concurrency and request rate per upstream origin. These parameters can be set per-dataset (in `params`) or globally (in `runtime.params`). Dataset-level settings override the global defaults.
