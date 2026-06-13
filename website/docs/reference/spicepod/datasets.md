@@ -251,6 +251,23 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 :::
 
+## `schema_inference`
+
+Optional. Controls the depth of source-schema inference. Applies to all refresh modes. Supported values:
+
+- `standard` - Default. Infer the base column schema (names, types, nullability) from the source, exactly as before. No primary-key, secondary-index, or sort/clustering-column detection is performed.
+- `extended` - In addition to the base column schema, auto-detect the source's primary key, secondary indexes, and sort/clustering columns and apply them to any acceleration settings left unset. Only connectors that emit inferred-schema metadata are affected — currently the [PostgreSQL](../../components/data-connectors/postgres) and [MongoDB](../../components/data-connectors/mongodb) connectors; other connectors treat `extended` as a no-op.
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    schema_inference: extended
+    acceleration:
+      engine: cayenne
+      mode: file
+```
+
 ## `ready_state`
 
 Supports one of three values (defaults to `on_load`):
