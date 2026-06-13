@@ -33,6 +33,15 @@ For OAuth2-protected APIs, prefer refresh-token flow over storing long-lived bea
 
 Use HTTPS endpoints in production. `auth_token_url` must use HTTPS (loopback addresses are allowed for local testing only). Self-signed certificates require a trusted CA bundle in the container or host OS trust store.
 
+For upstream servers that require mutual TLS (mTLS), the connector can present a client certificate during the TLS handshake. Supply the certificate and key as file paths or inline PEM — the two forms are mutually exclusive, and the certificate and key must be set together. mTLS client identity applies to dynamic JSON API endpoints only.
+
+| Parameter                          | Description                                                                                  |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| `http_tls_client_certificate_file` | Path to a PEM client certificate chain. Pair with `http_tls_client_key_file`.                |
+| `http_tls_client_key_file`         | Path to the PEM private key matching the client certificate file.                            |
+| `http_tls_client_certificate`      | Inline PEM client certificate chain. Use `${secrets:...}`. Pair with `http_tls_client_key`.  |
+| `http_tls_client_key`              | Inline PEM private key matching the inline certificate. Use `${secrets:...}`.                |
+
 ## Resilience Controls
 
 ### Rate Control
