@@ -63,7 +63,7 @@ Dremio queries participate in [task history](../../../reference/task_history) vi
 
 | Symptom                                     | Likely cause                                         | Resolution                                                                                        |
 | ------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `UNAUTHENTICATED` on handshake              | Wrong credentials or expired PAT.                    | Verify credentials; regenerate the PAT via Dremio UI.                                             |
+| `UNAUTHENTICATED` on handshake              | Wrong or expired username/password credentials.      | Verify `dremio_username` and `dremio_password`; reset the credentials via the Dremio UI if needed. |
 | `UNAVAILABLE` intermittent errors           | Network partition or coordinator restart.            | Flight client auto-retries; if persistent, check coordinator health.                              |
 | `PERMISSION_DENIED` on a specific dataset   | Dremio role lacks SELECT on the underlying source.   | Grant access in Dremio via the user/role management UI.                                           |
 | Slow queries for repeated dashboards        | Coordinator overloaded by repeat queries.            | Enable Spice acceleration for the dataset to cache results locally.                               |
