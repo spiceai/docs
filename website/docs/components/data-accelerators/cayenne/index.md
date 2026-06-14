@@ -74,7 +74,12 @@ Set under a dataset's `acceleration.params`:
 
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` (default) or `adaptive` (preview). `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. `adaptive` requires `schema_inference: extended` and a non-zero `cayenne_compaction_background_interval_ms`; if either is missing it falls back to `auto`. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](#self-tuning). |
+| `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` or `adaptive` (preview). `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate (and delete fraction and arrival burstiness) and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, the in-memory CDC tier byte cap, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. **When unset, the mode defaults to `adaptive` if `schema_inference: extended` produced metadata for the dataset, otherwise `auto`** — opting into extended schema is the signal to self-tune. Set `cayenne_tuning: auto` explicitly to opt out of the closed loop even with extended schema enabled. `adaptive` needs a non-zero `cayenne_compaction_background_interval_ms` (the controller runs on the background compaction tick); if it is `0`, Cayenne falls back to `auto`. `schema_inference: extended` sharpens the `adaptive` warm-start but is no longer required for an explicit `adaptive` — without it the controller relearns the observed row width from live ingest. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](#self-tuning). |
+| `cayenne_goal_replication_lag`    | Goal-driven adaptive tuning (preview): target end-to-end CDC replication lag, as a duration (e.g. `5s`). When set, the closed-loop controller converges toward this SLO in small, bounded steps within `cayenne_goal_convergence_window`. Setting any `cayenne_goal_*` parameter enables the closed loop unless `cayenne_tuning: auto` is set explicitly, and requires a non-zero `cayenne_compaction_background_interval_ms`. See [Goal-driven tuning](#goal-driven-tuning). |
+| `cayenne_goal_freshness`          | Goal-driven adaptive tuning (preview): target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). |
+| `cayenne_goal_query_latency`      | Goal-driven adaptive tuning (preview): target p99 query latency on this table, as a duration (e.g. `250ms` or `10s`). |
+| `cayenne_goal_qph`                | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. |
+| `cayenne_goal_convergence_window` | Goal-driven adaptive tuning (preview): the time budget to converge toward the configured `cayenne_goal_*` SLOs, as a duration (e.g. `1m`). Defaults to `60s`. |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_delta_encoding`          | Encoding effort applied to delta (incremental) writes such as appends and inline-memtable flushes. Accepts `auto` (default) or a fixed level `0`–`10`. Higher levels search more encoding schemes for a better compression ratio at the cost of more write-time CPU; `auto` uses light encoding for small deltas and the full cascade for large writes. Levels `7`–`10` all apply the full default cascade, so set `7` to opt out of size-gating. Applies at write time only — changing it never re-encodes existing data or forces a table re-create. Invalid values fall back to `auto` with a warning. |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
@@ -159,8 +164,10 @@ Cayenne sizes its memory-, CPU-, and storage-sensitive knobs automatically so it
 
 The mode is controlled by the `cayenne_tuning` acceleration parameter:
 
-- **`auto`** (default) — derive the correct configuration values statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key). No feedback loop runs.
+- **`auto`** — derive the correct configuration values statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key). No feedback loop runs.
 - **`adaptive`** (preview) — in addition to the static derivation, run a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time. Adjustments are bounded by the same environment-derived `[floor, ceiling]` the static tier uses, so the loop can only ever pick a value the static tier could have picked.
+
+When `cayenne_tuning` is left unset, the mode defaults to `adaptive` if the dataset opted into `schema_inference: extended` and the source emitted the inferred metadata; otherwise it defaults to `auto`. Opting into extended schema is treated as the signal that you want Cayenne to self-tune, and that metadata also seeds the controller's warm-start. To keep the static `auto` mode even with extended schema enabled, set `cayenne_tuning: auto` explicitly.
 
 ```yaml
 acceleration:
@@ -171,13 +178,37 @@ acceleration:
 
 :::warning[Preview]
 
-`cayenne_tuning: adaptive` is in preview. Cayenne logs a startup warning when it is enabled; verify query correctness and performance before using it for production workloads. The default `auto` mode is recommended for production.
+`cayenne_tuning: adaptive` is in preview. Cayenne logs a startup warning when it is enabled; verify query correctness and performance before using it for production workloads. The static `auto` mode is recommended for production.
 
 :::
 
-`adaptive` requires `schema_inference: extended` on the dataset — the loop's data-aware warm-start needs the inferred cardinality and size — and a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick. If either prerequisite is missing, Cayenne logs a warning and falls back to `auto`.
+`adaptive` needs a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick; if it is `0`, Cayenne logs a warning and falls back to `auto`. `schema_inference: extended` sharpens the `adaptive` warm-start — the loop's data-aware warm-start uses the inferred cardinality and size — but is not required for an explicit `cayenne_tuning: adaptive`; without it the controller relearns the observed row width from live ingest and converges from the hardware-derived warm-start.
 
 In both modes, setting any `cayenne_*` knob to an explicit value overrides the derived value. Under `adaptive`, an explicitly-set knob is **pinned** — the controller will not move it.
+
+#### Goal-driven tuning
+
+Under `adaptive`, you can give the controller high-level service-level objectives (SLOs) instead of leaving it to optimize from its built-in signals alone. Set one or more `cayenne_goal_*` acceleration parameters and the closed loop converges toward each target in small, bounded steps:
+
+| Goal | Parameter | Example |
+| --- | --- | --- |
+| End-to-end CDC replication lag | `cayenne_goal_replication_lag` | `5s` |
+| Data freshness (age of the newest queryable data) | `cayenne_goal_freshness` | `30s` |
+| p99 query latency | `cayenne_goal_query_latency` | `250ms` |
+| Query throughput (queries per hour, higher is better) | `cayenne_goal_qph` | `5000` |
+
+The time-based goals accept a duration string (e.g. `5s`, `1m`, `250ms`); `cayenne_goal_qph` is a positive number. `cayenne_goal_convergence_window` (duration, default `60s`) sets the time budget the controller targets for convergence.
+
+Setting any `cayenne_goal_*` parameter implies the closed loop — a goal is inert without it — so the goals also enable `adaptive` unless you explicitly set `cayenne_tuning: auto` (in which case the goals are ignored and Cayenne logs a warning). Goal-seeking also requires a non-zero `cayenne_compaction_background_interval_ms`, like `adaptive` itself.
+
+```yaml
+acceleration:
+  engine: cayenne
+  params:
+    cayenne_goal_replication_lag: 5s
+    cayenne_goal_query_latency: 250ms
+    cayenne_goal_convergence_window: 1m
+```
 
 ### Cache Tuning
 
