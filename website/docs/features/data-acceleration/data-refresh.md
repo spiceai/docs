@@ -197,6 +197,7 @@ The ready state for an accelerated dataset can be configured using the [`ready_s
 
 - `ready_state: on_load`: Default. The dataset is considered ready after the initial load of the accelerated data. For file-based accelerated datasets that have existing data, this will be ready immediately. Queries against this dataset before the data is loaded will return an error.
 - `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Queries against this dataset before the data is loaded will automatically fallback to the federated source. Once the data is loaded, queries will be served from the acceleration.
+- `ready_state: on_schema_resolved`: The dataset is considered ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
 
 Example:
 
@@ -204,7 +205,7 @@ Example:
 datasets:
   - from: s3://my_bucket/my_dataset
     name: my_dataset
-    ready_state: on_load # or on_registration
+    ready_state: on_load # or on_registration, on_schema_resolved
     acceleration:
       enabled: true
 ```
