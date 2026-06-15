@@ -27,7 +27,7 @@ Choose the appropriate [Data Accelerator](../components/data-accelerators) based
 | Large datasets (100 GB - 1+ TB)          | `cayenne`                  | Tune cache parameters                                                 |
 | Write-heavy workloads                    | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
 | Point lookups, large datasets            | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
-| Point lookups, small-medium datasets     | `arrow` with hash index    | Set `hash_index: enabled` (experimental, v1.11.0-rc.2+)               |
+| Point lookups, small-medium datasets     | `arrow` with hash index    | Set a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
 | Point lookups with explicit indexes      | `duckdb` or `sqlite`       | Configure indexes                                                     |
 
 ## Spice Cayenne Performance Optimization
