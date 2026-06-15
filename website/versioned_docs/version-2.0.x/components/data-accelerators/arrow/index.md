@@ -38,7 +38,7 @@ datasets:
 Hash index is an experimental feature available in Spice v1.11.0-rc.2 and later.
 :::
 
-The In-Memory Arrow Data Accelerator supports an optional [hash index](../../features/data-acceleration/hash-index) for O(1) point lookups on primary key columns. To enable, set `hash_index: enabled` in the dataset params:
+The In-Memory Arrow Data Accelerator supports an optional [hash index](../../features/data-acceleration/hash-index) for O(1) point lookups on primary key columns. Hash indexing activates automatically when a `primary_key` (or a secondary [`indexes`](../../features/data-acceleration/indexes) entry) is configured — no additional parameter is required:
 
 ```yaml
 datasets:
@@ -47,9 +47,9 @@ datasets:
     acceleration:
       engine: arrow
       primary_key: order_id
-      params:
-        hash_index: enabled
 ```
+
+The legacy `hash_index: enabled` parameter is accepted but no longer activates indexing on its own; when set, the runtime logs a warning and falls back to the automatic rules above.
 
 See [Hash Index](../../features/data-acceleration/hash-index) for configuration details, supported data types, and performance characteristics.
 

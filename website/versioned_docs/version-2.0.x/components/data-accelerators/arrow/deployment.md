@@ -28,7 +28,7 @@ The Arrow accelerator is **not durable**. Data is held in RAM and is lost on pro
 ## Capacity & Sizing
 
 - **Memory**: Plan for 1.0–1.5× the raw row-oriented size of the source data, plus overhead for string dictionaries. Use the source connector's schema and row count to estimate.
-- **Hash index**: Optional, disabled by default. When enabled via `hash_index: enabled`, a hash map is built over the primary-key columns. Build time scales linearly with rows; memory overhead is approximately 24–48 bytes per row plus the key size.
+- **Hash index**: Optional. Activated automatically when a `primary_key` (or secondary `indexes` entry) is configured, building a hash map over the indexed columns. Build time scales linearly with rows; memory overhead is approximately 24–48 bytes per row plus the key size.
 - **Startup cost**: Full-dataset materialization happens on startup. For tables larger than ~1 GB, consider a durable accelerator to avoid repeated full refresh on every restart.
 
 ## Metrics
@@ -65,5 +65,5 @@ Arrow acceleration operations (refresh, query) participate in [task history](../
 | OOM on refresh                                   | Source dataset larger than RAM.                         | Switch to a durable accelerator (DuckDB / SQLite / Cayenne) that supports spill to disk.       |
 | Long startup time                                | Full-dataset refresh runs on boot.                      | Switch to a durable accelerator so refresh is incremental, not full, on restart.               |
 | `hash_index` ignored                             | No primary-key constraint on the dataset.               | Add `primary_key:` to the dataset definition; hash index activates automatically.              |
-| Query slow for point lookups                     | Hash index disabled or wrong key column.                | Enable `hash_index: enabled`; ensure the query filter matches the primary-key columns.          |
+| Query slow for point lookups                     | No primary key/index, or wrong key column.              | Add a `primary_key:` (or secondary `indexes:` entry); ensure the query filter matches the indexed columns. |
 | Accelerator refuses to start with file mode      | Arrow rejects file-mode acceleration.                   | Switch `engine:` to `duckdb`, `sqlite`, `postgres`, or `cayenne`.                              |
