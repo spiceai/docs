@@ -29,7 +29,7 @@ Use TLS endpoints (`grpc+tls://`) in production. Credentials must be sourced fro
 
 ### Flight SQL Transport
 
-Data transfer uses gRPC. Transient `UNAVAILABLE` / `DEADLINE_EXCEEDED` errors surface to the caller and rely on the Flight client's default retry policy. Per-operation retry parameters are not exposed at the Spice layer.
+Data transfer uses gRPC. Transient `UNAVAILABLE` / `DEADLINE_EXCEEDED` errors surface to the caller; the connector does not perform automatic retries, and no per-operation retry parameters are exposed at the Spice layer. Build retry/backoff into the calling application, or rely on Spice acceleration to reduce direct coordinator queries.
 
 ### Query Pushdown
 
@@ -64,7 +64,7 @@ Dremio queries participate in [task history](../../../reference/task_history) vi
 | Symptom                                     | Likely cause                                         | Resolution                                                                                        |
 | ------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `UNAUTHENTICATED` on handshake              | Wrong or expired username/password credentials.      | Verify `dremio_username` and `dremio_password`; reset the credentials via the Dremio UI if needed. |
-| `UNAVAILABLE` intermittent errors           | Network partition or coordinator restart.            | Flight client auto-retries; if persistent, check coordinator health.                              |
+| `UNAVAILABLE` intermittent errors           | Network partition or coordinator restart.            | Errors surface to the caller; retry the request from the application and check coordinator health if persistent. |
 | `PERMISSION_DENIED` on a specific dataset   | Dremio role lacks SELECT on the underlying source.   | Grant access in Dremio via the user/role management UI.                                           |
 | Slow queries for repeated dashboards        | Coordinator overloaded by repeat queries.            | Enable Spice acceleration for the dataset to cache results locally.                               |
 | TLS handshake failures                      | Self-signed cert or missing CA.                      | Configure TLS at the Flight client; ensure the CA bundle is trusted by the Spice runtime.         |
