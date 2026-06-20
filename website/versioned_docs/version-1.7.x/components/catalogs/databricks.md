@@ -206,7 +206,7 @@ catalogs:
 
 | Dataset Parameter Name   | Definition                                                   |
 | ------------------------ | ------------------------------------------------------------ |
-| `google_service_account` | Filesystem path to the Google service account JSON key file. |
+| `databricks_google_service_account` | Filesystem path to the Google service account JSON key file. |
 
 Example:
 
