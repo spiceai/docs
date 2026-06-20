@@ -456,6 +456,23 @@ Specify the value as a size, for example `4GiB` or `1024MiB`.
 
 For detailed memory information, see [Memory](../memory).
 
+## `runtime.query.max_concurrent_queries`
+
+The `max_concurrent_queries` parameter bounds how many query-executing plans may run concurrently. Excess queries wait (admission control) rather than oversubscribing the shared query runtime and memory pool, which can otherwise cause queries to starve each other under load — for example, analytical queries running alongside CDC ingestion and compaction.
+
+```yaml
+runtime:
+  query:
+    max_concurrent_queries: 8
+```
+
+Behavior:
+
+- Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
+- A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
+- If not set, the number of concurrent queries is **unbounded** (the default behavior).
+- A configured value is clamped to a minimum of `1`, so `max_concurrent_queries: 0` allows one concurrent query (not unbounded).
+
 ## `runtime.query.spill_compression`
 
 The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.
