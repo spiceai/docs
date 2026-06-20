@@ -84,7 +84,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_format`               | Specifies the data format. Required if it cannot be inferred from the object URI. Options: `parquet`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details.                                                                                                                                     |
 | `s3_endpoint`               | S3 endpoint URL (e.g., for MinIO). Default is the region endpoint. E.g. `s3_endpoint: https://my.minio.server`                                                                                                                                                                                                 |
-| `s3_url_style`              | URL style used for S3 requests. Options: `vhost` and `path`. When not set, auto-detected: IP endpoints use `path`; other custom endpoints are detected via DNS lookup on the virtual-hosted hostname; standard AWS endpoints use `vhost`. |
+| `s3_url_style`              | URL style used for S3 requests. Options: `vhost` and `path`. When not set, auto-detected: IP endpoints use `path`; other custom endpoints are detected via DNS lookup on the virtual-hosted hostname; standard AWS endpoints use `vhost`, except buckets whose name contains a dot, which use `path`. |
 | `s3_region`                 | S3 bucket region. Default: `us-east-1`.                                                                                                                                                                                                                                                                        |
 | `client_timeout`            | Optional. Timeout for S3 operations. No timeout by default.                                                                                                                                                                                                                                                                     |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`                                                                                                                                                                                                               |
@@ -110,7 +110,9 @@ When `s3_url_style` is not set, the connector auto-detects the correct style:
 
 1. **IP address endpoints** (e.g. `http://192.168.1.100:9000`) → `path`
 2. **Custom hostname endpoints** → DNS lookup on `<bucket>.<host>`. If the name resolves, `vhost` is used; otherwise `path`.
-3. **No custom endpoint** (standard AWS S3) → `vhost`
+3. **No custom endpoint** (standard AWS S3) → `vhost`, except a bucket whose name contains a dot (e.g. `my.bucket.name`), which uses `path`.
+
+A dotted bucket name cannot use virtual-hosted style over HTTPS on standard AWS: the bucket becomes part of a multi-label hostname (`my.bucket.name.s3.<region>.amazonaws.com`) that the AWS wildcard certificate (`*.s3.<region>.amazonaws.com`) cannot match, so the TLS handshake fails. The connector defaults these buckets to path style, matching [AWS's own recommendation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html). An explicit `s3_url_style` always takes precedence.
 
 Set `s3_url_style` explicitly to skip auto-detection.
 
