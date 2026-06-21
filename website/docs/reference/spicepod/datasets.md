@@ -454,10 +454,14 @@ Snapshots are written beneath the configured snapshot location using Hive-style 
 
 Optional. Controls when Spice creates new snapshots. The available triggers depend on the dataset's refresh mode.
 
-**For batch-based datasets** (`refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with `time_column`):
+**For batch-based datasets** (`refresh_mode: full`, or `refresh_mode: append` with `time_column`):
 
 - `refresh_complete` (default) – Create a snapshot after each data refresh completes.
 - `time_interval` – Create snapshots at a fixed time interval specified by `snapshots_trigger_threshold`.
+
+**For caching datasets** (`refresh_mode: caching`):
+
+- `time_interval` (default) – The only supported trigger. Create snapshots at a fixed time interval, defaulting to `10m` if `snapshots_trigger_threshold` is not specified. `refresh_complete` and `stream_batches` are not supported in caching mode and cause a configuration error.
 
 **For stream-based datasets** (`refresh_mode: changes`, or `refresh_mode: append` without `time_column`):
 
