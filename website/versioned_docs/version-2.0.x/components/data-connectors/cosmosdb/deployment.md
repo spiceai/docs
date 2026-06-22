@@ -93,13 +93,13 @@ The connector uses a single shared HTTP/2 connection pool to each account endpoi
 
 ## Metrics
 
-The Cosmos DB connector exposes one observable gauge that can be enabled per dataset:
+The Cosmos DB connector exposes one observable gauge, registered automatically for every dataset:
 
 | Metric Name           | Description                                                                                                                                                  |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `inflight_operations` | Number of Cosmos DB operations currently holding a concurrency permit. Incremented per operation and held across retry-backoff sleeps. **Per-dataset**, not per-account. |
 
-Enable in the dataset's `metrics` section:
+This metric is auto-registered — no configuration is required to export it. To disable it for a dataset, set `enabled: false` in the dataset's `metrics` section:
 
 ```yaml
 datasets:
@@ -109,7 +109,7 @@ datasets:
       cosmosdb_connection_string: ${secrets:COSMOSDB_CONNECTION_STRING}
     metrics:
       - name: inflight_operations
-        enabled: true
+        enabled: false
 ```
 
 See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
@@ -146,6 +146,6 @@ Cosmos DB requests participate in [task history](../../../reference/task_history
 | RU consumption spikes on every restart                             | `schema_infer_max_records` × document size.                                               | Lower the sample size or pin a schema via `columns:`.                                                                            |
 | Schema doesn't include a field that exists in production           | The first `schema_infer_max_records` documents had `null` for that field.                  | Increase `schema_infer_max_records`, or pin the schema explicitly.                                                               |
 | `Invalid Azure Cosmos DB connection string`                        | Connection string was edited or trimmed.                                                   | Re-copy the full string from the Azure portal — `AccountEndpoint=...;AccountKey=...;` (note the trailing `;`).                    |
-| `Invalid dataset path` error at registration                       | `from:` does not match `cosmosdb:database.container`.                                      | Use `cosmosdb:database.container` or `cosmosdb:database/container`, or set `cosmosdb_database` and use `cosmosdb:container`.      |
+| `Could not determine Cosmos DB database from dataset path` error at registration | `from:` does not match `cosmosdb:database.container`.                            | Use `cosmosdb:database.container` or `cosmosdb:database/container`, or set `cosmosdb_database` and use `cosmosdb:container`.      |
 | Multiple datasets, one with a different `max_concurrent_requests`  | Spice keeps the **first-seen** value across datasets sharing an endpoint.                  | Set the same value on every dataset that targets the same account, or accept the warning logged at startup.                       |
 | Mid-stream scan failure leaves dataset partially loaded            | Cosmos returned an error after some rows had been emitted; mid-stream retry is not safe.   | The dataset refresh policy retries at the query boundary. For incidental failures, lower the `query` row count or accelerate.     |
