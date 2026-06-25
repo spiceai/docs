@@ -51,6 +51,7 @@ embeddings:
 
 - `s3_vectors_index` and `s3_vectors_arn` specify a single index for the dataset and therefore should not be used with a dataset containing more than one embedding column.
 - S3 Vectors uses approximate nearest neighbor (ANN) algorithms for performance, providing probabilistically closest results.
+- A single vector search can retrieve up to **10,000** results. Spice paginates the underlying `QueryVectors` calls (100 results per page) to reach this limit. When no `LIMIT` is specified, the search returns one page (100 results); a `LIMIT` larger than 10,000 is clamped to 10,000.
 
   :::
 
