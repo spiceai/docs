@@ -229,7 +229,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default, schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts, and you must restart the runtime to re-infer the schema.
 
-Accelerated datasets can opt into automatic, in-place schema evolution with the [`on_schema_change`](#on_schema_change) policy, which adopts lossless, widening-compatible source changes without a restart.
+Accelerated datasets can opt into automatic, in-place schema evolution with the [`on_schema_change`](#on_schema_change) policy, which adopts lossless, widening-compatible source changes without a restart — and can additionally drop and recreate the accelerated table on incompatible changes (`drop_and_recreate`) when `refresh_mode: full` is set.
 
 For connector-specific inference parameters, runtime schema change behavior, and recommendations, see [Schema Inference](../../components/data-connectors#schema-inference).
 
@@ -243,20 +243,22 @@ The following values are supported:
 - `fail` - Set the dataset to an error status with an actionable message when the projected source schema diverges from the registered schema. Self-heals if the source reverts.
 - `append_new_columns` - Adopt new nullable source columns in place; type changes and relaxed/tightened nullability are treated as `block` (the dataset keeps serving on the old schema) and a warning is logged.
 - `sync_all_columns` - Adopt the full set of lossless, widening changes in place: new nullable columns, widened column types (for example `Int32`→`Int64`, an increase in decimal precision, or `Utf8`→`LargeUtf8`), and relaxed nullability. Non-widening changes (column removals, narrowing type changes) remain `block`-equivalent and are warned.
+- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `duckdb`, `sqlite`, `turso`, and `cayenne` engines.
 
 ```yaml
 datasets:
   - from: postgres:public.events
     name: events
-    on_schema_change: sync_all_columns
+    on_schema_change: drop_and_recreate
     acceleration:
       engine: duckdb
       mode: file
+      refresh_mode: full
 ```
 
 :::note
 
-In-place evolution (no restart) is supported for the `duckdb`, `sqlite`, `turso`, and Spice Cayenne (`cayenne`) acceleration engines, including for PostgreSQL CDC (`refresh_mode: changes`). Other engines (for example `arrow` and the PostgreSQL accelerator) log a clear unsupported message and degrade safely, applying additive changes on restart. Constraint and primary-key columns cannot be widened in place. For destructive schema changes (column removals or narrowing), use [`mode: file_update`](#accelerationmode), which recreates the acceleration file.
+In-place evolution (no restart) is supported for the `duckdb`, `sqlite`, `turso`, and Spice Cayenne (`cayenne`) acceleration engines, including for PostgreSQL CDC (`refresh_mode: changes`). Other engines (for example `arrow` and the PostgreSQL accelerator) log a clear unsupported message and degrade safely, applying additive changes on restart. Constraint and primary-key columns cannot be widened in place. For destructive schema changes (column removals or narrowing), set `on_schema_change: drop_and_recreate` with `refresh_mode: full` to drop and recreate the accelerated table from the source, or use [`mode: file_update`](#accelerationmode), which recreates the acceleration file on any change.
 
 :::
 
