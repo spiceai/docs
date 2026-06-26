@@ -583,7 +583,6 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
-- **No File Compaction**: Automatic file compaction to reclaim space from deleted rows is not yet available.
 
 ## Example Spicepod
 
