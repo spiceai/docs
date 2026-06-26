@@ -85,12 +85,12 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
 | `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in megabytes, caching decompressed data segments for improved query performance. Accepts `auto` (default) or an explicit MB value. `auto` scales with machine memory (~1/128 of RAM), but never below `256` MB and never above `1024` MB. |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
-| `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Accepts `auto` (default) or an explicit MB value. `auto` is storage-aware: `256` MB on EBS-class network storage, `64` MB on RAM-backed (tmpfs) mounts, and `256` MB on local SSD / unknown / S3. Smaller files enable better parallelism and predicate pushdown. |
+| `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Accepts `auto` (default) or an explicit MB value. `auto` is storage-aware: `256` MB on EBS-class network storage, `64` MB on RAM-backed (tmpfs) mounts, `512` MB on S3 Express (large immutable objects cut object count and per-request cost), and `256` MB on local SSD or unknown storage. Smaller files enable better parallelism and predicate pushdown. |
 | `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). Defaults to `{spice_data_path}/metadata`.                                                                                     |
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Accepts `auto` (default) or an explicit value; `auto` uses the available CPU parallelism. The aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized to the host core count.                                                                                              |
 | `cayenne_write_concurrency`       | Writer partition override for unsorted ingests, controlling how many Vortex files are encoded in parallel during a write. Accepts `auto` (default) or an explicit value; `auto` uses the session `target_partitions`, capped at the host core count and the process-global encode budget. Values below `1` are clamped to `1`. The sort-and-rewrite compaction path always writes serially regardless of this setting. |
-| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `position` (merge-on-read). See [Deletion Strategies](#deletion-strategies).         |
+| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `position` (merge-on-read) for most tables, or to `key` for CDC datasets (`refresh_mode: changes`) that declare a `primary_key`. See [Deletion Strategies](#deletion-strategies).         |
 | `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append) for append-only CDC workloads where the source guarantees primary-key uniqueness. |
 | `cayenne_compaction_trigger_files` | Minimum number of small Vortex files in the current snapshot before tiered compaction runs. A "small" file is one whose size is below `cayenne_target_file_size_mb` / 4. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_protected_snapshots` | Number of protected snapshots before snapshot-maintenance compaction runs. Separate from `cayenne_compaction_trigger_files` so small-file tuning does not silently change scan amplification behavior. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
@@ -373,7 +373,7 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 
 | Mode               | How deletes are applied                                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto` (default)   | Resolves to `position` (merge-on-read) for every table.                                                                                                                                |
+| `auto` (default)   | Resolves to `position` (merge-on-read) for most tables. For CDC datasets (`refresh_mode: changes`) that declare a `primary_key`, `auto` resolves to `key` instead, so deletes compact concurrently with the continuous writer. |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
 | `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. The explicit opt-out from merge-on-read for primary-key tables.    |
 
@@ -389,7 +389,7 @@ datasets:
         cayenne_deletion_mode: auto # default; set to `key` to opt out of merge-on-read
 ```
 
-Under the default `auto` (`position`) mode:
+Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
 
 - **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 - **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
@@ -647,7 +647,6 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
-- **No File Compaction**: Automatic file compaction to reclaim space from deleted rows is not yet available.
 
 ## Example Spicepod
 
