@@ -54,13 +54,32 @@ GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate lim
 
 ## Metrics
 
-The GraphQL connector does not register connector-specific instruments. Monitor via:
+When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control metrics under the `graphql` component that can be enabled per-dataset:
+
+| Metric Name                                 | Type    | Description                                                                                              |
+| ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `inflight_operations`                       | Gauge   | Current number of HTTP requests holding a rate-control permit.                                           |
+| `rate_control_max_concurrent_requests`      | Gauge   | Configured maximum concurrent HTTP requests for this upstream origin; `0` means disabled.                |
+| `rate_control_requests_per_second_limit`    | Gauge   | Configured HTTP request-per-second limit for this upstream origin; `0` means disabled.                   |
+| `rate_control_requests_per_minute_limit`    | Gauge   | Configured HTTP request-per-minute limit for this upstream origin; `0` means disabled.                   |
+| `rate_control_jitter_min_ms`                | Gauge   | Configured minimum rate-control jitter (ms) before HTTP requests.                                        |
+| `rate_control_jitter_max_ms`                | Gauge   | Configured maximum rate-control jitter (ms) before HTTP requests.                                        |
+| `rate_control_available_permits`            | Gauge   | Current available permits in the HTTP request concurrency semaphore; `0` when concurrency is disabled.   |
+| `rate_control_acquisitions_total`           | Counter | Total HTTP request rate-control permits acquired.                                                        |
+| `rate_control_acquire_errors_total`         | Counter | Total HTTP request rate-control permit acquisition errors.                                               |
+| `rate_control_wait_duration_ms`             | Counter | Cumulative time (ms) spent waiting for HTTP rate-control permits, quotas, and jitter.                    |
+| `rate_limit_retry_after_updates_total`      | Counter | Total upstream cooldown hints accepted from `Retry-After` or `RateLimit` reset headers.                  |
+| `rate_limit_retry_after_waits_total`        | Counter | Total waits caused by `Retry-After` or `RateLimit` reset headers.                                        |
+| `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
+| `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
+
+Enable component metrics in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+
+For broader observability, also monitor:
 
 - Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
 - HTTP response status distribution via the shared `resilient_http` instrumentation.
 - The upstream GraphQL provider's rate-limit dashboards.
-
-See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 ## Task History
 
