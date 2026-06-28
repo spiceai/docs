@@ -673,7 +673,13 @@ runtime:
       region: us-east-1
 ```
 
-The object store is used for scheduler registration and discovery. Job state persistence for query handoff between schedulers is planned for a future release.
+The object store is used for scheduler registration and discovery, and to persist [async query](#async-queries-api) job state (the execution graph plus its status) so that schedulers are effectively stateless for async queries.
+
+### Scheduler Failover
+
+When `runtime.scheduler.state_location` is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
+
+This failover applies to async queries, which require `scheduler.state_location`. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without `scheduler.state_location`, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
 ### S3 Configuration
 
