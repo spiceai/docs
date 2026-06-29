@@ -236,14 +236,14 @@ datasets:
 
 | Column Name     | Data Type    | Is Nullable |
 | --------------- | ------------ | ----------- |
-| assignees       | List(Utf8)   | YES         |
+| assignees       | List(Struct(login: Utf8)) | YES         |
 | author          | Utf8         | YES         |
 | body            | Utf8         | YES         |
 | closed_at       | Timestamp    | YES         |
 | comments        | List(Struct) | YES         |
 | created_at      | Timestamp    | YES         |
 | id              | Utf8         | YES         |
-| labels          | List(Utf8)   | YES         |
+| labels          | List(Struct(name: Utf8)) | YES         |
 | milestone_id    | Utf8         | YES         |
 | milestone_title | Utf8         | YES         |
 | comments_count  | Int64        | YES         |
@@ -304,7 +304,7 @@ datasets:
 | Column Name     | Data Type                                                     | Is Nullable |
 | --------------- | ------------------------------------------------------------- | ----------- |
 | additions       | Int64                                                         | YES         |
-| assignees       | List(Utf8)                                                    | YES         |
+| assignees       | List(Struct(login: Utf8))                                     | YES         |
 | author          | Utf8                                                          | YES         |
 | body            | Utf8                                                          | YES         |
 | changed_files   | Int64                                                         | YES         |
@@ -314,9 +314,9 @@ datasets:
 | created_at      | Timestamp                                                     | YES         |
 | deletions       | Int64                                                         | YES         |
 | discussion      | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp)) | YES         |
-| hashes          | List(Utf8)                                                    | YES         |
+| hashes          | List(Struct(id: Utf8))                                        | YES         |
 | id              | Utf8                                                          | YES         |
-| labels          | List(Utf8)                                                    | YES         |
+| labels          | List(Struct(name: Utf8))                                      | YES         |
 | merged_at       | Timestamp                                                     | YES         |
 | number          | Int64                                                         | YES         |
 | review_comments | List(Struct(body: Utf8, author: Utf8, created_at: Timestamp)) | YES         |
