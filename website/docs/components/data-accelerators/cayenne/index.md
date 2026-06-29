@@ -75,11 +75,10 @@ Set under a dataset's `acceleration.params`:
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` or `adaptive` (preview). `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate (and delete fraction and arrival burstiness) and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, the in-memory CDC tier byte cap, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. **When unset, the mode defaults to `adaptive` if `schema_inference: extended` produced metadata for the dataset, otherwise `auto`** — opting into extended schema is the signal to self-tune. Set `cayenne_tuning: auto` explicitly to opt out of the closed loop even with extended schema enabled. `adaptive` needs a non-zero `cayenne_compaction_background_interval_ms` (the controller runs on the background compaction tick); if it is `0`, Cayenne falls back to `auto`. `schema_inference: extended` sharpens the `adaptive` warm-start but is no longer required for an explicit `adaptive` — without it the controller relearns the observed row width from live ingest. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](#self-tuning). |
-| `cayenne_goal_replication_lag`    | Goal-driven adaptive tuning (preview): target end-to-end CDC replication lag, as a duration (e.g. `5s`). When set, the closed-loop controller converges toward this SLO in small, bounded steps within `cayenne_goal_convergence_window`. Setting any `cayenne_goal_*` parameter enables the closed loop unless `cayenne_tuning: auto` is set explicitly, and requires a non-zero `cayenne_compaction_background_interval_ms`. See [Goal-driven tuning](#goal-driven-tuning). |
-| `cayenne_goal_freshness`          | Goal-driven adaptive tuning (preview): target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). |
-| `cayenne_goal_query_latency`      | Goal-driven adaptive tuning (preview): target p99 query latency on this table, as a duration (e.g. `250ms` or `10s`). |
-| `cayenne_goal_qph`                | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. |
-| `cayenne_goal_convergence_window` | Goal-driven adaptive tuning (preview): the time budget to converge toward the configured `cayenne_goal_*` SLOs, as a duration (e.g. `1m`). Defaults to `60s`. |
+| `cayenne_goal_replication_lag`    | Goal-driven adaptive tuning (preview): target end-to-end CDC replication lag, as a duration (e.g. `5s`). **Best set globally** under `runtime.params`; a value here overrides the global setpoint for this dataset. When set, the closed-loop controller converges toward this SLO in small, bounded steps within `cayenne_goal_convergence_window`. Setting any `cayenne_goal_*` parameter enables the closed loop unless `cayenne_tuning: auto` is set explicitly, and requires a non-zero `cayenne_compaction_background_interval_ms`. See [Goal-driven tuning](#goal-driven-tuning). |
+| `cayenne_goal_freshness`          | Goal-driven adaptive tuning (preview): target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Best set globally under `runtime.params`; a value here overrides the global setpoint for this dataset. |
+| `cayenne_goal_query_latency`      | Goal-driven adaptive tuning (preview): target p99 query latency on this table, as a duration (e.g. `250ms` or `10s`). Best set globally under `runtime.params`; a value here overrides the global setpoint for this dataset. |
+| `cayenne_goal_convergence_window` | Goal-driven adaptive tuning (preview): the time budget to converge toward the configured `cayenne_goal_*` SLOs, as a duration (e.g. `1m`). Defaults to `60s`. A per-dataset control-cadence knob — it paces how fast the loop chases the goals rather than declaring an outcome, so it is not part of the global SLO surface and has no `runtime.params` form. |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_delta_encoding`          | Encoding effort applied to delta (incremental) writes such as appends and inline-memtable flushes. Accepts `auto` (default) or a fixed level `0`–`10`. Higher levels search more encoding schemes for a better compression ratio at the cost of more write-time CPU; `auto` uses light encoding for small deltas and the full cascade for large writes. Levels `7`–`10` all apply the full default cascade, so set `7` to opt out of size-gating. Applies at write time only — changing it never re-encodes existing data or forces a table re-create. Invalid values fall back to `auto` with a warning. |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
@@ -126,7 +125,7 @@ These are acceleration parameters (set under `acceleration.params`) used when st
 
 #### Runtime parameters (`runtime.params`)
 
-Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. These are **not** valid under a dataset's `acceleration.params`:
+Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. With the exception of the goal-driven SLO setpoints (`cayenne_goal_*`) — which set a global default that a dataset can override under its own `acceleration.params` (except `cayenne_goal_qph`, which is global-only) — these are **not** valid under a dataset's `acceleration.params`:
 
 | Parameter                                  | Description                                                                                                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -136,6 +135,10 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one Cayenne-accelerated dataset is enabled and dedicated thread pools are not disabled. |
 | `cayenne_sort_merge_min_rows`              | Advanced anti-join tuning: row-count threshold above which the filter-propagation optimizer switches to a sort-merge strategy. Defaults to an internally tuned value; override only when profiling indicates a need.                                                    |
 | `cayenne_sort_merge_memory_pool_fraction`  | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Defaults to an internally tuned value.                                                                                                                                |
+| `cayenne_goal_replication_lag`             | Goal-driven adaptive tuning (preview): global target end-to-end CDC replication lag, as a duration (e.g. `5s`), applied to every Cayenne dataset. Override per-dataset under a dataset's `acceleration.params`. See [Goal-driven tuning](#goal-driven-tuning).            |
+| `cayenne_goal_freshness`                   | Goal-driven adaptive tuning (preview): global target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Override per-dataset under a dataset's `acceleration.params`.                                                                   |
+| `cayenne_goal_query_latency`               | Goal-driven adaptive tuning (preview): global target p99 query latency, as a duration (e.g. `250ms` or `10s`). Override per-dataset under a dataset's `acceleration.params`.                                                                                             |
+| `cayenne_goal_qph`                         | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. **Global-only** — query throughput is measured system-wide (a query spanning multiple datasets, such as a join, is counted once), so it has no per-dataset form; a value set under `acceleration.params` is ignored. |
 
 ```yaml
 runtime:
@@ -189,7 +192,7 @@ In both modes, setting any `cayenne_*` knob to an explicit value overrides the d
 
 #### Goal-driven tuning
 
-Under `adaptive`, you can give the controller high-level service-level objectives (SLOs) instead of leaving it to optimize from its built-in signals alone. Set one or more `cayenne_goal_*` acceleration parameters and the closed loop converges toward each target in small, bounded steps:
+Under `adaptive`, you can give the controller high-level service-level objectives (SLOs) instead of leaving it to optimize from its built-in signals alone. Set one or more `cayenne_goal_*` SLOs — **globally under `runtime.params`**, where they apply to every Cayenne-accelerated dataset — and the closed loop converges toward each target in small, bounded steps:
 
 | Goal | Parameter | Example |
 | --- | --- | --- |
@@ -198,17 +201,33 @@ Under `adaptive`, you can give the controller high-level service-level objective
 | p99 query latency | `cayenne_goal_query_latency` | `250ms` |
 | Query throughput (queries per hour, higher is better) | `cayenne_goal_qph` | `5000` |
 
-The time-based goals accept a duration string (e.g. `5s`, `1m`, `250ms`); `cayenne_goal_qph` is a positive number. `cayenne_goal_convergence_window` (duration, default `60s`) sets the time budget the controller targets for convergence.
+The time-based goals accept a duration string (e.g. `5s`, `1m`, `250ms`); `cayenne_goal_qph` is a positive number.
+
+Scope each goal where the runtime reads it:
+
+- **Time-based goals** (`cayenne_goal_replication_lag`, `cayenne_goal_freshness`, `cayenne_goal_query_latency`) are set globally under `runtime.params` and may be overridden per-dataset under a dataset's `acceleration.params`.
+- **`cayenne_goal_qph`** is **global-only**: query throughput is measured system-wide — a query spanning multiple datasets (such as a join) is counted once — so it is read only from `runtime.params`, and a value set under `acceleration.params` is ignored.
+- **`cayenne_goal_convergence_window`** (duration, default `60s`) sets the time budget the controller targets for convergence. It is a per-dataset control-cadence knob (set under `acceleration.params`) and is not part of the global SLO surface.
 
 Setting any `cayenne_goal_*` parameter implies the closed loop — a goal is inert without it — so the goals also enable `adaptive` unless you explicitly set `cayenne_tuning: auto` (in which case the goals are ignored and Cayenne logs a warning). Goal-seeking also requires a non-zero `cayenne_compaction_background_interval_ms`, like `adaptive` itself.
 
 ```yaml
-acceleration:
-  engine: cayenne
+runtime:
   params:
+    # Global SLOs — apply to every Cayenne-accelerated dataset
     cayenne_goal_replication_lag: 5s
     cayenne_goal_query_latency: 250ms
-    cayenne_goal_convergence_window: 1m
+    cayenne_goal_qph: 5000 # global-only — no per-dataset form
+
+datasets:
+  - from: postgres:public.orders
+    name: orders
+    acceleration:
+      engine: cayenne
+      params:
+        # Per-dataset override of the global query-latency SLO
+        cayenne_goal_query_latency: 100ms
+        cayenne_goal_convergence_window: 1m
 ```
 
 ### Cache Tuning
