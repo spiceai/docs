@@ -273,7 +273,7 @@ The ADBC connector maintains a pool of database connections for concurrent query
 - `connection_pool_size`: The maximum number of connections. Increase for workloads with many concurrent queries.
 - `connection_pool_min_idle`: The minimum number of idle connections kept open to reduce connection setup latency.
 
-Both values must be positive integers. A `connection_pool_min_idle` greater than `connection_pool_size` is coerced to `connection_pool_size`.
+Both values must be positive integers, and `connection_pool_min_idle` must not exceed `connection_pool_size` — a larger value causes connection pool initialization to fail.
 
 ### Query Pushdown
 
