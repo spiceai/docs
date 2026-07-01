@@ -89,6 +89,7 @@ The table below shows the ClickHouse data types supported, along with the type m
 | `FixedString`    | `Utf8`                      |
 | `UUID`           | `Utf8`                      |
 | `Date`           | `Date32`                    |
+| `Date32`         | `Date32`                    |
 | `DateTime`       | `Timestamp(Second, None)`   |
 | `Nullable(T)`    | Mapped inner type `T`       |
 
