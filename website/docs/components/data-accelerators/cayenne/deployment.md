@@ -107,10 +107,16 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 | `phase` | Description |
 | ------- | ----------- |
-| `cdc_path_synchronous` | Total latency of a synchronous CDC write, from slot-apply through publish completion. |
+| `cdc_path_synchronous` | Total latency of a synchronous CDC write, from slot-apply through publish completion. Also covers a staged inline-bearing upsert that could not be represented as a staged commit and fell back to the synchronous write path. |
 | `cdc_path_inlined` | A pipelined CDC append that completed as a small inlined write. |
 | `cdc_path_staged` | A staged (pipelined) CDC write: time to durable WAL and return. Publish/finalize is backgrounded, so this **excludes** publish. |
-| `cdc_path_inline_fallback` | A staged inline-bearing upsert that could not be represented as a staged commit and fell back to the synchronous write path. Tracks fallback frequency. |
+| `cdc_path_inmemory` | An in-memory CDC append (`cayenne_cdc_durability: memory`, serial path): end-to-end latency from slot-apply through the RAM-tier append under the listing fence. The deferred source-slot acknowledgement is checkpointed separately. |
+| `cdc_path_inmemory_sharded` | An in-memory CDC append applied across PK-hash shards (intra-apply sharding) rather than the single serial index. |
+| `cdc_path_inmemory_fallback` | An in-memory CDC append that could not be admitted to the RAM tier (the process-global mem-tier byte budget was exhausted after waiting and spilling) and fell back to the durable write path. |
+| `cdc_path_inmemory_sharded_fallback` | A sharded in-memory apply that bailed under sustained overload before any tier mutation and re-streamed through the durable serial path. |
+| `inmemory_stream_drain` | Draining the prepared CDC stream into RAM and running deferred primary-key conflict validation — the upstream-bound produce-and-validate slice of `cdc_path_inmemory`. |
+| `inmemory_spill` | A synchronous RAM-tier checkpoint (spill) triggered when the per-table byte cap (`cayenne_cdc_mem_tier_max_bytes`) is breached, before the batch is appended. |
+| `inmemory_budget_wait` | Time spent waiting (bounded) for the process-global mem-tier byte budget to admit the batch, released by another table's checkpoint. |
 | `vortex_write` | Encoding and writing Vortex data files. |
 | `stage_wal_prepare` | Preparing the staged-append write-ahead log. |
 | `apply_on_conflict_deletions` | Applying merge-on-read deletions for on-conflict (upsert) writes. |
@@ -122,7 +128,7 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `publish_move_files` | Moving staged files into place during finalize. |
 | `publish_commit` | Committing the new snapshot during finalize. |
 
-The `cdc_path_*` phases are mutually exclusive per write and measure end-to-end (or staged-prepare) latency; the remaining phases are sub-components useful for attributing where write time is spent.
+The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
 
 ### Segment Cache Metrics
 
