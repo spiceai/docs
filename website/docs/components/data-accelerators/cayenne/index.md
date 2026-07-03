@@ -124,6 +124,19 @@ These are acceleration parameters (set under `acceleration.params`) used when st
 | `cayenne_s3_unsigned_payload` | Use unsigned payload for S3 Express One Zone requests. Defaults to `true`.                                                                    |
 | `cayenne_s3_allow_http`     | Set to `true` for testing with local S3-compatible storage. Defaults to `false`.                                                                |
 
+##### Cold object-store tier parameters
+
+These acceleration parameters (set under `acceleration.params`) configure the optional [cold object-store tier](#cold-object-store-tier). Setting `cayenne_cold_tier_location` enables the tier; the rest tune the clustering key, cold file size, and the warm→cold promotion trigger. When `cayenne_cold_tier_location` is unset (the default), the cold tier is dormant and behaves byte-identically to a warm-only table.
+
+| Parameter                                  | Description                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_cold_tier_location`               | Object-store URL prefix for the cold tier (the bottom tier of the storage cascade), e.g. `s3://bucket/prefix` or `file:///mnt/cold`. When set, a background promotion stage graduates the warm local-disk tier to read-optimized, Z-order-clustered Vortex files on this store, and queries span the warm and cold tiers with per-tier pushdown. Unset (default) disables the cold tier. Requires key-based deletes and a primary key (auto-resolved — Cayenne forces `cayenne_deletion_mode: key`). **v1 constraints:** an `s3://` cold location must share the warm S3 Express bucket; partitioned and position-delete tables are not supported. |
+| `cayenne_cold_clustering_columns`          | Comma-separated liquid-clustering key columns for cold files (multi-column Z-order), e.g. `tenant_id,ts`. Clustering tightens each cold file's per-column zone maps so selective queries on any clustering dimension prune at the storage layer. When unset, falls back to `cayenne_sort_columns`, then the primary key.                                                                              |
+| `cayenne_cold_target_file_size_mb`         | Target size for cold-tier Vortex files in MB. Larger than the warm `cayenne_target_file_size_mb` because object stores favor fewer, larger objects and cold scans are range reads. Accepts `auto` or an explicit MB value. Defaults to `512`.                                                                                                                                                        |
+| `cayenne_cold_tier_warm_max_bytes`         | The warm tier graduates to cold once its total Vortex bytes reach this threshold. `0` (default) disables the byte trigger; set alongside `cayenne_cold_tier_warm_max_files` to bound warm-tier size.                                                                                                                                                                                                 |
+| `cayenne_cold_tier_warm_max_files`         | The warm tier graduates to cold once its Vortex file count reaches this threshold. `0` (default) disables the file-count trigger.                                                                                                                                                                                                                                                                   |
+| `cayenne_cold_tier_background_interval_ms` | How often the background loop evaluates the warm→cold promotion trigger, in milliseconds. Cold tiering is not latency-critical, so this is coarser than compaction. Defaults to `60000` (60s).                                                                                                                                                                                                       |
+
 #### Runtime parameters (`runtime.params`)
 
 Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. With the exception of the goal-driven SLO setpoints (`cayenne_goal_*`) — which set a global default that a dataset can override under its own `acceleration.params` (except `cayenne_goal_qph`, which is global-only) — these are **not** valid under a dataset's `acceleration.params`:
@@ -587,6 +600,40 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 - **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (5 minutes per request) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
+
+## Cold Object-Store Tier
+
+Cayenne can cascade data across three storage tiers — an in-RAM mem-tier, a local-disk **warm** tier, and an object-store **cold** tier — with each row living in exactly one tier. The cold tier is optional and disabled by default; it is enabled by setting [`cayenne_cold_tier_location`](#cold-object-store-tier-parameters). When unset, a table is warm-only and behaves byte-identically to before.
+
+The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data.
+
+### How it works
+
+- **Promotion (write path).** A dedicated background worker graduates the warm tier once the size or file-count threshold (`cayenne_cold_tier_warm_max_bytes` / `cayenne_cold_tier_warm_max_files`) is crossed, evaluated every `cayenne_cold_tier_background_interval_ms`. Promotion re-materializes the visible table (all deletes applied, one version per key), **Z-order clusters** it for tight multi-column zone maps, writes read-optimized Vortex at the larger `cayenne_cold_target_file_size_mb`, and atomically registers the cold files while clearing the promoted warm files in a single transaction.
+- **Cross-tier scan (read path).** Queries span all tiers and push filters, projection, and limits down to each. Cold files are pruned from statistics held in the metastore, so pruning requires **no object-store round-trip on the query path**. A `DELETE` after promotion correctly hides a cold-resident row.
+- **Clustering.** Cold files are clustered by `cayenne_cold_clustering_columns` (multi-column Z-order / Morton order), falling back to `cayenne_sort_columns` and then the primary key. Clustering on more than one dimension prunes far better than a single-column sort for selective queries on any clustering column.
+
+### Requirements and v1 constraints
+
+- **Key-based deletes required.** The cold tier requires `cayenne_deletion_mode: key` and a primary key; Cayenne auto-forces key mode when the cold tier is enabled and logs an override if `cayenne_deletion_mode: position` was set.
+- **Shared bucket (S3).** In v1, an `s3://` cold location must share the warm S3 Express One Zone bucket. A local `file://` cold location has no such restriction.
+- **Unsupported in v1:** partitioned tables and position-delete tables.
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    acceleration:
+      engine: cayenne
+      mode: file
+      primary_key: event_id
+      params:
+        # Enable the cold object-store tier
+        cayenne_cold_tier_location: file:///mnt/cold/events
+        cayenne_cold_clustering_columns: tenant_id,created_at
+        # Graduate the warm tier to cold once it reaches 8 GiB
+        cayenne_cold_tier_warm_max_bytes: 8589934592
+```
 
 ## Data Type Support
 
