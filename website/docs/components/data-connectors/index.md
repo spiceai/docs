@@ -281,7 +281,7 @@ Schema inference happens once, when the dataset is first registered. Some connec
 | ------------------------------------- | ---------------------------------- | ------- | --------------------------------------------------- |
 | [Kafka](data-connectors/kafka)        | `schema_infer_max_records`         | 1       | Number of messages sampled to infer the JSON schema |
 | [DynamoDB](data-connectors/dynamodb)  | `schema_infer_max_records`         | 10      | Number of items sampled to infer the schema         |
-| [MongoDB](data-connectors/mongodb)    | `mongodb_num_docs_to_infer_schema` | 400     | Number of documents sampled to infer the schema     |
+| [MongoDB](data-connectors/mongodb)    | `mongodb_schema_infer_max_records` | 400     | Number of documents sampled to infer the schema     |
 | [CSV files](../reference/file_format) | `csv_schema_infer_max_records`     | 1000    | Number of rows sampled to infer the CSV schema      |
 
 For connectors that read self-describing formats (Parquet, Arrow, Avro), the schema is read directly from file metadata and does not require sampling.
