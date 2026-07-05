@@ -113,7 +113,7 @@ CQL `decimal` is an arbitrary-precision type, while Arrow `Decimal128` has a max
 - **Precision**: 38 (maximum for Decimal128)
 - **Scale**: 2 (suitable for monetary/financial data)
 
-For decimals that exceed this precision, values may be truncated or rounded.
+If a CQL `decimal` value cannot be represented exactly at this precision and scale — because rescaling to scale 2 would drop non-zero fractional digits, or the mantissa does not fit in 128 bits — the connector returns a query error rather than silently truncating, rounding, or returning `NULL`. Values that rescale losslessly are converted normally.
 
 ### Date/Time Handling
 
@@ -283,7 +283,7 @@ The following SQL operations cannot be pushed down to ScyllaDB and are performed
 ### Connector Limitations
 
 - **Read-only**: The connector does not support INSERT, UPDATE, or DELETE operations
-- **Decimal precision**: Fixed at precision=38, scale=2; may not suit all use cases
+- **Decimal precision**: Fixed at precision=38, scale=2; values that cannot be rescaled to this precision and scale without loss error rather than being silently truncated
 - **Collection types**: Lists, sets, and maps are converted to JSON string representation
 - **Large tables**: Without acceleration, large tables cause significant data transfer
 
