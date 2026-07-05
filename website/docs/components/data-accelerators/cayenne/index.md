@@ -98,7 +98,6 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_compaction_max_levels`   | Maximum number of consecutive compaction passes per trigger. Bounds write amplification when promotion keeps producing new candidates. Defaults to `3`. |
 | `cayenne_compaction_max_files_per_pick` | Maximum number of eligible file paths retained in one compaction candidate for trigger selection and observability. The current compactor rewrites the whole current snapshot once triggered, so this does not bound rewrite IO or memory. Defaults to `32`. |
 | `cayenne_compaction_background_interval_ms` | Background compaction interval in milliseconds. The accelerator runs a per-table background task at this interval. Set to `0` to disable the background task — inline compaction on writes still runs. Defaults to `10000` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `30000` otherwise. |
-| `cayenne_orphaned_dv_cleanup_min_files` | Per-table threshold of orphaned deletion-vector files that triggers a background cleanup sweep, reclaiming the `.arrow` files and catalog rows that time-based retention leaves behind. Defaults to `20`. Set to `0` to disable the sweep. Only takes effect on tables with a retention policy (`retention_period` + `time_column`); without retention nothing is ever orphaned and the sweep is a no-op. Reclaims disk and shrinks the in-memory deletion cache; has no correctness impact and runs off the write path. See [Orphaned deletion-vector cleanup](#orphaned-deletion-vector-cleanup). |
 | `cayenne_cdc_durability`          | Durability mode for the inline CDC write path. Accepts `memory` (default) or `file`. `memory` appends batches to an in-RAM tier and defers the source-slot acknowledgement to a periodic or cap-triggered checkpoint, collapsing per-batch durability cost; on crash the un-checkpointed tail is replayed from the source slot, and because the apply is primary-key-idempotent this remains exactly-once. The in-memory path is eligibility-gated — it applies only to the small-write / CDC profile on non-partitioned tables, and other profiles always use `file`. `file` persists each CDC batch durably before advancing the source slot and is the conservative opt-out. |
 | `cayenne_cdc_mem_tier_max_bytes`  | Per-table RAM-tier byte cap that forces a spill (checkpoint) and source-slot advance, in `cayenne_cdc_durability: memory` mode only. Auto-derived from host memory (~1/64 of RAM, clamped to 256 MiB–1 GiB; 256 MiB on hosts at or under 16 GiB). A process-global byte budget also bounds aggregate resident memory across all tables; whichever cap is breached first triggers the spill. Set to `0` to disable the per-table cap (the global budget still applies). |
 | `cayenne_cdc_mem_tier_max_age_ms` | Maximum wall-clock milliseconds a RAM-tier epoch may age before a forced checkpoint, in `cayenne_cdc_durability: memory` mode only. Bounds the crash-replay window and the deferred source-slot acknowledgement for tables that never reach a byte threshold. Defaults to `10000` (10 s). Set to `0` to disable the age trigger. |
@@ -436,25 +435,14 @@ Under `position` mode (the `auto` resolution for all tables except CDC datasets 
 
 On a primary-key upsert table, a deletion vector becomes **orphaned** once time-based retention empties the snapshot(s) it shadowed — the surviving-sequence floor rises above the DV's delete sequence, so the DV is a query-time no-op that still occupies disk and the in-memory deletion cache. Cayenne runs a background sweep that reclaims these orphaned `.arrow` files and their catalog rows.
 
-The sweep is controlled by the `cayenne_orphaned_dv_cleanup_min_files` acceleration parameter:
+The sweep is always on and requires no configuration:
 
-- **Default `20`** — the sweep runs per-table once at least 20 orphaned DVs have accumulated. Set to `0` to disable it.
+- **Fixed per-table threshold** — the sweep runs per-table once at least 20 orphaned DVs have accumulated. This threshold is a fixed internal constant, not a tunable parameter.
 - **Retention-only** — a DV is orphaned only after retention (`retention_period` + `time_column`) empties the snapshots it shadowed. **Without a retention policy nothing is ever orphaned and the sweep is a no-op**, at zero ingest cost.
 - **No correctness impact** — orphaned DVs are already query-time no-ops; the benefit is reclaimed disk plus a smaller in-memory deletion cache and less file I/O at restart.
 - **Off the write path** — the sweep is lock-free and throttled, and runs on the compaction runtime; it never extends the write-lock window.
 
-This knob bounds only the orphaned tail. The live (not-yet-orphaned) DV set is bounded separately by compaction.
-
-```yaml
-acceleration:
-  engine: cayenne
-  mode: file
-  primary_key: id
-  time_column: created_at
-  retention_period: 30d
-  params:
-    cayenne_orphaned_dv_cleanup_min_files: 20 # default; set 0 to disable
-```
+The sweep bounds only the orphaned tail. The live (not-yet-orphaned) DV set is bounded separately by compaction.
 
 ### Primary Key Optimization
 
