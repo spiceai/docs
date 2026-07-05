@@ -183,6 +183,34 @@ sql> select * from test_table;
 +-----------+-------------+---------------+
 ```
 
+## JSON Nesting
+
+When a MongoDB collection has many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to both the query (scan) path and the [Change Streams](#using-mongodb-change-streams) (CDC) path.
+
+```yaml
+datasets:
+  - from: mongodb:orders
+    name: orders
+    params:
+      mongodb_host: localhost
+      mongodb_db: shop
+    columns:
+      - name: _id
+      - name: status
+      - name: data_json
+        metadata:
+          json_object: '*'
+```
+
+Any field other than `_id`, `status`, and `data_json` is folded into `data_json` as a JSON object. The `_id` field must be declared explicitly and cannot be folded into the catch-all column.
+
+:::warning[Limitations]
+
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified fields.
+- Only one column can carry the `json_object` metadata; declaring more than one is an error.
+
+:::
+
 ## Examples
 
 ### Connecting using username and password and custom auth table

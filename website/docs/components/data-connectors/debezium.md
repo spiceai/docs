@@ -150,6 +150,35 @@ The following settings are required:
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
 
+## JSON Nesting
+
+When a change event carries many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to the change-stream (CDC) events the connector decomposes into the accelerator.
+
+```yaml
+datasets:
+  - from: debezium:my_kafka_topic_with_debezium_changes
+    name: orders
+    columns:
+      - name: id
+      - name: status
+      - name: data_json
+        metadata:
+          json_object: '*'
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+```
+
+Any field other than `id`, `status`, and `data_json` is folded into `data_json` as a JSON object. Primary-key columns must be declared explicitly and cannot be folded into the catch-all column.
+
+:::warning[Limitations]
+
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified fields.
+- Only one column can carry the `json_object` metadata; declaring more than one is an error.
+
+:::
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
