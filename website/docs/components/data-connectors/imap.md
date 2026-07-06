@@ -19,7 +19,7 @@ datasets:
 
 | Field Name    | Data Type    | Nullable | Description                                                                      |
 | ------------- | ------------ | -------- | -------------------------------------------------------------------------------- |
-| `date`        | `Date64`     | No       | The date and time when the email was sent.                                       |
+| `date`        | `Timestamp(Millisecond, None)` | No       | The date and time when the email was sent, as milliseconds since the Unix epoch. |
 | `subject`     | `Utf8`       | Yes      | The subject line of the email.                                                   |
 | `from`        | `List<Utf8>` | Yes      | The sender(s) of the email.                                                      |
 | `to`          | `List<Utf8>` | Yes      | The primary recipient(s) of the email.                                           |
