@@ -383,7 +383,7 @@ runtime:
 
 ### Memory Limit
 
-If not specified, `memory_limit` defaults to 90% of total system memory (container-aware); when Cayenne acceleration is active, the default is 75% instead, reserving headroom for Cayenne's compaction memory pool and in-memory CDC tier. For deployments with co-located accelerators, set an explicit limit based on available memory:
+If not specified, `memory_limit` defaults to 90% of total system memory (container-aware); when Cayenne acceleration is active, the default is 70% instead, reserving headroom for Cayenne's compaction memory pool and in-memory CDC tier. For deployments with co-located accelerators, set an explicit limit based on available memory:
 
 ```text
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)
