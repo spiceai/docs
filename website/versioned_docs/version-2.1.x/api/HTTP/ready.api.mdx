@@ -1,0 +1,93 @@
+---
+id: ready
+title: "Check Readiness"
+description: "Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message 'ready'. If not, it returns a 503 status with the message 'not ready'."
+sidebar_label: "Check Readiness"
+hide_title: true
+hide_table_of_contents: true
+api: eJztWG1PHDcQ/isjI1Ug7d0tkEjpVlGVpmmKmko00PYDIM5rz+1a8dobe/bCFd1/r8a79wIBmpcvkconbv0yM37mmTeuBckqiuJMvEWpF+IiExqjCqYl450oxMsa1TugGiF0jkyDEElSF8HPQFqbdpRvWu/QUVrdOjuGo/47YpgbhWAiBNaTgSEISF1wEaSDX09Pj+Egz1fCPxiq08UGY5QVwrlI985FEuk83ZQAT/PDB+46T7C6f+7O3WmNUGIt58YHmPkAH2p0bIdUCi0GSahBS5IRiW1W3kWjMaDuxQxrM1N1QZYWYW5kUjlN25dsCU6hlUE2SBjGcIIIZz9LkhBwFjDWF7s1URuLySS2RqE0Yx+qifYqTjZwTtiG0dooH4aVQcZO0jZK2vbSOxofEDSSNDamlx450CZSMGXHb9qNqkbdWQx70HiNvbNQauMwsm9i611EUIyF1oZJIK1dQIlQJVS8A7xC1ZEPIOfSWFkaa2ixgaAx7rKHYXUwTkE6fefOZYtBoaMpvO8wLDaQRdgtPdXg296GvTH8xN9sRYSmiwStjLH3XOza1hrUYzjmtekcQ+kjPqfQ4RTIQ4UEEprOkhlZ4xC0kZXzkYyC0usF4FVrpXHGVYBS9WoSgDs7O/B2DdBx8CUmVNvgdafYNtDYWr9o2GFZgmAy35/0PEGnW28cJUBLhC6iBsmE3YDesszkPQknzIUtgWw7utgFBApyNjMqhZBPziSftPV3VtHpnV2AnBGGFJ4DiSPUco4wM87EGjVYz9qr9MJXV7JpLcJvXYnBIcN7y7ji3E2n04Vs7Llbbx0PO8A8fo3EPwFaSXWxAaBf84EKeJZ/nyc52zpTrK75VEliB2xICsFb3Pty9T/ewbjnh989wMPnz/K7bBaZ8C2HoPHuSIuiz0YiExu+iuLsWjjZoCjEHQpEJgzn00RzcTvL/m6caboGXNeUGDiLqi4EdGQXo4FJK0EQ8H1nOBUxZZgAPYHIQ+yUQo6CF3DzEtSJc9bMEX6xpqrp5I83oKxJFKsl9Ul6DTuzNZEsRaXBCORZ6lzaDtm6nGlIAVNKkJFzDOdBPYa3vXURbjrxB5DgvBv9g8GvxHTESfXWwXVOf5LnY5GJ1WtFMZM2Yib4eCNFcS1o0TLYxhFWGEQmZj40kvqlwwORsR8YVlHky2X2kHdW7v80Lw2Hubbs5qP9PN/7L49ZSYz9ELEbLwesTKRUWNbHPxHov/hIBFn6OcJ+ng/AJdy+VS9kopFX/e/9/IZPhoz9MP5/c67nnJ4NdWuoVimDl6h8w4Dck+atiSm7DDc7S4zvJtkDNwWpDxn6CMX10UTonKqlq1B/GhCl9xalS8bPZGdpOLpcXvD13uTIFw7ynP/cfOPJrU5JZEJ5R8xN1oFXNEmVir8+0s2F3lVimQnsE+w6Uy2Xy0w8uUvhkZtLa/Tt+gs+3EjMmPIOxtQD3MmZr7b0gbjsC37JXRt9QHSQp45iP8/7lz3NDx+Ect0AfrWRG0nLpLlBqj1XhAop1QOqRSHWFUhkgnvfVX3oghWF4JJVTCbWK2lrH6ngOvMR29/wNmico/VtagZ6SWN4ObSeQ/2cjkYscToWTLGIqguGFkmfbM3lO+TfF7xn3Myn9xnqudE3DR+p5lBIbamGzRFrFLqIfH8I2hetVDWODsZsvNHoyMwMhps7y4yDO/aCD8b5OB91LhJnMd5rfaRGui2p/cSx7rluG3e9ceDjcPI4nDwOJ4/DyeNwMhSsrXq2zPpicz2UpDMx30/9y/BfHq47vHp9XcqIfwa7XPJy33hx6Vh1mutO594s/Di83Nc23+mWVI/vGRGTcFEIwa3x53vg/zeYfB7CW2PeFyL9DYwgDzx5M0VtnnfBH8GkfovbwEzUKDV3aWfXw7UXSmG7Dcq27IutHvf1q1OxXP4LuXLn8w==
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check Readiness"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/ready"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message "ready". If not, it returns a 503 status with the message "not ready".
+
+The behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://spiceai.org/docs/components/data-accelerators/data-refresh#ready-state) for more details.
+
+In distributed (scheduler) mode the readiness response can additionally be gated on executor availability via the `min_ready_executors` and `min_ready_executors_percent` query parameters (both optional). Both gates must pass when supplied. Pass `verbose=true` to get a multi-line diagnostic body explaining each gate.
+
+### Readiness Probe
+In production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.
+
+Example Kubernetes readiness probe:
+```yaml
+readinessProbe:
+ httpGet:
+   path: /v1/ready
+   port: 8090
+```
+
+Example with executor gating (scheduler role):
+```yaml
+readinessProbe:
+ httpGet:
+   path: /v1/ready?min_ready_executors=3&min_ready_executors_percent=80
+   port: 8090
+```
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./ready.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./ready.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./ready.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
