@@ -21,10 +21,15 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base branch
+      - name: Checkout trunk
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.base_branch }}
+          ref: trunk
+
+      - name: Overlay docs from base branch
+        run: |
+          git fetch origin ${{ inputs.base_branch }}
+          git checkout FETCH_HEAD -- website/docs
 
       - name: Create release branch and run release script
         working-directory: website
