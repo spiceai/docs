@@ -1,0 +1,70 @@
+---
+id: run-tool
+title: "Run Tool"
+description: "Execute a specific tool by name. The request body schema and response format are defined by each individual tool's specification. Use `GET /v1/tools` to discover available tools and their parameter schemas."
+sidebar_label: "Run Tool"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVl1P6zgQ/SvWvGyRQprPtskbl2URKy69grLSClVgkmnj3cQOtlOoqvz3lZ2UFugF6T5uX1KNJ2eOzxyPswFNlwrSO5gJUSqYO5CjyiSrNRMcUjh7wazRSChRNWZswTKihSjJ45pwWqFLZgUSiU8NKk0eRb4mKiuwooTynEhUteAKyULIimpCJZIcF4xjbgCQZgVhPGcrlje0tMC/qddC1FBwya1C8nB+NiPDlT80KeqBaEFypjKxQknoirKSPpZo31e2sC6QSVJTSSvUKHtOygUHRI3SIl/kkIJs+L15DRx4zTZybMDsDtLu4QAzWtRUF/BeoCtaIRELU5L0SEYOJjGHVMsGHeiqQ7oBva4NqNKS8SW07bxLRqW/iXxtMt6Cm6bshGe8bvRuV8olN4g7WYzKH/ZstpwJrpFrA0/ruuyVHf6jTI3Njl7rAL7Qqi7RhJ8alGtI4ebs8ux0RuhqOdBC0/KeVqLh+sjpQqzeBTLzHPhHDqmpUsiXKO9tjPxxPf1OqvW9to06v57e/iDf/v6QNr3+/ez60MLJzSm5vPh+MSMhtG37XmMb6LymDPfA834i5s1WzG2+Qxgnf95Mr3qT/pJetqh6Ks1jRcsGrYVO/jofbPfs7gkFaeh64yCIk2Tsh8lonITOu+R9oSENYjcMxhN/lIRJFI/iIHbgdHp7NRtccD2KBv6RwfSjUWxs/EY5SL3W+ZxKOPaDURBMJtFo4nnx+AsuIzfw4iD0oiiOxlGSjA5wCfzJZBwmB9j4X7EZ+2M/9ALfD4PEm8TRF2wSNw68UZwkoZeEXuhFB9hEXux74QEyQTtvW2unyIt+YhguNFmIhudvjaHxRQ/rkrK3lnh/wvdO1BbuXj3to9ry8SG/nnCCUgpJRJY1UmJOngtWIsloWTK+3J84v3bCK1SKLg21M1vnFXhHNCVXgqgmK7pKvVoV6kKY8VkLpe3o1AWk8DqJhhszNltwQKFcbSdqI0tIodC6TofDUmS0LITS6cRLvA9T9dIskxxXWIq6Qq5Jh+SSU8EXbNlIJM9MF+Th+NggPrhghqnCrJFMr209WrP7f9H8n5s1xhfCdohp2w7ZcM3scH/X9QKJqlmGOdmllCxDrqxq/cVwUtOswOPANeRZjlyzBUP5dqV1wGy/Aw5cz/WOG66sk82aka+ifA/1uuFk1vX0DavNrsX/vyu5PzN7R6p1Ordsemvdwco3ifYbxYHUqjV3wBjIrG42j1ThrSzb1oT7q+tu7sCKSmblNo7ImTL/c0gXtFT4icaD6/5+OSIHLviDhPsg5WtwtpcAgAPWgl1/23nrQIE0Nz652/RLp13V45kB2L364SCbydm9cZJlWOtPc+d7p/TH9GYGDjz2nxiVyK3/6bP5VqHPHU1hVbAXmY1toKR82XTzocM0v/8AOPpw2Q==
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Run Tool"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/tools/{name}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Execute a specific tool by name. The request body schema and response format are defined by each individual tool's specification. Use `GET /v1/tools` to discover available tools and their parameter schemas.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./run-tool.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./run-tool.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./run-tool.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
