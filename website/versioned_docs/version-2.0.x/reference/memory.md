@@ -63,13 +63,13 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 
 | Parameter                  | Scope                  | Default | Description                                                                                                                                  |
 | -------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`  | `runtime.params`       | `128`   | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. |
+| `cayenne_footer_cache_mb`  | `runtime.params`       | `50` (unset) | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies. |
 | `cayenne_segment_cache_mb` | `acceleration.params`  | `256`   | Per-dataset size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.        |
 
 **Memory Usage Guidelines:**
 
 - Base memory: ~500 MB for runtime overhead
-- Footer cache: 128 MB default, increase for datasets with many files
+- Footer cache: unset by default (DataFusion's 50 MB file-metadata-cache limit applies); increase for datasets with many files
 - Segment cache: 256 MB default, increase for workloads with repeated scans on the same data
 - Query execution memory: Depends on query complexity and concurrency
 
@@ -324,7 +324,7 @@ Total Memory = Runtime Overhead + Accelerator Memory + Query Memory Limit + Cach
 **Example calculation:**
 
 - Runtime overhead: 500 MB
-- Spice Cayenne caches: 384 MB (128 MB footer + 256 MB segment)
+- Spice Cayenne caches: 306 MB (50 MB footer + 256 MB segment)
 - Query memory limit: 4 GB
 - Results caches: 1 GB (512 MB SQL + 256 MB search + 256 MB embeddings)
 - **Total: ~6 GB minimum**
