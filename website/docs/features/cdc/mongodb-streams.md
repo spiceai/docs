@@ -2,7 +2,7 @@
 title: 'MongoDB Change Streams (Native CDC)'
 sidebar_label: 'MongoDB Change Streams'
 description: 'Stream insert, update, replace, and delete events from MongoDB directly into a Spice-accelerated dataset using MongoDB Change Streams.'
-sidebar_position: 4
+sidebar_position: 5
 pagination_prev: null
 pagination_next: null
 ---

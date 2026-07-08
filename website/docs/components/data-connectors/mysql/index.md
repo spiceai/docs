@@ -105,6 +105,18 @@ The MySQL data connector can be configured by providing the following `params`. 
 | `mysql_pool_max`          | The maximum number of connections created in the connection pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `mysql_zero_date_behavior` | Optional. How to handle the MySQL `0000-00-00` / `0000-00-00 00:00:00` zero-date sentinel for DATE/DATETIME/TIMESTAMP columns. Supported values:<br /> <ul><li>`null`: (default) Coerces zero dates to NULL and reports such columns as nullable in the Arrow schema.</li><li>`error`: Fails the scan when a zero date is encountered and honors the source NOT NULL constraint exactly.</li></ul> |
 
+#### Replication parameters
+
+The following parameters configure MySQL [binlog replication](../../features/cdc/mysql-replication) (native CDC) when using `refresh_mode: changes`. `primary_key` + `on_conflict: upsert` are required on the accelerator (except on the append-only `arrow` engine). See [MySQL Binlog Replication](../../features/cdc/mysql-replication) for source prerequisites, semantics, and metrics.
+
+| Parameter Name                                | Description                                                                                                                                                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mysql_replication_server_id`                 | Optional. The `server_id` this replica registers with. Must be unique among all replicas attached to the source. Default: derived from the dataset name and process.                                     |
+| `mysql_replication_snapshot_mode`             | Optional. When existing rows load: `auto` (default) snapshots when no resumable position exists; `never` streams changes only; `always` re-snapshots on every start.                                     |
+| `mysql_replication_checkpoint_interval`       | Optional. How often the committed binlog position persists to the accelerator sidecar (e.g. `10s`). Default: `10s`.                                                                                      |
+| `mysql_replication_bootstrap_batch_size`      | Optional. Number of rows per emitted batch during the initial snapshot. Default: `8192`. Maximum: `1048576`.                                                                                            |
+| `mysql_replication_invalid_position_behavior` | Optional. What to do when the persisted position was purged from the source: `error` (default) or `rebootstrap` (drop the position and re-snapshot). Default: `error`.                                   |
+
 ### `metrics`
 
 The MySQL data connector supports the following optional [component metrics](../../features/observability/component_metrics):

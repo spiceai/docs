@@ -2,7 +2,7 @@
 title: 'Debezium (CDC over Kafka)'
 sidebar_label: 'Debezium'
 description: 'Consume Debezium change events from Kafka into a Spice-accelerated dataset for sources without a native Spice CDC path.'
-sidebar_position: 5
+sidebar_position: 6
 pagination_prev: null
 pagination_next: null
 ---
