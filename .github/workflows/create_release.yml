@@ -34,7 +34,7 @@ jobs:
       - name: Create release branch and run release script
         working-directory: website
         run: |
-          git checkout -b "release/docs-v${{ inputs.version }}"
+          git checkout -b "release/docs-v${{ inputs.version }}-${{ github.run_id }}"
           ./create-release.sh "${{ inputs.version }}"
 
       - name: Commit and push
@@ -43,7 +43,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Add versioned docs for v${{ inputs.version }}"
-          git push --force origin "release/docs-v${{ inputs.version }}"
+          git push origin "release/docs-v${{ inputs.version }}-${{ github.run_id }}"
 
       - name: Create Pull Request
         env:
@@ -51,7 +51,7 @@ jobs:
         run: |
           gh pr create \
             --base trunk \
-            --head "release/docs-v${{ inputs.version }}" \
+            --head "release/docs-v${{ inputs.version }}-${{ github.run_id }}" \
             --title "Add versioned docs for v${{ inputs.version }}" \
             --body "Creates versioned documentation snapshot for v${{ inputs.version }}." \
             --label "area/docs"
