@@ -2,7 +2,7 @@
 title: 'DynamoDB Streams (Native CDC)'
 sidebar_label: 'DynamoDB Streams'
 description: 'Stream INSERT, UPDATE, and DELETE events from Amazon DynamoDB directly into a Spice-accelerated dataset using DynamoDB Streams.'
-sidebar_position: 3
+sidebar_position: 4
 pagination_prev: null
 pagination_next: null
 ---

@@ -76,10 +76,11 @@ Enabling CDC by setting `refresh_mode: changes` in the acceleration settings req
 Spice currently supports streaming ingestion via:
 
 - **[PostgreSQL Logical Replication](./postgres-replication.md)** — **recommended** for PostgreSQL sources. Spice connects directly to the source using Postgres' native logical replication protocol (`wal_level=logical` + pgoutput) and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. No Kafka, no Debezium, no external services.
+- **[MySQL Binlog Replication](./mysql-replication.md)** — **recommended** for MySQL sources. Spice subscribes to the source's binary log (`binlog_format=ROW`) as a replica and streams `INSERT`/`UPDATE`/`DELETE` events into the accelerator. No Kafka, no Debezium, no external services.
 - **[DynamoDB Streams](./dynamodb-streams.md)** — for Amazon DynamoDB sources. Spice consumes the table's DynamoDB Streams directly and applies `INSERT`/`UPDATE`/`DELETE` events to the accelerator.
 - **[MongoDB Change Streams](./mongodb-streams.md)** — for MongoDB replica sets and sharded clusters. Spice opens a native Change Stream on the source collection and applies inserts, updates, replaces, and deletes to the accelerator.
 - **[Apache Kafka](../../components/data-connectors/kafka.md)** — for event-streaming topics. Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration (no separate CDC connector required).
-- **[Debezium](./debezium.md)** (over Kafka) — for sources where Debezium + Kafka is already deployed, or for databases without a native Spice CDC path (MySQL, SQL Server, etc.).
+- **[Debezium](./debezium.md)** (over Kafka) — for sources where Debezium + Kafka is already deployed, or for databases without a native Spice CDC path (SQL Server, etc.).
 
 ## Example
 
