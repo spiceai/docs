@@ -47,7 +47,7 @@ For file-mode databases, the connection pool automatically sets the following pr
 | `foreign_keys`   | `true`   | Enables foreign key constraint enforcement.        |
 | `temp_store`     | `memory` | Stores temporary tables and indices in memory.     |
 
-These are no-ops for in-memory databases. For custom durability tuning beyond these defaults, set pragmas via a custom connection string or post-startup SQL.
+These are no-ops for in-memory databases and are set by the runtime; the SQLite accelerator does not expose a connection string for overriding them. Use the `busy_timeout` parameter to tune concurrent-writer handling.
 
 ### Federation Across Files
 
@@ -81,6 +81,6 @@ SQLite acceleration operations participate in [task history](../../../reference/
 | Symptom                                   | Likely cause                                              | Resolution                                                                                        |
 | ----------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `database is locked`                      | Concurrent writer contention exceeds `busy_timeout`.   | Raise `busy_timeout`; reduce concurrent refreshes; or switch to DuckDB/Postgres.               |
-| Slow reads on a large file-mode database  | Default page cache is small for the working set.          | Raise `PRAGMA cache_size` via connection string; consider DuckDB for large-scan workloads.        |
+| Slow reads on a large file-mode database  | Default page cache is small for the working set.          | The page cache is managed by the runtime and is not directly configurable; consider DuckDB for large-scan workloads. |
 | Acceleration rejects `partition_by`       | Feature not supported.                                    | Remove `partition_by` or switch engines.                                                          |
 | Queries return stale data after refresh   | Readers using long-lived transactions hold an old snapshot. | Ensure read paths do not keep connections open across refresh boundaries (runtime handles this, but custom SQL in pre/post refresh hooks can affect it). |
