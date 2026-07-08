@@ -117,7 +117,7 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 
 | Parameter                                  | Description                                                                                                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Defaults to `128`. |
+| `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Optional; when unset, no explicit limit is applied and DataFusion's default file-metadata-cache limit of 50 MB applies (there is no fixed 128 MB default). |
 | `cayenne_filter_propagation`               | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                                                                         |
 | `cayenne_optimizer_rules`                  | Selects which Cayenne optimizer rules run. Accepts `auto` (default — enables the recommended set, gated by `cayenne_filter_propagation`), `all`, `none` / `disabled`, or a comma-separated list of individual rule names.                                               |
 | `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one Cayenne-accelerated dataset is enabled and dedicated thread pools are not disabled. |
@@ -154,7 +154,7 @@ Spice Cayenne uses two in-memory caches to accelerate query performance:
 
 The footer cache stores Vortex file metadata, including schemas, statistics, and encoding information. It is engine-global and shared across every Cayenne-accelerated dataset, so it is set under `runtime.params`, not per dataset. Larger cache sizes benefit workloads with many files.
 
-- Default: 128 MB
+- Default: unset — when omitted, DataFusion's default file-metadata-cache limit of 50 MB applies
 - Increase for datasets with many small files
 - Each file requires approximately 1-10 KB of footer cache
 
@@ -537,7 +537,7 @@ Spice Cayenne manages memory efficiently through columnar storage and selective 
 | Component        | Default  | Notes                                                    |
 | ---------------- | -------- | -------------------------------------------------------- |
 | Runtime overhead | ~500 MB  | Fixed baseline for the Spice runtime                     |
-| Footer cache     | 128 MB   | Increase for datasets with many files (1-10 KB per file) |
+| Footer cache     | 50 MB    | Unset by default (DataFusion file-metadata-cache default); increase for datasets with many files (1-10 KB per file) |
 | Segment cache    | 256 MB   | Increase based on hot data volume                        |
 | Query execution  | Variable | Depends on query complexity and concurrency              |
 
