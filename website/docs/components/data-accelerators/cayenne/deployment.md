@@ -25,13 +25,15 @@ Cayenne is file-mode only. Segments are written as Vortex files on local disk or
 
 ### Metastore Durability
 
-Cayenne's metastore (table list, segment index, delete vectors) is backed by SQLite or Turso. The metastore configures:
+Cayenne's metastore (table list, segment index, delete vectors) is backed by SQLite (default) or Turso. With the default **SQLite** backend, the metastore configures:
 
 - `journal_mode=WAL` for crash-safe writes.
 - `busy_timeout` to handle concurrent access.
 - `synchronous=NORMAL` for WAL-safe durability with acceptable write latency.
 
-On shutdown, Cayenne performs a WAL checkpoint and runs `PRAGMA optimize` to minimize restart overhead. Graceful shutdown via `SIGTERM` is important — abrupt kills leave the WAL un-checkpointed (still recoverable, but restart is slower).
+The **Turso** backend (opt-in, requires the `turso` feature flag) uses its MVCC journal mode (`journal_mode='mvcc'`) instead of WAL.
+
+On shutdown, Cayenne performs a WAL checkpoint (SQLite) and runs `PRAGMA optimize` to minimize restart overhead. Graceful shutdown via `SIGTERM` is important — abrupt kills leave the WAL un-checkpointed (still recoverable, but restart is slower).
 
 ### Append WAL Crash Safety
 
