@@ -4,8 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version number (e.g. 2.0)"
+        description: "Version number (e.g. 2.0). Becomes `website/versioned_docs/version-{version_number}.x`."
         required: true
+        type: string
+      base_branch:
+        description: "Git branch to copy from as the versioned docs."
+        required: false
+        default: "trunk"
         type: string
 
 permissions:
@@ -16,10 +21,10 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout trunk
+      - name: Checkout base branch
         uses: actions/checkout@v4
         with:
-          ref: trunk
+          ref: ${{ inputs.base_branch }}
 
       - name: Create release branch and run release script
         working-directory: website
