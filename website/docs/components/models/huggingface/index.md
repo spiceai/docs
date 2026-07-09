@@ -74,18 +74,6 @@ models:
 
 ## Examples
 
-### Load a ML model to predict taxi trips outcomes
-
-```yaml
-models:
-  - from: huggingface:huggingface.co/spiceai/darts:latest
-    name: hf_model
-    files:
-      - path: model.onnx
-    datasets:
-      - taxi_trips
-```
-
 ### Load a LLM model to generate text
 
 ```yaml
@@ -109,8 +97,8 @@ For more details on authentication, see [access tokens](#access-tokens).
 :::warning[Limitations]
 
 - The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports Apple Metal and CUDA for accelerated inference. See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for build instructions.
-- ML models currently only support ONNX file format.
-  :::
+
+:::
 
 ## Cookbook
 

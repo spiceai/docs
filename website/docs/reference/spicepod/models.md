@@ -5,14 +5,14 @@ description: 'Models YAML reference'
 pagination_next: null
 ---
 
-The `models` section of a Spicepod defines machine learning (ML) models and large language models (LLMs) for use with Spice. Models can be loaded from Hugging Face, OpenAI, local files, or other supported providers. The model type is automatically determined based on the source and file format.
+The `models` section of a Spicepod defines large language models (LLMs) for use with Spice. Models can be loaded from Hugging Face, OpenAI, local files, or other supported providers.
 
 | Field         | Description                                                              |
 | ------------- | ------------------------------------------------------------------------ |
 | `name`        | Unique, readable name for the model within the Spicepod.                 |
 | `from`        | Source-specific address to uniquely identify a model.                    |
 | `description` | Additional details about the model, useful for displaying to users.      |
-| `datasets`    | Datasets that the model depends on for inference.                        |
+| `datasets`    | Datasets the model's tools may access, forming a table allowlist.        |
 | `files`       | Specify additional files, or override default files needed by the model. |
 | `params`      | Additional parameters to be passed to the model.                         |
 
@@ -60,7 +60,7 @@ The `<model_source>` prefix of the `from` field indicates where the model is sou
 
 The `<model_id>` suffix of the `from` field is a unique (per source) identifier for the model:
 
-- For Spice AI: Supports only ML models. Represents the full path to the model in the Spice AI repository. Supports a version suffix (default to `latest`).
+- For Spice AI: Represents the full path to the model in the Spice AI repository. Supports a version suffix (default to `latest`).
   - Example: `lukekim/smart/models/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`
 - For Hugging Face: A repo_id and, optionally, revision hash or tag.
   - `Qwen/Qwen1.5-0.5B` (no revision)
@@ -87,7 +87,6 @@ Optional. A list of files associated with this model. Each file has:
 File types include:
 
 - `weights`: Model weights
-  - For ML models: typically `.onnx` files
   - For LLMs: `.gguf`, `.ggml`, `.safetensors`, or `pytorch_model.bin` files
   - These files contain the trained parameters of the model
 
@@ -160,7 +159,7 @@ models:
 
 ### `datasets`
 
-Optional. A list of [dataset names](./datasets#name) that this model should be applied to. For ML models, this preselects the dataset to use for inference.
+Optional. A list of [dataset names](./datasets#name) that scope the model's tool access, forming a table allowlist for SQL and NSQL tool use. When omitted, the model's tools are not restricted to a specific set of datasets.
 
 ### `dependsOn`
 
