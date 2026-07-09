@@ -74,7 +74,7 @@ Authentication failures (`401`, `403`) and missing buckets (`404`) surface immed
 
 ## Metrics
 
-S3 I/O metrics are collected via the shared `runtime-object-store` layer (request counts, retries, bytes read) and are exposed through Spice's runtime metrics. See [Component Metrics](../../../features/observability/component_metrics) for configuration.
+The `runtime-object-store` layer that performs S3 I/O is not instrumented, so Spice does not emit S3 transport metrics (request counts, retries, bytes read). See [Component Metrics](../../../features/observability/component_metrics) for the metrics that are available.
 
 The connector does not currently register S3-specific dataset-level instruments. Monitor S3 health via:
 
