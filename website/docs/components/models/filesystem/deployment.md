@@ -10,7 +10,7 @@ tags:
   - observability
 ---
 
-Production operating guide for loading local language models from the filesystem (GGUF, safetensors, ONNX).
+Production operating guide for loading local language models from the filesystem (GGUF, safetensors).
 
 ## Authentication & Secrets
 
@@ -38,7 +38,6 @@ Model loading happens once at startup. A missing or unreadable file fails the sp
 | GGML (legacy)  | `.ggml`                        | Legacy llama.cpp format.                                               |
 | Safetensors    | `.safetensors`                 | Native tensor format; preferred over `.bin` for safety.                 |
 | PyTorch        | `.bin` / `.pt` / `.pth`         | Legacy PyTorch checkpoints.                                             |
-| ONNX           | `.onnx`                        | Supported via the tract runtime for classical ML models.               |
 
 ### Device Selection
 
@@ -78,7 +77,7 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 ## Known Limitations
 
 - **Single-process loading**: A model is loaded into the Spice process — it cannot be shared across process instances without a dedicated inference server.
-- **Format support depends on compile features**: CUDA, Metal, and ONNX support are conditional on the Spice build flavor (default, CUDA, ONNX-enabled).
+- **Format support depends on compile features**: CUDA and Metal support are conditional on the Spice build flavor (default, CUDA).
 - **No hot reload**: Swapping the underlying model file requires a spicepod reload.
 - **No integrity check**: The provider trusts the file on disk. Validate checksums out-of-band for supply-chain assurance.
 - **Model_type override**: When the loader cannot auto-detect the architecture, `model_type` can force a known architecture.
