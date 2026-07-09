@@ -116,7 +116,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for g
 
 For broader observability, also monitor:
 
-- Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures_total`) from `runtime.metrics`.
 - Azure portal **Cosmos DB account → Insights → Throughput** for RU/s consumption and 429 rates.
 - Account-level Azure Monitor metrics: `TotalRequestUnits`, `TotalRequests`, `MetadataRequests`.
 
