@@ -49,7 +49,7 @@ The Delta Lake connector reads the `_delta_log` transaction log on each query pl
 
 ## Metrics
 
-Object-store I/O metrics are collected via the shared `runtime-object-store` layer and exposed through Spice's runtime metrics. See [Component Metrics](../../../features/observability/component_metrics) for configuration.
+The `runtime-object-store` layer that performs Delta Lake object-store I/O is not instrumented, so Spice does not emit object-store transport metrics. See [Component Metrics](../../../features/observability/component_metrics) for the metrics that are available.
 
 The Delta Lake connector does not currently register connector-specific dataset-level instruments. Monitor Delta operations via:
 
