@@ -43,7 +43,7 @@ Dremio is a federated engine; the connector pushes SQL predicates and projection
 
 ## Metrics
 
-Flight SQL transport metrics are collected via the shared Flight client instrumentation. The connector does not currently register Dremio-specific dataset-level instruments. Monitor via:
+The Flight SQL client is not instrumented, so this connector emits no transport-level metrics, and it does not currently register Dremio-specific dataset-level instruments. Monitor via:
 
 - Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
 - Dremio's own job metrics exposed via the Dremio UI / API (`job_id` correlation).
