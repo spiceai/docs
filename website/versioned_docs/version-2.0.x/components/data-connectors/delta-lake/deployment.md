@@ -53,7 +53,7 @@ Object-store I/O metrics are collected via the shared `runtime-object-store` lay
 
 The Delta Lake connector does not currently register connector-specific dataset-level instruments. Monitor Delta operations via:
 
-- Query execution metrics (`query_duration_ms`, `query_processed_rows`) from `runtime.metrics`.
+- Query execution metrics (`query_duration_ms`, `query_returned_rows`) from `runtime.metrics`.
 - Upstream cloud metrics (S3 request count, Azure blob throughput).
 - Acceleration refresh metrics when the dataset is accelerated.
 

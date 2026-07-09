@@ -179,7 +179,7 @@ datasets:
 
 Flight transport metrics are collected via the shared Flight client instrumentation. The connector does not currently register Spice.ai-specific dataset-level instruments. Monitor the connector via:
 
-- Query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
+- Query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures_total`) from `runtime.metrics`.
 - Acceleration refresh metrics when the dataset is accelerated (`refresh_last_duration_ms`, `refresh_errors_total`).
 - For Cloud: upstream Console metrics on the source dataset.
 - For self-hosted: monitor the upstream's own `runtime.metrics` and acceleration metrics.

@@ -79,7 +79,7 @@ S3 I/O metrics are collected via the shared `runtime-object-store` layer (reques
 The connector does not currently register S3-specific dataset-level instruments. Monitor S3 health via:
 
 - Standard AWS CloudWatch metrics on the bucket (`AllRequests`, `4xxErrors`, `5xxErrors`, `TotalRequestLatency`).
-- Spice's query-execution metrics (`query_duration_ms`, `query_processed_rows`) from `runtime.metrics`.
+- Spice's query-execution metrics (`query_duration_ms`, `query_returned_rows`) from `runtime.metrics`.
 
 ## Task History
 
