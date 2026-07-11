@@ -74,7 +74,7 @@ For more, see [Search Functionality](../../../features/search) and the [SQL sear
 
 | Predicate                                    | Pushdown to ES Query DSL                                              |
 | -------------------------------------------- | --------------------------------------------------------------------- |
-| `WHERE` equality on `keyword` / numeric fields | Limited — most filters are evaluated locally by DataFusion after fetch. |
+| `WHERE` filters (any field) | None — the connector pushes down no `WHERE` predicates; all are evaluated locally by DataFusion after fetch (the scan issues `match_all`). |
 | `LIMIT N`                                    | Translated to `size: N`.                                               |
 | `ORDER BY`                                   | Evaluated locally unless paired with a search UDTF.                   |
 | `vector_search` / `text_search` / `rrf`      | Native — issued as kNN / BM25 query bodies.                           |
@@ -107,7 +107,7 @@ Elasticsearch requests participate in [task history](../../../reference/task_his
 - **`date` and `date_nanos` are strings**: Elasticsearch accepts heterogeneous date formats. The connector preserves them as `Utf8` — cast to `TIMESTAMP` in SQL when comparison is needed.
 - **`nested` and `object` are JSON strings**: Nested objects are exposed as `Utf8` JSON, not structured Arrow types.
 - **`dense_vector` without `dims`**: Falls back to `Utf8` and is not usable as a vector column. Declare `dims` in the index mapping.
-- **Limited filter pushdown**: Most SQL `WHERE` predicates are evaluated locally by DataFusion. For selective filters, accelerate the dataset.
+- **No filter pushdown**: The connector pushes down no SQL `WHERE` predicates — every filter is evaluated locally by DataFusion after fetch (the scan issues `match_all`; only `LIMIT` is pushed down, as the query `size`). For selective filters, accelerate the dataset.
 - **Tested against Elasticsearch 8.17**: Other major versions (7.x, 9.x) may work but are not part of the integration test matrix.
 
 ## Troubleshooting
