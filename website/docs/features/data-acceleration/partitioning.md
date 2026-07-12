@@ -5,7 +5,7 @@ description: 'Partition accelerated datasets to make filtered queries faster by 
 sidebar_position: 4
 ---
 
-Partitioning splits an accelerated dataset into multiple physical units (files, tables, or in-memory tables) keyed by an expression evaluated per row. Queries that filter on the partitioning expression — or on a column it references — only read the partitions that can match, dramatically reducing the data scanned.
+Partitioning splits an accelerated dataset into multiple physical units (files or in-memory tables) keyed by an expression evaluated per row. Queries that filter on the partitioning expression — or on a column it references — only read the partitions that can match, dramatically reducing the data scanned.
 
 ```yaml
 datasets:
@@ -15,13 +15,13 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       partition_by:
         - bucket(50, PULocationID)
 ```
 
-This config writes 50 separate DuckDB files, each containing the rows whose `PULocationID` hashes to the same bucket. A query like `WHERE PULocationID = 132` only opens the single bucket file that could contain `132`.
+This config writes 50 separate partitions, each containing the rows whose `PULocationID` hashes to the same bucket. A query like `WHERE PULocationID = 132` only reads the single bucket partition that could contain `132`.
 
 ## How partitioning works
 
@@ -54,35 +54,14 @@ acceleration:
 
 Multi-entry mappings (`- year: "…", month: "…"` on one list item) are rejected at load time.
 
-### `partition_mode` (DuckDB only)
-
-Under `acceleration.params.partition_mode`. Selects how DuckDB physically lays out partitions:
-
-| Value    | Layout                                                                                               | Default |
-| -------- | ---------------------------------------------------------------------------------------------------- | ------- |
-| `files`  | Each partition is its own DuckDB file in a Hive-style directory (`column=value/…`).                  | ✓       |
-| `tables` | Single DuckDB file with one table per partition (discovered via `information_schema.tables`).        |         |
-
-```yaml
-acceleration:
-  enabled: true
-  engine: duckdb
-  mode: file
-  partition_by:
-    - bucket(50, PULocationID)
-  params:
-    partition_mode: tables   # default is `files`
-```
-
 ### Supported engines
 
 | Engine    | Required `mode:` | Multi-expression | Layout                                          |
 | --------- | ---------------- | ---------------- | ----------------------------------------------- |
 | `arrow`   | (memory; default)| Yes              | One Arrow `MemTable` per partition value.       |
-| `duckdb`  | `file`           | No (single only) | Hive-style files (`partition_mode: files`) or per-partition tables (`partition_mode: tables`). |
 | `cayenne` | `file`           | Yes              | One Vortex table per partition; catalog in a SQLite metadata file. |
 
-`sqlite`, `postgres`, and `turso` accelerators do **not** support `partition_by`.
+`duckdb`, `sqlite`, `postgres`, and `turso` accelerators do **not** support `partition_by`; configuring it on those engines is rejected at load time. Use `arrow` or `cayenne` for partitioned acceleration.
 
 ## Partition transforms
 
@@ -182,8 +161,6 @@ acceleration:
 
 A query with `WHERE region = 'EU' AND date_part('year', created_at) = 2026` prunes on both axes.
 
-DuckDB partitioned acceleration rejects multiple expressions with `PartitionByRequired` (single-expression only).
-
 ## Partition pruning
 
 Spice attempts to translate query-time filters into a partition selection. The matrix below summarizes which filter shapes prune which partition transforms:
@@ -212,18 +189,6 @@ Pruning notes:
 ### Arrow (`engine: arrow`)
 
 In-memory MemTable per partition value. Partitions are rebuilt on every refresh. The simplest engine to start with for moderate datasets that fit in RAM. `hash_index` and `sort_columns` are propagated per partition.
-
-### DuckDB files mode (`engine: duckdb`, `partition_mode: files`)
-
-Each partition value becomes its own DuckDB file under a Hive-style directory layout (e.g. `accelerator_dir/dataset/year=2026/data.duckdb`). Useful when you want OS-level visibility of partitions and per-partition I/O.
-
-Requires `mode: file`. Single-expression only.
-
-### DuckDB tables mode (`engine: duckdb`, `partition_mode: tables`)
-
-A single DuckDB file with one table per partition value. Cheaper to manage operationally (one file to back up, one connection pool to size), but loses per-partition file-level isolation.
-
-Requires `mode: file`. Single-expression only.
 
 ### Cayenne (`engine: cayenne`)
 
@@ -255,10 +220,7 @@ A `partition_by` expression is rejected at startup if any of the following hold:
 - Expression contains a subquery, `OUTER REFERENCE`, `UNNEST`, window function, aggregate function, `EXISTS`, `GROUPING SET`, or `PLACEHOLDER`.
 - Expression aliases the column (`col AS partition_key`).
 
-For DuckDB engines, additionally:
-
-- `mode:` must be `file`.
-- Only one `partition_by` expression is allowed.
+For the `cayenne` engine, `mode:` must be `file`.
 
 ## Examples
 
@@ -274,7 +236,7 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       partition_by:
         - bucket(100, user_id)
@@ -284,7 +246,7 @@ datasets:
 -- Reads the single bucket that hashes user_id 42:
 SELECT COUNT(*) FROM events WHERE user_id = 42;
 
--- Reads at most 4 bucket files:
+-- Reads at most 4 bucket partitions:
 SELECT * FROM events WHERE user_id IN (1, 2, 3, 4);
 ```
 
@@ -293,7 +255,7 @@ SELECT * FROM events WHERE user_id IN (1, 2, 3, 4);
 ```yaml
 acceleration:
   enabled: true
-  engine: duckdb
+  engine: cayenne
   mode: file
   partition_by:
     - date_part('year', l_shipdate)
