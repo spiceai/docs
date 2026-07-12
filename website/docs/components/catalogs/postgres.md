@@ -114,7 +114,7 @@ No configuration is required. If FK discovery fails for a schema (e.g., due to i
 :::warning
 
 - **Base tables and standard views only.** The connector discovers `BASE TABLE` and `VIEW` relations. Materialized views and foreign tables are not currently discovered and will not appear in the catalog ([#11725](https://github.com/spiceai/spiceai/issues/11725)).
-- **Partitioned tables.** For declaratively-partitioned tables, both the partitioned parent and each child partition are registered as separate tables ([#11726](https://github.com/spiceai/spiceai/issues/11726)).
+- **Partitioned tables.** For declaratively-partitioned tables (and legacy table inheritance), only the partitioned parent is registered — leaf/child partitions are not registered as separate tables. Querying the parent returns rows from every partition. Registering the children too would double-count the data, since the parent is a union over its children.
 - **`include` filters tables, not schemas.** The `include` patterns are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
 - **Unsupported column types.** Tables containing a column of a type that cannot be mapped are skipped entirely and a warning is logged. The `unsupported_type_action` behavior available on individual PostgreSQL datasets is not applied on the catalog path ([#11728](https://github.com/spiceai/spiceai/issues/11728)).
 - **Partial discovery failures.** If discovery of a schema's tables fails during the initial load, the catalog fails to register rather than loading the reachable schemas ([#11724](https://github.com/spiceai/spiceai/issues/11724)).
