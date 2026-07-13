@@ -25,7 +25,7 @@ The connector currently supports key-based authentication only. Microsoft Entra 
 | `cosmosdb_account_endpoint`    | Account endpoint URL when storing endpoint and key separately.                                           |
 | `cosmosdb_account_key`         | Primary or secondary account key.                                                                        |
 
-Credentials must be sourced from a [secret store](../../secret-stores/) in production. Prefer the **secondary** account key for Spice and rotate keys via the Azure portal — this lets you revoke access without taking the primary down. Scope read-only RBAC role assignments where possible: the connector only requires **Cosmos DB Built-in Data Reader** at the data plane level.
+Credentials must be sourced from a [secret store](../../secret-stores/) in production. Prefer the **secondary** account key for Spice and rotate keys via the Azure portal — this lets you revoke access without taking the primary down. Because the connector authenticates with account keys, access cannot be narrowed with data-plane RBAC roles such as **Cosmos DB Built-in Data Reader** — those apply only to Microsoft Entra ID identities, which this connector does not yet support (see above).
 
 ### TLS
 
