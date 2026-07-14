@@ -147,7 +147,7 @@ TLS is enabled automatically for `https://` endpoints.
 - `date` and `date_nanos` fields are preserved as strings because Elasticsearch accepts heterogeneous date formats; cast to a timestamp in SQL when numeric comparison is required.
 - `dense_vector` fields without a declared `dims` value fall back to `Utf8` and are not usable as a vector column.
 - For queries with `LIMIT N` where N ≤ 10,000, the connector issues a single `_search` request. For larger result sets or queries without `LIMIT`, the connector automatically paginates using Point-In-Time (PIT) + `search_after`, fetching all matching documents in 10,000-hit batches.
-- Pushdown of SQL predicates to Elasticsearch query DSL is limited; complex filter expressions are evaluated locally by DataFusion after fetching results.
+- SQL `WHERE` predicates are not pushed down to the Elasticsearch query DSL; all filter expressions are evaluated locally by DataFusion after fetching results (only `LIMIT` is pushed down, as the query `size`).
 
 Elasticsearch can also be configured as a [Vector Engine](../vectors/elasticsearch) for datasets sourced from other connectors (storing Spice-managed embeddings in Elasticsearch rather than querying an existing index).
 

@@ -115,7 +115,7 @@ The following parameters configure MySQL [binlog replication](../../features/cdc
 | `mysql_replication_snapshot_mode`             | Optional. When existing rows load: `auto` (default) snapshots when no resumable position exists; `never` streams changes only; `always` re-snapshots on every start.                                     |
 | `mysql_replication_checkpoint_interval`       | Optional. How often the committed binlog position persists to the accelerator sidecar (e.g. `10s`). Default: `10s`.                                                                                      |
 | `mysql_replication_bootstrap_batch_size`      | Optional. Number of rows per emitted batch during the initial snapshot. Default: `8192`. Maximum: `1048576`.                                                                                            |
-| `mysql_replication_invalid_position_behavior` | Optional. What to do when the persisted position was purged from the source: `error` (default) or `rebootstrap` (drop the position and re-snapshot). Default: `error`.                                   |
+| `mysql_replication_invalid_position_behavior` | Optional. What to do when the persisted position cannot be resumed losslessly — either it was purged from the source, or the source table's column layout drifted incompatibly with the recorded position: `error` (default) or `rebootstrap` (drop the position and re-snapshot). Default: `error`. |
 
 ### `metrics`
 

@@ -41,7 +41,7 @@ DuckDB's WAL provides crash recovery for any process that wrote to the file. The
 
 ## Metrics
 
-The DuckDB connector does not register connector-specific instruments. Monitor via Spice's query metrics (`query_duration_ms`, `query_processed_rows`). See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The DuckDB connector does not register connector-specific instruments. Monitor via Spice's query metrics (`query_duration_ms`, `query_returned_rows`). See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For DuckDB-internal metrics, use DuckDB's `duckdb_memory()` and `pragma database_size` via a SQL query against the connector.
 

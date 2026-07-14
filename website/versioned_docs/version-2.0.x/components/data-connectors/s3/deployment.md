@@ -79,7 +79,7 @@ The `runtime-object-store` layer that performs S3 I/O is not instrumented, so Sp
 The connector does not currently register S3-specific dataset-level instruments. Monitor S3 health via:
 
 - Standard AWS CloudWatch metrics on the bucket (`AllRequests`, `4xxErrors`, `5xxErrors`, `TotalRequestLatency`).
-- Spice's query-execution metrics (`query_duration_ms`, `query_processed_rows`) from `runtime.metrics`.
+- Spice's query-execution metrics (`query_duration_ms`, `query_returned_rows`) from `runtime.metrics`.
 
 ## Task History
 

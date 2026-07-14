@@ -47,7 +47,7 @@ See [File Formats](../../../reference/file_format) for format-specific parameter
 
 ## Metrics
 
-The File connector does not register connector-specific instruments. Monitor via Spice's query execution metrics (`query_duration_ms`, `query_processed_rows`). See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The File connector does not register connector-specific instruments. Monitor via Spice's query execution metrics (`query_duration_ms`, `query_returned_rows`). See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For filesystem-level issues (disk utilization, IOPS), use the underlying OS metrics (Prometheus `node_exporter`, CloudWatch agent, etc.).
 

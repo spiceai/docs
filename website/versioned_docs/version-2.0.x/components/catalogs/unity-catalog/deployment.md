@@ -92,7 +92,7 @@ The Unity Catalog connector does not currently register UC-specific OpenTelemetr
 
 Monitor via:
 
-- Spice query execution metrics (`query_duration_ms`, `query_processed_rows`) from `runtime.metrics`.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`) from `runtime.metrics`.
 - Task-history spans listed below.
 - Databricks / UC workspace audit logs for API-level visibility.
 
