@@ -11,7 +11,7 @@ pagination_next: null
 
 Spice runtime components are the building blocks for configuring data access, acceleration, AI models, embeddings, and secrets. Each component is defined in the `spicepod.yaml` manifest.
 
-**[Data Connectors](./components/data-connectors)** connect to databases, data warehouses, data lakes, and file systems for federated SQL queries. Spice supports over 30 connectors including PostgreSQL, MySQL, S3, Snowflake, Databricks, and DuckDB.
+**[Data Connectors](./components/data-connectors)** connect to databases, data warehouses, data lakes, and file systems for federated SQL queries. Spice supports over 40 connectors including PostgreSQL, MySQL, S3, Snowflake, Databricks, and DuckDB.
 
 **[Data Accelerators](./components/data-accelerators)** materialize datasets locally in memory or on disk for faster query performance. Choose from Arrow (in-memory), DuckDB, SQLite, PostgreSQL, or Cayenne depending on workload characteristics.
 
