@@ -117,13 +117,13 @@ Generate vector embeddings using Gemini embedding models for semantic search and
 
 | Provider      | Supported Models                                                                                                                        | Documentation                                              |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Google AI** | `text-embedding-004` and other models from [Gemini API embeddings](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding). | [Google AI Embeddings](../../components/embeddings/google) |
+| **Google AI** | `gemini-embedding-2` and other models from [Gemini API embeddings](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding). | [Google AI Embeddings](../../components/embeddings/google) |
 
 ### Example: Google AI Embeddings
 
 ```yaml
 embeddings:
-  - from: google:text-embedding-004
+  - from: google:gemini-embedding-2
     name: gemini_embeddings
     params:
       google_api_key: ${ secrets:GEMINI_API_KEY }
