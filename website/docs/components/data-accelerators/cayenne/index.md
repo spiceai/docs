@@ -48,7 +48,10 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 
 ## Configuration
 
-To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports `mode: file`, `mode: file_create`, and `mode: file_update` and stores data on disk.
+To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports two storage modes:
+
+- **`mode: file`** (durable) — data is written as Vortex files on local disk or S3 Express One Zone, with a SQLite/Turso metastore, and the acceleration survives restarts. This is the recommended mode for Cayenne and is used in the examples throughout this page. The `mode: file_create` and `mode: file_update` variants control how an existing on-disk acceleration is reused or rebuilt on startup.
+- **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)).
 
 ```yaml
 datasets:
@@ -744,7 +747,7 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 Consider the following limitations when using Spice Cayenne acceleration:
 
-- **File Mode Only**: Spice Cayenne only supports `mode: file` and does not support in-memory (`mode: memory`) acceleration.
+- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.

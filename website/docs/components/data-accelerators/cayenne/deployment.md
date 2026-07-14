@@ -19,9 +19,9 @@ When Cayenne stores segments on S3 / S3 Express One Zone, authentication follows
 
 ## Resilience & Durability
 
-### File-Mode Only
+### Storage Modes
 
-Cayenne is file-mode only. Segments are written as Vortex files on local disk or S3 / S3 Express One Zone.
+Cayenne supports two storage modes. In **`mode: file`** (durable, the recommended production mode), segments are written as Vortex files on local disk or S3 / S3 Express One Zone and the acceleration survives restarts — this guide is oriented to operating it. In **`mode: memory`** (ephemeral), all data lives fully in RAM with an in-memory metastore, nothing is written to disk, and the dataset reloads from its source on restart; it does not support partitioned tables and enforces a hard per-table RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required.
 
 ### Metastore Durability
 
@@ -152,7 +152,7 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 
 ## Known Limitations
 
-- **File-mode only**: In-memory mode is not supported; use [Arrow](../arrow/deployment) for pure in-memory acceleration.
+- **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment).
 - **Single-writer per table**: Two Spice instances cannot write the same Cayenne table concurrently.
 - **Vortex version compatibility**: Cayenne files are tied to the Vortex binary version shipped with Spice. Cross-version reads may be supported but not cross-version writes.
 - **Object-store write atomicity**: Standard S3 is eventually consistent for multipart uploads. S3 Express One Zone provides strong read-after-write consistency and is recommended for latency-sensitive workloads.
