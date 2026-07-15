@@ -123,6 +123,11 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one Cayenne-accelerated dataset is enabled and dedicated thread pools are not disabled. |
 | `cayenne_sort_merge_min_rows`              | Advanced anti-join tuning: row-count threshold above which the filter-propagation optimizer switches to a sort-merge strategy. Defaults to an internally tuned value; override only when profiling indicates a need.                                                    |
 | `cayenne_sort_merge_memory_pool_fraction`  | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Defaults to an internally tuned value.                                                                                                                                |
+| `cayenne_metastore_cache_mb`               | SQLite metastore page-cache size in megabytes. Applies to the default `sqlite` metastore backend (see `cayenne_metastore`); the `turso` backend uses MVCC and ignores the `cayenne_metastore_*` family. Defaults to `256`. |
+| `cayenne_metastore_mmap_mb`                | SQLite metastore memory-mapped I/O size in megabytes. Defaults to `1024` (1 GiB). |
+| `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
+| `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages; the WAL is checkpointed automatically once it grows past this many pages. Defaults to `10000`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Takes effect only on a fresh database (an existing database needs a full `VACUUM` to change it). Defaults to `none`. |
 
 ```yaml
 runtime:

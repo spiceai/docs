@@ -140,6 +140,12 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_goal_freshness`                   | Goal-driven adaptive tuning (preview): global target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Override per-dataset under a dataset's `acceleration.params`.                                                                   |
 | `cayenne_goal_query_latency`               | Goal-driven adaptive tuning (preview): global target p99 query latency, as a duration (e.g. `250ms` or `10s`). Override per-dataset under a dataset's `acceleration.params`.                                                                                             |
 | `cayenne_goal_qph`                         | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. **Global-only** — query throughput is measured system-wide (a query spanning multiple datasets, such as a join, is counted once), so it has no per-dataset form; a value set under `acceleration.params` is ignored. |
+| `cayenne_metastore_cache_mb`               | SQLite metastore page-cache size in megabytes. Applies to the default `sqlite` metastore backend (see `cayenne_metastore`); the `turso` backend uses MVCC and ignores the `cayenne_metastore_*` family. Defaults to `256`. |
+| `cayenne_metastore_mmap_mb`                | SQLite metastore memory-mapped I/O size in megabytes. Defaults to `1024` (1 GiB). |
+| `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
+| `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages. `0` disables the inline auto-checkpoint so the WAL is drained off the hot commit path by a dedicated background checkpoint instead. Defaults to `0`. |
+| `cayenne_metastore_wal_truncate_threshold_mb` | WAL size in megabytes above which the background checkpoint escalates to a TRUNCATE checkpoint to reclaim file space. Defaults to `160`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Takes effect only on a fresh database (an existing database needs a full `VACUUM` to change it). Defaults to `none`. |
 
 ```yaml
 runtime:
