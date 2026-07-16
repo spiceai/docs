@@ -53,7 +53,7 @@ Datasets sharing a DuckDB instance share the pool. For write-heavy refresh plus 
 
 ### Memory
 
-DuckDB self-tunes its memory limit based on system memory. For containers, set a `memory_limit` pragma via the connection string to prevent OOM due to cgroup misdetection. Plan for the DuckDB working set plus ~2× for query execution headroom.
+DuckDB self-tunes its memory limit based on system memory. For containers, set the `duckdb_memory_limit` acceleration parameter to prevent OOM due to cgroup misdetection. Plan for the DuckDB working set plus ~2× for query execution headroom.
 
 ### Index Parameters
 
@@ -92,7 +92,7 @@ DuckDB acceleration operations participate in [task history](../../../reference/
 | Symptom                                                | Likely cause                                                  | Resolution                                                                                                  |
 | ------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Slow first startup after restart                       | WAL replay due to ungraceful shutdown.                        | Use graceful shutdown (`SIGTERM`). Subsequent starts will be fast once the checkpoint is clean.             |
-| OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set a `memory_limit` pragma via the connection string.                                                      |
+| OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set the `duckdb_memory_limit` acceleration parameter.                                                       |
 | Disk fills during large queries                        | Spill directory on undersized volume.                         | Point `runtime.query.temp_directory` at a larger volume; monitor free space.                                |
 | Query uses table scan when an index exists             | `duckdb_index_scan_percentage` / `duckdb_index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
 | Indexes disappear after refresh                        | `on_refresh_sort_columns` triggers `CREATE OR REPLACE`.       | Re-create indexes post-refresh, or avoid sort-column refreshes until the underlying behavior is updated.    |
