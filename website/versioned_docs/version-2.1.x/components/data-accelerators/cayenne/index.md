@@ -392,6 +392,81 @@ For point lookups and selective queries, Spice Cayenne with Vortex often matches
 - Segment cache hit rate (hot data patterns)
 - Compression encoding match to data characteristics
 
+## Maintained Aggregates
+
+Spice Cayenne can incrementally maintain aggregate views over a CDC-accelerated dataset so that `GROUP BY` aggregate queries are answered from continuously-updated summary state instead of re-scanning the full table. As change events are applied (`refresh_mode: changes`), each maintained view is updated with the incoming deltas; a matching query is then rewritten by the physical optimizer to read the maintained state directly. When a query does not match a declared view — or the view is not currently fresh — Cayenne transparently falls back to a full scan, so results are always correct.
+
+Maintained aggregates are declared per dataset under `acceleration.maintained_aggregates`:
+
+```yaml
+datasets:
+  - from: postgres:orders
+    name: orders
+    acceleration:
+      enabled: true
+      engine: cayenne
+      refresh_mode: changes
+      maintained_aggregates:
+        - group_by: [customer_id]
+          aggregates:
+            - function: count
+            - function: sum
+              column: amount
+            - function: avg
+              column: latency_ms
+```
+
+Each entry declares one maintained view:
+
+| Field        | Required | Description                                                                                                                                                    |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `group_by`   | Optional | Columns used as the `GROUP BY` key, in query output order. Omit for a single-group (grand total) view.                                                         |
+| `aggregates` | Required | Aggregate expressions maintained for each group, in query output order.                                                                                        |
+| `filter_sql` | Optional | A SQL row predicate (a `WHERE` expression over the dataset's columns, e.g. `ol_delivery_d > '2007-01-02'`) restricting which rows contribute to the view.      |
+
+Each item in `aggregates` has:
+
+| Field      | Required    | Description                                                                        |
+| ---------- | ----------- | --------------------------------------------------------------------------------- |
+| `function` | Required    | One of `count`, `sum`, or `avg`.                                                   |
+| `column`   | Conditional | The column to aggregate. Omit for `count` (`COUNT(*)`); required for `sum` and `avg`. |
+
+Supported input column types by function:
+
+- `count` — any column (or `COUNT(*)` when `column` is omitted).
+- `sum` — signed integers (`Int8`–`Int64`), unsigned integers (`UInt8`–`UInt64`), and floats (`Float32`/`Float64`), widening to `BIGINT`/`Float64`.
+- `avg` — floats (`Float32`/`Float64`), always returning `Float64`.
+
+### Query matching
+
+A query is served from a maintained view only when it matches the view exactly:
+
+- The query's `GROUP BY` keys match the view's `group_by`, in order.
+- The query's `WHERE` predicate matches the view's `filter_sql` exactly — an unfiltered view (no `filter_sql`) answers only unfiltered queries, and a filtered view answers only a query carrying the identical predicate. A view whose `filter_sql` mirrors a common dashboard filter lets that filtered analytical query be served incrementally instead of by a full re-scan.
+
+Any query that does not match a declared view (or that reaches the view while it is stale) falls back to the base-table scan — correct, but not accelerated.
+
+### Constraints
+
+- Maintained aggregates are a Spice Cayenne feature designed for CDC-accelerated datasets (`refresh_mode: changes`).
+- Maintained aggregates are not supported on partitioned tables (`partition_by`).
+
+### Retaining specs without maintaining them
+
+To keep a view's declaration in configuration without materializing or maintaining it, use the policy form with `mode: disabled`:
+
+```yaml
+      maintained_aggregates:
+        mode: disabled
+        views:
+          - group_by: [customer_id]
+            aggregates:
+              - function: sum
+                column: amount
+```
+
+When any view is declared with the list form above, maintenance is enabled by default; the policy form's `mode: enabled` is equivalent.
+
 ## Deletion Vectors
 
 Spice Cayenne implements efficient deletes without rewriting data files using deletion vectors. Deletion vectors track which rows have been logically deleted, and the information is applied transparently during query execution.
