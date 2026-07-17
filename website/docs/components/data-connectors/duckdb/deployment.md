@@ -35,9 +35,9 @@ DuckDB's WAL provides crash recovery for any process that wrote to the file. The
 
 ## Capacity & Sizing
 
-- **Memory**: DuckDB's default memory limit is self-managed based on system memory. For constrained environments, set a `memory_limit` pragma via the connection string.
+- **Memory**: DuckDB manages its own memory based on available system memory when executing queries against the file. The connector opens the database read-only and exposes no memory-limit or connection-string setting — its only parameter is `duckdb_open`. For a Spice-configurable memory limit, use the [DuckDB accelerator](../../data-accelerators/duckdb), which supports the `duckdb_memory_limit` acceleration parameter.
 - **Disk**: Plan for 1.5–2× the raw data size to accommodate DuckDB's internal compression, WAL, and temporary spill files during query execution.
-- **Temporary spill**: Large queries spill to DuckDB's temp directory; ensure adequate disk and set `temp_directory` to a fast local volume if the default (same as the database file) is on slow storage.
+- **Temporary spill**: Large queries can spill to DuckDB's temp directory (by default, alongside the database file). The connector exposes no spill-directory setting, so ensure the volume holding the database file has adequate free space.
 
 ## Metrics
 

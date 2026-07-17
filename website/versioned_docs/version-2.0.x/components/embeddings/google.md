@@ -6,7 +6,7 @@ sidebar_position: 4
 
 To use a hosted Google AI embedding model, specify the `google` path in the `from` field of your configuration.
 
-For a specific model, include its model ID in the `from` field. If no model ID is specified, it defaults to `"text-embedding-004"`.
+Include the model ID in the `from` field; a model ID is required. For example, `google:gemini-embedding-2` selects Google's latest generally available embedding model.
 
 The following parameters are specific to Google AI embedding models:
 
@@ -19,13 +19,13 @@ Below is an example configuration in `spicepod.yaml`:
 
 ```yaml
 embeddings:
-  - from: google:text-embedding-004
+  - from: google:gemini-embedding-2
     name: gemini_embeddings
     params:
       google_api_key: ${ secrets:GEMINI_API_KEY }
       dimensions: 768 # optional parameter
 
-  - from: google:embedding-001
+  - from: google:gemini-embedding-001
     name: legacy_embeddings
     params:
       google_api_key: ${ secrets:GEMINI_API_KEY }

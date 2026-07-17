@@ -130,7 +130,7 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 
 | Parameter                                  | Description                                                                                                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Defaults to `128`. |
+| `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Optional; when unset, no explicit limit is applied and DataFusion's default file-metadata-cache limit of 50 MB applies (there is no fixed 128 MB default). |
 | `cayenne_filter_propagation`               | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                                                                         |
 | `cayenne_optimizer_rules`                  | Selects which Cayenne optimizer rules run. Accepts `auto` (default — enables the recommended set, gated by `cayenne_filter_propagation`), `all`, `none` / `disabled`, or a comma-separated list of individual rule names.                                               |
 | `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one Cayenne-accelerated dataset is enabled and dedicated thread pools are not disabled. |
@@ -140,6 +140,12 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_goal_freshness`                   | Goal-driven adaptive tuning (preview): global target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Override per-dataset under a dataset's `acceleration.params`.                                                                   |
 | `cayenne_goal_query_latency`               | Goal-driven adaptive tuning (preview): global target p99 query latency, as a duration (e.g. `250ms` or `10s`). Override per-dataset under a dataset's `acceleration.params`.                                                                                             |
 | `cayenne_goal_qph`                         | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. **Global-only** — query throughput is measured system-wide (a query spanning multiple datasets, such as a join, is counted once), so it has no per-dataset form; a value set under `acceleration.params` is ignored. |
+| `cayenne_metastore_cache_mb`               | SQLite metastore page-cache size in megabytes. Applies to the default `sqlite` metastore backend (see `cayenne_metastore`); the `turso` backend uses MVCC and ignores the `cayenne_metastore_*` family. Defaults to `256`. |
+| `cayenne_metastore_mmap_mb`                | SQLite metastore memory-mapped I/O size in megabytes. Defaults to `1024` (1 GiB). |
+| `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
+| `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages. `0` disables the inline auto-checkpoint so the WAL is drained off the hot commit path by a dedicated background checkpoint instead. Defaults to `0`. |
+| `cayenne_metastore_wal_truncate_threshold_mb` | WAL size in megabytes above which the background checkpoint escalates to a TRUNCATE checkpoint to reclaim file space. Defaults to `160`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Takes effect only on a fresh database (an existing database needs a full `VACUUM` to change it). Defaults to `none`. |
 
 ```yaml
 runtime:
@@ -241,7 +247,7 @@ Spice Cayenne uses two in-memory caches to accelerate query performance:
 
 The footer cache stores Vortex file metadata, including schemas, statistics, and encoding information. It is engine-global and shared across every Cayenne-accelerated dataset, so it is set under `runtime.params`, not per dataset. Larger cache sizes benefit workloads with many files.
 
-- Default: 128 MB
+- Default: unset — when omitted, DataFusion's default file-metadata-cache limit of 50 MB applies
 - Increase for datasets with many small files
 - Each file requires approximately 1-10 KB of footer cache
 
@@ -648,7 +654,7 @@ Spice Cayenne manages memory efficiently through columnar storage and selective 
 | Component        | Default  | Notes                                                    |
 | ---------------- | -------- | -------------------------------------------------------- |
 | Runtime overhead | ~500 MB  | Fixed baseline for the Spice runtime                     |
-| Footer cache     | 128 MB   | Increase for datasets with many files (1-10 KB per file) |
+| Footer cache     | 50 MB    | Unset by default (DataFusion file-metadata-cache default); increase for datasets with many files (1-10 KB per file) |
 | Segment cache    | 256 MB   | Increase based on hot data volume                        |
 | Query execution  | Variable | Depends on query complexity and concurrency              |
 

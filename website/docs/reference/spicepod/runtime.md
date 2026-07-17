@@ -473,6 +473,23 @@ Behavior:
 - If not set, the number of concurrent queries is **unbounded** (the default behavior).
 - A configured value is clamped to a minimum of `1`, so `max_concurrent_queries: 0` allows one concurrent query (not unbounded).
 
+## `runtime.query.timeout`
+
+The `timeout` parameter sets a maximum wall-clock duration a query may run before it is automatically cancelled, expressed as a human-readable duration (for example `30s` or `5m`). The clock covers the query's full lifetime: planning, admission-control waits (`max_concurrent_queries`), execution, and streaming results to the client.
+
+```yaml
+runtime:
+  query:
+    timeout: 30s
+```
+
+Behavior:
+
+- Applies to queries issued through the runtime's query APIs (HTTP, Flight, and Flight SQL). Internal runtime queries — acceleration refreshes and health checks — are exempt.
+- Enforcement is cooperative (best-effort): the query is cancelled at its next cancellation checkpoint, so actual runtime can slightly exceed the configured value.
+- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete.
+- If not set, queries run with **no timeout** (the default behavior). The value must be a positive duration greater than `0`.
+
 ## `runtime.query.spill_compression`
 
 The `spill_compression` parameter configures compression for spill files generated during large query execution in the Spice runtime.

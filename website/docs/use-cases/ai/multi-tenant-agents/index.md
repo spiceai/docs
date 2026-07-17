@@ -20,7 +20,7 @@ graph LR
     Shared --> SourcesLT[(Long-Tail Tenant Sources)]
 ```
 
-Pipeline-per-integration architectures collapse at scale: every tenant brings its own schema, refresh cadence, and ownership, and ETL orchestration becomes the bottleneck. Spice federates queries across 30+ data sources and accelerates them locally, so adding a tenant is a Spicepod configuration change rather than a new pipeline.
+Pipeline-per-integration architectures collapse at scale: every tenant brings its own schema, refresh cadence, and ownership, and ETL orchestration becomes the bottleneck. Spice federates queries across 40+ data sources and accelerates them locally, so adding a tenant is a Spicepod configuration change rather than a new pipeline.
 
 ## Why Spice.ai?
 
