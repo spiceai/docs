@@ -56,7 +56,7 @@ File-mode SQLite datasets on the same runtime can be federated using SQLite's `A
 ## Capacity & Sizing
 
 - **Single writer**: SQLite serializes writes globally per file. High-concurrency write workloads (e.g., very short refresh intervals on many datasets) hit the write mutex — prefer [DuckDB](../duckdb/deployment) or [PostgreSQL](../postgres/deployment) for those cases.
-- **Memory**: The default page cache is ~20 MB (`cache_size = -20000`). For read-heavy workloads on large databases, increase this via `PRAGMA cache_size = -<KB>` in post-startup SQL.
+- **Memory**: The default page cache is ~20 MB (`cache_size = -20000`) and is managed by the runtime; it is not directly configurable. For large read-heavy workloads, prefer [DuckDB](../duckdb/deployment).
 - **Disk**: Plan for 1.2–1.5× the raw data size (SQLite uses row-oriented storage with no strong compression by default).
 
 ## Metrics
