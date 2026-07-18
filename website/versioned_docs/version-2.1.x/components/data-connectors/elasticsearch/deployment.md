@@ -91,7 +91,7 @@ For schema-evolution-friendly workloads, prefer accelerating the dataset and ref
 
 The Elasticsearch connector does not register connector-specific instruments in the current release. Monitor via:
 
-- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures_total`) from `runtime.metrics`.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - Elasticsearch's own `/_nodes/stats` endpoint and Kibana dashboards for cluster-side request latency, CPU, JVM heap, and shard health.
 
 See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
