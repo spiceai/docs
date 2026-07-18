@@ -65,7 +65,7 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 Monitor via:
 
-- Spice acceleration metrics (`dataset_acceleration_refresh_duration_ms`, `dataset_acceleration_refresh_errors_total`).
+- Spice acceleration metrics (`dataset_acceleration_refresh_duration_ms`, `dataset_acceleration_refresh_errors`).
 - Postgres server metrics: `pg_stat_activity`, `pg_stat_bgwriter`, `pg_stat_user_tables`, `pg_stat_statements`.
 - Infrastructure metrics on the Postgres host (CPU, I/O wait, WAL throughput).
 

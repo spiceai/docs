@@ -63,7 +63,7 @@ Transient 5xx responses are retried with exponential backoff up to a bounded ret
 
 The GitHub connector does not register connector-specific dataset-level instruments in the current release. Monitor via:
 
-- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures_total`) from `runtime.metrics`.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - HTTP response status distribution via the shared `resilient_http` instrumentation.
 - GitHub's own rate-limit UI at `/settings/tokens` for token-level quota tracking.
 

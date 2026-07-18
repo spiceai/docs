@@ -136,7 +136,7 @@ Enable component metrics in the dataset's `metrics` section. See [Component Metr
 
 For broader observability, also monitor:
 
-- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures_total`) from `runtime.metrics`.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - HTTP response status distribution via the shared `resilient_http` instrumentation.
 
 ## Task History
