@@ -284,20 +284,15 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 ## `schema_inference`
 
-Optional. Controls the depth of source-schema inference. Applies to all refresh modes. Supported values:
+:::warning[Removed]
 
-- `standard` - Default. Infer the base column schema (names, types, nullability) from the source, exactly as before. No primary-key, secondary-index, or sort/clustering-column detection is performed.
-- `extended` - In addition to the base column schema, auto-detect the source's primary key, secondary indexes, and sort/clustering columns and apply them to any acceleration settings left unset. Only connectors that emit inferred-schema metadata are affected — currently the [PostgreSQL](../../components/data-connectors/postgres), [MySQL](../../components/data-connectors/mysql), and [MongoDB](../../components/data-connectors/mongodb) connectors; other connectors treat `extended` as a no-op.
+The `schema_inference` dataset field was removed. Schema inference is now **always on** — Spice attempts the deepest inference each source permits and no longer requires an opt-in. A Spicepod that still specifies `schema_inference` fails to load with an unknown-field error; remove the field.
 
-```yaml
-datasets:
-  - from: postgres:public.events
-    name: events
-    schema_inference: extended
-    acceleration:
-      engine: cayenne
-      mode: file
-```
+For connectors that expose catalog metadata — [PostgreSQL](../../components/data-connectors/postgres), [MySQL](../../components/data-connectors/mysql), and [MongoDB](../../components/data-connectors/mongodb) — inference additionally detects the source's primary key (and, where the source exposes them, secondary indexes and sort/clustering columns) and applies them to any acceleration settings left unset. It degrades gracefully — with info-level logs — when the connection role lacks catalog read access. Other connectors infer the base column schema (names, types, nullability) only.
+
+For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x documentation](https://docs.spiceai.org/docs/2.1.x/reference/spicepod/datasets#schema_inference).
+
+:::
 
 ## `ready_state`
 
