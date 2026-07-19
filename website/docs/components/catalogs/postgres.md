@@ -61,6 +61,31 @@ Connection can be configured using a connection string or individual parameters.
 | `pg_sslmode`     | The SSL mode for the connection (e.g. `require`, `prefer`, `disable`). |
 | `pg_sslrootcert` | Path to the SSL root certificate file, or inline PEM content.          |
 
+## `dataset_params`
+
+Optional. Parameters applied to every table discovered through the catalog.
+
+| Parameter Name            | Description                                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unsupported_type_action` | Action to take when a discovered table contains a column of a type that cannot be mapped. One of `string` (default), `error`, `warn`, `ignore`. |
+
+The supported `unsupported_type_action` values are:
+
+- `string` — Default. Attempt to convert the unsupported type to a string (e.g. PostgreSQL `JSONB`). This matches the default of the [PostgreSQL Data Connector](../data-connectors/postgres).
+- `error` — Fail catalog registration when an unsupported type is encountered.
+- `warn` — Log a warning and drop the column containing the unsupported type.
+- `ignore` — Drop the column containing the unsupported type without logging.
+
+An invalid value returns a configuration error rather than being silently ignored.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    dataset_params:
+      unsupported_type_action: warn # string (default) | error | warn | ignore
+```
+
 ## Authentication
 
 ### Connection string
@@ -100,6 +125,19 @@ catalogs:
       pg_connection_string: postgresql://${secrets:REDSHIFT_USER}:${secrets:REDSHIFT_PASS}@my-cluster.abc123.us-east-1.redshift.amazonaws.com:5439/my_database?sslmode=require
 ```
 
+## Discovered Relations
+
+The connector discovers the following PostgreSQL relation types from each included schema:
+
+- Base tables
+- Standard views
+- Materialized views
+- Foreign tables
+
+Relations are read directly from `pg_catalog.pg_class`. Only relations the connecting role holds `SELECT` privilege on (checked via `has_table_privilege`) are registered, so the catalog does not surface relations that cannot be read.
+
+For declaratively-partitioned tables (and legacy table inheritance), only the partitioned parent is registered — child partitions are not registered as separate tables. Querying the parent returns rows from every partition.
+
 ## Foreign Key Discovery
 
 The PostgreSQL Catalog Connector automatically discovers foreign key relationships by querying `information_schema.referential_constraints` and `key_column_usage` during catalog refresh. Discovered FK metadata is attached to each table's Arrow schema and surfaces through:
@@ -113,11 +151,8 @@ No configuration is required. If FK discovery fails for a schema (e.g., due to i
 
 :::warning
 
-- **Base tables and standard views only.** The connector discovers `BASE TABLE` and `VIEW` relations. Materialized views and foreign tables are not currently discovered and will not appear in the catalog ([#11725](https://github.com/spiceai/spiceai/issues/11725)).
-- **Partitioned tables.** For declaratively-partitioned tables (and legacy table inheritance), only the partitioned parent is registered — leaf/child partitions are not registered as separate tables. Querying the parent returns rows from every partition. Registering the children too would double-count the data, since the parent is a union over its children.
 - **`include` filters tables, not schemas.** The `include` patterns are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
-- **Unsupported column types.** Tables containing a column of a type that cannot be mapped are skipped entirely and a warning is logged. The `unsupported_type_action` behavior available on individual PostgreSQL datasets is not applied on the catalog path ([#11728](https://github.com/spiceai/spiceai/issues/11728)).
-- **Partial discovery failures.** If discovery of a schema's tables fails during the initial load, the catalog fails to register rather than loading the reachable schemas ([#11724](https://github.com/spiceai/spiceai/issues/11724)).
+- **Partial discovery failures.** If discovery of a schema's tables fails, that schema is skipped with a warning rather than aborting the whole catalog load. On refresh, a transient per-schema failure falls back to the last-known-good state for that schema, so intermittent errors do not cause catalog flapping; a schema is only dropped for a cycle if it has never refreshed successfully. Total connectivity loss (a failed `list_schemas`) still fails hard.
 - **Amazon Redshift.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Discovery degrades gracefully (tables are still registered).
 - **Read-only.** Catalog tables are read-only. Accelerations cannot be configured on tables discovered through an external catalog.
 
