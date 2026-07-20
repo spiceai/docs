@@ -749,6 +749,36 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 - Data refresh and compression operations
 - Concurrent query workloads
 
+## Transactions
+
+Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
+
+```sql
+BEGIN;
+SELECT assert((SELECT balance FROM accounts WHERE id = 1) >= 100);  -- optional gate
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+```
+
+**How it works:**
+
+- **Detection is automatic.** A multi-statement body whose first statement is `BEGIN` (or `START TRANSACTION`) and whose last statement is `COMMIT` is executed as a transaction — there is no configuration flag to enable it. Every statement runs through the standard query path, so authorization, column masking, logging, and tracing apply to each.
+- **Atomicity and isolation.** Writes are staged off-lock and published together in a single metastore transaction at `COMMIT`. Each participant table's version is captured at `BEGIN` and re-validated at `COMMIT` using per-key optimistic concurrency control (OCC). If a participant changed since the transaction started, `COMMIT` fails with a retryable conflict (HTTP `409` on `/v1/sql`) — re-run the transaction against the latest committed state. Any statement error (including a failed gate) rolls back every staged write.
+- **Preconditions with `assert()`.** The `assert(<boolean expression>)` function evaluates its argument at execution time. If the expression is `false` or `NULL`, the transaction aborts with `assertion failed: gate expression was false or NULL`. Use it to enforce invariants (for example, a sufficient balance) as part of the transaction. Comparison gates such as `… >= cap` are NULL-safe.
+- **Return value.** On success, `/v1/sql` returns the final statement's result (for the canonical gate-plus-write shape, the last write's row-count summary), or `COMMIT` when the body produces no rows.
+
+**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode), `on_conflict`, and `refresh_mode: changes` (CDC) also participates in transactions. Its committed writes are staged to the accelerator and then reconciled asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
+
+**Requirements and v1 limitations:**
+
+- Write targets must be **accelerator-only, non-partitioned Cayenne datasets** (or durable write-back Cayenne datasets, as described above). Other dataset modes route writes to the federated source — where the gate cannot govern them — and are rejected.
+- Only **`INSERT` and `UPDATE`** writes are supported inside a transaction. `DELETE` and `MERGE` are rejected.
+- At most **one write per table** per transaction. Multiple tables may be written in the same transaction and are committed atomically together.
+- Reading a Cayenne table that is not a registered participant (for example, a partitioned table) fails the transaction closed.
+- Nullability-predicate gates (`IS NOT NULL`, `IS NULL`, `COALESCE`) are not yet reliable — prefer comparison gates.
+- A gated write whose superseded row is still in the in-memory/inline tier (recently CDC-streamed rows) is rejected; file-backed rows are supported.
+
 ## Limitations
 
 Consider the following limitations when using Spice Cayenne acceleration:
@@ -758,6 +788,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
+- **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
 
 ## Example Spicepod
 
