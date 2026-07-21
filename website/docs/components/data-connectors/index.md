@@ -45,7 +45,7 @@ Supported Data Connectors include:
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `postgres`                         | PostgreSQL (with native WAL CDC)      | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
-| `mysql`                            | MySQL                                 | Stable            |                              |
+| `mysql`                            | MySQL (with native binlog CDC)        | Stable            |                              |
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `dynamodb`                         | Amazon DynamoDB (with Streams)        | Stable            |                              |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
@@ -73,7 +73,7 @@ Supported Data Connectors include:
 | `http`, `https`                    | HTTP(s) (dynamic headers, pagination) | Alpha             | Parquet, CSV, JSON           |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
-| `mongodb`                          | MongoDB                               | Alpha             |                              |
+| `mongodb`                          | MongoDB (with native Change Streams CDC) | Alpha          |                              |
 | `scylladb`                         | ScyllaDB                              | Alpha             |                              |
 | `smb`                              | SMB 3.1.1                             | Alpha             | SMB                          |
 | `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON           |
