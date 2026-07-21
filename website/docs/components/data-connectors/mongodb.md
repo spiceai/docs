@@ -360,7 +360,7 @@ The existing `mongodb_unnest_depth` parameter also applies to Change Stream docu
 - `delete`: delete, using `documentKey`; non-key columns are `null`.
 - `drop`, `rename`, `dropDatabase`, `invalidate`: truncate, because collection continuity is no longer guaranteed.
 
-If MongoDB does not include `fullDocument` for an update or replace event, Spice fails the stream with a clear error instead of applying a partial row.
+If MongoDB omits `fullDocument` for an `update` or `replace` event (for example, the document was deleted before the `fullDocument=updateLookup` post-image could be read), Spice substitutes a synthetic delete keyed on `documentKey` and logs a warning; if `documentKey` is also unavailable, the event is skipped with a warning. An `insert` event missing `fullDocument`, or a `delete` event missing `documentKey`, still fails the stream.
 
 #### Resumability across restarts
 
