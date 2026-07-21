@@ -147,6 +147,41 @@ The PostgreSQL Catalog Connector automatically discovers foreign key relationshi
 
 No configuration is required. If FK discovery fails for a schema (e.g., due to insufficient permissions on `information_schema`), tables are still registered without FK metadata and a warning is logged.
 
+## Catalog-Level CDC Acceleration
+
+A PostgreSQL catalog can be accelerated as a whole. Adding an `acceleration` block bootstraps and CDC-accelerates every discovered table (subject to `include`/`exclude`) with no per-table dataset configuration. All accelerated tables share a single replication slot and publication — derived once from the catalog `name` — so the source's write-ahead log (WAL) is decoded once for the entire catalog instead of once per table.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    include:
+      - 'public.*'
+    acceleration:
+      engine: cayenne # optional; cayenne is the only supported engine
+      refresh_mode: changes # required
+    params:
+      pg_connection_string: postgresql://${secrets:PG_USER}:${secrets:PG_PASS}@localhost:5432/my_database
+```
+
+### `acceleration.engine`
+
+Optional. The accelerator engine used for every table. Defaults to `cayenne`, which is currently the only supported value.
+
+### `acceleration.refresh_mode`
+
+Required — there is no catalog-level default. The only supported value is `changes` (CDC); there is no catalog-level `full` mode. An `acceleration` block without a `refresh_mode` is a configuration error.
+
+### Requirements
+
+- **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
+- **Every included table must have a primary key.** Catalog setup fails and names the offending table if any included table lacks a primary key — tables are never silently skipped or downgraded to a heavier access pattern. Use `include`/`exclude` to keep primary-key-less tables out of an accelerated catalog's scope.
+
+### Behavior
+
+- Per-table-only acceleration concepts (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are intentionally not configurable at the catalog level — they remain exclusively on an individual dataset's own `acceleration` block.
+- While a table's acceleration is still bootstrapping, that table is reported as not-yet-present rather than being served through the source, so queries do not transparently fall back to the un-accelerated PostgreSQL table.
+
 ## Limitations
 
 :::warning
@@ -154,7 +189,7 @@ No configuration is required. If FK discovery fails for a schema (e.g., due to i
 - **`include` filters tables, not schemas.** The `include` patterns are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
 - **Partial discovery failures.** If discovery of a schema's tables fails, that schema is skipped with a warning rather than aborting the whole catalog load. On refresh, a transient per-schema failure falls back to the last-known-good state for that schema, so intermittent errors do not cause catalog flapping; a schema is only dropped for a cycle if it has never refreshed successfully. Total connectivity loss (a failed `list_schemas`) still fails hard.
 - **Amazon Redshift.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Discovery degrades gracefully (tables are still registered).
-- **Read-only.** Catalog tables are read-only. Accelerations cannot be configured on tables discovered through an external catalog.
+- **Read-only; per-table acceleration not configurable.** Catalog tables are read-only, and per-table `acceleration` blocks cannot be set on individually discovered tables. Catalog-wide CDC acceleration _is_ available for PostgreSQL — see [Catalog-Level CDC Acceleration](#catalog-level-cdc-acceleration).
 
 :::
 
