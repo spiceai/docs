@@ -89,7 +89,7 @@ datasets:
 | `cayenne_s3_secret`         | AWS secret access key (required when `cayenne_s3_auth: key`).                                                                                   |
 | `cayenne_s3_session_token`  | AWS session token (optional, for temporary credentials).                                                                                        |
 | `cayenne_s3_endpoint`       | Custom S3 endpoint URL (optional, overrides auto-generated endpoint).                                                                           |
-| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `5m`). Defaults to 5 minutes for uploads.                                                                       |
+| `cayenne_s3_client_timeout` | Request timeout duration (e.g., `30s`, `2m`). Defaults to `120s` (2 minutes).                                                                       |
 | `cayenne_s3_allow_http`     | Set to `true` for testing with local S3-compatible storage. Defaults to `false`.                                                                |
 
 ## Performance Tuning
@@ -402,7 +402,7 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 ### Important Considerations
 
 - **Standard S3 not supported**: Cayenne currently only supports S3 Express One Zone, not standard S3 buckets.
-- **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (5 minutes per request) and retries.
+- **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (a 2-minute per-request timeout by default, configurable via `cayenne_s3_client_timeout`) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
 

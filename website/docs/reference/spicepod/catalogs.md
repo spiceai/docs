@@ -88,3 +88,21 @@ Optional. Parameters to pass to the catalog connector for retrieving the metadat
 ## `dataset_params`
 
 Optional. Parameters used when constructing the individual datasets that are registered in Spice from the catalog. The parameters are specific to the connector used.
+
+## `acceleration`
+
+Optional. Bootstraps and accelerates every table discovered by the catalog (subject to `include`/`exclude`), with no per-table configuration. Currently supported for the [PostgreSQL catalog connector](../../components/catalogs/postgres#catalog-level-cdc-acceleration) only.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    acceleration:
+      engine: cayenne # optional; cayenne is the only supported engine
+      refresh_mode: changes # required
+```
+
+- `engine`: Optional. The accelerator engine used for every table. Defaults to `cayenne`, currently the only supported value.
+- `refresh_mode`: Required. The only supported value is `changes` (CDC); there is no catalog-level `full` mode.
+
+Per-table-only acceleration settings (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are not configurable at the catalog level — they remain on an individual [dataset's `acceleration` block](../../components/data-accelerators).
