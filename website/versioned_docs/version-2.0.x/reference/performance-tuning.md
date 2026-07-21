@@ -69,7 +69,7 @@ datasets:
 The footer cache stores file metadata. Size based on file count:
 
 - 1-10 KB per file
-- Default 128 MB supports ~10,000-100,000 files
+- Default: unset — when omitted, DataFusion's 50 MB file-metadata-cache limit applies
 - Increase for datasets with more files
 
 **Segment Cache Sizing:**
