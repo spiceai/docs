@@ -17,7 +17,13 @@ Use `changes` when:
 
 ## Configuration
 
-`refresh_mode: changes` requires a CDC-capable data connector. Spice supports CDC via [PostgreSQL Logical Replication](../../cdc/postgres-replication), [DynamoDB Streams](../../../components/data-connectors/dynamodb#streams), [Apache Kafka](../../../components/data-connectors/kafka), and [Debezium](../../../components/data-connectors/debezium). See [Supported Data Connectors](../../cdc#supported-data-connectors) for details.
+`refresh_mode: changes` requires a CDC-capable data connector. Spice supports CDC via [PostgreSQL Logical Replication](../../cdc/postgres-replication), [MongoDB Change Streams](../../cdc/mongodb-streams), [DynamoDB Streams](../../cdc/dynamodb-streams), and [Debezium](../../cdc/debezium) (over Kafka). See [Supported Data Connectors](../../cdc#supported-data-connectors) for details.
+
+:::note
+
+[Apache Kafka](../../../components/data-connectors/kafka) is a real-time streaming source but is append-only — it uses [`refresh_mode: append`](./append), not `changes`.
+
+:::
 
 ```yaml
 datasets:
