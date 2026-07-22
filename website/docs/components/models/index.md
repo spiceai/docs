@@ -1,25 +1,28 @@
 ---
 title: 'Model Providers'
 sidebar_label: 'Model Providers'
-description: 'Overview of supported model providers for ML and LLMs in Spice.'
+description: 'Overview of supported model providers for LLMs in Spice.'
 image: /img/og/models.png
+sidebar_position: 5
 ---
 
-Spice supports various model providers for traditional machine learning (ML) models and large language models (LLMs).
+Spice supports various model providers for large language models (LLMs).
 
-| Name                       | Description                                  | Status            | ML Format(s) | LLM Format(s)\*                 |
-| -------------------------- | -------------------------------------------- | ----------------- | ------------ | ------------------------------- |
-| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint          | Stable            | -            | OpenAI-compatible HTTP endpoint |
-| [`bedrock`][bedrock]       | Amazon Bedrock                               | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`xai`][xai]               | Models hosted on xAI                         | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`file`][file]             | Local filesystem                             | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf]        | Models hosted on HuggingFace                 | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Release Candidate | ONNX         | OpenAI-compatible HTTP endpoint |
-| [`azure`][azure]           | Azure OpenAI                                 | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`google`][google]         | Google AI language models                    | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -            | -                               |
+> **Note**: Support for traditional machine learning (ONNX) models was removed in vNext. See [Machine Learning Models](../../features/machine-learning-models) for details.
+
+| Name                       | Description                                  | Status            | LLM Format(s)\*                 |
+| -------------------------- | -------------------------------------------- | ----------------- | ------------------------------- |
+| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint          | Stable            | OpenAI-compatible HTTP endpoint |
+| [`bedrock`][bedrock]       | Amazon Bedrock                               | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`xai`][xai]               | Models hosted on xAI                         | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`file`][file]             | Local filesystem                             | Release Candidate | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf]        | Models hosted on HuggingFace                 | Release Candidate | GGUF, GGML, SafeTensor          |
+| [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Release Candidate | OpenAI-compatible HTTP endpoint |
+| [`azure`][azure]           | Azure OpenAI                                 | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google AI language models                    | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | OpenAI-compatible HTTP endpoint |
+| ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -                               |
 
 [openai]: ./openai/index.md
 [bedrock]: ./bedrock.md
@@ -169,7 +172,7 @@ To serve a model from the local filesystem, specify the `from` path as `file` an
 
 ```yaml
 models:
-  - from: file://absolute/path/to/my/model.onnx
+  - from: file://absolute/path/to/my/model.gguf
     name: local_fs_model
 ```
 

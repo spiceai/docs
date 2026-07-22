@@ -43,6 +43,26 @@ The name of the view. Used to reference the view in the pod manifest, as well as
 
 The description of the view. Used as part of the [Semantic Data Model](../../features/semantic-model).
 
+## `params`
+
+Optional. A map of view-level parameters, mirroring the `params` map available on [datasets](./datasets).
+
+Currently the only supported key is `file_format`, which selects the [file format](../file_format) used when chunking the view's columns for [embeddings](../../components/embeddings). It accepts the same values as the dataset `file_format` parameter (for example `parquet`, `csv`, `json`, `md`).
+
+```yaml
+views:
+  - name: my_view
+    sql_ref: ./my_view.sql
+    params:
+      file_format: md
+    columns:
+      - name: body
+        embeddings:
+          - from: my_embedding_model
+            chunking:
+              enabled: true
+```
+
 ## `ready_state`
 
 Supports one of two values:
@@ -81,7 +101,7 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
+- `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
 - `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
 ## `acceleration.snapshots`

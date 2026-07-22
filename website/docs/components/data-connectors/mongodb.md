@@ -83,14 +83,15 @@ The MongoDB data connector can be configured by providing the following `params`
 | `mongodb_host`                     | The hostname of the MongoDB server. Defaults to `localhost`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `mongodb_port`                     | The port of the MongoDB server. Defaults to `27017`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `mongodb_db`                       | The name of the database to connect to. Defaults to `default`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `mongodb_sslmode`                  | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: This mode will try to establish a secure SSL connection if possible, but will connect insecurely if the server does not support SSL.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
+| `mongodb_sslmode`                  | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`required`: (default) This mode requires an SSL connection. If a secure connection cannot be established, server will not connect.</li><li>`preferred`: Establishes an encrypted TLS/SSL connection but does not validate the server certificate or hostname (accepts invalid or self-signed certificates). If the server does not support TLS, the connection fails; it is never downgraded to plaintext.</li><li>`disabled`: This mode will not attempt to use an SSL connection, even if the server supports it.</li></ul> |
 | `mongodb_sslrootcert`              | Optional parameter specifying the path to a custom PEM certificate that the connector will trust.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `mongodb_time_zone`                | Optional. Specifies connection time zone. Default is `UTC`. Accepts: <br /><ul><li>Fixed offsets (e.g., `+02:00`).</li><li>IANA time zone names (e.g., `America/Los_Angeles`)</li></ul>                                                                                                                                                                                                                                                                                                                      |
 | `mongodb_auth_source`              | Optional. Authentication source database. Overrides the default auth source in the connection string.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `mongodb_direct_connection`        | Optional. Whether to connect directly to a single MongoDB host instead of discovering the topology. Accepts `true` or `false`.                                                                                                                                                                                                                                                                                                                                                                               |
 | `mongodb_srv`                      | Optional. Use the `mongodb+srv://` connection scheme for DNS SRV record discovery (MongoDB Atlas). Auto-detected (and `mongodb_port` is ignored) when `mongodb_host` ends with `.mongodb.net`. Accepts `true` or `false`. Default: `false`.                                                                                                                                                                                                                                                                  |
 | `mongodb_unnest_depth`             | Optional. Maximum nesting depth for unnesting embedded documents into a flattened structure. Higher values expand deeper nested fields. Default: `0`                                                                                                                                                                                                                                                                                                                                                         |
-| `mongodb_num_docs_to_infer_schema` | Optional. Number of documents to use to infer the schema. Defaults to 400.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `mongodb_schema_infer_max_records` | Optional. Number of documents to use to infer the schema. Defaults to 400.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `mongodb_num_docs_to_infer_schema` | Optional. **Deprecated** — use `mongodb_schema_infer_max_records` instead. Number of documents to use to infer the schema. Defaults to 400. If both are set, `mongodb_schema_infer_max_records` takes precedence.                                                                                                                                                                                                                                                                                             |
 | `mongodb_pool_min`                 | The minimum number of connections to keep open in the pool, lazily created when requested. Default: `1`                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `mongodb_pool_max`                 | The maximum number of connections to allow in the pool. Default: `5`                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `mongodb_resume_token_invalid_behavior` | Optional. Used with `refresh_mode: changes`. Behavior when a persisted Change Stream resume token is rejected by the server (e.g. it is past the oplog window). `error` (default) surfaces a clear error; `rebootstrap` drops the persisted token and re-snapshots the collection. See [Using MongoDB Change Streams](#using-mongodb-change-streams).                                                                                                                                                          |
@@ -181,6 +182,34 @@ sql> select * from test_table;
 | 1         | 2           | 3             |
 +-----------+-------------+---------------+
 ```
+
+## JSON Nesting
+
+When a MongoDB collection has many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to both the query (scan) path and the [Change Streams](#using-mongodb-change-streams) (CDC) path.
+
+```yaml
+datasets:
+  - from: mongodb:orders
+    name: orders
+    params:
+      mongodb_host: localhost
+      mongodb_db: shop
+    columns:
+      - name: _id
+      - name: status
+      - name: data_json
+        metadata:
+          json_object: '*'
+```
+
+Any field other than `_id`, `status`, and `data_json` is folded into `data_json` as a JSON object. The `_id` field must be declared explicitly and cannot be folded into the catch-all column.
+
+:::warning[Limitations]
+
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified fields.
+- Only one column can carry the `json_object` metadata; declaring more than one is an error.
+
+:::
 
 ## Examples
 
@@ -331,7 +360,7 @@ The existing `mongodb_unnest_depth` parameter also applies to Change Stream docu
 - `delete`: delete, using `documentKey`; non-key columns are `null`.
 - `drop`, `rename`, `dropDatabase`, `invalidate`: truncate, because collection continuity is no longer guaranteed.
 
-If MongoDB does not include `fullDocument` for an update or replace event, Spice fails the stream with a clear error instead of applying a partial row.
+If MongoDB omits `fullDocument` for an `update` or `replace` event (for example, the document was deleted before the `fullDocument=updateLookup` post-image could be read), Spice substitutes a synthetic delete keyed on `documentKey` and logs a warning; if `documentKey` is also unavailable, the event is skipped with a warning. An `insert` event missing `fullDocument`, or a `delete` event missing `documentKey`, still fails the stream.
 
 #### Resumability across restarts
 

@@ -1,0 +1,1 @@
+{"responses":{"202":{"description":"Message accepted. Response will stream via SSE."},"404":{"description":"Session not found. No active session for the given `session_id`."},"413":{"description":"Payload too large. Maximum allowed size is 4MB."},"500":{"description":"Internal server error. An unexpected issue occurred."}}}

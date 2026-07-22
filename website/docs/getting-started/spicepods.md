@@ -36,7 +36,7 @@ A Spicepod is described by a YAML manifest file, typically named `spicepod.yaml`
 - **Metadata:** Basic information about the Spicepod, such as its name and version.
 - **Datasets:** Definitions of datasets that are used or produced within the Spicepod.
 - **Catalogs:** Definitions of catalogs that are used within the Spicepod.
-- **Models:** Definitions of language or traditional ML models that the Spicepod manages, including their sources and associated datasets.
+- **Models:** Definitions of language models that the Spicepod manages, including their sources and associated datasets.
 - **Secrets:** Configuration for any secret stores used within the Spicepod.
 
 ## Example Manifest

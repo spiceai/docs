@@ -9,7 +9,7 @@ tags:
   - data-lake
 ---
 
-Delta Lake data connector connector enables SQL queries from [Delta Lake](https://delta.io/) tables.
+Delta Lake data connector enables SQL queries from [Delta Lake](https://delta.io/) tables.
 
 ```yaml
 datasets:

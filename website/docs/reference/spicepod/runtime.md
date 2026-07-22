@@ -170,6 +170,26 @@ SELECT ST_AsText(ST_Point(0.0, 0.0)) AS geom;
 -- POINT(0 0)
 ```
 
+### Spice Cayenne (engine-global)
+
+Engine-global tuning for the [Spice Cayenne](../../components/data-accelerators/cayenne) data accelerator. These apply to every Cayenne-accelerated dataset in the instance and are **not** valid under a dataset's `acceleration.params` (per-dataset Cayenne parameters are documented on the [Cayenne accelerator page](../../components/data-accelerators/cayenne#acceleration-parameters-accelerationparams)).
+
+| Parameter Name                            | Description                                                                                                                                                                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`                 | Size of the engine-wide in-memory Vortex footer cache in megabytes, shared across all Cayenne datasets. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies (there is no fixed 128 MB default).                                     |
+| `cayenne_filter_propagation`              | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                          |
+| `cayenne_optimizer_rules`                 | Selects which Cayenne optimizer rules run. Accepts `auto` (default), `all`, `none` / `disabled`, or a comma-separated list of rule names.                                                                               |
+| `cayenne_compaction_memory_fraction`      | Fraction of the query memory pool reserved for the dedicated Cayenne compaction pool. Defaults to `0.2` (clamped to a supported range). Applied only when a Cayenne dataset is enabled and dedicated thread pools are not disabled. |
+| `cayenne_sort_merge_min_rows`             | Advanced anti-join tuning: row-count threshold above which filter propagation switches to a sort-merge strategy. Internally tuned default.                                                                              |
+| `cayenne_sort_merge_memory_pool_fraction` | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Internally tuned default.                                                                                             |
+
+```yaml
+runtime:
+  params:
+    cayenne_footer_cache_mb: 512
+    cayenne_filter_propagation: enabled
+```
+
 ## `runtime.source_rate_control`
 
 Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
@@ -424,7 +444,7 @@ This configuration permits requests only from the `https://example.com` origin.
 
 The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
 
-If not specified, defaults to **90% of total system memory** (container-aware).
+If not specified, defaults to **90% of total system memory** (container-aware). When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier.
 
 ```yaml
 runtime:
@@ -435,6 +455,40 @@ runtime:
 Specify the value as a size, for example `4GiB` or `1024MiB`.
 
 For detailed memory information, see [Memory](../memory).
+
+## `runtime.query.max_concurrent_queries`
+
+The `max_concurrent_queries` parameter bounds how many query-executing plans may run concurrently. Excess queries wait (admission control) rather than oversubscribing the shared query runtime and memory pool, which can otherwise cause queries to starve each other under load — for example, analytical queries running alongside CDC ingestion and compaction.
+
+```yaml
+runtime:
+  query:
+    max_concurrent_queries: 8
+```
+
+Behavior:
+
+- Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
+- A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
+- If not set, the number of concurrent queries is **unbounded** (the default behavior).
+- A configured value is clamped to a minimum of `1`, so `max_concurrent_queries: 0` allows one concurrent query (not unbounded).
+
+## `runtime.query.timeout`
+
+The `timeout` parameter sets a maximum wall-clock duration a query may run before it is automatically cancelled, expressed as a human-readable duration (for example `30s` or `5m`). The clock covers the query's full lifetime: planning, admission-control waits (`max_concurrent_queries`), execution, and streaming results to the client.
+
+```yaml
+runtime:
+  query:
+    timeout: 30s
+```
+
+Behavior:
+
+- Applies to queries issued through the runtime's query APIs (HTTP, Flight, and Flight SQL). Internal runtime queries — acceleration refreshes and health checks — are exempt.
+- Enforcement is cooperative (best-effort): the query is cancelled at its next cancellation checkpoint, so actual runtime can slightly exceed the configured value.
+- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete.
+- If not set, queries run with **no timeout** (the default behavior). The value must be a positive duration greater than `0`.
 
 ## `runtime.query.spill_compression`
 
@@ -723,18 +777,17 @@ runtime:
     state_location: s3://my-bucket/spice-cluster-state/
     params:
       s3_region: us-east-1
-    partition_management:
-      interval: 30s
-      max_assignments_per_cycle: 100
-      max_partitions_per_executor: 1000
-      discovery_timeout: 60s
+    partition_assignment_interval: 30s
+    max_partition_assignments_per_interval: 100
+    max_partitions_per_executor: 1000
+    partition_discovery_timeout: 60s
 ```
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
 | `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
-| `partition_management.interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
-| `partition_management.max_assignments_per_cycle`   | Yes      | `100`   | Maximum number of partition assignments per cycle.                     |
-| `partition_management.max_partitions_per_executor` | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
-| `partition_management.discovery_timeout`           | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
+| `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
+| `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
+| `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
+| `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |

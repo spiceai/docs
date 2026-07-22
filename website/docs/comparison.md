@@ -33,7 +33,7 @@ Spice combines SQL query, search, and LLM inference in a single runtime. This pa
 | **Vector Search**         | ✅                                         | ✅ (kNN)         | ✅             | ✅                  | ✅                             |
 | **Full-Text Search**      | ✅ (Tantivy BM25)                          | ✅ (Lucene)      | ✅ (BM25)      | ✅ (Tantivy)        | ✅ (inverted index)            |
 | **Hybrid Search**         | ✅ (Reciprocal Rank Fusion)                | ✅ (RRF)         | ✅             | ✅ (reranking)      | Limited                       |
-| **Federated Data Access** | ✅ (30+ connectors)                        | ❌               | ❌             | ❌                  | Limited (integration engines) |
+| **Federated Data Access** | ✅ (40+ connectors)                        | ❌               | ❌             | ❌                  | Limited (integration engines) |
 | **Data Acceleration**     | ✅ (Arrow, DuckDB, SQLite, Cayenne)        | ❌               | ❌             | ❌                  | ❌                             |
 | **Built-in Embeddings**   | ✅ (Local + hosted models)                 | Limited (ELSER) | ❌             | ✅ (pluggable)      | ❌                             |
 | **LLM Integration**       | ✅ (OpenAI-compatible API, tools, MCP)     | ❌               | ❌             | ❌                  | ❌                             |
@@ -50,7 +50,6 @@ Spice combines SQL query, search, and LLM inference in a single runtime. This pa
 | **Accelerated Data Access**   | ✅                                   | ❌                  | ❌                  | ❌                             |
 | **Tools/Functions**           | ✅ (MCP HTTP+SSE)                    | ✅                  | ✅                  | ✅                             |
 | **LLM Memory**                | ✅                                   | ✅                  | ✅                  | ❌                             |
-| **Evaluations (Evals)**       | ✅                                   | Limited            | Limited            | ❌                             |
 | **Search**                    | ✅ (Keyword, Vector, Full-Text)      | ✅                  | ✅                  | Limited                       |
 | **Caching**                   | ✅ (Query and results caching)       | Limited            | ❌                  | ❌                             |
 | **Embeddings**                | ✅ (Built-in & pluggable models/DBs) | ✅                  | ✅                  | ✅                             |

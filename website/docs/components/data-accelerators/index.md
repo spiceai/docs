@@ -10,7 +10,7 @@ pagination_next: null
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
 
-A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne, DuckDB, or SQLite. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](../../features/data-acceleration/data-refresh).
+A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne, DuckDB, or SQLite. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](../features/data-acceleration/data-refresh).
 
 Dataset acceleration is enabled by setting the acceleration configuration:
 
@@ -21,7 +21,7 @@ datasets:
       enabled: true
 ```
 
-For the complete reference specification, see [datasets](../../reference/spicepod/datasets).
+For the complete reference specification, see [datasets](../reference/spicepod/datasets).
 
 By default, datasets are locally materialized using in-memory Arrow records.
 
@@ -29,7 +29,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 | Name       | Description                     | Status            | Engine Modes     |
 | ---------- | ------------------------------- | ----------------- | ---------------- |
-| `cayenne`  | [Spice Cayenne][cayenne]        | Release Candidate | `file`, `file_create`, `file_update` |
+| `cayenne`  | [Spice Cayenne][cayenne]        | Release Candidate | `memory`, `file`, `file_create`, `file_update` |
 | `arrow`    | In-Memory Arrow Records         | Stable            | `memory`         |
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable            | `memory`, `file`, `file_create`, `file_update` |
 | `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Release Candidate | N/A              |
@@ -77,7 +77,7 @@ Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/d
 
 ## Data Types
 
-Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../../reference/datatypes/accelerators).
+Data Accelerators may not support all possible Apache Arrow data types. For complete compatibility, see [specifications](../reference/datatypes/accelerators).
 
 :::warning[Memory Considerations]
 
@@ -103,7 +103,7 @@ import DocCardList from '@theme/DocCardList';
 
 ## Related Documentation
 
-- [Performance Tuning](../../reference/performance-tuning) - Comprehensive optimization guide
-- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
-- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
+- [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
+- [Managing Memory Usage](../reference/memory) - Memory configuration reference
+- [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso

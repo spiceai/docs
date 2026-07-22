@@ -20,7 +20,7 @@ graph LR
     Shared --> SourcesLT[(Long-Tail Tenant Sources)]
 ```
 
-Pipeline-per-integration architectures collapse at scale: every tenant brings its own schema, refresh cadence, and ownership, and ETL orchestration becomes the bottleneck. Spice federates queries across 30+ data sources and accelerates them locally, so adding a tenant is a Spicepod configuration change rather than a new pipeline.
+Pipeline-per-integration architectures collapse at scale: every tenant brings its own schema, refresh cadence, and ownership, and ETL orchestration becomes the bottleneck. Spice federates queries across 40+ data sources and accelerates them locally, so adding a tenant is a Spicepod configuration change rather than a new pipeline.
 
 ## Why Spice.ai?
 
@@ -28,7 +28,7 @@ Pipeline-per-integration architectures collapse at scale: every tenant brings it
 - **Configurable isolation**: Choose logical, config-level, or runtime-level tenant boundaries. Isolation becomes a deployment property rather than something enforced in application code.
 - **Sandboxed runtimes**: The Spice runtime is lightweight enough to deploy one instance per tenant or per agent, giving each agent its own sources, acceleration layers, and secrets.
 - **Local acceleration with CDC**: Materialize tenant working sets into Arrow, DuckDB, SQLite, or PostgreSQL accelerators and keep them current with change data capture.
-- **Declarative configuration**: The [`spicepod.yaml`](../../../reference/spicepod) manifest defines datasets, models, secrets, and acceleration behavior, so tenant topology is version-controlled and auditable.
+- **Declarative configuration**: The [`spicepod.yaml`](../../reference/spicepod) manifest defines datasets, models, secrets, and acceleration behavior, so tenant topology is version-controlled and auditable.
 
 ## Deployment Patterns
 
@@ -60,7 +60,7 @@ datasets:
 
 This is the simplest and cheapest pattern to operate, but isolation is logical: correctness depends on every query path applying the tenant filter.
 
-**View-based variant**: Move tenant filtering into the Spicepod using [views](../../../reference/spicepod/views), so agents query a tenant-specific view rather than constructing the filter at runtime.
+**View-based variant**: Move tenant filtering into the Spicepod using [views](../../reference/spicepod/views), so agents query a tenant-specific view rather than constructing the filter at runtime.
 
 ```yaml
 datasets:
@@ -169,7 +169,7 @@ The right shape depends on isolation requirements, tenant count, and query volum
 ## Learn More
 
 - [Multi-Tenancy for AI Agents without the Pipelines](https://spice.ai/blog/multi-tenancy-for-ai-agents-without-pipelines) — the engineering deep dive behind these patterns.
-- [Spicepod reference](../../../reference/spicepod) and [datasets reference](../../../reference/spicepod/datasets).
-- [Views](../../../reference/spicepod/views) for declarative tenant filtering.
-- [Data Acceleration](../../../features/data-acceleration) and [Change Data Capture](../../../features/data-acceleration/data-refresh).
+- [Spicepod reference](../../reference/spicepod) and [datasets reference](../../reference/spicepod/datasets).
+- [Views](../../reference/spicepod/views) for declarative tenant filtering.
+- [Data Acceleration](../../features/data-acceleration) and [Change Data Capture](../../features/data-acceleration/data-refresh).
 - [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).

@@ -1,0 +1,70 @@
+---
+id: head-table
+title: "Check if a table exists."
+description: "This endpoint returns a 200 OK response if the table exists, otherwise it returns a 404 Not Found response."
+sidebar_label: "Check if a table exists."
+hide_title: true
+hide_table_of_contents: true
+api: eJy9VMFu2zAM/RWBpw1QbDfIYfOt6Das2LABQ3cqglaxmUioLakinbYw/O8DbTdNO3SHHXqSTFKP5OOje2CzIygv4bzCDaYdrDXUSFVykV3wUMKFdaTQ1zE4zyohd8mTMmpZFOrnN5WQYvCEym0VW1RsNg0qvHfEpFVgi+nOifv47apYqR+B1ZfQ+foAkYGGEDEZyXxeQwkWTX01IoKGaJJpkTFJvT140yKU40HRVBLhpN5o2IKGhLedS1hDyalDDVRZbA2UPfBDlIfEyfkdDIM+YD1m+j+ctQRPnZD4l0Uhxws2j+iBQcOqWL0WVAck5QNP0VIotMg2PBIzUsIWSsj3J7mb5pcf+KC8P9yHfGyN8n48B9BAmPaPVHapEUzmWOZ5EyrT2EBcfig+FvBSDt/FrWrcYxNii57VhJSps+C3btclVHeOrbpeLATxOgNhhrDqkuOHMZ+J7uoG5b4Wn/PbMBLquBFGU+fZtfhX6guLiqKrsFZPIY2r0BPK+3mKp9FUFhfLTIp3NXp2W4fpuWfQIO1PwMusyIpF52kSwKAhBuLW+CPUM4vVjYjcPJN49rLKHqrgGT2/+erMemS85zw2xnlpZBxtPwvlEvYnwsm86vppeQg0lMerNOlFrBMnaw2iCcHo+40h/J2aYRDzbYdpHKWGvUlujJYh147kXkO5NQ3hP2h692vesffqtTZmo/EPIGmaTr5Aw6iio3+ALPMbJp71sj5eza+fTz/BMPwBJGjQHA==
+sidebar_class_name: "head api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check if a table exists."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"head"}
+  path={"/v1/iceberg/namespaces/{namespace}/tables/{table}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns a 200 OK response if the table exists, otherwise it returns a 404 Not Found response.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./head-table.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./head-table.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./head-table.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

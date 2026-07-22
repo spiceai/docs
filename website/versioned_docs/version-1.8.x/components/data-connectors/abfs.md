@@ -8,7 +8,7 @@ tags:
   - blob-storage
 ---
 
-The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure BlobFS (`abfss://`) and Azure Data Lake (`adl://`) endpoints.
+The Azure BlobFS (ABFS) Data Connector enables federated SQL queries on files stored in Azure Blob-compatible endpoints. This includes Azure Data Lake Storage Gen2 endpoints accessed via the `abfs://` and `abfss://` schemes.
 
 When a folder path is provided, all the contained files will be loaded.
 

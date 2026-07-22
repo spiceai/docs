@@ -227,9 +227,40 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## Schema Inference and Evolution
 
-Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. Schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts. Restart the runtime to re-infer the schema.
+Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default, schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts, and you must restart the runtime to re-infer the schema.
+
+Accelerated datasets can opt into automatic, in-place schema evolution with the [`on_schema_change`](#on_schema_change) policy, which adopts lossless, widening-compatible source changes without a restart — and can additionally drop and recreate the accelerated table on incompatible changes (`drop_and_recreate`) when `refresh_mode: full` is set.
 
 For connector-specific inference parameters, runtime schema change behavior, and recommendations, see [Schema Inference](../../components/data-connectors#schema-inference).
+
+## `on_schema_change`
+
+Optional. Controls how the runtime reacts when the source schema changes after the dataset is registered. Applies to **accelerated datasets only** — federated (non-accelerated) queries always reflect the live source schema, so the policy is inert for them (a non-default value logs a warning and otherwise has no effect).
+
+The following values are supported:
+
+- `block` - Default. Schema changes are not applied automatically. The dataset stays healthy and continues serving queries using the registered schema; this preserves the historical behavior.
+- `fail` - Set the dataset to an error status with an actionable message when the projected source schema diverges from the registered schema. Self-heals if the source reverts.
+- `append_new_columns` - Adopt new nullable source columns in place; type changes and relaxed/tightened nullability are treated as `block` (the dataset keeps serving on the old schema) and a warning is logged.
+- `sync_all_columns` - Adopt the full set of lossless, widening changes in place: new nullable columns, widened column types (for example `Int32`→`Int64`, an increase in decimal precision, or `Utf8`→`LargeUtf8`), and relaxed nullability. Non-widening changes (column removals, narrowing type changes) remain `block`-equivalent and are warned.
+- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `duckdb`, `sqlite`, `turso`, and `cayenne` engines.
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    on_schema_change: drop_and_recreate
+    acceleration:
+      engine: duckdb
+      mode: file
+      refresh_mode: full
+```
+
+:::note
+
+In-place evolution (no restart) is supported for the `duckdb`, `sqlite`, `turso`, and Spice Cayenne (`cayenne`) acceleration engines, including for PostgreSQL CDC (`refresh_mode: changes`). Other engines (for example `arrow` and the PostgreSQL accelerator) log a clear unsupported message and degrade safely, applying additive changes on restart. Constraint and primary-key columns cannot be widened in place. For destructive schema changes (column removals or narrowing), set `on_schema_change: drop_and_recreate` with `refresh_mode: full` to drop and recreate the accelerated table from the source, or use [`mode: file_update`](#accelerationmode), which recreates the acceleration file on any change.
+
+:::
 
 ## `unsupported_type_action`
 
@@ -251,12 +282,25 @@ Not all connectors support specifying an `unsupported_type_action`. When specifi
 
 :::
 
+## `schema_inference`
+
+:::warning[Removed]
+
+The `schema_inference` dataset field was removed. Schema inference is now **always on** — Spice attempts the deepest inference each source permits and no longer requires an opt-in. A Spicepod that still specifies `schema_inference` fails to load with an unknown-field error; remove the field.
+
+For connectors that expose catalog metadata — [PostgreSQL](../../components/data-connectors/postgres), [MySQL](../../components/data-connectors/mysql), and [MongoDB](../../components/data-connectors/mongodb) — inference additionally detects the source's primary key (and, where the source exposes them, secondary indexes and sort/clustering columns) and applies them to any acceleration settings left unset. It degrades gracefully — with info-level logs — when the connection role lacks catalog read access. Other connectors infer the base column schema (names, types, nullability) only.
+
+For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x documentation](https://docs.spiceai.org/docs/2.1.x/reference/spicepod/datasets#schema_inference).
+
+:::
+
 ## `ready_state`
 
-Supports one of two values:
+Supports one of three values (defaults to `on_load`):
 
 - `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
-- `on_load`: Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_load`: (default) Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
+- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
 
 ```yaml
 datasets:
@@ -350,7 +394,7 @@ Enable or disable acceleration, defaults to `true`.
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
-- [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Alpha, v1.9.0-rc.1+).
+- [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Release Candidate, v1.9.0-rc.1+).
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
 - [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
@@ -360,7 +404,7 @@ The acceleration engine to use, defaults to `arrow`. The following engines are s
 
 Optional. The mode of acceleration. The following values are supported:
 
-- `memory` - Store acceleration data in-memory. Not supported for Spice Cayenne (`cayenne`).
+- `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
 - `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 - `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 - `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
@@ -407,10 +451,14 @@ Snapshots are written beneath the configured snapshot location using Hive-style 
 
 Optional. Controls when Spice creates new snapshots. The available triggers depend on the dataset's refresh mode.
 
-**For batch-based datasets** (`refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with `time_column`):
+**For batch-based datasets** (`refresh_mode: full`, or `refresh_mode: append` with `time_column`):
 
 - `refresh_complete` (default) – Create a snapshot after each data refresh completes.
 - `time_interval` – Create snapshots at a fixed time interval specified by `snapshots_trigger_threshold`.
+
+**For caching datasets** (`refresh_mode: caching`):
+
+- `time_interval` (default) – The only supported trigger. Create snapshots at a fixed time interval, defaulting to `10m` if `snapshots_trigger_threshold` is not specified. `refresh_complete` and `stream_batches` are not supported in caching mode and cause a configuration error.
 
 **For stream-based datasets** (`refresh_mode: changes`, or `refresh_mode: append` without `time_column`):
 

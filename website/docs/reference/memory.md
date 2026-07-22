@@ -61,21 +61,26 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 
 **Memory Configuration Parameters:**
 
-| Parameter                  | Default | Description                                                                                                                                  |
-| -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`  | `128`   | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans by caching file metadata. |
-| `cayenne_segment_cache_mb` | `256`   | Size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.                   |
+| Parameter                  | Scope                  | Default | Description                                                                                                                                  |
+| -------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`  | `runtime.params`       | `50` (unset) | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies. |
+| `cayenne_segment_cache_mb` | `acceleration.params`  | `256`   | Per-dataset size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.        |
 
 **Memory Usage Guidelines:**
 
 - Base memory: ~500 MB for runtime overhead
-- Footer cache: 128 MB default, increase for datasets with many files
+- Footer cache: unset by default (DataFusion's 50 MB file-metadata-cache limit applies); increase for datasets with many files
 - Segment cache: 256 MB default, increase for workloads with repeated scans on the same data
 - Query execution memory: Depends on query complexity and concurrency
 
 **Example Configuration:**
 
 ```yaml
+runtime:
+  params:
+    # Engine-global footer cache (shared by all Cayenne datasets)
+    cayenne_footer_cache_mb: 256
+
 datasets:
   - from: s3://my-bucket/large-dataset/
     name: large_dataset
@@ -83,7 +88,7 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 256
+        # Per-dataset segment cache
         cayenne_segment_cache_mb: 512
 ```
 
@@ -133,11 +138,11 @@ Refresh modes affect memory usage as follows:
 
 ## DataFusion Query Memory Management
 
-Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware). This can be tuned through the `runtime.query.memory_limit` configuration.
+Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware; reduced to **70%** when Cayenne acceleration is active, to leave headroom for Cayenne's compaction memory pool and in-memory CDC tier). This can be tuned through the `runtime.query.memory_limit` configuration.
 
 ### Memory Limit Configuration
 
-The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory. Once the memory limit is reached, supported query operations spill data to disk.
+The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory (70% when Cayenne acceleration is active). Once the memory limit is reached, supported query operations spill data to disk.
 
 ```yaml
 runtime:
@@ -319,7 +324,7 @@ Total Memory = Runtime Overhead + Accelerator Memory + Query Memory Limit + Cach
 **Example calculation:**
 
 - Runtime overhead: 500 MB
-- Spice Cayenne caches: 384 MB (128 MB footer + 256 MB segment)
+- Spice Cayenne caches: 306 MB (50 MB footer + 256 MB segment)
 - Query memory limit: 4 GB
 - Results caches: 1 GB (512 MB SQL + 256 MB search + 256 MB embeddings)
 - **Total: ~6 GB minimum**
@@ -345,7 +350,7 @@ metadata:
 spec:
   containers:
     - name: spice
-      image: spiceai/spiceai:latest-models
+      image: spiceai/spiceai:latest
       resources:
         requests:
           memory: '8Gi'

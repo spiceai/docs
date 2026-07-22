@@ -39,7 +39,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | Param           | Description                                                                                                                                                                               | Default |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `hf_token`      | The Huggingface access token.                                                                                                                                                             | -       |
-| `model_type`    | The architecture to load the model as. Supported values: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3` | -       |
+| `model_type`    | The architecture to load the model as. Supported text architectures: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3`, `qwen3`, `glm4`, `glm4moelite`, `glm4moe`, `qwen3moe`, `smollm3`, `granitemoehybrid`, `gpt_oss`, `qwen3next`. Supported multimodal architectures: `phi3v`, `idefics2`, `llava_next`, `llava`, `vllama`, `qwen2vl`, `idefics3`, `minicpmo`, `phi4mm`, `qwen2_5vl`, `gemma3`, `mistral3`, `llama4`, `gemma3n`, `gemma4`, `qwen3vl`, `qwen3vlmoe`, `qwen3_5`, `qwen3_5moe`, `voxtral`. | -       |
 | `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
 
@@ -74,18 +74,6 @@ models:
 
 ## Examples
 
-### Load a ML model to predict taxi trips outcomes
-
-```yaml
-models:
-  - from: huggingface:huggingface.co/spiceai/darts:latest
-    name: hf_model
-    files:
-      - path: model.onnx
-    datasets:
-      - taxi_trips
-```
-
 ### Load a LLM model to generate text
 
 ```yaml
@@ -109,8 +97,8 @@ For more details on authentication, see [access tokens](#access-tokens).
 :::warning[Limitations]
 
 - The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports Apple Metal and CUDA for accelerated inference. See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for build instructions.
-- ML models currently only support ONNX file format.
-  :::
+
+:::
 
 ## Cookbook
 
