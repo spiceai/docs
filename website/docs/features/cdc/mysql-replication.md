@@ -88,10 +88,11 @@ Configure replication behavior with the following `params` on the MySQL dataset:
 | Parameter                                    | Default   | Description                                                                                                                                                                                                                        |
 | -------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mysql_replication_server_id`                | derived   | The `server_id` this replica registers with. Must be unique among all replicas attached to the source; the default is derived from the dataset name and process, so two spiced instances don't collide.                            |
-| `mysql_replication_snapshot_mode`            | `auto`    | When existing rows load: `auto` snapshots when no resumable position exists; `never` streams changes only; `always` re-snapshots on every start.                                                                                    |
+| `mysql_replication_initial_snapshot`         | `auto`    | When existing rows load: `auto` snapshots when no resumable position exists and resumes without a snapshot when one does; `disabled` streams changes only; `always` re-snapshots on every start, discarding any persisted position. |
 | `mysql_replication_checkpoint_interval`      | `10s`     | How often the committed position persists to the sidecar. Bounds crash-replay volume.                                                                                                                                              |
 | `mysql_replication_bootstrap_batch_size`     | `8192`    | Rows per emitted snapshot batch. Maximum: `1048576`.                                                                                                                                                                              |
-| `mysql_replication_invalid_position_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — either it was purged from the source, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `rebootstrap` (drop the position and re-snapshot). |
+| `mysql_replication_invalid_checkpoint_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — either it was purged from the source, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `restart` (drop the position and re-snapshot). |
+| `mysql_replication_ready_lag`                | `2s`      | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's binlog-header timestamp) falls below this. The dataset stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data. |
 
 The runtime-level CDC apply tunables (`cdc_prefetch_buffer`, `cdc_max_coalesced_envelopes`, `cdc_max_coalesced_bytes`, `cdc_max_coalesce_age_ms`, `cdc_commit_timeout_ms`) apply to this connector the same way they do to the PostgreSQL one — see [Tuning ingestion](./index.md#tuning-ingestion).
 
@@ -101,7 +102,7 @@ MySQL expires binary logs on its own schedule (`binlog_expire_logs_seconds`, def
 
 ```yaml
 params:
-  mysql_replication_invalid_position_behavior: rebootstrap
+  mysql_replication_invalid_checkpoint_behavior: restart
 ```
 
 to instead drop the stale position, truncate the accelerator, and re-snapshot the table automatically.
@@ -110,7 +111,7 @@ to instead drop the stale position, truncate the accelerator, and re-snapshot th
 
 Binlog row events are positional — each event carries column values in source-ordinal order, not by name — so the connector tracks the source table's column layout and refuses to apply events it can't line up against that layout. Compatible changes are adopted automatically: an additive `ALTER TABLE` is picked up from `information_schema` at the schema-change boundary and the stream continues without interruption.
 
-An **incompatible** change — one where the recorded position would replay row images against a layout that no longer matches (for example resuming after the source table's shape drifted while spiced was down, in a way the stream cannot reconcile with the events it still needs to replay) — cannot be applied without risking silent column misalignment. Rather than corrupt the accelerator, the connector stops and leaves the last known-good position in place. As with a purged position, `mysql_replication_invalid_position_behavior` controls the response: `error` (the default) surfaces an actionable error, and `rebootstrap` drops the position and re-snapshots the table from the current layout.
+An **incompatible** change — one where the recorded position would replay row images against a layout that no longer matches (for example resuming after the source table's shape drifted while spiced was down, in a way the stream cannot reconcile with the events it still needs to replay) — cannot be applied without risking silent column misalignment. Rather than corrupt the accelerator, the connector stops and leaves the last known-good position in place. As with a purged position, `mysql_replication_invalid_checkpoint_behavior` controls the response: `error` (the default) surfaces an actionable error, and `restart` drops the position and re-snapshots the table from the current layout.
 
 ## Semantics and type notes
 
@@ -130,7 +131,7 @@ On `ALTER TABLE` against the replicated table, Spice re-fetches the table's layo
 - **Dropping or renaming a dataset column** (or `RENAME TABLE` / `DROP TABLE`) stops the stream with an actionable error.
 - **Retyping a dataset column** keeps streaming while values remain convertible to the dataset's Arrow type; an unconvertible value stops the stream with a decode error.
 
-If the stream stopped across a DDL boundary with an un-checkpointed tail, the restart may be unable to decode pre-DDL events — re-bootstrap with `mysql_replication_invalid_position_behavior: rebootstrap`. Quiescing writes to the table around DDL avoids that case entirely.
+If the stream stopped across a DDL boundary with an un-checkpointed tail, the restart may be unable to decode pre-DDL events — re-bootstrap with `mysql_replication_invalid_checkpoint_behavior: restart`. Quiescing writes to the table around DDL avoids that case entirely.
 
 ## Metrics
 
