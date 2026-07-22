@@ -175,7 +175,17 @@ Required — there is no catalog-level default. The only supported value is `cha
 ### Requirements
 
 - **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
-- **Every included table must have a primary key.** Catalog setup fails and names the offending table if any included table lacks a primary key — tables are never silently skipped or downgraded to a heavier access pattern. Use `include`/`exclude` to keep primary-key-less tables out of an accelerated catalog's scope.
+
+### Table eligibility
+
+Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENTITY`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY), which determines the row identity available for change data capture:
+
+- **`DEFAULT` with a primary key** — accelerated, keyed by the primary key.
+- **`USING INDEX`** — accelerated, keyed by the nominated unique index.
+- **`FULL`** — accelerated, but heavier: PostgreSQL logs the full old-row image on every `UPDATE`/`DELETE`, so a warning is logged. Prefer a primary key or `USING INDEX` where possible.
+- **No usable CDC key** (`NOTHING`, a keyless `DEFAULT` or `FULL`, or an unusable identity index) — **skipped with an actionable warning** and left out of the catalog's namespace. The rest of the catalog still replicates; a single ineligible table never fails the whole catalog.
+
+Use `include`/`exclude` to narrow scope and suppress the skip warning for tables you will handle another way (federation, or a per-dataset `refresh_mode: full`).
 
 ### Behavior
 

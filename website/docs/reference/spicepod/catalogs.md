@@ -74,6 +74,10 @@ The name of the catalog to register in Spice. The schema hierarchy of the extern
 
 Optional. The `include` field is used to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
 
+## `exclude`
+
+Optional. The `exclude` field specifies tables to omit from the catalog, using the same `schema.table` glob syntax as `include`. Multiple `exclude` patterns are OR'ed together, and `exclude` takes precedence over `include` — a table matched by both is omitted. It is currently honored by the [PostgreSQL catalog connector](../../components/catalogs/postgres). A common use is to keep tables that cannot be [CDC-accelerated](../../components/catalogs/postgres#catalog-level-cdc-acceleration) out of an accelerated catalog's scope.
+
 ## `access`
 
 Optional. Specifies the access level for the catalog. Supported values are:
