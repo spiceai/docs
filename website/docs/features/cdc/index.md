@@ -81,6 +81,7 @@ Spice currently supports streaming ingestion via:
 - **[MongoDB Change Streams](./mongodb-streams.md)** — for MongoDB replica sets and sharded clusters. Spice opens a native Change Stream on the source collection and applies inserts, updates, replaces, and deletes to the accelerator.
 - **[Apache Kafka](../../components/data-connectors/kafka.md)** — for event-streaming topics. Spice consumes records directly with `refresh_mode: append` for real-time, append-only acceleration (no separate CDC connector required).
 - **[Debezium](./debezium.md)** (over Kafka) — for sources where Debezium + Kafka is already deployed, or for databases without a native Spice CDC path (SQL Server, etc.).
+- **[Debezium Push Ingest](./debezium-ingest.md)** (no Kafka) — for any database with a Debezium source plugin (Oracle, SQL Server, Db2, …). The Debezium plugin POSTs change events (JSON or Avro) directly to `spiced` via `from: cdc:…`, with no Kafka bus.
 
 ## Example
 
