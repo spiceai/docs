@@ -29,7 +29,7 @@ By default, datasets are locally materialized using in-memory Arrow records.
 
 | Name       | Description                     | Status            | Engine Modes     |
 | ---------- | ------------------------------- | ----------------- | ---------------- |
-| `cayenne`  | [Spice Cayenne][cayenne]        | Release Candidate | `memory`, `file`, `file_create`, `file_update` |
+| `cayenne`  | [Spice Cayenne][cayenne]        | Stable            | `memory`, `file`, `file_create`, `file_update` |
 | `arrow`    | In-Memory Arrow Records         | Stable            | `memory`         |
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Stable            | `memory`, `file`, `file_create`, `file_update` |
 | `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Release Candidate | N/A              |
