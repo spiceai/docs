@@ -361,7 +361,7 @@ Each item in `aggregates` has:
 Supported input column types by function:
 
 - `count` — any column (or `COUNT(*)` when `column` is omitted).
-- `sum` and `avg` — signed integers (`Int8`–`Int64`), unsigned integers (`UInt8`–`UInt64`), and floats (`Float32`/`Float64`). `sum` widens to `BIGINT`/`Float64`; `avg` always returns `Float64`.
+- `sum` and `avg` — signed integers (`Int8`–`Int64`), unsigned integers (`UInt8`–`UInt64`), floats (`Float32`/`Float64`), and `Decimal128`. For integer and float inputs, `sum` widens to `BIGINT`/`Float64` and `avg` returns `Float64`. For a `Decimal128(p, s)` input, `sum` returns `Decimal128(min(38, p + 10), s)` and `avg` returns `Decimal128(min(38, p + 4), min(38, s + 4))`, matching DataFusion's exact decimal return types (`avg` requires a non-negative scale). `Decimal256` is not supported.
 - `min` and `max` — signed/unsigned integers, `Date32`/`Date64`, `Timestamp`, and `Decimal128`, preserving the input type (`MIN(Int32) -> Int32`). Float `min`/`max` is not yet supported.
 
 ### Query matching
