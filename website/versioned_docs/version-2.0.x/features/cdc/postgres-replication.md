@@ -254,7 +254,7 @@ Core freshness signals (auto-registered):
 | `dataset_postgres_replication_lag_ms`      | Gauge   | `now() − commit_time(latest ingested txn)`. Primary CDC freshness signal.                             |
 | `dataset_postgres_replication_lag_bytes`   | Gauge   | `server_wal_end_lsn − confirmed_flush_lsn`. Unacknowledged WAL held by Spice's slot.                  |
 | `dataset_postgres_replication_transactions_total` | Counter | Committed transactions applied.                                                                 |
-| `dataset_postgres_replication_inserts_total` / `updates_total` / `deletes_total` | Counter | Row-level events from WAL.                                      |
+| `dataset_postgres_replication_inserts_total` / `dataset_postgres_replication_updates_total` / `dataset_postgres_replication_deletes_total` | Counter | Row-level events from WAL.                                      |
 | `dataset_postgres_replication_reconnects_total` | Counter | Number of times the stream reconnected after a transient failure.                            |
 
 ## Troubleshooting
