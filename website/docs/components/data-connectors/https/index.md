@@ -67,7 +67,7 @@ datasets:
 
 ### Using OAuth2 Refresh-Token Authentication
 
-For JSON APIs protected by OAuth2, the connector can exchange a long-lived refresh token for short-lived access tokens and keep them fresh automatically (RFC 6749 §6). On startup Spice hits the configured token endpoint once, then stamps `Authorization: Bearer <access_token>` on every data request and refreshes the token in the background before it expires.
+For JSON APIs protected by OAuth2, the connector can acquire short-lived access tokens from a token endpoint and keep them fresh automatically. The **refresh-token grant** (RFC 6749 §6) exchanges a long-lived refresh token; the **client-credentials grant** (RFC 6749 §4.4) authenticates with a `client_id`/`client_secret` for machine-to-machine APIs. On startup Spice hits the configured token endpoint once, then stamps `Authorization: Bearer <access_token>` on every data request (or a custom header — see [Custom Token Header](#custom-token-header)) and refreshes the token in the background before it expires.
 
 ```yaml
 datasets:
@@ -87,7 +87,7 @@ The `http_auth_refresh_token`, `http_auth_client_id`, and `http_auth_client_secr
 
 Applies to JSON API endpoints (e.g. `file_format: json`). Structured file formats (csv/parquet/etc.) go through the object-store listing path and are not affected by this setting — use `http_headers` for those.
 
-See [OAuth2 Refresh-Token Authentication](#oauth2-refresh-token-authentication) for the full parameter reference and behavior notes.
+See [OAuth2 Authentication](#oauth2-authentication) for the full parameter reference and behavior notes.
 
 ## Configuration
 
@@ -164,12 +164,14 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `max_request_headers_length` | Optional. Maximum size in bytes for `request_headers` filter values. Default: `16384` (16 KiB).
 | `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. If unset, partition count is unlimited.                                                                                                                                                                                                                                                                                                                   |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`.                                                                                                                                                      |
-| `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). When set together with `http_auth_refresh_token`, the connector exchanges the refresh token for short-lived access tokens and attaches `Authorization: Bearer <token>` to all data requests. Applies to JSON API endpoints only. See [OAuth2 Refresh-Token Authentication](#oauth2-refresh-token-authentication). |
-| `http_auth_refresh_token`  | Optional. OAuth2 refresh token exchanged against `auth_token_url` to obtain access tokens. **Required** when `auth_token_url` is set. Use a secret store, e.g. `${secrets:my_refresh_token}`.                                                                                                                                                                                                                                             |
+| `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). Enables OAuth2: the connector acquires short-lived access tokens (refresh-token grant by default, or `client_credentials` via `auth_grant_type`) and attaches them to all data requests (`Authorization: Bearer <token>` by default, or the bare token under a custom `auth_header_name`). Applies to JSON API endpoints only. See [OAuth2 Authentication](#oauth2-authentication). |
+| `auth_grant_type`          | Optional. OAuth2 grant type: `refresh_token` (default, RFC 6749 §6) or `client_credentials` (RFC 6749 §4.4). `client_credentials` authenticates with `http_auth_client_id`/`http_auth_client_secret` and issues no refresh token.                                                                                                                                                                                                          |
+| `http_auth_refresh_token`  | Optional. OAuth2 refresh token exchanged against `auth_token_url` to obtain access tokens. **Required** when `auth_token_url` is set with the (default) refresh-token grant; not used by the `client_credentials` grant. Use a secret store, e.g. `${secrets:my_refresh_token}`.                                                                                                                                                            |
 | `http_auth_client_id`      | Optional. OAuth2 `client_id` presented to the token endpoint. Required for confidential clients; optional for public clients. Must be paired with `http_auth_client_secret` for confidential clients.                                                                                                                                                                                                                                     |
 | `http_auth_client_secret`  | Optional. OAuth2 `client_secret` presented to the token endpoint. Required when the client is confidential; must be set together with `http_auth_client_id`. Use a secret store, e.g. `${secrets:my_client_secret}`.                                                                                                                                                                                                                      |
 | `auth_scopes`              | Optional. Space-separated OAuth2 scopes to request when refreshing (e.g. `read:data offline_access`). Omit to inherit the scopes bound to the refresh token.                                                                                                                                                                                                                                                                              |
 | `auth_client_auth`         | Optional. How client credentials are sent to the token endpoint: `basic` (HTTP Basic header, default per RFC 6749 §2.3.1) or `body` (`client_id`/`client_secret` in the form body). Default: `basic`.                                                                                                                                                                                                                                     |
+| `auth_header_name`         | Optional. HTTP header that carries the access token. Default: `Authorization` (sends `Bearer <token>`). Any other name (e.g. `X-Shopify-Access-Token`) sends the bare token instead.                                                                                                                                                                                                                                                      |
 
 #### Mutual TLS (mTLS) Client Authentication
 
@@ -515,16 +517,16 @@ The `health_probe` parameter has the following requirements:
 - Cannot exceed 2048 characters in length
 - The target endpoint must return a 2xx HTTP status code for validation to succeed
 
-### OAuth2 Refresh-Token Authentication
+### OAuth2 Authentication
 
-The HTTP connector supports the OAuth2 **refresh-token grant** (RFC 6749 §6) for JSON APIs. Given a long-lived refresh token and a token endpoint, Spice will:
+The HTTP connector supports two OAuth2 grants for JSON APIs — the **refresh-token grant** (RFC 6749 §6, the default) and the **client-credentials grant** (RFC 6749 §4.4). Both acquire short-lived access tokens from a token endpoint and keep them fresh in the background. For the (default) refresh-token grant, given a long-lived refresh token and a token endpoint, Spice will:
 
 1. Exchange the refresh token for an access token at dataset startup.
-2. Attach `Authorization: Bearer <access_token>` to every data request.
+2. Attach the access token to every data request — `Authorization: Bearer <access_token>` by default, or under a custom header (see [Custom Token Header](#custom-token-header)).
 3. Refresh the access token in the background, 60 seconds before it expires, for the lifetime of the process.
 4. Honor rotated refresh tokens — when the token endpoint returns a new `refresh_token`, Spice uses it for the next exchange.
 
-This flow is designed for APIs where the operator already has a refresh token in hand (e.g. issued via a separate authorization-code or device-code flow). Spice does **not** perform an interactive authorization flow, nor does it retry data requests on 401 — keeping the token continuously fresh in the background is the only recovery path.
+The [client-credentials grant](#client-credentials-grant) is designed for machine-to-machine APIs that authenticate with a `client_id`/`client_secret` and issue no refresh token; it re-runs the same token exchange in the background before expiry. In both cases Spice does **not** perform an interactive authorization flow (the authorization-code and device-code flows are not exposed), nor does it retry data requests on 401 — keeping the token continuously fresh in the background is the only recovery path.
 
 #### Basic Configuration
 
@@ -546,14 +548,16 @@ datasets:
 | Parameter                 | Kind              | Required        | Description                                                                                                                                                             |
 | ------------------------- | ----------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auth_token_url`          | runtime           | yes (for OAuth) | OAuth2 token endpoint URL. Must be HTTPS; `http://localhost`, `http://127.0.0.1`, and `http://[::1]` are accepted for local testing.                                    |
-| `http_auth_refresh_token` | component, secret | yes (for OAuth) | Long-lived refresh token. Exchanged on startup for the first access token. Can be loaded from any [supported secret store](../secret-stores/) via `${secrets:...}`.     |
-| `http_auth_client_id`     | component, secret | confidential    | `client_id`. Required for confidential clients, optional for public clients. When set together with `http_auth_client_secret`, both are sent to the token endpoint.     |
-| `http_auth_client_secret` | component, secret | confidential    | `client_secret`. Must be paired with `http_auth_client_id`. Can be loaded from any [supported secret store](../secret-stores/) via `${secrets:...}`.                    |
+| `auth_grant_type`         | runtime           | no              | OAuth2 grant type: `refresh_token` (default, RFC 6749 §6) or `client_credentials` (RFC 6749 §4.4). See [Client-Credentials Grant](#client-credentials-grant).           |
+| `http_auth_refresh_token` | component, secret | refresh-token   | Long-lived refresh token. Exchanged on startup for the first access token. **Required** for the (default) refresh-token grant; must not be set for `client_credentials`. Can be loaded from any [supported secret store](../secret-stores/) via `${secrets:...}`. |
+| `http_auth_client_id`     | component, secret | confidential    | `client_id`. Required for confidential clients and for the `client_credentials` grant, optional for public clients. When set together with `http_auth_client_secret`, both are sent to the token endpoint. |
+| `http_auth_client_secret` | component, secret | confidential    | `client_secret`. Must be paired with `http_auth_client_id`; required for the `client_credentials` grant. Can be loaded from any [supported secret store](../secret-stores/) via `${secrets:...}`.       |
 | `auth_scopes`             | runtime           | no              | Space-separated OAuth2 scopes (e.g. `read:data offline_access`). Omit to inherit the scopes bound to the refresh token.                                                 |
 | `auth_client_auth`        | runtime           | no              | How client credentials are sent to the token endpoint: `basic` (default, HTTP Basic header per RFC 6749 §2.3.1) or `body` (as `client_id`/`client_secret` form fields). |
+| `auth_header_name`        | runtime           | no              | HTTP header that carries the access token. Default `Authorization` (sends `Bearer <token>`); any other name sends the bare token (e.g. `X-Shopify-Access-Token`). See [Custom Token Header](#custom-token-header). |
 
 :::tip Parameter naming convention
-Component/secret parameters carry the `http_` prefix when set in a dataset (`http_auth_refresh_token`, `http_auth_client_id`, `http_auth_client_secret`). Runtime parameters do not (`auth_token_url`, `auth_scopes`, `auth_client_auth`). This follows the same convention as `http_password` vs `client_timeout`.
+Component/secret parameters carry the `http_` prefix when set in a dataset (`http_auth_refresh_token`, `http_auth_client_id`, `http_auth_client_secret`). Runtime parameters do not (`auth_token_url`, `auth_grant_type`, `auth_scopes`, `auth_client_auth`, `auth_header_name`). This follows the same convention as `http_password` vs `client_timeout`.
 :::
 
 :::tip Loading secrets from a secret store
@@ -592,6 +596,36 @@ params:
   auth_client_auth: body
 ```
 
+#### Client-Credentials Grant
+
+For machine-to-machine APIs that authenticate with a `client_id`/`client_secret` and issue no refresh token, set `auth_grant_type: client_credentials`. Both `http_auth_client_id` and `http_auth_client_secret` are required, and `http_auth_refresh_token` must **not** be set:
+
+```yaml
+params:
+  auth_token_url: https://auth.example.com/oauth/token
+  auth_grant_type: client_credentials
+  http_auth_client_id: ${secrets:my_client_id}
+  http_auth_client_secret: ${secrets:my_client_secret}
+  auth_scopes: 'read:data'
+```
+
+Spice re-runs the client-credentials exchange in the background before the access token expires, reusing the same refresh machinery as the refresh-token grant. `auth_client_auth` (`basic`/`body`) applies to this grant as well.
+
+#### Custom Token Header
+
+By default the access token is attached as `Authorization: Bearer <token>`. Some APIs expect the token in a non-standard header and without the `Bearer` prefix — for example the Shopify Admin API uses `X-Shopify-Access-Token`. Set `auth_header_name` to send the bare token under that header instead:
+
+```yaml
+params:
+  auth_token_url: https://auth.example.com/oauth/token
+  auth_grant_type: client_credentials
+  auth_header_name: X-Shopify-Access-Token
+  http_auth_client_id: ${secrets:my_client_id}
+  http_auth_client_secret: ${secrets:my_client_secret}
+```
+
+`auth_header_name` is independent of the grant type — it works with the refresh-token grant too.
+
 #### Local Testing
 
 The connector rejects `http://` token URLs by default, but allows `http://localhost`, `http://127.0.0.1`, and `http://[::1]` so you can run a mock OAuth server for development:
@@ -611,6 +645,7 @@ The connector classifies token-endpoint errors to make remediation easy:
   - Token endpoint returns `400`, `401`, or `403` (typically an invalid refresh token, client credentials, or scope)
   - Token endpoint returns a non-`Bearer` `token_type`
   - Incomplete config (e.g. `http_auth_refresh_token` without `auth_token_url`, or `http_auth_client_secret` without `http_auth_client_id`)
+  - `auth_grant_type: client_credentials` without both `http_auth_client_id` and `http_auth_client_secret`, or with `http_auth_refresh_token` set (the client-credentials grant issues no refresh token)
   - Both OAuth2 auth *and* an `Authorization` header in `http_headers` — remove one
 - **Transient / connection errors** (surfaces as `UnableToConnect`, retried in the background):
   - Network / TLS failures
@@ -622,7 +657,7 @@ Error bodies returned by the token endpoint are truncated to 512 bytes and white
 #### Limitations
 
 - **JSON APIs only.** Structured file formats (csv, parquet, etc.) go through the object-store listing path and are not authenticated by this feature. For those, use a static bearer via `http_headers`.
-- **No interactive auth flows.** Only the refresh-token grant is supported. Obtain the initial refresh token out-of-band.
+- **No interactive auth flows.** The refresh-token and client-credentials grants are supported; the authorization-code and device-code flows are not. For the refresh-token grant, obtain the initial refresh token out-of-band.
 - **No 401→refresh-and-retry.** Background refresh keeps the token fresh; if a data request 401s, it propagates to the caller.
 - **One authenticator per dataset.** Configure either OAuth2 or an `Authorization` header in `http_headers`, not both — the connector rejects the combination at registration time.
 
