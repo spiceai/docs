@@ -71,9 +71,12 @@ The DynamoDB data connector supports the following configuration parameters:
 | `schema_infer_max_records`             | Optional. The number of documents to use to infer the schema. Defaults to 10                                                                                                                                                                               |
 | `scan_segments`                        | Optional. Number of segments for `Scan` request. 'auto' by default, which will calculate number of segments based on number of the records in a table                                                                                                      |
 | `scan_interval`                        | Optional. Interval between polling for new records in a DynamoDB stream. Default: `0s`. See [Streams](#streams).                                                                                                                                           |
-| `ready_lag`                            | Optional. When using Streams, once the table reaches this lag the dataset will be reported as Ready. Default: `2s`. See [Streams](#streams).                                                                                                               |
+| `dynamodb_replication_ready_lag`       | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied source-commit time) falls below this. It stays not-ready while snapshotting or draining a backlog, so it never serves stale data. Default: `2s`. See [Streams](#streams). |
+| `dynamodb_replication_initial_snapshot` | Optional. When `refresh_mode: changes` first loads the table's existing items: `auto` (default) scans when no resumable stream checkpoint exists and resumes without a scan when one does; `disabled` streams changes only, from the current stream tip; `always` scans on every start, discarding any persisted checkpoint. Default: `auto`. |
+| `dynamodb_replication_invalid_checkpoint_behavior` | Optional. Behavior when the persisted stream checkpoint can no longer be honored (past the ~24h shard retention). One of `error` (default — marks dataset as Error) or `restart` (re-bootstraps from a fresh scan). Default: `error`. |
 | `endpoint_url`                         | Optional. Custom endpoint URL for DynamoDB-compatible services (e.g., DynamoDB Local, ScyllaDB Alternator).                                                                                                                                                |
-| `lag_exceeds_shard_retention_behavior` | Optional. Behavior when stream lag exceeds shard retention (24h). One of `error` (default — marks dataset as Error), `ready_before_load` (marks Ready then re-bootstraps), or `ready_after_load` (re-bootstraps then marks Ready).                         |
+| `ready_lag`                            | _Deprecated._ Renamed to `dynamodb_replication_ready_lag`; still accepted as an alias.                                                                                                                                                                     |
+| `lag_exceeds_shard_retention_behavior` | _Deprecated._ Renamed to `dynamodb_replication_invalid_checkpoint_behavior` (`error` \| `restart`). `ready_after_load` maps to `restart`; `ready_before_load` has been removed and also maps to `restart`.                                                  |
 | `time_format`                          | Optional. Go-style time format used for parsing/formatting timestamps. See [Time Format](#time-format)                                                                                                                                                     |
 | `write_parallelism`                    | Optional. Number of parallel operations for writing and deleting data to DynamoDB. Default: `10`                                                                                                                                                           |
 
@@ -646,7 +649,7 @@ datasets:
 
 #### Dataset Parameters
 
-- **`ready_lag`** - Defines the maximum lag threshold before the dataset is reported as "Ready". Once the stream lag falls below this value, queries can be executed against the dataset. Default behavior reports ready immediately after bootstrap completes.
+- **`dynamodb_replication_ready_lag`** - Defines the maximum lag threshold before the dataset is reported as "Ready". Once the stream lag falls below this value, queries can be executed against the dataset. Default: `2s`. (Previously `ready_lag`, still accepted as a deprecated alias.)
 
 - **`scan_interval`** - Controls the polling frequency for checking new records in the DynamoDB stream. Lower values provide more real-time updates but increase API calls. Higher values reduce API usage but may introduce additional latency.
 
@@ -698,8 +701,8 @@ datasets:
    - from: dynamodb:my_table
      name: orders_stream
      params:
-        ready_lag: 1s          # Dataset reports as Ready when lag is below 1 second
-        scan_interval: 100ms   # Poll for new stream records every 100 milliseconds
+        dynamodb_replication_ready_lag: 1s  # Dataset reports as Ready when lag is below 1 second
+        scan_interval: 100ms                # Poll for new stream records every 100 milliseconds
      acceleration:
         enabled: true
         engine: duckdb
