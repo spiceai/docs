@@ -563,6 +563,14 @@ runtime:
 
 With this configuration, the runtime metric `query_duration_ms` is exported as `spiceai.query_duration_ms`.
 
+The prefix is validated at spicepod load against the [OpenTelemetry instrument name syntax](https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-name-syntax) so `{prefix}{instrument}` stays a valid OTLP/Prometheus metric name. A non-empty prefix must:
+
+- start with an ASCII letter (`A`–`Z` or `a`–`z`);
+- contain only ASCII letters, digits, `_`, `.`, `-`, or `/`; and
+- be at most 128 characters (leaving ≥127 characters of headroom under the OpenTelemetry 255-character instrument-name limit for the base metric name).
+
+An invalid prefix fails fast with an actionable error rather than producing malformed metric names. An empty or unset `metric_prefix` applies no prefix.
+
 ### `runtime.telemetry.properties` {#runtimetelemetryproperties}
 
 Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
