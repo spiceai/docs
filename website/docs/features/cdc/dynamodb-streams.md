@@ -29,7 +29,7 @@ On first start the connector:
 2. Subscribes to each open **stream shard** and begins polling for records.
 3. Applies each `INSERT` / `MODIFY` / `REMOVE` event as a row-level change to the accelerator.
 
-The dataset reports `Ready` once stream lag drops below `ready_lag` (default `2s`).
+The dataset reports `Ready` once stream lag drops below `dynamodb_replication_ready_lag` (default `2s`).
 
 On subsequent restarts, file-backed accelerators resume from the persisted shard checkpoint instead of re-scanning the source table.
 
@@ -100,8 +100,8 @@ datasets:
     name: orders_stream
     params:
       scan_interval: 100ms    # Poll DynamoDB Streams every 100 ms (default 0s)
-      ready_lag: 1s           # Report Ready when stream lag drops below 1s (default 2s)
-      lag_exceeds_shard_retention_behavior: ready_before_load   # Behavior on > 24h lag
+      dynamodb_replication_ready_lag: 1s   # Report Ready when stream lag drops below 1s (default 2s)
+      dynamodb_replication_invalid_checkpoint_behavior: restart   # Re-bootstrap on > 24h lag (default error)
     acceleration:
       enabled: true
       engine: duckdb
@@ -113,8 +113,8 @@ datasets:
 ```
 
 - `scan_interval` — Polling frequency for new records. Lower values give lower latency at the cost of more `GetRecords` API calls.
-- `ready_lag` — Maximum stream lag before the dataset is reported `Ready` for queries. Defaults to `2s`.
-- `lag_exceeds_shard_retention_behavior` — What to do when stream lag exceeds the DynamoDB shard retention window (24h). One of `error` (default), `ready_before_load`, or `ready_after_load`. See the [connector parameter reference](../../components/data-connectors/dynamodb/index.md#params) for the full description.
+- `dynamodb_replication_ready_lag` — Maximum stream lag before the dataset is reported `Ready` for queries. Defaults to `2s`. (Previously `ready_lag`, still accepted as a deprecated alias.)
+- `dynamodb_replication_invalid_checkpoint_behavior` — What to do when the persisted checkpoint can no longer be honored because stream lag exceeds the DynamoDB shard retention window (~24h). One of `error` (default) or `restart`. Replaces the deprecated `lag_exceeds_shard_retention_behavior` (`ready_after_load` → `restart`; `ready_before_load` removed → `restart`). See the [connector parameter reference](../../components/data-connectors/dynamodb/index.md#params) for the full description.
 - `snapshots_trigger: stream_batches` and `snapshots_trigger_threshold` let you trigger acceleration snapshots based on stream-batch counts rather than wall time. See [Acceleration Snapshots](../data-acceleration/snapshots.md).
 
 ## Metrics
@@ -133,7 +133,7 @@ These metrics are opt-in. See the [DynamoDB Streams Metrics](../../components/da
 
 ## Limitations
 
-- DynamoDB Streams shards are retained for 24 hours. If Spice falls behind by more than that, the connector follows `lag_exceeds_shard_retention_behavior` (default: `error`).
+- DynamoDB Streams shards are retained for 24 hours. If Spice falls behind by more than that, the connector follows `dynamodb_replication_invalid_checkpoint_behavior` (default: `error`).
 - `refresh_sql` is not supported with DynamoDB Streams.
 
 ## See also
