@@ -187,6 +187,21 @@ Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENT
 
 Use `include`/`exclude` to narrow scope and suppress the skip warning for tables you will handle another way (federation, or a per-dataset `refresh_mode: full`).
 
+The startup summary reports the accelerated tables broken down by the CDC key each one resolved to — primary key, `USING INDEX`, or `FULL` — alongside the skipped and excluded counts.
+
+If **no** table is eligible, the catalog fails to load with an `ERROR` status rather than registering an empty catalog. The error names the excluded and skipped counts and the fix. Because discovery happens at startup, an empty result is treated as a configuration problem: either every table lacks a usable CDC key, or the `include`/`exclude` patterns matched nothing.
+
+### Acceleration metrics
+
+Each catalog refresh records the current table dispositions as gauges — see [Available Metrics](../../features/observability/index.md#available-metrics):
+
+| Metric                                    | Dimensions           | Meaning                                                                                     |
+| ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `catalog_acceleration_tables`             | `catalog`, `category` | Tables resolved into each disposition: `accelerated`, `skipped`, or `excluded`.              |
+| `catalog_acceleration_accelerated_tables` | `catalog`, `kind`     | Accelerated tables by the CDC key accelerating them: `primary_key`, `unique_index`, or `full`. |
+
+They are gauges rather than counters because each refresh re-plans the whole namespace, so a value can rise or fall.
+
 ### Behavior
 
 - Per-table-only acceleration concepts (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are intentionally not configurable at the catalog level — they remain exclusively on an individual dataset's own `acceleration` block.
