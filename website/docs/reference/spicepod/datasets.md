@@ -721,7 +721,9 @@ Optional. The maximum amount of jitter to add to the refresh interval. The jitte
 
 Optional. Enable component-specific metrics for the dataset. Each component can expose its own set of metrics that can be enabled selectively to monitor specific aspects of its operation.
 
-Component metrics are disabled by default and can be enabled by adding a `metrics` section to the dataset configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+Most component metrics are disabled by default and can be enabled by adding a `metrics` section to the dataset configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+
+Some metrics are **auto-registered**: they export without any `metrics` configuration, and an entry with `enabled: false` is what turns one off. See [Component Metrics](../../features/observability/component_metrics) and each component's own documentation for which metrics are auto-registered.
 
 ### Example Configuration
 
