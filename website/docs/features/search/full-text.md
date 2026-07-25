@@ -22,7 +22,7 @@ Spice supports two full-text search engines:
 | Engine | Description |
 | --- | --- |
 | **Tantivy** (default) | Built-in, in-process BM25 engine. No external dependencies. |
-| **Elasticsearch** | Delegates BM25 indexing and search to an external Elasticsearch cluster. Useful when Elasticsearch is already part of the infrastructure or when its operational characteristics (sharding, replication, snapshots) are preferred. |
+| **Elasticsearch** | Indexes into an external Elasticsearch cluster, fronted by a local Tantivy warm tier that serves searches. Useful when Elasticsearch is already part of the infrastructure or when its operational characteristics (sharding, replication, snapshots) are preferred. |
 
 When no engine is specified, Tantivy is used automatically.
 
@@ -83,6 +83,18 @@ datasets:
 ```
 
 The dataset-level `full_text_search` block selects the engine and provides connection parameters. Column-level `full_text_search.enabled` controls which columns are indexed.
+
+#### Warm tier
+
+With `engine: elasticsearch`, Spice maintains a **local Tantivy warm index in front of the Elasticsearch index**:
+
+- **Writes fan out to both tiers** — every indexed row is written to the local Tantivy index and to Elasticsearch.
+- **Searches are served from the local warm index.** Elasticsearch is queried only as a fallback, and only when the dataset sets [`acceleration.on_zero_results: use_source`](../../reference/spicepod/datasets.md#accelerationon_zero_results); with the default `return_empty`, searches are served from the warm tier alone.
+
+Two cases fall back to querying Elasticsearch directly, each logged at startup:
+
+- **More than one full-text column on the dataset.** The warm index is single-column, so multi-column datasets keep the Elasticsearch-only behavior.
+- **The warm index cannot be built or paired with the Elasticsearch index.** Warm-tier construction never fails dataset load — a warning is logged and Elasticsearch is registered alone. A primary key whose type Elasticsearch normalizes (for example `LargeUtf8` → `Utf8`) is a common cause, because the two tiers must agree on the search column and primary-key fields.
 
 :::note[Enterprise edition]
 The Elasticsearch full-text search engine is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions).

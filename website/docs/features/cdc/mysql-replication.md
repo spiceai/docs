@@ -87,7 +87,7 @@ Configure replication behavior with the following `params` on the MySQL dataset:
 
 | Parameter                                    | Default   | Description                                                                                                                                                                                                                        |
 | -------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mysql_replication_server_id`                | derived   | The `server_id` this replica registers with. Must be unique among all replicas attached to the source; the default is derived from the dataset name and process, so two spiced instances don't collide.                            |
+| `mysql_replication_server_id`                | derived   | The `server_id` this replica registers with. Must be unique among all replicas attached to the source. The default is derived from the **connection identity** (host, port, user, credentials, TLS) mixed with a per-process nonce, so datasets sharing a connection coalesce onto one binlog connection while two spiced instances don't collide, and derived values stay at or above `100000` to avoid hand-assigned replica ids. Setting distinct explicit values is how to opt a dataset out of [connection sharing](#sharing-one-binlog-connection). |
 | `mysql_replication_initial_snapshot`         | `auto`    | When existing rows load: `auto` snapshots when no resumable position exists and resumes without a snapshot when one does; `disabled` streams changes only; `always` re-snapshots on every start, discarding any persisted position. |
 | `mysql_replication_checkpoint_interval`      | `10s`     | How often the committed position persists to the sidecar. Bounds crash-replay volume.                                                                                                                                              |
 | `mysql_replication_bootstrap_batch_size`     | `8192`    | Rows per emitted snapshot batch. Maximum: `1048576`.                                                                                                                                                                              |
@@ -106,6 +106,22 @@ params:
 ```
 
 to instead drop the stale position, truncate the accelerator, and re-snapshot the table automatically.
+
+## Sharing one binlog connection
+
+`COM_BINLOG_DUMP` has no server-side table filter — every subscriber receives the whole server binlog — so a connection per dataset would duplicate the entire stream for no benefit. Sharing is therefore **always on and requires no configuration**: every `refresh_mode: changes` dataset that connects the same way joins a single shared source (one dump connection, one `server_id`), and decoded transactions are routed to each member's accelerator by `(database, table)`.
+
+Sharing is keyed by connection identity — host, port, user, password, TLS settings, and `mysql_replication_server_id`. The database is **not** part of the key, so datasets on the same server but different databases still share one connection. Datasets that connect differently (a different user, or an explicit distinct `mysql_replication_server_id`) get their own connection.
+
+Because MySQL keeps no server-side cursor, each member persists its own committed position in its own `spice_sys_mysql_binlog` sidecar row, and the shared connection resumes from the **minimum** committed position across members; members already ahead of it suppress the replay. A member taking its initial snapshot is held out of routing with its floor pinned at the position it joined at, so a long snapshot never back-pressures the others.
+
+:::warning[A stalled member can force the group to re-bootstrap]
+
+Unlike a PostgreSQL replication slot, a held binlog position pins nothing server-side. If a member detaches — a schema change classified as DDL is member-fatal, detaching that one dataset while the group keeps running — its held floor holds back only the shared resume position. Should the source then purge binlogs past that point (`binlog_expire_logs_seconds`), the whole group must re-bootstrap.
+
+A detach logs an `ERROR` and flips that dataset's `dataset_mysql_replication_member_attached` gauge to `0`, which identifies exactly which dataset is holding the group back. Recovery is bounded per member by `mysql_replication_invalid_checkpoint_behavior` on the next resume. A slow-but-live member is handled by back-pressure and is never detached.
+
+:::
 
 ## When the source layout changes
 
@@ -150,11 +166,12 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 | `replication_schema_mismatch_errors_total`                                                                | Mid-stream DDL detections.                                                                                                    |
 | `replication_recv_errors_total` / `replication_reconnects_total`                                          | Transport health.                                                                                                             |
 | `replication_checkpoint_persists_total` / `replication_checkpoint_persist_errors_total`                   | Sidecar checkpoint writes.                                                                                                    |
+| `replication_member_attached`                                                                             | `1` while the dataset is an attached member of its shared binlog group, `0` once detached — see [Sharing one binlog connection](#sharing-one-binlog-connection). |
 
 ## Limitations
 
 - **File + position tracking, not GTID.** Resume positions do not survive a source failover to a different primary. GTID auto-positioning is a planned follow-up.
-- **One table per dataset**, one binlog connection per dataset. (PostgreSQL offers shared slots; a shared binlog connection is a follow-up.)
+- **One table per dataset.** Every dataset replicates a single source table, though datasets that connect the same way share one binlog connection — see [Sharing one binlog connection](#sharing-one-binlog-connection).
 - **Schema evolution is block-mode only** — compatible `ALTER TABLE` is tolerated (see [Schema changes](#schema-changes)), but `on_schema_change` policies that _adopt_ new columns (`append_new_columns` / `sync_all_columns`) are not yet wired to this connector.
 - **XA (two-phase) transactions are not supported.** An XA transaction that touches the replicated table stops the stream with an error; XA activity on other tables logs a warning and is ignored.
 - Not supported source types: geometry/spatial, vectors, negative `TIME`.
