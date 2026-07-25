@@ -157,6 +157,7 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 
 | Metric                                                                                                   | Meaning                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `replication_gtid_enabled`                                                                                | `1` while the stream positions by GTID auto-positioning, `0` for binlog file + offset — see [Resume identity](#resume-identity-gtid-or-file--offset). |
 | `replication_lag_ms`                                                                                      | Now minus the newest applied source commit timestamp (1s granularity).                                                       |
 | `replication_lag_bytes`                                                                                   | Binlog bytes between the source head and the resume position. Reported only while both are in the same binlog file; absent otherwise. |
 | `replication_source_head_file` / `replication_source_head_pos`                                            | The source server's binlog head, polled every checkpoint interval.                                                            |
