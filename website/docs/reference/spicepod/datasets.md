@@ -206,6 +206,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `timestamptz` - Timestamp with a timezone. E.g. `2016-06-22 19:10:25-07` with data type `timestamptz`.
 - `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
 - `unix_millis` - Unix timestamp in milliseconds. E.g. `1718756687000`.
+- `unix_nanos` - Unix timestamp in nanoseconds. E.g. `1718756687000000000`. Use this for OpenTelemetry's `time_unix_nano` columns — see [OpenTelemetry Data Ingestion](../../features/data-ingestion/index.md#opentelemetry-data-ingestion).
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 

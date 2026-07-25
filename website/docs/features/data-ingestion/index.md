@@ -98,6 +98,55 @@ By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OT
 
 OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
 
+### Supported metric types
+
+| OTLP metric type        | Supported | Notes                                                                                            |
+| ----------------------- | --------- | ------------------------------------------------------------------------------------------------ |
+| `Gauge`                 | Yes       | Ingested as number data points.                                                                  |
+| `Sum`                   | Yes       | Ingested as number data points.                                                                  |
+| `Histogram`             | Yes       | Ingested with explicit bucket bounds and counts.                                                 |
+| `ExponentialHistogram`  | No        | Dropped, logging an unsupported metric data type error.                                          |
+| `Summary`               | No        | Dropped, logging an unsupported metric data type error.                                          |
+
+Data points for a metric with no matching writable dataset are rejected and reported back to the exporter in the OTLP partial-success response.
+
+### Ingested schema
+
+`Gauge` and `Sum` metrics produce the following columns:
+
+| Column                 | Type                | Description                                                                                              |
+| ---------------------- | ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `value`                | `Int64` or `Float64` | The data point value. The type is fixed by the first data point (or the existing table's `value` column). |
+| `time_unix_nano`       | `UInt64`            | Data point timestamp, in nanoseconds since the Unix epoch.                                               |
+| `start_time_unix_nano` | `UInt64`            | Start of the data point's aggregation interval, in nanoseconds since the Unix epoch.                      |
+
+`Histogram` metrics have a fixed set of value columns instead of `value`:
+
+| Column            | Type            | Description                                                                          |
+| ----------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `count`           | `UInt64`        | Number of values in the population.                                                  |
+| `sum`             | `Float64`       | Sum of the values. `NULL` when the exporter does not record it.                       |
+| `min` / `max`     | `Float64`       | Extrema over the interval. `NULL` when the exporter does not record them.             |
+| `bucket_counts`   | `List<UInt64>`  | Per-bucket counts.                                                                   |
+| `explicit_bounds` | `List<Float64>` | The explicit bucket boundaries — one fewer element than `bucket_counts`.              |
+
+Histograms carry the same `time_unix_nano` and `start_time_unix_nano` columns as number data points.
+
+Data point attributes become additional columns named after the attribute key, typed by the attribute value (`Utf8`, `Boolean`, `Int64`, `Float64`, or `Binary`). When a metric starts reporting a new attribute, Spice evolves an accelerated table's schema in place before writing, subject to the dataset's [`on_schema_change`](../../reference/spicepod/datasets.md#on_schema_change) policy.
+
+Because OTLP timestamps are nanoseconds, set [`time_format: unix_nanos`](../../reference/spicepod/datasets.md#time_format) when using `time_unix_nano` as a dataset's `time_column`:
+
+```yaml
+datasets:
+  - from: spice.ai/coolorg/metrics/datasets/http_server_duration
+    name: http_server_duration # must match the OTEL metric name
+    access: read_write
+    time_column: time_unix_nano
+    time_format: unix_nanos
+    acceleration:
+      enabled: true
+```
+
 ## Benefits
 
 Spice.ai OSS includes built-in data ingestion support for collecting the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and improves the speed of the feedback loop.
