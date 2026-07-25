@@ -137,6 +137,30 @@ All replication-specific parameters live under `params:` on the dataset and star
 
 All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, `pg_connection_string` parameters continue to apply — see the [PostgreSQL Data Connector](../../components/data-connectors/postgres) reference.
 
+### Connecting with `pg_connection_string`
+
+`refresh_mode: changes` accepts `pg_connection_string` in place of the discrete `pg_host` / `pg_port` / `pg_user` / `pg_pass` / `pg_db` parameters, in both libpq `key=value` and `postgresql://` URI form, following the same rules as the federated read path:
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params:
+      pg_connection_string: postgresql://spice:${secrets:pg_pass}@pg.internal:5432/myapp
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+```
+
+- The connection string **takes precedence** over discrete host/user/database parameters when both are set.
+- `pg_sslmode` and `pg_sslrootcert` are the exception: set discretely, they override whatever the connection string carries.
+- A connection string that omits `sslmode` defaults to **`verify-full`** on the replication transport — unlike the discrete-parameter path, where an unset `pg_sslmode` defaults to `prefer` (see below).
+- Unix-socket hosts are not supported for replication; the connection string must name a TCP host.
+
 ### `pg_sslmode` for WAL streaming
 
 `verify-full` is the recommended production default.
@@ -144,13 +168,15 @@ All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, 
 | `pg_sslmode`       | Replication transport | Cert chain verified | Hostname verified |
 |--------------------|-----------------------|:-------------------:|:-----------------:|
 | `disable`          | plaintext             | —                   | —                 |
-| `prefer` (default) | plaintext             | —                   | —                 |
+| `prefer` (default with discrete parameters) | plaintext | —          | —                 |
 | `require`          | TLS                   | ❌                  | ❌                |
 | `verify-ca`        | TLS                   | ✅                  | ❌                |
 | `verify-full`      | TLS                   | ✅                  | ✅                |
 
 :::info
 `prefer` behaves as plaintext on the replication transport because the replication client does not expose a safe "try TLS, fall back to plaintext" path. Set `require`, `verify-ca`, or `verify-full` to force TLS on the WAL stream.
+
+When the connection is configured with [`pg_connection_string`](#connecting-with-pg_connection_string) and the string omits `sslmode`, the replication transport defaults to `verify-full` instead of `prefer`.
 :::
 
 ### Accelerator engines
