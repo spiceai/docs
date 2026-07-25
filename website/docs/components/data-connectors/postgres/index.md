@@ -134,6 +134,8 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 
 The `pg_sslmode` default of `verify-full` documented above applies to the federated read/query path. On the WAL replication transport used by `refresh_mode: changes`, an unset `pg_sslmode` defaults to **`prefer`**, which negotiates a **plaintext** connection (no certificate verification). Set `pg_sslmode` to `require`, `verify-ca`, or `verify-full` to force TLS on the WAL stream — see [`pg_sslmode` for WAL streaming](../../features/cdc/postgres-replication#pg_sslmode-for-wal-streaming).
 
+This applies to the discrete-parameter path. When the connection is configured with `pg_connection_string` and the string omits `sslmode`, the WAL transport defaults to `verify-full` — see [Connecting with `pg_connection_string`](../../features/cdc/postgres-replication#connecting-with-pg_connection_string).
+
 `pg_sslrootcert` also behaves differently on this transport: inline PEM content is supported only on the federated read/query path, while the WAL replication transport requires `pg_sslrootcert` to be a **file path**.
 
 :::
