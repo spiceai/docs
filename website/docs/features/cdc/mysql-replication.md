@@ -91,10 +91,28 @@ Configure replication behavior with the following `params` on the MySQL dataset:
 | `mysql_replication_initial_snapshot`         | `auto`    | When existing rows load: `auto` snapshots when no resumable position exists and resumes without a snapshot when one does; `disabled` streams changes only; `always` re-snapshots on every start, discarding any persisted position. |
 | `mysql_replication_checkpoint_interval`      | `10s`     | How often the committed position persists to the sidecar. Bounds crash-replay volume.                                                                                                                                              |
 | `mysql_replication_bootstrap_batch_size`     | `8192`    | Rows per emitted snapshot batch. Maximum: `1048576`.                                                                                                                                                                              |
-| `mysql_replication_invalid_checkpoint_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — either it was purged from the source, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `restart` (drop the position and re-snapshot). |
+| `mysql_replication_invalid_checkpoint_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — it was purged from the source, the source's GTID history diverged from the checkpoint, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `restart` (drop the position and re-snapshot). |
 | `mysql_replication_ready_lag`                | `2s`      | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's binlog-header timestamp) falls below this. The dataset stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data. |
 
 The runtime-level CDC apply tunables (`cdc_prefetch_buffer`, `cdc_max_coalesced_envelopes`, `cdc_max_coalesced_bytes`, `cdc_max_coalesce_age_ms`, `cdc_commit_timeout_ms`) apply to this connector the same way they do to the PostgreSQL one — see [Tuning ingestion](./index.md#tuning-ingestion).
+
+## Resume identity: GTID or file + offset
+
+The connector picks its resume identity from the source. When the source reports `@@GLOBAL.gtid_mode = ON`, Spice resumes with **GTID auto-positioning** and persists the executed GTID set in the `spice_sys_mysql_binlog` sidecar alongside the binlog file and offset. Otherwise it resumes from **file + offset**:
+
+| Source `@@GLOBAL.gtid_mode`                 | Resume identity |
+| ------------------------------------------- | --------------- |
+| `ON`                                        | GTID auto-positioning |
+| `OFF`, `ON_PERMISSIVE`, `OFF_PERMISSIVE`    | File + offset — a mixed topology can still emit anonymous transactions, which GTID auto-positioning cannot resume from. |
+| Variable not supported (MariaDB, pre-GTID MySQL) | File + offset |
+
+A GTID cursor survives a source failover: a promoted replica inherits the same global GTIDs, so the persisted set still resolves against the new primary. File + offset positions do not — binlog coordinates are per-server.
+
+## When the source is reset or rebuilt
+
+On a GTID resume, Spice requires the persisted GTID set to be a **subset of the source's current `@@gtid_executed`**. A `RESET MASTER`, a rebuilt server with a fresh `server_uuid`, a different source, or a diverged history reports an executed set that no longer contains the checkpoint — resuming from it would silently serve pre-reset data.
+
+When the check fails, `mysql_replication_invalid_checkpoint_behavior` decides the response, exactly as for a purged position: `error` (the default) stops with an actionable error, and `restart` drops the stale position and re-snapshots. On the file + offset path the equivalent guard is the presence of the persisted binlog file in the source's log index.
 
 ## When the position is purged
 
@@ -153,7 +171,7 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 
 ## Limitations
 
-- **File + position tracking, not GTID.** Resume positions do not survive a source failover to a different primary. GTID auto-positioning is a planned follow-up.
+- **Failover only survives on a GTID source.** With `gtid_mode = ON` the persisted GTID set resolves against a promoted replica; on a file + offset source, resume positions do not survive a failover to a different primary (see [Resume identity](#resume-identity-gtid-or-file--offset)).
 - **One table per dataset**, one binlog connection per dataset. (PostgreSQL offers shared slots; a shared binlog connection is a follow-up.)
 - **Schema evolution is block-mode only** — compatible `ALTER TABLE` is tolerated (see [Schema changes](#schema-changes)), but `on_schema_change` policies that _adopt_ new columns (`append_new_columns` / `sync_all_columns`) are not yet wired to this connector.
 - **XA (two-phase) transactions are not supported.** An XA transaction that touches the replicated table stops the stream with an error; XA activity on other tables logs a warning and is ignored.
