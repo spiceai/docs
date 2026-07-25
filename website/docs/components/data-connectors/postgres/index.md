@@ -124,11 +124,13 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 | Parameter Name                     | Description                                                                                                                                              |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
-| `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`. Shared across replicas for the same dataset.        |
-| `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
+| `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`, or `<slot>_pub` when `pg_replication_slot` is set. Shared across replicas for the same dataset. |
+| `pg_replication_initial_snapshot`  | Optional. When `refresh_mode: changes` first loads the table's existing rows: `auto` (default) snapshots a freshly-created replication slot and resumes an existing one without a snapshot; `disabled` streams WAL changes only; `always` snapshots on every start, including slot resume. The legacy booleans `true`/`false` map to `auto`/`disabled`. Default: `auto`. |
 | `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |
 | `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
+| `pg_replication_ready_lag`         | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's source time) falls below this. Default: `2s`. |
 | `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
+| `pg_replication_member_channel_capacity` | Optional. Shared-slot only: envelopes buffered per member table before the shared replication pump back-pressures. Default: `1024`. Maximum: `1048576`. |
 
 :::warning[`pg_sslmode` and `pg_sslrootcert` differ on the WAL replication transport]
 
