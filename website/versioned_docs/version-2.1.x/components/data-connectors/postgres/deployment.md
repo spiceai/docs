@@ -73,25 +73,26 @@ Transient query failures are not automatically retried at the connector layer. D
 
 ## Metrics
 
-The PostgreSQL connector exposes observable metrics for its replication pipeline. Enable them in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+The PostgreSQL connector exposes observable metrics for its replication pipeline. Most are auto-registered — no configuration is required to export them. `replication_confirmed_flush_lsn`, `replication_server_wal_end_lsn`, `replication_truncates_total`, and `replication_bootstrap_rows_total` are opt-in and must be listed in the dataset's `metrics` section. To turn an auto-registered metric off for a dataset, set `enabled: false` there. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
-| Metric Name                                  | Type            | Description                                                       |
-| -------------------------------------------- | --------------- | ----------------------------------------------------------------- |
-| `replication_lag_ms`                         | ObservableGauge | Replication lag in milliseconds.                                  |
-| `replication_lag_bytes`                      | ObservableGauge | Replication lag in bytes.                                         |
-| `replication_confirmed_flush_lsn`            | ObservableGauge | Confirmed flush LSN position.                                     |
-| `replication_server_wal_end_lsn`             | ObservableGauge | Server WAL end LSN position.                                      |
-| `replication_transactions_total`             | ObservableCounter | Total transactions received via replication.                    |
-| `replication_inserts_total`                  | ObservableCounter | Total insert operations received.                               |
-| `replication_updates_total`                  | ObservableCounter | Total update operations received.                               |
-| `replication_deletes_total`                  | ObservableCounter | Total delete operations received.                               |
-| `replication_truncates_total`                | ObservableCounter | Total truncate operations received.                             |
-| `replication_bootstrap_rows_total`           | ObservableCounter | Total rows fetched during initial bootstrap.                    |
-| `replication_bootstrap_complete`             | ObservableGauge | Bootstrap completion status.                                      |
-| `replication_decode_errors_total`            | ObservableCounter | Total WAL decode errors.                                        |
-| `replication_schema_mismatch_errors_total`   | ObservableCounter | Total schema mismatch errors during replication.                |
-| `replication_recv_errors_total`              | ObservableCounter | Total receive errors during replication.                        |
-| `replication_reconnects_total`               | ObservableCounter | Total reconnection attempts.                                    |
+| Metric Name                                | Type              | Description                                                                                                                       |
+| ------------------------------------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `replication_lag_ms`                       | ObservableGauge   | Milliseconds between now and the Postgres commit timestamp of the most recently replicated transaction. Primary freshness signal.  |
+| `replication_lag_bytes`                    | ObservableGauge   | WAL bytes between the server's latest reported position and the last confirmed flush LSN.                                          |
+| `replication_confirmed_flush_lsn`          | ObservableGauge   | Most recent LSN acknowledged to Postgres. Matches `pg_replication_slots.confirmed_flush_lsn`. **Opt-in.**                          |
+| `replication_server_wal_end_lsn`           | ObservableGauge   | Most recent WAL end LSN reported by the Postgres server. **Opt-in.**                                                              |
+| `replication_transactions_total`           | ObservableCounter | Transactions committed and applied to the accelerator.                                                                             |
+| `replication_inserts_total`                | ObservableCounter | `INSERT` operations received from WAL.                                                                                             |
+| `replication_updates_total`                | ObservableCounter | `UPDATE` operations received from WAL.                                                                                             |
+| `replication_deletes_total`                | ObservableCounter | `DELETE` operations received from WAL.                                                                                             |
+| `replication_truncates_total`              | ObservableCounter | `TRUNCATE` operations received from WAL and applied. **Opt-in.**                                                                   |
+| `replication_bootstrap_rows_total`         | ObservableCounter | Rows loaded during the initial-snapshot bootstrap. **Opt-in.**                                                                     |
+| `replication_bootstrap_rows_expected`      | ObservableGauge   | Estimated bootstrap row count from schema inference. Absent when no estimate exists; `0` means a known-empty source table.          |
+| `replication_bootstrap_complete`           | ObservableGauge   | `1` once the initial snapshot finished (or was skipped on resume); `0` while it is still running.                                   |
+| `replication_decode_errors_total`          | ObservableCounter | pgoutput decoding errors encountered while parsing WAL events.                                                                     |
+| `replication_schema_mismatch_errors_total` | ObservableCounter | Errors where the source relation no longer matches the declared accelerator schema.                                                |
+| `replication_recv_errors_total`            | ObservableCounter | Transport-level errors while receiving from the replication connection.                                                            |
+| `replication_reconnects_total`             | ObservableCounter | Times the stream reconnected after a transient failure. Non-zero with no user-visible error just means it recovered.                |
 
 Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name.
 
