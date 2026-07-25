@@ -123,7 +123,7 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 
 | Parameter Name                     | Description                                                                                                                                              |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
+| `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Must match `[a-z0-9_]{1,63}` and must not be the reserved name `pg_conflict_detection`. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
 | `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`. Shared across replicas for the same dataset.        |
 | `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
 | `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |

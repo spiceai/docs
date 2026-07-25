@@ -126,7 +126,7 @@ All replication-specific parameters live under `params:` on the dataset and star
 
 | Parameter                            | Default                                          | Description                                                                                                                                                                                            |
 |--------------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot to create/reuse. Datasets on the same connection that name the same slot **share** it — one slot, one publication, one replication connection — see [Sharing one slot across datasets](#sharing-one-slot-across-datasets). Each Spice replica must still use its own unique slot.                                          |
+| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot to create/reuse — see [Replication slot naming](#replication-slot-naming) for the accepted characters. Datasets on the same connection that name the same slot **share** it — one slot, one publication, one replication connection — see [Sharing one slot across datasets](#sharing-one-slot-across-datasets). Each Spice replica must still use its own unique slot.                                          |
 | `pg_publication`                     | `spice_<dataset>_<dataset-hash>_pub`             | Publication name. Defaults to `<slot>_pub` when `pg_replication_slot` is set explicitly (so datasets sharing a slot agree on it). Shared across replicas. Auto-created if missing.                                                                  |
 | `pg_replication_initial_snapshot`    | `auto`                                           | When `refresh_mode: changes` first loads existing rows: `auto` (default) snapshots a freshly-created slot and resumes an existing one without a snapshot (a non-persistent accelerator still re-snapshots on every start); `disabled` streams WAL changes only; `always` snapshots on every start, including slot resume. The legacy booleans `true`/`false` are deprecated and map to `auto`/`disabled`. |
 | `pg_replication_ready_lag`           | `2s`                                             | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's source time) falls below this. It stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data.  |
@@ -136,6 +136,12 @@ All replication-specific parameters live under `params:` on the dataset and star
 | `pg_replication_member_channel_capacity` | `1024`                                       | Shared-slot only: envelopes buffered per member table before the shared replication pump back-pressures. Too small a value lets one member's transient stall block the whole slot (head-of-line blocking). Maximum: `1048576`. |
 
 All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, `pg_connection_string` parameters continue to apply — see the [PostgreSQL Data Connector](../../components/data-connectors/postgres) reference.
+
+### Replication slot naming
+
+PostgreSQL restricts replication slot names to `[a-z0-9_]` — lowercase letters, digits, and underscores only — with a maximum length of 63 bytes, and reserves `pg_conflict_detection` for its own conflict-detection slot. An explicit `pg_replication_slot` is validated against these rules while the dataset's replication parameters are built, so a name with (for example) a hyphen or an uppercase letter fails immediately with an error naming the parameter, rather than surfacing later as a refresh-task failure from the server.
+
+The generated default (`spice_<dataset>_<dataset-hash>_<instance-hash>`) already conforms: the dataset name is sanitized and truncated to keep the whole identifier within the 63-byte limit.
 
 ### `pg_sslmode` for WAL streaming
 
