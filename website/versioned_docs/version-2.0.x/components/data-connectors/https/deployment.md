@@ -104,7 +104,7 @@ When using `refresh_mode: caching`, transient HTTP errors (5xx, 429) are exclude
 
 ## Metrics
 
-When rate control is active, the connector exposes per-origin metrics that can be enabled per-dataset:
+The connector exposes per-origin HTTP rate-control metrics for every dynamic JSON API dataset. They are registered automatically — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. Structured file-format datasets (`parquet`, `csv`, and the other listing-table formats) do not expose them:
 
 | Metric Name                                 | Type    | Description                                                                                              |
 | ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -123,7 +123,20 @@ When rate control is active, the connector exposes per-origin metrics that can b
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
 
-Enable component metrics in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+    metrics:
+      - name: rate_control_wait_duration_ms
+        enabled: false
+```
+
+Instruments are exposed with the prefix `dataset_http_` — the HTTP connector's component name is `http`, not `https` — and each carries an `origin` attribute (`scheme://host:port`) identifying the upstream origin instead of a dataset `name`, because datasets sharing an origin share one rate controller. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For broader observability, also monitor:
 
