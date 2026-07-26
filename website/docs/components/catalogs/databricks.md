@@ -193,6 +193,7 @@ The following parameters control resilience and concurrency for the SQL Statemen
 | `databricks_aws_region`            | The AWS region for the S3 object store. E.g. `us-west-2`.                |
 | `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                               |
 | `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                           |
+| `databricks_aws_session_token`     | Optional. The AWS session token for the S3 object store. Required with temporary (STS) credentials. |
 | `databricks_aws_endpoint`          | The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`. |
 
 Example:

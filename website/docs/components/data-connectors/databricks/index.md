@@ -202,6 +202,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 | `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
 | `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
 | `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `databricks_aws_session_token`     | Optional. The AWS session token for the S3 object store. Required with temporary (STS) credentials. |
 | `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
 | `databricks_aws_allow_http`        | Optional. Enables insecure HTTP connections to `databricks_aws_endpoint`. Defaults to `false`. |
 
