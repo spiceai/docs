@@ -17,11 +17,11 @@ Spice supports various model providers for large language models (LLMs).
 | [`xai`][xai]               | Models hosted on xAI                         | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`file`][file]             | Local filesystem                             | Release Candidate | GGUF, GGML, SafeTensor          |
 | [`huggingface`][hf]        | Models hosted on HuggingFace                 | Release Candidate | GGUF, GGML, SafeTensor          |
-| [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Release Candidate | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`google`][google]         | Google AI language models                    | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | OpenAI-compatible HTTP endpoint |
+| ~~`spice.ai`~~             | ~~Spice.ai Cloud Platform~~ ([Deprecated][spice]) | Deprecated   | -                               |
 | ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -                               |
 
 [openai]: ./openai/index.md
@@ -69,7 +69,6 @@ The following provider prefixes are supported:
 | `google`     | Google AI                             |
 | `hf`         | Hugging Face                          |
 | `file`       | Local filesystem                      |
-| `spiceai`    | Spice.ai Cloud Platform               |
 | `databricks` | Databricks Mosaic AI                  |
 | `bedrock`    | Amazon Bedrock                        |
 

@@ -1,54 +1,16 @@
 ---
-title: 'Spice Cloud Platform'
-description: 'Instructions for using models hosted on the Spice Cloud Platform with Spice.'
-sidebar_label: 'Spice Cloud Platform'
+title: 'Spice Cloud Platform (Deprecated)'
+description: 'Models hosted on the Spice Cloud Platform are no longer loadable in Spice.'
+sidebar_label: 'Spice Cloud Platform (Deprecated)'
 sidebar_position: 6
 ---
 
-To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in the `from` field.
+:::warning Deprecated
 
-Example:
+The `spice.ai` model source is no longer usable. It loaded traditional machine learning (ONNX) models, which was removed in vNext by [spiceai/spiceai#11684](https://github.com/spiceai/spiceai/pull/11684) along with the `/v1/predict` and `/v1/models/{name}/predict` endpoints. The source has never served large language models — loading a `spiceai` model for chat completions fails with `UnsupportedTaskForModel`.
 
-```yaml
-models:
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats
-    name: drive_stats
-    datasets:
-      - drive_stats_inferencing
-```
+For documentation on Spice Cloud Platform models in previous versions, see the [v2.1.x Spice Cloud Platform documentation](https://docs.spiceai.org/docs/2.1.x/components/models/spiceai).
 
-Specific model versions can be referenced using a version label or Training Run ID.
+:::
 
-```yaml
-models:
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats:latest # Label
-    name: drive_stats_a
-    datasets:
-      - drive_stats_inferencing
-
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf # Training Run ID
-    name: drive_stats_b
-    datasets:
-      - drive_stats_inferencing
-```
-
-## `from` Format
-
-The from key must conform to the following regex format:
-
-```regex
-\A(?:spice\.ai\/)?(?<org>[\w\-]+)\/(?<app>[\w\-]+)(?:\/models)?\/(?<model>[\w\-]+):(?<version>[\w\d\-\.]+)\z
-```
-
-Examples:
-
-- `spice.ai/lukekim/smart/models/drive_stats:latest`: Refers to the latest version of the drive_stats model in the smart application by the user or organization lukekim.
-- `spice.ai/lukekim/smart/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`: Specifies a model with a unique training run ID.
-
-### Specification
-
-1. **Prefix (Optional):** The value must start with `spice.ai/`.
-1. **Organization/User:** The name of the organization or user (`org`) hosting the model.
-1. **Application Name**: The name of the application (`app`) which the model belongs to.
-1. **Model Name:** The name of the model (`model`).
-1. **Version (Optional):** A colon (`:`) followed by the version identifier (`version`), which could be a semantic version, `latest` for the most recent version, or a specific training run ID.
+For large language models, use one of the [supported model providers](./index.md) — for example an [OpenAI-compatible endpoint](./openai/index.md). See also [Machine Learning Models](../../features/machine-learning-models).
