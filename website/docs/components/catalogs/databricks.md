@@ -58,6 +58,7 @@ The following parameters are supported for configuring the connection to the Dat
 | `databricks_endpoint` | The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`                                                                                                                                                                                                                   |
 | `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_databricks_token}`.                                                                                                           |
 | `databricks_use_ssl`  | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                            |
+| `databricks_auth_mode` | Optional. Pins the authentication flow instead of inferring it from the credentials that are set. One of `auto`, `token`, `m2m`, `u2m` (case-insensitive). Defaults to `auto`. See [Pinning the authentication mode](#pinning-the-authentication-mode).                                            |
 
 To locate the Databricks endpoint, do the following:
 
@@ -103,6 +104,34 @@ catalogs:
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal client id
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
+```
+
+### Pinning the authentication mode
+
+By default (`databricks_auth_mode: auto`) the catalog connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, and `databricks_client_id` together with `databricks_client_secret` selects M2M.
+
+Credentials do not only come from the Spicepod. `databricks_token`, `databricks_client_secret`, and the other secret parameters are auto-loaded from the [secret stores](../secret-stores) and the environment (e.g. `DATABRICKS_CLIENT_SECRET`, `SPICE_DATABRICKS_CLIENT_SECRET`) when the Spicepod omits them — so an ambient client secret on the host is enough to switch a U2M catalog to machine-to-machine, which then fails with a service principal `401`.
+
+Set `databricks_auth_mode` to pin the flow. A pinned mode ignores the credentials the flow does not use:
+
+| Value            | Flow                              | Requires                                           |
+| ---------------- | --------------------------------- | -------------------------------------------------- |
+| `auto` (default) | Inferred from the credentials set | —                                                  |
+| `token`          | Personal access token             | `databricks_token`                                 |
+| `m2m`            | Service principal (M2M) OAuth     | `databricks_client_id`, `databricks_client_secret` |
+| `u2m`            | User-to-machine OAuth             | `databricks_client_id`                             |
+
+Values are matched case-insensitively, so `M2M` and `U2M` are also accepted. A required parameter that is missing for the pinned mode fails at load with an error naming it; an unrecognized value is rejected.
+
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    params:
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+      databricks_auth_mode: m2m # ignore any ambient databricks_token
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID}
+      databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET}
 ```
 
 ## `dataset_params`
