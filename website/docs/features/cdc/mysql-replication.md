@@ -125,9 +125,17 @@ A detach logs an `ERROR` and flips that dataset's `dataset_mysql_replication_mem
 
 ## When the source layout changes
 
-Binlog row events are positional — each event carries column values in source-ordinal order, not by name — so the connector tracks the source table's column layout and refuses to apply events it can't line up against that layout. Compatible changes are adopted automatically: an additive `ALTER TABLE` is picked up from `information_schema` at the schema-change boundary and the stream continues without interruption.
+Binlog row events are positional — each event carries column values in source-ordinal order, not by name — so the connector tracks the source table's column layout and refuses to apply events it can't line up against that layout. Compatible changes are adopted automatically: an additive `ALTER TABLE` is picked up from `information_schema` at the schema-change boundary and the stream continues without interruption — subject to the cross-check in [Layout adopted under lag](#layout-adopted-under-lag).
 
 An **incompatible** change — one where the recorded position would replay row images against a layout that no longer matches (for example resuming after the source table's shape drifted while spiced was down, in a way the stream cannot reconcile with the events it still needs to replay) — cannot be applied without risking silent column misalignment. Rather than corrupt the accelerator, the connector stops and leaves the last known-good position in place. As with a purged position, `mysql_replication_invalid_checkpoint_behavior` controls the response: `error` (the default) surfaces an actionable error, and `restart` drops the position and re-snapshots the table from the current layout.
+
+### Layout adopted under lag
+
+A layout re-read from `information_schema` describes the source table **as it is now**, which under replication lag can already be a *later* DDL than the events still in flight. If the source applies a second `ALTER TABLE` with the same column count — a reorder (`MODIFY ... FIRST` / `AFTER`) or a rename swap — before Spice reaches the first one, the adopted layout maps ordinals the in-flight row images do not use. Column counts still agree, every name still resolves, and values still convert, so nothing would fail on its own.
+
+To catch this, every routed change is cross-checked against the column types the binlog's own `TableMap` event carries — the one description of the row image that travels *with* it. A disagreement is member-fatal: that dataset detaches with an error naming the column and its ordinal, and the rest of the shared binlog group keeps running. Recover by letting replication catch up before the next schema change, then re-bootstrapping the detached dataset with `mysql_replication_invalid_checkpoint_behavior: restart`.
+
+The comparison is deliberately coarse, because a false positive would break a healthy stream. It compares only type *classes*, and skips types whose wire encoding is ambiguous — `DATETIME`/`TIMESTAMP`/`TIME`, `TEXT`/`BLOB`, and `REAL` are not compared at all, and `CHAR`/`VARCHAR`/`BINARY`/`VARBINARY`/`ENUM`/`SET` are treated as a single class. What it does detect decisively is a reorder that moves columns of genuinely different types across each other (for example `INT` ↔ `VARCHAR`, `INT` ↔ `BIGINT`, or `DECIMAL` ↔ `INT`). Each detection increments `replication_schema_mismatch_errors_total`.
 
 ## Semantics and type notes
 
@@ -148,6 +156,8 @@ On `ALTER TABLE` against the replicated table, Spice re-fetches the table's layo
 - **Retyping a dataset column** keeps streaming while values remain convertible to the dataset's Arrow type; an unconvertible value stops the stream with a decode error.
 
 If the stream stopped across a DDL boundary with an un-checkpointed tail, the restart may be unable to decode pre-DDL events — re-bootstrap with `mysql_replication_invalid_checkpoint_behavior: restart`. Quiescing writes to the table around DDL avoids that case entirely.
+
+Issuing a second `ALTER TABLE` before replication has caught up on the first can also detach the dataset — see [Layout adopted under lag](#layout-adopted-under-lag).
 
 ## Metrics
 

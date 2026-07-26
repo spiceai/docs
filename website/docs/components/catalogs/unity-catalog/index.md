@@ -70,6 +70,7 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 - `unity_catalog_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
 - `unity_catalog_aws_access_key_id`: The access key ID for the S3 object store.
 - `unity_catalog_aws_secret_access_key`: The secret access key for the S3 object store.
+- `unity_catalog_aws_session_token`: Optional. The AWS session token for the S3 object store. Required with temporary (STS) credentials.
 - `unity_catalog_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
 - `unity_catalog_aws_allow_http`: Enables insecure HTTP connections to the AWS endpoint, useful for S3-compatible servers (e.g. MinIO). Defaults to `false`.
 
