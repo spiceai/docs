@@ -78,6 +78,7 @@ The `access` field controls what operations are allowed on the catalog:
 | `ducklake_aws_region`              | Optional. The AWS region for S3 storage. Default: `us-east-1` when explicit credentials are provided.                                                 |
 | `ducklake_aws_access_key_id`       | Optional. The AWS access key ID for S3 storage. Must be set together with `ducklake_aws_secret_access_key`.                                           |
 | `ducklake_aws_secret_access_key`   | Optional. The AWS secret access key for S3 storage. Must be set together with `ducklake_aws_access_key_id`.                                           |
+| `ducklake_aws_session_token`       | Optional. The AWS session token for S3 storage. Required with temporary (STS) credentials. Ignored, with a warning, unless `ducklake_aws_access_key_id` is also set. |
 | `ducklake_aws_endpoint`            | Optional. Custom S3-compatible endpoint URL (e.g., for MinIO).                                                                                        |
 | `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                                                                  |
 | `ducklake_automatic_migration`     | Optional. Set to `true` to automatically migrate an older DuckLake catalog schema to the version required by the DuckLake extension on attach. Default: `false`. Migration rewrites catalog metadata and **cannot be undone**.                        |
