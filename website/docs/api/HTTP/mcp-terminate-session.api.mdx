@@ -1,0 +1,70 @@
+---
+id: mcp-terminate-session
+title: "Terminate an MCP Streamable HTTP session"
+description: "Terminate the MCP session identified by the `Mcp-Session-Id` header. Subsequent requests bearing the same session id will receive `404 Not Found`."
+sidebar_label: "Terminate an MCP Streamable HTTP session"
+hide_title: true
+hide_table_of_contents: true
+api: eJzNVE1PGzEQ/Ssjn/MFzaHNDVEQSFAhJZxQxDprh7VwbNf2hqZR/nvfbDYJkKhnDqvd9YzH771547XI8iWJ0ZNYlEFMO0LpVEYTsvFOjMREx4VxMmvKlab7ywdKOiXEyCjtspkbrWi2aqLFfRm64224e6sKqrRUOvZoXM+S/l0jnyK/U0400zIa99JsTHKh39WlN2MtMkttlqg6HAzpl8907Wunip7oCB90lAzwVgEicD/nHczntgyygoyoiwizWwuHH2R/xIg0wzS3SMVn9uPPXCNg5Tq6A+mk4xLLSCqMM9lIa/7qgqRTDVcTkYpgOiFB9rSQxmU8H5QtPQ5ztckrJrurIkZzaZPeTHkpBe+QLkZrcT4Y8us08L0uqic2HTEcnB3nPjpZ58pH4FY9mnAj+8uzPmQtSDsVvGlBA0WiItZAt9A93lQwh5lmxHPzUkcucLn7hgZ08XBLr3pFIfolRIwEqitfRxoHU+rgVStUjit0PVdUogZrDaot4m/HiK99nBmFvBbujU955zZaSltrMokcPIPjGmfuQINUT1rr37R6rrArFWRNyu1RJ4R8dK/OvznykaSNOGHVPWh65HjUQSGYrvLsTKUt/NdYMVf4b2XFwtY1W2PW0bIDcw6jft/6UlpGNvo++DE4MuQdh0nppbY+LNhN20rvZW90LLpdrsiIpnxcWUf4qTlPBvOMnuB7yjHj5p55Z5MtD0gr1dHRrHTirqFf+xSLfxiR97fzdRFkWenueY/BH+bmYwQiMf1tYSz0Bt3apSxnQIBYAP+FdO+qHq4huZ2VcUYzFryBbiaT/ex8Rr0WPEwA8VWvsrwKzC/rP7kfLG4C5t84Yt265kksz5DY3s5sDV5br2cy6cdoNxteBpLYdBTCAkwjJPe3s7vZuPHKJA7sbpL/SPUV7r2TyjS+Pb7Dm5lHoDH7fvx+Xt1dTa4wkv8AsJFpLQ==
+sidebar_class_name: "delete api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Terminate an MCP Streamable HTTP session"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/v1/mcp"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Terminate the MCP session identified by the `Mcp-Session-Id` header. Subsequent requests bearing the same session id will receive `404 Not Found`.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./mcp-terminate-session.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./mcp-terminate-session.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./mcp-terminate-session.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
