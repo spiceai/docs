@@ -94,17 +94,19 @@ datasets:
 
 ### DuckDB
 
-[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
+[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance sizes its own limit at roughly 80% of host memory.
 
 **Memory Configuration Parameters:**
 
-| Parameter             | Default           | Description                            |
-| --------------------- | ----------------- | -------------------------------------- |
-| `duckdb_memory_limit` | 80% of system RAM | Maximum memory for the DuckDB instance |
+| Parameter             | Default                                       | Description                            |
+| --------------------- | --------------------------------------------- | -------------------------------------- |
+| `duckdb_memory_limit` | A coordinated share of the query memory budget | Maximum memory for the DuckDB instance |
+
+When `duckdb_memory_limit` is not set, Spice does not leave the instance on DuckDB's own ~80%-of-host-RAM default. At startup it computes a [coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget) across the query pool and every DuckDB instance so their combined ceilings fit within the memory the process can use, capping each un-limited instance at an equal share and reducing the query pool to match. Explicit `duckdb_memory_limit` and `runtime.query.memory_limit` values are always honored as-is.
 
 **Memory Usage Guidelines:**
 
-- Set `duckdb_memory_limit` to control memory per DuckDB instance
+- Set `duckdb_memory_limit` to control memory per DuckDB instance, rather than relying on the automatic split
 - DuckDB indexes do not support spilling and may consume significant memory
 - Allocate at least 30% additional container/machine memory for the runtime process
 
@@ -251,7 +253,7 @@ For time-series data, sort by timestamp. For multi-tenant data, consider sorting
 | DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Medium datasets, complex queries          |
 | SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
 
-Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter.
+Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter — though when that parameter is unset, the runtime sizes the two together rather than independently (see [Coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget)).
 
 ## Memory Allocators
 
