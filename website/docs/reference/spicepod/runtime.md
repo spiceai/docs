@@ -444,7 +444,7 @@ This configuration permits requests only from the `https://example.com` origin.
 
 The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
 
-If not specified, defaults to **90% of total system memory** (container-aware). When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier.
+If not specified, defaults to **90% of total system memory** (container-aware). When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier. When DuckDB accelerators are configured, that default is reduced further so the query pool and the DuckDB instance ceilings together fit within available memory — see [Coordinated memory budget](../../components/data-accelerators/duckdb#coordinated-memory-budget). An explicitly configured `memory_limit` is always honored verbatim and is never reduced.
 
 ```yaml
 runtime:
