@@ -21,6 +21,11 @@ spice login [command] [flags]
 
 - `-h`, `--help` Print this help message
 - `-k`, `--key` string API key (for spice.ai)
+- `-o`, `--output` string Where to store the resulting credentials. One of `env` (default; appends to a local `.env` file), `json` (prints the credentials as JSON to stdout), or `keychain` (stores them in the platform keychain, e.g. macOS Keychain).
+
+:::note
+`--output` applies to `spice login` itself (the Spice.ai login, with or without `--key`). The provider subcommands below always write to `.env`.
+:::
 
 #### Available Commands
 

@@ -156,4 +156,18 @@ SELECT * FROM rerank(
 
 For complete rerank syntax and parameters, see [Search SQL Reference](../reference/sql/search#reranking-rerank).
 
+## Dataset Readiness
+
+An accelerated dataset cannot be searched until its initial load completes. With the default [`ready_state: on_load`](../reference/spicepod/datasets#ready_state), searching a dataset that is still loading fails with the same error a SQL query returns:
+
+```
+Acceleration not ready; loading initial data for <dataset_name>
+```
+
+This applies to every search method — vector search (whether served just-in-time or from a vector index) and full-text search — so a partially-loaded index never answers with the subset that happens to have loaded so far.
+
+When a search request does not name any datasets and instead sweeps every searchable dataset, a dataset that is not ready is excluded from the results rather than failing the whole request. Naming that dataset explicitly returns the error above.
+
+Datasets configured `ready_state: on_registration` or `ready_state: on_schema_resolved` are unaffected: they remain searchable while the accelerator loads, served from the federated source. Datasets accelerated with `refresh_mode: caching` are also exempt, as they serve queries without an initial load.
+
 <DocCardList />

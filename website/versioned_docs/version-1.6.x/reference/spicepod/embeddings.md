@@ -28,7 +28,11 @@ The `from` field specifies the source of the embedding model. It supports the fo
 
 - `huggingface:huggingface.co` - Models from Hugging Face
 - `file:` - Local file paths
-- `openai` - OpenAI models
+- `openai` - OpenAI (or OpenAI-compatible) models
+- `azure` - Azure OpenAI models
+- `databricks` - Databricks-hosted models
+- `bedrock` - Amazon Bedrock models
+- `model2vec` - Model2Vec static embedding models
 
 Follows the same convention as [`models.from`](./models.md#from).
 
