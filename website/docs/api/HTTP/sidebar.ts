@@ -42,18 +42,6 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
-          id: "api/HTTP/get-model-predict",
-          label: "ML Prediction",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/post-batch-predict",
-          label: "Batch ML Predictions",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
           id: "api/HTTP/post-responses",
           label: "post_responses",
           className: "api-method post",
