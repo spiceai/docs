@@ -267,10 +267,14 @@ explain select * from taxi_trips;
 
 If you try to open a shell in a Spice container the way you would with most images, it fails:
 
+**On your machine:**
+
 ```console
 $ kubectl exec -it my-spicepod -- bash
 error: exec: "bash": executable file not found in $PATH
 ```
+
+The error comes from *inside* the container: `kubectl` reached the pod successfully, then found no `bash` there to execute.
 
 This is expected, not a broken container. The sections below explain why, and give three ways to debug depending on what you need to look at.
 
@@ -296,21 +300,44 @@ This is deliberate: an image with no shell and no packages has a far smaller att
 
 Start with the SQL REPL if the question is about data or queries. Reach for an ephemeral container when the question is about the environment — config files, mounted volumes, DNS, or connectivity.
 
+### Where commands run
+
+Debugging a container means moving between machines, and the same command can behave differently — or fail — depending on where it is typed. Three contexts appear below, and **every command block states which one it belongs to**:
+
+| Context                        | Where it actually executes                                                                                                                              | How you get there                        |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| **Your machine**               | Your own workstation or CI runner — wherever `kubectl` and `docker` are installed. These commands talk *to* the cluster or Docker daemon, not inside it. | The default; no extra step               |
+| **Inside the Spice container** | The sandbox container running `spiced`. No shell here, so only `spiced` itself, or a mounted binary such as `busybox`, can be run.                       | `kubectl exec` / `docker exec`           |
+| **Inside the debug container** | A *separate* temporary container in the same pod, with its own filesystem and its own tools. Spice's files are **not** at their usual paths here.        | `kubectl debug` drops you straight in    |
+
+Two consequences that catch people out:
+
+- `kubectl` and `docker` commands are typed on **your machine**, but the part after `--` (or after the container name) executes **inside the container**. In `kubectl exec -it my-pod -- spiced --repl`, `kubectl` runs locally while `spiced --repl` runs in the container — which is why `localhost` in that command means the container's own localhost, not your machine's.
+- `kubectl debug` does **not** put you inside the Spice container. It puts you in a new debug container beside it. That is why inspecting Spice's files from there needs the `/proc/1/root` prefix described below.
+
 ### SQL REPL
 
-The REPL needs no shell, because `spiced` is itself the binary being executed. It connects to the runtime's Flight endpoint at `http://localhost:50051`, so run it *inside* the pod or container to attach to the runtime already running there:
+The REPL needs no shell, because `spiced` is itself the binary being executed.
+
+**On your machine** — the `spiced --repl` part after the container name executes **inside the Spice container**:
 
 ```console
+# Docker
 docker exec -it <container_id> spiced --repl
-```
 
-Or from `kubectl`:
-
-```console
+# Kubernetes
 kubectl exec -it <pod_name> -- spiced --repl
 ```
 
+Because `spiced --repl` runs inside the container, it connects to that container's own `http://localhost:50051` Flight endpoint — attaching to the runtime already serving there. The interactive SQL prompt that follows is therefore executing queries **inside the deployment**, not locally.
+
 This is the quickest way to check whether a dataset loaded, inspect a schema, or reproduce a slow query from inside the deployment.
+
+:::note
+
+Running `spiced --repl` on **your machine** instead is a different thing entirely: it would try to reach a runtime on your own `localhost:50051`. To query a remote runtime from your workstation without `kubectl exec`, use `spice sql --endpoint <url>` (it accepts `http://`, `https://`, `grpc://`, and `grpc+tls://`), pointing at an address the runtime is reachable on — for example one published by `kubectl port-forward`.
+
+:::
 
 ### Debug Kubernetes Pods with Ephemeral Containers
 
@@ -319,6 +346,8 @@ An [ephemeral container](https://kubernetes.io/docs/concepts/workloads/pods/ephe
 This is the recommended way to debug Spice on Kubernetes.
 
 #### 1. Find the pod and container names
+
+**On your machine:**
 
 ```bash
 # List pods in the namespace
@@ -332,6 +361,8 @@ The Helm chart names the Spice container `spiceai`. Run the second command rathe
 
 #### 2. Start the debug container
 
+**On your machine:**
+
 ```bash
 kubectl debug -it my-spicepod-name \
   -n my-spicepod-ns \
@@ -340,18 +371,22 @@ kubectl debug -it my-spicepod-name \
   --profile=sysadmin
 ```
 
+This command returns with an interactive prompt, and **from here on you are inside the debug container** — a different filesystem from both your machine and the Spice container.
+
 What each flag does:
 
 | Flag                 | Meaning                                                                                                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `-it`                | Attach an interactive terminal, as with `kubectl exec -it`.                                                                                                                     |
-| `--image`            | The image providing the debugging tools. `ubuntu:24.04` gives a familiar shell and `apt`; any image with the tools you need works.                                              |
+| `--image`            | The image providing the debugging tools, and therefore the only source of tools available once inside. `ubuntu:24.04` gives a familiar shell and `apt` to install more; any image works. |
 | `--target`           | The container in the pod to attach to, from step 1. This is what makes the Spice process and its filesystem visible — omit it and you get an isolated container that sees nothing of the runtime. |
 | `--profile=sysadmin` | Applies the `sysadmin` [static debugging profile](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#static-profile), which grants the elevated capabilities needed to inspect another container's files and processes. |
 
 #### 3. Inspect the runtime
 
-The debug container has **its own** filesystem — from `ubuntu:24.04`, not from Spice — so `/app` is empty and Spice's files are not where you might expect. Because `--target` shares the process namespace, `spiced` is visible as PID 1, and Linux exposes any process's root filesystem at `/proc/<pid>/root`. So everything belonging to Spice is reachable under **`/proc/1/root`**:
+The debug container has **its own** filesystem — from `ubuntu:24.04`, not from Spice — so `/app` here is empty, and Spice's files are not where you might expect. Because `--target` shares the process namespace, `spiced` is visible as PID 1, and Linux exposes any process's root filesystem at `/proc/<pid>/root`. So everything belonging to Spice is reachable under **`/proc/1/root`**:
+
+**Inside the debug container** (reading the Spice container's files):
 
 ```bash
 # The Spicepod definition the runtime actually loaded
@@ -364,9 +399,29 @@ ls -l /proc/1/root/app
 cat /proc/1/cmdline | tr '\0' ' '
 ```
 
-Standard networking tools also work here, and reflect the runtime's own network view — useful for confirming a data source is reachable from inside the cluster.
+The `/proc/1/root` prefix is what makes the difference: `ls /app` reads the *debug* container's empty directory, while `ls /proc/1/root/app` reads the *Spice* container's real working directory. Dropping the prefix is the most common source of confusion — it does not error, it just shows you the wrong container's filesystem.
 
-When finished, exit the shell.
+Networking is the exception to that rule. All containers in a pod share a single network namespace, so network tools run **inside the debug container** already see exactly what the runtime sees — no `/proc/1/root` prefix applies, and none is needed.
+
+Note that the tools available are whatever the `--image` you chose provides, not what Spice provides. `ubuntu:24.04` is a minimal image, so install what you need first — this is safe, because it modifies only the throwaway debug container:
+
+**Inside the debug container:**
+
+```bash
+# Install network tools into the debug container (not into Spice)
+apt update && apt install -y curl dnsutils iproute2
+
+# Resolve and reach a data source exactly as the runtime would
+dig my-postgres.my-namespace.svc.cluster.local
+curl -v telnet://my-postgres.my-namespace.svc.cluster.local:5432
+
+# The runtime's own listening sockets: HTTP 8090, metrics 9090, Flight 50051
+ss -ltnp
+```
+
+Images purpose-built for network debugging, such as `nicolaka/netshoot`, bundle these tools and skip the install step.
+
+When finished, type `exit` to leave the debug container and return to **your machine**.
 
 :::note
 
@@ -382,6 +437,8 @@ This technique is for Docker. On Kubernetes, use an [ephemeral container](#debug
 
 Note that the volume must be mounted when the container is **created**, so this requires starting a new container rather than attaching to a running one.
 
+**On your machine** (the Docker host) — all four commands:
+
 ```bash
 # Create a volume for the busybox binary
 docker volume create busybox
@@ -392,11 +449,15 @@ docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
 docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
 
-# Exec into the container
+# Exec into the container — the shell that follows runs INSIDE the Spice container
 docker exec -it spiceai-debug /busy/busybox sh
 ```
 
-A shell with standard Linux tools is now available through the `busybox` binary. Because the tools are not on `PATH`, each command must be prefixed with `/busy/busybox`:
+That last command hands you a shell **inside the Spice container** itself — unlike `kubectl debug`, there is no separate debug container here, so paths such as `/app` are already Spice's own and need no `/proc/1/root` prefix.
+
+Because the busybox tools are not on `PATH`, every command in that shell must be prefixed with `/busy/busybox`:
+
+**Inside the Spice container:**
 
 ```bash
 /busy/busybox ls -l /app
