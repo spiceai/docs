@@ -15,10 +15,8 @@ Example:
 ```yaml
 tools:
   - name: my_mcp_tool
-    from: mcp
+    from: mcp:http://localhost:8090/v1/mcp
     description: 'An MCP tool.'
-    params:
-      mcp_endpoint: http://localhost:3000/sse
 ```
 
 ### `name`
@@ -29,13 +27,20 @@ A unique identifier for this tool.
 
 Defines the source of the tool, or the specific built-in tool to customise. See [Available Tools](../../components/tools#available-tools) for a list of available tools.
 
+For [MCP tools](../../components/tools/mcp), the target is part of the `from` value itself, in the form `mcp:<target>`:
+
+- `mcp:<url>` connects to an MCP server over Streamable HTTP, e.g. `mcp:http://localhost:8090/v1/mcp`.
+- `mcp:<command>` runs a stdio-based MCP server as a subprocess, e.g. `mcp:npx`.
+
+A bare `from: mcp` (without a `:<target>` suffix) is rejected when the spicepod is loaded.
+
 ### `description`
 
 Optional. A textual description of the tool's function.
 
 ### `params`
 
-Optional. A map of key-value pairs for additional parameters specific to the tool.
+Optional. A map of key-value pairs for additional parameters specific to the tool. For MCP tools these are `mcp_args` (stdio), and `mcp_auth_token` / `mcp_headers` (Streamable HTTP) — see [MCP Tools](../../components/tools/mcp#params). The MCP server address is set via `from`, not via `params`.
 
 ### `env`
 
