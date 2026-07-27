@@ -43,6 +43,11 @@ const sortedVersions = [...versions].sort((a, b) => {
 const latestVersion = sortedVersions[0] || null
 const latestVer = latestVersion ? getVersion(latestVersion) : { major: 0, minor: 0 }
 
+// Final release of the previous major stays maintained through the transition
+// (e.g. v1.11.x remains maintained after v2.0 ships as latest). sortedVersions is
+// major-desc, so the first entry below the latest major is that major's newest release.
+const prevMajorLatest = sortedVersions.find((v) => getVersion(v).major < latestVer.major) || null
+
 const docsVersionConfig = hasVersions
   ? {
       lastVersion: latestVersion!, // The stable release is the default
@@ -57,10 +62,12 @@ const docsVersionConfig = hasVersions
           versions.map((version) => {
             const ver = getVersion(version)
             const isLatest = version === latestVersion
-            // Versions within same major and latest minor - 1 are maintained (no banner)
+            // Maintained (no banner): the latest major's current + previous minor,
+            // plus the final release of the previous major (e.g. v1.11.x under v2.0).
             const isMaintained =
               ver.major > latestVer.major ||
-              (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1)
+              (ver.major === latestVer.major && ver.minor >= latestVer.minor - 1) ||
+              version === prevMajorLatest
 
             return [
               version,
@@ -214,7 +221,7 @@ const config: Config = {
       { name: 'twitter:creator', content: '@spice_ai' }
     ],
     announcementBar: {
-      content: '<a href="/releases/v2.0-rc.4">Spice.ai OSS v2.0-rc.4</a> is now available! 🚀',
+      content: '<a href="/releases/v2.1.0">Spice.ai OSS v2.1.0</a> is now available! 🎉',
       backgroundColor: 'var(--announcement-bar-bg)',
       textColor: 'var(--announcement-bar-text)',
       isCloseable: true

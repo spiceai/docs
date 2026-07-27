@@ -28,6 +28,12 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 
 Memory requirements can be reduced by using file-based acceleration with [DuckDB](../components/data-accelerators/duckdb), [SQLite](../components/data-accelerators/sqlite), [Turso](../components/data-accelerators/turso), or [Spice Cayenne](../components/data-accelerators/cayenne), which store data on disk and support spilling.
 
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, [Spice Cayenne](../components/data-accelerators/cayenne) is recommended over [DuckDB](../components/data-accelerators/duckdb), because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset.
+
+:::
+
 ## Accelerator-Specific Memory Management
 
 Different acceleration engines have distinct memory characteristics and tuning options.
@@ -61,21 +67,26 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 
 **Memory Configuration Parameters:**
 
-| Parameter                  | Default | Description                                                                                                                                  |
-| -------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_footer_cache_mb`  | `128`   | Size of the in-memory Vortex footer cache in megabytes. Larger values improve query performance for repeated scans by caching file metadata. |
-| `cayenne_segment_cache_mb` | `256`   | Size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.                   |
+| Parameter                  | Scope                  | Default | Description                                                                                                                                  |
+| -------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_footer_cache_mb`  | `runtime.params`       | `50` (unset) | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies. |
+| `cayenne_segment_cache_mb` | `acceleration.params`  | `256`   | Per-dataset size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance.        |
 
 **Memory Usage Guidelines:**
 
 - Base memory: ~500 MB for runtime overhead
-- Footer cache: 128 MB default, increase for datasets with many files
+- Footer cache: unset by default (DataFusion's 50 MB file-metadata-cache limit applies); increase for datasets with many files
 - Segment cache: 256 MB default, increase for workloads with repeated scans on the same data
 - Query execution memory: Depends on query complexity and concurrency
 
 **Example Configuration:**
 
 ```yaml
+runtime:
+  params:
+    # Engine-global footer cache (shared by all Cayenne datasets)
+    cayenne_footer_cache_mb: 256
+
 datasets:
   - from: s3://my-bucket/large-dataset/
     name: large_dataset
@@ -83,23 +94,26 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 256
+        # Per-dataset segment cache
         cayenne_segment_cache_mb: 512
 ```
 
 ### DuckDB
 
-[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. By default, each DuckDB instance uses up to 80% of available system memory.
+[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance sizes its own limit at roughly 80% of host memory.
 
 **Memory Configuration Parameters:**
 
-| Parameter             | Default           | Description                            |
-| --------------------- | ----------------- | -------------------------------------- |
-| `duckdb_memory_limit` | 80% of system RAM | Maximum memory for the DuckDB instance |
+| Parameter             | Default                                       | Description                            |
+| --------------------- | --------------------------------------------- | -------------------------------------- |
+| `duckdb_memory_limit` | A coordinated share of the query memory budget | Maximum memory for the DuckDB instance |
+
+When `duckdb_memory_limit` is not set, Spice does not leave the instance on DuckDB's own ~80%-of-host-RAM default. At startup it computes a [coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget) across the query pool and every DuckDB instance so their combined ceilings fit within the memory the process can use, capping each un-limited instance at an equal share and reducing the query pool to match. Explicit `duckdb_memory_limit` and `runtime.query.memory_limit` values are always honored as-is.
 
 **Memory Usage Guidelines:**
 
-- Set `duckdb_memory_limit` to control memory per DuckDB instance
+- For datasets of **10 GB or larger**, prefer [Spice Cayenne](#spice-cayenne), which typically needs one-third to one-half the memory of DuckDB for the same dataset
+- Set `duckdb_memory_limit` to control memory per DuckDB instance, rather than relying on the automatic split
 - DuckDB indexes do not support spilling and may consume significant memory
 - Allocate at least 30% additional container/machine memory for the runtime process
 
@@ -133,11 +147,11 @@ Refresh modes affect memory usage as follows:
 
 ## DataFusion Query Memory Management
 
-Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware). This can be tuned through the `runtime.query.memory_limit` configuration.
+Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware; reduced to **70%** when Cayenne acceleration is active, to leave headroom for Cayenne's compaction memory pool and in-memory CDC tier). This can be tuned through the `runtime.query.memory_limit` configuration.
 
 ### Memory Limit Configuration
 
-The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory. Once the memory limit is reached, supported query operations spill data to disk.
+The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory (70% when Cayenne acceleration is active). Once the memory limit is reached, supported query operations spill data to disk.
 
 ```yaml
 runtime:
@@ -242,11 +256,11 @@ For time-series data, sort by timestamp. For multi-tenant data, consider sorting
 | Accelerator   | Storage        | Query Memory Control         | Memory Spilling | Best For                                  |
 | ------------- | -------------- | ---------------------------- | --------------- | ----------------------------------------- |
 | Arrow         | Memory only    | `runtime.query.memory_limit` | Yes             | Small datasets, maximum speed             |
-| Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Large datasets (1TB+), scalable analytics |
-| DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Medium datasets, complex queries          |
+| Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Datasets 10 GB and above, scalable analytics; lowest memory footprint |
+| DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Datasets under 10 GB, complex queries     |
 | SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
 
-Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter.
+Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter — though when that parameter is unset, the runtime sizes the two together rather than independently (see [Coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget)).
 
 ## Memory Allocators
 
@@ -319,7 +333,7 @@ Total Memory = Runtime Overhead + Accelerator Memory + Query Memory Limit + Cach
 **Example calculation:**
 
 - Runtime overhead: 500 MB
-- Spice Cayenne caches: 384 MB (128 MB footer + 256 MB segment)
+- Spice Cayenne caches: 306 MB (50 MB footer + 256 MB segment)
 - Query memory limit: 4 GB
 - Results caches: 1 GB (512 MB SQL + 256 MB search + 256 MB embeddings)
 - **Total: ~6 GB minimum**
@@ -345,7 +359,7 @@ metadata:
 spec:
   containers:
     - name: spice
-      image: spiceai/spiceai:latest-models
+      image: spiceai/spiceai:latest
       resources:
         requests:
           memory: '8Gi'

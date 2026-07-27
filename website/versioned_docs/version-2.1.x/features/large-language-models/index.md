@@ -1,0 +1,68 @@
+---
+title: 'Large Language Models'
+sidebar_label: 'Large Language Models'
+description: 'Learn how to configure large language models (LLMs)'
+sidebar_position: 7
+pagination_prev: null
+pagination_next: null
+tags:
+  - models
+---
+
+Spice provides a high-performance, OpenAI API-compatible AI Gateway optimized for managing and scaling large language models (LLMs). It offers tools for Enterprise Retrieval-Augmented Generation (RAG), such as SQL query across federated datasets and an advanced search feature (see [Search](search)).
+
+<img width="740" alt="ai-gateway" src="https://github.com/user-attachments/assets/4a45cd62-ebfc-4a73-956d-661f1ab44cd8" />
+
+Spice supports **full OpenTelemetry observability**, helping with detailed tracking of model tool use, recursion, data flows and requests for full transparency and easier debugging.
+
+## Quickstart
+
+Add a language model to your `spicepod.yaml` to start using AI capabilities:
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: my_model
+    params:
+      openai_api_key: ${ env:OPENAI_API_KEY }
+      tools: auto  # Gives the model access to datasets for data-grounded responses
+```
+
+Start the runtime and use the chat REPL:
+
+```bash
+spice run
+# In another terminal:
+spice chat
+chat> What tables are available?
+```
+
+Or call the OpenAI-compatible HTTP API directly:
+
+```bash
+curl -X POST http://localhost:8090/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "my_model",
+    "messages": [{"role": "user", "content": "What tables are available?"}]
+  }'
+```
+
+## Configuring Language Models
+
+Spice supports a variety of LLMs (see [Model Providers](../components/models)).
+
+### Core Features
+
+- **SQL Integration**: Invoke LLMs directly within SQL queries using the `ai()` function for text generation tasks. See [SQL Reference: ai function](../reference/sql/scalar_functions#ai-and-embed).
+- **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](large-language-models/tools).
+- **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../api/HTTP/post-chat-completions). See [Parameter Overrides](large-language-models/parameter_overrides).
+- **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](large-language-models/memory).
+- **Vector Search**: Perform advanced vector-based searches using embeddings. See [Vector Search](search/vector-search).
+- **Local Models**: Load and serve models locally from various sources, including local filesystems and Hugging Face. See [Local Models](large-language-models/serving).
+
+For API usage, refer to the [API Documentation](../api).
+
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />

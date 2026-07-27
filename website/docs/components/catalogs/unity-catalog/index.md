@@ -46,6 +46,18 @@ Use the `include` field to specify which tables to include from the catalog. The
 The `params` field is used to configure the connection to the Unity Catalog. The following parameters are supported:
 
 - `unity_catalog_token`: The [personal access token](https://docs.unitycatalog.io/server/auth/#use-admin-token-to-verify-admin-user-is-in-local-database) used to authenticate against the Unity Catalog API.
+- `unity_catalog_credential_vending`: When set to `enabled`, short-lived storage credentials for each table are fetched from the Unity Catalog [credential vending](https://docs.databricks.com/api/workspace/temporarytablecredentials) API instead of using the static storage credentials in `dataset_params`. Defaults to `disabled`. Works with both Databricks Unity Catalog and OSS Unity Catalog.
+
+When credential vending is enabled, the static object-store credentials below (`unity_catalog_aws_*`, `unity_catalog_azure_*`, `unity_catalog_google_*`) are not required:
+
+```yaml
+catalogs:
+  - from: unity_catalog:https://<host>/api/2.1/unity-catalog/catalogs/my_catalog
+    name: uc
+    params:
+      unity_catalog_token: ${secrets:UC_TOKEN}
+      unity_catalog_credential_vending: enabled
+```
 
 ## `dataset_params`
 
@@ -58,7 +70,9 @@ The `dataset_params` field is used to configure the dataset-specific parameters 
 - `unity_catalog_aws_region`: The AWS region for the S3 object store. E.g. `us-west-2`.
 - `unity_catalog_aws_access_key_id`: The access key ID for the S3 object store.
 - `unity_catalog_aws_secret_access_key`: The secret access key for the S3 object store.
+- `unity_catalog_aws_session_token`: Optional. The AWS session token for the S3 object store. Required with temporary (STS) credentials.
 - `unity_catalog_aws_endpoint`: The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.
+- `unity_catalog_aws_allow_http`: Enables insecure HTTP connections to the AWS endpoint, useful for S3-compatible servers (e.g. MinIO). Defaults to `false`.
 
 #### Azure Blob
 

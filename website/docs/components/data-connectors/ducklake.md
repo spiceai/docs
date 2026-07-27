@@ -59,8 +59,10 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `ducklake_aws_region`              | Optional. The AWS region for S3 storage. Default: `us-east-1` when explicit credentials are provided.          |
 | `ducklake_aws_access_key_id`       | Optional. The AWS access key ID for S3 storage. Must be set together with `ducklake_aws_secret_access_key`.    |
 | `ducklake_aws_secret_access_key`   | Optional. The AWS secret access key for S3 storage. Must be set together with `ducklake_aws_access_key_id`.    |
+| `ducklake_aws_session_token`       | Optional. The AWS session token for S3 storage. Required with temporary (STS) credentials. Ignored, with a warning, unless `ducklake_aws_access_key_id` is also set. |
 | `ducklake_aws_endpoint`            | Optional. Custom S3-compatible endpoint URL (e.g., for MinIO).                                                 |
 | `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                           |
+| `ducklake_automatic_migration`     | Optional. Set to `true` to automatically migrate an older DuckLake catalog schema to the version required by the DuckLake extension on attach. Default: `false`. Migration rewrites catalog metadata and **cannot be undone**. |
 
 ### Connection string formats
 
@@ -201,7 +203,7 @@ datasets:
 
 :::warning[Limitations]
 
-- Spice uses DuckDB 1.5.2, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use. See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
+- Spice uses DuckDB 1.5.3, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.

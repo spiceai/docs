@@ -13,7 +13,7 @@ models:
     name: llama3
 ```
 
-Supported formats include GGUF, GGML, and SafeTensor for large language models (LLMs) and ONNX for traditional machine learning (ML) models.
+Supported formats include GGUF, GGML, and SafeTensor for large language models (LLMs).
 
 ## Configuration
 
@@ -88,14 +88,6 @@ models:
 ```
 
 Note: The folder provided should contain all the expected files (see examples above).
-
-### Loading an ONNX Model
-
-```yaml
-models:
-  - from: file://absolute/path/to/my/model.onnx
-    name: local_fs_model
-```
 
 ### Loading a GGUF Model
 

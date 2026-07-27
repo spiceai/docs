@@ -44,16 +44,24 @@ DuckDB does not require explicit `VACUUM`; its storage layout compacts on checkp
 
 ### Connection Pool
 
-| Parameter               | Default                                         | Description                                      |
-| ----------------------- | ----------------------------------------------- | ------------------------------------------------ |
-| `connection_pool_size`  | `max(10, number of datasets on the same instance)` | Maximum connections in the shared DuckDB pool. |
-| *(pool min idle)*       | `10`                                            | Minimum idle connections.                        |
+| Parameter               | Default                                                                                          | Description                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| `connection_pool_size`  | `max(floor, number of datasets on the same instance)`, where `floor` is `4` for `ebs` and `10` otherwise | Maximum connections in the shared DuckDB pool. Floor depends on the resolved [`acceleration.storage_profile`](../../../reference/spicepod/datasets#accelerationstorage_profile). |
+| *(pool min idle)*       | Same as the `floor` above (`4` for `ebs`, `10` otherwise), capped at `connection_pool_size`      | Minimum idle connections.                        |
 
 Datasets sharing a DuckDB instance share the pool. For write-heavy refresh plus read-heavy query workloads, size the pool to cover expected concurrency plus a small headroom; DuckDB's serializable concurrency model limits benefit beyond the point of write contention.
 
 ### Memory
 
-DuckDB self-tunes its memory limit based on system memory. For containers, set a `memory_limit` pragma via the connection string to prevent OOM due to cgroup misdetection. Plan for the DuckDB working set plus ~2× for query execution headroom.
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, deploy [Spice Cayenne](../cayenne/index.md) instead of DuckDB, because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset, which lowers the memory request a container needs to run the workload safely.
+
+:::
+
+DuckDB self-tunes its memory limit from **host** memory, not the cgroup limit, so in a container each instance's own default over-states what the process may use. When `duckdb_memory_limit` is unset, Spice caps each un-limited DuckDB instance from a cgroup-aware [coordinated memory budget](./index.md#coordinated-memory-budget) shared with the query pool, and warns when it does so.
+
+Set the `duckdb_memory_limit` acceleration parameter to replace that automatic split with a deliberate ceiling. Plan for the DuckDB working set plus ~2× for query execution headroom.
 
 ### Index Parameters
 
@@ -92,7 +100,7 @@ DuckDB acceleration operations participate in [task history](../../../reference/
 | Symptom                                                | Likely cause                                                  | Resolution                                                                                                  |
 | ------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Slow first startup after restart                       | WAL replay due to ungraceful shutdown.                        | Use graceful shutdown (`SIGTERM`). Subsequent starts will be fast once the checkpoint is clean.             |
-| OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set a `memory_limit` pragma via the connection string.                                                      |
+| OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set the `duckdb_memory_limit` acceleration parameter. Check the startup log for the coordinated-budget warning to see what the runtime capped each un-limited instance to. |
 | Disk fills during large queries                        | Spill directory on undersized volume.                         | Point `runtime.query.temp_directory` at a larger volume; monitor free space.                                |
 | Query uses table scan when an index exists             | `duckdb_index_scan_percentage` / `duckdb_index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
 | Indexes disappear after refresh                        | `on_refresh_sort_columns` triggers `CREATE OR REPLACE`.       | Re-create indexes post-refresh, or avoid sort-column refreshes until the underlying behavior is updated.    |

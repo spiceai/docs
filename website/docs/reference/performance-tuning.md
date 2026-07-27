@@ -23,11 +23,11 @@ Choose the appropriate [Data Accelerator](../components/data-accelerators) based
 | Scenario                                 | Recommended Accelerator    | Key Configuration                                                     |
 | ---------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
 | Small datasets (under 1 GB), low latency | `arrow`                    | Default in-memory                                                     |
-| Medium datasets (1-100 GB), complex SQL  | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
-| Large datasets (100 GB - 1+ TB)          | `cayenne`                  | Tune cache parameters                                                 |
+| Small datasets (1-10 GB), complex SQL    | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
+| Datasets 10 GB and above (up to 1+ TB)   | `cayenne`                  | Tune cache parameters; needs 1/3 to 1/2 the memory of `duckdb`        |
 | Write-heavy workloads                    | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
 | Point lookups, large datasets            | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
-| Point lookups, small-medium datasets     | `arrow` with hash index    | Set `hash_index: enabled` (experimental, v1.11.0-rc.2+)               |
+| Point lookups, small-medium datasets     | `arrow` with hash index    | Set a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
 | Point lookups with explicit indexes      | `duckdb` or `sqlite`       | Configure indexes                                                     |
 
 ## Spice Cayenne Performance Optimization
@@ -47,9 +47,13 @@ For point lookups on large datasets, Spice Cayenne often matches or exceeds the 
 
 ### Cache Configuration
 
-Spice Cayenne maintains two in-memory caches that significantly impact query performance:
+Spice Cayenne maintains two in-memory caches that significantly impact query performance. The footer cache is engine-global and set under `runtime.params`; the segment cache is configured per dataset under `acceleration.params`:
 
 ```yaml
+runtime:
+  params:
+    cayenne_footer_cache_mb: 256   # Engine-global; increase for many files
+
 datasets:
   - from: s3://bucket/data/
     name: analytics
@@ -57,8 +61,7 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        cayenne_footer_cache_mb: 256   # Increase for many files
-        cayenne_segment_cache_mb: 512  # Increase for hot data patterns
+        cayenne_segment_cache_mb: 512  # Per-dataset; increase for hot data patterns
 ```
 
 **Footer Cache Sizing:**
@@ -66,7 +69,7 @@ datasets:
 The footer cache stores file metadata. Size based on file count:
 
 - 1-10 KB per file
-- Default 128 MB supports ~10,000-100,000 files
+- Default: unset — when omitted, DataFusion's 50 MB file-metadata-cache limit applies
 - Increase for datasets with more files
 
 **Segment Cache Sizing:**
@@ -89,6 +92,12 @@ Choose `btrblocks` for read-heavy analytics workloads. Use `zstd` only when size
 ## DuckDB Performance Optimization
 
 [DuckDB](../components/data-accelerators/duckdb) provides mature SQL support with sophisticated query optimization.
+
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, [Spice Cayenne](../components/data-accelerators/cayenne) is recommended over DuckDB, because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset. See [Spice Cayenne Performance Optimization](#spice-cayenne-performance-optimization).
+
+:::
 
 ### Memory Configuration
 
@@ -380,7 +389,7 @@ runtime:
 
 ### Memory Limit
 
-If not specified, `memory_limit` defaults to 90% of total system memory (container-aware). For deployments with co-located accelerators, set an explicit limit based on available memory:
+If not specified, `memory_limit` defaults to 90% of total system memory (container-aware); when Cayenne acceleration is active, the default is 70% instead, reserving headroom for Cayenne's compaction memory pool and in-memory CDC tier. For deployments with co-located accelerators, set an explicit limit based on available memory:
 
 ```text
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)

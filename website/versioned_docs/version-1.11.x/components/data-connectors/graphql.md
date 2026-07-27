@@ -296,7 +296,7 @@ params:
 This example would fail with a runtime error:
 
 ```bash
-WARN runtime: GraphQL Data Connector Error: Invalid object access. Column 'name' already exists in the object.
+WARN runtime: Invalid object access. Column 'name' already exists in the object.
 ```
 
 Avoid this error by [using aliases in the query](https://www.apollographql.com/docs/kotlin/advanced/using-aliases/) where possible. In the example above, a duplicate error was introduced from `emergency_contact { name }`.

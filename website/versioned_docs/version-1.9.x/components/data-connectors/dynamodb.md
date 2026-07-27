@@ -237,6 +237,7 @@ The table below shows the DynamoDB data types supported, along with the type map
 | `S`           | String      | `Utf8`                               |                                                                                                                                     |
 | `S`           | String      | `Timestamp(Millisecond)`             | Naive timestamp if it matches `time_format` without timezone                                                                        |
 | `S`           | String      | `Timestamp(Millisecond, <timezone>)` | Timezone-aware timestamp if it matches `time_format` with timezone                                                                  |
+| `S`           | String      | `Date32`                             | Date-only string in `YYYY-MM-DD` format (when it does not match `time_format`)                                                      |
 | `Ss`          | String Set  | `List<Utf8>`                         |                                                                                                                                     |
 | `N`           | Number      | `Int64` \| `Float64`                 |                                                                                                                                     |
 | `Ns`          | Number Set  | `List<Int64\|Float64>`               |                                                                                                                                     |

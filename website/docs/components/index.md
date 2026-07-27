@@ -11,7 +11,7 @@ pagination_next: null
 
 Spice runtime components are the building blocks for configuring data access, acceleration, AI models, embeddings, and secrets. Each component is defined in the `spicepod.yaml` manifest.
 
-**[Data Connectors](./components/data-connectors)** connect to databases, data warehouses, data lakes, and file systems for federated SQL queries. Spice supports over 30 connectors including PostgreSQL, MySQL, S3, Snowflake, Databricks, and DuckDB.
+**[Data Connectors](./components/data-connectors)** connect to databases, data warehouses, data lakes, and file systems for federated SQL queries. Spice supports over 40 connectors including PostgreSQL, MySQL, S3, Snowflake, Databricks, and DuckDB.
 
 **[Data Accelerators](./components/data-accelerators)** materialize datasets locally in memory or on disk for faster query performance. Choose from Arrow (in-memory), DuckDB, SQLite, PostgreSQL, or Cayenne depending on workload characteristics.
 
@@ -23,11 +23,9 @@ Spice runtime components are the building blocks for configuring data access, ac
 
 **[Tools](./components/tools)** define callable functions that LLMs can invoke during inference, including MCP (Model Context Protocol) integrations for connecting to external services.
 
-**[Views](./components/views)** create virtual tables from SQL queries over other datasets, similar to database views.
+**[Vector Engines](./components/vectors)** index dataset embedding columns and serve nearest-neighbour search backed by DuckDB, Elasticsearch, or Amazon S3 Vectors.
 
 **[Secret Stores](./components/secret-stores)** manage credentials and sensitive configuration values using environment variables, files, or external secret managers like AWS Secrets Manager and Azure Key Vault.
-
-**[Workers](./components/workers)** coordinate interactions between models and tools, supporting load balancing strategies like round-robin and fallback across multiple LLM providers.
 
 import DocCardList from '@theme/DocCardList';
 

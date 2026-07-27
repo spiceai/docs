@@ -33,6 +33,8 @@ spice trace [task] [flags]
 - `search`
 - `scheduled_worker`
 
+Tools proxied from MCP servers and custom tools are recorded dynamically as `tool_use::<tool>` or `tool_use::<server>/<tool>` (for example, `tool_use::github/search_code`). Any such `tool_use::`-prefixed task name can be traced, not just the built-in tools listed above.
+
 These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
 
 #### Flags

@@ -23,6 +23,9 @@ datasets:
       kafka_sasl_username: kafka # Required if `kafka_security_protocol` is `sasl_plaintext` or `sasl_ssl`.
       kafka_sasl_password: ${secrets:kafka_sasl_password} # Required if `kafka_security_protocol` is `sasl_plaintext` or `sasl_ssl`.
       kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem # Optional. Used to verify the SSL/TLS certificate of the Kafka broker.
+      kafka_ssl_certificate_location: ./certs/client_cert.pem # Optional. Client SSL/TLS certificate for mTLS authentication.
+      kafka_ssl_key_location: ./certs/client_key.pem # Optional. Client SSL/TLS private key for mTLS authentication.
+      kafka_ssl_key_password: ${secrets:kafka_ssl_key_password} # Optional. Password for the client SSL/TLS private key, if encrypted.
       kafka_enable_ssl_certificate_verification: true # Default is `true`. Set to `false` to disable SSL/TLS certificate verification.
       kafka_ssl_endpoint_identification_algorithm: https # Default is `https`. Valid values are `none` and `https`.
       batch_max_size: 10000 # Default is `10000`. Maximum number of change events to batch together before processing.
@@ -95,6 +98,9 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `kafka_sasl_username`                         | SASL username.                                                                                                                                                                                                                                                                                                                  |
 | `kafka_sasl_password`                         | SASL password.                                                                                                                                                                                                                                                                                                                  |
 | `kafka_ssl_ca_location`                       | Path to the SSL/TLS CA certificate file for server verification.                                                                                                                                                                                                                                                                |
+| `kafka_ssl_certificate_location`              | Path to the client SSL/TLS certificate file for mTLS authentication.                                                                                                                                                                                                                                                            |
+| `kafka_ssl_key_location`                      | Path to the client SSL/TLS private key file for mTLS authentication.                                                                                                                                                                                                                                                            |
+| `kafka_ssl_key_password`                      | Password for the client SSL/TLS private key, if encrypted.                                                                                                                                                                                                                                                                      |
 | `kafka_enable_ssl_certificate_verification`   | Enable SSL/TLS certificate verification. Default: `true`.                                                                                                                                                                                                                                                                       |
 | `kafka_ssl_endpoint_identification_algorithm` | SSL/TLS endpoint identification algorithm. Default: `https`. Options: <ul><li>`none`</li><li>`https`</li></ul>                                                                                                                                                                                                                  |
 | `kafka_consumer_group_id`                     | Kafka consumer group ID to use. If not set, a unique ID will be generated automatically. The consumer group ID (whether auto-generated or custom) is stored in the acceleration metadata and must remain consistent across restarts. See [Consumer Group Management](#consumer-group-management) for details.                   |
@@ -143,6 +149,35 @@ The following settings are required:
 | `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
 | `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
+
+## JSON Nesting
+
+When a change event carries many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to the change-stream (CDC) events the connector decomposes into the accelerator.
+
+```yaml
+datasets:
+  - from: debezium:my_kafka_topic_with_debezium_changes
+    name: orders
+    columns:
+      - name: id
+      - name: status
+      - name: data_json
+        metadata:
+          json_object: '*'
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+```
+
+Any field other than `id`, `status`, and `data_json` is folded into `data_json` as a JSON object. Primary-key columns must be declared explicitly and cannot be folded into the catch-all column.
+
+:::warning[Limitations]
+
+- The `json_object` metadata only accepts `"*"` as its value, which captures all unspecified fields.
+- Only one column can carry the `json_object` metadata; declaring more than one is an error.
+
+:::
 
 ## Secrets
 

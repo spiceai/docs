@@ -113,7 +113,7 @@ The connection to PostgreSQL can be configured by providing the following `param
 | `pg_user`                     | The username to connect with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `pg_pass`                     | The password to connect with. Use the [secret replacement syntax](../../components/secret-stores) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `pg_sslmode`                  | Optional. Specifies the SSL/TLS behavior for the connection, supported values:<br /> <ul><li>`verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.</li><li>`verify-ca`: This mode requires a TLS connection and a valid root certificate.</li><li>`require`: This mode requires a TLS connection.</li><li>`prefer`: This mode will try to establish a secure TLS connection if possible, but will connect insecurely if the server does not support TLS.</li><li>`disable`: This mode will not attempt to use a TLS connection, even if the server supports it.</li></ul> |
-| `pg_sslrootcert`              | Optional. Path to a custom PEM certificate file, or inline PEM content, that the connector will trust when `pg_sslmode` is `verify-ca` or `verify-full`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `pg_sslrootcert`              | Optional. Path to a custom PEM certificate file, or inline PEM content, that the connector will trust when `pg_sslmode` is `verify-ca` or `verify-full`. Inline PEM content is accepted only on the federated read/query path; the WAL replication transport (`refresh_mode: changes`) requires a file path.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `pg_connection_pool_min_idle` | Optional. The minimum number of idle connections to keep open in the pool. Default is `1`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `connection_pool_size`        | Optional. The maximum number of connections created in the connection pool. Default is `5`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
@@ -123,12 +123,24 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 
 | Parameter Name                     | Description                                                                                                                                              |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
-| `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`. Shared across replicas for the same dataset.        |
-| `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
+| `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Must match `[a-z0-9_]{1,63}` and must not be the reserved name `pg_conflict_detection`. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
+| `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`, or `<slot>_pub` when `pg_replication_slot` is set. Shared across replicas for the same dataset. |
+| `pg_replication_initial_snapshot`  | Optional. When `refresh_mode: changes` first loads the table's existing rows: `auto` (default) snapshots a freshly-created replication slot and resumes an existing one without a snapshot; `disabled` streams WAL changes only; `always` snapshots on every start, including slot resume. The legacy booleans `true`/`false` map to `auto`/`disabled`. Default: `auto`. |
 | `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |
 | `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
+| `pg_replication_ready_lag`         | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's source time) falls below this. Default: `2s`. |
 | `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
+| `pg_replication_member_channel_capacity` | Optional. Shared-slot only: envelopes buffered per member table before the shared replication pump back-pressures. Default: `1024`. Maximum: `1048576`. |
+
+:::warning[`pg_sslmode` and `pg_sslrootcert` differ on the WAL replication transport]
+
+The `pg_sslmode` default of `verify-full` documented above applies to the federated read/query path. On the WAL replication transport used by `refresh_mode: changes`, an unset `pg_sslmode` defaults to **`prefer`**, which negotiates a **plaintext** connection (no certificate verification). Set `pg_sslmode` to `require`, `verify-ca`, or `verify-full` to force TLS on the WAL stream — see [`pg_sslmode` for WAL streaming](../../features/cdc/postgres-replication#pg_sslmode-for-wal-streaming).
+
+This applies to the discrete-parameter path. When the connection is configured with `pg_connection_string` and the string omits `sslmode`, the WAL transport defaults to `verify-full` — see [Connecting with `pg_connection_string`](../../features/cdc/postgres-replication#connecting-with-pg_connection_string).
+
+`pg_sslrootcert` also behaves differently on this transport: inline PEM content is supported only on the federated read/query path, while the WAL replication transport requires `pg_sslrootcert` to be a **file path**.
+
+:::
 
 ## Types
 
@@ -177,7 +189,7 @@ The Postgres federated queries may result in unexpected result types due to the 
 
 ## Write Support
 
-The PostgreSQL connector supports writing data to PostgreSQL tables using SQL [`INSERT INTO`](../../../reference/sql/dml#insert), `UPDATE`, and `DELETE FROM` statements.
+The PostgreSQL connector supports writing data to PostgreSQL tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert), `UPDATE`, and `DELETE FROM` statements.
 
 To enable writes, set `access: read_write` on the dataset:
 
@@ -236,7 +248,7 @@ datasets:
       write_mode: write_through # default; use write_back for fast async writes
 ```
 
-For more details, see [Data Ingestion](../../../features/data-ingestion).
+For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Examples
 

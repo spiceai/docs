@@ -15,7 +15,7 @@ Production operating guide for the HTTP(s) data connector covering authenticatio
 
 ## Authentication & Secrets
 
-The connector supports HTTP Basic, custom-header, and OAuth2 refresh-token authentication. Secrets must be sourced from a [secret store](../../secret-stores/) in production.
+The connector supports HTTP Basic, custom-header, and OAuth2 (refresh-token and client-credentials grants) authentication. Secrets must be sourced from a [secret store](../../secret-stores/) in production.
 
 | Parameter                 | Description                                                                                          |
 | ------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -23,15 +23,26 @@ The connector supports HTTP Basic, custom-header, and OAuth2 refresh-token authe
 | `http_password`           | Password for HTTP Basic authentication. Use `${secrets:...}` to resolve from a secret store.         |
 | `http_headers`            | Custom headers (e.g. `Authorization:Bearer ${secrets:api_token}`). Treated as sensitive — not logged. |
 | `auth_token_url`          | OAuth2 token endpoint URL (must be HTTPS in production).                                             |
-| `http_auth_refresh_token` | OAuth2 refresh token. Required when `auth_token_url` is set.                                         |
-| `http_auth_client_id`     | OAuth2 client ID (required for confidential clients).                                                |
-| `http_auth_client_secret` | OAuth2 client secret (required for confidential clients). Use `${secrets:...}`.                      |
+| `auth_grant_type`         | OAuth2 grant: `refresh_token` (default) or `client_credentials`.                                    |
+| `http_auth_refresh_token` | OAuth2 refresh token. Required for the (default) refresh-token grant; unused by `client_credentials`. |
+| `http_auth_client_id`     | OAuth2 client ID (required for confidential clients and for `client_credentials`).                  |
+| `http_auth_client_secret` | OAuth2 client secret (required for confidential clients and for `client_credentials`). Use `${secrets:...}`. |
+| `auth_header_name`        | Header carrying the access token. Default `Authorization` (`Bearer <token>`); any other name sends the bare token. |
 
 For OAuth2-protected APIs, prefer refresh-token flow over storing long-lived bearer tokens. The connector exchanges the refresh token for short-lived access tokens at startup and refreshes them before expiry.
 
 ### TLS
 
 Use HTTPS endpoints in production. `auth_token_url` must use HTTPS (loopback addresses are allowed for local testing only). Self-signed certificates require a trusted CA bundle in the container or host OS trust store.
+
+For upstream servers that require mutual TLS (mTLS), the connector can present a client certificate during the TLS handshake. Supply the certificate and key as file paths or inline PEM — the two forms are mutually exclusive, and the certificate and key must be set together. mTLS client identity applies to dynamic JSON API endpoints only.
+
+| Parameter                          | Description                                                                                  |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| `http_tls_client_certificate_file` | Path to a PEM client certificate chain. Pair with `http_tls_client_key_file`.                |
+| `http_tls_client_key_file`         | Path to the PEM private key matching the client certificate file.                            |
+| `http_tls_client_certificate`      | Inline PEM client certificate chain. Use `${secrets:...}`. Pair with `http_tls_client_key`.  |
+| `http_tls_client_key`              | Inline PEM private key matching the inline certificate. Use `${secrets:...}`.                |
 
 ## Resilience Controls
 
@@ -104,7 +115,7 @@ When using `refresh_mode: caching`, transient HTTP errors (5xx, 429) are exclude
 
 ## Metrics
 
-When rate control is active, the connector exposes per-origin metrics that can be enabled per-dataset:
+The connector exposes per-origin HTTP rate-control metrics for every dynamic JSON API dataset. They are registered automatically — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. Structured file-format datasets (`parquet`, `csv`, and the other listing-table formats) do not expose them:
 
 | Metric Name                                 | Type    | Description                                                                                              |
 | ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -123,12 +134,24 @@ When rate control is active, the connector exposes per-origin metrics that can b
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
 
-Enable component metrics in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+    metrics:
+      - name: rate_control_wait_duration_ms
+        enabled: false
+```
+
+Instruments are exposed with the prefix `dataset_http_` — the HTTP connector's component name is `http`, not `https` — and each carries an `origin` attribute (`scheme://host:port`) identifying the upstream origin instead of a dataset `name`, because datasets sharing an origin share one rate controller. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For broader observability, also monitor:
 
-- Spice query execution metrics (`query_duration_ms`, `query_processed_rows`, `query_failures_total`) from `runtime.metrics`.
-- HTTP response status distribution via the shared `resilient_http` instrumentation.
+- Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 
 ## Task History
 
@@ -138,7 +161,7 @@ HTTP requests participate in [task history](../../../reference/task_history) thr
 
 - **Read-only**: The connector is read-only. Only `GET` and `POST` (via `request_body` filters) are supported.
 - **Filter pushdown is opt-in**: `request_path`, `request_query`, `request_body`, and `request_headers` filters require explicit allowlists or `_filters: enabled` parameters.
-- **OAuth2 OOS scope**: Only the refresh-token grant is supported. Client-credentials and authorization-code flows are not exposed.
+- **OAuth2 OOS scope**: The refresh-token and client-credentials grants are supported. The authorization-code and device-code flows are not exposed.
 - **OR across virtual filter columns**: `WHERE request_path = '/a' OR request_query = 'b=1'` is rejected. Use separate datasets or `UNION ALL` for cross-column alternatives. Single-column `OR` (and `IN`-lists) is supported.
 
 ## Troubleshooting

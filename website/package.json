@@ -32,7 +32,7 @@
     "docusaurus-plugin-openapi-docs": "^4.7.1",
     "docusaurus-theme-openapi-docs": "^4.3.1",
     "embla-carousel-react": "^8.5.2",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.23",
     "postcss-import": "^16.1.1",
     "prism-react-renderer": "^2.3.1",
     "react": "^18.3.1",
@@ -50,7 +50,7 @@
     "@docusaurus/tsconfig": "^3.8.1",
     "@docusaurus/types": "^3.8.1",
     "typescript": "^5.9.2",
-    "wrangler": "^4.59.1"
+    "wrangler": "^4.114.0"
   },
   "browserslist": {
     "production": [

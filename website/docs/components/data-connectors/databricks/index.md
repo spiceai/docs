@@ -70,12 +70,14 @@ Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.
 | `databricks_endpoint`         | The endpoint of the Databricks instance. Required for all modes.                                                                                                                                                                                                                                                                                     |
 | `databricks_sql_warehouse_id` | The ID of the SQL Warehouse in Databricks to use for the query. Only valid when `mode` is `sql_warehouse`.                                                                                                                                                                                                                                           |
 | `databricks_cluster_id`       | The ID of the compute cluster in Databricks to use for the query. Only valid when `mode` is `spark_connect`.                                                                                                                                                                                                                                         |
-| `databricks_use_ssl`          | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                                                                              |
+| `databricks_credential_vending` | When set to `enabled` (requires `mode` to be `delta_lake`), short-lived storage credentials for each table are fetched from the Unity Catalog credential vending API instead of using static object store credentials. Possible values: `enabled`, `disabled`. Defaults to `disabled`.                                                              |
+| `databricks_use_ssl`          | If true, use a TLS connection to connect to the Databricks Spark Connect endpoint. Only valid when `mode` is `spark_connect`. Default is `true`.                                                                                                                                                                                                                                                              |
 | `client_timeout`              | Optional. Specifies timeout for HTTP operations. In `delta_lake` mode, applies to object store operations. In `sql_warehouse` mode, applies per-HTTP-call (statement submit, status poll, chunk fetch) — not total query duration. Default: `30s`. E.g. `client_timeout: 2m` |
 | `connect_timeout`             | Optional. Timeout for establishing TCP/TLS connections. Applies in `sql_warehouse` mode. Default: `10s`. E.g. `connect_timeout: 15s`                                                                                                                   |
 | `databricks_token`            | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
 | `databricks_client_id`        | The Databricks OAuth client ID. Used with `databricks_client_secret` for service-principal (M2M) auth, or alone for interactive User-to-Machine (U2M) auth. Can't be used with `databricks_token`.                                                                                                                                                   |
 | `databricks_client_secret`    | The Databricks Service Principal Client Secret. Required for M2M auth; omit for U2M auth. Can't be used with `databricks_token`.                                                                                                                                                                                                                     |
+| `databricks_auth_mode`        | Optional. Pins the authentication flow instead of inferring it from the credentials that are set. One of `auto`, `token`, `m2m`, `u2m` (case-insensitive). Defaults to `auto`. See [Pinning the authentication mode](#pinning-the-authentication-mode).                                                                                              |
 
 #### SQL Warehouse tuning
 
@@ -139,7 +141,7 @@ datasets:
 
 ### User-to-Machine (U2M) OAuth
 
-Spice supports the User-to-Machine (U2M) OAuth flow for interactive sign-in against Databricks. To use U2M auth, supply only `databricks_client_id` (without `databricks_token` or `databricks_client_secret`).
+Spice supports the User-to-Machine (U2M) OAuth flow for interactive sign-in against Databricks. To use U2M auth, supply only `databricks_client_id` (without `databricks_token` or `databricks_client_secret`), or set `databricks_auth_mode: u2m` to pin the flow — see [Pinning the authentication mode](#pinning-the-authentication-mode).
 
 When U2M auth is configured, the connector defers initialization until first use. On the first query the runtime opens a browser to complete the Databricks OAuth sign-in, then caches and refreshes the resulting token for subsequent requests.
 
@@ -160,6 +162,35 @@ datasets:
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # OAuth app client id
 ```
 
+### Pinning the authentication mode
+
+By default (`databricks_auth_mode: auto`) the connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, and `databricks_client_id` together with `databricks_client_secret` selects M2M.
+
+Credentials do not only come from the Spicepod. `databricks_token`, `databricks_client_secret`, and the other secret parameters are auto-loaded from the [secret stores](../secret-stores/) and the environment (e.g. `DATABRICKS_CLIENT_SECRET`, `SPICE_DATABRICKS_CLIENT_SECRET`) when the Spicepod omits them — so an ambient client secret on the host is enough to switch a U2M dataset to machine-to-machine, which then fails with a service principal `401`.
+
+Set `databricks_auth_mode` to pin the flow. A pinned mode ignores the credentials the flow does not use:
+
+| Value            | Flow                            | Requires                                          |
+| ---------------- | ------------------------------- | ------------------------------------------------- |
+| `auto` (default) | Inferred from the credentials set | —                                                |
+| `token`          | Personal access token           | `databricks_token`                                |
+| `m2m`            | Service principal (M2M) OAuth   | `databricks_client_id`, `databricks_client_secret` |
+| `u2m`            | User-to-machine OAuth           | `databricks_client_id`                            |
+
+Values are matched case-insensitively, so `M2M` and `U2M` are also accepted. A required parameter that is missing for the pinned mode fails at load with an error naming it; an unrecognized value is rejected.
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      mode: sql_warehouse
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
+      databricks_auth_mode: u2m # ignore any ambient client secret or token
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # OAuth app client id
+```
+
 ## Delta Lake object store parameters
 
 Configure the connection to the object store when using `mode: delta_lake`. Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.g. `${secrets:aws_access_key_id}`.
@@ -171,6 +202,7 @@ Configure the connection to the object store when using `mode: delta_lake`. Use 
 | `databricks_aws_region`            | Optional. The AWS region for the S3 object store. E.g. `us-west-2`.                            |
 | `databricks_aws_access_key_id`     | The access key ID for the S3 object store.                                                     |
 | `databricks_aws_secret_access_key` | The secret access key for the S3 object store.                                                 |
+| `databricks_aws_session_token`     | Optional. The AWS session token for the S3 object store. Required with temporary (STS) credentials. |
 | `databricks_aws_endpoint`          | Optional. The endpoint for the S3 object store. E.g. `s3.us-west-2.amazonaws.com`.             |
 | `databricks_aws_allow_http`        | Optional. Enables insecure HTTP connections to `databricks_aws_endpoint`. Defaults to `false`. |
 

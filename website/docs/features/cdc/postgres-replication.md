@@ -126,14 +126,46 @@ All replication-specific parameters live under `params:` on the dataset and star
 
 | Parameter                            | Default                                          | Description                                                                                                                                                                                            |
 |--------------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot. Must be unique per replica.                                                                                                                                              |
-| `pg_publication`                     | `spice_<dataset>_<dataset-hash>_pub`             | Publication name. Shared across replicas. Auto-created if missing.                                                                                                                                     |
-| `pg_replication_initial_snapshot`    | `true`                                           | If `true`, take an initial snapshot of the table's existing rows before streaming. Set to `false` if you are pre-seeding the accelerator yourself.                                                     |
+| `pg_replication_slot`                | `spice_<dataset>_<dataset-hash>_<instance-hash>` | Name of the replication slot to create/reuse — see [Replication slot naming](#replication-slot-naming) for the accepted characters. Datasets on the same connection that name the same slot **share** it — one slot, one publication, one replication connection — see [Sharing one slot across datasets](#sharing-one-slot-across-datasets). Each Spice replica must still use its own unique slot.                                          |
+| `pg_publication`                     | `spice_<dataset>_<dataset-hash>_pub`             | Publication name. Defaults to `<slot>_pub` when `pg_replication_slot` is set explicitly (so datasets sharing a slot agree on it). Shared across replicas. Auto-created if missing.                                                                  |
+| `pg_replication_initial_snapshot`    | `auto`                                           | When `refresh_mode: changes` first loads existing rows: `auto` (default) snapshots a freshly-created slot and resumes an existing one without a snapshot (a non-persistent accelerator still re-snapshots on every start); `disabled` streams WAL changes only; `always` snapshots on every start, including slot resume. The legacy booleans `true`/`false` are deprecated and map to `auto`/`disabled`. |
+| `pg_replication_ready_lag`           | `2s`                                             | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's source time) falls below this. It stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data.  |
 | `pg_replication_temporary_slot`      | `false`                                          | If `true`, the slot is dropped when Spice disconnects. Every restart re-bootstraps.                                                                                                                    |
 | `pg_replication_status_interval`     | `10s`                                            | How often `StandbyStatusUpdate` (LSN acknowledgement) is sent back to Postgres. Lower values free WAL faster; higher values reduce network chatter. Accepts any duration string (`500ms`, `30s`, `2m`). |
 | `pg_replication_bootstrap_batch_size` | `8192`                                          | Rows per emitted batch during the initial-snapshot bootstrap. Larger batches reduce per-batch overhead at the cost of more memory per batch. Maximum: `1048576`.                                       |
+| `pg_replication_member_channel_capacity` | `1024`                                       | Shared-slot only: envelopes buffered per member table before the shared replication pump back-pressures. Too small a value lets one member's transient stall block the whole slot (head-of-line blocking). Maximum: `1048576`. |
 
 All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, `pg_connection_string` parameters continue to apply — see the [PostgreSQL Data Connector](../../components/data-connectors/postgres) reference.
+
+### Replication slot naming
+
+PostgreSQL restricts replication slot names to `[a-z0-9_]` — lowercase letters, digits, and underscores only — with a maximum length of 63 bytes, and reserves `pg_conflict_detection` for its own conflict-detection slot. An explicit `pg_replication_slot` is validated against these rules while the dataset's replication parameters are built, so a name with (for example) a hyphen or an uppercase letter fails immediately with an error naming the parameter, rather than surfacing later as a refresh-task failure from the server.
+
+The generated default (`spice_<dataset>_<dataset-hash>_<instance-hash>`) already conforms: the dataset name is sanitized and truncated to keep the whole identifier within the 63-byte limit.
+
+### Connecting with `pg_connection_string`
+
+`refresh_mode: changes` accepts `pg_connection_string` in place of the discrete `pg_host` / `pg_port` / `pg_user` / `pg_pass` / `pg_db` parameters, in both libpq `key=value` and `postgresql://` URI form, following the same rules as the federated read path:
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params:
+      pg_connection_string: postgresql://spice:${secrets:pg_pass}@pg.internal:5432/myapp
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+```
+
+- The connection string **takes precedence** over discrete host/user/database parameters when both are set.
+- `pg_sslmode` and `pg_sslrootcert` are the exception: set discretely, they override whatever the connection string carries.
+- A connection string that omits `sslmode` defaults to **`verify-full`** on the replication transport — unlike the discrete-parameter path, where an unset `pg_sslmode` defaults to `prefer` (see below).
+- Unix-socket hosts are not supported for replication; the connection string must name a TCP host.
 
 ### `pg_sslmode` for WAL streaming
 
@@ -142,26 +174,71 @@ All existing `pg_host`, `pg_port`, `pg_user`, `pg_pass`, `pg_db`, `pg_sslmode`, 
 | `pg_sslmode`       | Replication transport | Cert chain verified | Hostname verified |
 |--------------------|-----------------------|:-------------------:|:-----------------:|
 | `disable`          | plaintext             | —                   | —                 |
-| `prefer` (default) | plaintext             | —                   | —                 |
+| `prefer` (default with discrete parameters) | plaintext | —          | —                 |
 | `require`          | TLS                   | ❌                  | ❌                |
 | `verify-ca`        | TLS                   | ✅                  | ❌                |
 | `verify-full`      | TLS                   | ✅                  | ✅                |
 
 :::info
 `prefer` behaves as plaintext on the replication transport because the replication client does not expose a safe "try TLS, fall back to plaintext" path. Set `require`, `verify-ca`, or `verify-full` to force TLS on the WAL stream.
+
+When the connection is configured with [`pg_connection_string`](#connecting-with-pg_connection_string) and the string omits `sslmode`, the replication transport defaults to `verify-full` instead of `prefer`.
 :::
 
 ### Accelerator engines
 
-| Engine     | `INSERT` |      `UPDATE`      | `DELETE` | Notes                                                                             |
-|------------|:--------:|:------------------:|:--------:|-----------------------------------------------------------------------------------|
-| `duckdb`   |    ✅    | ✅ (upsert)        |    ✅    | Recommended for most workloads.                                                   |
-| `sqlite`   |    ✅    | ✅ (upsert)        |    ✅    | Great for small/medium datasets.                                                  |
-| `postgres` |    ✅    | ✅ (upsert)        |    ✅    | Use when the accelerator is another Postgres.                                     |
-| `cayenne`  |    ✅    | ✅ (upsert)        |    ✅    | S3-backed Vortex format, good for read-heavy analytics.                           |
-| `arrow`    |    ✅    | ❌ (becomes insert)|    ✅    | Arrow's in-memory engine does not support `on_conflict`; `UPDATE`s append rows.   |
+| Engine     | `INSERT` |           `UPDATE`           | `DELETE` | Notes                                                                                                                                                                                                  |
+|------------|:--------:|:----------------------------:|:--------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `duckdb`   |    ✅    | ✅ (upsert)                  |    ✅    | Recommended for most workloads.                                                                                                                                                                        |
+| `sqlite`   |    ✅    | ✅ (upsert)                  |    ✅    | Great for small/medium datasets.                                                                                                                                                                       |
+| `postgres` |    ✅    | ✅ (upsert)                  |    ✅    | Use when the accelerator is another Postgres.                                                                                                                                                          |
+| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics.                                                                                                                                                |
+| `arrow`    |    ✅    | ✅ (upsert with primary key) |    ✅    | Arrow's in-memory engine uses a hash index for primary-key upserts. Without a primary key, `UPDATE`s are appended as new rows. `DELETE` and `TRUNCATE` are applied via Arrow's `DeletionTableProvider`. |
 
-For workloads that need true upsert semantics, use DuckDB, SQLite, PostgreSQL, or Cayenne.
+For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. DuckDB, SQLite, PostgreSQL, and Cayenne also support upsert behavior.
+
+## Sharing one slot across datasets
+
+By default each changes-mode dataset gets its own replication slot and publication. On the source database that costs one logical slot **and** one walsender decoder over the full WAL stream per dataset, so mirroring many tables can exhaust `max_replication_slots` and multiply decode work.
+
+When several datasets on the **same connection** name the same `pg_replication_slot`, Spice multiplexes them onto **one slot, one publication, and one replication connection**, routing decoded changes to each dataset's accelerator by `(schema, table)`. Sharing is implicit — name the same slot and the datasets share it:
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params: &repl
+      pg_host: db.internal
+      pg_db: app
+      pg_user: spice
+      pg_pass: ${secrets:pg_pass}
+      pg_replication_slot: spice_app_cdc   # same slot ⇒ shared
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+  - from: postgres:public.orders
+    name: orders
+    params: *repl                          # same connection + slot ⇒ shares the slot above
+    acceleration:
+      enabled: true
+      engine: duckdb
+      refresh_mode: changes
+      primary_key: id
+      on_conflict:
+        id: upsert
+```
+
+Notes:
+
+- A slot named by only one dataset behaves exactly as before (a single member).
+- Datasets without an explicit `pg_replication_slot` keep their dedicated per-dataset slot and publication.
+- Members of a shared slot must agree on the publication. The default becomes `<slot>_pub`; an explicit `pg_publication` still wins and is validated for consistency across members.
+- Each source table can back **at most one dataset per shared slot**. Pointing two datasets at the same `(schema, table)` through one slot is rejected — give the second dataset a different `pg_replication_slot` (or remove the param for a dedicated slot).
+- Sharing is per Spice instance. Across replicas, each replica must still use its own unique slot — see [Multi-replica deployments](#multi-replica-deployments).
 
 ## Multi-replica deployments
 
@@ -254,7 +331,7 @@ Core freshness signals (auto-registered):
 | `dataset_postgres_replication_lag_ms`      | Gauge   | `now() − commit_time(latest ingested txn)`. Primary CDC freshness signal.                             |
 | `dataset_postgres_replication_lag_bytes`   | Gauge   | `server_wal_end_lsn − confirmed_flush_lsn`. Unacknowledged WAL held by Spice's slot.                  |
 | `dataset_postgres_replication_transactions_total` | Counter | Committed transactions applied.                                                                 |
-| `dataset_postgres_replication_inserts_total` / `updates_total` / `deletes_total` | Counter | Row-level events from WAL.                                      |
+| `dataset_postgres_replication_inserts_total` / `dataset_postgres_replication_updates_total` / `dataset_postgres_replication_deletes_total` | Counter | Row-level events from WAL.                                      |
 | `dataset_postgres_replication_reconnects_total` | Counter | Number of times the stream reconnected after a transient failure.                            |
 
 ## Troubleshooting
@@ -266,14 +343,14 @@ Core freshness signals (auto-registered):
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
-| `UPDATE`s on Arrow-engine dataset don't replace rows                         | Arrow does not support `on_conflict`. Switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`.                                     |
+| `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
 ## Limitations
 
 - **One table per dataset.** Each Spice dataset replicates exactly one source table; each dataset gets its own slot and publication.
 - **No DDL replication.** Schema changes on the source are not propagated automatically. Add new columns as nullable on the source first, update the Spice dataset, then reload the Spicepod.
-- **Arrow engine** does not support `on_conflict` (upsert) semantics. `UPDATE`s therefore appear as additional inserts rather than replacing existing rows. For true upsert behavior use DuckDB, SQLite, Postgres, or Cayenne.
+- **Arrow engine** supports `on_conflict` upserts when a `primary_key` is configured. Without a primary key, `UPDATE`s appear as additional inserts rather than replacing existing rows. `DELETE` and `TRUNCATE` are applied either way.
 
 ## Comparison with Debezium + Kafka
 

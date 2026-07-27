@@ -24,7 +24,7 @@ DynamoDB authentication uses the standard AWS credential chain. Configure via th
 | `dynamodb_aws_secret_access_key` | Explicit secret key (optional).                                                                   |
 | `dynamodb_aws_session_token` | Session token for temporary credentials (optional).                                                  |
 
-For production on EKS/ECS, leave access-key parameters unset and rely on instance-profile, IRSA, or ECS task-role credentials. Grant the role `dynamodb:Scan`, `dynamodb:Query`, and `dynamodb:DescribeTable` on the table; for streams, additionally grant `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, `dynamodb:GetRecords`, and `dynamodb:ListStreams`.
+For production on EKS/ECS, leave access-key parameters unset and rely on instance-profile, IRSA, or ECS task-role credentials. Grant the role `dynamodb:Scan`, `dynamodb:Query`, and `dynamodb:DescribeTable` on the table; for streams, additionally grant `dynamodb:DescribeStream`, `dynamodb:GetShardIterator`, and `dynamodb:GetRecords`.
 
 Secrets should be sourced from a [secret store](../../secret-stores/) when not using IAM role auth.
 
@@ -37,18 +37,20 @@ The DynamoDB connector supports CDC via DynamoDB Streams with an accelerated dat
 | Parameter                      | Default  | Description                                                                                                              |
 | ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `scan_interval` | `0s` | Interval between polls for new records in a DynamoDB stream.                                                 |
-| `ready_lag` | `2s` | Once lag falls below this threshold, the dataset is reported as `Ready`.                                                 |
-| `lag_exceeds_shard_retention_behavior` | `error` | Behavior when stream lag exceeds shard retention (24h): `error`, `ready_before_load`, or `ready_after_load`. |
+| `dynamodb_replication_ready_lag` | `2s` | Once replication lag falls below this threshold, the dataset is reported as `Ready`. (Previously `ready_lag`, still accepted as a deprecated alias.) |
+| `dynamodb_replication_initial_snapshot` | `auto` | When `refresh_mode: changes` first loads existing items: `auto` scans only when no resumable checkpoint exists, `disabled` streams changes only, `always` scans on every start. |
+| `dynamodb_replication_invalid_checkpoint_behavior` | `error` | Behavior when the persisted checkpoint can no longer be honored (past ~24h shard retention): `error` or `restart`. (Previously `lag_exceeds_shard_retention_behavior`, still accepted as a deprecated alias.) |
 
 ### Shard Retention and Lag
 
-DynamoDB Streams retain records for 24 hours. If Spice is offline longer than the retention window, the checkpoint becomes stale and the next stream open returns `ShardNotFound`. Behavior is controlled by `lag_exceeds_shard_retention_behavior`:
+DynamoDB Streams retain records for 24 hours. If Spice is offline longer than the retention window, the checkpoint becomes stale and the next stream open returns `ShardNotFound`. Behavior is controlled by `dynamodb_replication_invalid_checkpoint_behavior`:
 
 - **`error`** (default): Mark the dataset `Error`. Requires operator intervention to re-bootstrap.
-- **`ready_before_load`**: Mark the dataset `Ready` immediately, then re-bootstrap the accelerated dataset in the background. Queries see stale data until the bootstrap completes.
-- **`ready_after_load`**: Re-bootstrap the accelerated dataset, then mark it `Ready`. Queries block / return `Error` during bootstrap.
+- **`restart`**: Drop the stale checkpoint and re-bootstrap the accelerated dataset from a fresh scan.
 
 A checkpoint older than **18 hours** is treated as near-expired and triggers the same recovery path even if the shard has not yet been dropped by DynamoDB.
+
+The deprecated `lag_exceeds_shard_retention_behavior` alias is still accepted: `ready_after_load` maps to `restart`, and `ready_before_load` (which briefly served stale data before reloading) has been removed and also maps to `restart`.
 
 ## Capacity & Sizing
 
@@ -87,8 +89,8 @@ Stream polling and bootstrap operations emit spans that participate in [task his
 
 | Symptom                                         | Likely cause                                                           | Resolution                                                                                                       |
 | ----------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Dataset stuck in `Error` after restart with stream enabled | Checkpoint older than 18h or exceeded 24h retention.              | Set `lag_exceeds_shard_retention_behavior: ready_after_load` to auto-recover, or trigger a manual refresh.   |
+| Dataset stuck in `Error` after restart with stream enabled | Checkpoint older than 18h or exceeded 24h retention.              | Set `dynamodb_replication_invalid_checkpoint_behavior: restart` to auto-recover, or trigger a manual refresh.   |
 | `ProvisionedThroughputExceededException`         | RCU exhausted during initial scan.                                     | Switch to on-demand billing, raise RCU for the refresh window, or slow the refresh via acceleration settings.    |
 | `TrimmedDataAccessException`                     | Records trimmed from the stream before they could be processed.        | Same recovery path as `ShardNotFound` — re-bootstrap. Reduce bootstrap duration via parallel segments if supported. |
-| `AccessDeniedException` on `DescribeStream`      | IAM role lacks stream permissions.                                     | Add `dynamodb:DescribeStream`, `GetShardIterator`, `GetRecords`, `ListStreams` to the role.                     |
+| `AccessDeniedException` on `DescribeStream`      | IAM role lacks stream permissions.                                     | Add `dynamodb:DescribeStream`, `GetShardIterator`, `GetRecords` to the role.                     |
 | `ResourceNotFoundException` on stream start      | Stream not enabled on the table.                                       | Enable streams on the DynamoDB table (`NEW_AND_OLD_IMAGES` recommended).                                         |

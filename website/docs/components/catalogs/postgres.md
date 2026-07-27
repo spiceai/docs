@@ -61,6 +61,31 @@ Connection can be configured using a connection string or individual parameters.
 | `pg_sslmode`     | The SSL mode for the connection (e.g. `require`, `prefer`, `disable`). |
 | `pg_sslrootcert` | Path to the SSL root certificate file, or inline PEM content.          |
 
+## `dataset_params`
+
+Optional. Parameters applied to every table discovered through the catalog.
+
+| Parameter Name            | Description                                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unsupported_type_action` | Action to take when a discovered table contains a column of a type that cannot be mapped. One of `string` (default), `error`, `warn`, `ignore`. |
+
+The supported `unsupported_type_action` values are:
+
+- `string` — Default. Attempt to convert the unsupported type to a string (e.g. PostgreSQL `JSONB`). This matches the default of the [PostgreSQL Data Connector](../data-connectors/postgres).
+- `error` — Fail catalog registration when an unsupported type is encountered.
+- `warn` — Log a warning and drop the column containing the unsupported type.
+- `ignore` — Drop the column containing the unsupported type without logging.
+
+An invalid value returns a configuration error rather than being silently ignored.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    dataset_params:
+      unsupported_type_action: warn # string (default) | error | warn | ignore
+```
+
 ## Authentication
 
 ### Connection string
@@ -100,6 +125,19 @@ catalogs:
       pg_connection_string: postgresql://${secrets:REDSHIFT_USER}:${secrets:REDSHIFT_PASS}@my-cluster.abc123.us-east-1.redshift.amazonaws.com:5439/my_database?sslmode=require
 ```
 
+## Discovered Relations
+
+The connector discovers the following PostgreSQL relation types from each included schema:
+
+- Base tables
+- Standard views
+- Materialized views
+- Foreign tables
+
+Relations are read directly from `pg_catalog.pg_class`. Only relations the connecting role holds `SELECT` privilege on (checked via `has_table_privilege`) are registered, so the catalog does not surface relations that cannot be read.
+
+For declaratively-partitioned tables (and legacy table inheritance), only the partitioned parent is registered — child partitions are not registered as separate tables. Querying the parent returns rows from every partition.
+
 ## Foreign Key Discovery
 
 The PostgreSQL Catalog Connector automatically discovers foreign key relationships by querying `information_schema.referential_constraints` and `key_column_usage` during catalog refresh. Discovered FK metadata is attached to each table's Arrow schema and surfaces through:
@@ -108,6 +146,96 @@ The PostgreSQL Catalog Connector automatically discovers foreign key relationshi
 - FlightSQL `GetTables` — programmatic clients receive FK metadata in the schema response
 
 No configuration is required. If FK discovery fails for a schema (e.g., due to insufficient permissions on `information_schema`), tables are still registered without FK metadata and a warning is logged.
+
+## Catalog-Level CDC Acceleration
+
+A PostgreSQL catalog can be accelerated as a whole. Adding an `acceleration` block bootstraps and CDC-accelerates every discovered table (subject to `include`/`exclude`) with no per-table dataset configuration. All accelerated tables share a single replication slot and publication — derived deterministically from the catalog `name`, see [Shared replication slot](#shared-replication-slot) — so the source's write-ahead log (WAL) is decoded once for the entire catalog instead of once per table.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    include:
+      - 'public.*'
+    acceleration:
+      engine: cayenne # optional; cayenne is the only supported engine
+      refresh_mode: changes # required
+    params:
+      pg_connection_string: postgresql://${secrets:PG_USER}:${secrets:PG_PASS}@localhost:5432/my_database
+```
+
+### `acceleration.engine`
+
+Optional. The accelerator engine used for every table. Defaults to `cayenne`, which is currently the only supported value.
+
+### `acceleration.refresh_mode`
+
+Required — there is no catalog-level default. The only supported value is `changes` (CDC); there is no catalog-level `full` mode. An `acceleration` block without a `refresh_mode` is a configuration error.
+
+### Requirements
+
+- **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
+
+### Shared replication slot
+
+The catalog's slot name is `spice_catalog_{catalog_name}_{hash}` — the sanitized catalog `name`, followed by a short hash of the full name so two long names that share a truncated prefix stay distinct, all within PostgreSQL's 63-byte identifier limit. The `spice_catalog_` prefix distinguishes it from the per-dataset `spice_` slots, so a catalog slot and a same-named dataset slot can never collide.
+
+The name is a pure function of the catalog `name`: it carries no instance, host, or process component, and Spice persists no slot identity of its own — the durable state is the PostgreSQL slot itself. Two consequences follow:
+
+- **Restarts and reschedules reuse the slot.** Restarting the runtime, or rescheduling the catalog onto a different node, recomputes the identical name and resumes from the existing slot instead of orphaning it and re-snapshotting the catalog from scratch.
+- **Two Spice instances cannot accelerate the same catalog.** PostgreSQL permits one consumer per replication slot, so before it starts streaming Spice checks whether the slot is already **actively** held. An absent slot is created by the per-table replication path; a present-but-inactive slot is reused; an actively-held slot fails the catalog to load with an error naming the slot and the consumer holding it.
+
+Because a slot can also read as active immediately after the runtime's *own* ungraceful exit — PostgreSQL keeps the walsender marked active until `wal_sender_timeout` elapses — Spice waits for it to free before concluding another consumer owns it. The wait is the server's `wal_sender_timeout` plus a 5-second grace, polled once a second, capped at 3 minutes; when `wal_sender_timeout` is `0` (disabled) a 90-second budget is used instead, because the server will not time out the dropped consumer on its own.
+
+:::warning
+Run only one Spice instance per accelerated PostgreSQL catalog. Because the slot name is instance-independent, a second instance configured with the same catalog `name` competes for the same slot and fails to load rather than silently splitting the change stream.
+:::
+
+### Table eligibility
+
+Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENTITY`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY), which determines the row identity available for change data capture:
+
+- **`DEFAULT` with a primary key** — accelerated, keyed by the primary key.
+- **`USING INDEX`** — accelerated, keyed by the nominated unique index.
+- **`FULL`** — accelerated, but heavier: PostgreSQL logs the full old-row image on every `UPDATE`/`DELETE`, so a warning is logged. Prefer a primary key or `USING INDEX` where possible.
+- **No usable CDC key** (`NOTHING`, a keyless `DEFAULT` or `FULL`, or an unusable identity index) — **skipped with an actionable warning** and left out of the catalog's namespace. The rest of the catalog still replicates; a single ineligible table never fails the whole catalog.
+
+Use `include`/`exclude` to narrow scope and suppress the skip warning for tables you will handle another way (federation, or a per-dataset `refresh_mode: full`).
+
+The startup summary reports the accelerated tables broken down by the CDC key each one resolved to — primary key, `USING INDEX`, or `FULL` — alongside the skipped and excluded counts, and names the shared replication slot in use.
+
+If **no** table is eligible, the catalog fails to load with an `ERROR` status rather than registering an empty catalog. The error names the excluded and skipped counts and the fix. Because discovery happens at startup, an empty result is treated as a configuration problem: either every table lacks a usable CDC key, or the `include`/`exclude` patterns matched nothing.
+
+### Acceleration metrics
+
+Each catalog refresh records the current table dispositions as gauges — see [Available Metrics](../../features/observability/index.md#available-metrics):
+
+| Metric                                    | Dimensions           | Meaning                                                                                     |
+| ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `catalog_acceleration_tables`             | `catalog`, `category` | Tables resolved into each disposition: `accelerated`, `skipped`, or `excluded`.              |
+| `catalog_acceleration_accelerated_tables` | `catalog`, `kind`     | Accelerated tables by the CDC key accelerating them: `primary_key`, `unique_index`, or `full`. |
+
+They are gauges rather than counters because each refresh re-plans the whole namespace, so a value can rise or fall.
+
+### Behavior
+
+- Per-table-only acceleration concepts (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are intentionally not configurable at the catalog level — they remain exclusively on an individual dataset's own `acceleration` block.
+- While a table's acceleration is still bootstrapping, that table is reported as not-yet-present rather than being served through the source, so queries do not transparently fall back to the un-accelerated PostgreSQL table.
+
+## Limitations
+
+:::warning
+
+- **`include` filters tables, not schemas.** The `include` patterns are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
+- **Partial discovery failures.** If discovery of a schema's tables fails, that schema is skipped with a warning rather than aborting the whole catalog load. On refresh, a transient per-schema failure falls back to the last-known-good state for that schema, so intermittent errors do not cause catalog flapping; a schema is only dropped for a cycle if it has never refreshed successfully. Total connectivity loss (a failed `list_schemas`) still fails hard.
+- **Amazon Redshift.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Discovery degrades gracefully (tables are still registered).
+- **Read-only; per-table acceleration not configurable.** Catalog tables are read-only, and per-table `acceleration` blocks cannot be set on individually discovered tables. Catalog-wide CDC acceleration _is_ available for PostgreSQL — see [Catalog-Level CDC Acceleration](#catalog-level-cdc-acceleration).
+
+:::
+
+## Cookbook
+
+There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres) demonstrating the PostgreSQL Catalog Connector with the TPC-H dataset.
 
 ## Secrets
 

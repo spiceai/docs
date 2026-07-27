@@ -7,7 +7,7 @@ sidebar_position: 5
 
 To use a language model hosted on Google AI, specify `google` in the `from` field.
 
-To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `gemini-2.0-flash-exp`.
+Include a model ID in the `from` field (see example below); a model ID is required. Spice does not apply a default model — the model fails to load if the ID is omitted (`from: google`).
 
 The following parameters are specific to Google AI models:
 
@@ -19,7 +19,7 @@ Example `spicepod.yml` configuration:
 
 ```yaml
 models:
-  - from: google:gemini-2.0-flash-exp
+  - from: google:gemini-3.5-flash
     name: flash
     params:
       google_api_key: ${ secrets:GEMINI_API_KEY }
