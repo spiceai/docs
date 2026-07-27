@@ -80,6 +80,12 @@ Resource requirements depend on workload, dataset size, query complexity, and re
 
 ### Memory
 
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, [Spice Cayenne](../cayenne/index.md) is recommended over DuckDB, because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset, and its query execution is governed by [`runtime.query.memory_limit`](../../../reference/spicepod/runtime#runtimequerymemory_limit) with spill-to-disk rather than a separate per-instance pool.
+
+:::
+
 DuckDB manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance (one per distinct DuckDB file, plus one shared instance for all `mode: memory` datasets) sizes its own `memory_limit` at roughly 80% of **host** RAM — independently of every other instance and of the Spice query engine. To control memory usage explicitly, set the `duckdb_memory_limit` parameter:
 
 ```yaml
