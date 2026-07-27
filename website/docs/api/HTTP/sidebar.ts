@@ -138,15 +138,21 @@ const sidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
-          id: "api/HTTP/operation-id",
-          label: "Establish an MCP SSE Connection",
+          id: "api/HTTP/mcp-stream",
+          label: "Open an MCP server-to-client SSE stream",
           className: "api-method get",
         },
         {
           type: "doc",
-          id: "api/HTTP/mcp-event",
-          label: "Send message to MCP server",
+          id: "api/HTTP/mcp-message",
+          label: "Send a Model Context Protocol message",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/mcp-terminate-session",
+          label: "Terminate an MCP Streamable HTTP session",
+          className: "api-method delete",
         },
       ],
     },

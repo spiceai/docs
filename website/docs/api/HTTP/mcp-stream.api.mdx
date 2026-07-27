@@ -1,0 +1,70 @@
+---
+id: mcp-stream
+title: "Open an MCP server-to-client SSE stream"
+description: "Open a long-lived server-to-client SSE stream for the current MCP session as defined by the Streamable HTTP transport. The `Mcp-Session-Id` header must identify an existing session created via `POST /v1/mcp`."
+sidebar_label: "Open an MCP server-to-client SSE stream"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVU2P00AM/SvWnEDatF3gAL0hxMdKIFZqOaHVZpq4rcVkZphxsluq/e/YSVp2t8AZcaiajD328/OzszdsN9nMv5qmiubqzNSYq0SRKXgzN58jerDggt8UjjqsIWPqMBUcisoReobF4i1kTmgbWIcEvEWo2pTU9OnNpfjnLLHAZqhxTV5CrHa916K/ZFcO4cNyeQmcrM8xJJ7AUszlpyoWi+F2cVGXsEVbY4KmzQxUS3xa78B6wFvKTH5zTFVJXJY8HVkoLz8vljDtzqdSXzkxZyZETFbLu6ilQDm9HtCLKdpkG2RMSsjeeHkRl4c4xI2UmQGNeUzY6HgASAI4IbfpXt0DgyBOJXliso5+YCmV1OL6vaUkrmLM7SrLq/Kox5g5AwdoLHmW3wNyqyDJfEu80woPUcx8bV3Guys9Ema9uJv53jybzfTvEfBfbXxSMt7yFDvJXQxn5VMI60PvQ6IN+Z5iBdEICLvBPDF3Z+bF7Pw09hdvW97KtR9Yj809dATQ1zHQWKSgzlCmVqppcKKXSq15hVrhmjZt0gBvDs/a/deXF/ANdxBT6Ej1IdTsQptgEanCGOqRWE47uCHeqjr63gg1I+Lnp4jfhbSiWvxGuB9C5qMCO+taBMrgA2s6beoRtBQ1sc6FG6yvt3Irl+BEn2OqF78j55sPNx5kdvA29t1/LH25LLdFmdugmt0g92LlrbyMRMrB0J1Bum1yqlHmOJ9OXaisUyzzl7NXsxPJflSzDGeHLsRG9TZEuk90z1xZFBpR4VxpOhlzUVyfz0a6li7I85XayK+DVsrETkdoJOcktXKbtU/SoaOLk3eRqt4fJ/B1tNUWi2cTBf9rsh5ahCEtfwgsB5NZ0frMul/UFqX+xvp7UYfddhikP261x6D3RqdNfP7P9ci7qOT0GyA6WTRKXi+n/Si5r6Y7F8fxe6G60rP9fmUzfknu7k6PZWGlXg7SFZuo74KK4+ywOFU1NWU1HBbVX4j+F9bqb5npRX/6iehXhBj6STkO7vu3S5nkn6SAmfA=
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Open an MCP server-to-client SSE stream"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/mcp"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Open a long-lived server-to-client SSE stream for the current MCP session as defined by the Streamable HTTP transport. The `Mcp-Session-Id` header must identify an existing session created via `POST /v1/mcp`.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./mcp-stream.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./mcp-stream.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./mcp-stream.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

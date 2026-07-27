@@ -13,7 +13,9 @@ Component metrics provide detailed insights into the internal state and performa
 
 ## Enabling Component Metrics
 
-Component metrics are disabled by default and can be enabled by adding a `metrics` section to the component configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+Most component metrics are disabled by default and can be enabled by adding a `metrics` section to the component configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+
+Some metrics are **auto-registered**: they export without any `metrics` configuration, and an entry with `enabled: false` is what turns one off. Each component's own documentation states which of its metrics are auto-registered.
 
 ### Example Configuration
 

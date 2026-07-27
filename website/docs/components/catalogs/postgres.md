@@ -149,7 +149,7 @@ No configuration is required. If FK discovery fails for a schema (e.g., due to i
 
 ## Catalog-Level CDC Acceleration
 
-A PostgreSQL catalog can be accelerated as a whole. Adding an `acceleration` block bootstraps and CDC-accelerates every discovered table (subject to `include`/`exclude`) with no per-table dataset configuration. All accelerated tables share a single replication slot and publication — derived once from the catalog `name` — so the source's write-ahead log (WAL) is decoded once for the entire catalog instead of once per table.
+A PostgreSQL catalog can be accelerated as a whole. Adding an `acceleration` block bootstraps and CDC-accelerates every discovered table (subject to `include`/`exclude`) with no per-table dataset configuration. All accelerated tables share a single replication slot and publication — derived deterministically from the catalog `name`, see [Shared replication slot](#shared-replication-slot) — so the source's write-ahead log (WAL) is decoded once for the entire catalog instead of once per table.
 
 ```yaml
 catalogs:
@@ -176,6 +176,21 @@ Required — there is no catalog-level default. The only supported value is `cha
 
 - **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
 
+### Shared replication slot
+
+The catalog's slot name is `spice_catalog_{catalog_name}_{hash}` — the sanitized catalog `name`, followed by a short hash of the full name so two long names that share a truncated prefix stay distinct, all within PostgreSQL's 63-byte identifier limit. The `spice_catalog_` prefix distinguishes it from the per-dataset `spice_` slots, so a catalog slot and a same-named dataset slot can never collide.
+
+The name is a pure function of the catalog `name`: it carries no instance, host, or process component, and Spice persists no slot identity of its own — the durable state is the PostgreSQL slot itself. Two consequences follow:
+
+- **Restarts and reschedules reuse the slot.** Restarting the runtime, or rescheduling the catalog onto a different node, recomputes the identical name and resumes from the existing slot instead of orphaning it and re-snapshotting the catalog from scratch.
+- **Two Spice instances cannot accelerate the same catalog.** PostgreSQL permits one consumer per replication slot, so before it starts streaming Spice checks whether the slot is already **actively** held. An absent slot is created by the per-table replication path; a present-but-inactive slot is reused; an actively-held slot fails the catalog to load with an error naming the slot and the consumer holding it.
+
+Because a slot can also read as active immediately after the runtime's *own* ungraceful exit — PostgreSQL keeps the walsender marked active until `wal_sender_timeout` elapses — Spice waits for it to free before concluding another consumer owns it. The wait is the server's `wal_sender_timeout` plus a 5-second grace, polled once a second, capped at 3 minutes; when `wal_sender_timeout` is `0` (disabled) a 90-second budget is used instead, because the server will not time out the dropped consumer on its own.
+
+:::warning
+Run only one Spice instance per accelerated PostgreSQL catalog. Because the slot name is instance-independent, a second instance configured with the same catalog `name` competes for the same slot and fails to load rather than silently splitting the change stream.
+:::
+
 ### Table eligibility
 
 Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENTITY`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY), which determines the row identity available for change data capture:
@@ -186,6 +201,21 @@ Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENT
 - **No usable CDC key** (`NOTHING`, a keyless `DEFAULT` or `FULL`, or an unusable identity index) — **skipped with an actionable warning** and left out of the catalog's namespace. The rest of the catalog still replicates; a single ineligible table never fails the whole catalog.
 
 Use `include`/`exclude` to narrow scope and suppress the skip warning for tables you will handle another way (federation, or a per-dataset `refresh_mode: full`).
+
+The startup summary reports the accelerated tables broken down by the CDC key each one resolved to — primary key, `USING INDEX`, or `FULL` — alongside the skipped and excluded counts, and names the shared replication slot in use.
+
+If **no** table is eligible, the catalog fails to load with an `ERROR` status rather than registering an empty catalog. The error names the excluded and skipped counts and the fix. Because discovery happens at startup, an empty result is treated as a configuration problem: either every table lacks a usable CDC key, or the `include`/`exclude` patterns matched nothing.
+
+### Acceleration metrics
+
+Each catalog refresh records the current table dispositions as gauges — see [Available Metrics](../../features/observability/index.md#available-metrics):
+
+| Metric                                    | Dimensions           | Meaning                                                                                     |
+| ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `catalog_acceleration_tables`             | `catalog`, `category` | Tables resolved into each disposition: `accelerated`, `skipped`, or `excluded`.              |
+| `catalog_acceleration_accelerated_tables` | `catalog`, `kind`     | Accelerated tables by the CDC key accelerating them: `primary_key`, `unique_index`, or `full`. |
+
+They are gauges rather than counters because each refresh re-plans the whole namespace, so a value can rise or fall.
 
 ### Behavior
 
