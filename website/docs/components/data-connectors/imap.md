@@ -58,6 +58,32 @@ With an acceleration enabled, the `content` field will be populated with the com
 
 :::
 
+## Query performance
+
+Filters on the `date` column are pushed down to the IMAP server as a `SEARCH` command, so a query or refresh transfers only the matching messages instead of the whole mailbox.
+
+- **Supported filter shapes.** A comparison of `date` against a timestamp or date literal (`>`, `>=`, `<`, `<=`, `=`, with the column on either side) and conjunctions (`AND`) of those. Lower bounds become `SENTSINCE`, upper bounds `SENTBEFORE`.
+- **Everything else scans the full mailbox.** A filter on any other column, a disjunction (`OR`), `!=`, or a non-temporal literal contributes no `SEARCH` criteria, and the connector fetches every message and filters locally, exactly as before.
+- **Server-side matching is a superset.** IMAP `SEARCH` compares the calendar day of the `Date:` header, disregarding time and timezone ([RFC 3501 §6.4.4](https://www.rfc-editor.org/rfc/rfc3501#section-6.4.4)), so each bound is widened by a day and Spice re-applies the predicate exactly on the returned rows. Results are identical to an unpushed scan; only the bytes transferred change.
+- **Very large match sets fall back to a full fetch.** When the set of matching messages is too large to express compactly as an IMAP identifier set, the connector fetches the whole mailbox instead. The filters are applied above the scan either way, so results are unaffected.
+
+To make an [acceleration](../../features/data-acceleration/) refresh incremental rather than re-reading the mailbox each cycle, set `time_column: date` so that `refresh_mode: append` and [`refresh_data_window`](../../reference/spicepod/datasets#accelerationrefresh_data_window) generate a `date` predicate for the connector to push down:
+
+```yaml
+datasets:
+  - from: imap:jsmith@example.com
+    name: emails
+    time_column: date
+    params:
+      imap_password: ${secrets:IMAP_PASSWORD}
+    acceleration:
+      enabled: true
+      refresh_mode: append
+      refresh_check_interval: 10m
+```
+
+Scans also only request the raw message body when it is needed to populate `content` — that is, when acceleration is enabled (see [Retrieving email body contents](#retrieving-email-body-contents)). A dataset without acceleration transfers envelopes only, and never the MIME parts and attachments of every message. Every body section is requested with `.PEEK`, so querying a dataset never marks messages as read (`\Seen`) on the server.
+
 ## Configuration
 
 ### `from`
