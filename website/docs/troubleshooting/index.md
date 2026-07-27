@@ -265,11 +265,40 @@ explain select * from taxi_trips;
 
 ## Debugging Sandbox Container
 
-The Spice sandbox container is a minimal container that doesn't include standard Linux tools like `bash`. This can make it difficult to debug issues in the container itself.
+If you try to open a shell in a Spice container the way you would with most images, it fails:
+
+```console
+$ kubectl exec -it my-spicepod -- bash
+error: exec: "bash": executable file not found in $PATH
+```
+
+This is expected, not a broken container. The sections below explain why, and give three ways to debug depending on what you need to look at.
+
+### Why there is no shell
+
+The published Spice image is built `FROM scratch` — an empty base image with no Linux userspace at all. It contains only:
+
+- the `spiced` binary
+- the shared libraries `spiced` links against
+- CA certificates and timezone data
+
+There is no `bash`, no `sh`, not even `ls`, and no package manager — so nothing can be installed into a running container either. `spiced` also runs as the unprivileged user `65534` (`nobody`), whose login shell is set to `/usr/sbin/nologin`.
+
+This is deliberate: an image with no shell and no packages has a far smaller attack surface and far fewer CVEs to patch. The trade-off is that debugging needs the techniques below instead of `kubectl exec ... -- bash`. For background on how this image is built, see the [Docker Sandbox Guide](../deployment/docker/sandbox).
+
+### Choosing an approach
+
+| What you need to do                                            | Use                                                                        | Requirements                                                     |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Run SQL queries against the running runtime                    | [SQL REPL](#sql-repl)                                                      | None — works out of the box                                      |
+| Inspect files, processes, or the network of a Kubernetes pod    | [Ephemeral container](#debug-kubernetes-pods-with-ephemeral-containers)     | Kubernetes v1.25+, and permission to create ephemeral containers |
+| Get an interactive shell against a local Docker container      | [busybox shell](#debugging-with-a-shell)                                   | Docker, and the container started with an extra volume           |
+
+Start with the SQL REPL if the question is about data or queries. Reach for an ephemeral container when the question is about the environment — config files, mounted volumes, DNS, or connectivity.
 
 ### SQL REPL
 
-It's possible to run the SQL REPL from the container to debug SQL queries:
+The REPL needs no shell, because `spiced` is itself the binary being executed. It connects to the runtime's Flight endpoint at `http://localhost:50051`, so run it *inside* the pod or container to attach to the runtime already running there:
 
 ```console
 docker exec -it <container_id> spiced --repl
@@ -281,34 +310,77 @@ Or from `kubectl`:
 kubectl exec -it <pod_name> -- spiced --repl
 ```
 
+This is the quickest way to check whether a dataset loaded, inspect a schema, or reproduce a slow query from inside the deployment.
+
 ### Debug Kubernetes Pods with Ephemeral Containers
 
-Attach an [ephemeral container](https://kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/) to inspect a running Spice pod without restarting it. The helper container shares the runtime container's namespaces, so diagnostics reflect the live workload.
+An [ephemeral container](https://kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/) is a temporary extra container that Kubernetes adds to a pod that is already running. Because it brings its own image, it can supply all the tools the Spice image lacks — while the Spice process keeps running untouched. The pod is **not** restarted and no configuration is changed.
 
-1. List pods in the relevant namespace: `kubectl get pods -n <namespace>`
-2. Start the debugger:
+This is the recommended way to debug Spice on Kubernetes.
 
-   ```bash
-   kubectl debug -it my-spicepod-name \
-     -n my-spicepod-ns \
-     --image=ubuntu:24.04 \
-     --target=spiceai \
-     --profile=sysadmin
-   ```
+#### 1. Find the pod and container names
 
-   `--target` names the container inside the pod; Helm installs the Spice container as `spiceai` by default. `--profile` applies a [static debugging profile](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#static-profile); the `sysadmin` preset adds root-level capabilities. With `--profile=sysadmin` and `--target=spiceai`, the Spice filesystem mounts at `/proc/1/root` inside the debugger for direct inspection.
+```bash
+# List pods in the namespace
+kubectl get pods -n <namespace>
 
-3. Run the required commands and exit. For example, review the deployed Spicepod definition:
+# List the container names inside the pod
+kubectl get pod <pod_name> -n <namespace> -o jsonpath='{.spec.containers[*].name}'
+```
 
-   ```bash
-   cat /proc/1/root/app/spicepod.yaml
-   ```
+The Helm chart names the Spice container `spiceai`. Run the second command rather than assuming, since a custom manifest may name it something else.
 
-Ephemeral containers require Kubernetes v1.25+.
+#### 2. Start the debug container
+
+```bash
+kubectl debug -it my-spicepod-name \
+  -n my-spicepod-ns \
+  --image=ubuntu:24.04 \
+  --target=spiceai \
+  --profile=sysadmin
+```
+
+What each flag does:
+
+| Flag                 | Meaning                                                                                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `-it`                | Attach an interactive terminal, as with `kubectl exec -it`.                                                                                                                     |
+| `--image`            | The image providing the debugging tools. `ubuntu:24.04` gives a familiar shell and `apt`; any image with the tools you need works.                                              |
+| `--target`           | The container in the pod to attach to, from step 1. This is what makes the Spice process and its filesystem visible — omit it and you get an isolated container that sees nothing of the runtime. |
+| `--profile=sysadmin` | Applies the `sysadmin` [static debugging profile](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#static-profile), which grants the elevated capabilities needed to inspect another container's files and processes. |
+
+#### 3. Inspect the runtime
+
+The debug container has **its own** filesystem — from `ubuntu:24.04`, not from Spice — so `/app` is empty and Spice's files are not where you might expect. Because `--target` shares the process namespace, `spiced` is visible as PID 1, and Linux exposes any process's root filesystem at `/proc/<pid>/root`. So everything belonging to Spice is reachable under **`/proc/1/root`**:
+
+```bash
+# The Spicepod definition the runtime actually loaded
+cat /proc/1/root/app/spicepod.yaml
+
+# The runtime's working directory, including acceleration files
+ls -l /proc/1/root/app
+
+# Confirm which process is PID 1 and how it was invoked
+cat /proc/1/cmdline | tr '\0' ' '
+```
+
+Standard networking tools also work here, and reflect the runtime's own network view — useful for confirming a data source is reachable from inside the cluster.
+
+When finished, exit the shell.
+
+:::note
+
+Ephemeral containers require Kubernetes v1.25 or later, and creating one requires permission on the `pods/ephemeralcontainers` subresource — a `Forbidden` error means the account lacks it, not that the command is wrong. An ephemeral container cannot be removed from a pod once added; it remains in the pod spec until the pod is replaced. Some hardened clusters also reject `--profile=sysadmin`; if so, try `--profile=general` (fewer capabilities, so cross-container file inspection may not work).
+
+:::
 
 ### Debugging with a shell
 
-To debug issues using a shell, mount a volume that has a statically compiled `busybox` binary, and exec into the container using the `busybox sh` command. Here is an example in Docker:
+For local Docker debugging, a shell can be added from outside the image. [busybox](https://busybox.net/) ships a single *statically compiled* binary containing dozens of standard tools — because it depends on no system libraries, it runs inside the sandbox image even though that image has no userspace of its own. Mounting it as a volume supplies a shell without rebuilding the image.
+
+This technique is for Docker. On Kubernetes, use an [ephemeral container](#debug-kubernetes-pods-with-ephemeral-containers) instead — it needs no volume and no restart.
+
+Note that the volume must be mounted when the container is **created**, so this requires starting a new container rather than attaching to a running one.
 
 ```bash
 # Create a volume for the busybox binary
@@ -318,11 +390,15 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:1.3.0
+docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
 
 # Exec into the container
 docker exec -it spiceai-debug /busy/busybox sh
+```
 
-# At this point, a shell with standard Linux tools is available via the busybox binary.
-# However, commands must be prefixed with `/busy/busybox`, for example: `/busy/busybox ls -l /app`.
+A shell with standard Linux tools is now available through the `busybox` binary. Because the tools are not on `PATH`, each command must be prefixed with `/busy/busybox`:
+
+```bash
+/busy/busybox ls -l /app
+/busy/busybox cat /app/spicepod.yaml
 ```
