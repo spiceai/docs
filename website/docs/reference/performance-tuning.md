@@ -23,8 +23,8 @@ Choose the appropriate [Data Accelerator](../components/data-accelerators) based
 | Scenario                                 | Recommended Accelerator    | Key Configuration                                                     |
 | ---------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
 | Small datasets (under 1 GB), low latency | `arrow`                    | Default in-memory                                                     |
-| Medium datasets (1-100 GB), complex SQL  | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
-| Large datasets (100 GB - 1+ TB)          | `cayenne`                  | Tune cache parameters                                                 |
+| Small datasets (1-10 GB), complex SQL    | `duckdb` with `mode: file` | Set `duckdb_memory_limit`                                             |
+| Datasets 10 GB and above (up to 1+ TB)   | `cayenne`                  | Tune cache parameters; needs 1/3 to 1/2 the memory of `duckdb`        |
 | Write-heavy workloads                    | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
 | Point lookups, large datasets            | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
 | Point lookups, small-medium datasets     | `arrow` with hash index    | Set a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
@@ -92,6 +92,12 @@ Choose `btrblocks` for read-heavy analytics workloads. Use `zstd` only when size
 ## DuckDB Performance Optimization
 
 [DuckDB](../components/data-accelerators/duckdb) provides mature SQL support with sophisticated query optimization.
+
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, [Spice Cayenne](../components/data-accelerators/cayenne) is recommended over DuckDB, because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset. See [Spice Cayenne Performance Optimization](#spice-cayenne-performance-optimization).
+
+:::
 
 ### Memory Configuration
 

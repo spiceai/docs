@@ -49,8 +49,8 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Use Case                                            | Recommended Accelerator | Rationale                                               |
 | --------------------------------------------------- | ----------------------- | ------------------------------------------------------- |
 | Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
-| Medium datasets (1-100 GB), complex SQL             | `duckdb`                | Mature SQL support with memory management               |
-| Large datasets (100 GB - 1+ TB), scalable analytics | `cayenne`               | Vortex columnar format scales beyond single-file limits |
+| Small datasets (1-10 GB), complex SQL               | `duckdb`                | Mature SQL support with memory management               |
+| Datasets 10 GB and above (up to 1+ TB)              | `cayenne`               | Needs 1/3 to 1/2 the memory of `duckdb`; Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
 | Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
@@ -58,19 +58,19 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 
 ### Spice Cayenne vs DuckDB
 
-Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/duckdb) support file-based acceleration, but differ in architecture and performance characteristics:
+Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/duckdb) support file-based acceleration, but differ in architecture and performance characteristics. **Spice Cayenne is recommended for any dataset of 10 GB or larger**, because of DuckDB's memory requirements: Cayenne typically needs one-third to one-half the memory of the DuckDB accelerator for the same dataset.
 
 **Choose Spice Cayenne when:**
 
-- Datasets exceed ~1 TB
+- Datasets are 10 GB or larger
+- Memory headroom is constrained, or the deployment must run in a smaller container
 - Multi-file data ingestion is required (e.g., partitioned S3 data)
-- Lower memory overhead is preferred
 - Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
 - Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
 
 **Choose DuckDB when:**
 
-- Datasets are under ~1 TB
+- Datasets are under 10 GB
 - Complex SQL features are required (window functions, CTEs)
 - Existing DuckDB tooling integration is beneficial
 - Explicit index control is required
