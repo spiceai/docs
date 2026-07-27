@@ -206,6 +206,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `timestamptz` - Timestamp with a timezone. E.g. `2016-06-22 19:10:25-07` with data type `timestamptz`.
 - `unix_seconds` - Unix timestamp in seconds. E.g. `1718756687`.
 - `unix_millis` - Unix timestamp in milliseconds. E.g. `1718756687000`.
+- `unix_nanos` - Unix timestamp in nanoseconds. E.g. `1718756687000000000`. Use this for OpenTelemetry's `time_unix_nano` columns — see [OpenTelemetry Data Ingestion](../../features/data-ingestion/index.md#opentelemetry-data-ingestion).
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
@@ -720,7 +721,9 @@ Optional. The maximum amount of jitter to add to the refresh interval. The jitte
 
 Optional. Enable component-specific metrics for the dataset. Each component can expose its own set of metrics that can be enabled selectively to monitor specific aspects of its operation.
 
-Component metrics are disabled by default and can be enabled by adding a `metrics` section to the dataset configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+Most component metrics are disabled by default and can be enabled by adding a `metrics` section to the dataset configuration. Each metric can be enabled individually by specifying its name in the metrics list.
+
+Some metrics are **auto-registered**: they export without any `metrics` configuration, and an entry with `enabled: false` is what turns one off. See [Component Metrics](../../features/observability/component_metrics) and each component's own documentation for which metrics are auto-registered.
 
 ### Example Configuration
 

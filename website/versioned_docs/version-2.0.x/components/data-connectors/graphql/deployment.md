@@ -54,7 +54,7 @@ GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate lim
 
 ## Metrics
 
-When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control metrics under the `graphql` component that can be enabled per-dataset:
+When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control metrics under the `graphql` component. They are registered automatically for every GraphQL dataset — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. Catalog components expose none:
 
 | Metric Name                                 | Type    | Description                                                                                              |
 | ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -73,7 +73,18 @@ When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control m
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
 
-Enable component metrics in the dataset's `metrics` section. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
+
+```yaml
+datasets:
+  - from: graphql:https://api.example.com/graphql
+    name: api_data
+    metrics:
+      - name: rate_control_wait_duration_ms
+        enabled: false
+```
+
+Instruments are exposed with the prefix `dataset_graphql_`, and each carries an `origin` attribute (`scheme://host:port`) identifying the upstream origin instead of a dataset `name`, because datasets sharing an origin share one rate controller. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For broader observability, also monitor:
 
