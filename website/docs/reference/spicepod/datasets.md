@@ -315,10 +315,10 @@ datasets:
 
 ## `check_availability`
 
-Spice monitors the availability of non-accelerated datasets and emits metrics if a dataset becomes unavailable. Note that this monitoring process may trigger the startup of compute resources (for example, Databricks or Snowflake), potentially incurring additional costs. To disable availability monitoring, configure the `check_availability` parameter to `disabled`.
+Spice can monitor whether the source backing a non-accelerated dataset is still reachable, marking the dataset `Error` while it is not. Availability monitoring is **opt-in**: it runs only for datasets that set [`check_availability_interval`](#check_availability_interval). Note that probing may trigger the startup of compute resources (for example, Databricks or Snowflake), potentially incurring additional costs.
 
-- `auto`: Automatically check the availability monitor of the dataset. This is the default value. Accelerated datasets are not monitored.
-- `disabled`: Disable the availability monitor for the dataset.
+- `auto`: Monitor the dataset when it is not accelerated and `check_availability_interval` is set. This is the default value. Accelerated datasets are never monitored.
+- `disabled`: Never monitor the dataset, even with `check_availability_interval` set.
 
 ```yaml
 datasets:
@@ -327,6 +327,24 @@ datasets:
     check_availability: disabled
     params: ...
 ```
+
+## `check_availability_interval`
+
+Optional. How often the runtime probes the source backing this dataset to confirm it is still reachable. Accepts a duration string (for example `60s`, `5m`). There is no default — leave it unset and the dataset is not monitored at all.
+
+```yaml
+datasets:
+  - from: postgres:public.orders
+    name: orders
+    check_availability_interval: 60s
+    params: ...
+```
+
+Only non-accelerated datasets with `check_availability: auto` are monitored. Setting the interval on an accelerated dataset logs a warning and has no effect, because an accelerated dataset keeps serving from its accelerator even when the source is unavailable. An unparseable duration fails dataset load rather than silently disabling the check.
+
+A recent successful query counts as proof that the source is reachable: when a dataset was queried successfully more recently than its own interval, that query stands in for the probe, so actively-queried datasets are not probed redundantly. This uses [task history](../task_history), and looks back at most one hour regardless of the configured interval; datasets with a longer interval are probed directly.
+
+Availability monitoring is not supported for Iceberg datasets and is skipped for them (see [spiceai/spiceai#6994](https://github.com/spiceai/spiceai/issues/6994)).
 
 The monitoring works by executing a query that selects one row and all columns from the dataset. i.e.:
 
@@ -346,7 +364,9 @@ FROM
 LIMIT 1;
 ```
 
-If the monitoring query fails a warning is emitted in the logs, an error is propagated to the `task_history` table and the `dataset_unavailable_time_ms` metric is incremented for the failing dataset.
+If the monitoring query fails, a warning is emitted in the logs, an error is propagated to the `task_history` table, the `dataset_unavailable_time_ms` metric is recorded for the failing dataset, and the dataset's status becomes `Error` — visible via `GET /v1/datasets?status=true`. A later successful probe restores the dataset to `Ready`.
+
+The status transition applies only to a dataset that is otherwise `Ready` (or already in `Error` from a previous failed probe); transient lifecycle states such as `Initializing` and `Refreshing` are left to the load and refresh paths that own them, and a recovery only restores `Ready` for a dataset the availability monitor itself put into `Error`.
 
 ## Deferred dataset initialization
 
