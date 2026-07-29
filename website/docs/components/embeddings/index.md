@@ -19,16 +19,16 @@ Embeddings enable vector-based and similarity search, such as document retrieval
 
 Spice supports a variety of embedding model sources and formats:
 
-| Name                       | Description                             | Status            | ML Format(s) | LLM Format(s)\*                 |
-| -------------------------- | --------------------------------------- | ----------------- | ------------ | ------------------------------- |
-| [`file`][file]             | Local filesystem                        | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`huggingface`][hf]        | Models hosted on HuggingFace            | Release Candidate | ONNX         | GGUF, GGML, SafeTensor          |
-| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint     | Release Candidate | -            | OpenAI-compatible HTTP endpoint |
-| [`azure`][azure]           | Azure OpenAI                            | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`google`][google]         | Google AI embedding models              | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`bedrock`][bedrock]       | Models deployed on Amazon Bedrock       | Alpha             | -            | OpenAI-compatible HTTP endpoint |
-| [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | -            | Model2Vec format                |
+| Name                       | Description                             | Status            | Format(s)                       |
+| -------------------------- | --------------------------------------- | ----------------- | ------------------------------- |
+| [`file`][file]             | Local filesystem                        | Release Candidate | GGUF, GGML, SafeTensor          |
+| [`huggingface`][hf]        | Models hosted on HuggingFace            | Release Candidate | GGUF, GGML, SafeTensor          |
+| [`openai`][openai]         | OpenAI (or compatible) LLM endpoint     | Release Candidate | OpenAI-compatible HTTP endpoint |
+| [`azure`][azure]           | Azure OpenAI                            | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google AI embedding models              | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`databricks`][databricks] | Models deployed to Databricks Mosaic AI | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`bedrock`][bedrock]       | Models deployed on Amazon Bedrock       | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | Model2Vec format                |
 
 [file]: embeddings/local
 [hf]: embeddings/huggingface

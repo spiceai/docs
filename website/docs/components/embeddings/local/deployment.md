@@ -55,7 +55,7 @@ When `pooling` is unset, the loader defaults to `mean` and logs a warning. Set t
 
 Local embedding requires all of the following in the model directory:
 
-- Model weights (accepted formats: `.onnx`, `.gguf`, `.ggml`, `.safetensors`, `pytorch_model.bin`).
+- Model weights (accepted formats: `.gguf`, `.ggml`, `.safetensors`, `pytorch_model.bin`).
 - `config.json`
 - `tokenizer.json`
 
