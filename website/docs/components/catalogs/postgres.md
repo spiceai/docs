@@ -39,6 +39,26 @@ The `name` field specifies the name of the catalog in Spice. Tables from the Pos
 
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` from any schema. Multiple `include` patterns are OR'ed together.
 
+## `exclude`
+
+Optional. Use the `exclude` field to omit tables that would otherwise be included. It is matched against `schema.table` using the same glob syntax as `include`, and multiple `exclude` patterns are OR'ed together.
+
+`exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    include:
+      - 'public.*' # Consider every table in the "public" schema...
+    exclude:
+      - 'public.*_audit' # ...except the audit tables.
+    params:
+      pg_connection_string: postgresql://${secrets:PG_USER}:${secrets:PG_PASS}@localhost:5432/my_database
+```
+
+Excluded tables are filtered out before their schema is read, so narrow patterns also reduce the metadata load each refresh places on the source — see [Catalog Refresh](#catalog-refresh). A common use is to keep tables that cannot be CDC-accelerated out of an accelerated catalog's scope, which also suppresses their skip warnings — see [Table eligibility](#table-eligibility).
+
 ## `params`
 
 Connection can be configured using a connection string or individual parameters.
@@ -147,6 +167,31 @@ The PostgreSQL Catalog Connector automatically discovers foreign key relationshi
 
 No configuration is required. If FK discovery fails for a schema (e.g., due to insufficient permissions on `information_schema`), tables are still registered without FK metadata and a warning is logged.
 
+## Catalog Refresh
+
+The catalog is discovered once when the runtime starts, and then re-discovered every **60 seconds**. This interval is not currently configurable.
+
+Each cycle re-runs discovery from scratch, so schema changes at the source are picked up without restarting Spice: newly created tables and schemas appear, dropped ones disappear, and column additions, removals, and type changes are reflected when the table's schema is re-read. A source DDL change therefore becomes visible in Spice within roughly one refresh interval — up to about 60 seconds, plus the time the refresh itself takes.
+
+### Source metadata load
+
+Because every cycle re-discovers the catalog, the metadata load on the source database scales with catalog size rather than with query volume. Each refresh issues:
+
+- One query to enumerate non-system schemas.
+- Per schema: one query for its relations (`pg_catalog.pg_class`), one for foreign-key constraints, and one for table and column comments.
+- Per selected table: one lookup to read its columns and build its Arrow schema.
+
+Use `include`/`exclude` to narrow the catalog on large databases. Filtered-out tables are skipped before their per-table schema lookup, so tighter patterns directly reduce the per-cycle query count. Note that `include`/`exclude` filter tables, not schemas — every non-system schema is still enumerated, so the per-schema queries are unaffected.
+
+### Refresh failures
+
+Failure is handled differently at initial load than on a later refresh cycle:
+
+- **Initial discovery** — the catalog does not register, its status is set to `Error`, and the load is retried with a fibonacci backoff until it succeeds. Two problems are treated as permanent misconfiguration and are _not_ retried: no eligible tables for an accelerated catalog, and a replication slot already actively held by another consumer.
+- **Later refresh cycles** — a failure is logged at `ERROR` and the catalog keeps serving its last-known-good state until a subsequent cycle succeeds. The schema map is replaced atomically at the end of a cycle, so queries never observe a partially-refreshed catalog.
+
+Failures isolated to a single schema are handled per-schema rather than failing the whole cycle — see [Limitations](#limitations).
+
 ## Catalog-Level CDC Acceleration
 
 A PostgreSQL catalog can be accelerated as a whole. Adding an `acceleration` block bootstraps and CDC-accelerates every discovered table (subject to `include`/`exclude`) with no per-table dataset configuration. All accelerated tables share a single replication slot and publication — derived deterministically from the catalog `name`, see [Shared replication slot](#shared-replication-slot) — so the source's write-ahead log (WAL) is decoded once for the entire catalog instead of once per table.
@@ -226,7 +271,7 @@ They are gauges rather than counters because each refresh re-plans the whole nam
 
 :::warning
 
-- **`include` filters tables, not schemas.** The `include` patterns are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
+- **`include`/`exclude` filter tables, not schemas.** Both are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
 - **Partial discovery failures.** If discovery of a schema's tables fails, that schema is skipped with a warning rather than aborting the whole catalog load. On refresh, a transient per-schema failure falls back to the last-known-good state for that schema, so intermittent errors do not cause catalog flapping; a schema is only dropped for a cycle if it has never refreshed successfully. Total connectivity loss (a failed `list_schemas`) still fails hard.
 - **Amazon Redshift.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Discovery degrades gracefully (tables are still registered).
 - **Read-only; per-table acceleration not configurable.** Catalog tables are read-only, and per-table `acceleration` blocks cannot be set on individually discovered tables. Catalog-wide CDC acceleration _is_ available for PostgreSQL — see [Catalog-Level CDC Acceleration](#catalog-level-cdc-acceleration).

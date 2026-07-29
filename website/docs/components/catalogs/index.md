@@ -18,7 +18,9 @@ In Spice, datasets are organized hierarchically with catalogs, schemas, and tabl
 
 Creating schemas and tables within the `spice` catalog is configured by the `name` field in the dataset configuration. A name with a period (`.`) will create a schema, i.e. a dataset defined with `name: foo.bar` would have a full path of `spice.foo.bar`. If the name does not contain a period, the dataset will be created in the `public` schema of the `spice` catalog. For example, a dataset defined with `name: foo` would have a full path of `spice.public.foo`. Attempting to create a dataset with a name that contains a catalog name will result in an error. Adding catalogs to Spice is done via Catalog Connectors.
 
-Catalog Connectors connect to external catalog providers and make their tables available for federated SQL query in Spice. Configuring accelerations for tables in catalogs is only supported for the Spice Cayenne catalog. Creating accelerations in external catalogs is not supported. The schema hierarchy of the external catalog is preserved in Spice.
+Catalog Connectors connect to external catalog providers and make their tables available for federated SQL query in Spice. The schema hierarchy of the external catalog is preserved in Spice.
+
+Accelerating a catalog as a whole is supported by the [PostgreSQL Catalog Connector](./postgres.md), which CDC-accelerates every discovered table from a single replication slot — see [Catalog-Level CDC Acceleration](./postgres.md#catalog-level-cdc-acceleration). For every other Catalog Connector, an `acceleration` block on the catalog is a configuration error rather than a silent no-op. To accelerate an individual table from one of those catalogs, define it as a [dataset](../../reference/spicepod/datasets.md) with its own `acceleration` block.
 
 Supported Catalog Connectors include:
 
@@ -54,6 +56,26 @@ catalogs:
     include:
       - 'tpch.*' # Include only the "tpch" tables.
 ```
+
+### `exclude`
+
+Use the `exclude` field to omit tables that would otherwise be included. It uses the same `schema.table` glob syntax as `include`, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
+Example:
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    include:
+      - 'public.*' # Consider every table in the "public" schema...
+    exclude:
+      - 'public.*_audit' # ...except the audit tables.
+```
+
+:::warning
+`exclude` is currently only honored by the [PostgreSQL Catalog Connector](./postgres.md). Other Catalog Connectors accept the field without error but ignore it, so an `exclude` pattern set on them has no effect — use `include` to scope those catalogs.
+:::
 
 import DocCardList from '@theme/DocCardList';
 
