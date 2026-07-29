@@ -44,6 +44,8 @@ These tasks are from the `task` column in the Spice SQL `runtime.task_history` t
 - `--api-key`  Specify the API key for authentication.
 - `--include-output`: Include, as an additional column, the captured output to each span (i.e. the `captured_output` column from `runtime.task_history`). Note: If captured outputs are not being stored, this will return an empty row.
 - `--include-input`: Include, as an additional column, the input to each span (i.e. the `input` column from `runtime.task_history`).
+- `--truncate [<length>]`  Truncate the `input` and `captured_output` columns to the given number of characters. Defaults to `80` characters when the flag is passed without a value; when omitted, the columns are not truncated.
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
 
 The latest trace for the task will be used if neither `--trace-id` nor `--id` is specified.
 
