@@ -166,10 +166,10 @@ A model defined inline.
 
 ```yaml
 models:
-  - from: spiceai/lukekim/smart/models/drive_stats:latest
-    name: drive_stats
-    datasets:
-      - drive_stats_inferencing
+  - from: spice.ai:openai/gpt-4o
+    name: cloud_llm
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY}
 ```
 
 ## `embeddings`

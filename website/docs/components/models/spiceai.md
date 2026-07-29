@@ -1,54 +1,56 @@
 ---
 title: 'Spice Cloud Platform'
-description: 'Instructions for using models hosted on the Spice Cloud Platform with Spice.'
+description: 'Instructions for using language models served by the Spice.ai Cloud Platform with Spice.'
 sidebar_label: 'Spice Cloud Platform'
 sidebar_position: 6
 ---
 
-To use a model hosted on the [Spice Cloud Platform](https://docs.spice.ai/building-blocks/spice-models), specify the `spice.ai` path in the `from` field.
+To use a large language model served by the Spice.ai Cloud Platform AI gateway — or by another Spice runtime — specify the `spice.ai` path in the `from` field and the associated `spiceai_api_key` parameter.
+
+| Param              | Description                                                                                                                                            | Default                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- |
+| `spiceai_api_key`  | The API key for the Spice.ai Cloud Platform, or for the Spice runtime serving the model. **Required** when the endpoint is the Spice.ai Cloud Platform. | -                          |
+| `spiceai_endpoint` | The endpoint serving the model: the Spice.ai Cloud Platform, or another Spice runtime.                                                                  | `https://data.spiceai.io`  |
 
 Example:
 
 ```yaml
 models:
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats
-    name: drive_stats
-    datasets:
-      - drive_stats_inferencing
-```
-
-Specific model versions can be referenced using a version label or Training Run ID.
-
-```yaml
-models:
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats:latest # Label
-    name: drive_stats_a
-    datasets:
-      - drive_stats_inferencing
-
-  - from: spice.ai/taxi_tech_co/taxi_drives/models/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf # Training Run ID
-    name: drive_stats_b
-    datasets:
-      - drive_stats_inferencing
+  - from: spice.ai:openai/gpt-4o
+    name: cloud_llm
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY}
 ```
 
 ## `from` Format
 
-The from key must conform to the following regex format:
+The `from` field is the source prefix — `spice.ai` or `spiceai` — followed by a `:` or `/` separator and the model identifier:
 
-```regex
-\A(?:spice\.ai\/)?(?<org>[\w\-]+)\/(?<app>[\w\-]+)(?:\/models)?\/(?<model>[\w\-]+):(?<version>[\w\d\-\.]+)\z
+- `spice.ai:openai/gpt-4o`
+- `spice.ai/openai/gpt-4o`
+- `spiceai:openai/gpt-4o`
+- `spiceai/openai/gpt-4o`
+
+All four forms resolve to the same model identifier, `openai/gpt-4o`. Both spellings of the prefix are accepted so that a `from` reads the same whether it names a model or a [dataset](../data-connectors/spiceai/index.md).
+
+Model identifiers take the form `<provider>/<model>` (for example `openai/gpt-4o` or `anthropic/claude-3-5-sonnet`); the identifiers available depend on what the endpoint serves. A `from` that names only the prefix (e.g. `from: spice.ai` or `from: spice.ai:`) carries no model identifier and fails to load.
+
+## Connecting to Another Spice Runtime
+
+Because the model is reached over an OpenAI-compatible HTTP API, `spiceai_endpoint` can point at another Spice runtime instead of the Cloud Platform. The endpoint is the root of the deployment — the OpenAI-compatible API is served under `/v1`, and an endpoint that already names `/v1` is used as-is.
+
+```yaml
+models:
+  - from: spice.ai:openai/gpt-4o
+    name: upstream_llm
+    params:
+      spiceai_endpoint: http://localhost:8090
 ```
 
-Examples:
+An API key is optional for a self-hosted Spice runtime, which may not have authentication enabled. The Spice.ai Cloud Platform always authenticates, so omitting `spiceai_api_key` when the endpoint resolves to the Cloud Platform is rejected at load time.
 
-- `spice.ai/lukekim/smart/models/drive_stats:latest`: Refers to the latest version of the drive_stats model in the smart application by the user or organization lukekim.
-- `spice.ai/lukekim/smart/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`: Specifies a model with a unique training run ID.
+:::note
 
-### Specification
+The `spice.ai` model source serves large language models only. Support for loading and serving traditional machine learning (ONNX) models was removed in vNext — see [Machine Learning Models](../../features/machine-learning-models).
 
-1. **Prefix (Optional):** The value must start with `spice.ai/`.
-1. **Organization/User:** The name of the organization or user (`org`) hosting the model.
-1. **Application Name**: The name of the application (`app`) which the model belongs to.
-1. **Model Name:** The name of the model (`model`).
-1. **Version (Optional):** A colon (`:`) followed by the version identifier (`version`), which could be a semantic version, `latest` for the most recent version, or a specific training run ID.
+:::

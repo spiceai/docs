@@ -60,8 +60,8 @@ The `<model_source>` prefix of the `from` field indicates where the model is sou
 
 The `<model_id>` suffix of the `from` field is a unique (per source) identifier for the model:
 
-- For Spice AI: Represents the full path to the model in the Spice AI repository. Supports a version suffix (default to `latest`).
-  - Example: `lukekim/smart/models/drive_stats:60cb80a2-d59b-45c4-9b68-0946303bdcaf`
+- For Spice AI: The identifier of a model served by the [Spice.ai Cloud Platform](../../components/models/spiceai.md) (or by another Spice runtime), in the form `<provider>/<model>`.
+  - Example: `spice.ai:openai/gpt-4o`
 - For Hugging Face: A repo_id and, optionally, revision hash or tag.
   - `Qwen/Qwen1.5-0.5B` (no revision)
   - `meta-llama/Meta-Llama-3-8B:cd892e8f4da1043d4b01d5ea182a2e8412bf658f` (with revision hash)
