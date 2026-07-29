@@ -33,6 +33,7 @@ from: file:models/llms/llama3.2-1b-instruct/
 | `tools`         | Which [tools](../../features/large-language-models/tools) should be made available to the model. Set to `auto` to use all available tools.                      |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                        |
 | `chat_template` | Customizes the transformation of OpenAI chat messages into a character stream for the model. See [Overriding the Chat Template](#overriding-the-chat-template). |
+| `trust_pickle`  | Allow loading pickle-based weight files (`.bin`, `.pt`, `.pth`, `.ckpt`). These formats execute arbitrary code when loaded and are rejected by default. Accepts `true` or `false`; defaults to `false`. Set to `true` only when the weights come from a fully trusted source. |
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options.
 
