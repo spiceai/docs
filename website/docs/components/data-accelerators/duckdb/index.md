@@ -43,6 +43,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_index_scan_percentage` (float, default: `0.001`): Sets the threshold percentage for performing an index scan instead of a table scan. An index scan is used when the number of matching rows is less than the maximum of `duckdb_index_scan_max_count` and `duckdb_index_scan_percentage` multiplied by total row count. Must be between `0.0` and `1.0`.
 - `duckdb_index_scan_max_count` (integer, default: `2048`): Sets the maximum row count threshold for performing an index scan instead of a table scan. An index scan is used when the number of matching rows is less than the maximum of `duckdb_index_scan_max_count` and `duckdb_index_scan_percentage` multiplied by total row count. Must be a non-negative integer.
 - `on_refresh_sort_columns` (string, default: none): Sorts data after each refresh by the specified columns, improving DuckDB [zone map](https://duckdb.org/2025/05/14/sorting-for-fast-selective-queries) (min/max) statistics for query pruning and significantly faster lookup queries. Format: `column1 ASC, column2 DESC` or `column1, column2` (defaults to ASC). Specified columns must exist in the dataset schema, and sort direction must be `ASC` or `DESC`.
+- `on_full_refresh` (string, default: `reuse_file`): How a full refresh writes into a file-mode acceleration, and whether the space held by the previous copy of the data is reclaimed. One of `reuse_file`, `replace_file`, or `checkpoint_file` — see [Bounding acceleration file growth](#bounding-acceleration-file-growth). `replace_file` and `checkpoint_file` require `mode: file`; configuring either with `mode: memory` is rejected at load time.
 - `optimizer_duckdb_aggregate_pushdown` (string, default: `disabled`): Enables aggregate pushdown optimization to execute supported aggregate queries directly in DuckDB. Set to `enabled` to push down aggregations for improved query performance on supported functions like `count`, `sum`, `avg`, `min`, and `max`. Requires `query_federation` to be `disabled`.
 
 Refer to the [datasets configuration reference](../../reference/spicepod/datasets#acceleration) for additional supported fields.
@@ -60,6 +61,55 @@ datasets:
         duckdb_file: /my/chosen/location/duckdb.db
         duckdb_memory_limit: '2GB'
 ```
+
+## Bounding Acceleration File Growth
+
+A full refresh (`refresh_mode: full`) bulk-loads a fresh copy of the data into the DuckDB file. Bulk loads write row groups directly to the database file and send only block pointers to the WAL, so DuckDB's WAL-growth-based automatic checkpoint never fires — and the blocks freed by dropping the previous copy of the table are only returned to the free list at a checkpoint. On a repeatedly full-refreshed file-mode acceleration, the DuckDB file therefore **grows without bound** even though the data it holds does not.
+
+Set the `on_full_refresh` parameter to reclaim that space after each refresh:
+
+| `on_full_refresh`  | Behavior                                                                                                | Query impact                                                                                          | File size                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `reuse_file`       | Default. Keeps writing into the current database file. No space is reclaimed.                            | None.                                                                                                  | Grows with every refresh.                        |
+| `replace_file`     | Writes a new database file, checkpoints it, and atomically replaces the live file with it.                | Readers are never interrupted; writers pause briefly during the replacement.                            | Reclaimed on every refresh; the file can shrink. |
+| `checkpoint_file`  | Keeps the current file and checkpoints it after each refresh commits.                                     | A checkpoint that has to escalate stalls queries on that file for a bounded window (see below).          | Plateaus near the working set, but never shrinks below the file's high-water mark. |
+
+Both `replace_file` and `checkpoint_file` require file-mode acceleration. Configuring either alongside `mode: memory` is rejected at load time.
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      engine: duckdb
+      mode: file
+      refresh_mode: full
+      params:
+        duckdb_file: /data/shared.duckdb
+        on_full_refresh: replace_file # default: reuse_file
+```
+
+### `replace_file`
+
+A full refresh streams into a fresh staging database file while the live file keeps serving queries, then:
+
+1. copies every other object sharing the file into the staging file — other datasets' tables, views, and indexes, the `spice_sys_*` metadata tables (dataset checkpoints, CDC offsets), and HNSW indexes,
+2. checkpoints and cleanly closes the staging file, so it is compact and WAL-free, and
+3. atomically renames it over the configured path and repoints the shared connection pool at it.
+
+In-flight queries drain against the old file through their already-open descriptors and new queries see the new file, so readers never block; only writers pause, for the duration of the copy-and-replace window. Because the replacement always produces a checkpointed file, [acceleration snapshots](../../features/data-acceleration/snapshots) taken from it are exact.
+
+Several datasets can share one DuckDB file: replacements serialize on a per-file write gate and each one carries the other datasets' current data forward. A dataset accelerated into a *different* DuckDB file that reads this one needs no special handling — its attachment re-resolves when the file underneath it is replaced.
+
+If the process is interrupted mid-replacement, the leftover files are cleaned up on the next startup: incomplete staging files are deleted, and the newest completed replacement is adopted when the configured file itself is missing.
+
+`replace_file` cannot be combined with `refresh_mode: snapshot` on the same DuckDB file — whether on the same dataset or on another dataset sharing the file — and the combination is rejected at load time. Both mechanisms replace the file out-of-band on their own schedules, so refreshes would fail intermittently as each retires the other's file. Give one of them its own `duckdb_file`, or set `on_full_refresh: reuse_file`.
+
+### `checkpoint_file`
+
+After each full-refresh overwrite commits, the runtime runs `CHECKPOINT` on the live database. A plain `CHECKPOINT` fails fast while other transactions are open, in which case it escalates to `FORCE CHECKPOINT`, which waits for the in-flight transactions to finish while blocking new ones from starting — a stall bounded by the slowest in-flight query plus the checkpoint write itself, paid only when the escalation is needed. A checkpoint that fails is logged and never fails the refresh; the refreshed data is already durably committed.
+
+This is lighter than `replace_file` — there is no staging copy of cohabiting objects — at the cost of that stall, and of the file plateauing at its high-water mark instead of shrinking. Prefer `replace_file` where in-flight queries must not be interrupted.
 
 ## Limitations
 
