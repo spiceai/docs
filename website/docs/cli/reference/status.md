@@ -15,6 +15,7 @@ spice status [flags]
 #### Flags
 
 - `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
 - `-h`, `--help`   help for status
 
 ### Examples
