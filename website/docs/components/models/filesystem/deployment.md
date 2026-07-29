@@ -37,7 +37,7 @@ Model loading happens once at startup. A missing or unreadable file fails the sp
 | GGUF           | `.gguf`                        | Quantized / unquantized; loaded via the mistral local loader.          |
 | GGML (legacy)  | `.ggml`                        | Legacy llama.cpp format.                                               |
 | Safetensors    | `.safetensors`                 | Native tensor format; preferred over `.bin` for safety.                 |
-| PyTorch        | `.bin` / `.pt` / `.pth`         | Legacy PyTorch checkpoints.                                             |
+| PyTorch        | `.bin` / `.pt` / `.pth` / `.ckpt` | Legacy pickle-based checkpoints. **Rejected by default** — these formats execute arbitrary code when loaded. Set [`trust_pickle: true`](index.md#params-optional) to load them from a fully trusted source. |
 
 ### Device Selection
 

@@ -88,7 +88,8 @@ File types include:
 
 - `weights`: Model weights
   - For ML models: typically `.onnx` files
-  - For LLMs: `.gguf`, `.ggml`, `.safetensors`, or `pytorch_model.bin` files
+  - For LLMs: `.gguf`, `.ggml`, or `.safetensors` files
+  - Pickle-based checkpoints (`.bin`, `.pt`, `.pth`, `.ckpt`) execute arbitrary code when loaded and are **rejected by default**. Set [`trust_pickle: true`](../../components/models/filesystem/index.md#params-optional) to load them from a fully trusted source.
   - These files contain the trained parameters of the model
 
 - `config`: Model configuration
