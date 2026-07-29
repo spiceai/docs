@@ -247,6 +247,8 @@ Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENT
 
 Use `include`/`exclude` to narrow scope and suppress the skip warning for tables you will handle another way (federation, or a per-dataset `refresh_mode: full`).
 
+Views, materialized views, and foreign tables are **not replicated**. They have no `REPLICA IDENTITY`, so they cannot be CDC-accelerated at all — unlike a table with an unusable replica identity, which is at least reported as skipped. Each one is named in a warning at load and is absent from the accelerated catalog's namespace. Query them through a non-accelerated catalog or an individual dataset instead, or exclude them via the catalog's `include`/`exclude` patterns to suppress the warning. This is the one way an accelerated PostgreSQL catalog's namespace differs from the [relation types discovered](#discovered-relations) by an un-accelerated one.
+
 The startup summary reports the accelerated tables broken down by the CDC key each one resolved to — primary key, `USING INDEX`, or `FULL` — alongside the skipped and excluded counts, and names the shared replication slot in use.
 
 If **no** table is eligible, the catalog fails to load with an `ERROR` status rather than registering an empty catalog. The error names the excluded and skipped counts and the fix. Because discovery happens at startup, an empty result is treated as a configuration problem: either every table lacks a usable CDC key, or the `include`/`exclude` patterns matched nothing.
@@ -257,7 +259,7 @@ Each catalog refresh records the current table dispositions as gauges — see [A
 
 | Metric                                    | Dimensions           | Meaning                                                                                     |
 | ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
-| `catalog_acceleration_tables`             | `catalog`, `category` | Tables resolved into each disposition: `accelerated`, `skipped`, or `excluded`.              |
+| `catalog_acceleration_tables`             | `catalog`, `category` | Relations resolved into each disposition: `accelerated`, `skipped`, `excluded`, or `views_not_replicated`. |
 | `catalog_acceleration_accelerated_tables` | `catalog`, `kind`     | Accelerated tables by the CDC key accelerating them: `primary_key`, `unique_index`, or `full`. |
 
 They are gauges rather than counters because each refresh re-plans the whole namespace, so a value can rise or fall.
