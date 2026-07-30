@@ -745,11 +745,21 @@ COMMIT;
 - **Preconditions with `assert()`.** The `assert(<boolean expression>)` function evaluates its argument at execution time. If the expression is `false` or `NULL`, the transaction aborts with `assertion failed: gate expression was false or NULL`. Use it to enforce invariants (for example, a sufficient balance) as part of the transaction. Comparison gates such as `… >= cap` are NULL-safe.
 - **Return value.** On success, `/v1/sql` returns the final statement's result (for the canonical gate-plus-write shape, the last write's row-count summary), or `COMMIT` when the body produces no rows.
 
-**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode), `on_conflict`, and `refresh_mode: changes` (CDC) also participates in transactions. Its committed writes are staged to the accelerator and then reconciled asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
+**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode), `on_conflict`, and `refresh_mode: changes` (CDC) stages its committed writes to the accelerator and then reconciles them asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
+
+:::warning Durable write-back is not currently available
+Reconciling a row to the source is delivered as a separate `DELETE` followed by an `INSERT`. Because the accelerator is CDC-fed from that same source, the standalone `DELETE` echoes back over the changes stream and removes the committed row from the accelerator; if the follow-up `INSERT` then fails, the write is silently gone from both sides. Closing that window needs a source that can apply a delivered row in **one atomic step** — a single transaction covering both legs, or a native conditional upsert.
+
+No connector advertises that capability yet, so rather than accept a configuration that can lose a committed write, Spice now **rejects the dataset at registration**:
+
+> Failed to register dataset `<name>` (`<connector>`): durable write-back needs a source that can apply a delivered row in one atomic step, and the `<connector>` connector cannot yet.
+
+Remove `on_conflict` to keep writes on the accelerator, or choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). Per-connector atomic delivery is planned; until it lands, this combination cannot be loaded.
+:::
 
 **Requirements and v1 limitations:**
 
-- Write targets must be **accelerator-only, non-partitioned Cayenne datasets** (or durable write-back Cayenne datasets, as described above). Other dataset modes route writes to the federated source — where the gate cannot govern them — and are rejected.
+- Write targets must be **accelerator-only, non-partitioned Cayenne datasets**. Other dataset modes route writes to the federated source — where the gate cannot govern them — and are rejected. Durable write-back datasets are not currently loadable (see the warning above).
 - Only **`INSERT` and `UPDATE`** writes are supported inside a transaction. `DELETE` and `MERGE` are rejected.
 - At most **one write per table** per transaction. Multiple tables may be written in the same transaction and are committed atomically together.
 - Reading a Cayenne table that is not a registered participant (for example, a partitioned table) fails the transaction closed.
