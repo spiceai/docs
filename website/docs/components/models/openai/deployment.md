@@ -69,9 +69,11 @@ All configured models are registered for the `/v1/responses` endpoint. For OpenA
 | Parameter              | Default    | Description                                                                                    |
 | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
 | `responses_api`        | `disabled` | Controls the Chat Completions backend. `disabled` proxies `/v1/chat/completions` to the backend's `/v1/chat/completions`. `enabled` proxies `/v1/chat/completions` to the backend's `/v1/responses`, which can improve tool-use and reasoning for providers that natively support the Responses API. |
-| `openai_responses_tools`| -         | Comma-separated list of OpenAI-hosted tools (`code_interpreter`, `web_search`) exposed via Responses. |
+| `openai_responses_tools`| -         | Comma-separated list of OpenAI-hosted tools (`code_interpreter`, `web_search`, `web_search_preview`) exposed via Responses. |
 
 Note: Responses API hosted tools are **not** available from the `/v1/chat/completions` endpoint.
+
+`web_search` selects OpenAI's current web search tool. `web_search_preview` selects the legacy tool, retained for older models that do not support the current one.
 
 ## Capacity & Sizing
 
