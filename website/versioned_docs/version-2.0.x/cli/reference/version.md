@@ -14,6 +14,8 @@ spice version [flags]
 
 #### Flags
 
+- `--cli-only`   Show only the CLI version, skipping the runtime version lookup
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
 - `-h`, `--help`   help for version
 
 ### Sample output

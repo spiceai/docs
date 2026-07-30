@@ -43,13 +43,22 @@ spice [command] [--help]
 | [spiced](reference/spiced)         | Spice runtime binary — direct invocation reference                     |
 | [status](reference/status)         | Spice runtime status                                                   |
 | [trace](reference/trace)           | Return traces for operations that occurred in Spice                    |
-| [upgrade](reference/upgrade)       | Upgrades the Spice CLI and runtime to the latest release               |
+| [upgrade](reference/upgrade)       | Upgrades the Spice CLI and runtime to the latest or specified version   |
 | [validate](reference/validate)     | Validate a spicepod.yaml without starting the runtime                  |
 | [version](reference/version)       | Spice CLI version                                                      |
 | workers                            | Lists workers loaded by the Spice runtime                              |
 
 ### Command Flags
 
-All commands have a help flag **--help** or **-h** to print its usage documentation:
+The following flags are global — they are accepted by every command:
 
-- **--help** | **-h** : Print the help message
+| Flag                            | Description                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `-h`, `--help`                  | Print the help message.                                                                                                              |
+| `-v`, `--verbose`               | Increase log verbosity. `-v` for debug, `-vv` for trace.                                                                             |
+| `--machine`                     | Machine-readable mode for LLMs and automation: prefer JSON output where supported, and always emit structured JSON errors. Alias: `--programmatic`. |
+| `--api-key <key>`               | API key used to authenticate with the runtime or the Spice.ai Cloud Platform. Also read from the `SPICE_API_KEY` environment variable. |
+| `--cloud`                       | Target the Spice.ai Cloud Platform instead of a local runtime. Requires `--api-key`.                                                  |
+| `--cloud-region <region>`       | Spice.ai Cloud Platform runtime endpoint region, used with `--cloud`. Defaults to `us-east-1`.                                        |
+| `--http-endpoint <endpoint>`    | HTTP endpoint of the Spice runtime to talk to. Defaults to `http://127.0.0.1:8090`.                                                  |
+| `--tls-root-certificate-file <file>` | Path to a PEM root certificate used to verify the runtime's TLS server certificate.                                              |

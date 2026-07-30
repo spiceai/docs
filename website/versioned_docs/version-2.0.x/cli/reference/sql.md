@@ -23,6 +23,7 @@ spice sql [flags]
 - `--client-tls-key-file <file>` The path to the client private key file for mTLS authentication. Must be used together with `--client-tls-certificate-file`.
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 - `-x`, `--expanded` Start the REPL in expanded view, rendering each column on its own line per record. Useful for wide tables. Can be toggled at runtime with the `.expanded` meta-command.
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
 - `-h`, `--help` Print this help message.
 
 #### REPL Meta-commands
