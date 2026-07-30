@@ -220,6 +220,11 @@ Required — there is no catalog-level default. The only supported value is `cha
 ### Requirements
 
 - **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
+- **A replication slot must be available.** A CDC-accelerated catalog needs one [shared replication slot](#shared-replication-slot). When that slot does not yet exist, Spice compares the server's in-use slot count against `max_replication_slots` before trying to create it, and fails the catalog to load if the server is already at its limit:
+
+  > Cannot start CDC catalog acceleration: PostgreSQL has no free replication slots (10 of 10 in use; `max_replication_slots` = 10). Drop an unused slot (inspect `pg_replication_slots`, then `SELECT pg_drop_replication_slot('<slot_name>');`), or raise `max_replication_slots` and restart PostgreSQL.
+
+  The check is skipped when the catalog's slot **already** exists, because reusing it consumes no additional capacity — so a restart or reschedule still succeeds on a server whose slots are otherwise full.
 
 ### Shared replication slot
 
