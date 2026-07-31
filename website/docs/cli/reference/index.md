@@ -24,7 +24,7 @@ spice [command] [--help]
 | [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
 | cloud                              | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
-| [connect](reference/connect)       | Connect to a Spice.ai Cloud Platform app                               |
+| [connect](reference/connect)       | Enroll this host with Spice Cloud (Cloud Connect)                      |
 | [dataset](reference/dataset)       | Dataset operations (configure datasets)                                |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
 | [feedback](reference/feedback)     | Open the Spice.ai community Slack to share feedback                    |
