@@ -240,6 +240,30 @@ Notes:
 - Each source table can back **at most one dataset per shared slot**. Pointing two datasets at the same `(schema, table)` through one slot is rejected — give the second dataset a different `pg_replication_slot` (or remove the param for a dedicated slot).
 - Sharing is per Spice instance. Across replicas, each replica must still use its own unique slot — see [Multi-replica deployments](#multi-replica-deployments).
 
+### Envelope coalescing
+
+Committed changes reach each member of a shared slot as **change envelopes**, not one unit of work per source transaction. A workload that commits constantly in small transactions would otherwise put an envelope per commit into each member's buffer, filling it long before the buffered rows are worth an apply — and while the shared pump is blocked delivering, it is not reading from the replication connection, so the back-pressure reaches the source walsender.
+
+The pump folds consecutive commits for the same member table together in two stages, both operating on raw pgoutput message chunks with no tuple decode:
+
+1. **Eager hold** — the throughput stage. The pump holds one unpublished envelope per member and folds later commits for that table into it, until the envelope reaches the row limit or the age limit elapses. The age is measured from the *first* commit the envelope absorbed, so a low-traffic table is never held indefinitely.
+2. **Mailbox tail fold** — the back-pressure stage. Publishing folds into the unclaimed tail of the member's buffer, with no age limit, so a member whose accelerator has stopped draining collapses envelopes instead of multiplying them.
+
+Folding never crosses a correctness boundary: changes destined for a different acknowledgement position, relation generation, or working schema are always kept in separate envelopes.
+
+The defaults need no tuning. They are process-wide operator escape hatches, set by environment variable rather than as dataset `params`:
+
+| Environment variable                                     | Default            | Maximum   | Effect                                                                                                        |
+| -------------------------------------------------------- | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------- |
+| `SPICE_POSTGRES_CDC_MAX_ENVELOPE_AGE_MS`                 | `10`               | `60000`   | How long the pump may hold a member's envelope open. `0` publishes every commit straight through, disabling stage 1. |
+| `SPICE_POSTGRES_CDC_MAX_ROWS_PER_ENVELOPE`               | `8192`             | `1048576` | Rows at which a held envelope is published.                                                                    |
+| `SPICE_POSTGRES_CDC_MAX_BACKPRESSURE_ROWS_PER_ENVELOPE`  | `2048`             | `1048576` | Rows at which mailbox-tail folding seals an envelope.                                                          |
+| `SPICE_POSTGRES_CDC_MAX_MAILBOX_BYTES`                   | `33554432` (32 MiB) | 8 GiB    | Estimated Arrow bytes one member's buffer may hold across every buffered envelope.                             |
+
+A value that is unparseable or above the maximum logs a warning and the default is used instead.
+
+The two stage-2 bounds ship deliberately low, because mailbox folding absorbs back-pressure rather than adding throughput. Raise them only on evidence: `dataset_postgres_replication_member_mailbox_coalesce_limited_total` rising alongside `dataset_postgres_replication_member_envelope_mailbox_merges_total` means the bounds are binding while folding is still paying off, whereas a `dataset_postgres_replication_member_mailbox_coalesce_limited_total` that stays at `0` means the bounds never bind and there is nothing to tune. See [Metrics](#metrics).
+
 ## Multi-replica deployments
 
 Every Spice replica must have its own replication slot. Spice hashes the replica's identity into the default slot name:
@@ -333,6 +357,15 @@ Core freshness signals (auto-registered):
 | `dataset_postgres_replication_transactions_total` | Counter | Committed transactions applied.                                                                 |
 | `dataset_postgres_replication_inserts_total` / `dataset_postgres_replication_updates_total` / `dataset_postgres_replication_deletes_total` | Counter | Row-level events from WAL.                                      |
 | `dataset_postgres_replication_reconnects_total` | Counter | Number of times the stream reconnected after a transient failure.                            |
+
+Shared-slot delivery and coalescing (auto-registered; reported only for datasets on a shared, explicitly-named slot — see [Envelope coalescing](#envelope-coalescing)):
+
+| Metric                                                                     | Type    | Description                                                                                                                                                                             |
+|----------------------------------------------------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dataset_postgres_replication_member_envelopes_delivered_total`            | Counter | Change envelopes delivered to this dataset as distinct units of work. Divide `dataset_postgres_replication_transactions_total` by this for the coalescing factor the accelerator's apply loop actually sees. |
+| `dataset_postgres_replication_member_envelope_eager_merges_total`          | Counter | Committed transactions folded into an envelope the pump was still holding back, before it crossed into this dataset's buffer (stage 1).                                                   |
+| `dataset_postgres_replication_member_envelope_mailbox_merges_total`        | Counter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's buffer (stage 2). Rising alongside a flat `dataset_postgres_replication_member_send_stalled_seconds_total` means back-pressure is being absorbed rather than stalling the slot. |
+| `dataset_postgres_replication_member_mailbox_coalesce_limited_total`       | Counter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it, rather than because the changes were not foldable. `0` means the bounds never bind. |
 
 ## Troubleshooting
 
