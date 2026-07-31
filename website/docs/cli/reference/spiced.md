@@ -54,6 +54,10 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
 - `--allow-insecure-connections` — Allow cluster communication without mTLS. Use only in development or testing environments.
 
+### Cloud Connect flags
+
+- `--cloud-connect` — Connect this runtime to Spice Cloud for remote management (Cloud Connect). Default: `false`. Requires an enrolled identity or a staged adoption code — see [`spice connect`](./connect). When the flag is omitted the client still activates if such adoption state exists, so instances enrolled before the flag existed keep connecting across an upgrade; a `spiced` with no adoption state never connects to the cloud.
+
 ### SQL REPL flags
 
 - `--repl` — Start a SQL REPL against the runtime's Flight endpoint instead of serving requests.
