@@ -51,7 +51,7 @@ The connector uses a per-dataset connection pool with the following defaults:
 | `mysql_pool_min`            | `1`     | Minimum idle connections held by the pool.     |
 | `mysql_pool_max`            | `5`     | Maximum connections the pool will open.        |
 
-Invalid values (non-integers) are logged as a warning and silently replaced with the defaults. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients. `mysql_pool_min` must be less than or equal to `mysql_pool_max`; conflicting values are rejected at startup.
+Both values are parsed leniently, and an unusable value produces **no error and no log message**. A non-integer value is discarded and the pool falls back to the underlying `mysql_async` pool defaults — `10` for `mysql_pool_min` and `100` for `mysql_pool_max`, not the `1` and `5` above. A `mysql_pool_min` greater than `mysql_pool_max` (or a `mysql_pool_max` of `0`) is likewise **not** rejected at startup: the invalid pair is discarded and the same `10`/`100` defaults apply. Because a typo silently widens the pool instead of failing, double-check both values when tuning them. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
 
 ### Retry Behavior
 
