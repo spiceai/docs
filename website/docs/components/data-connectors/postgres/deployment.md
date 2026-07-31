@@ -99,6 +99,10 @@ The PostgreSQL connector exposes observable metrics for its replication pipeline
 | `replication_member_send_stalled_seconds_total` | ObservableCounter | Seconds the shared-slot pump spent blocked delivering changes into this dataset's channel. Shared slots only.                       |
 | `replication_member_send_wait_micros_total`     | ObservableCounter | Microseconds the shared-slot pump spent awaiting this dataset's delivery channel. Dedicated-slot datasets export `0`.                |
 | `replication_member_attached`                   | ObservableGauge   | `1` while this dataset is an attached member of its shared slot, `0` once detached. Shared slots only.                              |
+| `replication_member_envelopes_delivered_total`   | ObservableCounter | Change envelopes delivered to this dataset as distinct units of work. `replication_transactions_total` divided by this is the coalescing factor the apply loop sees. Shared slots only. |
+| `replication_member_envelope_eager_merges_total` | ObservableCounter | Committed transactions folded into an envelope the shared-slot pump was still holding back, before delivery. Shared slots only.       |
+| `replication_member_envelope_mailbox_merges_total` | ObservableCounter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's delivery buffer — the back-pressure-driven half of coalescing. Shared slots only. |
+| `replication_member_mailbox_coalesce_limited_total` | ObservableCounter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it. `0` means the bounds never bind. Shared slots only. |
 
 Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name; `replication_member_attached` also carries a `slot` attribute for grouping shared-slot members.
 
