@@ -26,6 +26,14 @@ Spice supports two full-text search engines:
 
 When no engine is specified, Tantivy is used automatically.
 
+### Text Analysis
+
+The built-in Tantivy engine indexes text with Tantivy's `en_stem` tokenizer: terms are lowercased and reduced to their English (Snowball) stem, with token positions retained so phrase queries keep working. Query terms are analyzed the same way, so a search for `running` also matches documents containing `run` and `runs`.
+
+Stemming is always on for the built-in engine and has no configuration parameter. It is English-only — text in other languages is still tokenized and lowercased, but not stemmed.
+
+The local warm index used with `engine: elasticsearch` is a Tantivy index and analyzes text the same way. Searches [served directly by Elasticsearch](#warm-tier) — multi-column datasets, a warm index that could not be built, or an `on_zero_results: use_source` fallback — are analyzed by Elasticsearch's own analyzer for that index instead.
+
 ## Enabling Full-Text Search
 
 To enable full-text search, configure your dataset columns within your dataset definition as follows:
