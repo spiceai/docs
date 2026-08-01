@@ -61,7 +61,7 @@ For any dataset of **10 GB or larger**, deploy [Spice Cayenne](../cayenne/index.
 
 :::
 
-DuckDB self-tunes its memory limit from **host** memory, not the cgroup limit, so in a container each instance's own default over-states what the process may use. When `duckdb_memory_limit` is unset, Spice caps each un-limited DuckDB instance from a cgroup-aware [coordinated memory budget](./index.md#coordinated-memory-budget) shared with the query pool, and warns when it does so.
+DuckDB self-tunes its memory limit from **host** memory, not the cgroup limit, so under any cgroup memory cap — a container, a `systemd` unit's `MemoryMax=`, a capped parent slice, or a Kubernetes pod cgroup — each instance's own default over-states what the process may use. When `duckdb_memory_limit` is unset, Spice caps each un-limited DuckDB instance from a cgroup-aware [coordinated memory budget](./index.md#coordinated-memory-budget) shared with the query pool, and warns when it does so.
 
 Set the `duckdb_memory_limit` acceleration parameter to replace that automatic split with a deliberate ceiling. Plan for the DuckDB working set plus ~2× for query execution headroom.
 

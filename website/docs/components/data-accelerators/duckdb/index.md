@@ -158,7 +158,7 @@ Allocate at least 30% more container/machine memory for the runtime process.
 
 Because those per-instance ceilings do not know about each other, a Spicepod with several DuckDB files declares several independent 80%-of-RAM ceilings, stacked on top of the [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit) pool (90% of RAM by default, 70% when Cayenne acceleration is also active) — an over-commit that risks an OOM kill under load.
 
-At startup, and again on hot-reload, Spice computes a coordinated budget so the **sum** of those ceilings fits within the memory the process can actually use (the cgroup limit in a container). It is always on and has no configuration parameter:
+At startup, and again on hot-reload, Spice computes a coordinated budget so the **sum** of those ceilings fits within the memory the process can actually use — its cgroup memory limit when one binds, otherwise host RAM. The limit is read from the process's own cgroup path, taking the smallest limit at any level, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup are all honored. Coordination is always on and has no configuration parameter:
 
 - Each distinct DuckDB instance with **no** `duckdb_memory_limit` is capped at an equal share of what the query pool and any explicit ceilings leave, with a floor of 128 MiB per instance.
 - The query pool is reduced by the same amount, taking roughly half of the contested region and never dropping below a quarter of its uncoordinated default (or 256 MiB when every instance has an explicit ceiling).
