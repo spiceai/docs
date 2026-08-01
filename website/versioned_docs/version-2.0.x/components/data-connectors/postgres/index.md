@@ -126,7 +126,7 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 | `pg_replication_slot`              | Optional. Name of the replication slot to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_<instance-hash>`. Each Spice replica MUST have its own unique slot. |
 | `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`. Shared across replicas for the same dataset.        |
 | `pg_replication_initial_snapshot`  | Optional. Whether to take an initial snapshot of existing rows before streaming WAL changes. Default: `true`.                                            |
-| `pg_replication_temporary_slot`    | Optional. If `true`, create a temporary replication slot that is dropped when the Spice process disconnects. Default: `false` (durable slot).            |
+| `pg_replication_temporary_slot`    | Optional, but **non-functional — do not set it to `true`**. A temporary slot belongs to the Postgres session that creates it, and Spice creates the slot on a short-lived setup connection, so Postgres drops it before `START_REPLICATION` can attach and the stream never starts. Leave it unset; the replication slot is always durable. |
 | `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
 | `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
 
