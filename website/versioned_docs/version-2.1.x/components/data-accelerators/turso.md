@@ -120,11 +120,11 @@ Multi-Version Concurrency Control (MVCC) is automatically enabled for all Turso-
 When MVCC is active:
 
 - Concurrent reads and writes perform better
-- Indexes are not yet supported (a warning is logged if indexes are configured)
+- Standard (`enabled`) and unique (`unique`) indexes are created and enforced normally
 
 ### Indexes
 
-Turso supports index creation for improved query performance (when MVCC is disabled):
+Turso supports index creation for improved query performance:
 
 ```yaml
 datasets:
@@ -150,7 +150,6 @@ Turso supports query federation, where queries can span multiple data sources. T
 ## Limitations
 
 - **Remote databases not supported**: Only local Turso databases (file-based or in-memory) are supported as accelerators. Remote Turso databases using `turso_url` and `turso_auth_token` are not supported in this accelerator context. Remote Turso support will be available when Turso is implemented as a data connector.
-- **Indexes with MVCC**: Indexes are not yet supported when MVCC is enabled.
 - **Arrow Interval types**: Not supported, as SQLite/libSQL doesn't have a native interval type.
 - **Complex List types**: Only Arrow `List` types of primitive data types are supported; lists with structs are not supported.
 - **Dictionary and Map types**: Not supported.
