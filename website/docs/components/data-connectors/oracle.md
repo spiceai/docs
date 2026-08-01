@@ -106,7 +106,7 @@ The table below shows the Oracle data types supported, along with the type mappi
 | `BINARY_FLOAT`                   | `Float32`                                                                        |
 | `BINARY_DOUBLE`                  | `Float64`                                                                        |
 | `BOOLEAN`                        | `Boolean`                                                                        |
-| `DATE`                           | `Date32`                                                                         |
+| `DATE`                           | `Timestamp(Second)`                                                              |
 | `TIMESTAMP`                      | `Timestamp(Second)` for precision=0, otherwise `Timestamp(Nanosecond)`           |
 | `TIMESTAMP WITH TIME ZONE`       | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
 | `TIMESTAMP WITH LOCAL TIME ZONE` | `Timestamp(Second, UTC)` for precision=0, otherwise `Timestamp(Nanosecond, UTC)` |
@@ -116,6 +116,7 @@ The table below shows the Oracle data types supported, along with the type mappi
 
 :::note
 
+- Oracle `DATE` is **not** a date-only type — it stores hour, minute, and second alongside the calendar date — so it maps to `Timestamp(Second)`, matching Oracle's 1-second resolution. Earlier versions mapped it to `Date32`, which silently truncated every value to midnight.
 - The Oracle `TIMESTAMP WITH LOCAL TIME ZONE` value is retrieved as a UTC time value.
 - `TIMESTAMP`, `TIMESTAMP WITH TIME ZONE`, and `TIMESTAMP WITH LOCAL TIME ZONE` columns with non-zero precision are mapped to `Timestamp(Nanosecond)`. Timestamps outside the nanosecond range (approximately years 1677–2262) will return an error. This is an inherent limitation of Arrow's nanosecond timestamp representation.
 

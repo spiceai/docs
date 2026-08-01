@@ -147,11 +147,11 @@ Refresh modes affect memory usage as follows:
 
 ## DataFusion Query Memory Management
 
-Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of total system memory** (container-aware; reduced to **70%** when Cayenne acceleration is active, to leave headroom for Cayenne's compaction memory pool and in-memory CDC tier). This can be tuned through the `runtime.query.memory_limit` configuration.
+Spice uses DataFusion as its query execution engine. By default, Spice limits query engine memory to **90% of the memory the process may use** (its cgroup memory limit when one binds — a container, a `systemd` unit's `MemoryMax=`, a capped parent slice, or a Kubernetes pod cgroup — otherwise total system memory; reduced to **70%** when Cayenne acceleration is active, to leave headroom for Cayenne's compaction memory pool and in-memory CDC tier). This can be tuned through the `runtime.query.memory_limit` configuration.
 
 ### Memory Limit Configuration
 
-The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of total system memory (70% when Cayenne acceleration is active). Once the memory limit is reached, supported query operations spill data to disk.
+The `runtime.query.memory_limit` parameter defines the maximum memory available for query execution. If not specified, it defaults to 90% of the memory the process may use — its cgroup memory limit when one binds, otherwise total system memory (70% when Cayenne acceleration is active). Once the memory limit is reached, supported query operations spill data to disk.
 
 ```yaml
 runtime:

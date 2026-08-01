@@ -30,7 +30,9 @@ Use `mode: file` for any dataset larger than a few hundred MB or where restart s
 
 ### Checkpointing
 
-The DuckDB accelerator enables `PRAGMA enable_checkpoint_on_shutdown` at connection setup. Graceful shutdown writes a clean checkpoint, making restart near-instantaneous. Ungraceful shutdowns leave a WAL to replay, slowing the first subsequent startup.
+The DuckDB accelerator enables `PRAGMA enable_checkpoint_on_shutdown` once per DuckDB instance, when the instance is set up. Graceful shutdown writes a clean checkpoint, making restart near-instantaneous. Ungraceful shutdowns leave a WAL to replay, slowing the first subsequent startup.
+
+Full-refresh bulk loads bypass the WAL, so DuckDB's WAL-growth-based automatic checkpoint never fires on a repeatedly full-refreshed acceleration and the freed blocks are never returned to the free list. Set [`on_full_refresh`](./index.md#bounding-acceleration-file-growth) to `replace_file` or `checkpoint_file` to reclaim that space on every refresh.
 
 ### Spill Directory
 
@@ -38,7 +40,7 @@ Large queries (sort, aggregate, join) can spill to disk. The spill directory is 
 
 ### Vacuum
 
-DuckDB does not require explicit `VACUUM`; its storage layout compacts on checkpoint. No Spice-level vacuum automation is provided.
+DuckDB does not require explicit `VACUUM`; its storage layout compacts on checkpoint. For file-mode accelerations on `refresh_mode: full`, the [`on_full_refresh`](./index.md#bounding-acceleration-file-growth) parameter is the Spice-level control over that reclamation: `replace_file` rebuilds and atomically swaps in a compact file on every refresh, `checkpoint_file` checkpoints the live file in place, and the default `reuse_file` reclaims nothing.
 
 ## Capacity & Sizing
 
@@ -97,3 +99,4 @@ DuckDB acceleration operations participate in [task history](../../../reference/
 | Query uses table scan when an index exists             | `duckdb_index_scan_percentage` / `duckdb_index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
 | Indexes disappear after refresh                        | `on_refresh_sort_columns` triggers `CREATE OR REPLACE`.       | Re-create indexes post-refresh, or avoid sort-column refreshes until the underlying behavior is updated.    |
 | `IO Error: Could not set lock on file`                 | Another process holds a write lock.                           | Ensure single-writer semantics; verify no other Spice instance is using the same file.                      |
+| DuckDB file grows on every refresh                     | `refresh_mode: full` bulk loads bypass the WAL, so no automatic checkpoint reclaims the previous copy of the data. | Set [`on_full_refresh`](./index.md#bounding-acceleration-file-growth) to `replace_file` (or `checkpoint_file` for a lighter, in-place checkpoint). |

@@ -220,6 +220,11 @@ Required — there is no catalog-level default. The only supported value is `cha
 ### Requirements
 
 - **Logical replication must be enabled.** Before accelerating any table, Spice validates the PostgreSQL prerequisites CDC requires — `wal_level = logical` and the replication privilege — and fails fast with a specific, actionable error if either is missing.
+- **A replication slot must be available.** A CDC-accelerated catalog needs one [shared replication slot](#shared-replication-slot). When that slot does not yet exist, Spice compares the server's in-use slot count against `max_replication_slots` before trying to create it, and fails the catalog to load if the server is already at its limit:
+
+  > Cannot start CDC catalog acceleration: PostgreSQL has no free replication slots (10 of 10 in use; `max_replication_slots` = 10). Drop an unused slot (inspect `pg_replication_slots`, then `SELECT pg_drop_replication_slot('<slot_name>');`), or raise `max_replication_slots` and restart PostgreSQL.
+
+  The check is skipped when the catalog's slot **already** exists, because reusing it consumes no additional capacity — so a restart or reschedule still succeeds on a server whose slots are otherwise full.
 
 ### Shared replication slot
 
@@ -275,7 +280,8 @@ They are gauges rather than counters because each refresh re-plans the whole nam
 
 - **`include`/`exclude` filter tables, not schemas.** Both are matched against `schema.table`. All non-system schemas are still enumerated as (possibly empty) schemas even when no tables match.
 - **Partial discovery failures.** If discovery of a schema's tables fails, that schema is skipped with a warning rather than aborting the whole catalog load. On refresh, a transient per-schema failure falls back to the last-known-good state for that schema, so intermittent errors do not cause catalog flapping; a schema is only dropped for a cycle if it has never refreshed successfully. Total connectivity loss (a failed `list_schemas`) still fails hard.
-- **Amazon Redshift.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Discovery degrades gracefully (tables are still registered).
+- **Amazon Redshift — datashare and external tables are not discovered.** Discovery reads Redshift's _local_ catalog only (`information_schema.schemata` and `pg_catalog.pg_class`). Schemas and tables consumed from a datashare, and external schemas and tables (Redshift Spectrum), are absent from the local `pg_catalog` — Redshift exposes them only through its `svv_all_schemas` / `svv_all_tables` views, which the Catalog Connector does not query. Those relations do not appear in the catalog; register them as individual datasets with the [Redshift Data Connector](../data-connectors/redshift) instead ([#12109](https://github.com/spiceai/spiceai/issues/12109)).
+- **Amazon Redshift — metadata coverage.** Redshift is supported over the PostgreSQL wire protocol, but its `pg_catalog` coverage is partial and it does not enforce foreign keys, so table/column comment and foreign-key metadata are often unavailable. Tables present in the local catalog are still registered.
 - **Read-only; per-table acceleration not configurable.** Catalog tables are read-only, and per-table `acceleration` blocks cannot be set on individually discovered tables. Catalog-wide CDC acceleration _is_ available for PostgreSQL — see [Catalog-Level CDC Acceleration](#catalog-level-cdc-acceleration).
 
 :::
