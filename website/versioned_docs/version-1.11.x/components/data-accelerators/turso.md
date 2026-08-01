@@ -60,6 +60,7 @@ datasets:
 Turso acceleration supports the following optional parameters under `acceleration.params`:
 
 - `turso_file` (string, default: `.spice/data/{dataset_name}.turso`): Path to the Turso database file. Only applies if `mode` is `file`. If the file does not exist, Spice creates it automatically.
+- `turso_mvcc` (string, default: `disabled`): Enable Multi-Version Concurrency Control (MVCC) for improved concurrent read/write performance. Values: `enabled`, `disabled`. Indexes are not created while MVCC is enabled.
 - `internal_timestamp_format` (string, default: `rfc3339`): Internal timestamp storage format. See [Timestamp Storage](#timestamp-storage) section. Values: `rfc3339`, `integer_millis`.
 
 ### Example Configuration
@@ -114,9 +115,16 @@ acceleration:
 
 ### MVCC Support
 
-Multi-Version Concurrency Control (MVCC) is automatically enabled for all Turso-accelerated datasets. The Turso accelerator sets `PRAGMA journal_mode = 'mvcc'` during connection pool initialization, enabling concurrent transactions via `BEGIN CONCURRENT`.
+Multi-Version Concurrency Control (MVCC) is **disabled by default** and can be enabled per dataset with the `turso_mvcc` acceleration parameter:
 
-When MVCC is active:
+```yaml
+acceleration:
+  engine: turso
+  params:
+    turso_mvcc: enabled
+```
+
+When MVCC is enabled:
 
 - Concurrent reads and writes perform better
 - Indexes are not yet supported (a warning is logged if indexes are configured)
