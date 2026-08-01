@@ -33,6 +33,7 @@ spice chat [flags] [<message>]
 - `--temperature <float>` Model temperature used for chat request.
 - `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
+- `--output <format>`, `-o` Output format: `table` (default) or `json`.
 
 ## Examples
 
