@@ -397,6 +397,16 @@ Use observability tools to monitor and profile memory usage regularly. Spice exp
 - Accelerator cache hit rates
 - Data refresh memory consumption
 
+When [Spice Cayenne](../components/data-accelerators/cayenne) acceleration is configured, three gauges are sampled every 2 seconds and can be read together to reconcile the memory budgets against actual process memory:
+
+| Metric | Description |
+| ------ | ----------- |
+| `query_memory_pool_used_bytes` | Live bytes reserved in the query memory pool (`runtime.query.memory_limit`), excluding the in-memory CDC tier's mirror account. |
+| `cayenne_compaction_memory_pool_used_bytes` | Live bytes reserved in the dedicated Cayenne compaction memory pool. |
+| `process_resident_memory_bytes` | Resident set size of the `spiced` process — what the kernel's OOM decision is made on. |
+
+The pool gauges describe what the memory accounting believes is reserved; `process_resident_memory_bytes` describes what the process actually holds. A large and growing gap between them is off-pool memory that `runtime.query.memory_limit` does not bound — lowering the query memory limit will not shrink it.
+
 See [Observability](../features/observability) for configuration details.
 
 ## Related Documentation

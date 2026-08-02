@@ -103,6 +103,16 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `cayenne_compaction_memory_pool_bytes` | Gauge | By | Size of the dedicated compaction memory pool carved from the query memory limit (see `cayenne_compaction_memory_fraction`). |
 | `cayenne_compaction_memory_exhausted_total` | Counter | passes | Compaction passes that hit `ResourcesExhausted` on the dedicated compaction memory pool. |
 
+### Memory Reconciliation Metrics
+
+Sampled every 2 seconds by the loop that resizes the in-memory CDC tier budget, so these are emitted whenever Cayenne acceleration is configured. Read them together: the pool gauges report what the memory accounting believes is reserved, `process_resident_memory_bytes` reports what the kernel will make its OOM decision on, and the gap between them is off-pool memory (encode buffers, caches, allocator retention) that no budget covers.
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `query_memory_pool_used_bytes` | Gauge | By | Live bytes reserved in the query memory pool (`runtime.query.memory_limit`), excluding the in-memory CDC tier's mirror account so the off-pool tier is not double-counted as query usage. |
+| `cayenne_compaction_memory_pool_used_bytes` | Gauge | By | Live bytes reserved in the dedicated compaction memory pool (whose size is reported by `cayenne_compaction_memory_pool_bytes`). |
+| `process_resident_memory_bytes` | Gauge | By | Resident set size of the `spiced` process. Read from `VmRSS` in `/proc/self/status` on Linux, and from the process's resident memory on other platforms. |
+
 #### Write-phase labels
 
 `cayenne_write_phase_duration_ms` carries a `table` label (the accelerated dataset) and a `phase` label that attributes time across the write path. The `phase` values are:
