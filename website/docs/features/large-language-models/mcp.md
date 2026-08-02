@@ -62,12 +62,31 @@ models:
 
 Spice can also act as an MCP server, exposing its tools over Streamable HTTP. This enables other Spice instances or external systems to connect and use the tools.
 
+### Authentication
+
+The `/v1/mcp` endpoint requires [`runtime.auth`](../../reference/spicepod/runtime#runtimeauth) to be configured. Without it, every request is rejected with `401 Unauthorized`, including requests from local clients:
+
+```yaml
+runtime:
+  auth:
+    api_key:
+      enabled: true
+      keys:
+        - ${secrets:SPICE_API_KEY}
+```
+
+Clients then authenticate with an `X-API-KEY` header.
+
 ### Example: Connecting to another Spice instance via MCP
+
+Because the remote endpoint requires authentication, pass credentials with `mcp_headers` — or `mcp_auth_token` to send `Authorization: Bearer`. See [Connecting to an Auth-Enabled MCP Server](../../components/tools/mcp#example-connecting-to-an-auth-enabled-mcp-server-streamable-http).
 
 ```yaml
 tools:
   - name: spice_instance
     from: mcp:http://localhost:8090/v1/mcp
+    params:
+      mcp_headers: 'X-API-KEY: ${secrets:SPICE_API_KEY}'
 ```
 
 ### Allowed Hosts
@@ -128,6 +147,14 @@ version: v1
 kind: Spicepod
 name: mcp-gateway
 
+# Required — /v1/mcp returns 401 to every request without runtime.auth
+runtime:
+  auth:
+    api_key:
+      enabled: true
+      keys:
+        - ${secrets:SPICE_API_KEY}
+
 # GitHub issues and PRs accelerated in-memory for fast SQL queries
 datasets:
   - from: github:github.com/your-org/your-repo/issues
@@ -176,13 +203,89 @@ tools:
 With this configuration, clients connecting to `/v1/mcp` see a single catalog that includes:
 
 - Spice built-in tools: `sql`, `list_datasets`, `table_schema`, `search`, and more
-- GitHub MCP tools: `github/create_issue`, `github/list_pull_requests`, `github/search_code`, and more
-- Jira MCP tools: `jira/get_issue`, `jira/search_issues`, `jira/create_issue`, and more
+- GitHub MCP tools: `github__create_issue`, `github__list_pull_requests`, `github__search_code`, and more
+- Jira MCP tools: `jira__jira_get_issue`, `jira__jira_search`, `jira__jira_create_issue`, and more
 
-Connect Claude Code to this gateway with a single command:
+### Proxied tool names
+
+A proxied tool is exposed as `<tool-name>__<upstream-tool-name>`, joined by a **double underscore**. The `tool-name` is the `name` given in the `tools` section, so renaming the tool renames every tool it proxies.
+
+The separator is not a `/`, because MCP clients such as Claude and Cursor reject any tool name that does not match `^[a-zA-Z0-9_-]{1,64}$`.
+
+Where an upstream server already namespaces its own tools, the prefix appears doubled — `mcp-atlassian` exposes `jira_get_issue`, so a tool named `jira` yields `jira__jira_get_issue`. This is expected.
+
+### Jira credentials
+
+The `jira` tool contributes **no tools at all** unless all three `JIRA_*` values resolve. `mcp-atlassian` starts successfully without them, registers nothing, and Spice logs no tool-loading error — the runtime reports healthy with Jira silently missing from the catalog. Check the startup log for `runtime_secrets` errors if `jira__*` tools do not appear.
+
+`JIRA_URL` depends on which kind of API token is used, and a mismatch is the most common cause of an empty Jira catalog:
+
+| Token type | `JIRA_URL` |
+| --- | --- |
+| Classic (unscoped) API token | `https://your-org.atlassian.net` |
+| Scoped API token | `https://api.atlassian.com/ex/jira/<cloud-id>` |
+
+Scoped tokens authenticate only against the `api.atlassian.com` gateway and return `401` against the site URL. Retrieve the cloud ID for a site from `https://your-org.atlassian.net/_edge/tenant_info`, which requires no authentication. Both token types use `JIRA_USERNAME` (the account email address) with HTTP basic auth.
+
+### Connecting a client
+
+Connect Claude Code to this gateway with a single command, using a key from `runtime.auth`:
 
 ```bash
 claude mcp add --transport http spice http://localhost:8090/v1/mcp --header "X-API-KEY: <key>"
 ```
 
+:::warning Large tool catalogs
+
+The two servers above expose close to 100 tools between them, which degrades tool selection in most MCP clients. Restrict each server to the tools actually needed — for `mcp-atlassian`, set `TOOLSETS` in its `env` block.
+
+:::
+
 See the [mcp-server cookbook](https://github.com/spiceai/cookbook/tree/trunk/mcp-server) for a complete runnable example.
+
+## Troubleshooting
+
+### A tool is missing from the catalog
+
+A failing MCP server does not stop the runtime. Spice logs a warning, retries the connection in the background, and reports healthy — the tool is simply absent from `tools/list`. Verify the runtime log at startup:
+
+```bash
+grep "Unable to load tool" <log>
+```
+
+A server that starts but authenticates with empty or invalid credentials is harder to spot: it registers zero tools without producing that warning. Check for `runtime_secrets` errors, which indicate a `${secrets:...}` reference that did not resolve.
+
+### Every request returns `401`
+
+`/v1/mcp` requires [`runtime.auth`](#authentication). The response body names the missing configuration:
+
+```json
+{ "message": "MCP endpoint (/v1/mcp) requires `runtime.auth` to be configured. ..." }
+```
+
+### Every request returns `403`
+
+The `Host` header is not in [`runtime.mcp.allowed_hosts`](#allowed-hosts). This is the DNS-rebinding guard, and it applies to any host other than `localhost`, `127.0.0.1`, or `::1`.
+
+### Listing the catalog directly
+
+To confirm what a client actually sees, call `tools/list` over the Streamable HTTP transport. The `Accept` header must offer both content types, and the session ID returned by `initialize` is required on subsequent requests:
+
+```bash
+curl -sS -D headers.txt -X POST http://localhost:8090/v1/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'X-API-KEY: <key>' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+
+SID=$(grep -i mcp-session-id headers.txt | tr -d '\r' | awk '{print $2}')
+
+curl -sS -X POST http://localhost:8090/v1/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'X-API-KEY: <key>' \
+  -H "Mcp-Session-Id: $SID" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+```
+
+Responses are returned as SSE frames prefixed with `data:`.
