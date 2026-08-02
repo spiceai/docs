@@ -193,6 +193,19 @@ DataFusion supports spilling for several operators, but the following operations
 
 Queries using these operators that exceed memory limits may fail. Monitor query patterns and allocate sufficient memory for workloads that rely on these operators.
 
+### How a Memory Refusal Surfaces
+
+When the query memory pool cannot satisfy a reservation, the query is refused rather than the process being allowed to grow past `runtime.query.memory_limit`. The refusal is reported as a capacity condition, not a client error, so retry middleware and load balancers can treat it as retriable:
+
+| Surface | Reported as |
+| ------- | ----------- |
+| HTTP (`/v1/sql`) | `503 Service Unavailable`, with the pool's message (including its top memory consumers) as the response body. Earlier releases answered this condition with `400 Bad Request`. |
+| Flight and Flight SQL | gRPC status `RESOURCE_EXHAUSTED` |
+| `query_failures` metric | `err_code="ResourcesExhausted"` |
+| Runtime log | Logged at `warn` level (`Query refused, out of memory: …`), so a runtime refusing queries is visible at the default `INFO` verbosity |
+
+A sustained rate of these means the deployment needs more memory, fewer concurrent queries, or fewer partitions — not that the client's SQL is malformed. Note that `/health` is served by a separate Tokio runtime and stays green while queries are being refused, so alert on `query_failures{err_code="ResourcesExhausted"}` rather than relying on health checks.
+
 ## Predicate Pushdown and Memory Reduction
 
 Predicate pushdown reduces memory consumption by filtering data early in the query execution pipeline. Rather than reading all data and filtering afterward, Spice pushes filter predicates to the data source, reducing the volume of data materialized in memory.
