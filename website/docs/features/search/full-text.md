@@ -59,6 +59,34 @@ datasets:
 
 In this example, full-text search indexing is enabled on both the `title` and `body` columns using the default Tantivy engine. The `row_id` specifies a unique identifier for referencing search results and retrieving additional data.
 
+### Index Storage
+
+By default the built-in Tantivy index is held in memory and rebuilt on every start. Set `index_store: file` on a column to persist it to disk instead, so a restart reopens the existing index rather than re-indexing the dataset:
+
+```yaml
+columns:
+  - name: body
+    full_text_search:
+      enabled: true
+      index_store: file
+      # Optional. Defaults to `.spice/data/fts/<catalog>/<schema>/<table>/`
+      index_directory: ./my-index
+```
+
+| Field | Default | Description |
+| --- | --- | --- |
+| `index_store` | `memory` | Where the index lives: `memory` (rebuilt on every start) or `file` (persisted on disk). If any indexed column of a dataset sets `file`, the dataset's index is persisted. |
+| `index_directory` | `.spice/data/fts/<catalog>/<schema>/<table>/` | Directory for a persisted index. Only applies with `index_store: file` — combining it with `index_store: memory` logs a warning and keeps the in-memory store. |
+
+#### Changing the configuration of a persisted index
+
+A persisted index records the schema it was built with, and that schema is what serves queries. On start, Spice compares the persisted schema against the current configuration:
+
+- **The index fails to open** — with an error naming the column, how its indexing changed, and the directory to delete so the index is rebuilt — when a configured column is absent from the persisted index, or when a column's value type, indexed flag, or tokenized/untokenized indexing differs. Searches, filters, and primary-key deletes over such a column cannot behave as configured, so this is reported rather than served. Adding a search column to a dataset with a persisted index therefore requires deleting the index directory.
+- **A warning is logged** when only the text analysis differs (for example an index built before [stemming](#text-analysis) became the default). Queries stay consistent with what the index actually holds; delete the directory to rebuild with the configured analysis.
+
+`index_store: memory` is never affected — it rebuilds from scratch on every start and so always matches the configuration.
+
 ## Using Elasticsearch as the FTS Engine
 
 To use Elasticsearch instead of the built-in Tantivy engine, add a dataset-level `full_text_search` block with `engine: elasticsearch` and the connection parameters:
