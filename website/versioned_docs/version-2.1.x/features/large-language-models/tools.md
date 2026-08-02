@@ -24,6 +24,8 @@ The `tools` parameter on a model controls how tools are provided to the LLM:
 | `auto` | Automatically choose between direct tools and searchable registry discovery. When the number of available tools exceeds 20 and an embedding model is available, `auto` switches to registry-based discovery; otherwise it uses direct tools. |
 | `all` | Provide all built-in and Spicepod-configured tools directly to the LLM. |
 | `search_registry` | Use searchable registry discovery. The LLM receives `tool_search` and `tool_invoke` meta-tools instead of individual tool definitions. Requires an embedding model (see `tool_embedding_model`). |
+| `nsql` | Provide only the built-in tools relevant to text-to-SQL: `table_schema`, `sql`, `list_datasets`, `get_current_datetime`, `random_sample`, `sample_distinct_columns`, and `top_n_sample`. |
+| `disabled` | Provide no tools to the LLM. |
 | `<tool1>, <tool2>, ...` | Provide only the named tools directly. |
 
 ### Example: Specifying Tools for a Model
