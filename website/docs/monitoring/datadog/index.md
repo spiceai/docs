@@ -34,11 +34,7 @@ instances:
 
 ## Kubernetes (Operator / Autodiscovery)
 
-After the [Datadog Agent](https://docs.datadoghq.com/containers/kubernetes/installation/) is running in the cluster (Operator or Helm), annotate Spice workloads so the Agent scrapes `/metrics` and tags series for the dashboard **instance** filter.
-
-The Spice Datadog dashboard filters on the tag **`service_instance_id`** (OpenTelemetry [`service.instance.id`](https://opentelemetry.io/docs/specs/semconv/resource/#service) in undotted form — Datadog template variable names cannot contain dots; see [Template variables](https://docs.datadoghq.com/dashboards/template_variables/#widgets)). Set the value to the pod name so Kubernetes resource panels (`pod_name:$instance.value`) stay aligned with Spice metrics.
-
-Add an Autodiscovery annotation on the Spice container (default container name in the Helm chart is `spiceai`):
+With the [Datadog Agent](https://docs.datadoghq.com/containers/kubernetes/installation/) in the cluster, annotate the Spice container (`spiceai` in the Helm chart) so OpenMetrics scrapes include the `service_instance_id` tag used by the dashboard instance filter:
 
 ```yaml
 ad.datadoghq.com/spiceai.checks: |
@@ -55,12 +51,6 @@ ad.datadoghq.com/spiceai.checks: |
     }
   }
 ```
-
-Put the annotation on the Spice pod template (`spec.template.metadata.annotations` on the Deployment or StatefulSet), then roll the workload so pods pick it up.
-
-Confirm in Metrics Explorer that Spice metrics carry `service_instance_id:<pod-name>`. The dashboard instance dropdown lists those values after Datadog indexes the tag (often within a few minutes).
-
-Kubernetes CPU, memory, and volume panels use Datadog’s Kubernetes metrics (`k8s.pod.*`, `k8s.volume.*`). Those require the Agent’s Kubernetes / kubelet integrations (enabled by default for in-cluster Agents).
 
 ## Import the Spice Datadog Dashboard
 
