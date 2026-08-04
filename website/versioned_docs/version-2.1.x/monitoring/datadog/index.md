@@ -18,10 +18,12 @@ Configure the Datadog Agent to scrape the Spice metrics endpoint:
 init_config:
 
 instances:
-  - prometheus_url: SPICE-METRICS-ENDPOINT>/metrics # for example http://localhost:9090/metrics
+  - openmetrics_endpoint: http://localhost:9090/metrics # Spice metrics endpoint
     namespace: spice
     metrics:
-      - '*'
+      - .*
+    tags:
+      - service_instance_id:<unique-id> # e.g. hostname; required by the Spice dashboard filter
 ```
 
 1. [Restart the Agent](https://docs.datadoghq.com/agent/guide/agent-commands/#start-stop-and-restart-the-agent) to start collecting Spice metrics.
@@ -29,6 +31,26 @@ instances:
 1. Open Datadog Metrics Explorer and type `spice` to confirm Spice telemetry information is successfully collected.
 
 <img width="800" src="/img/datadog/spice_datadog_metrics_explorer.png"/>
+
+## Kubernetes (Operator / Autodiscovery)
+
+With the [Datadog Agent](https://docs.datadoghq.com/containers/kubernetes/installation/) in the cluster, annotate the Spice container (`spiceai` in the Helm chart) so OpenMetrics scrapes include the `service_instance_id` tag used by the dashboard instance filter:
+
+```yaml
+ad.datadoghq.com/spiceai.checks: |
+  {
+    "openmetrics": {
+      "instances": [
+        {
+          "openmetrics_endpoint": "http://%%host%%:9090/metrics",
+          "namespace": "spice",
+          "metrics": [".*"],
+          "tags": ["service_instance_id:%%kube_pod_name%%"]
+        }
+      ]
+    }
+  }
+```
 
 ## Import the Spice Datadog Dashboard
 
