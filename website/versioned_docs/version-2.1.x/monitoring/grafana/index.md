@@ -22,7 +22,7 @@ Click "Load".
 
 View the [Kubernetes](../../deployment/kubernetes/helm/index.md) deployment guide for configuring the Prometheus Operator to scrape metrics from Spice pods (`monitoring.podMonitor.enabled=true`).
 
-The dashboard **Kubernetes Resource Utilization** panels need cluster metrics in Prometheus (`k8s_pod_cpu_usage`, `k8s_pod_memory_working_set`, `k8s_volume_capacity`, `k8s_volume_available` with label `k8s_pod_name`), not Spice `/metrics`. A common source is an OpenTelemetry Collector [kubeletstats](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/kubeletstatsreceiver) receiver exporting those names (without unit suffixes). The scrape `instance` label should match the pod name so the Instances filter applies to those panels.
+The dashboard **Kubernetes Resource Utilization** panels need cluster metrics in Prometheus (`k8s_pod_cpu_usage`, `k8s_pod_memory_working_set`, `k8s_volume_capacity`, `k8s_volume_available` with label `k8s_pod_name`). A common source is an OpenTelemetry Collector [kubeletstats](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/kubeletstatsreceiver) receiver exporting those names (without unit suffixes). The scrape `instance` label should match the pod name so the Instances filter applies to those panels.
 
 ## Prometheus
 
