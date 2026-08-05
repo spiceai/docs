@@ -39,9 +39,11 @@ datasets:
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
 
+`http_headers` applies to **dynamic JSON API endpoints only**. A structured HTTP file dataset — `csv`, `tsv`, `parquet`, `arrow`, or `avro` — is served by the object-store listing path, which cannot carry request headers, so the headers are ignored. To authenticate a structured file download, use [Basic authentication](#using-basic-authentication) (`http_username` / `http_password`, or user info in the URL).
+
 ```yaml
 datasets:
-  - from: https://api.example.com/data.csv
+  - from: https://api.example.com
     name: api_data
     params:
       http_headers: 'Authorization:Bearer ${secrets:api_token},Accept:application/json'
@@ -51,7 +53,7 @@ Headers can also be separated by semicolons:
 
 ```yaml
 datasets:
-  - from: https://api.example.com/data.csv
+  - from: https://api.example.com
     name: api_data
     params:
       http_headers: 'Authorization: Bearer ${secrets:api_token}; X-API-Key: ${secrets:api_key}'
@@ -113,7 +115,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_port`                | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                                                                                               |
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                     |
 | `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                    |
-| `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                                                                                                       |
+| `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Applies to dynamic JSON API endpoints only; structured HTTP file datasets ignore these headers. Default: None.                                                                                                                       |
 | `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                  |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                          |
 | `request_body_filters`     | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                                                                                            |
