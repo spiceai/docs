@@ -26,11 +26,11 @@ For the complete reference specification see [datasets](../reference/spicepod/da
 
 Supported Vector engines:
 
-| Name                             | Description                  |
-| -------------------------------- | ---------------------------- |
-| [`s3_vectors`][s3vectors]        | AWS S3 vectors               |
-| [`elasticsearch`][elasticsearch] | Elasticsearch                |
-| [`duckdb`][duckdb]               | DuckDB VSS (HNSW) extension  |
+| Name                             | Description                         |
+| -------------------------------- | ----------------------------------- |
+| [`s3_vectors`][s3vectors]        | AWS S3 vectors                      |
+| [`elasticsearch`][elasticsearch] | Elasticsearch (Spice.ai Enterprise) |
+| [`duckdb`][duckdb]               | DuckDB VSS (HNSW) extension         |
 
 [s3vectors]: /docs/components/vectors/s3_vectors.md
 [elasticsearch]: /docs/components/vectors/elasticsearch.md
