@@ -32,7 +32,7 @@ embeddings:
 
 | Parameter                          | Description                                                                                                                             | Example Value |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| `s3_vectors_arn`                   | The S3 vectors index to use. Incompatible with `s3_vectors_bucket` and `s3_vectors_index`. | `arn:aws:s3vectors:123456654321/bucket/a-bucket/index/index-of-important-embeddings` |
+| `s3_vectors_arn`                   | The S3 vectors index to use. Incompatible with `s3_vectors_bucket` and `s3_vectors_index`. | `arn:aws:s3vectors:us-east-1:123456789012:bucket/a-bucket/index/index-of-important-embeddings` |
 | `s3_vectors_aws_access_key_id`     | The access key ID for the S3 vectors index | - |
 | `s3_vectors_aws_region`            | The AWS region for the S3 vectors index. | `us-east-1` |
 | `s3_vectors_aws_secret_access_key` | The secret access key for the S3 vectors index | - |
