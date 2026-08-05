@@ -21,7 +21,7 @@ The connector supports HTTP Basic, custom-header, and OAuth2 (refresh-token and 
 | ------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `http_username`           | Username for HTTP Basic authentication.                                                              |
 | `http_password`           | Password for HTTP Basic authentication. Use `${secrets:...}` to resolve from a secret store.         |
-| `http_headers`            | Custom headers (e.g. `Authorization:Bearer ${secrets:api_token}`). Treated as sensitive — not logged. |
+| `http_headers`            | Custom headers (e.g. `Authorization:Bearer ${secrets:api_token}`). Treated as sensitive — not logged. Dynamic JSON API endpoints only; structured HTTP file datasets ignore these headers. |
 | `auth_token_url`          | OAuth2 token endpoint URL (must be HTTPS in production).                                             |
 | `auth_grant_type`         | OAuth2 grant: `refresh_token` (default) or `client_credentials`.                                    |
 | `http_auth_refresh_token` | OAuth2 refresh token. Required for the (default) refresh-token grant; unused by `client_credentials`. |
