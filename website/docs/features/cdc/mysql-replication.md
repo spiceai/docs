@@ -81,6 +81,23 @@ GRANT SELECT ON mydb.orders TO 'replicator'@'%';           -- snapshot + layout 
 GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'replicator'@'%';
 ```
 
+`REPLICATION SLAVE` (streams the binlog) and `REPLICATION CLIENT` (reads its position) are **global-only** privileges in MySQL — they cannot be granted per-database, which is why they are granted `ON *.*`. On MariaDB 10.5+ the same two privileges are named `REPLICATION REPLICA` and `BINLOG MONITOR`; either spelling satisfies Spice, as does `ALL PRIVILEGES`.
+
+Spice pre-flights these grants via `SHOW GRANTS FOR CURRENT_USER()` before it validates the server settings above — an account without `REPLICATION CLIENT` can still read those settings, so checking them first would report a healthy server and defer the real problem to an opaque `Access denied` at stream start. A definitively missing privilege fails the dataset with the account name, the privileges it lacks, and a ready-to-paste `GRANT`:
+
+```text
+MySQL account replicator@% is missing privileges required for change data capture:
+REPLICATION SLAVE, REPLICATION CLIENT. Grant them with:
+GRANT REPLICATION SLAVE, REPLICATION CLIENT, SELECT ON *.* TO 'replicator'@'%';
+```
+
+The suggested `GRANT` includes `SELECT ON *.*` so it can be pasted as-is; narrow the `SELECT` to the replicated tables (as in the block above) if you prefer least privilege.
+
+Two cases deliberately do **not** fail the pre-flight:
+
+- **`SELECT` is not audited.** It is grantable at database, table, and column scope, and the check runs before the dataset's table is known — so a valid per-table grant would read as missing. A missing `SELECT` instead surfaces at snapshot time, named against the table that needs it.
+- **An inconclusive `SHOW GRANTS` defers to the server.** If the statement cannot be read, or lists a role grant (whose constituent privileges `SHOW GRANTS` does not expand), no conclusion is drawn and startup proceeds rather than blocking a dataset that would replicate correctly.
+
 ## Parameters
 
 Configure replication behavior with the following `params` on the MySQL dataset:
