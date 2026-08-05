@@ -47,9 +47,11 @@ For example, `static_username` with password `s3cret` produces `Authorization: B
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
 
+`http_headers` applies to **dynamic JSON API endpoints only**. A structured HTTP file dataset — `csv`, `tsv`, `parquet`, `arrow`, `avro`, `jsonl`/`ndjson`/`ldjson`, `soda`, `socrata`, `vortex`, or a static `json` file — is served by the object-store listing path, which cannot carry request headers, so the headers are ignored and a warning is logged naming the dataset. To authenticate a structured file download, use [Basic authentication](#using-basic-authentication) (`http_username` / `http_password`, or user info in the URL).
+
 ```yaml
 datasets:
-  - from: https://api.example.com/data.csv
+  - from: https://api.example.com
     name: api_data
     params:
       http_headers: 'Authorization:Bearer ${secrets:api_token},Accept:application/json'
@@ -59,7 +61,7 @@ Headers can also be separated by semicolons:
 
 ```yaml
 datasets:
-  - from: https://api.example.com/data.csv
+  - from: https://api.example.com
     name: api_data
     params:
       http_headers: 'Authorization: Bearer ${secrets:api_token}; X-API-Key: ${secrets:api_key}'
@@ -85,7 +87,7 @@ datasets:
 
 The `http_auth_refresh_token`, `http_auth_client_id`, and `http_auth_client_secret` parameters can be loaded from any [supported secret store](../secret-stores/) (environment variables, Kubernetes Secrets, AWS Secrets Manager, HashiCorp Vault, the OS keychain, etc.) using the `${secrets:...}` [replacement syntax](../secret-stores/#using-secrets).
 
-Applies to JSON API endpoints (e.g. `file_format: json`). Structured file formats (csv/parquet/etc.) go through the object-store listing path and are not affected by this setting — use `http_headers` for those.
+Applies to **dynamic JSON API endpoints only** (e.g. `file_format: json` with `allowed_request_paths`). A structured HTTP file dataset (csv/parquet/etc.) goes through the object-store listing path, which cannot attach an access token, so setting any OAuth2 parameter on one is **rejected at registration** — the dataset fails to load with a configuration error naming the parameters to remove, rather than quietly sending unauthenticated requests. `http_headers` is not applied on that path either; use [Basic authentication](#using-basic-authentication) to authenticate a structured file download.
 
 See [OAuth2 Authentication](#oauth2-authentication) for the full parameter reference and behavior notes.
 
@@ -145,7 +147,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_port`                | Optional. Port to create HTTP(s) connection over. Default: 80 and 443 for HTTP and HTTPS respectively.                                                                                                                                                                                                                                                                                                                                    |
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                                                                                                                                                                          |
 | `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                                                                                                                                                                         |
-| `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Default: None.                                                                                                                                                                                                                                                                            |
+| `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Applies to dynamic JSON API endpoints only; structured HTTP file datasets ignore these headers. Default: None.                                                                                                                                                                                                                                                                            |
 | `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                                                                                                                                                                       |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                                                                                                                                                                               |
 | `request_body_filters`     | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                                                                                                                                                                                                                                                 |
@@ -164,7 +166,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `max_request_headers_length` | Optional. Maximum size in bytes for `request_headers` filter values. Default: `16384` (16 KiB).
 | `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. If unset, partition count is unlimited.                                                                                                                                                                                                                                                                                                                   |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`.                                                                                                                                                      |
-| `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). Enables OAuth2: the connector acquires short-lived access tokens (refresh-token grant by default, or `client_credentials` via `auth_grant_type`) and attaches them to all data requests (`Authorization: Bearer <token>` by default, or the bare token under a custom `auth_header_name`). Applies to JSON API endpoints only. See [OAuth2 Authentication](#oauth2-authentication). |
+| `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). Enables OAuth2: the connector acquires short-lived access tokens (refresh-token grant by default, or `client_credentials` via `auth_grant_type`) and attaches them to all data requests (`Authorization: Bearer <token>` by default, or the bare token under a custom `auth_header_name`). Applies to dynamic JSON API endpoints only; structured HTTP file datasets reject OAuth2 params. See [OAuth2 Authentication](#oauth2-authentication). |
 | `auth_grant_type`          | Optional. OAuth2 grant type: `refresh_token` (default, RFC 6749 §6) or `client_credentials` (RFC 6749 §4.4). `client_credentials` authenticates with `http_auth_client_id`/`http_auth_client_secret` and issues no refresh token.                                                                                                                                                                                                          |
 | `http_auth_refresh_token`  | Optional. OAuth2 refresh token exchanged against `auth_token_url` to obtain access tokens. **Required** when `auth_token_url` is set with the (default) refresh-token grant; not used by the `client_credentials` grant. Use a secret store, e.g. `${secrets:my_refresh_token}`.                                                                                                                                                            |
 | `http_auth_client_id`      | Optional. OAuth2 `client_id` presented to the token endpoint. Required for confidential clients; optional for public clients. Must be paired with `http_auth_client_secret` for confidential clients.                                                                                                                                                                                                                                     |
@@ -656,7 +658,7 @@ Error bodies returned by the token endpoint are truncated to 512 bytes and white
 
 #### Limitations
 
-- **JSON APIs only.** Structured file formats (csv, parquet, etc.) go through the object-store listing path and are not authenticated by this feature. For those, use a static bearer via `http_headers`.
+- **Dynamic JSON APIs only.** A structured HTTP file dataset (csv, parquet, etc.) is served by the object-store listing path, which cannot attach an access token. Setting any OAuth2 parameter on one fails registration with a configuration error naming the parameters to remove, rather than sending unauthenticated requests. `http_headers` is not applied on that path either — use [Basic authentication](#using-basic-authentication) to authenticate a structured file download.
 - **No interactive auth flows.** The refresh-token and client-credentials grants are supported; the authorization-code and device-code flows are not. For the refresh-token grant, obtain the initial refresh token out-of-band.
 - **No 401→refresh-and-retry.** Background refresh keeps the token fresh; if a data request 401s, it propagates to the caller.
 - **One authenticator per dataset.** Configure either OAuth2 or an `Authorization` header in `http_headers`, not both — the connector rejects the combination at registration time.

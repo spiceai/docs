@@ -295,7 +295,9 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
                 "s3vectors:QueryVectors",
                 "s3vectors:GetIndex",
                 "s3vectors:PutVectors",
-                "s3vectors:ListVectors"
+                "s3vectors:ListVectors",
+                "s3vectors:GetVectors",
+                "s3vectors:ListIndexes"
             ],
             "Resource": [
                 "arn:aws:s3vectors:aws-region:123456789012:bucket/amzn-s3-demo-vector-bucket/index/*",
@@ -329,6 +331,8 @@ The IAM role or user needs the following minimum permissions to access S3 Vector
 | ------------------------------ | --------------------------------------------------------------------------------------- |
 | `s3vectors:GetIndex`           | Required. Used to verify if the index already exists or needs to be created.            |
 | `s3vectors:GetVectorBucket`    | Required. Used to verify if the vector bucket already exists or needs to be created.    |
+| `s3vectors:GetVectors`         | Required. Used to read vector data when the `*_embeddings` column is projected.         |
+| `s3vectors:ListIndexes`        | Required when using index partitioning or spill writes, to enumerate physical indexes.  |
 | `s3vectors:ListVectors`        | Required. Used to populate the `*_embeddings` column on vector tables in Spice.         |
 | `s3vectors:PutVectors`         | Required. Used to populate the vector index with Spice-computed embeddings.             |
 | `s3vectors:QueryVectors`       | Required. Used to query for vectors using the `vector_search` table function.           |
