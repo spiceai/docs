@@ -141,6 +141,25 @@ columns:
 
 This ensures results respect constraints like time ranges during similarity search.
 
+### Which Predicates Push Down
+
+S3 Vectors accepts a restricted, MongoDB-style metadata filter, so only some predicates translate. A predicate is pushed into the S3 Vectors query when it references a `filterable` metadata column **on the left-hand side** and takes one of these shapes:
+
+| Predicate                     | Pushed down when                                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| `=`, `!=`                     | The literal is a boolean, a string, or a finite number                                             |
+| `<`, `<=`, `>`, `>=`          | The literal is **numeric** — an integer, or a finite float                                          |
+| `IS NULL`, `IS NOT NULL`      | Always                                                                                             |
+| `IN (…)`                      | The list is non-empty and every element is a boolean, a string, or a finite number                  |
+| `AND`, `OR`                   | Every sub-expression is itself pushable                                                            |
+
+Anything else is evaluated by the Spice query engine after candidates come back, which is correct but reads more rows from the index. The cases that most often surprise:
+
+- **Range comparisons against strings are not pushed down.** `WHERE category > 'm'` is a valid SQL predicate, but S3 Vectors supports range operators only on numeric metadata, so it is filtered locally. Equality and `IN` on strings do push down.
+- **The column must be the left operand.** `WHERE rating > 4` pushes down; `WHERE 4 < rating` does not.
+- **`NaN` and infinite floats never push down**, nor do `NULL` literals — use `IS NULL` instead of `= NULL`.
+- **Columns that are not `filterable` metadata cannot be pushed at all**, including derived columns such as the similarity distance the index adds to results.
+
 ## Optimizations
 
 Store non-filterable columns as metadata to avoid joins:
