@@ -31,6 +31,18 @@ The cache location honors the `HF_HUB_CACHE` environment variable. In containers
 
 Model weights are downloaded on first use into the HF Hub cache and reused on subsequent starts. Download retries follow the shared HTTP client's retry policy on transient failures.
 
+### Revision Pinning
+
+Append `:<revision>` to the repository id in `from:` to pin a branch, tag, or commit SHA — the same convention the `huggingface:` model source uses. The revision is split off the repository id and passed to the loader, so the pinned revision is what gets downloaded:
+
+```yaml
+embeddings:
+  - from: huggingface:huggingface.co/sentence-transformers/all-MiniLM-L6-v2:refs/pr/21
+    name: pinned_minilm
+```
+
+With no `:<revision>` suffix, the repository's default revision (`main`) is used. A trailing `:` with nothing after it is treated as no revision rather than as part of the repository name.
+
 ### TEI Queue Configuration
 
 The TEI pipeline has fixed queue parameters in the current release:
@@ -98,7 +110,6 @@ Embedding requests emit `text_embed` spans in [task history](../../../reference/
 
 - **TEI queue limits hardcoded**: `max_concurrent_requests` (512) and `max_batch_tokens` (16384) are not user-tunable in the current release.
 - **No auto-truncation for pooled embeds**: Inputs longer than `max_seq_length` fail unless truncated by the caller.
-- **Revision pinning caveat for embeddings**: Embeddings currently pass revision as `None` to the TEI loader; the effective revision is the default branch (`main`). Pin by mirroring a specific revision into the HF cache, or by pre-downloading and switching to a filesystem (`local`) embedding source.
 - **Single process loading**: Models load into the Spice process; no shared inference server across instances.
 
 ## Troubleshooting
