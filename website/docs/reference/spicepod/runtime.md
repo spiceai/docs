@@ -440,6 +440,59 @@ runtime:
 
 This configuration permits requests only from the `https://example.com` origin.
 
+## `runtime.cpu`
+
+The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, DuckDB's per-instance `threads`, and a cluster executor's concurrent-task advertisement.
+
+### `runtime.cpu.cores`
+
+```yaml
+runtime:
+  cpu:
+    cores: 4 # `auto` (the default) detects it
+```
+
+Accepts a Kubernetes CPU quantity — a whole number of cores (`4`), a fraction (`3.5`), or millicores (`3500m`) — or `auto` to detect the entitlement. Millicores must be integral, so `3500m` is valid and `3.5m` is not. A value of `0`, a negative value, or an unparseable one fails startup with an actionable error rather than being clamped silently.
+
+Three configuration surfaces set the same value. Precedence, highest first:
+
+| Surface                | Form                       |
+| ---------------------- | -------------------------- |
+| Command-line flag      | `--cpu-cores 4`            |
+| Environment variable   | `SPICE_CPU_CORES=4`        |
+| Spicepod               | `runtime.cpu.cores: 4`     |
+
+A surface set to `auto` still takes precedence over the surfaces below it; it simply resolves to detection.
+
+Applied at startup only. The thread pools it sizes cannot be resized afterwards, so changing `runtime.cpu` and reloading the spicepod logs a warning that a restart is required rather than taking effect.
+
+#### Detection
+
+With nothing configured (`auto`), the entitlement is detected. First match wins:
+
+1. A cgroup CPU **quota** — cgroup v2 `cpu.max`, cgroup v1 `cpu.cfs_quota_us`; Kubernetes `resources.limits.cpu`. Read along the whole cgroup path, taking the smallest quota found at any level, and capped by the CPU affinity mask.
+2. The process's CPU affinity mask (`sched_getaffinity` on Linux, the logical CPU count elsewhere) — the CPUs the process may run on, which a `cpuset` or `taskset` may narrow below the host's core count.
+3. One core, when nothing can be determined.
+
+A cgroup CPU **share** — what the kubelet derives from `resources.requests.cpu` — is deliberately never an input to sizing. A request is a scheduling floor, not a ceiling: a burstable pod with a request and no limit is entitled to burst across every idle core on its node, and inferring a ceiling from the request would silently remove that headroom. The share is still read and reported, so the startup log and the `spiced_cpu_request_millicores` gauge show the request alongside the budget actually chosen.
+
+It follows that a pod setting `resources.requests.cpu` **without** a matching `resources.limits.cpu` is sized for the whole node. That is correct for a burstable pod entitled to use the node, and wrong for one packed alongside neighbors — set `runtime.cpu.cores` explicitly in the latter case. See [Resource Allocation](../performance-tuning#resource-allocation) for the Kubernetes guidance.
+
+#### Observability
+
+At startup the runtime logs the effective entitlement, the rung of the ladder or the setting it came from, the cgroup request and limit it sits between, and the defaults derived from it:
+
+```
+CPU budget: 4 cores (source: runtime.cpu.cores; host reports 18, cgroup request 4 cores, cgroup limit unset) → 4 main worker threads, 3 per dedicated runtime pool, 4 target partitions
+CPU budget derived sizing: main_runtime_worker_threads=4, dedicated_runtime_worker_threads=3, target_partitions=4, max_concurrent_queries=16, ...
+```
+
+The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
+
+A warning is logged when the cgroup CPU request is less than **half** the effective entitlement: the runtime is then sized for CPU the scheduler does not guarantee, so every CPU-derived pool may be larger than what the process actually gets. The check is on the effective entitlement, so it fires for every source and names the one responsible — an over-large hand-configured value is reported the same way as an over-large detected one. The threshold is loose enough that cgroup v2 quantization (a `requests.cpu: 1` landing at `974m`) does not warn.
+
+The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit_millicores`, and `spiced_cpu_request_millicores` gauges report the same figures — see [Observability](../../features/observability). `tokio_runtime_workers` is the cross-check on the thread pools the entitlement sized.
+
 ## `runtime.query.memory_limit`
 
 The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
@@ -470,8 +523,14 @@ Behavior:
 
 - Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
 - A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
-- If not set, the number of concurrent queries is **unbounded** (the default behavior).
-- A configured value is clamped to a minimum of `1`, so `max_concurrent_queries: 0` allows one concurrent query (not unbounded).
+- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
+- `max_concurrent_queries: 0` opts out and leaves concurrency **unbounded**. Every other configured value is a limit, applied verbatim.
+
+:::warning Behavior change
+
+Prior to this release the default was **unbounded**, and an explicit `0` was clamped to a minimum of `1` (a single concurrent query). Both have changed: an unset value is now bounded by the CPU entitlement, and `0` now means unbounded rather than maximally throttled. A deployment that set `0` to disable admission control gets the behavior it intended; one that set `0` expecting a throttle gets the opposite.
+
+:::
 
 ## `runtime.query.timeout`
 

@@ -228,7 +228,7 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 
 ### Query Parallelism
 
-DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the number of CPU cores, providing maximum parallelism.
+DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the runtime's [CPU entitlement](spicepod/runtime#runtimecpu) in whole cores, providing maximum parallelism. Override it with `runtime.query.target_partitions`, or state the entitlement itself with `runtime.cpu.cores` to size partitions and every other CPU-derived pool together.
 
 DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured `memory_limit`. This approach improves throughput for high-concurrency queries with many partitions compared to dividing memory evenly.
 
@@ -568,6 +568,22 @@ spec:
 Avoid setting CPU limits. CPU limits can cause [throttling](https://home.robusta.dev/blog/stop-using-cpu-limits) even when CPU is available, degrading query performance. Set CPU requests to guarantee scheduling.
 
 :::
+
+#### Sizing the Runtime for its CPU Entitlement
+
+The runtime sizes its thread pools, query fan-out, and accelerator concurrency from one CPU entitlement. Detection reads the cgroup CPU **quota** (`resources.limits.cpu`) and otherwise falls back to the CPUs the process may run on, so a pod that follows the advice above — requests, no limits — is sized for the **whole node**.
+
+That is the right answer for a burstable pod entitled to burst across its node, and the wrong one for a pod packed alongside neighbors it should not crowd out. Every CPU-derived pool scales with this number, and so does memory: worker threads, partitions, and per-plan operator reservations all grow with it, roughly linearly. A value far above the cores actually available buys nothing and costs both scheduling overhead and memory.
+
+State the entitlement explicitly when the node's core count is not the number the pod should size for:
+
+```yaml
+runtime:
+  cpu:
+    cores: 4 # or --cpu-cores 4 / SPICE_CPU_CORES=4
+```
+
+Leave it at `auto` for a pod that really may use the node. Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `spiced_cpu_limit_millicores` to see which entitlement a pod chose and what it was chosen against; the runtime also warns at startup when the CPU request is less than half the entitlement it sized for. See [`runtime.cpu`](spicepod/runtime#runtimecpu).
 
 ### Storage Recommendations
 
