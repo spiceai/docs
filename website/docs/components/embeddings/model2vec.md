@@ -50,6 +50,17 @@ embeddings:
     name: local_model2vec
 ```
 
+## Revision Pinning Is Not Supported
+
+Unlike the [Hugging Face embedding source](./huggingface), `model2vec:` cannot load a pinned revision — the underlying loader takes no revision argument. A `from:` value shaped like `model2vec:org/model:revision` is rejected at load with an explicit error rather than being sent to the Hub, where the `:revision` suffix would become part of the repository name and fail as a `401 Unauthorized`:
+
+```
+The model 'org/model:revision' pins revision 'revision', but source 'model2vec' cannot load a pinned
+revision. Remove ':revision' to load the repository's default revision, and try again.
+```
+
+Load the repository's default revision instead, or pre-download the revision you want and reference it as a [local model](#local-models). Local paths are unaffected — a path that exists on disk is loaded as a path, even when it happens to look like a pinned repository id.
+
 ## Private Models
 
 Model2Vec supports private Hugging Face models with authentication:
