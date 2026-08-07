@@ -39,7 +39,7 @@ acceleration:
 
 :::
 
-`adaptive` needs a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick; if it is `0`, Cayenne logs a warning and falls back to `auto`. Schema inference (always on) sharpens the `adaptive` warm-start — the loop's data-aware warm-start uses the inferred cardinality and size — but is not required for an explicit `cayenne_tuning: adaptive`; without inferred metadata the controller relearns the observed row width from live ingest and converges from the hardware-derived warm-start.
+`adaptive` needs a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick; if it is `0`, Cayenne logs a warning and falls back to `auto`. A `refresh_mode: full` dataset defaults that interval to `0` — a whole-table replace has nothing for background compaction to consolidate — so `adaptive` falls back to `auto` on such a table unless you also set `cayenne_compaction_background_interval_ms` explicitly. Schema inference (always on) sharpens the `adaptive` warm-start — the loop's data-aware warm-start uses the inferred cardinality and size — but is not required for an explicit `cayenne_tuning: adaptive`; without inferred metadata the controller relearns the observed row width from live ingest and converges from the hardware-derived warm-start.
 
 In both modes, setting any `cayenne_*` knob to an explicit value overrides the derived value. Under `adaptive`, an explicitly-set knob is **pinned** — the controller will not move it.
 

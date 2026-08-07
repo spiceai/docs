@@ -389,7 +389,7 @@ runtime:
 
 ### Memory Limit
 
-If not specified, `memory_limit` defaults to 90% of the memory the process may use — its cgroup memory limit when one binds (a container, a `systemd` unit's `MemoryMax=`, a capped parent slice, or a Kubernetes pod cgroup), otherwise total system memory; when Cayenne acceleration is active, the default is 70% instead, reserving headroom for Cayenne's compaction memory pool and in-memory CDC tier. For deployments with co-located accelerators, set an explicit limit based on available memory:
+If not specified, `memory_limit` defaults to 90% of the memory the process may use — its cgroup memory limit when one binds (a container, a `systemd` unit's `MemoryMax=`, a capped parent slice, or a Kubernetes pod cgroup), otherwise total system memory; when a Cayenne-accelerated dataset can reach the in-memory CDC tier (`refresh_mode: changes` or `caching`, or `append` with `refresh_check_interval` ≤ 5m), the default is 70% instead, reserving headroom for Cayenne's compaction memory pool and in-memory CDC tier. A pod whose Cayenne datasets only bulk-write — `refresh_mode: full`, or `append` on a slower cadence — cannot fill that tier and keeps the 90% base, reduced by the off-pool per-table scan caches Cayenne holds for each accelerated table. Either way the derived limit is floored at 50% of the same memory. For deployments with co-located accelerators, set an explicit limit based on available memory:
 
 ```text
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)
