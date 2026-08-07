@@ -36,6 +36,50 @@ Spark-compatible scalar functions registered by Spice are documented here only w
 
 Math functions in Spice.ai SQL help perform numeric calculations, transformations, and analysis. These functions operate on numeric expressions, which can be constants, columns, or results of other functions and operators. The following math functions are supported:
 
+- [abs](#abs)
+- [acos](#acos)
+- [acosh](#acosh)
+- [asin](#asin)
+- [asinh](#asinh)
+- [atan](#atan)
+- [atan2](#atan2)
+- [atanh](#atanh)
+- [cbrt](#cbrt)
+- [ceil](#ceil)
+- [cos](#cos)
+- [cosh](#cosh)
+- [cot](#cot)
+- [degrees](#degrees)
+- [exp](#exp)
+- [factorial](#factorial)
+- [floor](#floor)
+- [gcd](#gcd)
+- [isnan](#isnan)
+- [iszero](#iszero)
+- [lcm](#lcm)
+- [mod](#mod)
+- [pmod](#pmod)
+- [ln](#ln)
+- [log](#log)
+- [log10](#log10)
+- [log2](#log2)
+- [nanvl](#nanvl)
+- [pi](#pi)
+- [pow](#pow-and-power)
+- [power](#pow-and-power)
+- [radians](#radians)
+- [random](#random)
+- [round](#round)
+- [rint](#rint)
+- [signum](#signum)
+- [sin](#sin)
+- [sinh](#sinh)
+- [sqrt](#sqrt)
+- [tan](#tan)
+- [tanh](#tanh)
+- [trunc](#trunc)
+- [width_bucket](#width_bucket)
+
 ### `abs`
 
 Returns the absolute value of a numeric expression. If the input is negative, the result is its positive equivalent; if the input is positive or zero, the result is unchanged.
@@ -616,6 +660,15 @@ Reference: [Spark SQL `width_bucket`](https://spark.apache.org/docs/latest/api/s
 
 Conditional functions help handle null values, select among alternatives, and compare multiple expressions. These are useful for data cleaning and conditional logic in queries.
 
+- [CASE](#case)
+- [coalesce](#coalesce)
+- [greatest](#greatest)
+- [if](#if)
+- [least](#least)
+- [nullif](#nullif)
+- [nvl](#nvl)
+- [nvl2](#nvl2)
+
 ### `CASE`
 
 Standard SQL `CASE` expression, supported in both simple and searched forms.
@@ -796,6 +849,51 @@ nvl2(expression1, expression2, expression3)
 ## String Functions
 
 String functions in Spice.ai SQL help manipulate, analyze, and transform text data. These functions operate on string expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following string functions are supported:
+
+- [ascii](#ascii)
+- [bit_length](#bit_length)
+- [btrim](#btrim)
+- [char_length](#char_length)
+- [character_length](#character_length)
+- [chr](#chr)
+- [concat](#concat)
+- [concat_ws](#concat_ws)
+- [contains](#contains)
+- [like](#like)
+- [ilike](#ilike)
+- [ends_with](#ends_with)
+- [find_in_set](#find_in_set)
+- [initcap](#initcap)
+- [instr](#instr)
+- [left](#left)
+- [length](#length)
+- [levenshtein](#levenshtein)
+- [lower](#lower)
+- [luhn_check](#luhn_check)
+- [lpad](#lpad)
+- [ltrim](#ltrim)
+- [octet_length](#octet_length)
+- [overlay](#overlay)
+- [parse_url](#parse_url)
+- [position](#position)
+- [repeat](#repeat)
+- [replace](#replace)
+- [reverse](#reverse)
+- [right](#right)
+- [rpad](#rpad)
+- [rtrim](#rtrim)
+- [split_part](#split_part)
+- [starts_with](#starts_with)
+- [strpos](#strpos)
+- [substr](#substr)
+- [substr_index](#substr_index)
+- [substring](#substring)
+- [substring_index](#substring_index)
+- [to_hex](#to_hex)
+- [translate](#translate)
+- [trim](#trim)
+- [upper](#upper)
+- [uuid](#uuid)
 
 ### `ascii`
 
@@ -1812,6 +1910,10 @@ uuid()
 
 Binary string functions help encode and decode binary data, such as base64 and hexadecimal conversions. These are useful for working with encoded data or binary blobs.
 
+- [bit_get](#bit_get)
+- [bit_count](#bit_count)
+- [bitmap_count](#bitmap_count)
+
 ### `bit_get`
 
 Returns the bit (0 or 1) at the specified zero-based position when counting from the least-significant bit of an integral or binary expression, matching Spark SQL semantics.
@@ -1892,11 +1994,11 @@ Reference: [Spark SQL `bitmap_count`](https://spark.apache.org/docs/latest/api/s
 
 Regular expression functions help match, extract, and replace patterns in strings. Spice.ai uses a PCRE-like regular expression syntax. Spice supports the following regular expressions:
 
-- [`regexp_like`](#regexp_like)
-- [`regexp_match`](#regexp_match)
-- [`regexp_replace`](#regexp_replace)
-- [`regexp_count`](#regexp_count)
-- [`regexp_instr`](#regexp_instr)
+- [regexp_like](#regexp_like)
+- [regexp_match](#regexp_match)
+- [regexp_replace](#regexp_replace)
+- [regexp_count](#regexp_count)
+- [regexp_instr](#regexp_instr)
 
 ### `regexp_like`
 
@@ -2080,6 +2182,10 @@ Time and date functions help extract, format, and manipulate temporal data. Func
 - [current_time](#current_time)
 - [current_timestamp](#current_timestamp)
 - [date_bin](#date_bin)
+- [date_add](#date_add)
+- [date_sub](#date_sub)
+- [last_day](#last_day)
+- [next_day](#next_day)
 - [date_format](#date_format)
 - [date_part](#date_part)
 - [date_trunc](#date_trunc)
@@ -2751,6 +2857,52 @@ _Alias of [current_date](#current_date)._
 
 Array functions in Spice.ai SQL help construct, transform, and query array data types. These functions operate on array expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following array functions are supported:
 
+- [array](#array)
+- [array_any_value](#array_any_value)
+- [array_append](#array_append)
+- [array_cat](#array_cat)
+- [array_concat](#array_concat)
+- [array_contains](#array_contains)
+- [array_dims](#array_dims)
+- [array_distance](#array_distance)
+- [array_distinct](#array_distinct)
+- [array_element](#array_element)
+- [array_except](#array_except)
+- [array_has](#array_has)
+- [array_has_all](#array_has_all)
+- [array_has_any](#array_has_any)
+- [array_intersect](#array_intersect)
+- [array_length](#array_length)
+- [array_max](#array_max)
+- [array_min](#array_min)
+- [array_ndims](#array_ndims)
+- [array_pop_back](#array_pop_back)
+- [array_pop_front](#array_pop_front)
+- [array_position](#array_position)
+- [array_positions](#array_positions)
+- [array_prepend](#array_prepend)
+- [array_remove](#array_remove)
+- [array_remove_n](#array_remove_n)
+- [array_remove_all](#array_remove_all)
+- [array_repeat](#array_repeat)
+- [array_replace](#array_replace)
+- [array_replace_n](#array_replace_n)
+- [array_replace_all](#array_replace_all)
+- [array_resize](#array_resize)
+- [array_reverse](#array_reverse)
+- [array_slice](#array_slice)
+- [array_sort](#array_sort)
+- [array_to_string](#array_to_string)
+- [array_union](#array_union)
+- [arrays_zip](#arrays_zip)
+- [cardinality](#cardinality)
+- [empty](#empty)
+- [flatten](#flatten)
+- [make_array](#make_array)
+- [range](#range)
+- [generate_series](#generate_series)
+- [string_to_array](#string_to_array)
+
 ### `array`
 
 Constructs an array from the provided expressions using Spark-compatible semantics. Inputs are evaluated left to right, cast to a common element type, and collected into a single Arrow list value without removing duplicates or nulls.
@@ -3357,6 +3509,10 @@ Alias: `string_to_list`.
 
 Struct functions help construct and access structured data types (Arrow structs). These are useful for working with nested or composite data.
 
+- [struct](#struct)
+- [named_struct](#named_struct)
+- [get_field](#get_field)
+
 ### `struct`
 
 Constructs an anonymous Arrow struct from the given values. Field names default to `c0`, `c1`, ... in the order provided.
@@ -3406,6 +3562,12 @@ get_field(expression, field_name)
 ## Map Functions
 
 Map functions help construct and query key-value data structures. These are useful for semi-structured or JSON-like data.
+
+- [map](#map)
+- [map_keys](#map_keys)
+- [map_values](#map_values)
+- [map_entries](#map_entries)
+- [map_extract](#map_extract)
 
 ### `map`
 
@@ -3465,6 +3627,13 @@ Alias: `element_at`.
 
 Hashing functions compute cryptographic hashes and checksums for data integrity, fingerprinting, and security applications. Binary digest output is returned as a `Binary` (bytes) array; use `encode(..., 'hex')` to render as hex.
 
+- [digest](#digest)
+- [md5](#md5)
+- [sha224](#sha224)
+- [sha256](#sha256)
+- [sha384](#sha384)
+- [sha512](#sha512)
+
 ### `digest`
 
 Computes the digest of the input using the named hash algorithm. Supported algorithms: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'`, `'blake2s'`, `'blake2b'`, `'blake3'`.
@@ -3523,6 +3692,9 @@ sha512(expression)
 
 Binary encoding utilities for converting between binary data and text representations.
 
+- [encode](#encode)
+- [decode](#decode)
+
 ### `encode`
 
 Encodes a string or binary value using the specified encoding. Supported encodings: `'hex'`, `'base64'`.
@@ -3554,6 +3726,9 @@ decode(expression, encoding)
 
 Union functions help work with union (variant) data types.
 
+- [union_extract](#union_extract)
+- [union_tag](#union_tag)
+
 ### `union_extract`
 
 Extracts the value of a named member from a union, returning `NULL` if the union's active member doesn't match.
@@ -3573,6 +3748,9 @@ union_tag(expression)
 ## Metadata Functions
 
 PostgreSQL-compatible functions for reading table and column comments from registered datasets. Comments originate from the dataset's source (for connectors that surface `COMMENT ON TABLE` / `COMMENT ON COLUMN` metadata, such as PostgreSQL, MySQL, Snowflake, and Databricks) or from `description` metadata attached to the dataset schema.
+
+- [obj_description](#obj_description)
+- [col_description](#col_description)
 
 ### `obj_description`
 
@@ -3640,6 +3818,16 @@ col_description(catalog_name, schema_name, table_name, column)
 ## Other Functions
 
 Additional scalar functions include type casting, type inspection, and version reporting.
+
+- [arrow_cast](#arrow_cast)
+- [arrow_try_cast](#arrow_try_cast)
+- [arrow_typeof](#arrow_typeof)
+- [arrow_metadata](#arrow_metadata)
+- [version](#version)
+- [ai](#ai-and-embed)
+- [embed](#ai-and-embed)
+- [bucket](#bucket)
+- [truncate](#truncate)
 
 ### `arrow_cast`
 
