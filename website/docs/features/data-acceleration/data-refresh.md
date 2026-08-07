@@ -52,7 +52,7 @@ datasets:
 
 ### Append
 
-Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](../../reference/spicepod/datasets#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration.
+Using `refresh_mode: append` requires the use of a [`time_column` dataset parameter](../../reference/spicepod/datasets#time_column), specifying a column to compare the local acceleration against the remote source. Data will be incrementally refreshed where the `time_column` value in the remote source is greater-than (gt) the `max(time_column)` value in the local acceleration. A date-typed `time_column` (`time_format: date`) is compared greater-than-or-equal (gte) against the start of that day instead, since every row of a day shares one value — see [Day-Granular Time Columns](./refresh-modes/append#day-granular-time-columns).
 
 E.g.
 

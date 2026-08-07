@@ -12,21 +12,9 @@ The ODBC Data Connector is available in the Spice [Enterprise edition](https://d
 
 :::warning
 
-Spice must be [built with the `odbc` feature](#building-spice-with-odbc), and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
+In the open source edition, Spice must be [built with the `odbc` feature](#building-spice-with-odbc); [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) distributions ship with ODBC support built in. Either way, the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
 
-Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
-
-# Pull the latest official Spice image
-
-```bash
-docker pull spiceai/spiceai:latest
-```
-
-# Pull the official v0.20.0-beta Spice image
-
-```bash
-docker pull spiceai/spiceai:0.20.0-beta
-```
+The published open source `spiceai/spiceai` Docker images do **not** include ODBC support — they are built without the `odbc` feature and do not ship an ODBC Driver Manager. To run ODBC in a container, use an Enterprise distribution or [bake your own image](#baking-an-image-with-odbc-support) from an ODBC-enabled build.
 
 :::
 
@@ -162,24 +150,22 @@ datasets:
 
 ## Building Spice with ODBC
 
-ODBC support is not included in the released binaries. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
+ODBC support is built into [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) distributions. It is not included in the open source released binaries or in the published `spiceai/spiceai` Docker images — to use ODBC with the open source build, [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
 
-Alternatively, use the official Spice Docker image. To use the official Spice Docker image from [DockerHub](https://hub.docker.com/r/spiceai/spiceai):
+To build a container image, pass the feature through to the repository `Dockerfile`, which also installs the `unixodbc` Driver Manager when the feature is enabled:
 
 ```bash
-# Pull the latest official Spice image
-docker pull spiceai/spiceai:latest
-
-# Pull the official v0.20.0-beta Spice image
-docker pull spiceai/spiceai:0.20.0-beta
+docker build --build-arg CARGO_FEATURES=release,models,odbc -t spiceai-odbc:local .
 ```
 
 ## Baking an image with ODBC Support
 
 There are many dozens of ODBC adapters; this recipe covers making a custom image and configuring it to work with Spice.
 
+The base image must already contain an ODBC-enabled `spiced` build — the published `spiceai/spiceai` images do not (see [Building Spice with ODBC](#building-spice-with-odbc)).
+
 ```Dockerfile
-FROM spiceai/spiceai:latest
+FROM spiceai-odbc:local
 
 RUN apt update \
     && apt install --yes libsqliteodbc --no-install-recommends \
