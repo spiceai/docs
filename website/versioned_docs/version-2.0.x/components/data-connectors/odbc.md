@@ -12,9 +12,9 @@ The ODBC Data Connector is available in the Spice [Enterprise edition](https://d
 
 :::warning
 
-Spice must be [built with the `odbc` feature](#building-spice-with-odbc), and the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
+In the open source edition, Spice must be [built with the `odbc` feature](#building-spice-with-odbc); [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) distributions ship with ODBC support built in. Either way, the host/container must have a [valid ODBC configuration](https://www.unixodbc.org/odbcinst.html).
 
-The published `spiceai/spiceai` Docker images do **not** include ODBC support — they are built without the `odbc` feature and do not ship an ODBC Driver Manager. To run ODBC in a container, [bake your own image](#baking-an-image-with-odbc-support) from an ODBC-enabled build.
+The published open source `spiceai/spiceai` Docker images do **not** include ODBC support — they are built without the `odbc` feature and do not ship an ODBC Driver Manager. To run ODBC in a container, use an Enterprise distribution or [bake your own image](#baking-an-image-with-odbc-support) from an ODBC-enabled build.
 
 :::
 
@@ -150,7 +150,7 @@ datasets:
 
 ## Building Spice with ODBC
 
-ODBC support is not included in the released binaries or in the published `spiceai/spiceai` Docker images. To use ODBC with Spice, you need to [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
+ODBC support is built into [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) distributions. It is not included in the open source released binaries or in the published `spiceai/spiceai` Docker images — to use ODBC with the open source build, [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).
 
 To build a container image, pass the feature through to the repository `Dockerfile`, which also installs the `unixodbc` Driver Manager when the feature is enabled:
 
