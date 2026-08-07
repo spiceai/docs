@@ -150,6 +150,14 @@ Sharing is keyed by connection identity — host, port, user, password, TLS sett
 
 Because MySQL keeps no server-side cursor, each member persists its own committed position in its own `spice_sys_mysql_binlog` sidecar row, and the shared connection resumes from the **minimum** committed position across members; members already ahead of it suppress the replay. A member taking its initial snapshot is held out of routing with its floor pinned at the position it joined at, so a long snapshot never back-pressures the others.
 
+Delivery into a member is must-deliver: the pump has to place each envelope in that dataset's bounded channel before it reads more of the stream, so one member's stalled apply loop stops the dump socket being drained for every member on the connection. `COM_BINLOG_DUMP` is one-way once started — the server is never waiting on Spice — so the source's `net_write_timeout` counts purely against data Spice has not read, and at the MySQL default of 60 seconds one long apply cycle is enough for the source to abort the dump and make the whole group reconnect. Spice therefore raises the timeout on the dump session before starting the dump:
+
+```sql
+SET SESSION net_write_timeout = GREATEST(@@SESSION.net_write_timeout, 180)
+```
+
+It is a **floor**, not an assignment — raising `net_write_timeout` on the source is the manual workaround for this symptom, and a value already higher than 180 seconds is left alone. If the source rejects the statement (for example the replication user may not set session variables), Spice logs a warning and continues on the server's value; grant that permission or raise `net_write_timeout` on the source itself. Time the pump spends blocked on a member accrues per dataset in `replication_member_send_stalled_seconds_total`.
+
 :::warning[A stalled member can force the group to re-bootstrap]
 
 Unlike a PostgreSQL replication slot, a held binlog position pins nothing server-side. If a member detaches — a schema change classified as DDL is member-fatal, detaching that one dataset while the group keeps running — its held floor holds back only the shared resume position. Should the source then purge binlogs past that point (`binlog_expire_logs_seconds`), the whole group must re-bootstrap.
@@ -213,6 +221,7 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 | `replication_recv_errors_total` / `replication_reconnects_total`                                          | Transport health.                                                                                                             |
 | `replication_checkpoint_persists_total` / `replication_checkpoint_persist_errors_total`                   | Sidecar checkpoint writes.                                                                                                    |
 | `replication_member_attached`                                                                             | `1` while the dataset is an attached member of its shared binlog group, `0` once detached — see [Sharing one binlog connection](#sharing-one-binlog-connection). |
+| `replication_member_send_stalled_seconds_total`                                                           | Seconds the shared dump pump spent blocked delivering changes into this dataset's channel. Rising means this member's apply loop is holding up the stream for every member on the connection — see [Sharing one binlog connection](#sharing-one-binlog-connection). |
 
 ## Limitations
 
