@@ -81,7 +81,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `ftp_user`                  | Required. Username for FTP authentication.                                                                   |
 | `ftp_pass`                  | Required. Password for FTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_ftp_pass}`. |
 | `ftp_port`                  | FTP server port. Default: `21`.                                                                              |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                        |
+| `client_timeout`            | Wall-clock bound for one connection attempt — TCP connect, server greeting and login together. E.g. `30s`, `1m`. Default: `20s`. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                |
 
 #### SFTP Parameters
@@ -92,7 +92,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `sftp_user`                 | Required. Username for SFTP authentication.                                                                    |
 | `sftp_pass`                 | Required. Password for SFTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_sftp_pass}`. |
 | `sftp_port`                 | SFTP server port. Default: `22`.                                                                               |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                                          |
+| `client_timeout`            | Wall-clock bound for one connection attempt — name resolution, TCP connect, SSH handshake and password authentication together. E.g. `30s`, `1m`. Default: `20s`. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                  |
 
 ## Examples
@@ -152,6 +152,8 @@ datasets:
       sftp_pass: ${secrets:sftp_pass}
       client_timeout: 120s
 ```
+
+`client_timeout` bounds a connection attempt as a whole, not each stage of it, so a server that accepts the TCP connection and then stops responding — during the FTP greeting or login, or the SSH handshake or authentication — is abandoned once the bound expires rather than waiting indefinitely. When `client_timeout` is not set, a `20s` bound applies.
 
 ### Custom Port Configuration
 
@@ -261,7 +263,7 @@ For detailed information, refer to the [secret stores documentation](../secret-s
 
 ### Connection Timeouts
 
-If connections frequently timeout, increase the `client_timeout` value:
+Connection attempts are bounded at `20s` by default. If a server is reachable but slow to complete the greeting, login, or SSH handshake, raise `client_timeout`:
 
 ```yaml
 params:
