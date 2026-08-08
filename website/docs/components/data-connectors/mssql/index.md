@@ -74,7 +74,7 @@ The data connector supports the following `params`. Use the [secret replacement 
 
 | Parameter Name                   | Description                                                                                                                                                                                                                                                                                                                                                                 |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mssql_connection_string`        | The ADO connection string to use to connect to the server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                                                          |
+| `mssql_connection_string`        | The ADO connection string to use to connect to the server. This can be used instead of providing individual connection parameters, and is the only way to set `ApplicationIntent` — see [Availability groups and read-only routing](#availability-groups-and-read-only-routing).                                                                                             |
 | `mssql_host`                     | The hostname or IP address of the Microsoft SQL Server instance.                                                                                                                                                                                                                                                                                                            |
 | `mssql_port`                     | (Optional) The port of the Microsoft SQL Server instance. Default value is 1433.                                                                                                                                                                                                                                                                                            |
 | `mssql_database`                 | (Optional) The name of the database to connect to. The default database (`master`) will be used if not specified.                                                                                                                                                                                                                                                           |
@@ -97,6 +97,34 @@ datasets:
       mssql_encrypt: true
       mssql_trust_server_certificate: true
 ```
+
+## Availability groups and read-only routing
+
+When a dataset connects to an [Always On availability group](https://learn.microsoft.com/en-us/sql/database-engine/availability-groups/windows/always-on-availability-groups-sql-server) listener with read intent, the listener answers the login by naming the secondary replica the session belongs on instead of completing it. Spice follows that redirect automatically and re-dials the named replica, so a read-intent dataset lands on a readable secondary rather than the primary.
+
+Read intent is requested through the connection string, so it requires `mssql_connection_string` — the individual connection parameters (`mssql_host`, `mssql_username`, and so on) have no equivalent:
+
+```yaml
+datasets:
+  - from: mssql:SalesLT.Customer
+    name: customer
+    params:
+      mssql_connection_string: ${secrets:mssql_connection_string}
+```
+
+With a connection string of the form:
+
+```text
+Server=tcp:ag-listener.example.com,1433;Database=Sales;User ID=my_user;Password=my_password;ApplicationIntent=ReadOnly;Encrypt=true
+```
+
+`ApplicationIntent` is the only value that enables routing, and `ReadOnly` is matched exactly — other spellings are treated as read-write intent and are not routed.
+
+The redirect carries the settings the dataset supplied: only the host and port are replaced, so the routed replica is reached with the same credentials, database, encryption level and certificate-trust configuration.
+
+:::info
+Spice follows up to **3** redirects (4 connection attempts) before reporting the chain as broken. A routing list that points back at the listener redirects indefinitely, so exceeding the limit fails the connection with an error naming the last address it was routed to — check the availability group's read-only routing list when this happens.
+:::
 
 ## Performance
 
