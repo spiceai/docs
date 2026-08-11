@@ -454,11 +454,11 @@ runtime:
 
 Accepts a Kubernetes CPU quantity — a whole number of cores (`4`), a fraction (`3.5`), or millicores (`3500m`) — or one of two named values:
 
-| Value       | Meaning                                                                                              |
-| ----------- | ---------------------------------------------------------------------------------------------------- |
-| `auto`      | The default. Detect the entitlement, which on a pod that declares a CPU request derives from it.       |
-| `all`       | Every CPU this process may use, regardless of any CPU request. A CPU **limit**, if set, still applies. |
-| A quantity  | Use exactly this, whatever the pod declares.                                                           |
+| Value      | Meaning                                                                                                                                                                                                                               |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auto`     | The default. Detect the entitlement. On a pod that declares a CPU request and no CPU limit, that is **twice the request** — `min(max(2 cores, request × 2), available CPUs)`. The multiple is deliberate: it exceeds the request so the pod can still burst above its scheduling floor. |
+| `all`      | Every CPU this process may use, regardless of any CPU request. A CPU **limit**, if set, still applies.                                                                                                                                 |
+| A quantity | Use exactly this, whatever the pod declares.                                                                                                                                                                                          |
 
 Millicores must be integral, so `3500m` is valid and `3.5m` is not. A value of `0`, a negative value, or an unparseable one fails startup with an actionable error rather than being clamped silently — `0` is not a spelling of `all`, so a typo cannot resolve to full-machine sizing.
 

@@ -30,6 +30,35 @@ For production lifecycle management beyond what the Helm chart provides, the [Sp
 The operator works alongside Helm, Argo CD, and Flux — install the operator chart and manage `SpicepodSet` / `SpicepodCluster` resources from the same GitOps pipeline.
 :::
 
+## CPU sizing
+
+Spice sizes its thread pools, query fan-out, and accelerator concurrency from a single CPU entitlement. In Kubernetes that entitlement comes from the pod's own resources, and the default needs no configuration.
+
+| Pod resources                          | Entitlement                                            |
+| -------------------------------------- | ------------------------------------------------------ |
+| `requests.cpu`, no `limits.cpu`        | **Twice the request**, floored at 2 cores and capped by the node — a `requests.cpu: 4` pod sizes for 8 cores |
+| `limits.cpu` set                       | The limit                                              |
+| Neither                                | Every CPU the pod can see                              |
+
+Sizing above the request is deliberate: a CPU request is a scheduling floor rather than a ceiling, so a burstable pod keeps headroom to burst above it — while not building 64 worker threads for a node it only has a slice of.
+
+This requires the pod spec to pass its CPU request in, since the runtime cannot read `resources.requests.cpu` itself. **The Spice Helm chart and the Spice Kubernetes Operator both do this by default** whenever a CPU request is set, so deployments using either — including all three paths above — get it automatically. A hand-written pod spec needs the [downward-API block](../reference/spicepod/runtime#sizing-from-a-cpu-request) itself; without it the pod sizes for the whole node, and the runtime warns at startup.
+
+### Bursting across the whole machine
+
+To pack many mostly-idle instances onto a node while letting each burst wide, state that intent once:
+
+```yaml
+runtime:
+  cpu:
+    cores: all # every available core, regardless of the CPU request
+               # (a CPU limit, if one is set, is still respected)
+```
+
+The [Spice Cloud Platform](https://spice.ai) sets `SPICE_CPU_CORES=all` on hosted instances for exactly this reason — maximum burst capacity, so an instance is never sized down to a fraction of the machine it is scheduled on.
+
+Prefer `runtime.cpu.cores` over `resources.limits.cpu` for bounding Spice. A CPU limit is a CFS quota and [throttles](https://home.robusta.dev/blog/stop-using-cpu-limits) even when the node has idle CPU; `runtime.cpu.cores` caps how much machine the runtime organizes itself around without capping how much CPU it may use. See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu) and [Resource Allocation](../reference/performance-tuning#resource-allocation).
+
 ## Prerequisites
 
 - Access to a Kubernetes cluster (v1.25+ recommended).
