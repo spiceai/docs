@@ -137,7 +137,7 @@ const config: Config = {
     v4: {
       removeLegacyPostBuildHeadAttribute: true // required
     },
-    experimental_faster: true
+    faster: true
   },
 
   presets: [
