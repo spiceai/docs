@@ -23,7 +23,7 @@ Spice's memory footprint has two parts, and they behave differently:
 Total Memory = Baseline + Working Set
 ```
 
-- **Baseline** — memory the runtime needs to operate at all: process overhead, per-dataset accelerator caches, results caches, task history, serialization buffers, and allocator arenas. It is a function of **how many datasets are configured**, not how much data they hold, and it does not shrink when the data does.
+- **Baseline** — memory the runtime needs to operate at all: process overhead, per-dataset accelerator caches, results caches, task history, serialization buffers, and allocator arenas. It is driven by **how the deployment is configured** — dataset count above all — and by how much traffic it has served, rather than by how much data the datasets hold. It does not shrink when the data does.
 - **Working Set** — memory that scales with the work: query execution, refreshes, and concurrency. This is the part bounded by [`runtime.query.memory_limit`](#memory-limit-configuration).
 
 Two refinements matter when reading a memory graph or sizing from a measurement:
@@ -73,7 +73,7 @@ The baseline is the sum of a fixed process cost and a per-dataset cost. The per-
 | Cayenne PK keyset cache       | Each Cayenne CDC/upsert dataset             | 1/32 of total memory, clamped to 256 MiB–8 GiB, and additionally bounded by a process-wide ceiling across all datasets |
 | CDC coalesce buffer           | Each CDC dataset                            | 128 MiB (`cdc_max_coalesced_bytes`)                        |
 | Results caches                | Runtime                                     | 128 MiB each for SQL, search, and embedding results        |
-| Task history                  | Runtime (enabled by default)                | Unbounded by size; scales with task rate × `retention_period` (8h) |
+| Task history                  | Runtime (enabled by default)                | No byte cap — bounded by time instead; scales with task rate × `retention_period` (8h) |
 | Metastore and protocol buffers | Runtime                                    | Bounded, but reached only under sustained traffic          |
 
 The last two rows are the ones that make a short measurement misleading. **Task history is an in-memory accelerated table**, so its footprint is a product of how many tasks the deployment completes and how long records are kept, rather than a fixed allocation — a high-throughput deployment accumulates far more than a quiet one at the same configuration. Setting `captured_plan` or `captured_output` increases the size of every record substantially.
