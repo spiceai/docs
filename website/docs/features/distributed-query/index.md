@@ -195,9 +195,16 @@ Ownership follows the same principal boundary as [Per-Principal Cache Isolation]
 | Authenticated principal (e.g., API key)             | The principal's own isolated scope.                                                               |
 | Internal / background runtime tasks                 | An internal `system` scope that can never reach a user-submitted query.                            |
 
-A query submitted by another principal is reported as **404 Not Found** rather than 403, so a caller cannot probe for query IDs it does not own. Ownership is also resolved *before* result expiry, so a non-owner receives the same 404 for an expired query that the owner would see reported as 410 Gone.
+There is no administrator or organization-wide scope. Every authenticated principal sees only its own queries; no principal can list, poll, or cancel another's, and there is no role or setting that grants a wider view.
 
-Jobs written by a runtime that predates ownership tracking carry no owner and are treated as belonging to the `public` scope.
+For a query it does not own, a caller always receives **404 Not Found** — never 403, and never 410. Ownership is checked before result expiry, so the response does not reveal that the query exists:
+
+| Caller             | Query is running or complete | Query's results have expired |
+| ------------------ | ---------------------------- | ---------------------------- |
+| The owner          | `200 OK`                     | `410 Gone`                   |
+| Any other principal | `404 Not Found`              | `404 Not Found`              |
+
+Ownership tracking was introduced in **v2.2.0**. A job written by an earlier runtime carries no owner and is treated as belonging to the `public` scope.
 
 ### HTTP REST API
 
