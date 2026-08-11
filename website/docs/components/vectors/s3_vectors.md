@@ -43,7 +43,7 @@ embeddings:
 | `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                           | -                                                                                    |
 | `s3_vectors_batch_write_rows`      | Optional. Number of rows each record batch is chunked into when writing vectors, to control memory usage during writes. Default `100000`. | `100000` |
 | `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
-| `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
+| `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`. Passed to AWS verbatim — see [Index Naming](#index-naming).                          | `index-of-important-embeddings`                                                      |
 | `s3_vectors_distance_metric`       | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.                                                                      | `euclidean`                                                                          |
 | `s3_vectors_index_poll_interval`   | The interval to poll for index updates to avoid excessive API calls. Minimum 5 seconds. Default is to poll on every scan.                                                   | `5m`                                                                                 |
 | `s3_vectors_spill_writes`          | Optional. When `true`, writes that exceed S3 Vectors rate limits spill to a separate physical index, which is also queried at read time. Ignored, with a warning, when `partition_by` is set. Default `false`. | `true` |
@@ -220,6 +220,29 @@ ORDER BY combined_score DESC
 LIMIT 5;
 ```
 
+## Index Naming
+
+AWS S3 Vectors rejects an index name containing an underscore with `ValidationException: Invalid index name`. Spice normalizes the names it generates for you, but **not** the one you supply — so the same underscore is fine in one place and fatal in another:
+
+| Where the name comes from                                    | What Spice does                                                                                    |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `s3_vectors_index` (explicit)                                | Passed to AWS **verbatim**. An underscore reaches S3 Vectors unchanged and the request fails.        |
+| Auto-derived (`s3_vectors_bucket` set, no `s3_vectors_index`) | Built as `<dataset>-<column>-<model>` with every `_` replaced by `-`, so it is always valid.          |
+| Partition prefix (`partition_by` set)                        | `_` and `.` are replaced by `-`, and the prefix is truncated to **45** characters before the partition suffix is appended. |
+
+Use hyphens in `s3_vectors_index`:
+
+```yaml
+vectors:
+  enabled: true
+  engine: s3_vectors
+  params:
+    s3_vectors_bucket: a-bucket
+    s3_vectors_index: my-index # not `my_index` — AWS rejects underscores
+```
+
+This is why a dataset named `taxi_trips` gets a working auto-derived index while an explicit `s3_vectors_index: taxi_trips` fails.
+
 ## Index Partitioning
 S3 Vectors indexes can be partitioned using an arbitrary logical expression. This enables Spice to compose many actual vector indexes as one logical vector index, enabling elastic scalability for vector storage.
 
@@ -233,7 +256,7 @@ vectors:
     - 'bucket(50, PULocationID)'
 ```
 
-This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generate partition-specific names.
+This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generate partition-specific names. The prefix is normalized (`_` and `.` become `-`) and truncated to 45 characters to leave room for the partition suffix within the S3 Vectors 63-character index-name limit — see [Index Naming](#index-naming).
 
 :::warning[Limitations]
 
