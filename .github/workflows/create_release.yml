@@ -26,19 +26,31 @@ jobs:
         with:
           ref: ${{ inputs.base_branch }}
 
+      - name: Overlay docs from base branch
+        env:
+          BASE_BRANCH: ${{ inputs.base_branch }}
+        run: |
+          if ! git check-ref-format --branch "$BASE_BRANCH" > /dev/null; then
+            echo "Invalid base branch: $BASE_BRANCH" >&2
+            exit 1
+          fi
+          git fetch origin "refs/heads/$BASE_BRANCH"
+          git checkout FETCH_HEAD -- website/docs
+
       - name: Create release branch and run release script
         working-directory: website
         run: |
-          git checkout -b "release/docs-v${{ inputs.version }}"
+          git checkout -b "release/docs-v${{ inputs.version }}-${{ github.run_id }}"
           ./create-release.sh "${{ inputs.version }}"
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout trunk -- website/docs
           git add -A
           git commit -m "Add versioned docs for v${{ inputs.version }}"
-          git push origin "release/docs-v${{ inputs.version }}"
+          git push origin "release/docs-v${{ inputs.version }}-${{ github.run_id }}"
 
       - name: Create Pull Request
         env:
@@ -46,7 +58,7 @@ jobs:
         run: |
           gh pr create \
             --base trunk \
-            --head "release/docs-v${{ inputs.version }}" \
+            --head "release/docs-v${{ inputs.version }}-${{ github.run_id }}" \
             --title "Add versioned docs for v${{ inputs.version }}" \
             --body "Creates versioned documentation snapshot for v${{ inputs.version }}." \
             --label "area/docs"
