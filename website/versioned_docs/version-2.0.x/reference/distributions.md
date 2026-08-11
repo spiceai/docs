@@ -48,7 +48,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | --- | --- | --- | --- | --- |
 | Default (Data + AI) | `latest` | ✅ | ✅ | ✅ |
 | Data-only | `latest-data` | Nightly only | ✅ | ✅ |
-| NAS (SMB + NFS) | — | Local build only | ❌ | ✅ |
+| NFS connector | — | Local build only | ❌ | ✅ |
 | Metal (macOS) | — | Local build only | ✅ | ✅ |
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
@@ -160,24 +160,27 @@ CUDA distributions are available with the [Spice Cloud Platform and Spice.ai Ent
 CUDA_COMPUTE_CAP=89 make install-cuda
 ```
 
-## NAS Distribution
+## NFS Distribution
 
-The NAS (Network Attached Storage) distribution adds support for SMB and NFS data connectors, enabling federated queries against data stored on network file shares.
+The NFS (Network File System) distribution adds support for the NFS data connector, enabling federated queries against data stored on NFS exports.
 
 :::note
-The NAS distribution is available with [Spice.ai Enterprise](https://spice.ai/pricing). Open source users can build locally for development and testing.
+The SMB data connector is **not** part of this variant — `smb` is in the default `spiced` feature set, so SMB shares are queryable from the standard distribution. Only the NFS connector is feature-gated.
+:::
+
+:::note
+The NFS connector is available with [Spice.ai Enterprise](https://spice.ai/pricing). Open source users can build locally for development and testing.
 :::
 
 **Included Features:**
 
 - All default features
-- SMB data connector
 - NFS data connector
 
 **Local Build:**
 
 ```bash
-make install-nas
+make install-nfs
 ```
 
 ## Allocator Variants
@@ -206,7 +209,7 @@ Uses the system's default allocator (glibc malloc on Linux).
 
 ## Platform Support
 
-| Platform                      | Default | Data            | NAS             | Metal | CUDA             |
+| Platform                      | Default | Data            | NFS             | Metal | CUDA             |
 | ----------------------------- | ------- | --------------- | --------------- | ----- | ---------------- |
 | Linux x86_64                  | ✅       | Nightly         | Enterprise only | ❌     | Cloud/Enterprise |
 | Linux aarch64                 | ✅       | Nightly         | Enterprise only | ❌     | ❌                |
@@ -224,7 +227,7 @@ Native Windows support for the Spice runtime is available with the [Spice Cloud 
 | --------------------------------------- | ------------------------ |
 | General purpose with AI capabilities    | Default                  |
 | Data federation only, minimal footprint | Data (nightly)           |
-| Network attached storage (SMB/NFS)      | NAS                      |
+| NFS exports                             | NFS                      |
 | macOS with GPU acceleration             | Metal                    |
 | Linux with NVIDIA GPU                   | CUDA                     |
 | Memory allocation benchmarking          | Allocator variants       |
@@ -258,8 +261,8 @@ make install-odbc
 Custom distributions with specific feature combinations can be built:
 
 ```bash
-# Build with specific features
-SPICED_CUSTOM_FEATURES="duckdb,postgres,sqlite,models" make build-runtime
+# Build with specific features (replaces the default feature set)
+SPICED_CUSTOM_FEATURES="duckdb,postgres,sqlite,models" make build
 
 # Build with non-default features added to defaults
 SPICED_NON_DEFAULT_FEATURES="odbc" make install
