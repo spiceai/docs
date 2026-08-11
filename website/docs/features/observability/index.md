@@ -370,10 +370,10 @@ The cache counters (`results_cache_*`, `search_results_cache_*`, `embeddings_cac
 | `search_results_cache_stale_swr_count`<br/><br/>Number of stale-while-revalidate background refreshes skipped due to existing in-flight revalidation.                                                                        | _count_     | —                                                                                                           |
 | `search_results_cache_swr_background_query_count`<br/><br/>Number of background queries triggered for stale-while-revalidate cache refreshes.                                                                                | _count_     | —                                                                                                           |
 | `secrets_store_load_duration_ms`<br/><br/>Duration in milliseconds to load the secret stores.                                                                                                                                | _histogram_ | —                                                                                                           |
-| `spiced_cpu_budget_cores`<br/><br/>CPU cores the runtime sizes itself for, in whole cores. See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu).                                                                      | _gauge_     | `source` (`configured`, `cgroup_quota`, `affinity`, `fallback`)                                              |
-| `spiced_cpu_budget_millicores`<br/><br/>CPU millicores the runtime sizes itself for — the same entitlement, exact.                                                                                                            | _gauge_     | `source` (`configured`, `cgroup_quota`, `affinity`, `fallback`)                                              |
+| `spiced_cpu_budget_cores`<br/><br/>CPU cores the runtime sizes itself for, in whole cores. See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu).                                                                      | _gauge_     | `source` (`configured`, `cgroup_quota`, `request_burst`, `all_cores`, `affinity`, `fallback`)                                              |
+| `spiced_cpu_budget_millicores`<br/><br/>CPU millicores the runtime sizes itself for — the same entitlement, exact.                                                                                                            | _gauge_     | `source` (`configured`, `cgroup_quota`, `request_burst`, `all_cores`, `affinity`, `fallback`)                                              |
 | `spiced_cpu_limit_millicores`<br/><br/>CPU limit read from the cgroup CPU quota (Kubernetes `limits.cpu`). Not emitted when the cgroup expresses no limit, so it is never confused with a real zero.                           | _gauge_     | —                                                                                                           |
-| `spiced_cpu_request_millicores`<br/><br/>CPU request inferred from the cgroup CPU share (Kubernetes `requests.cpu`). Reported only — never used for sizing. Not emitted when the cgroup expresses no request.                  | _gauge_     | —                                                                                                           |
+| `spiced_cpu_request_millicores`<br/><br/>The pod's own CPU request (Kubernetes `requests.cpu`), in millicores. Sizing derives from it only when nothing outranks it — no CPU limit, and no explicit `runtime.cpu.cores`; the `source` label above reports whether it did. Not emitted when no request was declared. The runtime cannot read the request itself: the pod spec must pass it in through `SPICE_CPU_REQUEST_MILLICORES` (see below).                  | _gauge_     | —                                                                                                           |
 | `tokio_runtime_alive_tasks`<br/><br/>Alive (spawned, not-yet-completed) tasks per tokio runtime.                                                                                                                              | _gauge_     | `runtime` (`main`, and `cpu`, `refresh`, `cdc_apply`, `compaction` when active)                             |
 | `tokio_runtime_global_queue_depth`<br/><br/>Tasks waiting in the runtime's global (injection) queue per tokio runtime.                                                                                                        | _gauge_     | `runtime`                                                                                                   |
 | `tokio_runtime_worker_busy_seconds`<br/><br/>Cumulative worker-busy time (summed across workers) per tokio runtime; `rate()` / `tokio_runtime_workers` gives the busy ratio. Only emitted in builds compiled with the `tokio_unstable` cfg. | _gauge_     | `runtime`                                                                                                   |
@@ -387,6 +387,33 @@ The cache counters (`results_cache_*`, `search_results_cache_*`, `embeddings_cac
 | `view_load_state`<br/><br/>Status of the views. 0=Initializing, 1=Ready, 2=Disabled, 3=Error, 4=Refreshing, 5=ShuttingDown.                                                                                                  | _gauge_     | `view`                                                                                                      |
 | `worker_active_count`<br/><br/>Number of currently loaded workers.                                                                                                                                                           | _gauge_     | `worker`                                                                                                    |
 | `workers_load_duration_ms`<br/><br/>Duration in milliseconds to load the worker.                                                                                                                                             | _histogram_ | —                                                                                                           |
+
+#### CPU entitlement metrics
+
+`spiced_cpu_budget_cores` carries a `source` label naming the rung of the [detection ladder](../reference/spicepod/runtime#detection) the entitlement came from. It is the authority on *why* a pod is sized the way it is, which makes a fleet greppable for pods that resolved somewhere unexpected:
+
+| `source`       | Meaning                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `configured`   | An explicit `runtime.cpu.cores`, `SPICE_CPU_CORES`, or `--cpu-cores` quantity. Used exactly as written.           |
+| `cgroup_quota` | A cgroup CPU quota — Kubernetes `resources.limits.cpu`, `docker run --cpus`. Capped by the CPU affinity mask.     |
+| `request_burst`| Derived from the pod's declared CPU request as `min(max(2 cores, request × 2), available CPUs)`. The 2× exceeds the request deliberately, so a burstable pod can still burst above its scheduling floor. |
+| `all_cores`    | `runtime.cpu.cores: all` — every CPU the process may use, ignoring any CPU request. A CPU limit still caps it.    |
+| `affinity`     | No quota, no declared request, nothing configured: every CPU the process may run on. Bare metal, `docker run` with no CPU flags, and every benchmark land here. |
+| `fallback`     | Nothing could be determined; one core.                                                                            |
+
+`request_burst` requires the pod spec to pass the request in — the runtime cannot read `resources.requests.cpu` on its own. The Kubernetes downward API supplies it:
+
+```yaml
+env:
+  - name: SPICE_CPU_REQUEST_MILLICORES
+    valueFrom:
+      resourceFieldRef:
+        containerName: spiceai
+        resource: requests.cpu
+        divisor: 1m # required: makes the value millicores
+```
+
+The Spice Helm chart and the Spice Kubernetes Operator both emit this by default whenever the pod sets a CPU request, so a deployment using either gets `request_burst` with no configuration. A hand-written pod spec that omits it reports `affinity` instead — sized for the machine rather than the request — and the runtime warns at startup naming the variable to set.
 
 :::note Component Metrics
 
