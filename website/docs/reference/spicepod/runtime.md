@@ -452,7 +452,15 @@ runtime:
     cores: 4 # `auto` (the default) detects it
 ```
 
-Accepts a Kubernetes CPU quantity — a whole number of cores (`4`), a fraction (`3.5`), or millicores (`3500m`) — or `auto` to detect the entitlement. Millicores must be integral, so `3500m` is valid and `3.5m` is not. A value of `0`, a negative value, or an unparseable one fails startup with an actionable error rather than being clamped silently.
+Accepts a Kubernetes CPU quantity — a whole number of cores (`4`), a fraction (`3.5`), or millicores (`3500m`) — or one of two named values:
+
+| Value       | Meaning                                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| `auto`      | The default. Detect the entitlement, which on a pod that declares a CPU request derives from it.       |
+| `all`       | Every CPU this process may use, regardless of any CPU request. A CPU **limit**, if set, still applies. |
+| A quantity  | Use exactly this, whatever the pod declares.                                                           |
+
+Millicores must be integral, so `3500m` is valid and `3.5m` is not. A value of `0`, a negative value, or an unparseable one fails startup with an actionable error rather than being clamped silently — `0` is not a spelling of `all`, so a typo cannot resolve to full-machine sizing.
 
 Three configuration surfaces set the same value. Precedence, highest first:
 
@@ -464,6 +472,8 @@ Three configuration surfaces set the same value. Precedence, highest first:
 
 A surface set to `auto` still takes precedence over the surfaces below it; it simply resolves to detection.
 
+`all` is the exception: it states that a surface imposes no ceiling of its own, so it **defers to a quantity named on a lower-precedence surface**. A platform that sets `SPICE_CPU_CORES=all` on every deployment therefore does not silence an operator who wrote `runtime.cpu.cores: 4` in their spicepod. It does not defer to `auto`, which is an instruction ("detect it") rather than the absence of one.
+
 Applied at startup only. The thread pools it sizes cannot be resized afterwards, so changing `runtime.cpu` and reloading the spicepod logs a warning that a restart is required rather than taking effect.
 
 #### Detection
@@ -471,27 +481,62 @@ Applied at startup only. The thread pools it sizes cannot be resized afterwards,
 With nothing configured (`auto`), the entitlement is detected. First match wins:
 
 1. A cgroup CPU **quota** — cgroup v2 `cpu.max`, cgroup v1 `cpu.cfs_quota_us`; Kubernetes `resources.limits.cpu`. Read along the whole cgroup path, taking the smallest quota found at any level, and capped by the CPU affinity mask.
-2. The process's CPU affinity mask (`sched_getaffinity` on Linux, the logical CPU count elsewhere) — the CPUs the process may run on, which a `cpuset` or `taskset` may narrow below the host's core count.
-3. One core, when nothing can be determined.
+2. The pod's **declared CPU request**, as `min(max(2 cores, request × 2), available CPUs)` — see [Sizing from a CPU request](#sizing-from-a-cpu-request).
+3. The process's CPU affinity mask (`sched_getaffinity` on Linux, the logical CPU count elsewhere) — the CPUs the process may run on, which a `cpuset` or `taskset` may narrow below the host's core count.
+4. One core, when nothing can be determined.
 
-A cgroup CPU **share** — what the kubelet derives from `resources.requests.cpu` — is deliberately never an input to sizing. A request is a scheduling floor, not a ceiling: a burstable pod with a request and no limit is entitled to burst across every idle core on its node, and inferring a ceiling from the request would silently remove that headroom. The share is still read and reported, so the startup log and the `spiced_cpu_request_millicores` gauge show the request alongside the budget actually chosen.
+A CPU limit outranks a request: bursting past a quota does not produce CPU, it produces CFS throttling. `runtime.cpu.cores: all` suppresses rung 2 only, so it resolves exactly as it would on a pod that declared no request — a CPU limit if one is set, otherwise every available CPU.
 
-It follows that a pod setting `resources.requests.cpu` **without** a matching `resources.limits.cpu` is sized for the whole node. That is correct for a burstable pod entitled to use the node, and wrong for one packed alongside neighbors — set `runtime.cpu.cores` explicitly in the latter case. See [Resource Allocation](../performance-tuning#resource-allocation) for the Kubernetes guidance.
+A process that declares **no** CPU request skips rung 2 entirely and is sized for every CPU it can see. That covers every bare-metal deployment, `docker run` without CPU flags, and every benchmark.
+
+#### Sizing from a CPU request
+
+A pod that sets `resources.requests.cpu` without `resources.limits.cpu` has no cgroup quota. Sizing for the whole node would build thread pools and query fan-out for a machine the pod does not own, so the entitlement is derived from the request instead — as a **bounded multiple** of it, currently 2×.
+
+The multiple is what makes this safe to automate. A request is a scheduling floor rather than a ceiling, so sizing *at* the request would remove the bursting that is the reason the limit was omitted. The result floors at **2 cores**, so a `requests.cpu: 100m` pod still has enough parallelism to overlap a scan with something, and yields to a genuinely smaller host.
+
+The request must be **declared** — a cgroup CPU *share* is never an input. Every cgroup carries a share whether or not a request was expressed (a plain `docker run` reports `cpu.weight: 100`), and the conversion back to a request varies by container runtime, so a share is read for reporting only and never interpreted as a number.
+
+Declaring it is the deployment surface's job, through `SPICE_CPU_REQUEST_MILLICORES`:
+
+```yaml
+env:
+  - name: SPICE_CPU_REQUEST_MILLICORES
+    valueFrom:
+      resourceFieldRef:
+        containerName: spiceai
+        resource: requests.cpu
+        divisor: 1m # required: makes the value millicores — a `requests.cpu` of 4 arrives as "4000"
+```
+
+The [Spice Helm chart](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart) and the Spice Kubernetes Operator both emit this automatically whenever the pod sets a CPU request, so neither needs configuring. A hand-written pod spec must include it, or the pod falls through to rung 3 and sizes for the machine — the runtime warns at startup when it detects that case.
+
+Two details in that block are load-bearing. The `divisor: 1m` is what makes the value millicores, which is what the variable's name states; without it a `requests.cpu` of 4 arrives as `4` and reads as four millicores. And the block must be emitted **only when a CPU request is actually set**: with no request declared, `resourceFieldRef` reports the node's *allocatable* CPU, which is exactly the over-sizing this exists to prevent.
+
+See [Resource Allocation](../performance-tuning#resource-allocation) for the Kubernetes guidance.
 
 #### Observability
 
-At startup the runtime logs the effective entitlement, the rung of the ladder or the setting it came from, the cgroup request and limit it sits between, and the defaults derived from it:
+At startup the runtime logs the effective entitlement, the rung of the ladder or the setting it came from, the readings it sits between, and the defaults derived from it:
 
 ```
-CPU budget: 4 cores (source: runtime.cpu.cores; host reports 18, cgroup request 4 cores, cgroup limit unset) → 4 main worker threads, 3 per dedicated runtime pool, 4 target partitions
-CPU budget derived sizing: main_runtime_worker_threads=4, dedicated_runtime_worker_threads=3, target_partitions=4, max_concurrent_queries=16, ...
+CPU budget: 8 cores (source: the declared CPU request (x2); host reports 64, declared CPU request 4 cores, cgroup share unset, cgroup limit unset) → 8 main worker threads, 7 per dedicated runtime pool, 8 target partitions
+CPU budget derived sizing: main_runtime_worker_threads=8, dedicated_runtime_worker_threads=7, target_partitions=8, max_concurrent_queries=32, ...
 ```
+
+These two lines are the primary diagnostic: between them they name what the runtime sized for, which rung produced it, and every quantity derived from it. A pod sized differently than expected is answered here rather than by inference.
 
 The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
 
-A warning is logged when the cgroup CPU request is less than **half** the effective entitlement: the runtime is then sized for CPU the scheduler does not guarantee, so every CPU-derived pool may be larger than what the process actually gets. The check is on the effective entitlement, so it fires for every source and names the one responsible — an over-large hand-configured value is reported the same way as an over-large detected one. The threshold is loose enough that cgroup v2 quantization (a `requests.cpu: 1` landing at `974m`) does not warn.
+Three warnings cover the cases the summary cannot state on its own. Each names a cause and an action; none of them fires for a deployment that is merely sized small on purpose, which the summary already records.
 
-The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit_millicores`, and `spiced_cpu_request_millicores` gauges report the same figures — see [Observability](../../features/observability). `tokio_runtime_workers` is the cross-check on the thread pools the entitlement sized.
+| Warning                                        | Fires when                                                                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| CPU request present but not passed through      | Running under Kubernetes with a cgroup share but no `SPICE_CPU_REQUEST_MILLICORES` — the deployment surface is not emitting the block above, so sizing fell through to the machine. |
+| Declared request implausibly small              | A declared request below 10 millicores, which is what a `resourceFieldRef` missing its `divisor: 1m` produces for a request of one to nine cores. |
+| CPU share changed after startup                 | The cgroup share moved from its value at startup — the pod was resized in place. The entitlement cannot change without a restart, so this reports the drift rather than acting on it. |
+
+The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit_millicores`, and `spiced_cpu_request_millicores` gauges report the same figures — see [Observability](../../features/observability). The `source` label on `spiced_cpu_budget_cores` is the authority on which rung won, which is what makes a fleet greppable for pods that resolved somewhere unexpected. `tokio_runtime_workers` is the cross-check on the thread pools the entitlement sized.
 
 ## `runtime.query.memory_limit`
 

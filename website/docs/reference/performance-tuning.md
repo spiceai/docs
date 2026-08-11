@@ -567,23 +567,34 @@ spec:
 
 Avoid setting CPU limits. CPU limits can cause [throttling](https://home.robusta.dev/blog/stop-using-cpu-limits) even when CPU is available, degrading query performance. Set CPU requests to guarantee scheduling.
 
+To bound how wide Spice builds its thread pools without imposing a CFS quota, use [`runtime.cpu.cores`](spicepod/runtime#runtimecpucores) rather than `resources.limits.cpu`. It caps how much machine the runtime organizes itself around; it does not cap how much CPU the process may consume, so there is no throttling.
+
 :::
 
 #### Sizing the Runtime for its CPU Entitlement
 
-The runtime sizes its thread pools, query fan-out, and accelerator concurrency from one CPU entitlement. Detection reads the cgroup CPU **quota** (`resources.limits.cpu`) and otherwise falls back to the CPUs the process may run on, so a pod that follows the advice above — requests, no limits — is sized for the **whole node**.
+The runtime sizes its thread pools, query fan-out, and accelerator concurrency from one CPU entitlement. Every CPU-derived pool scales with that number, and so does memory: worker threads, partitions, and per-plan operator reservations all grow with it, roughly linearly. A value far above the cores actually available buys nothing and costs both scheduling overhead and memory.
 
-That is the right answer for a burstable pod entitled to burst across its node, and the wrong one for a pod packed alongside neighbors it should not crowd out. Every CPU-derived pool scales with this number, and so does memory: worker threads, partitions, and per-plan operator reservations all grow with it, roughly linearly. A value far above the cores actually available buys nothing and costs both scheduling overhead and memory.
+**A pod that follows the advice above — requests, no limits — is sized for a bounded multiple of its CPU request**, not for the whole node. A `requests.cpu: 4` pod on a 64-core node sizes for 8 cores. This is the default and needs no configuration: the Spice Helm chart and the Spice Kubernetes Operator both pass the pod's CPU request through automatically whenever one is set.
 
-State the entitlement explicitly when the node's core count is not the number the pod should size for:
+That default suits the common case — a pod scheduled against a request, sharing a node. Two deployments want something else:
+
+| Intent                                                                                      | Configuration                            |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Pack many mostly-idle instances on a node, each free to burst across the whole machine        | `runtime.cpu.cores: all`, small request  |
+| Size for a specific number regardless of what the pod requests                                | `runtime.cpu.cores: 6`                   |
+| Hard-cap CPU consumption because cluster policy requires it                                   | `resources.limits.cpu` (accepts throttling) |
 
 ```yaml
 runtime:
   cpu:
-    cores: 4 # or --cpu-cores 4 / SPICE_CPU_CORES=4
+    cores: all # every available core, regardless of the CPU request
+               # (a CPU limit, if one is set, is still respected)
 ```
 
-Leave it at `auto` for a pod that really may use the node. Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `spiced_cpu_limit_millicores` to see which entitlement a pod chose and what it was chosen against; the runtime also warns at startup when the CPU request is less than half the entitlement it sized for. See [`runtime.cpu`](spicepod/runtime#runtimecpu).
+A hand-written pod spec that sets a CPU request but does not pass it through gets neither behavior — it falls back to sizing for the machine, and the runtime warns at startup naming the variable to set. See [Sizing from a CPU request](spicepod/runtime#sizing-from-a-cpu-request).
+
+Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `spiced_cpu_limit_millicores` to see what a pod sized for and what it was chosen against; the `source` label says which rung produced it. See [`runtime.cpu`](spicepod/runtime#runtimecpu).
 
 ### Storage Recommendations
 
