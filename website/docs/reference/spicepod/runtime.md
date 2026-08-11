@@ -6,6 +6,34 @@ description: 'Runtime YAML reference'
 
 The `runtime` section specifies configuration settings for the Spice runtime.
 
+## Reload Behavior
+
+Editing a Spicepod on disk reloads it into the running process, but **most of `runtime.*` is consumed once when `spiced` starts and cannot be rebuilt in place**. A reload installs the new value in the app while the process keeps running the old one; `spiced` logs a warning naming each start-time-only section that changed and telling you to restart. Restart `spiced` to apply them.
+
+**Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
+
+`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
+
+**Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
+
+`runtime.flight` · `runtime.params` · `runtime.source_rate_control`
+
+**Applied on reload — no restart needed:**
+
+| Setting                                  | Why it applies                                             |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| `runtime.shutdown_timeout`               | Read from the current app when the runtime shuts down.       |
+| `runtime.functions`                      | Reconciled by the function diff on each reload.              |
+| `runtime.caching.sql_results.cache_key_type` | Resolved per request from the live app.                  |
+| `runtime.query.timeout`                  | Resolved per request from the live app.                      |
+| `runtime.telemetry.user_agent_collection` | Resolved per request from the live app.                     |
+
+The three per-request settings sit inside otherwise start-time-only sections. Changing one of them alone takes effect on the next request and is not reported as requiring a restart; changing any *other* key in the same section is.
+
+:::note
+`runtime.tls` certificate and CA **files** are separately hot-reloadable without a restart — see [Certificate Hot-Reload](#certificate-hot-reload). Inline PEM material is loaded once at startup.
+:::
+
 ## `runtime.auth`
 
 ### `runtime.auth.api-key`
@@ -474,7 +502,7 @@ A surface set to `auto` still takes precedence over the surfaces below it; it si
 
 `all` is the exception: it states that a surface imposes no ceiling of its own, so it **defers to a quantity named on a lower-precedence surface**. A platform that sets `SPICE_CPU_CORES=all` on every deployment therefore does not silence an operator who wrote `runtime.cpu.cores: 4` in their spicepod. It does not defer to `auto`, which is an instruction ("detect it") rather than the absence of one.
 
-Applied at startup only. The thread pools it sizes cannot be resized afterwards, so changing `runtime.cpu` and reloading the spicepod logs a warning that a restart is required rather than taking effect.
+Applied at startup only. The thread pools it sizes cannot be resized afterwards, so changing `runtime.cpu` and reloading the spicepod logs a warning that a restart is required rather than taking effect. It is one of several start-time-only sections — see [Reload Behavior](#reload-behavior).
 
 #### Detection
 

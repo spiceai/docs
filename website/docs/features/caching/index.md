@@ -421,8 +421,22 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `*_cache_hits`           | Counter | Total number of cache hits.                                |
 | `*_cache_items_count`    | Gauge   | Current number of items in the cache.                      |
 | `*_cache_size_bytes`     | Gauge   | Current cache size in bytes.                               |
-| `*_cache_evictions`      | Counter | Total number of cache evictions due to size or TTL limits. |
+| `*_cache_evictions`      | Counter | Total number of entries removed from the cache, split by a `reason` label. |
 | `*_cache_hit_ratio`      | Gauge   | Current cache hit ratio (hits / total requests).           |
+
+`*_cache_evictions` carries a `reason` label with one of three values:
+
+| `reason`      | Meaning                                                                        |
+| ------------- | ------------------------------------------------------------------------------ |
+| `size`        | The cache exceeded `max_size` and reclaimed an entry.                          |
+| `expired`     | The entry outlived `item_ttl`.                                                 |
+| `invalidated` | A dataset refresh or a DML write dropped the entries that referenced a table.  |
+
+On an accelerated dataset with a periodic refresh, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`.
+
+Every cache counter is published at zero when the runtime starts, so a counter that has not yet fired still appears in a scrape as a zero series rather than being absent.
+
+The SQL results cache additionally emits `results_cache_stale_rejections`, a counter of lookups that found an entry but refused to serve it because a table the result read had since been invalidated. These are also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale".
 
 The `*` prefix corresponds to the cache type:
 
@@ -433,9 +447,11 @@ The `*` prefix corresponds to the cache type:
 Example metrics output:
 
 ```
-# HELP results_cache_evictions Number of cache evictions.
+# HELP results_cache_evictions Number of cache evictions, by reason.
 # TYPE results_cache_evictions counter
-results_cache_evictions 2
+results_cache_evictions{reason="size"} 2
+results_cache_evictions{reason="expired"} 5
+results_cache_evictions{reason="invalidated"} 41
 # HELP results_cache_hit_ratio Cache hit ratio (hits / total requests).
 # TYPE results_cache_hit_ratio gauge
 results_cache_hit_ratio 0.625
@@ -457,4 +473,7 @@ results_cache_requests 18
 # HELP results_cache_size_bytes Size of the cache in bytes.
 # TYPE results_cache_size_bytes gauge
 results_cache_size_bytes 7776
+# HELP results_cache_stale_rejections Number of lookups that found an entry but refused to serve it because a table it read had since been invalidated.
+# TYPE results_cache_stale_rejections counter
+results_cache_stale_rejections 0
 ```

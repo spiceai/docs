@@ -51,6 +51,22 @@ spice login
 spice login --key <API_KEY>
 ```
 
+### Browser Login Flow
+
+Running `spice login` without `--key` prints an auth code, opens the Spice.ai authorization page, and then polls the token exchange once per second while the browser flow is completed.
+
+- **The wait is bounded at 5 minutes.** If the authorization is not completed in that window, the command exits with `Authentication timed out. Please try again.` — followed by the last retryable error, when there was one. It does not poll indefinitely.
+- **A refusal stops immediately.** An explicitly denied authorization exits with `Access denied` without waiting out the deadline, as does a rejection the endpoint cannot answer differently on a retry (for example `400`, `401`, `403`, or `410`).
+- **Transient failures keep polling.** Server errors (`5xx`), `408`, `429`, and network failures are retried until the deadline. So is `404`, which is the normal answer while the auth code has not been authorized yet — but an endpoint that answers `404` for the whole 5 minutes (typically a `SPICE_BASE_URL` pointing at the wrong deployment) stops at the deadline and says so.
+
+`spice cloud login subscription` polls the same endpoint under the same 5-minute deadline.
+
+### Credentials Stay on Their Origin
+
+The auth code, device code, and access token in these flows are sent in the **request body**, which an HTTP `307` or `308` redirect replays verbatim to the redirect target. The CLI's credential-bearing HTTP clients therefore follow redirects only **within the same origin** (scheme, host, and port), and refuse any hop that leaves it rather than forwarding the credential to another host. This applies to the `spice login` flows, the Spice Cloud client, and the CLI's own runtime and Cloud Platform requests made with `--api-key`.
+
+An off-origin redirect surfaces as the `3xx` response itself rather than as a transport error, so a misconfigured endpoint stays diagnosable.
+
 ## `spice cloud login`
 
 Authenticate with the Spice Cloud Platform. Running `spice cloud login` without a subcommand opens an interactive method chooser when stdin is a TTY. Non-interactive callers must specify a method explicitly.
