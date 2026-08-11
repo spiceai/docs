@@ -407,7 +407,9 @@ When the goal is to reduce peak memory, prefer bounding concurrency over lowerin
 | Reduce per-plan fan-out and its reservations      | `runtime.query.target_partitions` (defaults to the CPU entitlement's cores)                   |
 | Change how much memory a single query may reserve | `runtime.query.memory_limit`                                                                  |
 
-Lowering `max_concurrent_queries` converts capacity refusals into queueing and reduces the peak directly. Lowering `memory_limit` shrinks the pool each query draws from without reducing how many run concurrently, and on a Cayenne CDC deployment it can leave resident memory unchanged because the in-memory CDC tier expands into the freed budget — see [Tuning the Memory Limit Safely](./memory#tuning-the-memory-limit-safely).
+Lowering `max_concurrent_queries` reduces peak **memory** usage directly, by bounding how many plans hold reservations at once. The trade-off is latency: excess queries wait for admission rather than being refused, so peak end-to-end query time rises with the time spent queueing. Tune it against the workload's tolerance for wait, and watch total query duration — not just execution time — when you change it.
+
+Lowering `memory_limit` shrinks the pool each query draws from without reducing how many run concurrently, and on a Cayenne CDC deployment it can leave resident memory unchanged because the in-memory CDC tier expands into the freed budget — see [Tuning the Memory Limit Safely](./memory#tuning-the-memory-limit-safely).
 
 ### Spill Compression
 

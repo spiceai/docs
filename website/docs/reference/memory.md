@@ -23,8 +23,13 @@ Spice's memory footprint has two parts, and they behave differently:
 Total Memory = Baseline + Working Set
 ```
 
-- **Baseline** — memory the runtime reserves to operate at all: process overhead, per-dataset accelerator caches, results caches, and allocator arenas. It is a function of **how many datasets are configured**, not how much data they hold. It is present at idle and it does not shrink when the data does.
+- **Baseline** — memory the runtime needs to operate at all: process overhead, per-dataset accelerator caches, results caches, task history, serialization buffers, and allocator arenas. It is a function of **how many datasets are configured**, not how much data they hold, and it does not shrink when the data does.
 - **Working Set** — memory that scales with the work: query execution, refreshes, and concurrency. This is the part bounded by [`runtime.query.memory_limit`](#memory-limit-configuration).
+
+Two refinements matter when reading a memory graph or sizing from a measurement:
+
+- **The baseline is mostly bounded buffers that grow toward their bounds with use, not memory claimed up front.** The SQLite metastore's page cache, gRPC and HTTP serialization buffers, and the accelerator caches all have ceilings, but they reach them only as traffic drives them there. The baseline is therefore the **converged** footprint under sustained load, not what the process holds at first startup — a freshly started runtime under-reports it, sometimes by a lot.
+- **The working set scales with the data each query touches, not just with dataset size.** `SELECT 1` costs almost nothing, `SELECT *` materializes a result set, and a multi-way join with a sort can exceed the size of the data it reads. Whatever a single query costs is then multiplied by how many run concurrently.
 
 Almost every surprising memory result comes from treating the total as a single quantity that scales with data volume. It does not. Sizing rules expressed as a multiple of dataset size — including the ones below — describe the **working set**, and apply on top of the baseline:
 
@@ -33,6 +38,8 @@ Total Memory ≈ Baseline + (multiple × dataset size)
 ```
 
 At production data volumes the working set dominates and the baseline is a rounding error. At small data volumes the reverse is true, which is why a deployment holding a few hundred megabytes of data can still need several gigabytes of RAM, and why cutting the data volume by 100x does not let you cut memory by 100x. See [Sizing a Non-Production Environment](#sizing-a-non-production-environment).
+
+Because both terms understate themselves early — buffers have not yet grown, and a light query mix has not yet hit its peak — sizing from a short observation biases low in both directions at once. Size from a sustained run, and see [Validating a Memory Configuration](#validating-a-memory-configuration).
 
 ## General Memory Recommendations
 
@@ -66,6 +73,19 @@ The baseline is the sum of a fixed process cost and a per-dataset cost. The per-
 | Cayenne PK keyset cache       | Each Cayenne CDC/upsert dataset             | 1/32 of total memory, clamped to 256 MiB–8 GiB, and additionally bounded by a process-wide ceiling across all datasets |
 | CDC coalesce buffer           | Each CDC dataset                            | 128 MiB (`cdc_max_coalesced_bytes`)                        |
 | Results caches                | Runtime                                     | 128 MiB each for SQL, search, and embedding results        |
+| Task history                  | Runtime (enabled by default)                | Unbounded by size; scales with task rate × `retention_period` (8h) |
+| Metastore and protocol buffers | Runtime                                    | Bounded, but reached only under sustained traffic          |
+
+The last two rows are the ones that make a short measurement misleading. **Task history is an in-memory accelerated table**, so its footprint is a product of how many tasks the deployment completes and how long records are kept, rather than a fixed allocation — a high-throughput deployment accumulates far more than a quiet one at the same configuration. Setting `captured_plan` or `captured_output` increases the size of every record substantially.
+
+```yaml
+runtime:
+  task_history:
+    retention_period: 1h # default 8h; the main lever on its footprint
+    captured_plan: none  # capturing plans materially increases per-record size
+```
+
+Prefer shortening `retention_period` to disabling task history outright — it backs `runtime.task_history`, which is the primary tool for diagnosing the very problems this page describes. Disable it only if the deployment is memory-critical and its diagnostics are served another way.
 
 Two consequences follow:
 
@@ -330,7 +350,9 @@ runtime:
     max_concurrent_queries: 8 # bound admission by memory, not by core count
 ```
 
-Lowering `max_concurrent_queries` reduces peak memory and converts what would have been capacity refusals into queueing, at the cost of latency under burst. It is usually the better first move than lowering `runtime.query.memory_limit`, which shrinks the pool available to each query without reducing how many run — and which, on a CDC deployment, may not reduce resident memory at all (see [Tuning the Memory Limit Safely](#tuning-the-memory-limit-safely)).
+Lowering `max_concurrent_queries` reduces peak **memory** and converts what would have been capacity refusals into queueing. The trade-off is that peak **query time** rises: excess queries now wait for admission, and that wait counts toward end-to-end duration. Measure total query duration rather than execution time alone when tuning it.
+
+It is still usually the better first move than lowering `runtime.query.memory_limit`, which shrinks the pool available to each query without reducing how many run — and which, on a CDC deployment, may not reduce resident memory at all (see [Tuning the Memory Limit Safely](#tuning-the-memory-limit-safely)).
 
 When load testing, note that **peak concurrency, not average throughput, sets the peak memory** — a test that averages the target rate but never bursts will under-report the peak.
 
@@ -344,6 +366,7 @@ Recommended client behavior:
 - **Bound the retry.** One or two attempts with a short backoff is normally enough; unbounded retries turn a capacity problem into an outage by adding load to a runtime that is already refusing work.
 - **Set an explicit client timeout** so a slow query cannot consume the caller's own request budget.
 - **Fall back to the underlying data source last, not first.** Where a fallback path to the source of truth exists, place it after the in-cluster retry, so a single unhealthy instance does not divert all traffic away from the accelerated path.
+- **Consider a circuit breaker for sustained failure.** Retries handle isolated failures; they make a sustained one worse. After a threshold of consecutive failures, stop sending traffic for a cooldown, then probe with a fraction of it and restore full load only once the probes succeed. This is usually best implemented at the load balancer or service mesh rather than in each client, so the decision is shared across callers instead of being re-learned by each one.
 
 Distinguish the two cases when alerting: an isolated failure that a retry resolves is expected operational noise, while a sustained rate of capacity refusals is a sizing signal — see the metric guidance above.
 
@@ -493,7 +516,15 @@ Total Memory = Runtime Overhead + (Per-Dataset Accelerator Caches × dataset cou
 - Query memory limit: 4 GB
 - **Total: ~6.5 GB minimum**
 
-Everything above the query memory limit in that list is baseline: it is reserved at idle and it grows with the dataset count. Adding four more datasets adds roughly another 1 GB before a single query runs. Datasets using `refresh_mode: changes` add a PK keyset cache and a coalesce buffer on top of this — see [What Makes Up the Baseline](#what-makes-up-the-baseline).
+Everything above the query memory limit in that list is baseline, and it grows with the dataset count. Adding four more datasets adds roughly another 1 GB before a single query runs. Datasets using `refresh_mode: changes` add a PK keyset cache and a coalesce buffer on top of this — see [What Makes Up the Baseline](#what-makes-up-the-baseline).
+
+:::warning[This is a planning floor, not a prediction]
+
+A calculation like this sums the allocations that can be named and sized in advance, so it **under-estimates actual usage** and should never be used as the container's memory limit. It omits the buffers that grow with traffic, task history's throughput-dependent growth, allocator retention and fragmentation, and any transient peak above the steady state. The query memory limit in particular is a *ceiling* on the pool, not a reservation — actual usage moves within it.
+
+Treat the result as the minimum below which the deployment certainly will not fit, add headroom, and then replace the estimate with a measurement from a sustained representative run. See [Validating a Memory Configuration](#validating-a-memory-configuration).
+
+:::
 
 ### Cache Performance Considerations
 
@@ -559,6 +590,8 @@ See [Observability](../features/observability) for configuration details.
 ### Reading a Memory Graph
 
 Resident memory that climbs and then stays high is the expected shape, not a leak. Caches fill toward their configured ceilings and are not evicted until they are full, buffers are retained rather than reallocated because reallocation is expensive, and memory allocators keep freed pages mapped instead of returning them to the operating system. **Memory returning to its startup value is not a goal, and a flat high plateau is not evidence of a problem.**
+
+The last of those is a documented property of the allocators themselves, not a Spice-specific behavior. [jemalloc](https://jemalloc.net/jemalloc.3.html) retains freed pages and returns them only on a decay schedule (`dirty_decay_ms`, `muzzy_decay_ms`). glibc's allocator returns memory to the OS only when the free block at the top of the heap exceeds [`M_TRIM_THRESHOLD`](https://man7.org/linux/man-pages/man3/mallopt.3.html), so freed memory in the middle of the heap stays resident by design. Resident set size is consequently an upper bound on what the process is actively using — and, per the [cgroup v2 documentation](https://docs.kernel.org/admin-guide/cgroup-v2.html#memory-interface-files), it is nonetheless what the kernel charges against `memory.max` when deciding whether to OOM-kill.
 
 What matters is *where* it plateaus and *whether* it plateaus:
 
@@ -631,3 +664,6 @@ Where a load test is impractical, mirror production traffic to a canary instance
 - [DataFusion Memory Usage](https://datafusion.apache.org/user-guide/configs.html#runtime-configuration-settings) - DataFusion runtime memory configuration
 - [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide) - Memory-limited query optimization
 - [DuckDB Memory Management](https://duckdb.org/docs/operations_manual/limits.html) - DuckDB memory limits documentation
+- [jemalloc](https://jemalloc.net/jemalloc.3.html) - Page retention and the `dirty_decay_ms` / `muzzy_decay_ms` decay schedule
+- [`mallopt`](https://man7.org/linux/man-pages/man3/mallopt.3.html) - glibc's `M_TRIM_THRESHOLD` and when freed memory is returned to the OS
+- [cgroup v2 memory interface](https://docs.kernel.org/admin-guide/cgroup-v2.html#memory-interface-files) - What `memory.max` accounts for and how the OOM decision is made

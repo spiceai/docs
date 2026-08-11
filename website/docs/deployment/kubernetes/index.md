@@ -63,7 +63,9 @@ Prefer `runtime.cpu.cores` over `resources.limits.cpu` for bounding Spice. A CPU
 
 Unlike CPU, memory is enforced by the kernel: a pod that exceeds `resources.limits.memory` is OOM-killed rather than throttled. Size the limit for the whole process, not just for query execution.
 
-A pod's memory divides into a **baseline** that is present at idle and scales with the number of configured datasets, and a **working set** that scales with data volume and concurrency. The runtime derives `runtime.query.memory_limit` from the pod's cgroup limit with the per-dataset baseline already subtracted, so the common case needs no configuration — leave it unset and set `resources.limits.memory` instead.
+A pod's memory divides into a **baseline** that scales with the number of configured datasets, and a **working set** that scales with data volume, per-query cost, and concurrency. The runtime derives `runtime.query.memory_limit` from the pod's cgroup limit with the per-dataset baseline already subtracted, so the common case needs no configuration — leave it unset and set `resources.limits.memory` instead.
+
+Note that much of the baseline is bounded buffers that grow toward their limits as traffic drives them there, so a pod's memory shortly after startup understates what it will settle at. Size the limit from a sustained run, not from a fresh pod.
 
 | Situation                                             | What to set                                                                                     |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
