@@ -183,6 +183,22 @@ runtime:
     state_location: "file://.data/scheduler-state"
 ```
 
+### Query Ownership
+
+A query is owned by the principal that submitted it, and **only that principal can list, poll, fetch results from, or cancel it**. This applies to the HTTP, Arrow Flight, and CLI surfaces alike.
+
+Ownership follows the same principal boundary as [Per-Principal Cache Isolation](../caching/index.md#per-principal-cache-isolation), and is not configurable:
+
+| Caller                                              | Owner scope                                                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Unauthenticated (or [authentication](../../api/auth/index.md) not enabled) | A single shared `public` scope — every caller sees every query, matching pre-isolation behavior. |
+| Authenticated principal (e.g., API key)             | The principal's own isolated scope.                                                               |
+| Internal / background runtime tasks                 | An internal `system` scope that can never reach a user-submitted query.                            |
+
+A query submitted by another principal is reported as **404 Not Found** rather than 403, so a caller cannot probe for query IDs it does not own. Ownership is also resolved *before* result expiry, so a non-owner receives the same 404 for an expired query that the owner would see reported as 410 Gone.
+
+Jobs written by a runtime that predates ownership tracking carry no owner and are treated as belonging to the `public` scope.
+
 ### HTTP REST API
 
 Base path: `/v1/queries`
@@ -192,7 +208,7 @@ Base path: `/v1/queries`
 | Method | Path                                                  | Description                             |
 | ------ | ----------------------------------------------------- | --------------------------------------- |
 | `POST` | `/v1/queries`                                         | Submit a query for async execution      |
-| `GET`  | `/v1/queries`                                         | List all queries                        |
+| `GET`  | `/v1/queries`                                         | List the caller's queries               |
 | `GET`  | `/v1/queries/{query_id}`                              | Get query status and first result chunk |
 | `GET`  | `/v1/queries/{query_id}/status`                       | Get query status only                   |
 | `GET`  | `/v1/queries/{query_id}/results`                      | Get results (with pagination)           |
@@ -347,7 +363,7 @@ Returns a specific result chunk by index. Same response format as **Get Results*
 
 `POST /v1/queries/{query_id}/cancel`
 
-Cancels a running query. Also cancels the underlying distributed query on the Ballista scheduler.
+Cancels a running query. Also cancels the underlying distributed query on the Ballista scheduler. Only the principal that submitted the query can cancel it; any other caller receives 404 Not Found and the query keeps running — see [Query Ownership](#query-ownership).
 
 **Response** (HTTP 200):
 
@@ -369,7 +385,7 @@ Cancels a running query. Also cancels the underlying distributed query on the Ba
 
 `GET /v1/queries`
 
-Lists all queries, optionally filtered by status.
+Lists the queries submitted by the calling principal, optionally filtered by status. Queries submitted by other principals are never listed — see [Query Ownership](#query-ownership).
 
 **Query Parameters**:
 
@@ -402,7 +418,7 @@ The `sql_preview` field contains the first 100 characters of the SQL statement.
 | ------------------------- | ---------------------------------------------------------------------- |
 | 202 Accepted              | Query successfully submitted                                           |
 | 200 OK                    | Status/results retrieved successfully                                  |
-| 404 Not Found             | Query ID, chunk, or result not found                                   |
+| 404 Not Found             | Query ID, chunk, or result not found, or the query was submitted by a different principal |
 | 409 Conflict              | Query not yet complete (when fetching results by chunk)                |
 | 410 Gone                  | Query results have expired                                             |
 | 425 Too Early             | Query still running (results endpoint)                                 |
@@ -412,6 +428,8 @@ The `sql_preview` field contains the first 100 characters of the SQL statement.
 ### Arrow Flight API
 
 The async query API is also available via Apache Arrow Flight `DoAction` requests. This is more efficient for programmatic access since results are returned in Arrow IPC binary format instead of JSON.
+
+Every action below is scoped to the principal that submitted the query, exactly as the HTTP endpoints are — see [Query Ownership](#query-ownership).
 
 | Action Type           | Request Body (JSON)                     | Response                                                              |
 | --------------------- | --------------------------------------- | --------------------------------------------------------------------- |
@@ -531,6 +549,8 @@ spice query status <query_id>                # Check query status
 spice query results <query_id>               # Fetch results of completed query
 spice query cancel <query_id>                # Cancel a running query
 ```
+
+These subcommands reach only the queries submitted with the same credentials — see [Query Ownership](#query-ownership).
 
 #### Interactive REPL
 
