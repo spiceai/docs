@@ -53,6 +53,19 @@ SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT 
 - **Check tools configuration**: Ensure `tools: auto` is set in the model params so the model can discover and query datasets.
 - **Use `spice trace ai_chat`**: Inspect the trace output to see which tools the model called and whether SQL queries succeeded or failed.
 
+### Container OOM-killed despite a configured memory limit
+
+`runtime.query.memory_limit` bounds the query execution pool, not the process. Accelerator caches, serialization buffers, embedded engine pools, and allocator retention sit outside it, so a process can be killed while the query pool still reports unused capacity.
+
+- **Compare the pools against actual memory**: if `process_resident_memory_bytes` is far above `query_memory_pool_used_bytes`, the memory is off-pool and lowering the query limit will not recover it.
+- **Count the per-dataset baseline**: accelerator caches are allocated per dataset with a floor that does not shrink with the container, so the idle footprint grows with dataset count regardless of data size.
+- **Check whether the limit was set explicitly**: when unset, the runtime derives the query limit with the per-dataset reservations subtracted. An explicit value opts out of that and must leave room for the baseline itself.
+- **Do not read a flat, high memory graph as a leak**: caches fill to their ceilings and allocators retain freed pages. What matters is whether it plateaus, and how far below the limit.
+- **Read the startup warnings before load testing**: the runtime warns at startup when the configured caches cannot fit beside the query pool, which detects an undersized deployment in seconds rather than days.
+- **Lowering the query limit is often the wrong lever**: bounding `runtime.query.max_concurrent_queries` reduces the peak directly, whereas lowering `runtime.query.memory_limit` shrinks each query's budget without reducing how many run at once.
+
+See [Managing Memory Usage](../reference/memory.md) for the sizing model and validation guidance.
+
 ### Port conflicts on startup
 
 If Spice fails to bind to its default ports (`8090` for HTTP, `50051` for Flight, `9090` for metrics), another process is already using that port. Override the ports:

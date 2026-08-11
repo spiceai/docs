@@ -395,6 +395,22 @@ If not specified, `memory_limit` defaults to 90% of the memory the process may u
 runtime memory_limit = Total Memory - Accelerator Memory - OS/Runtime Overhead (30%)
 ```
 
+Accelerator memory in that expression is **per dataset**, not per deployment: each accelerated dataset holds its own caches, sized as a fraction of total memory but clamped to a floor that does not shrink with the container. The limit therefore has to be derived for the dataset count, and the ratio that works in a small environment does not carry to a large one. See [How Spice Uses Memory](./memory#how-spice-uses-memory) and [Sizing a Non-Production Environment](./memory#sizing-a-non-production-environment).
+
+Note also that this limit bounds the query execution pool, not the process. Serialization buffers, accelerator caches, and allocator retention sit outside it, which is why lowering it does not always reduce resident memory — see [What the Memory Limit Does Not Cover](./memory#what-the-memory-limit-does-not-cover).
+
+When the goal is to reduce peak memory, prefer bounding concurrency over lowering this limit:
+
+| Intent                                          | Setting                                                                                     |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Reduce peak memory under burst                    | `runtime.query.max_concurrent_queries` (defaults to 4× the CPU entitlement's cores, not from memory) |
+| Reduce per-plan fan-out and its reservations      | `runtime.query.target_partitions` (defaults to the CPU entitlement's cores)                   |
+| Change how much memory a single query may reserve | `runtime.query.memory_limit`                                                                  |
+
+Lowering `max_concurrent_queries` reduces peak **memory** usage directly, by bounding how many plans hold reservations at once. The trade-off is latency: excess queries wait for admission rather than being refused, so peak end-to-end query time rises with the time spent queueing. Tune it against the workload's tolerance for wait, and watch total query duration — not just execution time — when you change it.
+
+Lowering `memory_limit` shrinks the pool each query draws from without reducing how many run concurrently, and on a Cayenne CDC deployment it can leave resident memory unchanged because the in-memory CDC tier expands into the freed budget — see [Tuning the Memory Limit Safely](./memory#tuning-the-memory-limit-safely).
+
 ### Spill Compression
 
 | Compression      | Disk Usage | CPU Overhead |

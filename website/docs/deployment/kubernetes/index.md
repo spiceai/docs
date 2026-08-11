@@ -59,6 +59,27 @@ The [Spice Cloud Platform](https://spice.ai) sets `SPICE_CPU_CORES=all` on hoste
 
 Prefer `runtime.cpu.cores` over `resources.limits.cpu` for bounding Spice. A CPU limit is a CFS quota and [throttles](https://home.robusta.dev/blog/stop-using-cpu-limits) even when the node has idle CPU; `runtime.cpu.cores` caps how much machine the runtime organizes itself around without capping how much CPU it may use. See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu) and [Resource Allocation](../reference/performance-tuning#resource-allocation).
 
+## Memory sizing
+
+Unlike CPU, memory is enforced by the kernel: a pod that exceeds `resources.limits.memory` is OOM-killed rather than throttled. Size the limit for the whole process, not just for query execution.
+
+A pod's memory divides into a **baseline** that scales with the number of configured datasets, and a **working set** that scales with data volume, per-query cost, and concurrency. The runtime derives `runtime.query.memory_limit` from the pod's cgroup limit with the per-dataset baseline already subtracted, so the common case needs no configuration — leave it unset and set `resources.limits.memory` instead.
+
+Note that much of the baseline is bounded buffers that grow toward their limits as traffic drives them there, so a pod's memory shortly after startup understates what it will settle at. Size the limit from a sustained run, not from a fresh pod.
+
+| Situation                                             | What to set                                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Standard deployment                                   | `resources.limits.memory` only; let the runtime derive the query pool                             |
+| Co-located accelerators managing their own pools       | `resources.limits.memory` plus an explicit `runtime.query.memory_limit` that leaves room for them |
+| Sizing a smaller staging or test environment          | Reduce data volume and concurrency; keep the dataset count and accelerator configuration          |
+
+Two Kubernetes-specific consequences:
+
+- **Do not scale the production memory limit down proportionally for a lower environment.** The baseline does not shrink with the data, so a proportionally smaller pod is not a smaller model of production — it is a different regime that predicts nothing about production behavior, and the limits tuned to fit it do not transfer back.
+- **A pod that plateaus just under its memory limit is sized too tightly**, even while healthy. It has no margin for a refresh spike or a burst of concurrency.
+
+Because instances are evicted, preempted, and replaced during rollouts, clients should retry a failed query against the Service before treating it as an outage. See [Managing Memory Usage](../reference/memory) for the full sizing model, the load-testing properties that make a memory validation trustworthy, and client resiliency guidance.
+
 ## Prerequisites
 
 - Access to a Kubernetes cluster (v1.25+ recommended).
