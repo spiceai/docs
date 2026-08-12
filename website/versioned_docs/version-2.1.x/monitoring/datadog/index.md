@@ -83,19 +83,22 @@ ad.datadoghq.com/spiceai.checks: |
   }
 ```
 
-`collect_histogram_buckets`, `histogram_buckets_as_distributions`, and `max_returned_metrics` serve the same purpose here as in the host configuration — see [Histogram Percentiles (Distributions)](#histogram-percentiles-distributions).
+`collect_histogram_buckets` and `histogram_buckets_as_distributions` serve the same purpose here as in the host configuration — see [Histogram Percentiles (Distributions)](#histogram-percentiles-distributions). `max_returned_metrics` raises the check's default limit of 2000, which Spice can exceed.
 
 ## Instance Identity
 
-The `service_instance_id` tag identifies which Spice instance a metric came from. It is a normalization Spice asks operators to configure, not a tag the Datadog Agent supplies: Datadog's [unified service tags](https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/) are `env`, `service`, and `version`, and while the Agent adds Kubernetes dimensions such as `pod_name`, `kube_namespace`, and `kube_cluster_name` automatically, none of them exist on a host, VM, or Docker deployment. Tagging `service_instance_id` in the Agent configuration gives every deployment shape one consistent instance identity.
+The Spice dashboard identifies each running instance by a `service_instance_id` tag: the `instance` filter selects on it, and every per-instance panel groups by it. The Agent supplies no instance-level tag of its own — its [unified service tags](https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/) are `env`, `service`, and `version` — so set it explicitly, as in both examples above:
 
-The Spice dashboard relies on it in two places: the `instance` template variable filters on it, and every per-instance panel groups by it. Set it in both configurations above — to the pod name under Kubernetes (`%%kube_pod_name%%`), and to the hostname or another stable per-process identifier elsewhere.
+| Deployment          | Value                                              |
+| ------------------- | -------------------------------------------------- |
+| Kubernetes          | `%%kube_pod_name%%`                                |
+| Host, VM, or Docker | Hostname, or another stable per-process identifier |
 
 :::caution Panels collapse silently without this tag
-Datadog does not error on a missing tag. A dashboard imported without `service_instance_id` renders one `N/A` series per panel carrying the sum across every replica — a 12-replica deployment reports 12 times its real dataset count rather than showing nothing. There is no query-level fallback from one tag to another, so this has to be fixed in the Agent configuration.
+Datadog does not error on a missing tag. Without `service_instance_id`, each panel renders a single `N/A` series summing every instance — a 12-replica deployment reports 12 times its real dataset count rather than showing nothing.
 :::
 
-Panels backed by the Kubernetes integration (CPU, memory, and PVC utilization) group by `pod_name` instead, since those metrics come from the Kubernetes check and never carry `service_instance_id`.
+Panels from the Kubernetes integration (CPU, memory, and PVC utilization) group by `pod_name` instead, as those metrics never carry `service_instance_id`.
 
 ## Import the Spice Datadog Dashboard
 
