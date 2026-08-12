@@ -47,10 +47,10 @@ Spice exports latency and size metrics — `query_duration_ms`, `flight_request_
 p99:spiceai.flight_request_duration_ms{method:do_get} by {command}
 ```
 
-| Option                               | Default | Why Spice needs it                                                                                                                                                                                      |
-| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `collect_histogram_buckets`          | `true`  | Sends the `_bucket` series that percentiles are computed from.                                                                                                                                          |
-| `histogram_buckets_as_distributions` | `false` | Submits those buckets as a Datadog distribution rather than a set of counters. Required for `p50:`, `p90:`, `p95:`, and `p99:` queries.                                                                 |
+| Option                               | Default | Why Spice needs it                                                                                                                      |
+| ------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `collect_histogram_buckets`          | `true`  | Sends the `_bucket` series that percentiles are computed from.                                                                          |
+| `histogram_buckets_as_distributions` | `false` | Submits those buckets as a Datadog distribution rather than a set of counters. Required for `p50:`, `p90:`, `p95:`, and `p99:` queries. |
 
 :::caution Percentile aggregations must be enabled on the metric
 Submitting a distribution is not sufficient on its own. Datadog computes `p50`/`p90`/`p95`/`p99` for a distribution metric only once **percentile aggregations** are enabled for that metric on the Metrics Summary page — see [Enabling advanced query functionality](https://docs.datadoghq.com/metrics/distributions/#enabling-advanced-query-functionality). Until then a `p99:` query returns no data and the widget renders empty rather than reporting an error.
@@ -84,6 +84,18 @@ ad.datadoghq.com/spiceai.checks: |
 ```
 
 `collect_histogram_buckets`, `histogram_buckets_as_distributions`, and `max_returned_metrics` serve the same purpose here as in the host configuration — see [Histogram Percentiles (Distributions)](#histogram-percentiles-distributions).
+
+## Instance Identity
+
+The `service_instance_id` tag identifies which Spice instance a metric came from. It is a normalization Spice asks operators to configure, not a tag the Datadog Agent supplies: Datadog's [unified service tags](https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/) are `env`, `service`, and `version`, and while the Agent adds Kubernetes dimensions such as `pod_name`, `kube_namespace`, and `kube_cluster_name` automatically, none of them exist on a host, VM, or Docker deployment. Tagging `service_instance_id` in the Agent configuration gives every deployment shape one consistent instance identity.
+
+The Spice dashboard relies on it in two places: the `instance` template variable filters on it, and every per-instance panel groups by it. Set it in both configurations above — to the pod name under Kubernetes (`%%kube_pod_name%%`), and to the hostname or another stable per-process identifier elsewhere.
+
+:::caution Panels collapse silently without this tag
+Datadog does not error on a missing tag. A dashboard imported without `service_instance_id` renders one `N/A` series per panel carrying the sum across every replica — a 12-replica deployment reports 12 times its real dataset count rather than showing nothing. There is no query-level fallback from one tag to another, so this has to be fixed in the Agent configuration.
+:::
+
+Panels backed by the Kubernetes integration (CPU, memory, and PVC utilization) group by `pod_name` instead, since those metrics come from the Kubernetes check and never carry `service_instance_id`.
 
 ## Import the Spice Datadog Dashboard
 
