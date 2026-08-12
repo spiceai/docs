@@ -19,18 +19,46 @@ init_config:
 
 instances:
   - openmetrics_endpoint: http://localhost:9090/metrics # Spice metrics endpoint
-    namespace: spice
+    namespace: spiceai
     metrics:
       - .*
+    collect_histogram_buckets: true # Required for percentile queries, see below
+    histogram_buckets_as_distributions: true # Required for percentile queries, see below
+    max_returned_metrics: 3000 # Default is 2000, which Spice can exceed
     tags:
       - service_instance_id:<unique-id> # e.g. hostname; required by the Spice dashboard filter
 ```
 
 1. [Restart the Agent](https://docs.datadoghq.com/agent/guide/agent-commands/#start-stop-and-restart-the-agent) to start collecting Spice metrics.
 1. Refer to [Prometheus and OpenMetrics metrics collection from a host](https://docs.datadoghq.com/integrations/guide/prometheus-host-collection/) for all available configuration options and supported parameters.
-1. Open Datadog Metrics Explorer and type `spice` to confirm Spice telemetry information is successfully collected.
+1. Open Datadog Metrics Explorer and type `spiceai` to confirm Spice telemetry information is successfully collected.
 
 <img width="800" src="/img/datadog/spice_datadog_metrics_explorer.png"/>
+
+:::note The `namespace` sets the metric prefix
+Every scraped metric is prefixed with the configured `namespace`, so `query_duration_ms` is stored as `spiceai.query_duration_ms`. Keep this value consistent with the prefix used by the queries in the Spice dashboard JSON, and with [`runtime.telemetry.metric_prefix`](#namespace-spice-metrics-with-a-prefix) if the same deployment also pushes metrics over OTLP.
+:::
+
+### Histogram Percentiles (Distributions)
+
+Spice exports latency and size metrics — `query_duration_ms`, `flight_request_duration_ms`, `http_requests_duration_ms`, `dataset_acceleration_refresh_duration_ms`, and others — as Prometheus histograms. Configuring the Agent to submit those buckets as [Datadog distributions](https://docs.datadoghq.com/integrations/guide/prometheus-metrics/?tab=latestversion#histogram) makes percentiles queryable over the selected time window:
+
+```text
+p99:spiceai.flight_request_duration_ms{method:do_get} by {command}
+```
+
+| Option                               | Default | Why Spice needs it                                                                                                                                                                                      |
+| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `collect_histogram_buckets`          | `true`  | Sends the `_bucket` series that percentiles are computed from.                                                                                                                                          |
+| `histogram_buckets_as_distributions` | `false` | Submits those buckets as a Datadog distribution rather than a set of counters. Required for `p50:`, `p90:`, `p95:`, and `p99:` queries.                                                                 |
+
+:::caution Percentile aggregations must be enabled on the metric
+Submitting a distribution is not sufficient on its own. Datadog computes `p50`/`p90`/`p95`/`p99` for a distribution metric only once **percentile aggregations** are enabled for that metric on the Metrics Summary page — see [Enabling advanced query functionality](https://docs.datadoghq.com/metrics/distributions/#enabling-advanced-query-functionality). Until then a `p99:` query returns no data and the widget renders empty rather than reporting an error.
+:::
+
+:::note Why not the `_summary` metrics
+The metrics endpoint also exposes a `<metric>_summary` family carrying `quantile` tags, derived from each histogram at scrape time. The underlying histogram is cumulative, so those quantiles describe the **entire lifetime of the process** rather than the queried time window: they flatten the longer a pod stays up and will not surface a latency regression. Prefer distributions for any percentile that needs to track a time window.
+:::
 
 ## Kubernetes (Operator / Autodiscovery)
 
@@ -43,14 +71,19 @@ ad.datadoghq.com/spiceai.checks: |
       "instances": [
         {
           "openmetrics_endpoint": "http://%%host%%:9090/metrics",
-          "namespace": "spice",
+          "namespace": "spiceai",
           "metrics": [".*"],
+          "collect_histogram_buckets": true,
+          "histogram_buckets_as_distributions": true,
+          "max_returned_metrics": 3000,
           "tags": ["service_instance_id:%%kube_pod_name%%"]
         }
       ]
     }
   }
 ```
+
+`collect_histogram_buckets`, `histogram_buckets_as_distributions`, and `max_returned_metrics` serve the same purpose here as in the host configuration — see [Histogram Percentiles (Distributions)](#histogram-percentiles-distributions).
 
 ## Import the Spice Datadog Dashboard
 
