@@ -94,8 +94,6 @@ The Spice dashboard identifies each running instance by a `service_instance_id` 
 | Kubernetes          | `%%kube_pod_name%%`                                |
 | Host, VM, or Docker | Hostname, or another stable per-process identifier |
 
-This mirrors how Datadog integrations identify systems that run several members alongside each other, where `host` cannot tell them apart: the [RabbitMQ dashboard](https://github.com/DataDog/integrations-core/blob/master/rabbitmq/assets/dashboards/rabbitmq_dashboard.json) groups by `rabbitmq_node`, and the [Vault dashboard](https://github.com/DataDog/integrations-core/blob/master/vault/assets/dashboards/vault_overview.json) by `vault_cluster`.
-
 :::caution Panels collapse silently without this tag
 Datadog does not error on a missing tag. Without `service_instance_id`, each panel renders a single `N/A` series summing every instance — a 12-replica deployment reports 12 times its real dataset count rather than showing nothing.
 :::
