@@ -126,12 +126,12 @@ The `cdc_path_*` phases are mutually exclusive per write and measure end-to-end 
 
 ### Segment Cache Metrics
 
-The segment cache is the per-dataset Vortex decompressed-segment cache (`cayenne_segment_cache_mb`). The `accesses` and `hits` instruments are cumulative.
+The segment cache is the per-dataset Vortex decompressed-segment cache (`cayenne_segment_cache_mb`). Since v2.1.5 all five instruments are observable — sampled on every collection — and caches sharing a dataset label are aggregated into one series. `accesses` and `hits` are monotonic counters and keep counting across a cache being recreated, so query them with counter operations such as `rate()` or `increase()` (hit rate over a window = `rate(cayenne_segment_cache_hits[5m]) / rate(cayenne_segment_cache_accesses[5m])`).
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
-| `cayenne_segment_cache_accesses` | Gauge | accesses | Cumulative Vortex segment cache `get()` calls. |
-| `cayenne_segment_cache_hits` | Gauge | hits | Cumulative Vortex segment cache hits. (Hit rate = `hits / accesses`.) |
+| `cayenne_segment_cache_accesses` | Counter | accesses | Cumulative Vortex segment cache `get()` calls. |
+| `cayenne_segment_cache_hits` | Counter | hits | Cumulative Vortex segment cache hits. |
 | `cayenne_segment_cache_entries` | Gauge | entries | Live Vortex segment cache entry count. |
 | `cayenne_segment_cache_weighted_bytes` | Gauge | By | Live Vortex segment cache size in bytes. |
 | `cayenne_segment_cache_capacity_bytes` | Gauge | By | Configured Vortex segment cache capacity in bytes. |
