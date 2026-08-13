@@ -137,6 +137,13 @@ catalogs:
 
 The PostgreSQL Catalog Connector can also be used with Amazon Redshift:
 
+:::note
+
+Redshift is supported on a **best-effort** basis and is outside the connector's stability claim: the quality level stated in the table of Catalogs covers PostgreSQL. Redshift clusters are not part of the connector's test matrix, and the [Limitations](#limitations) below — datashare and external (Spectrum) objects not being discovered, and reduced metadata coverage — apply. Track [#12109](https://github.com/spiceai/spiceai/issues/12109) for progress.
+
+:::
+
+
 ```yaml
 catalogs:
   - from: pg
