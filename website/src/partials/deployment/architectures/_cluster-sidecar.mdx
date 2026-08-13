@@ -1,5 +1,11 @@
 Modern applications have two fundamentally different data access patterns, and no single deployment model serves both well. Large analytical queries — scanning terabytes of Iceberg data, joining Delta Lake tables, running cross-dataset aggregations — need distributed execution across many nodes. Hot operational queries — serving the working set a microservice actually uses, answering user-facing requests in under 5 milliseconds, feeding fresh context to an AI agent — need data materialized right next to the application, with no network hop.
 
+<img
+  width='740'
+  alt='cluster-sidecar'
+  src='/img/deployment/cluster-sidecar.png'
+/>
+
 The [cluster-sidecar architecture](https://spice.ai/blog/cluster-sidecar-architecture) addresses both patterns in a single platform. Application sidecars handle the hot path with locally accelerated data, while a centralized Spice [cluster](./cluster) (or the [Spice Cloud Platform](./hosted)) provides distributed compute for heavy queries, data ingestion, acceleration, and refresh. When a sidecar needs to reach beyond its materialized working set — a historical query, a cross-dataset join, a broad search — it transparently delegates to the cluster, which executes the query and returns results. The sidecar can then cache those results for future use.
 
 From the application's perspective, everything is localhost. From an infrastructure perspective, the system delivers the throughput of a distributed query engine and the latency of an embedded database — without ETL between them, sync jobs, or consistency gaps.
