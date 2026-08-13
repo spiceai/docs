@@ -24,7 +24,7 @@ The mode is controlled by the `cayenne_tuning` acceleration parameter:
 
 Environment detection feeds both modes. On AWS EC2, the runtime additionally probes the [Instance Metadata Service (IMDSv2)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) once at first table registration to detect T-family burstable CPU and the instance's EBS baseline bandwidth, and measures real storage write throughput with a cloud-agnostic calibration probe — both refine the environment-derived `[floor, ceiling]` bounds. The IMDS probe is non-blocking and fail-open: it uses a tight timeout and a single attempt, so off-AWS (or when the metadata service is unreachable) it is a fast no-op and detection falls back to the calibration probe alone. To skip the IMDS probe entirely, set `SPICE_DISABLE_IMDS=1` (the standard AWS `AWS_EC2_METADATA_DISABLED` environment variable is also honored).
 
-When `cayenne_tuning` is left unset, the mode defaults to `auto`. Set `cayenne_tuning: adaptive` explicitly to enable the closed loop. Configuring any `cayenne_goal_*` SLO also implies `adaptive` (a goal with tuning off is inert) unless you set `cayenne_tuning: auto` explicitly. Schema inference is always attempted and seeds the controller's warm-start, but is not what selects the mode.
+`adaptive` is reached **only** by setting `cayenne_tuning: adaptive` on the dataset — nothing else turns the closed loop on. An unset value, an unrecognized value (logged as a warning, then treated as `auto`), schema inference, and a configured `cayenne_goal_*` SLO all resolve to `auto`. Schema inference is always attempted and seeds the controller's warm-start, but is not what selects the mode.
 
 ```yaml
 acceleration:
@@ -47,6 +47,12 @@ In both modes, setting any `cayenne_*` knob to an explicit value overrides the d
 
 Under `adaptive`, you can give the controller high-level service-level objectives (SLOs) instead of leaving it to optimize from its built-in signals alone. Set one or more `cayenne_goal_*` SLOs — **globally under `runtime.params`**, where they apply to every Cayenne-accelerated dataset — and the closed loop converges toward each target in small, bounded steps:
 
+:::info A goal does not enable the loop
+
+A goal declares a target, not a choice of controller. `cayenne_goal_*` is read on every Cayenne dataset, but it steers the loop only where the loop is already running — set on a dataset left at the `auto` default it is **ignored**, and Cayenne logs a warning naming the dataset once at registration. Because the SLOs are designed to be set once under `runtime.params`, enable the loop per dataset with `cayenne_tuning: adaptive` on each table you want it to steer.
+
+:::
+
 | Goal | Parameter | Example |
 | --- | --- | --- |
 | End-to-end CDC replication lag | `cayenne_goal_replication_lag` | `5s` |
@@ -62,12 +68,12 @@ Scope each goal where the runtime reads it:
 - **`cayenne_goal_qph`** is **global-only**: query throughput is measured system-wide — a query spanning multiple datasets (such as a join) is counted once — so it is read only from `runtime.params`, and a value set under `acceleration.params` is ignored.
 - **`cayenne_goal_convergence_window`** (duration, default `60s`) sets the time budget the controller targets for convergence. It is a per-dataset control-cadence knob (set under `acceleration.params`) and is not part of the global SLO surface.
 
-Setting any `cayenne_goal_*` parameter implies the closed loop — a goal is inert without it — so the goals also enable `adaptive` unless you explicitly set `cayenne_tuning: auto` (in which case the goals are ignored and Cayenne logs a warning). Goal-seeking also requires a non-zero `cayenne_compaction_background_interval_ms`, like `adaptive` itself.
+Goal-seeking runs only where the closed loop runs, so it needs `cayenne_tuning: adaptive` on the dataset and — like `adaptive` itself — a non-zero `cayenne_compaction_background_interval_ms`.
 
 ```yaml
 runtime:
   params:
-    # Global SLOs — apply to every Cayenne-accelerated dataset
+    # Global SLOs — apply to every Cayenne dataset that runs the closed loop
     cayenne_goal_replication_lag: 5s
     cayenne_goal_query_latency: 250ms
     cayenne_goal_qph: 5000 # global-only — no per-dataset form
@@ -78,6 +84,8 @@ datasets:
     acceleration:
       engine: cayenne
       params:
+        # Required — without it this table runs static `auto` and the goals are ignored
+        cayenne_tuning: adaptive
         # Per-dataset override of the global query-latency SLO
         cayenne_goal_query_latency: 100ms
         cayenne_goal_convergence_window: 1m
