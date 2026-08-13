@@ -105,10 +105,21 @@ OTEL metrics will be inserted into datasets with matching names (metric name = d
 | `Gauge`                 | Yes       | Ingested as number data points.                                                                  |
 | `Sum`                   | Yes       | Ingested as number data points.                                                                  |
 | `Histogram`             | Yes       | Ingested with explicit bucket bounds and counts.                                                 |
-| `ExponentialHistogram`  | No        | Dropped, logging an unsupported metric data type error.                                          |
-| `Summary`               | No        | Dropped, logging an unsupported metric data type error.                                          |
+| `ExponentialHistogram`  | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
+| `Summary`               | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
 
-Data points for a metric with no matching writable dataset are rejected and reported back to the exporter in the OTLP partial-success response.
+### Export outcomes
+
+Data points that cannot be written — a metric with no matching writable dataset, an unsupported metric type, or a batch that fails to build — are counted and reported back to the exporter:
+
+| Export | Response |
+| ------ | -------- |
+| No data points rejected | Success. |
+| Some data points rejected | Success with `ExportMetricsPartialSuccess`, carrying `rejected_data_points` and the message `Some data points were rejected`. |
+| Every data point rejected | Fails with `INVALID_ARGUMENT` and the message `All data points were rejected`. |
+| No data points at all (e.g. only metrics carrying no data) | Success — nothing was rejected. |
+
+A metric whose existing table has more than one column of the same name (Arrow permits duplicate field names, so an attribute sharing a name with one of the metric's value columns can produce one) can never be matched by a new batch. Rather than warning on every export, the ingest fails the export with an error naming the metric, the duplicated column, and the remedy: drop and recreate that metric's dataset.
 
 ### Ingested schema
 
