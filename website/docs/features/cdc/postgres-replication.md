@@ -30,7 +30,7 @@ On first start the connector:
 3. Runs a **REPEATABLE READ snapshot** of the source table so the accelerator starts with all existing rows.
 4. Starts streaming WAL changes from the slot. Each committed transaction is delivered as a `ChangeBatch` (grouped `INSERT`/`UPDATE`/`DELETE`) and applied to the accelerator.
 
-On subsequent restarts the connector detects the existing slot and **resumes from Postgres' stored `confirmed_flush_lsn`**.
+On subsequent restarts the connector compares the slot against the position it recorded locally for this acceleration, and either resumes streaming or rebuilds the accelerated table — see [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot).
 
 ## Prerequisites
 
@@ -334,6 +334,34 @@ After removing a Spice replica, drop its slot:
 SELECT pg_drop_replication_slot('spice_users_<old-instance-hash>');
 ```
 
+### Recovering from a lost replication slot
+
+A replication slot that is dropped or invalidated takes the server-side `confirmed_flush_lsn` with it, so the source can no longer say which changes a resumed stream still owes. Spice therefore records the position **locally** as well: each dataset keeps an applied-LSN watermark — the LSN its accelerated table is complete as of — in a `spice_sys_postgres_replication` sidecar table inside its own accelerator, the same way MySQL replication uses `spice_sys_mysql_binlog`.
+
+The watermark is written by the same call that acknowledges the slot, so it can never claim rows that are not durable yet.
+
+On each start the decision is arithmetic rather than an inference:
+
+| Recorded watermark | Slot state | Action |
+| --- | --- | --- |
+| None, on an accelerator that does not survive restarts | any | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
+| None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
+| Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
+| Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
+| Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
+
+A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
+
+:::note Why a rebuild rather than another snapshot
+
+A snapshot bootstrap emits only insert events, and nothing clears a durable accelerated table first — so re-snapshotting over the existing rows is an upsert merge. A row deleted at the source while the slot was gone has no change event left to replay, and would survive in the acceleration and be returned by every later query. Rebuilding re-reads the table instead.
+
+:::
+
+The first start after upgrading a durable `refresh_mode: changes` dataset to a version that records watermarks has no recorded position, so it rebuilds once and records one from then on.
+
+If a durable acceleration has nowhere to record a watermark, Spice logs a warning at startup naming the dataset: slot loss cannot be detected for it, and rows deleted at the source while the slot was gone would survive in the acceleration.
+
 ### Rebuilding an accelerator from scratch
 
 Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop the replication slot. On next start, Spice will create a fresh slot, snapshot the table, and resume streaming.
@@ -341,7 +369,8 @@ Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop
 ### Resilience
 
 - **Network blips / Postgres restarts**: transient — retried with exponential backoff (500 ms → 30 s, ±20 % jitter). The slot's server-side state is the source of truth, so reconnects resume from the last acknowledged LSN — no data loss.
-- **Auth failures, missing slot, schema mismatch**: fatal — surfaced as a stream-level error so operators can fix the configuration.
+- **Dropped or invalidated slot**: recovered automatically — the acceleration is rebuilt from the source rather than resumed on a gap. See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot).
+- **Auth failures, schema mismatch**: fatal — surfaced as a stream-level error so operators can fix the configuration.
 - **Watch `dataset_postgres_replication_reconnects_total`** to detect flaky networks.
 
 ## Metrics
@@ -376,6 +405,7 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
+| The whole table is re-read on a restart that used to resume                  | The slot's WAL no longer reaches the recorded position, or none was recorded (first start after an upgrade). See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
 | `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
