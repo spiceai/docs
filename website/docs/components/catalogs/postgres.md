@@ -212,7 +212,17 @@ Patterns match the qualified '<schema>.<table>' name, so an unqualified pattern 
 'orders' never matches — write 'public.orders' (or 'public.*') instead.
 ```
 
-The most common cause is an unqualified pattern: patterns are matched against `<schema>.<table>`, so `orders` never matches and `public.orders` does. If no `include`/`exclude` is configured at all, the warning instead points at the connecting role's `SELECT` and `USAGE` grants, since an empty catalog then means the role cannot see any table.
+The warning names the cause it can distinguish:
+
+- **Patterns matched nothing** (above). The most common reason is an unqualified pattern: patterns are matched against `<schema>.<table>`, so `orders` never matches and `public.orders` does.
+- **No patterns are configured**, in which case the warning points at the connecting role's `SELECT` and `USAGE` grants instead, since an empty catalog then means the role cannot see any table.
+- **Tables matched but none could be registered** — each failure is logged individually first, and the summary says so rather than blaming the configuration:
+
+  ```
+  PostgreSQL catalog pg registered no tables, so queries against it will not resolve any table.
+  3 table(s) matched, but none could be registered — the errors logged above this name the
+  tables that failed and why.
+  ```
 
 The warning is logged when the catalog *becomes* empty rather than on every cycle, so a catalog that is legitimately empty for a while does not fill the log.
 
