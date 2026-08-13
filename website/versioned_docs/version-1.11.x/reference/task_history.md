@@ -14,7 +14,7 @@ For configuration options, see the [`runtime.task_history` reference](./spicepod
 
 ## Configuration
 
-Task history is enabled by default with a 30-minute retention period. To adjust retention and other settings, configure the `runtime.task_history` section in `spicepod.yaml`:
+Task history is enabled by default and retains records for 8 hours. To adjust retention and other settings, configure the `runtime.task_history` section in `spicepod.yaml`:
 
 ```yaml
 runtime:
