@@ -54,7 +54,9 @@ catalogs:
 
 When multiple datasets or catalog-discovery paths target the same SQL Warehouse (same `endpoint` + `sql_warehouse_id`), a single concurrency semaphore is shared across all of them. The `max_concurrent_requests` limit is enforced globally for that warehouse, not per dataset or per catalog.
 
-The `max_concurrent_requests` value only needs to be set on one dataset or catalog entry for a given warehouse — other components targeting the same warehouse that omit the parameter will share the same semaphore with the configured limit. If multiple components explicitly set `max_concurrent_requests`, the values must match; conflicting values are treated as a configuration error.
+Every dataset and catalog entry that targets the same warehouse must resolve to the **same** `max_concurrent_requests` value. A component that omits the parameter resolves to the default `8`, so setting a non-default limit on one entry and leaving it off another is itself a conflict — set the same value on every component that shares the warehouse.
+
+A mismatch fails at load with an error naming the requested and existing limits (`Conflicting Databricks SQL Warehouse concurrency limits for endpoint ... requested 4, existing 8`). A value of `0` or a non-numeric value is not applied: the runtime logs a warning and uses the default `8`.
 
 ### Permanent-Disable Behavior
 
