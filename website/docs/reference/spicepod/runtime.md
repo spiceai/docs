@@ -431,6 +431,7 @@ runtime:
 | -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`                  | Yes      | Defaults to `true`.                                                                                                                                          |
 | `captured_output`          | Yes      | Specifies the level of output captured by the task history table. Defaults to `none`.                                                                        |
+| `captured_context`         | Yes      | Controls how much of the `input` and `captured_output` payload is stored for AI and search tasks. Options: `truncated` (default), `redacted`, or `full`. Values are case-sensitive. |
 | `captured_plan`            | Yes      | Controls SQL query plan capture. Options: `none` (default), `explain`, or `explain analyze`. Query plans are captured asynchronously after query completion. |
 | `min_sql_duration`         | Yes      | Minimum query execution duration before a plan is captured. Only queries exceeding this threshold are captured. Example: `5s`.                               |
 | `min_plan_duration`        | Yes      | Minimum plan execution duration before a plan is captured. This threshold applies to the execution time of the `EXPLAIN` operation itself. Example: `10s`.   |

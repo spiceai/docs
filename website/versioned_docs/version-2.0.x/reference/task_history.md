@@ -27,10 +27,33 @@ runtime:
 
 - **`enabled`**: Enable or disable task history. Defaults to `true`.
 - **`captured_output`**: Level of output captured. Defaults to `none`.
+- **`captured_context`**: How much of the AI and search task payload is stored. Defaults to `truncated`. See [Captured context](#captured-context).
 - **`retention_period`**: How long records are retained. Defaults to `8h`. Longer retention periods increase memory usage.
 - **`retention_check_interval`**: How often old records are checked for removal. Defaults to `15m`.
 
 For the full list of parameters, see the [`runtime.task_history` reference](./spicepod/runtime#runtimetask_history).
+
+## Captured Context
+
+Tasks that carry user or model content — `ai_chat`, `ai_completion`, `responses`, `text_embed`, `search`, `nsql`, `scheduled_worker`, and every `tool_use::*` task — store that content in the `input` and `captured_output` columns. `captured_context` controls how much of it is written:
+
+```yaml
+runtime:
+  task_history:
+    captured_context: redacted
+```
+
+| Value                 | Behavior                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `truncated` (default) | Payloads longer than 4096 characters are cut at that point and suffixed with `...[truncated]`. |
+| `redacted`            | The payload is replaced with `[redacted]`.                                                    |
+| `full`                | The payload is stored in full.                                                                |
+
+Values are case-sensitive; an unrecognized value fails at load. Other task types (for example `sql_query` and `accelerated_refresh`) are unaffected by this setting.
+
+:::note
+`captured_context` shapes prompt, tool, and search payloads only. Whether task output is recorded at all is controlled separately by `captured_output`, which defaults to `none`.
+:::
 
 ## Querying Task History
 
