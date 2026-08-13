@@ -173,15 +173,24 @@ The catalog is discovered once when the runtime starts, and then re-discovered e
 
 Each cycle re-runs discovery from scratch, so schema changes at the source are picked up without restarting Spice: newly created tables and schemas appear, dropped ones disappear, and column additions, removals, and type changes are reflected when the table's schema is re-read. A source DDL change therefore becomes visible in Spice within roughly one refresh interval — up to about 60 seconds, plus the time the refresh itself takes.
 
+A **renamed** table (`ALTER TABLE … RENAME`) is seen as a removal plus an addition, because each cycle rebuilds the catalog from what the source reports rather than tracking identity across cycles. After the next refresh the old name no longer resolves and the new name is queryable, carrying the same rows. Nothing is preserved across the rename: a query that names the old table fails from the moment the refresh completes.
+
 ### Source metadata load
 
 Because every cycle re-discovers the catalog, the metadata load on the source database scales with catalog size rather than with query volume. Each refresh issues:
 
 - One query to enumerate non-system schemas.
-- Per schema: one query for its relations (`pg_catalog.pg_class`), one for foreign-key constraints, and one for table and column comments.
-- Per selected table: one lookup to read its columns and build its Arrow schema.
+- One query to identify the server, so PostgreSQL-compatible variants such as Amazon Redshift are handled correctly.
+- Per schema that `include` can reach: one query for its relations (`pg_catalog.pg_class`), one for foreign-key constraints, one for table and column comments, and one that reads the columns of every selected table in that schema at once.
 
-Use `include`/`exclude` to narrow the catalog on large databases. Filtered-out tables are skipped before their per-table schema lookup, so tighter patterns directly reduce the per-cycle query count. Note that `include`/`exclude` filter tables, not schemas — every non-system schema is still enumerated, so the per-schema queries are unaffected.
+Use `include`/`exclude` to narrow the catalog on large databases. Tighter patterns reduce the per-cycle query count in two ways:
+
+- A schema that no `include` pattern can match is skipped without being interrogated at all — it is still registered, empty, because that is what interrogating it would have produced.
+- Within a schema that is interrogated, only the selected tables have their columns read.
+
+As a measure of the effect, a database of 100 schemas × 10 tables where `include` selects a single schema is discovered in **6 queries per cycle**.
+
+The column lookup is a per-schema batch on PostgreSQL. On Amazon Redshift it falls back to one lookup per table, because Redshift's `SHOW COLUMNS` cannot describe several relations in a single statement.
 
 ### Refresh failures
 
@@ -191,6 +200,23 @@ Failure is handled differently at initial load than on a later refresh cycle:
 - **Later refresh cycles** — a failure is logged at `ERROR` and the catalog keeps serving its last-known-good state until a subsequent cycle succeeds. The schema map is replaced atomically at the end of a cycle, so queries never observe a partially-refreshed catalog.
 
 Failures isolated to a single schema are handled per-schema rather than failing the whole cycle — see [Limitations](#limitations).
+
+### When no tables are selected
+
+A federated catalog that selects no tables still loads and reports ready — it is a valid state, since a catalog can be configured before the tables it names exist. Because that is indistinguishable from success until a query fails with "table not found", the runtime logs a warning naming the catalog and the patterns that matched nothing:
+
+```
+PostgreSQL catalog pg registered no tables, so queries against it will not resolve any table.
+None of the tables in the 2 schema(s) it discovered matched include: ['public.orders'].
+Patterns match the qualified '<schema>.<table>' name, so an unqualified pattern such as
+'orders' never matches — write 'public.orders' (or 'public.*') instead.
+```
+
+The most common cause is an unqualified pattern: patterns are matched against `<schema>.<table>`, so `orders` never matches and `public.orders` does. If no `include`/`exclude` is configured at all, the warning instead points at the connecting role's `SELECT` and `USAGE` grants, since an empty catalog then means the role cannot see any table.
+
+The warning is logged when the catalog *becomes* empty rather than on every cycle, so a catalog that is legitimately empty for a while does not fill the log.
+
+An **accelerated** catalog treats this as a permanent misconfiguration instead: with no eligible tables it fails to register, with status `Error`, and is not retried. See [Table eligibility](#table-eligibility).
 
 ## Catalog-Level CDC Acceleration
 
