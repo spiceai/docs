@@ -26,6 +26,16 @@ Supported models include:
 - All models tagged as [text-embeddings-inference](https://huggingface.co/models?other=text-embeddings-inference) on Huggingface
 - Any Huggingface repository with the correct files to be loaded as a [local embedding model](local).
 
+## Model Weights
+
+Spice downloads the repository's `safetensors` weights. When a repository publishes none, it falls back to `pytorch_model.bin` and logs a warning at startup:
+
+```text
+safetensors weights not found; falling back to `pytorch_model.bin`. Model loading is significantly slower.
+```
+
+A repository that publishes neither format fails to load. Prefer a repository with `safetensors` weights where one is available.
+
 With the same semantics as [language models](../models/huggingface#access-tokens), `spice` can run private HuggingFace embedding models:
 
 ```yaml
