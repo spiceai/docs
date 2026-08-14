@@ -248,6 +248,40 @@ functions:
 
 Calling `SELECT * FROM hn_user('pg')` resolves the `(SELECT username FROM args)` subquery to the literal `'pg'` before planning, so the resulting `WHERE request_path = '/users/pg'` predicate is pushed down to the HTTP connector.
 
+### Wrapping search functions
+
+A SQL table function can wrap the [search functions](../../reference/sql/search) — [`vector_search()`](../../reference/sql/search#vector-search-vector_search), [`text_search()`](../../reference/sql/search#full-text-search-text_search), and either of them nested inside [`rrf()`](../../reference/sql/search#reciprocal-rank-fusion-rrf) — passing its own argument through as the search query. This packages a hybrid-search query as one named, callable function:
+
+```yaml
+functions:
+  - name: search_cookbook
+    from: sql
+    kind: table
+    description: Hybrid search over the cookbook.
+    signature:
+      args:
+        - { name: q, type: utf8 }
+      returns:
+        - { name: path, type: utf8 }
+        - { name: content, type: utf8 }
+    body: |
+      SELECT path, content
+      FROM rrf(
+        vector_search(cookbook_files, q),
+        text_search(cookbook_files, q, content)
+      )
+```
+
+```sql
+SELECT * FROM search_cookbook('how does hybrid search work') LIMIT 10;
+```
+
+Search functions need their query as a string literal while the plan is being built, which is earlier than the `args` table can supply a value. The runtime handles this by substituting the literal into the search function's query position before the body is planned. What that supports, and what it does not:
+
+- **The argument must be a declared `utf8` argument, referenced by name.** `vector_search(docs, q)` resolves; an expression built from one — `vector_search(docs, concat(q, ' docs'))` — is not rewritten, and planning still rejects it with `Second argument must be a query string`. Compose the query text in the caller instead.
+- **Both positional and `query =>` forms work.** `text_search(docs, query => q, column => body)` is accepted; the named query argument is moved into the second positional slot, which is where every search function reads it from.
+- **Only the query position is rewritten.** Every other reference to a function argument in the body — a `WHERE` predicate, a `LIMIT`, a join key — still goes through the `args` table as described above.
+
 ## Volatility
 
 Volatility tells the optimizer how the function behaves across calls. Pick the strongest level that's actually true — the default (`volatile`) is the safest but disables constant folding, query-level caching, and pushdown.
