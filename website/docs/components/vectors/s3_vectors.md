@@ -42,8 +42,8 @@ embeddings:
 | `s3_vectors_aws_secret_access_key` | Optional. The secret access key for the S3 vectors index. If not specified, credentials will be loaded from the environment.                                                | -                                                                                    |
 | `s3_vectors_aws_session_token`     | Optional. Session token for the S3 vectors index.                                                                                                                           | -                                                                                    |
 | `s3_vectors_batch_write_rows`      | Optional. Number of rows each record batch is chunked into when writing vectors, to control memory usage during writes. Default `100000`. | `100000` |
-| `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn` | `a-bucket`                                                                           |
-| `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`.                                                                                      | `index-of-important-embeddings`                                                      |
+| `s3_vectors_bucket`                | The S3 vectors bucket to use. If `s3_vectors_index` is not specified, an index will be created based on the underlying embedding column. Incompatible with `s3_vectors_arn`. Provided to AWS verbatim — see [Index Naming](#bucket-and-index-naming). | `a-bucket`                                                                           |
+| `s3_vectors_index`                 | The name of the s3 vectors index to use or create. Incompatible with `s3_vectors_arn`. Provided to AWS verbatim — see [Index Naming](#bucket-and-index-naming).                          | `index-of-important-embeddings`                                                      |
 | `s3_vectors_distance_metric`       | The distance metric to be used for similarity search. One of: `euclidean`, `cosine`. Default `cosine`.                                                                      | `euclidean`                                                                          |
 | `s3_vectors_index_poll_interval`   | The interval to poll for index updates to avoid excessive API calls. Minimum 5 seconds. Default is to poll on every scan.                                                   | `5m`                                                                                 |
 | `s3_vectors_spill_writes`          | Optional. When `true`, writes that exceed S3 Vectors rate limits spill to a separate physical index, which is also queried at read time. Ignored, with a warning, when `partition_by` is set. Default `false`. | `true` |
@@ -220,6 +220,12 @@ ORDER BY combined_score DESC
 LIMIT 5;
 ```
 
+## Bucket and Index Naming
+
+For S3 vector bucket and index names, AWS allows only lowercase letters, numbers, and hyphens. A name must also be 3 to 63 characters long. 
+
+When not provided, Spice normalizes the index names it generates, but it passes `s3_vectors_bucket` and an explicit `s3_vectors_index` to AWS unchanged. As a result, invalid names will be rejected.
+
 ## Index Partitioning
 S3 Vectors indexes can be partitioned using an arbitrary logical expression. This enables Spice to compose many actual vector indexes as one logical vector index, enabling elastic scalability for vector storage.
 
@@ -233,7 +239,7 @@ vectors:
     - 'bucket(50, PULocationID)'
 ```
 
-This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generate partition-specific names.
+This example uses a `bucket` user-defined function (UDF) to hash the `PULocationID` column and split the associated vectors into one of 50 partitioned indexes. The runtime will use the `s3_vectors_index` parameter as a prefix and generate partition-specific names. The prefix is normalized (`_` and `.` become `-`) and truncated to 45 characters to leave room for the partition suffix within the S3 Vectors 63-character index-name limit — see [Index Naming](#bucket-and-index-naming).
 
 :::warning[Limitations]
 
