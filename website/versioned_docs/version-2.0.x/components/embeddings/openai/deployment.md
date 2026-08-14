@@ -57,9 +57,10 @@ Large embedding jobs are transparently split across multiple API calls.
 
 Embeddings retry with fibonacci backoff, up to **10 retries**. Retriable conditions:
 
-- HTTP 429 (rate limit, throttling)
-- HTTP 500, 503 (transient server errors)
-- Transient `reqwest` errors (connect failures, timeouts)
+- An OpenAI API error carrying code `429` (rate limit, throttling), `500`, or `503` — or no code at all
+- A transport-level response with status `429`, `500`, `502`, `503`, or `504`
+- Transient `reqwest` errors (connect failures, timeouts, request/body errors)
+- Malformed response bodies that fail JSON deserialization
 
 Throttling (429 with rate-limit body) is detected explicitly and surfaces as a structured rate-limit error after retries are exhausted.
 
@@ -104,7 +105,7 @@ Embedding request operations emit `text_embed` spans in [task history](../../../
 | Symptom                                  | Likely cause                                            | Resolution                                                                                                       |
 | ---------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized`                       | Wrong / revoked API key.                                | Rotate the key; update the secret store.                                                                         |
-| Sustained `429 rate_limit_exceeded`      | Tier budget too low or burst exceeds concurrency.       | Raise `openai_usage_tier`, reduce `max_concurrency`, or upgrade the OpenAI tier.                                 |
+| Sustained `429 rate_limit_exceeded`      | Tier budget too low or burst exceeds concurrency.       | Raise `openai_usage_tier` to match the account's actual tier, or upgrade the OpenAI tier. Embeddings have no per-model concurrency override — the tier is the only knob. |
 | `400` with "maximum context length"      | Input exceeds model context window.                     | Truncate or chunk inputs at the caller.                                                                          |
 | Embeddings much slower than expected     | Single-threaded caller, no batching.                    | Batch inputs; the client chunks into 256-input / 512 KiB batches but the caller must parallelize embedding jobs. |
 | Latency spikes every few hundred requests | Transient 429 with fibonacci backoff recovering.        | Expected at tier ceiling; raise tier or reduce load.                                                             |

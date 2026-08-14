@@ -17,13 +17,19 @@ Production operating guide for the OpenAI embedding provider (and OpenAI-compati
 
 | Parameter                                 | Description                                                                                                                |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `openai_api_key` / `api_key`              | OpenAI API key. Use `${secrets:...}` to resolve from a configured secret store.                                             |
-| `openai_org_id` / `org_id`                | OpenAI organization ID (optional).                                                                                          |
-| `openai_project_id` / `project_id`        | OpenAI project ID (optional).                                                                                               |
-| `openai_usage_tier` / `usage_tier`        | OpenAI account [usage tier](https://platform.openai.com/settings/organization/limits).                                      |
+| `openai_api_key`                          | OpenAI API key. Use `${secrets:...}` to resolve from a configured secret store.                                             |
+| `openai_org_id`                           | OpenAI organization ID (optional).                                                                                          |
+| `openai_project_id`                       | OpenAI project ID (optional).                                                                                               |
+| `openai_usage_tier`                       | OpenAI account [usage tier](https://platform.openai.com/settings/organization/limits). Defaults to `tier1`.                  |
 | `endpoint`                                | Endpoint override. Defaults to `https://api.openai.com/v1`. Set for OpenAI-compatible providers (Azure OpenAI, etc.).       |
 
-API keys must be sourced from a [secret store](../../secret-stores/) in production. Aliases exist for credential parameters: `api_key` ↔ `openai_api_key`, `org_id` ↔ `openai_org_id`, etc.
+API keys must be sourced from a [secret store](../../secret-stores/) in production.
+
+:::warning[Credential parameters require the openai_ prefix]
+
+`openai_api_key`, `openai_org_id`, `openai_project_id`, and `openai_usage_tier` are only read under their prefixed names. An unprefixed `api_key`, `org_id`, `project_id`, or `usage_tier` is discarded with an `Ignoring parameter ...: must be prefixed with 'openai_'` warning at load time — the embedding model then starts with no credential and fails authentication at first use. `endpoint` is the one parameter that must **not** be prefixed.
+
+:::
 
 ### OpenAI-Compatible Providers
 
@@ -57,9 +63,10 @@ Large embedding jobs are transparently split across multiple API calls.
 
 Embeddings retry with fibonacci backoff, up to **10 retries**. Retriable conditions:
 
-- HTTP 429 (rate limit, throttling)
-- HTTP 500, 503 (transient server errors)
-- Transient `reqwest` errors (connect failures, timeouts)
+- An OpenAI API error carrying code `429` (rate limit, throttling), `500`, or `503` — or no code at all
+- A transport-level response with status `429`, `500`, `502`, `503`, or `504`
+- Transient `reqwest` errors (connect failures, timeouts, request/body errors)
+- Malformed response bodies that fail JSON deserialization
 
 Throttling (429 with rate-limit body) is detected explicitly and surfaces as a structured rate-limit error after retries are exhausted.
 
@@ -104,7 +111,7 @@ Embedding request operations emit `text_embed` spans in [task history](../../../
 | Symptom                                  | Likely cause                                            | Resolution                                                                                                       |
 | ---------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized`                       | Wrong / revoked API key.                                | Rotate the key; update the secret store.                                                                         |
-| Sustained `429 rate_limit_exceeded`      | Tier budget too low or burst exceeds concurrency.       | Raise `openai_usage_tier`, reduce `max_concurrency`, or upgrade the OpenAI tier.                                 |
+| Sustained `429 rate_limit_exceeded`      | Tier budget too low or burst exceeds concurrency.       | Raise `openai_usage_tier` to match the account's actual tier, or upgrade the OpenAI tier. Embeddings have no per-model concurrency override — the tier is the only knob. |
 | `400` with "maximum context length"      | Input exceeds model context window.                     | Truncate or chunk inputs at the caller.                                                                          |
 | Embeddings much slower than expected     | Single-threaded caller, no batching.                    | Batch inputs; the client chunks into 256-input / 512 KiB batches but the caller must parallelize embedding jobs. |
 | Latency spikes every few hundred requests | Transient 429 with fibonacci backoff recovering.        | Expected at tier ceiling; raise tier or reduce load.                                                             |
