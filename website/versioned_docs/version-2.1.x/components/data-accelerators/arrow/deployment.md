@@ -28,7 +28,7 @@ The Arrow accelerator is **not durable**. Data is held in RAM and is lost on pro
 ## Capacity & Sizing
 
 - **Memory**: Plan for 1.0–1.5× the raw row-oriented size of the source data, plus overhead for string dictionaries. Use the source connector's schema and row count to estimate.
-- **Hash index**: Optional. Activated automatically when a `primary_key` (or secondary `indexes` entry) is configured, building a hash map over the indexed columns. Build time scales linearly with rows; memory overhead is approximately 24–48 bytes per row plus the key size.
+- **Hash index**: Optional. Activated automatically when a `primary_key` (or secondary `indexes` entry) is configured, building a hash map over the indexed columns. Build time scales linearly with rows. The index stores no key bytes — only a 16-byte slot per entry (8-byte hash + packed 8-byte row location) plus roughly 1.25 bytes of bloom filter — so budget from the entry count, not the key width. Reported usage tracks allocated slot capacity, which exceeds the live entry count, so plan above the ~17 bytes/row floor.
 - **Startup cost**: Full-dataset materialization happens on startup. For tables larger than ~1 GB, consider a durable accelerator to avoid repeated full refresh on every restart.
 
 ## Metrics
