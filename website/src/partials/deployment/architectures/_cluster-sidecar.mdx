@@ -51,7 +51,7 @@ The most important property of the sidecar is isolation, not just latency. The s
 - **Scoped working set.** A sidecar's `spicepod.yaml` declares exactly which datasets, views, and search indices the application may query. Anything not declared is physically absent from the catalog — not filtered by a policy, not hidden by a row-level rule. Compare this with row-level security, where the underlying data is still present and a single policy misconfiguration can expose it. Even a perfectly crafted prompt injection cannot query a table that is not in the catalog.
 - **No origin credentials in the application.** The application connects to its sidecar with a local token. The sidecar connects to the cluster over Arrow Flight. Only the cluster holds credentials for Postgres, Snowflake, Databricks, S3, Kafka, and the rest. Compromising an application pod cannot leak origin credentials, because the pod never had them.
 - **Narrow network surface.** The application's only outbound data dependency is the loopback interface. Network policy can pin the sidecar's egress to the cluster endpoint only.
-- **Per-application data views.** Sidecars can be specialized per application class or per tenant. A customer-service agent, a fraud-review agent, and an internal dashboard can each run with different spicepods pointing at different slices of the same cluster. This is physical isolation, not policy-based filtering on a shared database. See [Multi-Tenant AI Agents](https://spiceai.org/docs/use-cases/ai/multi-tenant-agents).
+- **Per-application data views.** Sidecars can be specialized per application class or per tenant. A customer-service agent, a fraud-review agent, and an internal dashboard can each run with different spicepods pointing at different slices of the same cluster. This is physical isolation, not policy-based filtering on a shared database. See [Multi-Tenant AI Agents](/docs/use-cases/ai/multi-tenant-agents).
 - **Bounded resource use.** A rogue query plan or runaway loop exhausts the sidecar's local memory and CPU budget, not the cluster's and not the origin database's.
 - **Local inference.** Sidecars can serve [LLM inference and tool calls](../../features/large-language-models) on loopback so sensitive prompts and retrieved context stay in the pod. Heavier models can still be routed to the cluster.
 - **One audit point.** Every query, search, and inference call flows through the sidecar, so there is one place to log, rate-limit, and enforce policy.
@@ -109,7 +109,7 @@ This avoids snapshot conflicts, keeps the cluster as the authoritative refresh p
 
 Use DuckDB or SQLite in `mode: file` on the sidecar when snapshots are in play — snapshots persist and restore the acceleration file itself. Heavyweight [Cayenne](../../components/data-accelerators/cayenne) acceleration stays on the cluster.
 
-For production Spicepod and Helm reference configurations, see [Read/Write Separation](https://spiceai.org/docs/deployment/read-write-separation).
+For production Spicepod and Helm reference configurations, see [Read/Write Separation](/docs/deployment/read-write-separation).
 
 ### Cache coherency is a refresh policy, not a protocol
 
@@ -271,10 +271,10 @@ The same pattern — single ingestion path, per-pod sandboxing, tiered latency, 
 ## See also
 
 - [Localhost Latency at Scale: The Spice Cluster-Sidecar Architecture](https://spice.ai/blog/cluster-sidecar-architecture) — engineering walkthrough, request-path example, and FAQ.
-- [Read/Write Separation](https://spiceai.org/docs/deployment/read-write-separation) — production guide for splitting ingest from reads using shared acceleration snapshots, including Spicepod and Helm reference configurations.
+- [Read/Write Separation](/docs/deployment/read-write-separation) — production guide for splitting ingest from reads using shared acceleration snapshots, including Spicepod and Helm reference configurations.
 - [Spice.ai Data Connector](../../components/data-connectors/spiceai) — how sidecars federate to a cluster or to Spice Cloud over Arrow Flight.
 - [Caching](../../features/caching) — results cache, stale-while-revalidate, and `Cache-Control`.
 - [Acceleration Snapshots](../../features/data-acceleration/snapshots) — warm-start file-mode accelerations from object storage.
 - [Distributed Query](../../features/distributed-query) — Apache Ballista schedulers and executors on the cluster.
 - [Spice Cayenne](../../components/data-accelerators/cayenne) — cluster-side acceleration for datasets beyond 1 TB.
-- [Multi-Tenant AI Agents](https://spiceai.org/docs/use-cases/ai/multi-tenant-agents) — per-tenant isolation patterns that pair with this architecture.
+- [Multi-Tenant AI Agents](/docs/use-cases/ai/multi-tenant-agents) — per-tenant isolation patterns that pair with this architecture.
