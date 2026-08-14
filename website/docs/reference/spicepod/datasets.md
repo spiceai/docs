@@ -1030,7 +1030,9 @@ Optional. If provided, a vector engine (see [below](#vectors)) should store this
 - `non-filterable`: Store the column in the vector engine.
 - `filterable`: Store the column in the vector engine, and ensure the engine can filter on the column (if possible in the engine).
 
-Only applicable if `vectors.enabled` is both defined and `true`.
+For the vector engine, only applicable if `vectors.enabled` is both defined and `true`.
+
+The distinction between the two values is the vector engine's. When the dataset also has a [full-text search index](../../features/search/full-text), either value carries the column into that index, where it is returned by searches and [filterable](../sql/search#full-text-filter-pushdown) — whether or not a vector engine is configured. A column whose type the full-text index cannot represent (a date or timestamp) is skipped there, with a warning logged at startup.
 
 ## `embeddings`
 

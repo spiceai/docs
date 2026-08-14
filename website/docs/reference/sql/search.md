@@ -113,6 +113,23 @@ LIMIT 5;
 
 By default, `text_search` retrieves up to 1000 results. To request fewer, specify a smaller `limit`.
 
+#### Filter Pushdown {#full-text-filter-pushdown}
+
+With the built-in Tantivy engine, `WHERE` predicates on columns carried in the full-text index are pushed into the index scan as **pre-filters** — they are applied before the top-K limit, so the results are the top-K _within the filtered set_ rather than the filtered remainder of an unfiltered top-K. A predicate the index cannot apply is left to Spice's query engine above the scan, and one the index applies only approximately is re-checked there, so results are the same either way; only how many rows survive the limit changes.
+
+```sql
+-- state and additions are applied inside the index, before the limit of 5
+SELECT id, title, score
+FROM text_search(doc.pulls, 'search keywords', body, 5)
+WHERE state = 'open' AND additions > 100;
+```
+
+Filterable columns are the dataset's primary key (or [`full_text_search.row_id`](../spicepod/datasets#columnsfull_text_searchrow_id)) and any column declared with [`metadata.vectors`](../spicepod/datasets#columnsmetadatavectors), whose values are carried into the index alongside the searched text. Columns of a type the index cannot represent — dates and timestamps — are skipped, with a warning logged at startup naming the column.
+
+Predicates that push down: `=`, `!=`, `<`, `<=`, `>`, `>=`, `BETWEEN`, `IN`, a prefix `LIKE 'x%'` on a string column, and `AND` / `OR` / `NOT` combinations of them. Predicates that do not, and are applied above the scan instead: anything on the searched text column itself (it is tokenized), on a floating-point column, or on a binary column; a case-insensitive or negated `LIKE`; an `IN` list containing `NULL`; and any comparison whose operands are not a column and a literal.
+
+The Tantivy warm tier used with [`engine: elasticsearch`](../../features/search/full-text#warm-tier) is built without those extra columns — its schema is the primary key and `_score` alone — so only primary-key predicates push into it.
+
 #### Example
 
 ```sql
