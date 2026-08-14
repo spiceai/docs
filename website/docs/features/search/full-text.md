@@ -87,6 +87,29 @@ A persisted index records the schema it was built with, and that schema is what 
 
 `index_store: memory` is never affected — it rebuilds from scratch on every start and so always matches the configuration.
 
+### Filtering on other columns
+
+Beyond the indexed text, the built-in index also carries the dataset's primary key (or `row_id`) and every column declared with [`metadata.vectors`](../../reference/spicepod/datasets.md#columnsmetadatavectors). Those columns are returned by searches and can be filtered on, and a `WHERE` predicate over them is applied **inside** the index scan — before the search's row limit, so a filtered search returns the best matches among the rows that pass the filter rather than whatever survives filtering the unfiltered top matches:
+
+```yaml
+columns:
+  - name: body
+    full_text_search:
+      enabled: true
+      row_id:
+        - id
+  - name: state
+    metadata:
+      vectors: filterable
+```
+
+```sql
+SELECT id, score FROM text_search(doc.pulls, 'search keywords', body, 5)
+WHERE state = 'open';
+```
+
+A column whose type the index cannot represent — a date or timestamp — is skipped when the index is built, with a warning naming the column; predicates on it are applied above the scan as before. See [Filter Pushdown](../../reference/sql/search#full-text-filter-pushdown) for the full set of predicates the index applies.
+
 ## Using Elasticsearch as the FTS Engine
 
 To use Elasticsearch instead of the built-in Tantivy engine, add a dataset-level `full_text_search` block with `engine: elasticsearch` and the connection parameters:
