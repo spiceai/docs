@@ -127,6 +127,8 @@ body: |
 
 The body can call any DataFusion built-in scalar function (math, string, datetime, JSON, regex, etc.).
 
+A table function body may also call the [search functions](../sql/search) — `vector_search()`, `text_search()`, or either nested in `rrf()` — with one of the function's own `utf8` arguments as the search query. Those arguments are substituted as literals before the body is planned rather than being read from the `args` table; see [Wrapping search functions](../../features/functions#wrapping-search-functions).
+
 Mutually exclusive with `body_ref`. Must not be set for non-SQL `from:` schemes.
 
 ### `body_ref`
