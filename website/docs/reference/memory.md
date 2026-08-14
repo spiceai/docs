@@ -94,6 +94,13 @@ Two consequences follow:
 
 The runtime accounts for this when deriving its own defaults: the query memory limit is reduced by the per-dataset reservations so the pools plus the caches fit within the memory the process may use. Explicitly configured limits are honored as-is and are **not** reduced, so a hand-set `runtime.query.memory_limit` is the one case where the total can be over-committed. Per-dataset caps sized in isolation still add up, and the aggregate is what the kernel makes its OOM decision on.
 
+#### Accelerated catalogs
+
+An [accelerated catalog](./spicepod/catalogs#acceleration) creates a Cayenne table for every table it discovers, so each of those tables carries the same per-table allocations as one configured by hand. Two properties follow from the catalog being configuration rather than an enumeration:
+
+- **The projected reservation counts one table's worth per catalog, not one per discovered table.** How many tables a catalog will accelerate is not knowable before the connector connects, so the projection the runtime derives its defaults from is a **floor** — it leaves the query pool larger than the discovered tables warrant. Size a catalog-backed deployment from the table count you expect it to discover rather than from the projection.
+- **A catalog always reaches the in-memory CDC tier.** `changes` is the only refresh mode catalog acceleration accepts, so a Spicepod whose only Cayenne acceleration is a catalog gets the reduced query pool and the compaction carve described in [How the Runtime Partitions Memory](#how-the-runtime-partitions-memory), exactly as a CDC-accelerated dataset does.
+
 ## Sizing a Non-Production Environment
 
 A common approach to staging is to take the production configuration and scale every number down by the ratio of data volume — a tenth of the data, a tenth of the memory. Because the baseline does not scale, this does not produce a smaller model of production. It produces a **different regime**, in which the baseline dominates, the working set is squeezed into whatever is left, and behavior no longer predicts what production will do.
@@ -252,7 +259,7 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 
 ### How the Runtime Partitions Memory
 
-When the limit is left unset, the runtime divides the memory the process may use into a partition that is designed to sum to 100%. Which partition applies depends on whether Cayenne's in-memory CDC tier is reachable:
+When the limit is left unset, the runtime divides the memory the process may use into a partition that is designed to sum to 100%. Which partition applies depends on whether Cayenne's in-memory CDC tier is reachable — which the runtime decides from every Cayenne acceleration the Spicepod declares, on a dataset, a view, or a [catalog](./spicepod/catalogs#acceleration):
 
 | Slice                             | Standard deployment | Cayenne CDC active |
 | --------------------------------- | ------------------- | ------------------ |
