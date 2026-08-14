@@ -39,8 +39,8 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | ---------------------------------- | --------- | --------------------------------------------------------- |
 | `hash_index_builds`                | Counter   | Total hash-index builds (one per refresh).                |
 | `hash_index_build_duration_ms`     | Histogram | Time to build the hash index.                             |
-| `hash_index_entries`               | Gauge     | Number of entries in the index.                           |
-| `hash_index_memory_bytes`          | Gauge     | Approximate memory footprint of the index.                |
+| `hash_index_entries`               | Histogram | Number of entries in the index.                           |
+| `hash_index_memory_bytes`          | Histogram | Approximate memory footprint of the index.                |
 | `hash_index_lookups`               | Counter   | Total hash-index lookups performed by queries.            |
 | `hash_index_lookup_rows`           | Counter   | Total rows returned via hash-index lookups.               |
 

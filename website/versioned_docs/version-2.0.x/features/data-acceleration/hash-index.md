@@ -18,7 +18,6 @@ The hash index is an optional, high-performance indexing feature for Arrow-accel
 - **256-Shard Design**: Minimizes lock contention for concurrent reads
 - **SIMD-Optimized Hashing**: Uses XXH3_64 for fast, high-quality hashing
 - **Built-in Bloom Filter**: Fast negative lookups to skip unnecessary hash table probes
-- **Auto-Threshold**: Index is only built when data size exceeds a minimum threshold
 
 ## Configuration
 
@@ -133,23 +132,9 @@ SELECT * FROM my_dataset WHERE region = 'US' AND customer_id = 42;
 SELECT * FROM my_dataset WHERE status = 'active';
 ```
 
-## Index Threshold
+## Index Size
 
-The hash index is only built when the dataset exceeds a minimum size:
-
-```text
-threshold = 256 × CPU_cores
-```
-
-| CPU Cores | Minimum Rows for Index |
-| --------- | ---------------------- |
-| 1         | 256                    |
-| 4         | 1,024                  |
-| 8         | 2,048                  |
-| 16        | 4,096                  |
-| 32        | 8,192                  |
-
-For small tables below the threshold, a full scan is faster than index maintenance overhead.
+There is no minimum row count. Whenever the [activation rules](#configuration) are met, the index is built for the dataset regardless of size — including for an empty table, which is indexed at load and rebuilt as rows arrive. The row count is used only to pre-size the hash table and bloom filter, not to decide whether to index at all, so budget the [memory](#memory-usage) below for every indexed dataset.
 
 ## Performance
 
@@ -229,7 +214,7 @@ Uses XXH3_64 with a fixed seed (`0x5370_6963_6541_4920` = "SpiceAI ") for:
 
 ## Limitations
 
-1. **Arrow Engine Only**: Hash index is only available for `engine: arrow` acceleration
+1. **Arrow Engines Only**: Hash index is only available for `engine: arrow` and `engine: partitioned_arrow` acceleration
 2. **Single-Column Primary Keys Only**: Composite primary keys are not yet supported for indexed lookups; only single-column primary keys use the index
 3. **Experimental**: API and behavior may change in future releases
 4. **No Persistence**: Index is rebuilt on restart (data persists, index is in-memory)
@@ -240,9 +225,9 @@ Uses XXH3_64 with a fixed seed (`0x5370_6963_6541_4920` = "SpiceAI ") for:
 
 ### "No index available for point lookup"
 
-**Cause**: Dataset row count is below the index threshold.
+**Cause**: A direct point lookup was issued against an indexed table that has no primary key index — `primary_key` is not set, so only the configured secondary indexes exist.
 
-**Solution**: This is expected behavior for small datasets. The full scan is faster than index overhead.
+**Solution**: Set `primary_key` on the acceleration to build the primary key index. Dataset size is not a factor: the index is built at any row count once the [activation rules](#configuration) are met.
 
 ### Warning: "The hash_index acceleration parameter is ignored for Arrow acceleration"
 
