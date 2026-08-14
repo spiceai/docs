@@ -110,3 +110,5 @@ catalogs:
 - `refresh_mode`: Required. The only supported value is `changes` (CDC); there is no catalog-level `full` mode.
 
 Per-table-only acceleration settings (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are not configurable at the catalog level — they remain on an individual [dataset's `acceleration` block](../../components/data-accelerators).
+
+An accelerated catalog is included in the runtime's memory budget: the engine, refresh mode, storage mode and params above are the configuration every table it accelerates is built from, and the runtime classifies that same configuration when it derives `runtime.query.memory_limit`. A Spicepod whose only Cayenne acceleration is a catalog therefore gets the reduced query pool and the compaction reservation, and the projected off-pool reservation counts one table per catalog rather than one per discovered table — see [Accelerated catalogs](../memory#accelerated-catalogs) for what that means when sizing.
