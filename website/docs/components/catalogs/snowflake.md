@@ -47,6 +47,10 @@ The `name` field specifies the name of the catalog in Spice. Tables from the Sno
 
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` from any schema. Multiple `include` patterns are OR'ed together.
 
+## `exclude`
+
+Optional. Use the `exclude` field to omit tables that would otherwise be included. It is matched against the same table name as `include`, using the same glob syntax, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
 ## `params`
 
 | Parameter Name                     | Description                                                                                              |

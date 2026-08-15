@@ -59,7 +59,9 @@ catalogs:
 
 ### `exclude`
 
-Use the `exclude` field to omit tables that would otherwise be included. It uses the same `schema.table` glob syntax as `include`, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+Use the `exclude` field to omit tables that would otherwise be included. It is matched against the same table name as `include`, using the same glob syntax, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
+Every Catalog Connector applies `exclude`.
 
 Example:
 
@@ -72,10 +74,6 @@ catalogs:
     exclude:
       - 'public.*_audit' # ...except the audit tables.
 ```
-
-:::warning
-`exclude` is currently only honored by the [PostgreSQL Catalog Connector](./postgres.md). Other Catalog Connectors accept the field without error but ignore it, so an `exclude` pattern set on them has no effect — use `include` to scope those catalogs.
-:::
 
 import DocCardList from '@theme/DocCardList';
 
