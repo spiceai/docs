@@ -284,6 +284,8 @@ Rename the offending tool, or set `as_tool: false` to keep it SQL-only.
 Two ways to inspect the catalog from outside the model:
 
 - **From SQL** — `SELECT * FROM list_udfs() WHERE source = 'user';` lists every user-declared function, regardless of whether it's currently in the registry.
-- **From the HTTP API** — `GET /v1/functions` returns the functions registered as both SQL and tool entries.
+- **From the HTTP API** — `GET /v1/tools` lists every tool the runtime has registered, which is what the registry indexes. Tool routes are refused with a `401` unless [`runtime.auth`](../reference/spicepod/runtime#runtimeauth) is configured.
+
+`GET /v1/functions` is a *function* listing, not a tool one: it returns every enabled entry in the Spicepod's `functions:` section that registered successfully — scalar and table functions alike, whether or not they are exposed as tools — and returns an empty list when `runtime.functions.enabled` is false. Use it to check that a function loaded; use `GET /v1/tools` to check what the model can reach.
 
 For tools (built-in plus MCP plus function-derived), the model can call `tool_search` with an open-ended query (e.g. `query: "*"`) — though in practice, asking for the tools relevant to the current step is what the model actually wants.
