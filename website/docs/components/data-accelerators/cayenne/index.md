@@ -85,7 +85,7 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_delta_encoding`          | Encoding effort applied to delta (incremental) writes such as appends and inline-memtable flushes. Accepts `auto` (default) or a fixed level `0`–`10`. Higher levels search more encoding schemes for a better compression ratio at the cost of more write-time CPU; `auto` encodes every delta write at a light level regardless of size, because deltas are transient staged streams that compaction later re-encodes with the full cascade. Levels `7`–`10` all apply the full default cascade, so set `7` to encode every delta with the full cascade instead. Applies at write time only — changing it never re-encodes existing data or forces a table re-create. Invalid values fall back to `auto` with a warning. |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
-| `cayenne_segment_cache_mb`        | Size of the in-memory Vortex segment cache in megabytes, caching decompressed data segments for improved query performance. Accepts `auto` (default) or an explicit MB value. `auto` scales with machine memory (~1/128 of RAM), but never below `256` MB and never above `1024` MB. |
+| `cayenne_segment_cache_mb`        | **Ignored here.** The Vortex segment cache is one budget shared by every Cayenne table, so a per-dataset size has nothing to size. A value set under `acceleration.params` is reported at startup and otherwise has no effect — set [`runtime.params.cayenne_segment_cache_mb`](#runtime-parameters-runtimeparams) instead. |
 | `cayenne_force_view_types`        | Whether scans emit Arrow view types (`Utf8View`/`BinaryView`) instead of native `Utf8`/`Binary`. Accepts `true` or `false`; defaults to `false`. View types are not compacted across `RepartitionExec`, so wide strings fanned out through a partitioned join can inflate query-pool memory reservations — the native types avoid that. Set to `true` to re-enable view types for a table. Any value other than `false` (case-insensitive) enables view types. |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
 | `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Accepts `auto` (default) or an explicit MB value. `auto` is storage-aware: `256` MB on EBS-class network storage, `64` MB on RAM-backed (tmpfs) mounts, `512` MB on S3 Express (large immutable objects cut object count and per-request cost), and `256` MB on local SSD or unknown storage. Smaller files enable better parallelism and predicate pushdown. |
@@ -163,6 +163,7 @@ A global `cayenne_goal_*` setpoint steers only the datasets that run the closed 
 
 | Parameter                                  | Description                                                                                                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cayenne_segment_cache_mb`                 | Total size in megabytes of the in-memory Vortex segment cache, which holds decompressed data segments for faster reads. **One cache serves every Cayenne table in the process** — dataset accelerations and `from: cayenne` catalogs alike — so adding a table divides this pool instead of reserving another cache of its own. Takes a whole number of megabytes; `0` disables segment caching. When unset, derived as ~1/64 of the process's memory entitlement, clamped to 256 MB–2 GB. A non-numeric value (including `auto`) is warned about and falls back to the derived budget. |
 | `cayenne_footer_cache_mb`                  | Size of the engine-wide in-memory Vortex footer cache in megabytes. The footer cache stores Vortex file metadata (schemas, statistics, encoding information) and is shared across all Cayenne datasets. Larger values improve query performance for repeated scans. Optional; when unset, no explicit limit is applied and DataFusion's default file-metadata-cache limit of 50 MB applies (there is no fixed 128 MB default). |
 | `cayenne_filter_propagation`               | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                                                                         |
 | `cayenne_optimizer_rules`                  | Selects which Cayenne optimizer rules run. Accepts `auto` (default — enables the recommended set, gated by `cayenne_filter_propagation`), `all`, `none` / `disabled`, or a comma-separated list of individual rule names.                                               |
@@ -186,6 +187,7 @@ runtime:
   params:
     # Engine-global Cayenne tuning, shared by every Cayenne-accelerated dataset
     cayenne_footer_cache_mb: 512
+    cayenne_segment_cache_mb: 1024
     cayenne_filter_propagation: enabled
 
 datasets:
@@ -196,7 +198,7 @@ datasets:
       mode: file
       params:
         # Per-dataset Cayenne tuning
-        cayenne_segment_cache_mb: 1024
+        cayenne_target_file_size_mb: 256
 ```
 
 ## Performance Tuning
@@ -702,6 +704,8 @@ Spice Cayenne manages memory efficiently through columnar storage and selective 
 runtime:
   params:
     cayenne_footer_cache_mb: 64
+    # One segment-cache budget for the whole process, not per dataset
+    cayenne_segment_cache_mb: 128
 
 datasets:
   - from: s3://my-bucket/data/
@@ -709,8 +713,6 @@ datasets:
     acceleration:
       engine: cayenne
       mode: file
-      params:
-        cayenne_segment_cache_mb: 128
 ```
 
 ### Storage
@@ -796,6 +798,7 @@ runtime:
   params:
     # Engine-global Cayenne runtime tuning (shared by all Cayenne datasets)
     cayenne_footer_cache_mb: 256
+    cayenne_segment_cache_mb: 512
 
 datasets:
   # Local file storage example with upsert
@@ -815,7 +818,6 @@ datasets:
       refresh_check_interval: 1h
       params:
         cayenne_compression_strategy: btrblocks
-        cayenne_segment_cache_mb: 512
         cayenne_target_file_size_mb: 64
         sort_columns: created_at,id
       retention_sql: DELETE FROM analytics_data WHERE created_at < NOW() - INTERVAL '30 days'

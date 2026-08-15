@@ -103,21 +103,23 @@ The footer cache stores Vortex file metadata, including schemas, statistics, and
 - Increase for datasets with many small files
 - Each file requires approximately 1-10 KB of footer cache
 
-**Segment Cache (`cayenne_segment_cache_mb`) — acceleration parameter:**
+**Segment Cache (`cayenne_segment_cache_mb`) — runtime parameter:**
 
-The segment cache stores decompressed data segments. It is configured per dataset under `acceleration.params`. Larger cache sizes benefit workloads with repeated queries on the same data.
+The segment cache stores decompressed data segments. One cache serves every Cayenne table in the process — dataset accelerations and `from: cayenne` catalogs alike — so it is set under `runtime.params`, not per dataset, and adding a table divides this budget instead of reserving another cache. A value set under a dataset's `acceleration.params` is reported at startup and otherwise ignored. Larger cache sizes benefit workloads with repeated queries on the same data.
 
-- Default: 256 MB
+- Default: unset — derived as ~1/64 of the process's memory entitlement, clamped to 256 MB–2 GB
+- Takes a whole number of megabytes; `0` disables segment caching
 - Increase for workloads with hot data patterns
-- Size based on frequently accessed data volume
+- Size against the frequently accessed data volume across every Cayenne table, not one of them
 
 **Example - High-throughput configuration:**
 
 ```yaml
 runtime:
   params:
-    # Engine-global footer cache, shared by all Cayenne datasets
+    # Engine-global caches, shared by all Cayenne datasets
     cayenne_footer_cache_mb: 512
+    cayenne_segment_cache_mb: 1024
 
 datasets:
   - from: s3://analytics-bucket/events/
@@ -125,9 +127,6 @@ datasets:
     acceleration:
       engine: cayenne
       mode: file
-      params:
-        # Per-dataset segment cache
-        cayenne_segment_cache_mb: 1024
 ```
 
 ## Compression Strategy

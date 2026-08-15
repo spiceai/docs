@@ -52,7 +52,9 @@ Two in-memory caches tune the random-read vs memory tradeoff:
 | Parameter                    | Scope                 | Description                                                                       |
 | ---------------------------- | --------------------- | --------------------------------------------------------------------------------- |
 | `cayenne_footer_cache_mb`    | `runtime.params`      | Engine-global footer cache (Vortex file footers), shared by all Cayenne datasets. Low memory cost; enables fast plan-time decisions. |
-| `cayenne_segment_cache_mb`   | `acceleration.params` | Per-dataset segment (data page) cache. Set proportional to your hot working set.  |
+| `cayenne_segment_cache_mb`   | `runtime.params`      | Process-wide segment (data page) cache, shared by every Cayenne table. Set proportional to your hot working set. |
+
+Both caches are engine-global: one segment cache serves every Cayenne table in the process, so adding a table divides this budget rather than reserving another cache of its own. Set it under `runtime.params` — a `cayenne_segment_cache_mb` under a dataset's `acceleration.params` (or a catalog's `params`) is reported at startup and otherwise ignored. When unset, the budget is derived as ~1/64 of the process's memory entitlement, clamped to 256 MB–2 GB; `0` disables segment caching.
 
 For point-lookup-heavy workloads, size `cayenne_segment_cache_mb` generously — Vortex random-access reads are ~100× faster for cached segments than cold S3 reads.
 
@@ -144,7 +146,7 @@ The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write —
 
 ### Segment Cache Metrics
 
-The segment cache is the per-dataset Vortex decompressed-segment cache (`cayenne_segment_cache_mb`). All five instruments are observable — sampled on every collection — and caches sharing a dataset label are aggregated into one series. `accesses` and `hits` are monotonic counters and keep counting across a cache being recreated, so query them with counter operations such as `rate()` or `increase()` (hit rate over a window = `rate(cayenne_segment_cache_hits[5m]) / rate(cayenne_segment_cache_accesses[5m])`).
+The segment cache is the process-wide Vortex decompressed-segment cache (`cayenne_segment_cache_mb`). All five instruments are observable — sampled on every collection — and each series carries a `cache` label naming which cache it describes rather than a dataset: `shared` is the process-wide cache every Cayenne table reads through, which is what a spiced deployment reports. `accesses` and `hits` are monotonic counters and keep counting across a cache being recreated, so query them with counter operations such as `rate()` or `increase()` (hit rate over a window = `rate(cayenne_segment_cache_hits[5m]) / rate(cayenne_segment_cache_accesses[5m])`).
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
@@ -173,7 +175,7 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 | ------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Slow restart after a crash                       | WAL not checkpointed due to ungraceful shutdown.         | Use graceful shutdown (`SIGTERM`); first restart will catch up the WAL automatically.                   |
 | `database is locked` metastore errors            | Two writers sharing one metastore path.                  | Ensure only one writer; use distinct metastore paths per instance.                                      |
-| Query slower than expected for cold data         | Segment cache too small for working set.                 | Increase `cayenne_segment_cache_mb`.                                                                    |
-| High S3 request cost                             | Segment cache misses on every query.                     | Increase segment cache; consider `partition_by` aligned with query filters.                             |
+| Query slower than expected for cold data         | Segment cache too small for the working set of every table sharing it. | Increase `runtime.params.cayenne_segment_cache_mb`.                                       |
+| High S3 request cost                             | Segment cache misses on every query.                     | Increase `runtime.params.cayenne_segment_cache_mb`; consider `partition_by` aligned with query filters. |
 | Upload throughput does not scale with concurrency | Network or S3 Express One Zone TPS limit.                | Use S3 Express One Zone in the same AZ; benchmark with `upload_concurrency` to find the right setting.  |
 | Corrupted segment refused on startup             | Crash mid-upload; checksum mismatch.                     | Segments are re-materialized on refresh. Check storage for partial uploads and remove if orphaned.      |

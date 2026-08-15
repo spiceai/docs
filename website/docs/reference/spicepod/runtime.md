@@ -205,6 +205,7 @@ Engine-global tuning for the [Spice Cayenne](../../components/data-accelerators/
 | Parameter Name                            | Description                                                                                                                                                                                                              |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_footer_cache_mb`                 | Size of the engine-wide in-memory Vortex footer cache in megabytes, shared across all Cayenne datasets. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies (there is no fixed 128 MB default).                                     |
+| `cayenne_segment_cache_mb`                | Total size in megabytes of the in-memory Vortex segment cache, which holds decompressed data segments. One cache serves every Cayenne table in the process, so adding a table divides this budget rather than reserving another cache. Takes a whole number of megabytes; `0` disables segment caching. When unset, derived as ~1/64 of the process's memory entitlement, clamped to 256 MB–2 GB. |
 | `cayenne_filter_propagation`              | Enables Cayenne's filter-propagation optimizer rules. Accepts `enabled` or `disabled`; defaults to `disabled`.                                                                                                          |
 | `cayenne_optimizer_rules`                 | Selects which Cayenne optimizer rules run. Accepts `auto` (default), `all`, `none` / `disabled`, or a comma-separated list of rule names.                                                                               |
 | `cayenne_compaction_memory_fraction`      | Fraction of the query memory pool reserved for the dedicated Cayenne compaction pool. Defaults to `0.2` (clamped to a supported range). Applied only when an enabled Cayenne dataset can accumulate files to compact — a file acceleration `mode` on a refresh mode that is not a whole-table replace — and dedicated thread pools are not disabled. A pod whose Cayenne datasets are all `refresh_mode: full`, or all `mode: memory`, carves no compaction pool. |
@@ -215,6 +216,7 @@ Engine-global tuning for the [Spice Cayenne](../../components/data-accelerators/
 runtime:
   params:
     cayenne_footer_cache_mb: 512
+    cayenne_segment_cache_mb: 1024
     cayenne_filter_propagation: enabled
 ```
 
