@@ -76,7 +76,7 @@ Optional. The `include` field is used to specify which tables to include from th
 
 ## `exclude`
 
-Optional. The `exclude` field specifies tables to omit from the catalog, using the same `schema.table` glob syntax as `include`. Multiple `exclude` patterns are OR'ed together, and `exclude` takes precedence over `include` — a table matched by both is omitted. It is currently honored by the [PostgreSQL catalog connector](../../components/catalogs/postgres). A common use is to keep tables that cannot be [CDC-accelerated](../../components/catalogs/postgres#catalog-level-cdc-acceleration) out of an accelerated catalog's scope.
+Optional. The `exclude` field specifies tables to omit from the catalog, matched against the same table name as `include` and using the same glob syntax. Multiple `exclude` patterns are OR'ed together, and `exclude` takes precedence over `include` — a table matched by both is omitted. Every Catalog Connector applies it. A common use is to keep tables that cannot be [CDC-accelerated](../../components/catalogs/postgres#catalog-level-cdc-acceleration) out of an accelerated catalog's scope.
 
 ## `access`
 

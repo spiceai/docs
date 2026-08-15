@@ -58,6 +58,10 @@ catalogs:
       - 'main.*' # Include all tables in the "main" schema
 ```
 
+## `exclude`
+
+Optional. Use the `exclude` field to omit tables that would otherwise be included. It is matched against the same table name as `include`, using the same glob syntax, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
 ## `access`
 
 The `access` field controls what operations are allowed on the catalog:
