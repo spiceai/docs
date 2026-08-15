@@ -138,7 +138,7 @@ models:
 
 Each channel produces a ranked list; RRF combines the ranks (not the scores) so a tool that places top-3 in two channels usually outranks one that places top-1 in a single channel. The final `score` is normalized to `0.0–1.0` against the highest-scoring tool in the result set.
 
-Per-tool embeddings are computed lazily on first search and cached for the lifetime of the registry instance. The runtime keeps an LRU cache (up to 64 entries) of search-tool instances keyed on `(runtime, embedding model, tools hash)` so a Spicepod that hot-reloads tools without restarting the runtime doesn't pay the embedding cost repeatedly.
+Per-tool embeddings are computed lazily on first search and cached for the lifetime of the registry instance — a model keeps its instance, and therefore its embeddings, until the model is reloaded. The `/v1/tools` HTTP endpoints build their instances through a separate bounded cache (up to 64 entries) keyed on `(runtime, embedding model, tools hash)`, so repeated calls reuse the same embeddings. That cache is not an LRU: once it is full, an arbitrary existing entry is evicted to make room.
 
 ## `tool_search` Reference
 
@@ -147,9 +147,9 @@ The model calls `tool_search` with a JSON object:
 | Parameter   | Type            | Description                                                                                                        |
 | ----------- | --------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `query`     | `string` (required) | Natural-language description of the capability the model needs.                                                   |
-| `keywords`  | `string[]`      | Optional exact-match phrases that boost the keyword channel — useful for column or table names.                    |
+| `keywords`  | `string[]`      | Optional exact-match phrases — useful for column or table names. Their tokens are added to the `full_text` and `schema` channels, and they *replace* `query` as the phrase the `keyword` channel matches on (with `keywords` omitted, the whole `query` string is that phrase). |
 | `limit`     | `integer`       | Maximum results to return. Defaults to **5**, capped at **20**.                                                    |
-| `min_score` | `number`        | Optional minimum score (0.0–1.0). When the cutoff filters out everything, the registry still returns the unfiltered top match as a fallback so the model isn't left empty-handed. |
+| `min_score` | `number`        | Optional minimum score, clamped to 0.0–1.0. Scores are normalized against the best match, so the top result always scores `1.0` — a cutoff trims the tail and can never empty the list. If no tool matched any channel at all, every score is `0.0` and the cutoff is skipped entirely: the first `limit` tools are returned in `tool_id` order. |
 
 Example call (issued by the model):
 
