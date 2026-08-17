@@ -78,7 +78,7 @@ A user service starts with its owner's login; only a system service starts at bo
 - `-n`, `--number <LINES>` Lines of existing history to print first. Default: `100`. Maximum: `100000`. `0` with `--follow` prints only new output.
 - `-f`, `--follow` Keep printing new output until interrupted.
 
-`--tail` is intentionally not accepted; `-f`/`-n` match `docker logs` and `kubectl logs`. On Linux the output comes from the systemd journal; on macOS from the runtime's own bounded rotating files — five files of at most 10 MiB each under `~/Library/Logs/Spice/<service>/` or `/Library/Logs/Spice/<service>/` — which `status` names on its `logs:` line.
+`--tail` is intentionally not accepted; `-f`/`-n` match `docker logs` and `kubectl logs`. On Linux the output comes from the systemd journal; on macOS from the runtime's own bounded rotating files — five files of about 10 MiB each under `~/Library/Logs/Spice/<service>/` or `/Library/Logs/Spice/<service>/` — which `status` names on its `logs:` line.
 
 :::info Linux and macOS
 The service group drives systemd on Linux and launchd on macOS. Every action except `status` exits non-zero on Windows, which has no managed service; `status` reports on every platform.
