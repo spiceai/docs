@@ -78,6 +78,10 @@ clickhouse:
   label: 'ClickHouse'
   permalink: '/clickhouse'
   description: 'ClickHouse OLAP database integration.'
+cloud-connect:
+  label: 'Cloud Connect'
+  permalink: '/cloud-connect'
+  description: 'Connecting a self-hosted Spice instance to Spice Cloud for remote management.'
 component-metrics:
   label: 'Component Metrics'
   permalink: '/component-metrics'
@@ -506,6 +510,10 @@ sql:
   label: 'SQL'
   permalink: '/sql'
   description: 'SQL query language support and database operations.'
+systemd:
+  label: 'systemd'
+  permalink: '/systemd'
+  description: 'Running Spice as a systemd user or system service on Linux.'
 tools:
   label: 'Tools'
   permalink: '/tools'

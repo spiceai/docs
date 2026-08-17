@@ -25,7 +25,7 @@ spice [command] [--help]
 | [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
 | cloud                              | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
-| [connect](reference/connect)       | Enroll this host with Spice Cloud (Cloud Connect)                      |
+| [connect](reference/connect)       | Connect this directory to Spice Cloud and start its instance (Cloud Connect) |
 | [dataset](reference/dataset)       | Add or configure dataset entries in `spicepod.yaml`                    |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
 | embedding                          | Add or configure embedding entries in `spicepod.yaml`                  |

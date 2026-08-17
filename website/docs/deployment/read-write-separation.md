@@ -2,7 +2,7 @@
 title: 'Read/Write Separation'
 sidebar_label: 'Read/Write Separation'
 description: 'Separate write/ingest workloads (cluster) from read workloads (application sidecars, agents) using shared snapshots and live query delegation.'
-sidebar_position: 8
+sidebar_position: 9
 pagination_next: null
 keywords:
   [

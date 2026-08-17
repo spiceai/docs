@@ -1,7 +1,7 @@
 ---
 title: 'CI/CD Deployment'
 sidebar_label: 'CI/CD'
-sidebar_position: 7
+sidebar_position: 8
 description: 'Deploy Spice.ai applications using continuous integration and delivery pipelines, including Helm, Kubernetes GitOps with Argo CD or Flux, GitHub Actions, and the Spice Cloud deploy action.'
 keywords:
   [

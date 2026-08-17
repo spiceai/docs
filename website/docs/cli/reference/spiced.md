@@ -54,9 +54,28 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
 - `--allow-insecure-connections` — Allow cluster communication without mTLS. Use only in development or testing environments.
 
-### Cloud Connect flags
+### Spice Cloud Connect flags
 
-- `--cloud-connect` — Connect this runtime to Spice Cloud for remote management (Cloud Connect). Default: `false`. Requires an enrolled identity or a staged adoption code — see [`spice connect`](./connect). When the flag is omitted the client still activates if such adoption state exists, so instances enrolled before the flag existed keep connecting across an upgrade; a `spiced` with no adoption state never connects to the cloud.
+There is no flag that turns Cloud Connect on. An **enrolled identity** in the instance's `.spice` directory is what connects a runtime to Spice Cloud, so a `spiced` started from an enrolled directory reconnects on its own, and a `spiced` with no identity never connects.
+
+- `--token <ENROLLMENT_KEY>` — One-time Spice Cloud enrollment key (`spice-enroll-…`). This is the canonical headless enrollment path, used directly by `docker run` and Helm. `spiced` enrolls **before** the runtime is built and before any listener binds — the process stays unready until the issued identity is durable on disk — then discards the key and starts normally. If a valid identity already exists for this instance, it wins and the key is **not** redeemed. Invalid, expired, or already-used keys exit non-zero without falling back to a prompt; retryable Cloud errors keep the runtime unready while retrying with bounded backoff. Cannot be combined with `--repl`.
+- `--region <REGION>` — Host-location label recorded on the instance at enrollment, e.g. `us-west-2` or `on-prem-syd`. 2–64 lowercase letters, digits, or hyphens. Only meaningful with `--token`; omitting it leaves any previously recorded region unchanged.
+
+An enrollment key is single-use, short-lived, and never written by `spiced` to any file. Its value is visible to same-host process listings for the lifetime of the enrollment process, because the operating system retains the original `argv` — recreate containers and pods without `--token` once the runtime is ready.
+
+Cloud Connect state is per instance directory. `SPICE_CONFIG_DIR` overrides where that state is written, in full, which is how containers put the issued identity on a persistent volume.
+
+See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/cloud-connect/headless).
+
+### Cloud Connect HTTP endpoint
+
+- `GET /v1/cloud-connect/status` — the instance identifier and the sticky list of Spicepod sections a deployment persisted that only a restart can activate:
+
+  ```json
+  { "instance_id": "inst_0123456789", "restart_required": ["runtime", "tools"] }
+  ```
+
+  On the authenticated API — see [API authentication](../../api/auth/index.md). [`spice connect status`](./connect#status) reports the same state alongside the connection and service.
 
 ### SQL REPL flags
 
