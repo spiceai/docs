@@ -22,13 +22,15 @@ Pick the one that matches the host. They differ in what owns the runtime process
 | Mode                           | Command                         | The process is owned by                    | Project                                 |
 | ------------------------------ | ------------------------------- | ------------------------------------------ | --------------------------------------- |
 | [Foreground](./development.md) | `spice connect`                 | Your terminal — stops with `Ctrl-C`        | Created and attached for you            |
-| [Service](./service.md)        | `spice connect service install` | systemd (Linux only)                       | From the enrollment that preceded it    |
+| [Service](./service.md)        | `spice connect service install` | systemd (Linux) or launchd (macOS)         | From the enrollment that preceded it    |
 | [Headless](./headless.md)      | `spiced --token <key>`          | Docker, Kubernetes, or your own supervisor | Created by you in the portal afterwards |
 
 :::info Platform support
-The managed service lifecycle currently supports **Linux with systemd**. `spice connect service install|uninstall|start|stop|restart|logs` exits non-zero on other platforms; only `spice connect service status` is available everywhere.
+The managed service lifecycle supports **Linux with systemd** and **macOS with launchd**, with one set of commands and one status vocabulary for both. On Windows, `spice connect service install|uninstall|start|stop|restart|logs` exits non-zero; only `spice connect service status` is available everywhere.
 
-On macOS and Windows, run the instance in the foreground with `spice connect`, or under your own supervisor. Containers use `spiced --token` under the container runtime's restart policy.
+Boot persistence follows the service domain. A user service starts with its owner's login — on Linux it can also start at boot once the account lingers, while a macOS LaunchAgent cannot be made to start before a login at all — and `sudo spice connect service install` is what installs a service that starts at boot with nobody logged in. See [Boot persistence](./service.md#boot-persistence-stated-plainly).
+
+On Windows, run the instance in the foreground with `spice connect`, or under your own supervisor. Containers use `spiced --token` under the container runtime's restart policy.
 :::
 
 ## Enrollment is per directory
@@ -117,7 +119,7 @@ Spice Cloud Connect: connected — acme / retail-analytics
   owner:       alice
   directory:   /srv/edge-analytics
   definition:  /etc/systemd/system/spiced-cloud-connect-edge-analytics-59e8c853e76c15ba.service
-  runtime:     /usr/local/lib/spice/spiced
+  runtime:     /usr/local/lib/spice/edge-analytics-59e8c853e76c15ba/spiced
   logs:        systemd journal, unit spiced-cloud-connect-edge-analytics-59e8c853e76c15ba.service
   deployment:  /srv/edge-analytics/.spice/spicepod-cloud-managed.yml
   secrets:     2 delivered: pg_password, s3_key

@@ -12,7 +12,7 @@ tags:
 
 `spice connect` is the whole setup on a development machine. It authenticates, enrolls the directory, creates and attaches a project, and leaves the runtime serving in your terminal.
 
-This is the recommended path on **macOS and Windows**, where the [managed service](./service.md) is not yet available, and it is the fastest path on Linux when you want the instance to live and die with your terminal.
+This is the fastest path on any host when you want the instance to live and die with your terminal, and it is the only path on **Windows**, which has no [managed service](./service.md). On Linux and macOS, install the managed service when the instance should outlive the terminal.
 
 ## Prerequisites
 
@@ -167,10 +167,10 @@ Removal deletes the project with your logged-in user session, so it needs you to
 
 - **`spice connect` needs a terminal.** It is an interactive flow; with a non-interactive stdin it exits rather than hanging on a prompt, and points at `spiced --token` for [unattended enrollment](./headless.md).
 - **Cancellation is clean.** `Esc` or `Ctrl-C` at any prompt is a normal exit. Nothing partial is left behind, and an interrupted enrollment resumes on the next run instead of creating a duplicate instance or project.
-- **On Linux, if a service is already installed for the directory**, `spice connect` starts that service and returns instead of taking over your terminal. See [Service](./service.md).
+- **On Linux and macOS, if a service is already installed for the directory**, `spice connect` starts that service and returns instead of taking over your terminal. See [Service](./service.md).
 
 ## Next
 
-- Keep the instance running across reboots with a [persistent service](./service.md) (Linux).
+- Keep the instance running across reboots with a [persistent service](./service.md) (Linux and macOS).
 - Run it in a container with [headless enrollment](./headless.md).
 - Full flag list in the [`spice connect` CLI reference](../../cli/reference/connect.md).

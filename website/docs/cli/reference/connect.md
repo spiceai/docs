@@ -30,7 +30,7 @@ spice connect <org>/<pod>            # deprecated
 
 `spice connect` resolves in this order:
 
-1. **Already enrolled** — the identity always wins and is never duplicated. The instance is started: in the foreground, or, on Linux where a service is installed for the directory, through that service. An enrolled instance with no project attached is offered project assignment when a login for its organization is available.
+1. **Already enrolled** — the identity always wins and is never duplicated. The instance is started: in the foreground, or, on Linux and macOS where a service is installed for the directory, through that service. An enrolled instance with no project attached is offered project assignment when a login for its organization is available.
 2. **An interrupted enrollment is staged** — it resumes in the mode that started it. It never asks which authentication to use again; an enrollment key is requested again only because keys are never stored.
 3. **Otherwise** — it runs the full setup: authenticate, resolve the organization, enroll, create and attach the project, and start the runtime.
 
@@ -67,19 +67,21 @@ spice connect service status       # state, boot persistence, and paths
 spice connect service logs         # its output
 ```
 
-`install` requires the directory to be enrolled already; it does not enroll. Running without `sudo` installs a systemd **user** service; with `sudo`, a systemd **system** service that still runs `spiced` as the invoking operator.
+`install` requires the directory to be enrolled already; it does not enroll. Running without `sudo` installs a **user** service — a systemd user service on Linux, a LaunchAgent on macOS. With `sudo` it installs a **system** service — a systemd system unit or a LaunchDaemon — that still runs `spiced` as the invoking operator.
 
-`service status` accepts `-o`, `--output <table|json>` and renders the same service object that `spice connect status --output json` nests.
+A user service starts with its owner's login; only a system service starts at boot with nobody logged in. On Linux a user service can also reach boot persistence through `loginctl enable-linger`, which launchd has no equivalent of, so on macOS boot persistence means `sudo spice connect service install`. `status` reports which one you have and names the command that would change it.
+
+`service status` accepts `-o`, `--output <table|json>` and renders the same service object that `spice connect status --output json` nests. `supervisor` is `systemd` or `launchd`.
 
 `service logs` flags:
 
 - `-n`, `--number <LINES>` Lines of existing history to print first. Default: `100`. Maximum: `100000`. `0` with `--follow` prints only new output.
 - `-f`, `--follow` Keep printing new output until interrupted.
 
-`--tail` is intentionally not accepted; `-f`/`-n` match `docker logs` and `kubectl logs`.
+`--tail` is intentionally not accepted; `-f`/`-n` match `docker logs` and `kubectl logs`. On Linux the output comes from the systemd journal; on macOS from the runtime's own bounded rotating files — five files of at most 10 MiB each under `~/Library/Logs/Spice/<service>/` or `/Library/Logs/Spice/<service>/` — which `status` names on its `logs:` line.
 
-:::warning Linux with systemd only
-Every service action except `status` exits non-zero on other platforms. macOS lifecycle support follows once launchd start, stop, restart, and logs are complete.
+:::info Linux and macOS
+The service group drives systemd on Linux and launchd on macOS. Every action except `status` exits non-zero on Windows, which has no managed service; `status` reports on every platform.
 :::
 
 See [Cloud Connect as a persistent service](../../deployment/cloud-connect/service).
@@ -153,7 +155,7 @@ Inspect the connection, service, and deployment state:
 > spice connect status --output json
 ```
 
-Install a persistent system service for an already-enrolled directory (Linux):
+Install a persistent system service for an already-enrolled directory — one that starts at boot with nobody logged in:
 
 ```shell
 > sudo spice connect service install

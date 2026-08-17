@@ -318,6 +318,10 @@ kubernetes:
   label: 'Kubernetes'
   permalink: '/kubernetes'
   description: 'Kubernetes orchestration and secret management.'
+launchd:
+  label: 'launchd'
+  permalink: '/launchd'
+  description: 'Running Spice as a launchd user or system service on macOS.'
 libsql:
   label: 'libSQL'
   permalink: '/libsql'
