@@ -120,7 +120,7 @@ An unprivileged install on macOS bootstraps the agent into your account's GUI lo
 
 ```console
   starts:      at login only
-               run `spice connect service uninstall --dir /srv/edge-analytics && sudo spice connect service install --dir /srv/edge-analytics` to change that
+               run `spice connect service uninstall --dir /Users/alice/work/edge-analytics && sudo spice connect service install --dir /Users/alice/work/edge-analytics` to change that
 ```
 
 If the instance must be up before anyone logs in, install a system service with `sudo`. On Linux that is also the answer when lingering is not permitted.
