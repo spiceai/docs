@@ -34,7 +34,22 @@ On subsequent restarts the connector compares the slot against the position it r
 
 ## Prerequisites
 
-### 1. Enable logical replication on the source Postgres
+### 1. PostgreSQL 13 or later {#postgresql-13}
+
+Spice creates its publication with `publish_via_partition_root = true`, an option
+introduced in PostgreSQL 13. On PostgreSQL 12 and earlier the `CREATE PUBLICATION`
+fails and the dataset does not start.
+
+```sql
+SHOW server_version;   -- must be 13 or later
+```
+
+The option makes a partitioned table's changes arrive under the parent relation
+rather than under each leaf partition, which is what lets a partitioned source
+table be accelerated as a single table. It has no effect on regular tables, but
+it is set unconditionally, so the version requirement applies either way.
+
+### 2. Enable logical replication on the source Postgres
 
 This requires a server restart.
 
@@ -62,7 +77,7 @@ On managed Postgres services:
 | Azure Database       | Under **Replication**, set *Replication support* to `LOGICAL`.                      |
 | Supabase / Neon      | Logical replication is enabled by default.                                          |
 
-### 2. The source table must have a replica identity
+### 3. The source table must have a replica identity
 
 Spice needs the primary key columns in every `UPDATE`/`DELETE` event, so one of the following must be true:
 
@@ -75,7 +90,7 @@ Spice needs the primary key columns in every `UPDATE`/`DELETE` event, so one of 
 
 Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
 
-### 3. The Postgres role needs these privileges
+### 4. The Postgres role needs these privileges
 
 ```sql
 GRANT CONNECT ON DATABASE mydb TO spice;

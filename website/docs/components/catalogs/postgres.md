@@ -241,6 +241,31 @@ Because a slot can also read as active immediately after the runtime's *own* ung
 Run only one Spice instance per accelerated PostgreSQL catalog. Because the slot name is instance-independent, a second instance configured with the same catalog `name` competes for the same slot and fails to load rather than silently splitting the change stream.
 :::
 
+### Shared publication
+
+The catalog's publication is built from the **eligible-table set**, one table at a
+time (`CREATE PUBLICATION ... FOR TABLE`, then `ALTER PUBLICATION ... ADD TABLE`
+for each additional table). It is never created `FOR ALL TABLES`. Three things
+follow from that:
+
+- **A skipped table is never a publication member.** A table with no usable CDC
+  key is left out of the publication entirely, not merely ignored downstream — so
+  PostgreSQL does not decode its changes into the catalog's WAL stream at all.
+- **New tables arrive through catalog discovery, not the publication.** A table
+  created in a selected schema after startup is not published retroactively; it is
+  picked up by the periodic catalog refresh, which then adds it to the publication.
+  A `FOR ALL TABLES` publication would have included it immediately, keyless or
+  not.
+- **The publication is created `WITH (publish_via_partition_root = true)`**, so a
+  partitioned source table replicates as the single parent relation rather than as
+  its individual partitions. This option requires PostgreSQL 13 or later — see
+  [Prerequisites](../../features/cdc/postgres-replication#postgresql-13).
+
+Spice repairs `publish_via_partition_root` on a publication that predates it or
+was created by hand, provided the Spice role owns the publication; when it does
+not, the alter is skipped with a warning, which only matters if the catalog
+contains partitioned tables.
+
 ### Table eligibility
 
 Each discovered table is accelerated according to its PostgreSQL [`REPLICA IDENTITY`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY), which determines the row identity available for change data capture:
