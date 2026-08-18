@@ -31,13 +31,15 @@ Supported Catalog Connectors include:
 | `iceberg`       | Apache Iceberg          | Beta              | Parquet                      |
 | `spice.ai`      | Spice.ai Cloud Platform | Beta              | Arrow Flight                 |
 | `ducklake`      | DuckLake                | Beta              | Parquet                      |
-| `pg`            | PostgreSQL / Redshift   | Beta              | PostgreSQL Wire Protocol     |
+| `pg`            | PostgreSQL              | Beta              | PostgreSQL Wire Protocol     |
 | `glue`          | AWS Glue                | Alpha             | Parquet, Iceberg             |
 | `snowflake`     | Snowflake               | Alpha             | Snowflake SQL                |
 | `mysql`         | MySQL                   | Alpha             | MySQL Wire Protocol          |
 | `mssql`         | Microsoft SQL Server    | Alpha             | TDS                          |
 | `adbc`          | ADBC                    | Alpha             | Arrow (ADBC)                 |
 | `oracle`        | Oracle                  | Alpha             | Oracle Net                   |
+
+The `pg` Catalog Connector also connects to PostgreSQL-compatible databases such as Amazon Redshift, on a best-effort basis and outside the stability claim above: the quality level in the table covers PostgreSQL, and Redshift clusters are not part of the connector's test matrix. See [PostgreSQL Catalog Connector](./postgres.md) for the limitations that apply.
 
 ## Catalog Connector Docs
 
