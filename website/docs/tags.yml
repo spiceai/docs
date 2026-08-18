@@ -81,7 +81,7 @@ clickhouse:
 cloud-connect:
   label: 'Cloud Connect'
   permalink: '/cloud-connect'
-  description: 'Connecting a self-hosted Spice instance to Spice Cloud for remote management.'
+  description: 'Connect a self-hosted Spice instance to Spice Cloud.'
 component-metrics:
   label: 'Component Metrics'
   permalink: '/component-metrics'
@@ -321,7 +321,7 @@ kubernetes:
 launchd:
   label: 'launchd'
   permalink: '/launchd'
-  description: 'Running Spice as a launchd user or system service on macOS.'
+  description: 'Run Spice as a macOS service.'
 libsql:
   label: 'libSQL'
   permalink: '/libsql'
@@ -517,7 +517,7 @@ sql:
 systemd:
   label: 'systemd'
   permalink: '/systemd'
-  description: 'Running Spice as a systemd user or system service on Linux.'
+  description: 'Run Spice as a Linux service.'
 tools:
   label: 'Tools'
   permalink: '/tools'

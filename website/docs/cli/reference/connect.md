@@ -5,11 +5,9 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Connect this directory to Spice Cloud and start its instance (Cloud Connect).
+Connect an instance to Spice Cloud.
 
-`spice connect` is an **interactive setup flow**. It authenticates a user, resolves one organization where that user is an owner or admin, enrolls the local instance, atomically creates and attaches a new project, and leaves the runtime serving. Without a saved login it offers inline login (recommended) or secure enrollment-key entry rather than failing.
-
-For unattended enrollment, use [`spiced --token <enrollment-key>`](./spiced#spice-cloud-connect-flags) instead — see [Headless Cloud Connect](../../deployment/cloud-connect/headless).
+Use `spice connect` for interactive setup. For unattended setup, use [`spiced --token`](./spiced#spice-cloud-connect-flags).
 
 ### Usage
 
@@ -18,172 +16,102 @@ spice connect [flags]
 spice connect status [--output table|json]
 spice connect service <install|uninstall|start|stop|restart|status|logs>
 spice connect remove [--yes] [--force]
-spice connect <org>/<pod>            # deprecated
 ```
 
-### Requirements
+### Connect an instance
 
-- A terminal. `spice connect` exits rather than hanging when stdin or stderr is not a TTY.
-- A Spice Cloud account with the **owner** or **admin** role in at least one organization. A prior [`login`](./login) is optional — `spice connect` can run it inline.
+Run this command from the instance directory:
 
-### Behavior with no arguments
+```shell
+spice connect
+```
 
-`spice connect` resolves in this order:
+You need a terminal and the owner or admin role in a Spice Cloud organization. The command can log you in. It enrolls the directory, creates a project, and starts the runtime.
 
-1. **Already enrolled** — the identity always wins and is never duplicated. The instance is started: in the foreground, or, on Linux and macOS where a service is installed for the directory, through that service. An enrolled instance with no project attached is offered project assignment when a login for its organization is available.
-2. **An interrupted enrollment is staged** — it resumes in the mode that started it. It never asks which authentication to use again; an enrollment key is requested again only because keys are never stored.
-3. **Otherwise** — it runs the full setup: authenticate, resolve the organization, enroll, create and attach the project, and start the runtime.
+The identity is stored in `<dir>/.spice/identity.json`. If an identity exists, the command starts the existing instance. It does not enroll a new instance.
 
-Cancellation and EOF at any prompt are normal exits. Nothing partial is created, and a retry recovers the pending operation rather than creating a duplicate instance or project.
+### `status`
 
-State is per **instance directory**: the enrolled identity lives at `<dir>/.spice/identity.json`, so several instances can enroll independently on one host.
-
-### Subcommands
-
-#### `status`
-
-Show this directory's Cloud connection, service, and deployment state from one snapshot.
+Show the Cloud connection, service, and deployment status:
 
 ```shell
 spice connect status
 spice connect status --output json
 ```
 
-- `-o`, `--output <table|json>` Output format. Default: `table`. `json` writes one report and nothing else to stdout.
+- `-o`, `--output <table|json>`: Set the output format. The default is `table`.
 
-Exits non-zero when the reported service state is `failed` or `unavailable`, so automation does not read either as healthy.
+The command returns a nonzero exit code if the service state is `failed` or `unavailable`.
 
-#### `service`
+### `service`
 
-Install and manage the persistent service for this instance directory. With no action, prints concise help and does nothing.
+Manage a Linux or macOS service:
 
 ```shell
-spice connect service install      # install and start; re-run to upgrade in place
-spice connect service uninstall    # stop and remove, keeping the Cloud identity
-spice connect service start        # start an installed, stopped service
-spice connect service stop         # stop it, leaving it installed and enabled
-spice connect service restart      # restart through the supervisor and wait
-spice connect service status       # state, boot persistence, and paths
-spice connect service logs         # its output
+spice connect service install
+spice connect service uninstall
+spice connect service start
+spice connect service stop
+spice connect service restart
+spice connect service status
+spice connect service logs
 ```
 
-`install` requires the directory to be enrolled already; it does not enroll. Running without `sudo` installs a **user** service — a systemd user service on Linux, a LaunchAgent on macOS. With `sudo` it installs a **system** service — a systemd system unit or a LaunchDaemon — that still runs `spiced` as the invoking operator.
+Enroll the instance before you install the service.
 
-A user service starts with its owner's login; only a system service starts at boot with nobody logged in. On Linux a user service can also reach boot persistence through `loginctl enable-linger`, which launchd has no equivalent of, so on macOS boot persistence means `sudo spice connect service install`. `status` reports which one you have and names the command that would change it.
+Install a user service with `spice connect service install`. Install a system service with `sudo spice connect service install`. A system service starts at boot without a user login.
 
-`service status` accepts `-o`, `--output <table|json>` and renders the same service object that `spice connect status --output json` nests. `supervisor` is `systemd` or `launchd`.
+Log options:
 
-`service logs` flags:
+- `-n`, `--number <LINES>`: Set the number of existing lines. The default is `100`. The maximum is `100000`.
+- `-f`, `--follow`: Show new lines until you stop the command.
 
-- `-n`, `--number <LINES>` Lines of existing history to print first. Default: `100`. Maximum: `100000`. `0` with `--follow` prints only new output.
-- `-f`, `--follow` Keep printing new output until interrupted.
+Windows does not support service actions. `service status` is available on all platforms.
 
-`--tail` is intentionally not accepted; `-f`/`-n` match `docker logs` and `kubectl logs`. On Linux the output comes from the systemd journal; on macOS from the runtime's own bounded rotating files — five files of about 10 MiB each under `~/Library/Logs/Spice/<service>/` or `/Library/Logs/Spice/<service>/` — which `status` names on its `logs:` line.
+See [Cloud Connect as a service](../../deployment/cloud-connect/service.md).
 
-:::info Linux and macOS
-The service group drives systemd on Linux and launchd on macOS. Every action except `status` exits non-zero on Windows, which has no managed service; `status` reports on every platform.
-:::
+### `remove`
 
-See [Cloud Connect as a persistent service](../../deployment/cloud-connect/service).
-
-#### `remove`
-
-Delete this instance's project in Spice Cloud using the logged-in user session, uninstall its service, and clear local Cloud identity and staged state.
+Stop the runtime. Then run:
 
 ```shell
 spice connect remove
 ```
 
-Stop any foreground or managed `spiced` first — removal refuses while the instance is running. Project deletion needs a user session in the identity's organization; an instance identity cannot authorize deleting its own project.
+This command deletes the project, removes the service, and deletes the local Cloud identity. You must be logged in to the organization that owns the instance.
 
-Asks for confirmation and names everything it will affect. `--yes` skips the prompt and is required when stdin is not a terminal.
+Use `--yes` to skip confirmation. Use `--force` only to remove local state when Spice Cloud cannot complete the removal.
 
-[`spice connect service uninstall`](../../deployment/cloud-connect/service#uninstall-the-service) is the narrower operation that keeps the Cloud identity.
+To keep the Cloud identity, use `spice connect service uninstall`.
 
 ### Flags
 
-- `--dir <PATH>` The instance directory: per-instance Cloud Connect state lives under `<dir>/.spice`. Defaults to the current directory. Applies to `status`, `remove`, and `service`.
-- `--region <LABEL>` Declared location label for the enrolled instance, e.g. `us-west-2` or `on-prem-syd`. 2–64 lowercase letters, digits, or hyphens, starting and ending with a letter or digit. A customer-declared label, not a probed fact: Spice Cloud shows it on the instance and resolves the instance's gateway from it, falling back to the deployment's home stamp for a label it cannot rank. Applies to enrollment only.
-- `--endpoint <URL>` Override the Spice Cloud endpoint used to enroll, inspect state, or report a release. Default: `https://api.spice.ai`. The gateway (stream) address is issued in the enroll response and is not configured here.
-- `-y`, `--yes` Skip the confirmation prompt. Applies to `remove`.
-- `--force` Clear this directory's local state even when Spice Cloud could not confirm the release. Applies to `remove`, which otherwise keeps the identity so a retry can finish. Use it when the instance is already deleted in the portal, or when the control plane that issued it is gone — the portal-side delete is authoritative either way.
-- `-h`, `--help` Print this help message
-
-`--cloud-region` is rejected on Cloud Connect subcommands rather than silently ignored: the control plane comes from `--endpoint` and the gateway is issued by the enroll response, so no region code selects either.
+- `--dir <PATH>`: Set the instance directory. The default is the current directory. This option applies to `status`, `remove`, and `service`.
+- `--region <LABEL>`: Set a location label during enrollment. Use 2–64 lowercase letters, digits, or hyphens.
+- `--endpoint <URL>`: Set the Spice Cloud API endpoint. The default is `https://api.spice.ai`.
+- `-y`, `--yes`: Skip confirmation for `remove`.
+- `--force`: Remove local state if Spice Cloud cannot complete `remove`.
+- `-h`, `--help`: Show help.
 
 ### Environment variables
 
-| Variable               | Equivalent to | Purpose                                                                                |
-| ---------------------- | ------------- | -------------------------------------------------------------------------------------- |
-| `SPICE_CLOUD_ENDPOINT` | `--endpoint`  | Enroll and control-plane endpoint override.                                            |
-| `SPICE_CONFIG_DIR`     | —             | Overrides where per-instance state is written, in full. Takes precedence over `--dir`. |
+| Variable           | Purpose                                                      |
+| ------------------ | ------------------------------------------------------------ |
+| `SPICE_CONFIG_DIR` | Set the complete path for the Cloud Connect state directory. |
 
-Flags take precedence over their corresponding environment variables. The endpoint resolves as `--endpoint`, then `SPICE_CLOUD_ENDPOINT`, then a `cloud-endpoint` file written into the config directory by a previous enroll, then the `https://api.spice.ai` default — so later `spiced` starts reach the same control plane the enroll used.
+`SPICE_CONFIG_DIR` takes precedence over `--dir`.
 
-An enrollment key is never read from the environment and is never accepted as a positional argument:
+### Deprecated syntax
 
-```console
-$ spice connect spice-enroll-...
-ERROR Invalid argument: An enrollment key is not accepted as a positional argument. For unattended enrollment, run `spiced --token <enrollment-key>` from the instance directory. See: https://spiceai.org/docs
-```
-
-### Examples
-
-Connect a development machine, using the directory name as the project-name default:
+`spice connect <org>/<pod>` is deprecated. Use:
 
 ```shell
-> cd ~/work/retail-analytics
-> spice connect
-```
-
-Reconnect later from the same directory — no Cloud Connect flag is needed:
-
-```shell
-> spice run
-```
-
-Connect an instance rooted at another directory, recording where it runs:
-
-```shell
-> spice connect --dir /srv/edge --region on-prem-syd
-```
-
-Inspect the connection, service, and deployment state:
-
-```shell
-> spice connect status
-> spice connect status --output json
-```
-
-Install a persistent system service for an already-enrolled directory — one that starts at boot with nobody logged in:
-
-```shell
-> sudo spice connect service install
-```
-
-Apply a deployment that needs a restart, then confirm it cleared:
-
-```shell
-> spice connect service restart
-> spice connect status
-```
-
-Release the instance and delete its project:
-
-```shell
-> spice connect remove
-```
-
-### Deprecated: adding a cloud-hosted Spicepod
-
-`spice connect <org>/<pod>` added a Spicepod hosted on the Spice.ai Cloud Platform, using Spice.ai Cloud authentication from [`login`](./login). It is **deprecated**, prints a warning, and will be removed in a future release — use [`spice add <org>/<pod>`](./add) instead:
-
-```shell
-> spice add spiceai/quickstart
+spice add <org>/<pod>
 ```
 
 ### See also
 
-- [Cloud Connect overview](../../deployment/cloud-connect/)
-- [Development machine](../../deployment/cloud-connect/development) · [Persistent service](../../deployment/cloud-connect/service) · [Headless](../../deployment/cloud-connect/headless)
-- [`spiced` Spice Cloud Connect flags](./spiced#spice-cloud-connect-flags)
+- [Cloud Connect overview](../../deployment/cloud-connect/index.md)
+- [Development machine](../../deployment/cloud-connect/development.md)
+- [Service](../../deployment/cloud-connect/service.md)
+- [Headless](../../deployment/cloud-connect/headless.md)
