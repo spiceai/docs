@@ -78,6 +78,15 @@ spice connect service logs -n 0 -f  # Show only new lines
 
 Press `Ctrl-C` to stop the log output. This does not stop the service.
 
+On Linux, the command reads the systemd journal. On macOS, launchd stores no logs, so the runtime writes its own files and the command reads those:
+
+| Service | Log file                                    |
+| ------- | ------------------------------------------- |
+| User    | `~/Library/Logs/Spice/<service>/spiced.log` |
+| System  | `/Library/Logs/Spice/<service>/spiced.log`  |
+
+The runtime keeps five files of about 10 MiB each and deletes the oldest. `spice connect service status` reports the location. Uninstalling the service keeps the files.
+
 ## Apply changes that require a restart
 
 Check the deployment status:
