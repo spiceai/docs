@@ -78,6 +78,10 @@ clickhouse:
   label: 'ClickHouse'
   permalink: '/clickhouse'
   description: 'ClickHouse OLAP database integration.'
+cloud-connect:
+  label: 'Cloud Connect'
+  permalink: '/cloud-connect'
+  description: 'Connect a self-hosted Spice instance to Spice Cloud.'
 component-metrics:
   label: 'Component Metrics'
   permalink: '/component-metrics'
@@ -314,6 +318,10 @@ kubernetes:
   label: 'Kubernetes'
   permalink: '/kubernetes'
   description: 'Kubernetes orchestration and secret management.'
+launchd:
+  label: 'launchd'
+  permalink: '/launchd'
+  description: 'Run Spice as a macOS service.'
 libsql:
   label: 'libSQL'
   permalink: '/libsql'
@@ -506,6 +514,10 @@ sql:
   label: 'SQL'
   permalink: '/sql'
   description: 'SQL query language support and database operations.'
+systemd:
+  label: 'systemd'
+  permalink: '/systemd'
+  description: 'Run Spice as a Linux service.'
 tools:
   label: 'Tools'
   permalink: '/tools'

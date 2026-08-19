@@ -1,30 +1,33 @@
 ---
-title: 'Spice Cloud Platform Deployment'
-description: 'Guide to deploying data and AI applications using the managed Spice Cloud Platform'
+title: 'Spice Cloud Platform'
+description: 'Managed Spice.ai hosting, and connecting a self-hosted instance to it with Cloud Connect.'
 sidebar_label: 'Spice Cloud Platform'
+keywords: [spice.ai, spice cloud platform, managed, cloud connect]
 sidebar_position: 6
 ---
 
-The Spice Cloud Platform is a managed, cloud-hosted solution designed for deploying data and AI applications and agents. It provides a secure and efficient compute environment powered by Spice.ai OSS, offering building blocks including high-speed SQL queries, LLM inference, vector search, and retrieval-augmented generation (RAG).
+The Spice Cloud Platform is managed hosting for data and AI applications, powered by Spice.ai OSS. It provides high-speed SQL queries, LLM inference, vector search, and retrieval-augmented generation without any infrastructure to operate.
 
-## Benefits of the Spice.ai Cloud Platform
+An application can reach the platform two ways, and they are not exclusive:
 
-- **Simplified Deployment**: Focus on creating data and AI applications without the complexity of managing infrastructure.
-- **High Performance**: Optimize data queries and AI workflows with cloud-scale compute resources.
-- **Collaboration**: Share and manage datasets, models, and tools across your team and the enterprise.
-- **Production-Ready**: Achieve reliability, scalability, and compliance for AI applications.
+| Approach                                  | Where the runtime runs         | Where the data goes             |
+| ----------------------------------------- | ------------------------------ | ------------------------------- |
+| Managed hosting                           | on Spice Cloud                 | to the platform's compute       |
+| [Cloud Connect](./cloud-connect/index.md) | on a host an operator controls | nowhere — it stays on that host |
 
-## Security and Compliance
+**Cloud Connect** is the second row: a self-hosted instance enrolls with the platform and becomes monitorable and configurable from the same portal, while its data never leaves the host. Spicepods and secrets are deployed to it from the portal, and it reports health, queries, and metrics back. See [Cloud Connect](./cloud-connect/index.md) for the connection methods — [a development machine](./cloud-connect/development.md), [a managed service](./cloud-connect/service.md), or [a container](./cloud-connect/headless.md).
 
-The Spice.ai Cloud Platform prioritizes security and compliance to ensure the protection of user data and systems. It adheres to SOC 2 Type II compliance standards, providing enterprise-level security validated by third-party audits. The platform employs comprehensive security measures, including encryption of sensitive data both in-transit and at-rest, multi-factor authentication (MFA), and role-based access control (RBAC). Access and usage are logged for auditability, and the principle of least privilege is enforced to minimize unnecessary access. For more details, visit the [Spice.ai Security Documentation](https://docs.spice.ai/security/security).
+## Managed hosting
 
-## Deployment Overview
+1. **Sign up** at [spice.ai](https://spice.ai/login).
+2. **Configure** datasets, models, and workflows in the portal.
+3. **Deploy** applications and agents.
+4. **Monitor** with the platform's built-in observability, and scale as required.
 
-1. **Sign Up**: Register for an account on the [Spice.ai Cloud Platform](https://spice.ai/login).
-2. **Configure Your Application**: Organize datasets, models, and workflows using the platform's cloud portal.
-3. **Deploy**: Launch your AI applications and agents with minimal configuration.
-4. **Monitor and Scale**: Use built-in monitoring and observability tools to track performance and scale resources as required.
+The [Spice.ai Cloud Platform documentation](https://docs.spice.ai/) covers the platform's own configuration in full.
 
-## Learn More
+## Security and compliance
 
-For comprehensive instructions and advanced configuration options, refer to the [Spice.ai Cloud Platform documentation](https://docs.spice.ai/).
+The platform is SOC 2 Type II compliant. Sensitive data is encrypted in transit and at rest, access uses multi-factor authentication and role-based access control, access and usage are logged for audit, and least privilege is enforced. The [Spice.ai security documentation](https://docs.spice.ai/security/security) has the details.
+
+A Cloud Connect instance narrows the surface further: the platform holds an issued instance identity rather than an operator's login, delivered secret values stay inside the runtime process, and the instance dials out — Spice Cloud never opens an inbound connection to it.

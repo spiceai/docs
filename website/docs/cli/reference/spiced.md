@@ -54,9 +54,18 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
 - `--allow-insecure-connections` — Allow cluster communication without mTLS. Use only in development or testing environments.
 
-### Cloud Connect flags
+### Spice Cloud Connect flags
 
-- `--cloud-connect` — Connect this runtime to Spice Cloud for remote management (Cloud Connect). Default: `false`. Requires an enrolled identity or a staged adoption code — see [`spice connect`](./connect). When the flag is omitted the client still activates if such adoption state exists, so instances enrolled before the flag existed keep connecting across an upgrade; a `spiced` with no adoption state never connects to the cloud.
+Use these flags for unattended enrollment. After enrollment, `spiced` uses the identity in the instance's `.spice` directory.
+
+- `--token <ENROLLMENT_KEY>` — Enroll the instance with a one-time Spice Cloud key. You cannot use this option with `--repl`.
+- `--region <REGION>` — Set a location label during enrollment. Use 2–64 lowercase letters, digits, or hyphens. Use this option with `--token`.
+
+Each key can enroll one instance. After enrollment, remove the key and `--token` from the command.
+
+Set `SPICE_CONFIG_DIR` to a persistent location. The instance cannot reconnect if you lose its identity.
+
+See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/cloud/cloud-connect/headless).
 
 ### SQL REPL flags
 
@@ -70,12 +79,12 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 
 `spice run` is a thin launcher around `spiced`. When it spawns the runtime, it adds a few flags automatically that `spiced` does **not** apply when invoked directly:
 
-| Behavior                    | `spice run`                                                 | `spiced`                                            |
-| --------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
-| Runtime installation        | Auto-installs `spiced` if missing                           | Must already be installed                           |
-| Pods watcher                | Enabled (`--pods-watcher-enabled`)                          | Disabled by default                                 |
-| Task history captured output | Forced to `truncated` via `--set-runtime`                   | Uses the Spicepod value (default: `full`)           |
-| `--endpoint` scheme routing | Supported — `http://…` sets HTTP, `grpc://…` sets Flight    | Not supported — use `--http` and `--flight` directly |
+| Behavior                     | `spice run`                                              | `spiced`                                             |
+| ---------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| Runtime installation         | Auto-installs `spiced` if missing                        | Must already be installed                            |
+| Pods watcher                 | Enabled (`--pods-watcher-enabled`)                       | Disabled by default                                  |
+| Task history captured output | Forced to `truncated` via `--set-runtime`                | Uses the Spicepod value (default: `full`)            |
+| `--endpoint` scheme routing  | Supported — `http://…` sets HTTP, `grpc://…` sets Flight | Not supported — use `--http` and `--flight` directly |
 
 Operators running `spiced` directly who want `spice run`-equivalent behavior should pass `--pods-watcher-enabled` and, if desired, `--set-runtime task_history.captured_output=truncated`.
 
