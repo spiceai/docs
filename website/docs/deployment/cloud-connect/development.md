@@ -51,13 +51,13 @@ Each command uses the existing identity. It does not enroll a new instance.
 
 Deploy a Spicepod from the Spice Cloud portal. Cloud Connect applies supported changes to the running instance. Some changes require a restart.
 
-To check for pending changes, run:
+When a deployment changes a section that only a start reads, the runtime names those sections in its output:
 
-```shell
-spice connect status
+```text
+INFO Spice Cloud Connect: applied the deployed spicepod (4 datasets, 0 models, 0 catalogs, 1 views); runtime takes effect when this instance next starts
 ```
 
-If the output shows `restart: required`, press `Ctrl-C`. Then run `spice connect` again.
+The project in Spice Cloud reports the same pending sections. To apply them, press `Ctrl-C` and run `spice connect` again.
 
 For more information, see [Deployments and restarts](./index.md#deployments-and-restarts).
 

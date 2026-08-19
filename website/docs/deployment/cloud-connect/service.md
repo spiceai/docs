@@ -89,13 +89,17 @@ The runtime keeps five files of about 10 MiB each and deletes the oldest. `spice
 
 ## Apply changes that require a restart
 
-Check the deployment status:
+A deployment that changes a section only a start reads keeps the instance serving its current configuration. The runtime names those sections in the service log, and the project in Spice Cloud reports them:
 
 ```shell
-spice connect status
+spice connect service logs -n 20
 ```
 
-If the output shows `restart: required`, run:
+```text
+INFO Spice Cloud Connect: applied the deployed spicepod (12 datasets, 1 models, 0 catalogs, 0 views); runtime, secrets takes effect when this instance next starts
+```
+
+Apply them:
 
 ```shell
 spice connect service restart

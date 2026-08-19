@@ -59,11 +59,10 @@ A portal deployment does not restart the instance. These sections apply without 
 - `functions`
 - added `catalogs`
 
-Changes to other sections take effect at the next start. Removed catalogs also require a restart. Check the pending sections:
+Changes to other sections take effect at the next start. Removed catalogs also require a restart. The runtime names the pending sections when it applies the deployment, and the project in Spice Cloud reports them:
 
-```shell
-spice connect status
-spice connect status --output json
+```text
+INFO Spice Cloud Connect: applied the deployed spicepod (4 datasets, 1 models, 0 catalogs, 2 views); runtime, tools takes effect when this instance next starts
 ```
 
 Restart the instance with the method that controls it:
