@@ -65,7 +65,7 @@ Each key can enroll one instance. After enrollment, remove the key and `--token`
 
 Set `SPICE_CONFIG_DIR` to a persistent location. The instance cannot reconnect if you lose its identity.
 
-See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/cloud-connect/headless).
+See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/cloud/cloud-connect/headless).
 
 ### SQL REPL flags
 
@@ -79,12 +79,12 @@ See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/c
 
 `spice run` is a thin launcher around `spiced`. When it spawns the runtime, it adds a few flags automatically that `spiced` does **not** apply when invoked directly:
 
-| Behavior                    | `spice run`                                                 | `spiced`                                            |
-| --------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
-| Runtime installation        | Auto-installs `spiced` if missing                           | Must already be installed                           |
-| Pods watcher                | Enabled (`--pods-watcher-enabled`)                          | Disabled by default                                 |
-| Task history captured output | Forced to `truncated` via `--set-runtime`                   | Uses the Spicepod value (default: `full`)           |
-| `--endpoint` scheme routing | Supported — `http://…` sets HTTP, `grpc://…` sets Flight    | Not supported — use `--http` and `--flight` directly |
+| Behavior                     | `spice run`                                              | `spiced`                                             |
+| ---------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| Runtime installation         | Auto-installs `spiced` if missing                        | Must already be installed                            |
+| Pods watcher                 | Enabled (`--pods-watcher-enabled`)                       | Disabled by default                                  |
+| Task history captured output | Forced to `truncated` via `--set-runtime`                | Uses the Spicepod value (default: `full`)            |
+| `--endpoint` scheme routing  | Supported — `http://…` sets HTTP, `grpc://…` sets Flight | Not supported — use `--http` and `--flight` directly |
 
 Operators running `spiced` directly who want `spice run`-equivalent behavior should pass `--pods-watcher-enabled` and, if desired, `--set-runtime task_history.captured_output=truncated`.
 

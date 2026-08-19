@@ -12,13 +12,11 @@ tags:
   - spiceai
 ---
 
-Use an enrollment key to connect a container or unattended host to Spice Cloud.
+An enrollment key connects a container or unattended host to Spice Cloud, with no interactive terminal involved.
 
-## Before you start
+## Requirements
 
-Get an [enrollment key](https://spice.ai/connect). Each key can enroll one instance.
-
-Prepare writable persistent storage for the instance identity. If you lose the identity, you must enroll the instance again.
+An [enrollment key](https://spice.ai/connect), which enrolls exactly one instance, and writable persistent storage for the identity the enrollment issues. A lost identity cannot be recovered — that instance has to enroll again.
 
 ## Run `spiced`
 
@@ -26,13 +24,11 @@ Prepare writable persistent storage for the instance identity. If you lose the i
 SPICE_CONFIG_DIR=/data/.spice spiced --token "$SPICE_ENROLL_KEY"
 ```
 
-After the runtime starts, open the portal link in the runtime log. Use the link to create a project for the instance.
-
-After a successful enrollment, remove `--token` and the enrollment key. Keep `SPICE_CONFIG_DIR` on persistent storage.
+The runtime log carries a portal link that creates the instance's project. Once enrollment succeeds, `--token` and the key are no longer needed; `SPICE_CONFIG_DIR` stays, on persistent storage.
 
 ## Docker
 
-Create a persistent volume. Pass the key through an environment variable:
+The key travels in an environment variable rather than on the command line, and the identity lives on a named volume:
 
 ```shell
 docker volume create spice-identity
@@ -49,7 +45,7 @@ docker run --rm \
   --flight 0.0.0.0:50051
 ```
 
-When the runtime is ready, stop the container. Start it again without `--token`:
+Once the runtime is ready, the container is recreated without `--token`:
 
 ```shell
 docker run -d \
@@ -65,14 +61,14 @@ docker run -d \
 
 ## Helm
 
-Create a Kubernetes Secret:
+The key comes from a Kubernetes Secret:
 
 ```shell
 kubectl create secret generic spice-cloud-connect \
   --from-literal=enroll-key="$SPICE_ENROLL_KEY"
 ```
 
-Add the key and a persistent volume to `values.yaml`:
+`values.yaml` injects it and mounts a volume for the identity:
 
 ```yaml
 replicaCount: 1
@@ -97,34 +93,34 @@ additionalEnv:
     value: /data/.spice
 ```
 
-Install the chart:
+Installing the chart:
 
 ```shell
 helm upgrade --install spiceai spiceai/spiceai -f values.yaml
 ```
 
-When the pod is ready, remove `--token` and `SPICE_ENROLL_KEY` from `values.yaml`. Then run the Helm command again.
+Once the pod is ready, `--token` and `SPICE_ENROLL_KEY` come out of `values.yaml` and the release is upgraded again.
 
 :::warning
-Use one replica. Multiple replicas cannot share one Cloud Connect identity.
+One replica only. Two replicas cannot share one Cloud Connect identity.
 :::
 
-For more chart options, see the [Helm deployment guide](../kubernetes/helm/index.md).
+The [Helm deployment guide](../../kubernetes/helm/index.md) documents the rest of the chart.
 
-## Optional region label
+## Region label
 
-Use `--region` to record the instance location:
+`--region` records where the instance runs, which Spice Cloud uses to resolve its gateway:
 
 ```shell
 spiced --token "$SPICE_ENROLL_KEY" --region on-prem-syd
 ```
 
-The label must contain 2–64 lowercase letters, digits, or hyphens.
+The label is 2–64 lowercase letters, digits, or hyphens, and is a declared value rather than a probed one.
 
-## Check the connection
+## Checking the connection
 
 ```shell
 spice connect status --output json
 ```
 
-For all runtime options, see the [`spiced` command reference](../../cli/reference/spiced.md).
+The [`spiced` command reference](../../../cli/reference/spiced.md) documents every runtime option.

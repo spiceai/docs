@@ -68,7 +68,7 @@ Log options:
 
 Windows does not support service actions. `service status` is available on all platforms.
 
-See [Cloud Connect as a service](../../deployment/cloud-connect/service.md).
+See [Cloud Connect as a service](../../deployment/cloud/cloud-connect/service.md).
 
 ### `remove`
 
@@ -111,7 +111,7 @@ spice add <org>/<pod>
 
 ### See also
 
-- [Cloud Connect overview](../../deployment/cloud-connect/index.md)
-- [Development machine](../../deployment/cloud-connect/development.md)
-- [Service](../../deployment/cloud-connect/service.md)
-- [Headless](../../deployment/cloud-connect/headless.md)
+- [Cloud Connect overview](../../deployment/cloud/cloud-connect/index.md)
+- [Development machine](../../deployment/cloud/cloud-connect/development.md)
+- [Service](../../deployment/cloud/cloud-connect/service.md)
+- [Headless](../../deployment/cloud/cloud-connect/headless.md)
