@@ -69,7 +69,7 @@ The baseline is the sum of a fixed process cost and a per-dataset cost. The per-
 | Allocation                    | Applies to                                  | Default size                                              |
 | ----------------------------- | ------------------------------------------- | --------------------------------------------------------- |
 | Runtime process overhead      | Always                                      | ~500 MB                                                    |
-| Cayenne segment cache         | Each Cayenne-accelerated dataset            | 1/128 of total memory, clamped to 256 MB–1 GB              |
+| Cayenne segment cache         | The process, once, when any Cayenne table exists | 1/64 of total memory, clamped to 256 MB–2 GB          |
 | Cayenne PK keyset cache       | Each Cayenne CDC/upsert dataset             | 1/32 of total memory, clamped to 256 MiB–8 GiB, and additionally bounded by a process-wide ceiling across all datasets |
 | CDC coalesce buffer           | Each CDC dataset                            | 128 MiB (`cdc_max_coalesced_bytes`)                        |
 | Results caches                | Runtime                                     | 128 MiB each for SQL, search, and embedding results        |
@@ -89,7 +89,7 @@ Prefer shortening `retention_period` to disabling task history outright — it b
 
 Two consequences follow:
 
-- **The baseline scales with dataset count.** Ten Cayenne-accelerated datasets reserve at least 2.5 GB of segment cache between them whether each dataset holds a gigabyte or a megabyte.
+- **The baseline scales with dataset count — through the write path, not the read path.** Ten CDC-accelerated Cayenne datasets reserve 1.25 GB of CDC coalesce buffer between them, plus a PK keyset cache each, whether each dataset holds a gigabyte or a megabyte. The segment cache is the exception: it is one process-wide budget counted once, so an eleventh dataset divides the pool rather than adding to it.
 - **The baseline is a larger share of a smaller container.** The per-dataset floors are absolute, so halving the container's memory does not halve the baseline — it raises the baseline's share of the total.
 
 The runtime accounts for this when deriving its own defaults: the query memory limit is reduced by the per-dataset reservations so the pools plus the caches fit within the memory the process may use. Explicitly configured limits are honored as-is and are **not** reduced, so a hand-set `runtime.query.memory_limit` is the one case where the total can be over-committed. Per-dataset caps sized in isolation still add up, and the aggregate is what the kernel makes its OOM decision on.
@@ -103,14 +103,14 @@ An [accelerated catalog](./spicepod/catalogs#acceleration) creates a Cayenne tab
 
 ## Sizing a Non-Production Environment
 
-A common approach to staging is to take the production configuration and scale every number down by the ratio of data volume — a tenth of the data, a tenth of the memory. Because the baseline does not scale, this does not produce a smaller model of production. It produces a **different regime**, in which the baseline dominates, the working set is squeezed into whatever is left, and behavior no longer predicts what production will do.
+A common approach to staging is to take the production configuration and scale every number down by the ratio of data volume — a tenth of the data, a tenth of the memory. Because the baseline does not scale down with it, this does not produce a smaller model of production. It produces a **different regime**, in which the baseline dominates, the working set is squeezed into whatever is left, and behavior no longer predicts what production will do.
 
-Consider a Spicepod with ten accelerated datasets, deployed at two container sizes. The per-dataset caches sit at their floor in both, so the baseline is the same number in each row:
+Consider a Spicepod with five CDC-accelerated Cayenne datasets, deployed at two container sizes. Shrinking the container by 8× does not shrink the baseline by 8×: the allocations that are already at their floor in the small container — the PK keyset cache, the flat CDC coalesce buffer, and the process-wide segment cache — cannot get any smaller, so the baseline's *share* is what moves:
 
-| Container memory | Baseline (overhead + 10 datasets) | Baseline share | Left for the working set |
-| ---------------- | --------------------------------- | -------------- | ------------------------ |
-| 4 GiB            | ~3 GB                             | ~76%           | ~1 GB                    |
-| 32 GiB           | ~3 GB                             | ~9%            | ~29 GB                   |
+| Container memory | Baseline (overhead + 5 datasets) | Baseline share | Left for the working set |
+| ---------------- | -------------------------------- | -------------- | ------------------------ |
+| 4 GiB            | ~2.6 GB                          | ~65%           | ~1.4 GB                  |
+| 32 GiB           | ~6.9 GB                          | ~22%           | ~25 GB                   |
 
 The same Spicepod is memory-bound in the first row and comfortable in the second. Nothing about the first row's behavior — its headroom, its spill frequency, its latency profile — carries over to the second.
 
@@ -163,24 +163,25 @@ Spice Cayenne is DataFusion query-native, meaning all query execution adheres to
 | Parameter                  | Scope                  | Default | Description                                                                                                                                  |
 | -------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_footer_cache_mb`  | `runtime.params`       | `50` (unset) | Size of the engine-global in-memory Vortex footer cache in megabytes, shared by all Cayenne datasets. Larger values improve query performance for repeated scans by caching file metadata. Optional; when unset, DataFusion's default file-metadata-cache limit of 50 MB applies. |
-| `cayenne_segment_cache_mb` | `acceleration.params`  | auto    | Per-dataset size of the in-memory Vortex segment cache in megabytes. Caches decompressed data segments for improved query performance. When unset, derived as 1/128 of total memory, clamped to 256 MB–1 GB. |
+| `cayenne_segment_cache_mb` | `runtime.params`       | derived | Total size of the process-wide in-memory Vortex segment cache in megabytes, shared by every Cayenne table. Caches decompressed data segments for improved query performance. When unset, derived as 1/64 of total memory, clamped to 256 MB–2 GB; `0` disables it. A value set under a dataset's `acceleration.params` is reported at startup and otherwise ignored. |
 
 **Memory Usage Guidelines:**
 
 - Base memory: ~500 MB for runtime overhead
 - Footer cache: unset by default (DataFusion's 50 MB file-metadata-cache limit applies); increase for datasets with many files
-- Segment cache: auto-derived per dataset with a 256 MB floor; increase for workloads with repeated scans on the same data
+- Segment cache: auto-derived once for the process with a 256 MB floor; increase for workloads with repeated scans on the same data
 - Query execution memory: Depends on query complexity and concurrency
 
-The segment cache is allocated **per Cayenne-accelerated dataset**, and its floor does not scale down with the container. Count it once per dataset when sizing — see [What Makes Up the Baseline](#what-makes-up-the-baseline).
+The segment cache is allocated **once for the whole process**, not per dataset: one cache serves every Cayenne table, keyed by store, file, and segment, so adding a table divides the budget rather than reserving another cache of its own. Count it once when sizing — see [What Makes Up the Baseline](#what-makes-up-the-baseline). Its floor does not scale down with the container, and it is reserved only when the pod has at least one Cayenne table to read through it.
 
 **Example Configuration:**
 
 ```yaml
 runtime:
   params:
-    # Engine-global footer cache (shared by all Cayenne datasets)
+    # Engine-global caches (shared by all Cayenne datasets)
     cayenne_footer_cache_mb: 256
+    cayenne_segment_cache_mb: 512
 
 datasets:
   - from: s3://my-bucket/large-dataset/
@@ -188,9 +189,6 @@ datasets:
     acceleration:
       engine: cayenne
       mode: file
-      params:
-        # Per-dataset segment cache
-        cayenne_segment_cache_mb: 512
 ```
 
 ### DuckDB
