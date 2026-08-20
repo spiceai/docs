@@ -69,7 +69,9 @@ An off-origin redirect surfaces as the `3xx` response itself rather than as a tr
 
 ## `spice cloud login`
 
-Authenticate with the Spice Cloud Platform. Running `spice cloud login` without a subcommand opens an interactive method chooser when stdin is a TTY. Non-interactive callers must specify a method explicitly.
+Authenticate with the Spice Cloud Platform. See [`spice cloud`](./cloud#login) for the rest of the Spice Cloud command surface.
+
+Running `spice cloud login` with no subcommand offers two choices — **Login with a web browser** and **Paste an access token** — which run `subscription` and `token` respectively. The chooser needs an interactive terminal; non-interactive callers must name a method. `api` is not offered in the chooser and is always named explicitly.
 
 ### Methods
 
@@ -87,19 +89,21 @@ Use `--device` to print the URL and one-time code without opening a browser (use
 spice cloud login subscription --device
 ```
 
-#### `spice cloud login pat`
+#### `spice cloud login token`
 
-Authenticate with a personal access token.
+Authenticate with a Spice Cloud access token. Alias: `pat`.
 
 ```shell
-spice cloud login pat --token <TOKEN>
+spice cloud login token --token <TOKEN>
 ```
+
+Omit `--token` to enter the token at a secure prompt. Generate one at `/account/tokens` in the Spice Cloud portal.
 
 The token can also be provided via the `SPICE_CLOUD_PAT` environment variable:
 
 ```shell
 export SPICE_CLOUD_PAT=<TOKEN>
-spice cloud login pat
+spice cloud login token
 ```
 
 #### `spice cloud login api`
@@ -122,6 +126,6 @@ spice cloud login api
 
 | Variable | Used by | Description |
 | --- | --- | --- |
-| `SPICE_CLOUD_PAT` | `login pat` | Personal access token |
+| `SPICE_CLOUD_PAT` | `login token` | Spice Cloud access token |
 | `SPICE_CLOUD_CLIENT_ID` | `login api` | OAuth2 client ID |
 | `SPICE_CLOUD_CLIENT_SECRET` | `login api` | OAuth2 client secret |
