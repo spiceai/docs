@@ -23,9 +23,9 @@ spice [command] [--help]
 | [catalogs](reference/catalogs)     | List [catalogs](../components/catalogs) loaded by the Spice runtime |
 | [chat](reference/chat)             | Chat with an LLM                                                       |
 | [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
-| cloud                              | Manage Spice Cloud resources                                           |
+| [cloud](reference/cloud)           | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
-| [connect](reference/connect)       | Connect a Spice instance to Spice Cloud                                     |
+| [connect](reference/connect)       | Deprecated alias for adding a Spicepod dependency                      |
 | [dataset](reference/dataset)       | Add or configure dataset entries in `spicepod.yaml`                    |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
 | embedding                          | Add or configure embedding entries in `spicepod.yaml`                  |

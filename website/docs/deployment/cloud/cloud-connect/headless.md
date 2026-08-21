@@ -120,7 +120,7 @@ The label is 2–64 lowercase letters, digits, or hyphens, and is a declared val
 ## Checking the connection
 
 ```shell
-spice connect status --output json
+spice cloud status --output json
 ```
 
 The [`spiced` command reference](../../../cli/reference/spiced.md) documents every runtime option.
