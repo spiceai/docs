@@ -18,21 +18,22 @@ The instance dials out to Spice Cloud. Spice Cloud never opens an inbound connec
 
 | Method                          | The instance runs                      | Command                         |
 | ------------------------------- | -------------------------------------- | ------------------------------- |
-| [Development](./development.md) | in the terminal that started it        | `spice connect`                 |
-| [Service](./service.md)         | as a Linux or macOS service            | `spice connect service install` |
+| [Development](./development.md) | in the terminal that started it        | `spice cloud link`, then `spice run` |
+| [Service](./service.md)         | as a Linux or macOS service            | `spice cloud service install`   |
 | [Headless](./headless.md)       | in a container or under any supervisor | `spiced --token <key>`          |
 
-Windows has no managed service. A Windows host runs the instance with `spice connect` or under its own supervisor.
+Windows has no managed service. A Windows host runs the instance with `spice run` or under its own supervisor.
 
 ## Instance directory
 
-Cloud Connect state belongs to an instance directory, not to the host: the issued identity lives at `<dir>/.spice/identity.json`. The directory defaults to the working directory, and `--dir` selects another one.
+Cloud Connect state belongs to an instance directory, not to the host: the issued identity lives at `<dir>/.spice/identity.json`. Commands act on the directory they run from.
 
 ```shell
-spice connect status --dir /srv/edge-analytics
+cd /srv/edge-analytics
+spice cloud status
 ```
 
-`SPICE_CONFIG_DIR` replaces the derived path entirely and takes precedence over `--dir`, which is how a container places the identity on a mounted volume.
+`SPICE_CONFIG_DIR` replaces the derived path entirely, which is how a container places the identity on a mounted volume.
 
 An enrolled directory reconnects on its own. A later `spice run` or `spiced` started there connects with no Cloud Connect flag.
 
@@ -44,7 +45,7 @@ An identity expires after 30 days offline. An instance that has been down longer
 
 Two credentials can enroll an instance:
 
-- **A Spice Cloud login**, used by `spice connect`. It requires the owner or admin role in the organization, and it is the only path that also creates the instance's project.
+- **A Spice Cloud login**, used by `spice cloud link`. It requires the owner or admin role in the organization, and attaches the instance to a project that already exists — `spice cloud project create <name>` creates one.
 - **An enrollment key**, minted at [spice.ai/connect](https://spice.ai/connect) and passed to `spiced --token`. A key enrolls exactly one instance and creates no project; the runtime log carries a portal link for that.
 
 A key is shown once and is never recoverable from Spice Cloud. What restarts an instance is the issued identity under `<dir>/.spice`, which belongs on persistent storage.
@@ -65,10 +66,10 @@ Every other section is read only when the runtime starts, as is a removed catalo
 INFO Spice Cloud Connect: applied the deployed spicepod (4 datasets, 1 models, 0 catalogs, 2 views); runtime, tools takes effect when this instance next starts
 ```
 
-Whatever owns the process performs the restart: `spice connect service restart` for a service, a stop and a fresh `spice connect` in a terminal, or a recreated container or pod.
+Whatever owns the process performs the restart: `spice cloud service restart` for a service, a stop and a fresh `spice run` in a terminal, or a recreated container or pod.
 
 ## Removing an instance
 
-`spice connect remove` deletes the instance's project in Spice Cloud, uninstalls its service, and clears the local identity. It refuses while the instance is running.
+`spice cloud unlink` releases the instance in Spice Cloud, uninstalls its service, and clears the local identity. It refuses while the instance is running, and it leaves the project in place — delete that with `spice cloud project delete <org>/<project>`.
 
-`spice connect service uninstall` is the narrower operation: it removes the service and keeps the Cloud identity, so a later install resumes the same enrollment.
+`spice cloud service uninstall` is the narrower operation: it removes the service and keeps the Cloud identity, so a later install resumes the same enrollment.

@@ -65,7 +65,7 @@ Each key can enroll one instance. After enrollment, remove the key and `--token`
 
 Set `SPICE_CONFIG_DIR` to a persistent location. The instance cannot reconnect if you lose its identity.
 
-See [`spice connect`](./connect) and [Headless Cloud Connect](../../deployment/cloud/cloud-connect/headless).
+See [`spice cloud`](./cloud) and [Headless Cloud Connect](../../deployment/cloud/cloud-connect/headless).
 
 ### SQL REPL flags
 
