@@ -185,7 +185,7 @@ Lists the projects in the organization in effect. Alias: `apps`.
 ### `project`
 
 ```shell
-spice cloud project create <NAME> --region <REGION> [flags]
+spice cloud project create <NAME> [flags]
 spice cloud project get <org>/<project>
 spice cloud project update [--project <org>/<project>] [flags]
 spice cloud project delete <org>/<project> [--yes]
@@ -193,25 +193,38 @@ spice cloud project delete <org>/<project> [--yes]
 
 #### `project create`
 
-Creates a Spice-managed project — one whose runtime Spice Cloud hosts — and prints its primary API key.
+`--kind` decides which kind of project is created. Either way, the command prints the new project's primary API key.
 
-- `--region <REGION>` Required. Accepts a short region name (`us-east-1`) or a full data region name (`us-east-1-prod-aws-data`). List them with [`spice cloud regions`](#regions-and-images).
-- `--kind <KIND>` `set` (default) or `cluster`.
+```shell
+spice cloud project create <NAME>                              # Cloud Connect project
+spice cloud project create <NAME> --kind set --region <REGION> # Spice-managed project
+```
+
+- **Omit `--kind`** for a **Cloud Connect** project — one Spice Cloud does not run, served by your own runtime. This is the project [`spice cloud link`](#link) attaches an instance to.
+- **Name a `--kind`**, `set` or `cluster`, for a **Spice-managed** project, whose runtime Spice Cloud hosts. `--region` is required alongside it.
+
+Flags that configure a hosted runtime are **refused, not ignored**, when no `--kind` is named: `--region`, `--replicas`, `--cpu`, `--memory`, `--storage-size-gb`, `--executor-replicas`, `--executor-cpu`, `--executor-memory`, and `--channel` each fail the command. A Cloud Connect project's region is not chosen here — it follows from the stamp its attached instance's control stream terminates on.
+
+Flags:
+
+- `--kind <KIND>` `set` or `cluster`. Omit for a Cloud Connect project.
+- `--region <REGION>` Required with `--kind`, refused without it. Accepts a short region name (`us-east-1`) or a full data region name (`us-east-1-prod-aws-data`). List them with [`spice cloud regions`](#regions-and-images).
 - `--description <TEXT>`
 - `--visibility <VISIBILITY>` `private` (default) or `public`.
+- `--spicepod <PATH>` Path to a `spicepod.yaml` to store on the project.
+
+Hosted-runtime flags, each requiring `--kind`:
+
 - `--replicas <N>` Scheduler replicas.
 - `--cpu <VCPUS>` Scheduler CPU limit, in vCPUs.
 - `--memory <SIZE>` Scheduler memory limit (for example `16Gi`).
 - `--storage-size-gb <GB>` Block storage size.
 - `--executor-replicas <N>`, `--executor-cpu <VCPUS>`, `--executor-memory <SIZE>` Executor sizing.
-- `--spicepod <PATH>` Path to a `spicepod.yaml` to store on the project.
 - `--channel <CHANNEL>` Update channel: `stable`, `preview`, `nightly`, or `internal`.
 
 `--kind cluster` requires `--replicas 1` and all three executor flags.
 
-:::note
-`spice cloud project create` requires `--region`, so it creates Spice-managed projects only. Create the project that [`spice cloud link`](#link) attaches an instance to from the Spice Cloud portal.
-:::
+The kind reported for the new project is Spice Cloud's answer, read from the create response rather than restated from the request.
 
 #### `project get`
 

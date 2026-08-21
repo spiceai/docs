@@ -45,7 +45,7 @@ An identity expires after 30 days offline. An instance that has been down longer
 
 Two credentials can enroll an instance:
 
-- **A Spice Cloud login**, used by `spice cloud link`. It requires the owner or admin role in the organization, and attaches the instance to a project that already exists.
+- **A Spice Cloud login**, used by `spice cloud link`. It requires the owner or admin role in the organization, and attaches the instance to a project that already exists — `spice cloud project create <name>` creates one.
 - **An enrollment key**, minted at [spice.ai/connect](https://spice.ai/connect) and passed to `spiced --token`. A key enrolls exactly one instance and creates no project; the runtime log carries a portal link for that.
 
 A key is shown once and is never recoverable from Spice Cloud. What restarts an instance is the issued identity under `<dir>/.spice`, which belongs on persistent storage.

@@ -65,10 +65,10 @@ To create the app from the CLI:
 
 ```bash
 spice cloud login
-spice cloud project create my-observability --region us-east-1 --visibility private
+spice cloud project create my-observability --kind set --region us-east-1 --visibility private
 ```
 
-List the available regions with `spice cloud regions`. See [`spice cloud`](../cli/reference/cloud) for the full command reference.
+`--kind set` makes this a Spice-managed app; list the available regions with `spice cloud regions`. See [`spice cloud`](../cli/reference/cloud) for the full command reference.
 
 The output includes the app's primary API key. Treat the key as a secret — anyone with the key can write task history to (and read it from) the app.
 

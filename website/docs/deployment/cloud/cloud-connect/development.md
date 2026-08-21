@@ -16,7 +16,7 @@ tags:
 
 - The [Spice CLI](../../../installation.md).
 - The owner or admin role in a Spice Cloud organization. A `member` cannot enroll an instance.
-- A project in that organization. `spice cloud link` attaches to a project that already exists; create one in the Spice Cloud portal.
+- A project in that organization. `spice cloud link` attaches to a project that already exists; create one with `spice cloud project create <name>`, or in the Spice Cloud portal.
 
 Log in first. `spice cloud link` needs a Spice Cloud user session and does not create one:
 
