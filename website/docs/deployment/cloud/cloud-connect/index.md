@@ -68,6 +68,20 @@ INFO Spice Cloud Connect: applied the deployed spicepod (4 datasets, 1 models, 0
 
 Whatever owns the process performs the restart: `spice cloud service restart` for a service, a stop and a fresh `spice run` in a terminal, or a recreated container or pod.
 
+## Which Spicepod an instance serves
+
+An enrolled instance serves **one** Spicepod, and after its first deployment that is the deployed one — not the local `spicepod.yaml` in the instance directory. The runtime says which at startup:
+
+| State | What is served | Startup log |
+| --- | --- | --- |
+| A deployment has landed | The deployed Spicepod. A local `spicepod.yaml` sitting beside it is **not read**. | Warns that the local file is ignored, naming both paths. |
+| No deployment yet | The local `spicepod.yaml`, until the first deployment replaces it. | Warns that Spice Cloud will replace that Spicepod on the next deployment. |
+| Neither | Nothing — the runtime still starts and stays reachable so a deployment can land. | Logs that no Spicepod was found. |
+
+The consequence to plan for: anything that exists **only** in the local file stops being served the moment the first deployment lands. A view added to the project's Spicepod in Spice Cloud that reads a dataset defined only locally therefore never resolves — the runtime warns that the view's dependent table does not exist, because the deployed manifest has no such dataset. Copy the local datasets into the project's Spicepod before deploying, and from then on edit the project's Spicepod in Spice Cloud rather than the local file.
+
+For the same reason `--pods-watcher-enabled` is ignored on an instance serving a deployed Spicepod, and the runtime says so: watching the local `spicepod.yaml` would replace the deployed configuration while the instance kept reporting the deployment as applied.
+
 ## Removing an instance
 
 `spice cloud unlink` releases the instance in Spice Cloud, uninstalls its service, and clears the local identity. It refuses while the instance is running, and it leaves the project in place — delete that with `spice cloud project delete <org>/<project>`.
