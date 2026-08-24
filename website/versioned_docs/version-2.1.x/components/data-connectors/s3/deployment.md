@@ -72,6 +72,30 @@ Authentication failures (`401`, `403`) and missing buckets (`404`) surface immed
 - **Schema inference cost**: On first registration, Spice samples files to infer schema. Provide an explicit `schema` in the dataset definition for large datasets to avoid repeated list/head operations.
 - **DataFusion batch size**: Object-store reads yield 8192-row record batches by default. Increase via runtime tuning for CPU-bound scans over compressed formats.
 
+### Refresh Skipping for Single-File Datasets
+
+An **accelerated** dataset whose `from:` points at a single S3 object (not a prefix) is wrapped in a metadata-caching layer. Before each refresh, Spice issues a `HEAD` on the object and compares the returned version ID (authoritative when S3 Versioning is on) or `ETag` against the cached value; when they match, the refresh is skipped and no object data is fetched. Query execution always reads through to the underlying table and is unaffected.
+
+This is on by default. Set `refresh_skip: disabled` in the dataset's `params:` to force every refresh to re-fetch the object:
+
+```yaml
+datasets:
+  - from: s3://my-bucket/exports/daily.parquet
+    name: daily
+    params:
+      file_format: parquet
+      refresh_skip: disabled
+    acceleration:
+      enabled: true
+      refresh_check_interval: 10m
+```
+
+`refresh_skip` belongs in `params:`, not `acceleration.params:`. It applies only to the S3 connector, only to single-object datasets, and only when acceleration is enabled — a directory dataset or an unaccelerated dataset ignores it. An unrecognized value logs a warning and falls back to `enabled`.
+
+The skip check runs for `refresh_mode: full` and `refresh_mode: append` only. A manual refresh that supplies its own `refresh_sql` always re-materializes and clears the cached version, so the next scheduled refresh compares against fresh state rather than the narrowed result.
+
+Skipped refreshes are counted by the `dataset_acceleration_refresh_data_fetches_skipped` metric (labels `dataset`, `mode`) — a steadily climbing counter on an unchanged object is the expected signal, not a stalled refresh.
+
 ## Metrics
 
 The `runtime-object-store` layer that performs S3 I/O is not instrumented, so Spice does not emit S3 transport metrics (request counts, retries, bytes read). See [Component Metrics](../../../features/observability/component_metrics) for the metrics that are available.
