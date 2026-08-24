@@ -33,7 +33,22 @@ spice trace [task] [flags]
 - `search`
 - `scheduled_worker`
 
-Tools proxied from MCP servers and custom tools are recorded dynamically as `tool_use::<tool>` or `tool_use::<server>/<tool>` (for example, `tool_use::github/search_code`). Any such `tool_use::`-prefixed task name can be traced, not just the built-in tools listed above.
+Tools proxied from MCP servers and custom tools are recorded dynamically as `tool_use::<tool>`. Any such `tool_use::`-prefixed task name can be traced, not just the built-in tools listed above.
+
+A tool that belongs to a non-default tool catalog — which includes every tool proxied from an MCP server — is exposed under a catalog-qualified name joining the catalog and the tool with `__`, for example `github__search_code`. That is the name `/v1/tools` lists and the name `POST /v1/tools/{name}` expects.
+
+:::warning A proxied MCP tool is recorded under two different task names
+
+Which name `runtime.task_history` records depends on how the tool was invoked:
+
+| Invoked via | `task` recorded |
+| --- | --- |
+| The `/v1/mcp` gateway | `tool_use::github__search_code` (the exposed name) |
+| A model-driven tool call, or `POST /v1/tools/github__search_code` | `tool_use::github/search_code` |
+
+`spice trace` matches the task name exactly, so trace both spellings to see every call to the tool. Tracked in [spiceai/spiceai#13338](https://github.com/spiceai/spiceai/issues/13338).
+
+:::
 
 These tasks are from the `task` column in the Spice SQL `runtime.task_history` table.
 
