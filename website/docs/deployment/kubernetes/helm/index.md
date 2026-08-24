@@ -187,6 +187,8 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `stateful.mountPath`            | Mount path in container for the persistent volume.                                                                                                                                        | `/data`           |
 | `stateful.size`                 | Size of each PV in the StatefulSet.                                                                                                                                                       | `1Gi`             |
 | `stateful.storageClass`         | Storage class for the volume claim template in the StatefulSet.                                                                                                                           | `standard`        |
+| `strategy`                      | Update strategy for the Deployment, used when `stateful.enabled` is `false`. Standard [Deployment strategy](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy) shape. Omitted from the manifest when unset, so Kubernetes applies its own default (`RollingUpdate`). | unset             |
+| `updateStrategy`                | Update strategy for the StatefulSet, used when `stateful.enabled` is `true`. Standard [StatefulSet update strategy](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies) shape. Omitted from the manifest when unset, so Kubernetes applies its own default (`RollingUpdate`). | unset             |
 | `tolerations`                   | List of node taints to tolerate.                                                                                                                                                          | `[]`              |
 
 ## Environment Variables and Secrets
@@ -383,6 +385,26 @@ When `stateful.enabled` is set to `true`, the Helm chart creates a StatefulSet i
 Spice accelerations are latency- and IOPS-sensitive. Choose the StorageClass in the following order of preference:
 
 1. **Local NVMe (recommended)** \u2014 the lowest-latency option is a node-local NVMe SSD, exposed via the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) as a `local-storage` class. On managed clouds use an instance type with attached NVMe \u2014 AWS `i4i` / `m6id` / `c7gd` / `r7gd` (the `d`-suffixed families), Azure [Lsv3](https://learn.microsoft.com/azure/virtual-machines/lsv3-series) / [Ddsv5](https://learn.microsoft.com/azure/virtual-machines/ddv5-ddsv5-series), GCP [`*-lssd`](https://cloud.google.com/compute/docs/disks/local-ssd) machines. Self-hosted clusters can expose local NVMe directly. Local volumes do not survive node replacement, so pair with a refresh strategy or re-hydration source.\n2. **High-IOPS network block storage (shared / replica-attachable)** \u2014 when persistence must survive node replacement, prefer:\n   - **AWS**: [Amazon EBS `io2` Block Express](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html#io2-bx) (sub-millisecond latency, up to 256K IOPS), falling back to `gp3` with provisioned IOPS.\n   - **Azure**: [Premium SSD v2](https://learn.microsoft.com/azure/virtual-machines/disks-types#premium-ssd-v2) (sub-millisecond latency, up to 80K IOPS), falling back to Premium SSD (`managed-csi-premium`).\n   - **GCP**: [Hyperdisk Extreme](https://cloud.google.com/compute/docs/disks/hyperdisks), falling back to Persistent Disk SSD (`pd-ssd`).\n3. **Cayenne shared object storage (Cayenne only, optional)** \u2014 when Cayenne acceleration must be shared across replicas or persisted independently of pod lifecycle, [Amazon S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond object storage. Configure Cayenne to use an S3 Express directory bucket \u2014 see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).\n\n:::warning\nNetwork file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artefacts that must survive pod replacement.\n:::
+
+## Update Strategy
+
+Which key controls rollouts follows from `stateful.enabled`, because the two workload kinds spell it differently: the chart renders `strategy` onto the Deployment and `updateStrategy` onto the StatefulSet. Each is written into the manifest only when set, so leaving both unset keeps Kubernetes' own default of `RollingUpdate`.
+
+```yaml
+# Stateless (stateful.enabled: false) — tear the old pod down before starting the new one,
+# instead of surging a second pod alongside it.
+strategy:
+  type: Recreate
+```
+
+```yaml
+# Stateful (stateful.enabled: true) — roll pods automatically, highest ordinal first
+# (use type: OnDelete to upgrade each pod only when it is deleted).
+updateStrategy:
+  type: RollingUpdate
+```
+
+Setting the key that does not match the current mode has no effect: `strategy` is ignored while `stateful.enabled` is `true`, and `updateStrategy` while it is `false`.
 
 ## Example values.yaml
 
