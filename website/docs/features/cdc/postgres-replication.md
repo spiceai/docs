@@ -337,11 +337,37 @@ FROM pg_replication_slots
 WHERE slot_name LIKE 'spice_%';
 ```
 
+### What removes a replication slot
+
+A replication slot retains WAL on the source for as long as it exists, so the source's disk grows whenever nothing is consuming it. Exactly one of three things ends that retention, and which one applies depends on the acceleration and on the source server:
+
+| What removes it | When it applies |
+| --- | --- |
+| **Spice, at graceful shutdown** | The acceleration does not survive a restart and re-snapshots on the next start (for example `mode: memory` or `mode: file_create`, with `pg_replication_initial_snapshot` left at `auto`/`always`). Such a slot has no resume value, so Spice drops it and creates a replacement at startup — it retains WAL only while Spice is running. The drop is best-effort: an ungraceful exit, an unreachable source, or a missing privilege leaves the slot behind. |
+| **PostgreSQL, after an idle period** | The source is PostgreSQL 18 or later and `idle_replication_slot_timeout` is set to a non-zero value. PostgreSQL invalidates the slot once nothing has consumed it for roughly that long, and Spice rebuilds the acceleration from the source if it was down longer than that. |
+| **Nothing** | Spice reuses the slot across restarts (any durable acceleration), and the server is not configured to retire idle slots. Removing Spice leaves the slot retaining WAL until an operator drops it; until then `max_slot_wal_keep_size` is the only bound on what it retains. |
+
+Spice states which of the three applies in a log line emitted when it creates the slot and again at graceful shutdown, and reads `server_version_num` and `idle_replication_slot_timeout` once during setup to do so. It never writes them: `idle_replication_slot_timeout` is a server-wide setting governing every slot on the server, including other systems', so changing it is an operator decision.
+
+On PostgreSQL 18+ where the setting exists but is disabled, `idle_replication_slot_timeout = '120s'` has the server retire abandoned slots on its own. Two caveats: the effective delay is longer and fuzzier than the value, because PostgreSQL rounds it to the nearest minute and only invalidates at a checkpoint (`checkpoint_timeout`, 5 minutes by default); and Spice rebuilds any acceleration whose slot the server invalidates, so set it above the longest planned downtime if an occasional full re-read of the source is unacceptable.
+
 ### Decommissioning a replica
 
 :::danger Drop unused slots
 A permanent replication slot **holds on to WAL** until dropped. If you retire a Spice replica without cleaning up its slot, Postgres will keep accumulating WAL indefinitely and can run out of disk.
 :::
+
+List every slot Spice created — including after Spice is uninstalled — and what each retains:
+
+```sql
+SELECT
+  slot_name,
+  active,
+  wal_status,
+  pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained
+FROM pg_replication_slots
+WHERE slot_name LIKE 'spice_%';
+```
 
 After removing a Spice replica, drop its slot:
 
@@ -375,6 +401,10 @@ A snapshot bootstrap emits only insert events, and nothing clears a durable acce
 
 The first start after upgrading a durable `refresh_mode: changes` dataset to a version that records watermarks has no recorded position, so it rebuilds once and records one from then on.
 
+A slot lost **while Spice is streaming** — dropped by an operator, or invalidated by PostgreSQL for exceeding `max_slot_wal_keep_size` or `idle_replication_slot_timeout` — is recovered on the same reconnect path, without a restart: the unusable slot is dropped and replaced, every acceleration on it is rebuilt from the source, and streaming continues on the replacement.
+
+Replacement is rate-limited to **3 slots per hour per replication connection**. A process running for months may legitimately be invalidated a few times, each one a genuine recovery, but three inside an hour means the source is not retaining enough WAL to cover the dataset — and every replacement costs a full re-read of every table on the slot, so retrying indefinitely would turn a retention limit into sustained load on the source. Past the budget the dataset surfaces a terminal error instead: raise `max_slot_wal_keep_size` on the source, or reduce replication lag, then reload the dataset.
+
 If a durable acceleration has nowhere to record a watermark, Spice logs a warning at startup naming the dataset: slot loss cannot be detected for it, and rows deleted at the source while the slot was gone would survive in the acceleration.
 
 ### Rebuilding an accelerator from scratch
@@ -384,7 +414,7 @@ Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop
 ### Resilience
 
 - **Network blips / Postgres restarts**: transient — retried with exponential backoff (500 ms → 30 s, ±20 % jitter). The slot's server-side state is the source of truth, so reconnects resume from the last acknowledged LSN — no data loss.
-- **Dropped or invalidated slot**: recovered automatically — the acceleration is rebuilt from the source rather than resumed on a gap. See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot).
+- **Dropped or invalidated slot**: recovered automatically, whether it is lost between runs or while streaming — the slot is replaced and the acceleration is rebuilt from the source rather than resumed on a gap. Replacement is bounded at 3 per hour per replication connection, past which the dataset errors instead of re-reading the source on a cycle. See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot).
 - **Auth failures, schema mismatch**: fatal — surfaced as a stream-level error so operators can fix the configuration.
 - **Watch `dataset_postgres_replication_reconnects_total`** to detect flaky networks.
 
