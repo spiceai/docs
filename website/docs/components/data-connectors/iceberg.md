@@ -265,9 +265,32 @@ INSERT INTO my_table
 SELECT * FROM source_table;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported via equality delete files (Iceberg v2+ tables only). `UPDATE` operations are not currently supported.
+Inserting into partitioned Iceberg tables is supported. `UPDATE` operations are not currently supported.
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+
+### Deleting rows
+
+`DELETE FROM` is supported on **Iceberg v2+ tables only** — a v1 table is refused, because a v1 snapshot has no delete files to write into.
+
+A delete is written as an Iceberg **equality delete file**: "remove rows whose key columns equal these values". The columns that key can carry are every top-level column of the table **except**:
+
+- **Floating-point columns** (`float`, `double`) — equality is not well defined for them (`NaN` is not equal to itself, and `-0.0` equals `0.0`).
+- **Nested columns** (`struct`, `list`, `map`).
+- **Any column without a Parquet field ID** — the reader resolves delete columns by ID, never by name.
+
+Because the key covers only a subset of the row, a `WHERE` condition that reads a column outside it cannot be expressed exactly: two rows that differ only in an excluded column are indistinguishable to the delete file, so honoring the condition would delete the row beside the one selected. Spice **refuses** those statements rather than deleting more than the condition asked for:
+
+| Statement | Result |
+| --- | --- |
+| `DELETE FROM t WHERE <keyable columns only>` | Deletes exactly the matching rows. |
+| `DELETE FROM t` (no condition) | Deletes every row. |
+| `DELETE FROM t WHERE <float or nested column>` | Refused, naming the offending column and the columns the delete *can* match on. |
+| `DELETE FROM t WHERE id IN (SELECT ...)` | Refused — a subquery cannot be checked against the columns the delete matches on. Run the subquery first and delete by the values it returns. |
+| `DELETE FROM t WHERE <volatile function>` | Refused — a non-deterministic condition such as `random()` is not a function of the row, so no key reproduces it. `now()` and other stable functions are fine. |
+| `DELETE FROM t WHERE ...` on a table with **no** keyable column | Refused — an equality delete with no key columns imposes no condition and would empty the table. |
+
+Row-level deletes that address rows by position, which can reproduce any predicate exactly, are a planned follow-up.
 
 ## Examples
 
