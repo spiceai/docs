@@ -124,11 +124,12 @@ datasets:
 | JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | Stable  | Open table format for large analytic datasets. Object stores only. Requires a [catalog](../catalogs/index.md). |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap | Excel spreadsheet format                                                                                       |
+| Microsoft Excel                               | `file_format: xlsx`    | Alpha   | Excel spreadsheet format (document format)                                                                     |
 | Markdown                                      | `file_format: md`      | Stable  | Plain text with formatting (document format)                                                                   |
 | Text                                          | `file_format: txt`     | Stable  | Plain text files (document format)                                                                             |
 | PDF                                           | `file_format: pdf`     | Beta    | Portable Document Format (document format)                                                                     |
 | Microsoft Word                                | `file_format: docx`    | Alpha   | Word document format (document format)                                                                         |
+| Microsoft PowerPoint                          | `file_format: pptx`    | Alpha   | PowerPoint presentation format (document format)                                                               |
 
 ### Format-Specific Parameters
 
@@ -312,21 +313,22 @@ Runtime schema evolution controls are planned for a future release. When availab
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
 | JSON                                          | `file_format: json`    | ✅         | ❌                  |
-| Microsoft Excel                               | `file_format: xlsx`    | Roadmap   | ❌                  |
+| Microsoft Excel                               | `file_format: xlsx`    | Alpha     | ✅                  |
 | Markdown                                      | `file_format: md`      | ✅         | ✅                  |
 | Text                                          | `file_format: txt`     | ✅         | ✅                  |
 | PDF                                           | `file_format: pdf`     | Beta      | ✅                  |
 | Microsoft Word                                | `file_format: docx`    | Alpha     | ✅                  |
+| Microsoft PowerPoint                          | `file_format: pptx`    | Alpha     | ✅                  |
 
 ### Document Formats {#document-formats}
 
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="document-support"></a>
 
-Document formats (Markdown, Text, PDF, Word) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
+Document formats (Markdown, Text, PDF, Word, Excel, PowerPoint) are handled differently from structured data formats. Each file becomes a row in the resulting table, with the file contents stored in a `content` column.
 
 :::warning[Note]
-Document formats in Alpha (DOCX) may not parse all structure or text from the underlying documents correctly.
+Document formats in Alpha (DOCX, XLSX, PPTX) may not parse all structure or text from the underlying documents correctly.
 :::
 
 #### Document Table Schema
