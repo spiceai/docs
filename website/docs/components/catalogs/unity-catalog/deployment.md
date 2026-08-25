@@ -83,7 +83,7 @@ Before creating a table provider, the connector checks permissions via `GET /api
 ## Capacity & Sizing
 
 - **Initial discovery**: Scales with the number of schemas × tables. Bounded concurrency caps throughput; plan 5–30 minutes for catalogs with thousands of tables on a cold start.
-- **Refresh**: Catalog refresh re-enumerates schemas and tables at the configured interval. For very large catalogs, refresh less frequently (every few hours) unless schemas change rapidly.
+- **Refresh**: Every **60 seconds** the catalog re-lists the tables of each schema it discovered at startup, adding and dropping table providers as the source changes. This cadence is not configurable, so it cannot be lengthened for very large catalogs. The schema list itself is built once when the catalog first loads and is never re-listed, so a schema created in Unity Catalog after Spice started is not picked up until Spice restarts.
 - **Permission-check cost**: One API call per table. The buffer of 5 caps concurrency.
 
 ## Metrics
@@ -113,6 +113,8 @@ Unity Catalog operations emit the following [task history](../../../reference/ta
 ## Known Limitations
 
 - **VIEW and STREAMING_TABLE are skipped**: Only queryable table types are exposed.
+- **Refresh cadence is fixed at 60 seconds**: The catalog refresh interval is not user-configurable.
+- **New schemas need a restart**: Refresh re-lists tables inside the schemas found at startup; a schema added to the catalog afterwards appears only after Spice restarts.
 - **No UC write-back**: The connector is read-only; writes to UC are not supported through Spice.
 - **HTTP retry/concurrency parameters not exposed**: The resilient-HTTP defaults (3 retries, fibonacci backoff, concurrency 5) are not currently user-tunable on the UC connector.
 - **Graceful degradation on permission-endpoint failures**: If UC effective-permissions is unreachable, Spice proceeds; authorization errors surface at query time rather than discovery time.
@@ -122,7 +124,7 @@ Unity Catalog operations emit the following [task history](../../../reference/ta
 | Symptom                                                                 | Likely cause                                                       | Resolution                                                                                                                  |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized` on catalog list                                      | Missing, expired, or wrong-workspace token.                        | Regenerate token in UC / Databricks; update secret store.                                                                   |
-| Table visible in UC but missing from the Spice catalog                  | Table type is VIEW / STREAMING_TABLE or permissions were denied.   | Confirm table type is supported and that the principal has `SELECT` (or equivalent).                                        |
+| Table visible in UC but missing from the Spice catalog                  | Table type is VIEW / STREAMING_TABLE, permissions were denied, or its schema was created after Spice started. | Confirm the table type is supported and that the principal has `SELECT` (or equivalent); restart Spice to pick up a schema created after startup. |
 | `InsufficientPermissions` on direct table reference                     | Role lacks read privilege on the table.                            | Grant `SELECT` on the table in UC.                                                                                          |
 | Slow catalog discovery on thousands of tables                           | Bounded concurrency + permission checks per table.                 | Expected behavior; schedule discovery during low-traffic windows and cache via accelerated datasets.                         |
 | Tables from a Lakehouse Federation source missing                       | FOREIGN precheck passed but Databricks denied at query time.       | Verify the Databricks workspace has federation privileges granted to the principal.                                          |
