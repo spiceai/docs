@@ -305,7 +305,7 @@ FROM rerank(
 | Parameter         | Type              | Required | Description |
 | ----------------- | ----------------- | -------- | ----------- |
 | `input`           | Table or UDTF     | Yes      | Input rows to rerank. Can be a search UDTF call (`vector_search`, `text_search`, `rrf`) or a table name. |
-| `model`           | String            | No       | Name of a registered reranker or chat model. Optional only when exactly one reranker or chat model is registered, in which case that one is used; with none configured, or more than one, the query fails and `model` must be given. |
+| `model`           | String            | No       | Name of a registered reranker or chat model. Omit it only when exactly one reranker or chat model is registered, in which case that one is used. With more than one registered, the query fails and `model` chooses between them. With none registered, the query fails whether or not `model` is given — no name can resolve until a reranker or chat model is added to the Spicepod. |
 | `document`        | String            | Yes      | Column containing the text to send to the reranker for scoring. |
 | `query`           | String            | No       | Query string for relevance scoring. Auto-extracted from nested search UDTFs when omitted; required for bare-table inputs. |
 | `limit`           | Integer           | No       | Maximum number of rows returned. It caps the **output** only and never shrinks the candidate pool, so every candidate is still scored by the reranker — narrow the inner search's own `limit` to reduce reranker calls. |
