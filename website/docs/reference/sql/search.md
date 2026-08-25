@@ -305,12 +305,19 @@ FROM rerank(
 | Parameter         | Type              | Required | Description |
 | ----------------- | ----------------- | -------- | ----------- |
 | `input`           | Table or UDTF     | Yes      | Input rows to rerank. Can be a search UDTF call (`vector_search`, `text_search`, `rrf`) or a table name. |
-| `model`           | String            | Yes      | Name of a registered reranker or chat model. |
+| `model`           | String            | No       | Name of a registered reranker or chat model. Optional only when exactly one reranker or chat model is registered, in which case that one is used; with none configured, or more than one, the query fails and `model` must be given. |
 | `document`        | String            | Yes      | Column containing the text to send to the reranker for scoring. |
 | `query`           | String            | No       | Query string for relevance scoring. Auto-extracted from nested search UDTFs when omitted; required for bare-table inputs. |
-| `limit`           | Integer           | No       | Maximum number of results to return. |
+| `limit`           | Integer           | No       | Maximum number of rows returned. It caps the **output** only and never shrinks the candidate pool, so every candidate is still scored by the reranker — narrow the inner search's own `limit` to reduce reranker calls. |
 | `strategy`        | String            | No       | LLM reranking strategy: `'listwise'` (default) or `'pointwise'`. Only applies when the model resolves to a chat model. |
 | `prompt_template` | String            | No       | Custom prompt template for LLM-as-reranker. Use `{query}` and `{document}` placeholders. Only applies when the model resolves to a chat model. |
+
+#### Candidate Pool
+
+`rerank` scores every row its input produces, so the input decides the reranker cost:
+
+- **Nested search UDTF** — the inner UDTF's own `limit` bounds the candidate pool. `rerank`'s `limit` is not pushed into it, which is what lets the recall-then-rerank pattern pass a large inner `limit` and a small outer one.
+- **Bare table** — there is no inner limit, so a fixed ceiling of **1000 candidate rows** is applied to the scan. A larger table is silently truncated to the first 1000 rows reaching the reranker; use a nested search UDTF, or a subquery with its own filter, when the table is bigger than that.
 
 #### Query Auto-Propagation
 
