@@ -98,6 +98,10 @@ blobs:
   label: 'Blobs'
   permalink: '/blobs'
   description: 'Blobs related topics and usage.'
+byoc:
+  label: 'BYOC'
+  permalink: '/byoc'
+  description: 'BYOC (Bring Your Own Cloud) related topics and usage.'
 cache:
   label: 'Cache'
   permalink: '/cache'
