@@ -30,6 +30,8 @@ Define dedicated reranker models in the `rerankers:` section of the spicepod. Su
 | `voyage:`       | Voyage Rerank API (e.g., `voyage:rerank-2`) |
 | `jina:`         | Jina Rerank API (e.g., `jina:jina-reranker-v2-base-multilingual`) |
 | `http://` / `https://` | Any HTTP endpoint implementing the standard rerank API schema |
+| `huggingface:` (or `hf:`) | A cross-encoder reranker downloaded from Hugging Face and run locally, in-process (e.g. `huggingface:huggingface.co/BAAI/bge-reranker-base`) |
+| `file:`         | A cross-encoder reranker loaded locally from a directory of model artifacts (e.g. `file:/models/bge-reranker-base`) |
 
 ```yaml
 rerankers:
@@ -53,6 +55,32 @@ rerankers:
     params:
       api_key: ${secrets:INTERNAL_RR_KEY}  # optional
 ```
+
+### Local Rerankers
+
+The `huggingface:` and `file:` prefixes run a cross-encoder reranker in-process instead of calling a hosted API. `file:` uses local artifacts only. `huggingface:` downloads model artifacts from the Hugging Face Hub, then runs scoring locally. Both are included in the default `spiced` build.
+
+```yaml
+rerankers:
+  # Downloaded from the Hugging Face Hub. Pin a revision with a trailing `:<rev>`.
+  - from: huggingface:huggingface.co/BAAI/bge-reranker-base
+    name: local_rr
+    params:
+      hf_token: ${secrets:HF_TOKEN} # needed for private or gated repositories
+
+  # Loaded from a directory holding config.json, tokenizer.json, and the weights.
+  - from: file:/models/gte-reranker-modernbert-base
+    name: dir_rr
+```
+
+Both accept the same two tuning parameters:
+
+| Parameter         | Description                                                                                                                                                                | Default |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `max_seq_length`  | Maximum sequence length for the `(query, document)` pair. When unset, the model's own configured maximum applies.                                                            | -       |
+| `truncate`        | How to handle a pair longer than the maximum sequence length: `none` rejects the request with an input-validation error, `end` discards the end of the pair, `start` discards the start. Matched case-insensitively. | `none`  |
+
+`huggingface:` rerankers additionally accept `hf_token` (also spelled `api_key`) for private or gated repositories.
 
 ### LLM-as-Reranker
 
