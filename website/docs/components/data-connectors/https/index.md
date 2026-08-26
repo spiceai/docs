@@ -165,6 +165,8 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `request_header_allowlist` | Comma-separated list of HTTP header names that `request_headers` filters may set (e.g., `x-sandbox-id, x-region`). **Required** when `request_header_filters` is enabled. The `authorization` header cannot be allowlisted when HTTP authentication is configured.
 | `max_request_headers_length` | Optional. Maximum size in bytes for `request_headers` filter values. Default: `16384` (16 KiB).
 | `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. If unset, partition count is unlimited.                                                                                                                                                                                                                                                                                                                   |
+| `response_cache_max_size_bytes` | Optional. Byte budget for the responses this dataset retains in its [response cache](#response-cache), counting response bodies and the request keys they are held under. Once reached, entries are evicted to stay inside it. Set `0` to disable the response cache. Default: `67108864` (64 MiB), applied **per dataset**. Applies to dynamic JSON API endpoints only; structured HTTP file datasets do not use this cache. |
+| `response_cache_fallback_ttl` | Optional. How long to retain a response whose origin sent no `Cache-Control` header at all (e.g. `5m`, `30s`). An origin that did send `Cache-Control` is always honored instead, including its refusals. Unset by default, which keeps such responses uncached. |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`.                                                                                                                                                      |
 | `auth_token_url`           | Optional. OAuth2 token endpoint URL (must be HTTPS; `http://localhost` and loopback IPs are allowed for local testing). Enables OAuth2: the connector acquires short-lived access tokens (refresh-token grant by default, or `client_credentials` via `auth_grant_type`) and attaches them to all data requests (`Authorization: Bearer <token>` by default, or the bare token under a custom `auth_header_name`). Applies to dynamic JSON API endpoints only; structured HTTP file datasets reject OAuth2 params. See [OAuth2 Authentication](#oauth2-authentication). |
 | `auth_grant_type`          | Optional. OAuth2 grant type: `refresh_token` (default, RFC 6749 §6) or `client_credentials` (RFC 6749 §4.4). `client_credentials` authenticates with `http_auth_client_id`/`http_auth_client_secret` and issues no refresh token.                                                                                                                                                                                                          |
@@ -284,6 +286,50 @@ Clients querying Spice will receive this header and can:
 3. After 20 seconds, fetch fresh data before serving the next request.
 
 The stale-while-revalidate behavior in Spice is controlled by the `stale_while_revalidate_ttl` parameter in the [caching configuration](../../features/caching#stale-while-revalidate). When `stale_while_revalidate_ttl` is set to `0` (default), stale data will not be served. When set to a non-zero value, Spice serves stale cache entries while revalidating in the background.
+
+## Response Cache
+
+For dynamic JSON API endpoints, the connector keeps origin responses in an in-memory cache keyed by the request shape — path, query, body, and request headers — so a repeat of the same request inside the response's own freshness window is served without another origin call. This cache is the connector's own; it is **not** one of the caches configured under [`runtime.caching`](../../features/caching), and it is unrelated to [`refresh_mode: caching`](../../features/data-acceleration/refresh-modes/caching), which caches query results rather than HTTP responses. Structured HTTP file datasets (`parquet`, `csv`, and the other listing-table formats) do not use it.
+
+### Size budget
+
+`response_cache_max_size_bytes` bounds what one dataset's cache retains, counting each response body together with the request key it is held under. It defaults to `67108864` (64 MiB) and is applied **per dataset**, so the runtime's total exposure grows with the number of HTTP datasets — raise it only for a dataset that earns it. Once the budget is reached, entries are evicted to stay inside it. Set `0` to disable the cache entirely.
+
+The value must be a whole number of bytes; suffixed forms such as `64MiB` are rejected at load with an error naming the parameter, rather than being replaced by the default.
+
+A single entry — one response plus the request key it is held under — of 4 GiB or more is never admitted, whatever the budget is set to, because it cannot be charged what it holds.
+
+### What is retained, and for how long
+
+The origin decides first, from the `Cache-Control` header on its response:
+
+| Origin response                                      | Retained                                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `Cache-Control: max-age=<n>` (`n` > 0)               | Yes, for the part of `<n>` that has not already elapsed according to the response's `Age` / `Date` headers.  |
+| `Cache-Control: s-maxage=<n>`                        | Yes, for `<n>`. `s-maxage` is addressed to shared caches and outranks a `max-age` sent alongside it.          |
+| `Cache-Control: no-store`, `no-cache`, or `private`  | No. The response is still served to the query, but never retained — even if `max-age` was sent with it.       |
+| `Cache-Control` with no usable `max-age`/`s-maxage`  | No. The origin has spoken, so `response_cache_fallback_ttl` does not step in.                                 |
+| No `Cache-Control` header at all                     | Only if `response_cache_fallback_ttl` is set — see below.                                                     |
+
+A `Vary` response header additionally refuses retention when it is `*`, when it names the header the connector's HTTP authentication uses, or when its bytes cannot be read as text. Any other named field is safe, because everything a query can vary — path, query, body, and pushed-down request headers — is already part of the cache key.
+
+### Caching an origin that sends no `Cache-Control`
+
+`response_cache_fallback_ttl` is how long to retain a response whose origin sent **no** `Cache-Control` header at all, for example:
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+      response_cache_fallback_ttl: 5m
+      response_cache_max_size_bytes: 134217728 # 128 MiB
+```
+
+It is unset by default, so responses from a header-less origin stay uncached until an operator asks for them to be retained. It never overrides an origin that did send `Cache-Control`, including that origin's refusals, and unlike an origin-supplied `max-age` it is not reduced by the response's `Age` — it is how long you asked Spice to keep a response the origin said nothing about.
+
+Occupancy of the cache is reported per dataset — see [Metrics](./deployment.md#metrics).
 
 ## Advanced Features
 
