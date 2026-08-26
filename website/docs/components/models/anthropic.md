@@ -7,7 +7,9 @@ sidebar_position: 3
 
 To use a language model hosted on Anthropic, specify `anthropic` in the `from` field.
 
-To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `claude-sonnet-5`. Name a model explicitly for anything long-lived: Anthropic retires model IDs, and a request for a retired one fails with a `not_found_error`.
+To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `claude-sonnet-4-6`. Name a model explicitly for anything long-lived: Anthropic retires model IDs, and a request for a retired one fails with a `not_found_error`.
+
+The default deliberately trails Anthropic's newest model. Claude 5 models reject the `temperature`, `top_p`, and `top_logprobs` parameters outright, so a request that sets any of them fails against them; the default names the newest model that still accepts all three. Set `from: anthropic:<model_id>` to use a newer model, and drop those parameters when you do.
 
 The following parameters are specific to Anthropic models:
 
