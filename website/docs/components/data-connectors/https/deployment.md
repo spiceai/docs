@@ -110,12 +110,28 @@ When using `refresh_mode: caching`, transient HTTP errors (5xx, 429) are exclude
 
 - **Throughput**: Bounded by the upstream rate limit, then by `max_concurrent_requests` and `connect_timeout`. Plan limits to stay within the API quota.
 - **Memory**: Response bodies are streamed; memory footprint is bounded by `max_request_body_bytes` (filter inputs) and DataFusion's record-batch size for response rows.
+- **Response cache**: Each dynamic JSON API dataset holds its own [response cache](./index.md#response-cache), bounded by `response_cache_max_size_bytes` — `67108864` (64 MiB) by default, **per dataset**. The runtime's total exposure therefore scales with the number of HTTP datasets, not with the budget alone: budget it as `datasets × response_cache_max_size_bytes` and raise the value only for the datasets that earn it. Set `0` on a dataset whose responses are never repeated. This cache is not one of the caches under `runtime.caching`, so its memory is not counted against those limits.
 - **Connection setup**: TLS handshake adds latency. The connection pool keeps `pool_max_idle_per_host` warm connections to absorb burst traffic.
 - **Partitioned refreshes**: When using `IN`-list filters or cross-product partitioning, the runtime issues one HTTP request per partition. Use `max_request_partitions` to cap the request count for unbounded filter combinations, and `max_concurrent_requests` to throttle their fan-out.
 
 ## Metrics
 
-The connector exposes per-origin HTTP rate-control metrics for every dynamic JSON API dataset. They are registered automatically — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. Structured file-format datasets (`parquet`, `csv`, and the other listing-table formats) do not expose them:
+The connector reports two metric families: response-cache occupancy, and per-origin rate control. Both are registered automatically — no `metrics` configuration is required.
+
+### Response cache
+
+Occupancy of the dataset's [response cache](./index.md#response-cache). These are reported for every HTTP dataset, because the memory the cache holds is otherwise attributable to nothing; structured file-format datasets do not use the cache and report `0`.
+
+| Metric Name                  | Type  | Description                                                                                                                                                                                     |
+| ---------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `response_cache_size_bytes`  | Gauge | Bytes retained by the response cache, counting response bodies, their headers, and the request keys they are held under. Excludes the cache's own per-entry bookkeeping. Compare against `response_cache_max_size_bytes` to see how close a dataset is to its budget. |
+| `response_cache_items_count` | Gauge | Number of responses held by the response cache. Read beside the byte figure, this separates a cache holding a few large responses from one holding very many small ones.                        |
+
+Both are refreshed when a request consults the cache, so an idle dataset reports its last observed occupancy — which is the same figure, since nothing enters or leaves the cache except on a request.
+
+### Rate control
+
+Per-origin rate-control metrics, exposed for dynamic JSON API datasets. The limit gauges report `0` when the corresponding limit is not configured. Structured file-format datasets (`parquet`, `csv`, and the other listing-table formats) do not expose them:
 
 | Metric Name                                 | Type    | Description                                                                                              |
 | ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -147,7 +163,7 @@ datasets:
         enabled: false
 ```
 
-Instruments are exposed with the prefix `dataset_http_` — the HTTP connector's component name is `http`, not `https` — and each carries an `origin` attribute (`scheme://host:port`) identifying the upstream origin instead of a dataset `name`, because datasets sharing an origin share one rate controller. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
+Instruments from both families are exposed with the prefix `dataset_http_` — the HTTP connector's component name is `http`, not `https` — so the exported names are `dataset_http_response_cache_size_bytes`, `dataset_http_rate_control_wait_duration_ms`, and so on. The two families are attributed differently: the rate-control instruments carry an `origin` attribute (`scheme://host:port`) identifying the upstream origin instead of a dataset `name`, because datasets sharing an origin share one rate controller, while the response-cache gauges carry the dataset `name`, because each dataset has its own cache. See [Component Metrics](../../../features/observability/component_metrics) for general configuration.
 
 For broader observability, also monitor:
 
@@ -175,3 +191,5 @@ HTTP requests participate in [task history](../../../reference/task_history) thr
 | Request rejected: "OR across HTTP filter columns" | `WHERE request_path = '...' OR request_query = '...'`.    | Split into separate refreshes or `UNION ALL`.                                                             |
 | Many partitions created from cross-product       | Multiple `IN`-list filters multiplied into many requests.   | Set `max_request_partitions` to cap; tighten filters.                                                     |
 | Slow first refresh                               | Cold connection pool + TLS handshake per request.           | Raise `pool_max_idle_per_host`; ensure `pool_idle_timeout` is long enough to keep connections warm.       |
+| Runtime memory grows with HTTP traffic           | Response caches are held per dataset, 64 MiB each by default. | Check `dataset_http_response_cache_size_bytes` per dataset; lower `response_cache_max_size_bytes`, or set it to `0` where responses are never repeated. |
+| Repeat queries still hit the origin              | The origin refuses retention (`no-store`, `no-cache`, `private`, `Vary: *`), or sends no `Cache-Control` at all. | Confirm with `dataset_http_response_cache_items_count` staying at `0`. For a header-less origin, set `response_cache_fallback_ttl`; an origin that refuses explicitly is always honored. |
