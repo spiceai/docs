@@ -220,7 +220,6 @@ The following `Cache-Control` directives are supported:
 | [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds.                                                                  |
 | [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness allowed. For example, `max-stale=30` accepts responses stale for up to 30 seconds.                                                 |
 | [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data.                                                                                                                                |
-| [`stale-if-error`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#stale-if-error) | Serves stale cached responses if an error occurs while fetching fresh data. An optional value in seconds specifies how stale the response can be. For example, `stale-if-error=600` serves responses stale for up to 10 minutes if fetching fails. |
 
 #### HTTP Example
 
@@ -239,9 +238,6 @@ curl -H "cache-control: max-stale=60" -XPOST http://localhost:8090/v1/sql -d 'SE
 
 # Only return cached responses, fail if cache miss
 curl -H "cache-control: only-if-cached" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
-
-# Serve stale cache (up to 300 seconds old) if fetching fresh data fails
-curl -H "cache-control: stale-if-error=300" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
 ```
 
 #### Arrow FlightSQL Example
@@ -274,7 +270,7 @@ Connection conn = DriverManager.getConnection("jdbc:arrow-flight-sql://localhost
 
 ### `spice` CLI
 
-The `spice sql` and `spice search` commands accept a `--cache-control` flag that supports all cache-control directives:
+The `spice sql` and `spice search` commands accept a `--cache-control` flag, which takes `cache` (the default) or `no-cache`:
 
 ```bash
 # Default behavior (use cache if available)
@@ -283,14 +279,6 @@ spice sql
 spice sql --cache-control cache
 # Skip cache for this query, but cache the results for future queries
 spice sql --cache-control no-cache
-# Only use cached response if fresh for at least 30 more seconds
-spice sql --cache-control min-fresh=30
-# Accept cached responses stale for up to 60 seconds
-spice sql --cache-control max-stale=60
-# Only return cached responses, fail if cache miss
-spice sql --cache-control only-if-cached
-# Serve stale cache (up to 300 seconds) if fetching fails
-spice sql --cache-control stale-if-error=300
 
 # Default behavior (use cache if available)
 spice search
@@ -298,9 +286,17 @@ spice search
 spice search --cache-control cache
 # Skip cache for this search, but cache the results for future searches
 spice search --cache-control no-cache
-# Accept stale search results up to 60 seconds old
-spice search --cache-control max-stale=60
 ```
+
+:::note
+
+`--cache-control` only turns the cache on or off. It does not accept the other
+`Cache-Control` directives: `spice search` rejects any value other than `cache` or
+`no-cache`, and `spice sql` falls back to `cache`. To use `min-fresh`, `max-stale`, or
+`only-if-cached`, send the `Cache-Control` header directly against the HTTP or Arrow
+Flight API.
+
+:::
 
 ## Custom Cache Keys
 
