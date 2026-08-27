@@ -9,7 +9,7 @@ To use a language model hosted on Anthropic, specify `anthropic` in the `from` f
 
 To use a specific model, include its model ID in the `from` field (see example below). If not specified, the default model is `claude-sonnet-4-6`. Name a model explicitly for anything long-lived: Anthropic retires model IDs, and a request for a retired one fails with a `not_found_error`.
 
-The default deliberately trails Anthropic's newest model. Claude 5 models reject the `temperature`, `top_p`, and `top_logprobs` parameters outright, so a request that sets any of them fails against them; the default names the newest model that still accepts all three. Set `from: anthropic:<model_id>` to use a newer model, and drop those parameters when you do.
+The default deliberately trails Anthropic's newest model. Claude 5 models reject `temperature`, `top_p`, and `top_logprobs` individually, so a request that sets any one of them fails against them; `claude-sonnet-4-6` is the newest model that still accepts each of them. It accepts them one at a time, not in every combination — Claude 4 and later reject `temperature` and `top_p` set *together*, and reject a trailing assistant message (a response prefill). Spice sends `top_logprobs` to Anthropic as `top_k`, so that is the parameter name an Anthropic error reports. Set `from: anthropic:<model_id>` to use a newer model, and drop these parameters when you do.
 
 The following parameters are specific to Anthropic models:
 
