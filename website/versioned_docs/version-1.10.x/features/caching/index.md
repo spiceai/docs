@@ -290,9 +290,10 @@ spice search --cache-control no-cache
 
 :::note
 
-`--cache-control` only turns the cache on or off. It does not accept the other
-`Cache-Control` directives: `spice search` rejects any value other than `cache` or
-`no-cache`, and `spice sql` falls back to `cache`. To use `min-fresh`, `max-stale`, or
+`--cache-control` chooses between normal cache behavior (`cache`) and bypassing the cache
+lookup for this request (`no-cache`, which still stores the result for later requests). It
+does not accept the other `Cache-Control` directives: both `spice search` and `spice sql`
+reject any value other than `cache` or `no-cache`. To use `min-fresh`, `max-stale`, or
 `only-if-cached`, send the `Cache-Control` header directly against the HTTP or Arrow
 Flight API.
 
