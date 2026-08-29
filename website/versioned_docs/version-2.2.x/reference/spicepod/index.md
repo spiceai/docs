@@ -135,7 +135,7 @@ Enable or disable snapshot management globally. Defaults to `true`.
 
 ### `snapshots.location`
 
-The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`), Azure ADLS Gen2 URIs (`abfss://container@account.dfs.core.windows.net/path/`), Google Cloud Storage URIs (`gs://bucket/prefix/`), and absolute or relative filesystem paths. The path must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
+The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`), Azure ADLS Gen2 URIs (`abfss://container@account.dfs.core.windows.net/path/`), Google Cloud Storage URIs (`gs://bucket/prefix/`), and local filesystem URIs (`file:///path/to/folder/`). The value must be a URI with a scheme: a bare filesystem path such as `/var/spice/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. The location must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
 
 ### `snapshots.bootstrap_on_failure_behavior`
 
