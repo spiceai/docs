@@ -40,7 +40,7 @@ datasets:
 
 ## Requirements
 
-- `acceleration.snapshots` must be `enabled` or `bootstrap_only`.
+- `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
 - The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**.
 
 ## Behavior
