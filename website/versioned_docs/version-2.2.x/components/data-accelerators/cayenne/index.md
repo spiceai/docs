@@ -789,6 +789,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
+- **No `refresh_append_overlap`**: A dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read. The check runs during file-mode initialization, so a `mode: memory` dataset is not rejected.
 
 ## Example Spicepod
 

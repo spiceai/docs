@@ -148,6 +148,8 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 See [Duration](../duration)
 
+Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne view that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
+
 ## `acceleration.refresh_retry_enabled`
 
 Optional. Specifies whether an accelerated view should retry data refresh in the event of transient errors. The default setting is true.
