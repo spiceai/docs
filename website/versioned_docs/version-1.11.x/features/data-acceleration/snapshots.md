@@ -95,7 +95,7 @@ The `snapshots_trigger` setting controls when Spice creates new snapshots. The a
 
 #### Batch-based datasets
 
-Datasets using `refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with a `time_column` support the following triggers:
+Datasets using `refresh_mode: full`, or `refresh_mode: append` with a `time_column`, support the following triggers:
 
 | Trigger            | Description                                                     |
 | ------------------ | --------------------------------------------------------------- |
@@ -134,6 +134,16 @@ datasets:
       params:
         duckdb_file: /nvme/some_table.db
 ```
+
+#### Caching datasets
+
+Datasets using `refresh_mode: caching` support a single trigger:
+
+| Trigger         | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `time_interval` | Create snapshots at a fixed time interval. (Default, and the only supported trigger.) |
+
+The interval is set with `snapshots_trigger_threshold` and defaults to `10m`. Setting `snapshots_trigger` to `refresh_complete` or `stream_batches` on a caching dataset is a configuration error.
 
 #### Stream-based datasets
 
