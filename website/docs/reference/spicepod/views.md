@@ -87,6 +87,20 @@ Optional. Accelerate queries to the view by caching data locally.
 
 Enable or disable acceleration, defaults to `true`.
 
+:::warning `enabled: false` discards the rest of the acceleration block
+
+A view carries the same acceleration block as a dataset and discards it the same way: with `enabled: false`, every other setting in the block — `engine`, `mode`, `refresh_mode`, `primary_key`, `indexes`, `on_conflict`, everything under `params` — is read, accepted, and then never applied. The view loads and reports healthy while every query runs against its source.
+
+The runtime warns at load naming the view and the settings it discarded:
+
+```
+View 'my_view' sets `acceleration.enabled: false`, so these settings in its acceleration block are read and then ignored: `engine`, `mode`, `refresh_mode`. Remove `enabled: false` to apply them, or remove them to keep the view unaccelerated. See: https://spiceai.org/docs/reference/spicepod/views#acceleration
+```
+
+`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about.
+
+:::
+
 ## `acceleration.engine`
 
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
