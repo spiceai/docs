@@ -92,6 +92,7 @@ The PostgreSQL connector exposes observable metrics for its replication pipeline
 | `replication_bootstrap_rows_expected`           | ObservableGauge   | Estimated bootstrap row count from schema inference. Absent when no estimate exists; `0` means a known-empty source table.          |
 | `replication_bootstrap_complete`                | ObservableGauge   | `1` once the initial snapshot finished (or was skipped on resume); `0` while it is still running.                                   |
 | `replication_decode_errors_total`               | ObservableCounter | pgoutput decoding errors encountered while parsing WAL events.                                                                     |
+| `replication_acceleration_rebuilt`              | ObservableGauge   | `1` while the acceleration was rebuilt from the source on its last attach instead of resuming from the position it had recorded. A `cause` attribute says why. A dataset that resumed reports **no series at all** — not `0` — so alert on presence, not on value. |
 | `replication_schema_mismatch_errors_total`      | ObservableCounter | Errors where the source relation no longer matches the declared accelerator schema.                                                |
 | `replication_recv_errors_total`                 | ObservableCounter | Transport-level errors while receiving from the replication connection.                                                            |
 | `replication_reconnects_total`                  | ObservableCounter | Times the stream reconnected after a transient failure. Non-zero with no user-visible error just means it recovered.                |
@@ -104,7 +105,7 @@ The PostgreSQL connector exposes observable metrics for its replication pipeline
 | `replication_member_envelope_mailbox_merges_total` | ObservableCounter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's delivery buffer — the back-pressure-driven half of coalescing. Shared slots only. |
 | `replication_member_mailbox_coalesce_limited_total` | ObservableCounter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it. `0` means the bounds never bind. Shared slots only. |
 
-Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name; `replication_member_attached` also carries a `slot` attribute for grouping shared-slot members.
+Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name; `replication_member_attached` also carries a `slot` attribute for grouping shared-slot members, and `replication_acceleration_rebuilt` a `cause` attribute taking one of `rewound_source`, `foreign_source`, `unreadable`, `acknowledged_past`, `retention_lost`, or `no_record` — see [Postgres CDC](../../../features/cdc/postgres-replication#unplanned-rebuilds) for what each one means.
 
 ## Task History
 

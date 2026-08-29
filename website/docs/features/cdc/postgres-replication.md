@@ -407,6 +407,21 @@ Replacement is rate-limited to **3 slots per hour per replication connection**. 
 
 If a durable acceleration has nowhere to record a watermark, Spice logs a warning at startup naming the dataset: slot loss cannot be detected for it, and rows deleted at the source while the slot was gone would survive in the acceleration.
 
+### Detecting an unplanned rebuild {#unplanned-rebuilds}
+
+A rebuild re-reads the whole source table without anyone asking for it, so it is worth alerting on. `dataset_postgres_replication_acceleration_rebuilt` reports `1` while the dataset's acceleration was rebuilt on its last attach instead of resuming, with a `cause` attribute naming which row of the decision table above was taken:
+
+| `cause` | What happened | Where to look |
+| --- | --- | --- |
+| `no_record` | No position was recorded, on a durable acceleration that could have recorded one. | Expected exactly once per dataset on the first start after upgrading to a watermark-recording version. Recurring means the sidecar is not surviving restarts. |
+| `foreign_source` | The recorded position names a different server, database, or table than the dataset streams from now. | An endpoint or table was repointed under an existing accelerator. |
+| `unreadable` | The recorded position could not be read or parsed. | The `spice_sys_postgres_replication` sidecar in the dataset's own accelerator. |
+| `rewound_source` | The source no longer contains the recorded position, because it was restored or rewound afterwards. | Worth alerting on: one rewind escapes detection entirely, so check whether **other** datasets on the same source resumed when they should not have. |
+| `acknowledged_past` | The slot acknowledged past the recorded position, so it can no longer be streamed from. | Not a WAL retention problem — the WAL may still be on disk. |
+| `retention_lost` | The slot no longer retains the WAL following the recorded position. | `max_slot_wal_keep_size` on the source, and replication lag. |
+
+A dataset that resumed reports **no series at all** rather than `0`, because there is no `cause` to attribute it to. Alert on the metric being present, not on its value.
+
 ### Rebuilding an accelerator from scratch
 
 Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop the replication slot. On next start, Spice will create a fresh slot, snapshot the table, and resume streaming.
@@ -431,6 +446,7 @@ Core freshness signals (auto-registered):
 | `dataset_postgres_replication_transactions_total` | Counter | Committed transactions applied.                                                                 |
 | `dataset_postgres_replication_inserts_total` / `dataset_postgres_replication_updates_total` / `dataset_postgres_replication_deletes_total` | Counter | Row-level events from WAL.                                      |
 | `dataset_postgres_replication_reconnects_total` | Counter | Number of times the stream reconnected after a transient failure.                            |
+| `dataset_postgres_replication_acceleration_rebuilt` | Gauge | `1` while the acceleration was rebuilt on its last attach instead of resuming, labelled with the `cause`. Reports no series for a dataset that resumed — see [Detecting an unplanned rebuild](#unplanned-rebuilds). |
 
 Shared-slot delivery and coalescing (auto-registered; reported only for datasets on a shared, explicitly-named slot — see [Envelope coalescing](#envelope-coalescing)):
 
@@ -450,7 +466,7 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
-| The whole table is re-read on a restart that used to resume                  | The slot's WAL no longer reaches the recorded position, or none was recorded (first start after an upgrade). See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
+| The whole table is re-read on a restart that used to resume                  | The slot's WAL no longer reaches the recorded position, or none was recorded (first start after an upgrade). Read the `cause` on [`dataset_postgres_replication_acceleration_rebuilt`](#unplanned-rebuilds) to tell which. See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
 | `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
