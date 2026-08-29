@@ -410,6 +410,20 @@ Optional. Accelerate queries to the dataset by caching data locally.
 
 Enable or disable acceleration, defaults to `true`.
 
+:::warning `enabled: false` discards the rest of the acceleration block
+
+`enabled: false` turns the whole block off rather than parking it. Every other setting in it — `engine`, `mode`, `refresh_mode`, `primary_key`, `indexes`, `on_conflict`, everything under `params`, and the rest — is read, accepted, and then never applied. The dataset loads, reports healthy, and federates every query straight to the source, which is hard to tell from a working accelerator. It is most misleading under `refresh_mode: caching`, where a block that appears to cache with a one-second freshness window is sending every query to the origin.
+
+The runtime warns at load naming the dataset and the settings it discarded:
+
+```
+Dataset 'my_dataset' sets `acceleration.enabled: false`, so these settings in its acceleration block are read and then ignored: `engine`, `mode`, `params`, `primary_key`, `refresh_mode`. Remove `enabled: false` to apply them, or remove them to keep the dataset unaccelerated. See: https://spiceai.org/docs/reference/spicepod/datasets#acceleration
+```
+
+`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about. The deprecated `acceleration.ready_state` is also never reported, because a dataset applies it whether or not acceleration is enabled.
+
+:::
+
 ## `acceleration.engine`
 
 The acceleration engine to use, defaults to `arrow`. The following engines are supported:
