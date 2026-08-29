@@ -72,7 +72,7 @@ Useful cache knobs in this topology:
 
 - `cache_key_type: plan` (default) shares a cache entry across semantically equivalent SQL, which matters for ORM-generated queries. `sql` is a faster, string-exact lookup.
 - `stale_while_revalidate_ttl` lets the sidecar serve a stale cached result immediately while a background refresh runs.
-- Clients can send `Cache-Control` directives per request (`no-cache`, `only-if-cached`, `stale-if-error`).
+- Clients can send `Cache-Control` directives per request (`no-cache`, `min-fresh`, `max-stale`, `only-if-cached`).
 - `encoding: zstd` typically cuts results-cache memory by 50–90%.
 
 ### The cluster ingests once
@@ -117,7 +117,7 @@ Sidecars pull from the cluster on a configurable interval using append or full r
 
 For workloads that need sub-second freshness, the cluster consumes [CDC streams](../../features/cdc) (Postgres logical replication, DynamoDB Streams, Debezium, Kafka) once, and the sidecars pull the resulting accelerated dataset on a short interval. That gives near-real-time propagation without a fleet-wide invalidation bus.
 
-If the cluster is temporarily unavailable — a rolling upgrade, a network blip, a zone event — sidecars keep serving cached data and their accelerated working sets. Refreshes pause and resume when connectivity returns. The blast radius of a cluster incident is slightly staler data, not application downtime. A `stale-if-error` cache directive can extend this further for delegated queries.
+If the cluster is temporarily unavailable — a rolling upgrade, a network blip, a zone event — sidecars keep serving cached data and their accelerated working sets. Refreshes pause and resume when connectivity returns. The blast radius of a cluster incident is slightly staler data, not application downtime.
 
 ## Example Spicepods
 
