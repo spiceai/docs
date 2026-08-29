@@ -177,7 +177,7 @@ datasets:
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
-- `INSERT INTO` statements are rejected with an error since the acceleration is driven exclusively from snapshots
+- `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 
 :::tip
 Use `refresh_mode: snapshot` for read-only replicas that don't need direct access to the federated source — for example, edge nodes that receive snapshots from a centralized writer.
