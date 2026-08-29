@@ -37,16 +37,11 @@ Tools proxied from MCP servers and custom tools are recorded dynamically as `too
 
 A tool that belongs to a non-default tool catalog — which includes every tool proxied from an MCP server — is exposed under a catalog-qualified name joining the catalog and the tool with `__`, for example `github__search_code`. That is the name `/v1/tools` lists and the name `POST /v1/tools/{name}` expects.
 
-:::warning A proxied MCP tool is recorded under two different task names
+Every entry point records the same task name — `tool_use::` followed by that exposed name, for example `tool_use::github__search_code` — whether the call arrives through the `/v1/mcp` gateway, through `POST /v1/tools/github__search_code`, or from a model deciding to use the tool. Grouping `runtime.task_history` by `task` therefore counts a tool once, and one `spice trace tool_use::github__search_code` sees every call to it.
 
-Which name `runtime.task_history` records depends on how the tool was invoked:
+:::note Rows an older runtime wrote use a `/` separator
 
-| Invoked via | `task` recorded |
-| --- | --- |
-| The `/v1/mcp` gateway | `tool_use::github__search_code` (the exposed name) |
-| A model-driven tool call, or `POST /v1/tools/github__search_code` | `tool_use::github/search_code` |
-
-`spice trace` matches the task name exactly, so trace both spellings to see every call to the tool. Tracked in [spiceai/spiceai#13338](https://github.com/spiceai/spiceai/issues/13338).
+Runtimes up to and including v2.2.0 recorded a model-driven or `POST /v1/tools/{name}` call under `tool_use::<catalog>/<tool>` (`tool_use::github/search_code`) while the `/v1/mcp` gateway used the exposed `__` name, so one tool's history was split across two task names. `spice trace` matches the task name exactly and still accepts the `/` spelling, so trace it as well to read history those runtimes wrote.
 
 :::
 
