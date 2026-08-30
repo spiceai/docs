@@ -11,7 +11,9 @@ The dataset created by the `localpod` connector will logically have the same dat
 
 ## Synchronized Refreshes
 
-The `localpod` connector supports synchronized refreshes, which ensures that the child dataset is refreshed from the same data as the parent dataset. Synchronized refreshes require that both the parent and child datasets are accelerated with `refresh_mode: full` (which is the default) or `refresh_mode: caching`.
+The `localpod` connector supports synchronized refreshes, which ensures that the child dataset is refreshed from the same data as the parent dataset. Synchronized refreshes require the parent and child accelerations to use the **same** refresh mode, and only two pairings qualify: both `refresh_mode: full` (which is the default), or both `refresh_mode: caching`. A mismatched pair — a `caching` child under a `full` parent, for example — is not synchronized.
+
+Synchronization is best-effort. When it cannot be established — mismatched refresh modes, a parent that is not accelerated, or a parent dataset that is not registered — the child silently falls back to refreshing on its own schedule, and the reason is logged only at `DEBUG`. At default log levels the `INFO` line below is the sole confirmation that synchronization took effect; its absence means the two datasets refresh independently.
 
 When synchronization is enabled, the following logs will be emitted:
 
