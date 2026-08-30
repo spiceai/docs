@@ -40,7 +40,7 @@ dbc install redshift
 
 See the [`dbc` documentation](https://docs.columnar.tech/dbc/) for other installation methods (pip, Homebrew, Windows MSI) and platform support.
 
-Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically.
+Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length` and `json_object_keys` — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local and why.
 
 ## Configuration
 
