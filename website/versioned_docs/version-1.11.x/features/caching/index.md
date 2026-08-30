@@ -389,10 +389,13 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `*_cache_max_size_bytes` | Gauge   | Maximum configured cache size in bytes.                    |
 | `*_cache_requests`       | Counter | Total number of cache lookup requests.                     |
 | `*_cache_hits`           | Counter | Total number of cache hits.                                |
+| `*_cache_misses`         | Counter | Total number of cache misses.                              |
 | `*_cache_items_count`    | Gauge   | Current number of items in the cache.                      |
 | `*_cache_size_bytes`     | Gauge   | Current cache size in bytes.                               |
 | `*_cache_evictions`      | Counter | Total number of cache evictions due to size or TTL limits. |
 | `*_cache_hit_ratio`      | Gauge   | Current cache hit ratio (hits / total requests).           |
+| `*_cache_stale_swr_count` | Counter | Stale-while-revalidate background refreshes skipped because a revalidation was already in flight. |
+| `*_cache_swr_background_query_count` | Counter | Background queries triggered to revalidate a stale entry. |
 
 The `*` prefix corresponds to the cache type:
 
