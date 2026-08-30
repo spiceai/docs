@@ -665,6 +665,8 @@ The following types require the `unsupported_type_action` parameter:
 - `Interval` types
 - `Duration` types
 - `FixedSizeBinary`
+- `Union` types
+- `RunEndEncoded`
 
 **`unsupported_type_action` options:**
 
@@ -793,7 +795,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
-- **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
+- **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
