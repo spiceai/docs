@@ -127,7 +127,7 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_metastore_mmap_mb`                | SQLite metastore memory-mapped I/O size in megabytes. Defaults to `1024` (1 GiB). |
 | `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
 | `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages; the WAL is checkpointed automatically once it grows past this many pages. Defaults to `10000`. |
-| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. SQLite fixes the mode at file creation: changing it on an existing metastore takes `PRAGMA auto_vacuum = <mode>` followed by a full `VACUUM` — the pragma alone is a no-op there, and a bare `VACUUM` keeps the file on the mode it already has. Defaults to `none`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. SQLite fixes the mode at file creation. Switching an existing metastore between `full` and `incremental` takes effect from `PRAGMA auto_vacuum = <mode>` on its own; moving it to or from `none` needs a full `VACUUM` after the pragma, because the pragma alone is a no-op in that direction and a bare `VACUUM` keeps the file on the mode it already has. See the [SQLite `auto_vacuum` documentation](https://sqlite.org/pragma.html#pragma_auto_vacuum). Defaults to `none`. |
 
 ```yaml
 runtime:
