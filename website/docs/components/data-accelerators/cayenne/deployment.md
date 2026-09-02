@@ -107,7 +107,7 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 ### Memory Reconciliation Metrics
 
-The per-table gauges refresh on Cayenne's maintenance tick, so on an idle table they can lag by tens of seconds. Read them together: the pool gauges report what the memory accounting believes is reserved, the `process_resident_*` gauges what the process actually holds, and the gap against `process_resident_anon_bytes` is off-pool memory (encode buffers, caches, allocator retention) that no budget covers.
+The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne_*` gauges refresh on the maintenance tick — every `cayenne_compaction_background_interval_ms` (10–30 s by default), or only on writes when the background compactor is disabled — so a flat per-table value can be a stale sample. Read them together: the pool gauges report what the memory accounting believes is reserved, the `process_resident_*` gauges what the process actually holds, and the gap against `process_resident_anon_bytes` is off-pool memory (encode buffers, caches, allocator retention) that no budget covers.
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
