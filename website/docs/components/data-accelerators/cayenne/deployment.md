@@ -167,7 +167,7 @@ Maintenance passes often decline to run. Each decline is a correct decision that
 | `kind` | Pass |
 | ------ | ---- |
 | `full` | Full current-snapshot re-encode (also folds the protected set). |
-| `subset_current` | Current-snapshot small-file rewrite (hard-links the unpicked files). Also carries the declines of the current-snapshot pass as a whole, which fire before the subset/full choice. |
+| `subset_current` | Current-snapshot small-file rewrite (hard-links the unpicked files). |
 | `subset` | Size-tiered merge over the protected-snapshot set. |
 | `bake` | Seq-prefix bake — consolidate the clean older prefix and prune the deletion index. |
 | `datalake` | Cold-tier graduation. |
