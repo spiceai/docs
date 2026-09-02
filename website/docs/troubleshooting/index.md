@@ -57,7 +57,7 @@ SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT 
 
 `runtime.query.memory_limit` bounds the query execution pool, not the process. Accelerator caches, serialization buffers, embedded engine pools, and allocator retention sit outside it, so a process can be killed while the query pool still reports unused capacity.
 
-- **Compare the pools against actual memory**: if `process_resident_memory_bytes` is far above `query_memory_pool_used_bytes`, the memory is off-pool and lowering the query limit will not recover it.
+- **Compare the pools against actual memory**: if `process_resident_anon_bytes` (the half of `process_resident_memory_bytes` the kernel cannot reclaim) is far above `query_memory_pool_used_bytes`, the memory is off-pool and lowering the query limit will not recover it.
 - **Count the per-dataset baseline**: accelerator caches are allocated per dataset with a floor that does not shrink with the container, so the idle footprint grows with dataset count regardless of data size.
 - **Check whether the limit was set explicitly**: when unset, the runtime derives the query limit with the per-dataset reservations subtracted. An explicit value opts out of that and must leave room for the baseline itself.
 - **Do not read a flat, high memory graph as a leak**: caches fill to their ceilings and allocators retain freed pages. What matters is whether it plateaus, and how far below the limit.
