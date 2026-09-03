@@ -580,15 +580,19 @@ Use observability tools to monitor and profile memory usage regularly. Spice exp
 - Accelerator cache hit rates
 - Data refresh memory consumption
 
-When [Spice Cayenne](../components/data-accelerators/cayenne) acceleration is configured, three gauges are sampled every 2 seconds and can be read together to reconcile the memory budgets against actual process memory:
+The following gauges are sampled every 2 seconds and can be read together to reconcile the memory budgets against actual process memory:
 
 | Metric | Description |
 | ------ | ----------- |
 | `query_memory_pool_used_bytes` | Live bytes reserved in the query memory pool (`runtime.query.memory_limit`), excluding the in-memory CDC tier's mirror account. |
-| `cayenne_compaction_memory_pool_used_bytes` | Live bytes reserved in the dedicated Cayenne compaction memory pool. |
-| `process_resident_memory_bytes` | Resident set size of the `spiced` process — what the kernel's OOM decision is made on. |
+| `cayenne_compaction_memory_pool_used_bytes` | Live bytes reserved in the dedicated [Spice Cayenne](../components/data-accelerators/cayenne) compaction memory pool. |
+| `process_resident_memory_bytes` | Total resident set size of the `spiced` process. |
+| `process_resident_anon_bytes` | The anonymous half: heap and stacks, which the kernel cannot reclaim. |
+| `process_resident_file_bytes` | The file-backed half: mapped files and page cache the kernel evicts on demand. |
 
-The pool gauges describe what the memory accounting believes is reserved; `process_resident_memory_bytes` describes what the process actually holds. A large and growing gap between them is off-pool memory that `runtime.query.memory_limit` does not bound — lowering the query memory limit will not shrink it.
+The pool gauges describe what the memory accounting believes is reserved; the resident gauges describe what the process actually holds. Take the gap against `process_resident_anon_bytes`, since the total also counts reclaimable page cache. A large and growing gap is off-pool memory that `runtime.query.memory_limit` does not bound — lowering the query memory limit will not shrink it.
+
+For container capacity planning use the kubelet's `container_memory_working_set_bytes`. For per-structure attribution within Cayenne, see [Memory Reconciliation Metrics](../components/data-accelerators/cayenne/deployment#memory-reconciliation-metrics).
 
 See [Observability](../features/observability) for configuration details.
 
@@ -609,7 +613,7 @@ What matters is *where* it plateaus and *whether* it plateaus:
 
 To tell a plateau from slow growth, hold the load constant and run long enough for the steady state to establish itself: caches full, at least one full refresh cycle per dataset, and any background compaction having run. Reaching that point can take hours to days depending on refresh cadence, and reading the graph before then will show a rise that has not yet finished.
 
-When growth does not flatten, the two gauges separate the causes: growth in `query_memory_pool_used_bytes` is query work inside the bounded pool, while growth in `process_resident_memory_bytes` with the pool gauges flat is off-pool memory, which `runtime.query.memory_limit` does not govern.
+When growth does not flatten, the gauges separate the causes: growth in `query_memory_pool_used_bytes` is query work inside the bounded pool, while growth in `process_resident_anon_bytes` with the pool gauges flat is off-pool memory, which `runtime.query.memory_limit` does not govern. Growth confined to `process_resident_file_bytes` is page cache filling, not a leak.
 
 ## Validating a Memory Configuration
 
