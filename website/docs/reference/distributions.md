@@ -57,7 +57,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 
 ## Default Distribution
 
-The default distribution includes all features including AI/ML model support. This is the recommended distribution for most users.
+The default distribution includes the standard `spiced` feature set, including AI/ML model support. This is the recommended distribution for most users.
 
 **Included Features:**
 
@@ -248,7 +248,7 @@ Four data connectors sit outside the `spiced` default feature set, so the publis
 | NFS           | `nfs`           | `make install-nfs`      |
 | Elasticsearch | `elasticsearch` | `SPICED_NON_DEFAULT_FEATURES="elasticsearch" make install` |
 
-A Spicepod naming a connector the running build does not include fails to load with an error naming the Cargo feature to build and linking the Enterprise distributions — the dataset is not silently skipped.
+For ScyllaDB specifically, a Spicepod using `from: scylladb:` on a build without the `scylladb` feature fails to load with an error naming the Cargo feature to build and linking the Enterprise distributions — the dataset is not silently skipped.
 
 ## Platform-Specific Notes
 
