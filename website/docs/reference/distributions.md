@@ -199,6 +199,15 @@ The default allocator, optimized for concurrent workloads.
 
 Alternative allocator that may perform better for certain memory allocation patterns.
 
+**Heap profiling**: the shipped jemalloc build has the heap profiler compiled out, so `_RJEM_MALLOC_CONF=prof:true` is silently ignored. Build with the `alloc-jemalloc-profiling` feature to turn it on — it implies `alloc-jemalloc` and adds jemalloc's `--enable-prof`. jemalloc is built under the `_rjem_` prefix, so it reads `_RJEM_MALLOC_CONF`, not `MALLOC_CONF`:
+
+```bash
+make install SPICED_NON_DEFAULT_FEATURES="alloc-jemalloc-profiling"
+_RJEM_MALLOC_CONF=prof:true,prof_final:true,prof_prefix:/tmp/spiced.prof spiced
+```
+
+A profiling build reports its allocator as `jemalloc-profiling` rather than `jemalloc` at startup and in the crash report, so it is never mistaken for a plain one.
+
 ### mimalloc
 
 Microsoft's mimalloc allocator, designed for performance and security.
