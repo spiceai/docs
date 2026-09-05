@@ -95,11 +95,15 @@ The connector checks each table's type against Unity Catalog metadata before cre
 | `MANAGED`           | Yes       | Standard Delta tables                  |
 | `EXTERNAL`          | Yes       | Tables with external storage locations |
 | `FOREIGN`           | Yes       | Lakehouse Federation foreign tables    |
+| `VIEW`              | Yes       | Plain `SELECT` targets on a SQL warehouse or Spark cluster |
 | `MATERIALIZED_VIEW` | Yes       | Materialized views                     |
-| `VIEW`              | No        | Skipped during discovery               |
-| `STREAMING_TABLE`   | No        | Skipped during discovery               |
+| `STREAMING_TABLE`   | Yes       | Plain `SELECT` targets on a SQL warehouse or Spark cluster |
 
-Unsupported table types are silently skipped during catalog discovery. When referenced directly (e.g., `databricks:catalog.schema.view_name`), an error is returned.
+Any other table type — including one Unity Catalog reports that Spice does not recognize — is silently skipped during catalog discovery. When referenced directly (e.g., `databricks:catalog.schema.some_table`), an error is returned naming the type.
+
+:::note[`VIEW` and `STREAMING_TABLE` need a query engine]
+Both are plain `SELECT` targets, so they are queryable in `mode: sql_warehouse` and `mode: spark_connect`. In `mode: delta_lake` they pass this check and then fail later, because they expose no storage location to read from directly.
+:::
 
 ### Permission Checking
 
