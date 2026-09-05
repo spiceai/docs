@@ -53,6 +53,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
+| ScyllaDB connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
@@ -237,11 +238,13 @@ Native Windows support for the Spice runtime is available with the [Spice Cloud 
 Some connectors require additional dependencies and are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing):
 
 - **ODBC** - Connect to any ODBC-compatible data source
+- **ScyllaDB** - Query ScyllaDB clusters over CQL
 
 These can be built locally for development and testing:
 
 ```bash
 make install-odbc
+make install-scylladb
 ```
 
 ## Platform-Specific Notes
