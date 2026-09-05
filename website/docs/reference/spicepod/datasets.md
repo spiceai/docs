@@ -663,7 +663,7 @@ See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-
 
 Optional. A byte budget for the rows a caching accelerator stores, e.g. `512MiB` or `1GB`. A plain integer is a byte count. Only applicable when `refresh_mode: caching`. Defaults to none (no byte budget).
 
-The budget measures the payload bytes of the stored rows — text columns exactly, fixed-width columns by their width — excluding the accelerator's own reserved caching columns. It is a payload measure rather than an on-disk one; the engine's indexes and compression are not counted.
+The budget measures the payload bytes of the stored rows — text columns exactly, fixed-width columns by their width — excluding the accelerator's own reserved caching columns. It is a payload measure rather than an on-disk one; the engine's indexes and compression are not counted. The connector-managed `response_headers` map is also not measured and does not trigger the unmeasurable-column startup warning, so large or numerous headers can put real cached payload above this budget.
 
 An unparseable value is a load error rather than a silent fallback to unbounded.
 
