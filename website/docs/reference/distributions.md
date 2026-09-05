@@ -206,7 +206,7 @@ make install SPICED_NON_DEFAULT_FEATURES="alloc-jemalloc-profiling"
 _RJEM_MALLOC_CONF=prof:true,prof_final:true,prof_prefix:/tmp/spiced.prof spiced
 ```
 
-A profiling build reports its allocator as `jemalloc-profiling` rather than `jemalloc` at startup and in the crash report, so it is never mistaken for a plain one.
+A profiling build reports its allocator as `jemalloc-profiling` rather than `jemalloc` at startup. In a crash report, the build is identified by the `alloc-jemalloc-profiling` entry in `SPICED_BUILD_FEATURES`.
 
 ### mimalloc
 
