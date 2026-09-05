@@ -240,9 +240,15 @@ When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-mo
 | `caching_ttl`                        | How long cached data is considered fresh. After this period, data becomes stale and a background refresh is triggered. **Defaults to `30s`.**                     | `30s`      |
 | `caching_stale_while_revalidate_ttl` | How long after `caching_ttl` expires to continue serving stale data while a background refresh runs. If omitted, queries wait for fresh data once TTL expires.    | None       |
 | `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error rather than failing the query.                                           | `disabled` |
+| `caching_max_size`                   | Byte budget for what the acceleration stores, e.g. `512MiB`. Without it (or `caching_max_items`) nothing caps how much the cache holds.                            | None       |
+| `caching_max_items`                  | Maximum number of rows the acceleration may keep, e.g. `100000`.                                                                                                  | None       |
 
 :::warning[`caching_ttl` defaults to 30 seconds]
 If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
+:::
+
+:::warning[A TTL does not bound the cache]
+A workload that keeps fetching new request paths grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are kept as fallback material and never expire away. Set `caching_max_size` or `caching_max_items` — see [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
 :::
 
 ```yaml

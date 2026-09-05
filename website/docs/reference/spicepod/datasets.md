@@ -575,6 +575,8 @@ See the [cron schedule reference](../cron).
 
 Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
 
+Also accepted as `acceleration.params.caching_item_ttl`, spelling the `item_ttl` suffix used by the results, search-results and embeddings caches. Both names are read, so neither is silently ignored; setting both to *different* values is a load error.
+
 When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
 
 **Example**:
@@ -656,6 +658,56 @@ datasets:
 ```
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) for detailed behavior.
+
+## `acceleration.params.caching_max_size`
+
+Optional. A byte budget for the rows a caching accelerator stores, e.g. `512MiB` or `1GB`. A plain integer is a byte count. Only applicable when `refresh_mode: caching`. Defaults to none (no byte budget).
+
+The budget measures the payload bytes of the stored rows — text columns exactly, fixed-width columns by their width — excluding the accelerator's own reserved caching columns. It is a payload measure rather than an on-disk one; the engine's indexes and compression are not counted.
+
+An unparseable value is a load error rather than a silent fallback to unbounded.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_size: 512MiB
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
+
+## `acceleration.params.caching_max_items`
+
+Optional. The maximum number of rows a caching accelerator may keep, e.g. `100000`. Only applicable when `refresh_mode: caching`. Defaults to none (no row budget).
+
+Eviction is entry-granular: all rows belonging to one cache entry are removed together, oldest entries first. An unparseable value is a load error.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_items: 100000
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
 
 ## `acceleration.refresh_sql`
 
