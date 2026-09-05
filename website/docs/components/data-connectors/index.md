@@ -74,7 +74,7 @@ Supported Data Connectors include:
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
 | `mongodb`                          | MongoDB (with native Change Streams CDC) | Alpha          |                              |
-| `scylladb`                         | ScyllaDB                              | Alpha             |                              |
+| `scylladb`                         | ScyllaDB (Spice.ai Enterprise)        | Alpha             |                              |
 | `smb`                              | SMB 3.1.1                             | Alpha             | SMB                          |
 | `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON           |
 
