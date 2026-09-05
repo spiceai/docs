@@ -59,11 +59,11 @@ For catalogs with thousands of tables, initial discovery can take minutes while 
 | `MANAGED`           | Yes       | Standard Delta tables                  |
 | `EXTERNAL`          | Yes       | Tables with external storage locations |
 | `FOREIGN`           | Yes       | Lakehouse Federation foreign tables    |
-| `VIEW`              | Yes       | Plain `SELECT` targets on a SQL warehouse or Spark cluster |
 | `MATERIALIZED_VIEW` | Yes       | Materialized views                     |
-| `STREAMING_TABLE`   | Yes       | Plain `SELECT` targets on a SQL warehouse or Spark cluster |
+| `VIEW`              | No        | Skipped during discovery               |
+| `STREAMING_TABLE`   | No        | Skipped during discovery               |
 
-Any other table type — including one Unity Catalog reports that Spice does not recognize — is skipped during catalog discovery. When referenced directly, an error is returned naming the type.
+Unsupported table types are skipped during catalog discovery. When referenced directly, an error is returned.
 
 ### Effective Permissions
 
@@ -112,6 +112,7 @@ Unity Catalog operations emit the following [task history](../../../reference/ta
 
 ## Known Limitations
 
+- **VIEW and STREAMING_TABLE are skipped**: Only queryable table types are exposed.
 - **Refresh cadence is fixed**: The 60-second wait between refresh passes is not user-configurable, and because it is a wait *between* passes, the effective interval is 60 seconds plus the duration of a pass.
 - **New schemas need a restart**: Refresh re-lists tables inside the schemas found at startup; a schema added to the catalog afterwards appears only after Spice restarts.
 - **No UC write-back**: The connector is read-only; writes to UC are not supported through Spice.
