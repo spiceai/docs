@@ -313,6 +313,18 @@ datasets:
       enabled: true
 ```
 
+:::warning[`acceleration.ready_state` is deprecated]
+`ready_state` also parses inside the `acceleration` block. When it is set there it **takes precedence** over the dataset's own top-level `ready_state`, and it applies whether or not `acceleration.enabled` is `true` — which is why it is never listed among the settings the [`enabled: false` warning](#accelerationenabled) reports as discarded.
+
+It is deprecated and will be removed. The runtime warns at load, naming the dataset:
+
+```
+Dataset 'api_data' sets `acceleration.ready_state`, which is deprecated and will be removed. Move the setting to the dataset's own `ready_state` to keep it working. See: https://spiceai.org/docs/reference/spicepod/datasets
+```
+
+Move the setting to the top-level `ready_state` shown above.
+:::
+
 ## `check_availability`
 
 Spice can monitor whether the source backing a non-accelerated dataset is still reachable, marking the dataset `Error` while it is not. Availability monitoring is **opt-in**: it runs only for datasets that set [`check_availability_interval`](#check_availability_interval). Note that probing may trigger the startup of compute resources (for example, Databricks or Snowflake), potentially incurring additional costs.
