@@ -43,11 +43,12 @@ For file-mode databases, the connection pool automatically sets the following pr
 | ---------------- | -------- | -------------------------------------------------- |
 | `journal_mode`   | `WAL`    | Enables concurrent readers during writes.          |
 | `synchronous`    | `NORMAL` | Balances durability with write performance.        |
-| `cache_size`     | `-20000` | Sets the page cache to ~20 MB.                     |
+| `cache_size`     | `-20000` | Sets the page cache to ~20 MB. Raised to `-200000` (~200 MB) when the acceleration `storage_profile` resolves to EBS-class network storage. |
 | `foreign_keys`   | `true`   | Enables foreign key constraint enforcement.        |
 | `temp_store`     | `memory` | Stores temporary tables and indices in memory.     |
+| `mmap_size`      | `0`      | Memory-mapped I/O is off by default. Set to `268435456` (256 MiB) when the `storage_profile` resolves to EBS-class network storage. |
 
-These are no-ops for in-memory databases and are set by the runtime; the SQLite accelerator does not expose a connection string for overriding them. Use the `busy_timeout` parameter to tune concurrent-writer handling.
+These are no-ops for in-memory databases and are set by the runtime; the SQLite accelerator does not expose a connection string for overriding them. Two of them — `cache_size` and `mmap_size` — are re-applied after pool setup with larger values when the acceleration [`storage_profile`](../../../reference/spicepod/datasets#accelerationstorage_profile) resolves to EBS-class network storage, to absorb its per-I/O latency. Use the `busy_timeout` parameter to tune concurrent-writer handling.
 
 ### Federation Across Files
 
@@ -56,7 +57,7 @@ File-mode SQLite datasets on the same runtime can be federated using SQLite's `A
 ## Capacity & Sizing
 
 - **Single writer**: SQLite serializes writes globally per file. High-concurrency write workloads (e.g., very short refresh intervals on many datasets) hit the write mutex — prefer [DuckDB](../duckdb/deployment) or [PostgreSQL](../postgres/deployment) for those cases.
-- **Memory**: The default page cache is ~20 MB (`cache_size = -20000`) and is managed by the runtime; it is not directly configurable. For large read-heavy workloads, prefer [DuckDB](../duckdb/deployment).
+- **Memory**: The page cache is managed by the runtime and is not directly configurable: ~20 MB (`cache_size = -20000`) on local/tmpfs storage, and ~200 MB (`cache_size = -200000`, plus a 256 MiB `mmap_size`) when the acceleration `storage_profile` resolves to EBS-class network storage. For large read-heavy workloads, prefer [DuckDB](../duckdb/deployment).
 - **Disk**: Plan for 1.2–1.5× the raw data size (SQLite uses row-oriented storage with no strong compression by default).
 
 ## Metrics
@@ -81,6 +82,6 @@ SQLite acceleration operations participate in [task history](../../../reference/
 | Symptom                                   | Likely cause                                              | Resolution                                                                                        |
 | ----------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `database is locked`                      | Concurrent writer contention exceeds `busy_timeout`.   | Raise `busy_timeout`; reduce concurrent refreshes; or switch to DuckDB/Postgres.               |
-| Slow reads on a large file-mode database  | Default page cache is small for the working set.          | The page cache is managed by the runtime and is not directly configurable; consider DuckDB for large-scan workloads. |
+| Slow reads on a large file-mode database  | Page cache is small for the working set.                  | The page cache is managed by the runtime and is not directly configurable; on network-attached storage the larger EBS-profile cache applies automatically. Consider DuckDB for large-scan workloads. |
 | Acceleration rejects `partition_by`       | Feature not supported.                                    | Remove `partition_by` or switch engines.                                                          |
 | Queries return stale data after refresh   | Readers using long-lived transactions hold an old snapshot. | Ensure read paths do not keep connections open across refresh boundaries (runtime handles this, but custom SQL in pre/post refresh hooks can affect it). |
