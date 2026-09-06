@@ -57,7 +57,7 @@ File-mode SQLite datasets on the same runtime can be federated using SQLite's `A
 ## Capacity & Sizing
 
 - **Single writer**: SQLite serializes writes globally per file. High-concurrency write workloads (e.g., very short refresh intervals on many datasets) hit the write mutex — prefer [DuckDB](../duckdb/deployment) or [PostgreSQL](../postgres/deployment) for those cases.
-- **Memory**: The page cache is managed by the runtime and is not directly configurable: ~20 MB (`cache_size = -20000`) on local/tmpfs storage, and ~200 MB (`cache_size = -200000`, plus a 256 MiB `mmap_size`) when the acceleration `storage_profile` resolves to EBS-class network storage. For large read-heavy workloads, prefer [DuckDB](../duckdb/deployment).
+- **Memory**: The page cache is managed by the runtime and is not directly configurable: ~20 MB (`cache_size = -20000`) on local/tmpfs storage, and ~200 MB (`cache_size = -200000`) when the acceleration `storage_profile` resolves to EBS-class network storage. Size for the page cache: that is the anonymous memory the accelerator asks for. The 256 MiB `mmap_size` set under the same profile is a ceiling on how much of the database file may be memory-mapped at once, not a further 256 MiB to provision — mapped pages are file-backed, become resident on demand, and are reclaimable under pressure. For large read-heavy workloads, prefer [DuckDB](../duckdb/deployment).
 - **Disk**: Plan for 1.2–1.5× the raw data size (SQLite uses row-oriented storage with no strong compression by default).
 
 ## Metrics
