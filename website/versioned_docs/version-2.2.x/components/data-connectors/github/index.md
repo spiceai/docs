@@ -113,11 +113,11 @@ datasets:
 # ... other configuration ...
 ```
 
-The GitHub connector supports the following HTTP concurrency parameter:
+The GitHub connector runs its own concurrency limiter, separate from the [shared HTTP rate control](../https/index.md#rate-control-parameters) used by the HTTP and GraphQL connectors. It reads a single parameter:
 
 | Parameter Name              | Description                                                                                                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `max_concurrent_requests`   | Maximum number of concurrent HTTP requests to the same upstream origin. Overrides `runtime.params.http_max_concurrent_requests`. If both are unset, concurrency limiting is disabled.         |
+| `max_concurrent_requests`   | Maximum number of concurrent GitHub HTTP requests for this authentication context. When unset, the connector falls back to `runtime.source_rate_control.github_concurrent_connections_limit`, then to the deprecated `runtime.params.github_max_concurrent_connections`, and finally to the connector default of `10`. The GitHub connector does **not** read `runtime.params.http_max_concurrent_requests`, and concurrency limiting is never disabled. |
 
 The GitHub connector uses its own rate limiter based on GitHub API `X-RateLimit-*` response headers. Multiple datasets targeting the same GitHub endpoint share this rate limiter.
 

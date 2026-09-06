@@ -131,7 +131,7 @@ Optional. Global key-value parameters for the runtime.
 
 ### HTTP Rate Control
 
-HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following rate control defaults. The GitHub connector is **not** part of this family — it has its own limiter, configured with [`runtime.source_rate_control.github_concurrent_connections_limit`](#runtimesource_rate_control):
 
 | Parameter Name                    | Description                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
