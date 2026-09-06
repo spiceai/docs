@@ -58,7 +58,7 @@ File reads participate in [task history](../../../reference/task_history) throug
 ## Known Limitations
 
 - **Read-only**: The File connector cannot write.
-- **File watching is opt-in**: change detection is off unless `file_watcher: enabled` is set in the dataset's `acceleration.params` (see [Trigger data refresh on file change](./index.md#trigger-data-refresh-on-file-change)). Without it, use `refresh_interval` on an accelerated dataset to pick up changes.
+- **File watching is opt-in**: Change detection is off unless `file_watcher: enabled` is set in the dataset's `acceleration.params` (see [Trigger data refresh on file change](./index.md#trigger-data-refresh-on-file-change)). Without it, use `refresh_interval` on an accelerated dataset to pick up changes.
 - **Container portability**: Hard-coded `file://` paths in a spicepod are non-portable across environments; parameterize via env vars or use network-mounted paths with consistent mount points.
 - **Large CSVs**: CSV reads are single-threaded; prefer Parquet for datasets larger than a few GB.
 
