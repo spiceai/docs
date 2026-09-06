@@ -38,7 +38,7 @@ Model IDs support explicit revision pinning by appending a **colon** and the rev
 
 ### Retry Behavior
 
-Download retries follow the shared HTTP-client policy with exponential/fibonacci backoff on transient failures. For very large models over slow networks, pre-download into the cache directory with the Hugging Face CLI to avoid first-request latency.
+Download retries follow the shared HTTP-client policy with exponential/fibonacci backoff on transient failures. Models are downloaded and instantiated during startup, so a slow or large download delays the model reaching `Ready` rather than slowing the first request. For very large models over slow networks, pre-download into the cache directory with the Hugging Face CLI (passing `--revision` when the `from` pins one).
 
 ## Capacity & Sizing
 
@@ -93,5 +93,5 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 | OOM on model load                                               | Model size exceeds device memory.                          | Choose a smaller quantized variant; switch to CPU + larger system RAM; use multi-GPU if supported.                             |
 | Inference falls back to CPU unexpectedly                        | CUDA / Metal unavailable or not detected.                  | Use a CUDA-enabled Spice build on GPU hosts; verify `nvidia-smi` shows devices; for macOS, use Apple Silicon build.            |
 | Model output changes between restarts                           | Revision unpinned (default branch).                        | Pin the revision with a colon: `from: huggingface:huggingface.co/org/model:<commit_sha>`.                                       |
-| First request extremely slow                                    | Model downloading on first run.                            | Pre-warm the Hub cache with `huggingface-cli download <org>/<model>`, pointing `HF_HOME` / `HF_HUB_CACHE` at the same directory Spice uses. |
+| Model stays `Initializing` for a long time after startup       | First-run download. Models are fetched and instantiated during startup (`load_models`), not lazily on the first inference request, so the model is unavailable until the download completes. | Pre-warm the Hub cache with `huggingface-cli download <org>/<model> --revision <revision>` — passing the same revision the `from` pins — and point `HF_HOME` / `HF_HUB_CACHE` at the directory Spice uses. |
 | Model fails to load with an invalid-`from` error                | `from` does not match the HuggingFace pattern — most often an `@` used as the revision separator, or a character outside `[A-Za-z0-9_.-]` in the revision. | Use `from: huggingface:huggingface.co/<org>/<model>:<revision>`; the revision accepts word characters, digits, dashes and dots, so commit SHAs are safe. |
