@@ -27,12 +27,34 @@ datasets:
 
 ## Column References
 
-Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional.
 
 Examples
 
 - `number`: Reference a constraint on the `number` column
 - `(hash, timestamp)`: Reference a constraint on the `hash` and `timestamp` columns
+- `hash, timestamp`: The same multicolumn key, written without parentheses
+
+### Column names
+
+The names in a column reference are matched against the schema's field names as written — they are not SQL identifiers, so a name that SQL would read as a qualifier chain (`service.instance.id`) or reject outright (`sentry-environment`, `2xx_count`) is a single column name here and needs no special treatment.
+
+A name may also be double-quoted the way SQL writes it. The quotes are not part of the name, and any whitespace or casing inside them is preserved:
+
+- `service.instance.id` and `"service.instance.id"` both reference the same column
+- `(time_unix_nano, "service.instance.id")`: A multicolumn key mixing both forms
+
+A column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced. Each of those characters separates fields in the strings a column reference is carried in, so such a name cannot be read back unambiguously; the runtime refuses it at load with a configuration error naming the column and the character, rather than silently splitting it.
+
+### Primary key columns must be non-null
+
+Every column named by `primary_key` must be populated in the incoming data. On the [Spice Cayenne](../../components/data-accelerators/cayenne) accelerator a batch carrying a null in any primary key column is rejected with an error naming the offending column(s), for example:
+
+```text
+Primary key column 'region' has null values. Every primary key column must be non-null: populate it in the source data, or set `primary_key` to columns that are always present.
+```
+
+Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
 
 ## Handling conflicts
 
