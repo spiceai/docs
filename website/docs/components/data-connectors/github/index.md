@@ -88,23 +88,23 @@ With GitHub App Installation authentication, the connector's functionality depen
 
 ## Identity Columns
 
-Every GitHub table carries an `owner` column, and every repository-scoped table also carries a `repo` column. Both are non-nullable.
+Every GitHub table carries an `owner` column, and every table whose rows belong to a repository also carries a `repo` column. Both are non-nullable.
 
 | Column  | Type | Description                                                                                                          |
 | ------- | ---- | -------------------------------------------------------------------------------------------------------------------- |
 | `owner` | Utf8 | The login of the user or organization that owns the row's repository. On an owner-scoped table (`members`, `repos`, `user`) it is the owner the dataset names. |
-| `repo`  | Utf8 | The name of the repository the row came from, without the owner prefix. Absent from owner-scoped tables.              |
+| `repo`  | Utf8 | The name of the repository the row came from, without the owner prefix. Absent from `members` and `user`, whose rows do not belong to a repository. On `repos` it is the repository each row describes. |
 
 GitHub scopes a response by owner and repository *above* the row array, so without these columns a query that unions several repositories cannot tell the rows apart. They are stamped onto each row from the dataset path rather than requested from GitHub, so they cost nothing against the API rate limit.
 
-Both values are stored **lower-cased**. GitHub treats owner and repository names as case-insensitive and will answer a dataset path spelled `SpiceAI/spiceai` with rows it calls `spiceai/spiceai`; SQL equality is not case-insensitive, so folding the value is what keeps a join across datasets matching. Where GitHub's own spelling matters, use `name_with_owner` on the `repo` / `repos` tables.
+Both values are stored **lowercased**. GitHub treats owner and repository names as case-insensitive and will answer a dataset path spelled `SpiceAI/spiceai` with rows it calls `spiceai/spiceai`; SQL equality is not case-insensitive, so folding the value is what keeps a join across datasets matching. Where GitHub's own spelling matters, use `name_with_owner` on the `repo` / `repos` tables.
 
 ```sql
 SELECT owner, repo, COUNT(*) AS open_pulls
 FROM (
-  SELECT owner, repo, state FROM spiceai_pulls
+  SELECT owner, repo, state FROM spiceai.pulls
   UNION ALL
-  SELECT owner, repo, state FROM cookbook_pulls
+  SELECT owner, repo, state FROM cookbook.pulls
 )
 WHERE state = 'OPEN'
 GROUP BY owner, repo;
@@ -701,8 +701,8 @@ Join back to `pulls` on `pull_request_number`:
 
 ```sql
 SELECT p.number, p.title, r.author, r.state, r.submitted_at
-FROM spiceai_pulls p
-JOIN spiceai_reviews r ON r.pull_request_number = p.number
+FROM spiceai.pulls p
+JOIN spiceai.reviews r ON r.pull_request_number = p.number
 WHERE r.state = 'APPROVED';
 ```
 
@@ -829,7 +829,7 @@ datasets:
 
 ### Querying Repository Metadata
 
-`…/repo` returns one row of metadata for the repository the path names; `…/repos` returns one row per repository an owner has. Both resolve an organization and a user alike, and both share the same schema.
+`github:github.com/<owner>/<repo>/repo` returns one row of metadata for the repository the path names; `github:github.com/<owner>/repos` returns one row per repository an owner has. Both resolve an organization and a user alike, and both share the same schema.
 
 ```yaml
 datasets:
@@ -875,11 +875,11 @@ datasets:
 | topics_count             | Int64           | YES         |
 | topics                   | List(Utf8)      | YES         |
 
-`name_with_owner` keeps GitHub's own capitalization; `owner` and `repo` are lower-cased for joining (see [Identity Columns](#identity-columns)).
+`name_with_owner` keeps GitHub's own capitalization; `owner` and `repo` are lowercased for joining (see [Identity Columns](#identity-columns)).
 
 ### Querying a User Profile
 
-`…/user` returns the public profile of one login.
+`github:github.com/<owner>/user` returns the public profile of one login.
 
 ```yaml
 datasets:
