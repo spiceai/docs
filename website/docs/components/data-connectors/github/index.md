@@ -113,7 +113,7 @@ datasets:
 # ... other configuration ...
 ```
 
-The GitHub connector runs its own concurrency limiter, separate from the [shared HTTP rate control](../https/index.md#rate-control-parameters) used by the HTTP and GraphQL connectors. It reads a single parameter:
+The GitHub connector runs its own concurrency limiter, separate from the [shared HTTP rate control](../https/index.md#rate-control-parameters) used by the HTTP/HTTPS, GraphQL and Databricks connectors. It reads a single parameter:
 
 | Parameter Name              | Description                                                                                                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
