@@ -27,7 +27,7 @@ For secrets embedded in data files (credentials, tokens), encrypt at rest and re
 
 The File connector reads local files synchronously; there is no network layer, retry, or concurrency semaphore. Failures are filesystem errors (`ENOENT`, `EACCES`, `EIO`) and surface directly to the caller. Filesystem issues (e.g., an NFS mount going stale) must be handled at the infrastructure layer.
 
-For hot-reloading of updated data files, accelerate the dataset and configure a `refresh_interval` — the connector re-reads the file on each refresh.
+For hot-reloading of updated data files, accelerate the dataset and either set `file_watcher: enabled` in `acceleration.params` — the connector then registers a filesystem watcher and requests a refresh when the file is modified — or configure a `refresh_interval`, which re-reads the file on each refresh.
 
 ## Capacity & Sizing
 
@@ -41,7 +41,7 @@ For hot-reloading of updated data files, accelerate the dataset and configure a 
 See [File Formats](../../../reference/file_format) for format-specific parameters. Choose based on access pattern:
 
 - **Parquet**: Best for analytical reads. Column pruning and predicate pushdown apply.
-- **CSV**: Text-scan workloads only; set `has_header` and `delimiter` explicitly.
+- **CSV**: Text-scan workloads only; set `csv_has_header` and `csv_delimiter` explicitly. The bare `has_header` / `delimiter` names are not runtime parameters and are ignored.
 - **JSON (newline-delimited)**: Good for ad-hoc reads; schema inference cost is linear in sampled records.
 - **Arrow IPC**: Fastest for Spice-to-Spice data exchange.
 
@@ -58,7 +58,7 @@ File reads participate in [task history](../../../reference/task_history) throug
 ## Known Limitations
 
 - **Read-only**: The File connector cannot write.
-- **No file watching**: File updates are not detected automatically; use `refresh_interval` on an accelerated dataset to pick up changes.
+- **File watching is opt-in**: change detection is off unless `file_watcher: enabled` is set in the dataset's `acceleration.params` (see [Trigger data refresh on file change](./index.md#trigger-data-refresh-on-file-change)). Without it, use `refresh_interval` on an accelerated dataset to pick up changes.
 - **Container portability**: Hard-coded `file://` paths in a spicepod are non-portable across environments; parameterize via env vars or use network-mounted paths with consistent mount points.
 - **Large CSVs**: CSV reads are single-threaded; prefer Parquet for datasets larger than a few GB.
 
@@ -70,4 +70,4 @@ File reads participate in [task history](../../../reference/task_history) throug
 | `Permission denied`                               | Spice process user lacks read permission.        | Adjust file ACLs or mount with appropriate UID/GID.                                          |
 | Schema inference is slow for JSON                 | Large file with sparse fields sampled.           | Provide an explicit `schema`, or sample fewer records.                                       |
 | Planning time dominates for glob patterns         | Very large directory listings.                   | Prune with Hive partitioning or break the dataset into narrower prefixes.                    |
-| Query returns old data after file was replaced    | No file watch; Spice sees cached schema.         | Set `refresh_interval` on an accelerated dataset, or restart the runtime.                    |
+| Query returns old data after file was replaced    | The dataset is not accelerated, or is accelerated without `file_watcher` / `refresh_interval`. | Set `file_watcher: enabled` in `acceleration.params` to refresh on modification, or set a `refresh_interval`. |
