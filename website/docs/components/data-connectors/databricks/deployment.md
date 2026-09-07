@@ -97,9 +97,11 @@ The connector checks each table's type against Unity Catalog metadata before cre
 | `FOREIGN`           | Yes       | Lakehouse Federation foreign tables    |
 | `MATERIALIZED_VIEW` | Yes       | Materialized views                     |
 | `VIEW`              | No        | Skipped during discovery               |
-| `STREAMING_TABLE`   | No        | Skipped during discovery               |
+| `STREAMING_TABLE`   | Yes       | Read-only federation in recent runtimes |
 
 Unsupported table types are silently skipped during catalog discovery. When referenced directly (e.g., `databricks:catalog.schema.view_name`), an error is returned.
+
+If a runtime still rejects `STREAMING_TABLE` as unsupported, use a materialized view as an interim path and federate that view until the runtime is upgraded.
 
 ### Permission Checking
 

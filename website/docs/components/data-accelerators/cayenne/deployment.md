@@ -241,6 +241,7 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 - **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment).
 - **Single-writer per table**: Two Spice instances cannot write the same Cayenne table concurrently.
 - **Vortex version compatibility**: Cayenne files are tied to the Vortex binary version shipped with Spice. Cross-version reads may be supported but not cross-version writes.
+- **Major-version upgrades**: After upgrading to a new major Cayenne runtime version, recreate persistent volumes (or otherwise clear the existing Cayenne acceleration storage) before restarting writers, so files produced by the previous version are not reused.
 - **Object-store write atomicity**: Standard S3 is eventually consistent for multipart uploads. S3 Express One Zone provides strong read-after-write consistency and is recommended for latency-sensitive workloads.
 
 ## Troubleshooting
@@ -250,6 +251,7 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 | Slow restart after a crash                       | WAL not checkpointed due to ungraceful shutdown.         | Use graceful shutdown (`SIGTERM`); first restart will catch up the WAL automatically.                   |
 | `database is locked` metastore errors            | Two writers sharing one metastore path.                  | Ensure only one writer; use distinct metastore paths per instance.                                      |
 | Dataset fails to load naming a data directory that contains the metastore directory | The resolved metastore sits inside the dataset's data directory — commonly a dataset named `metadata` under the stock defaults. | Set `cayenne_metadata_dir` outside the data directory, or rename the dataset. See [Metastore location](./index.md#metastore-location). |
+| Delete-vector files keep growing on a primary-key upsert table under sustained writes | Position-delete compaction is starved by concurrent writes. | Set `cayenne_deletion_mode: key` for `primary_key` + `on_conflict: upsert` tables so compaction can run concurrently with writers. |
 | Query slower than expected for cold data         | Segment cache too small for the working set of every table sharing it. | Increase `runtime.params.cayenne_segment_cache_mb`.                                       |
 | High S3 request cost                             | Segment cache misses on every query.                     | Increase `runtime.params.cayenne_segment_cache_mb`; consider `partition_by` aligned with query filters. |
 | Upload throughput does not scale with concurrency | Network or S3 Express One Zone TPS limit.                | Use S3 Express One Zone in the same AZ; benchmark with `upload_concurrency` to find the right setting.  |

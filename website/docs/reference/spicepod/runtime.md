@@ -542,6 +542,8 @@ env:
 
 The [Spice Helm chart](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart) and the Spice Kubernetes Operator both emit this automatically whenever the pod sets a CPU request, so neither needs configuring. A hand-written pod spec must include it, or the pod falls through to rung 3 and sizes for the machine — the runtime warns at startup when it detects that case.
 
+If the host or cgroup metadata reports more CPUs than the process should use, set `runtime.cpu.cores` explicitly to the process allocation. This keeps thread pools and CPU-derived defaults sized to the deployment's intended CPU budget instead of the host total.
+
 Two details in that block are load-bearing. The `divisor: 1m` is what makes the value millicores, which is what the variable's name states; without it a `requests.cpu` of 4 arrives as `4` and reads as four millicores. And the block must be emitted **only when a CPU request is actually set**: with no request declared, `resourceFieldRef` reports the node's *allocatable* CPU, which is exactly the over-sizing this exists to prevent.
 
 See [Resource Allocation](../performance-tuning#resource-allocation) for the Kubernetes guidance.

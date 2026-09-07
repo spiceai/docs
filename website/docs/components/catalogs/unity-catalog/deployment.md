@@ -61,9 +61,11 @@ For catalogs with thousands of tables, initial discovery can take minutes while 
 | `FOREIGN`           | Yes       | Lakehouse Federation foreign tables    |
 | `MATERIALIZED_VIEW` | Yes       | Materialized views                     |
 | `VIEW`              | No        | Skipped during discovery               |
-| `STREAMING_TABLE`   | No        | Skipped during discovery               |
+| `STREAMING_TABLE`   | Yes       | Read-only federation in recent runtimes |
 
 Unsupported table types are skipped during catalog discovery. When referenced directly, an error is returned.
+
+If a runtime still rejects `STREAMING_TABLE` as unsupported, create a materialized view and federate that view until the runtime is upgraded.
 
 ### Effective Permissions
 
@@ -112,7 +114,7 @@ Unity Catalog operations emit the following [task history](../../../reference/ta
 
 ## Known Limitations
 
-- **VIEW and STREAMING_TABLE are skipped**: Only queryable table types are exposed.
+- **VIEW is skipped**: Only queryable table types are exposed. `STREAMING_TABLE` is supported for read-only federation in recent runtimes.
 - **Refresh cadence is fixed**: The 60-second wait between refresh passes is not user-configurable, and because it is a wait *between* passes, the effective interval is 60 seconds plus the duration of a pass.
 - **New schemas need a restart**: Refresh re-lists tables inside the schemas found at startup; a schema added to the catalog afterwards appears only after Spice restarts.
 - **No UC write-back**: The connector is read-only; writes to UC are not supported through Spice.
@@ -124,7 +126,7 @@ Unity Catalog operations emit the following [task history](../../../reference/ta
 | Symptom                                                                 | Likely cause                                                       | Resolution                                                                                                                  |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized` on catalog list                                      | Missing, expired, or wrong-workspace token.                        | Regenerate token in UC / Databricks; update secret store.                                                                   |
-| Table visible in UC but missing from the Spice catalog                  | Table type is VIEW / STREAMING_TABLE, permissions were denied, or its schema was created after Spice started. | Confirm the table type is supported and that the principal has `SELECT` (or equivalent); restart Spice to pick up a schema created after startup. |
+| Table visible in UC but missing from the Spice catalog                  | Table type is VIEW, the runtime does not yet support `STREAMING_TABLE`, permissions were denied, or its schema was created after Spice started. | Confirm the table type is supported, or expose the source as a materialized view when `STREAMING_TABLE` is rejected. Ensure the principal has `SELECT` (or equivalent); restart Spice to pick up a schema created after startup. |
 | `InsufficientPermissions` on direct table reference                     | Role lacks read privilege on the table.                            | Grant `SELECT` on the table in UC.                                                                                          |
 | Slow catalog discovery on thousands of tables                           | Bounded concurrency + permission checks per table.                 | Expected behavior; schedule discovery during low-traffic windows and cache via accelerated datasets.                         |
 | Tables from a Lakehouse Federation source missing                       | FOREIGN precheck passed but Databricks denied at query time.       | Verify the Databricks workspace has federation privileges granted to the principal.                                          |

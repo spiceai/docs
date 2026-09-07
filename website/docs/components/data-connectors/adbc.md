@@ -42,6 +42,13 @@ See the [`dbc` documentation](https://docs.columnar.tech/dbc/) for other install
 
 Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length` and `json_object_keys` — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local and why.
 
+For BigQuery sources, ISO timestamp strings that include a timezone offset (or trailing `Z`) must be cast to `TIMESTAMP`, not `DATETIME`.
+
+```sql
+SELECT CAST('2026-01-01T12:34:56Z' AS TIMESTAMP);
+SELECT CAST(CAST('2026-01-01T12:34:56-07:00' AS TIMESTAMP) AS DATE);
+```
+
 ## Configuration
 
 ### `from`
@@ -112,7 +119,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_schema`              | Optional. Sets the default schema for the connection.                                                                                |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default: `5`.                                                        |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections in the pool. Default: `1`.                                                              |
-| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`.              |
+| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`. Set to `disabled` when a query must run Spice-local functions that are not translated by the source dialect.              |
 
 :::warning[In-memory databases]
 In-memory database URIs (e.g., `:memory:` or URIs containing `mode=memory`) are not supported.
@@ -287,6 +294,8 @@ The ADBC connector pushes SQL operations down to the source database when possib
 - **Join pushdown**: Joins between datasets from the same ADBC URI are executed on the remote database.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
+
+Spice-only SQL functions are not sent to the source unless the active dialect has a translation for that function. When local function semantics are required, set `query_federation: disabled` so evaluation stays in Spice.
 
 ## Auth
 
