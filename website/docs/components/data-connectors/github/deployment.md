@@ -47,7 +47,15 @@ The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers an
 
 ### Pagination
 
-GitHub paginates at 100 items per page. Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+Page width is chosen per table, not fixed at GitHub's 100-item maximum. GitHub enforces a **per-request compute budget** that is separate from — and reached long before — its 500,000-node ceiling, and a page wide enough to exceed it is rejected outright with `Resource limits for this query exceeded`, every node in the page returned as `null`. Tables whose rows expand into many nested connections therefore request narrower pages: `pulls` is requested 25 at a time in both comment modes, while `issues` and `milestones` still use 100.
+
+Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+
+:::warning[`pulls` cannot scan more than 25,025 pull requests]
+A paginated scan stops after 1,000 pages and fails with `Maximum pagination iterations (1000) exceeded` rather than silently truncating, so a `pulls` dataset is bounded at `25 x 1001` = **25,025 pull requests** per refresh. Both query modes page at the same width, so `github_query_mode: search` does not raise the ceiling — but it does push filters down to GitHub, so a filtered `pulls` dataset walks far fewer pages before reaching it.
+
+The page was wider in earlier releases, putting the arithmetic ceiling at 100,100 — but on a repository large enough for that to bind, the wider page was rejected by the compute budget and returned no rows at all. The number of pull requests actually reachable went up, not down.
+:::
 
 ### Retry Behavior
 
