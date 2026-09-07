@@ -87,6 +87,10 @@ The `access` field controls what operations are allowed on the catalog:
 | `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                                                                  |
 | `ducklake_automatic_migration`     | Optional. Set to `true` to automatically migrate an older DuckLake catalog schema to the version required by the DuckLake extension on attach. Default: `false`. Migration rewrites catalog metadata and **cannot be undone**.                        |
 
+:::info[Timestamps are read in UTC]
+Spice pins the DuckDB session backing this catalog to `SET TimeZone = 'UTC'`, so a `TIMESTAMPTZ` column always reaches Spice as `Timestamp(us, "UTC")` rather than carrying the host's timezone into the dataset schema. See the [DuckDB connector](../data-connectors/duckdb/index.md) for why.
+:::
+
 ## Authentication
 
 ### AWS S3
