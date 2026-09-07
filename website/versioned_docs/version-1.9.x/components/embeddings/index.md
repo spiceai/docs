@@ -253,7 +253,7 @@ To ensure compatibility, embedding columns must meet these requirements:
      - `FixedSizeList[Float32 or Float64, N]` for unchunked data, where `N` is the embedding vector size.
      - `List[FixedSizeList[Float32 or Float64, N]]` for chunked data.
 4. **Offset Column (for chunked data):**
-   - If chunked, an offset column `<column_name>_offsets` must exist with type `List[FixedSizeList[Int32, 2]]`, where each pair `[start, end]` maps a chunk to its text segment.
+   - If chunked, an offset column `<column_name>_offset` must exist with type `List[FixedSizeList[Int32, 2]]`, where each pair `[start, end]` maps a chunk to its text segment.
    - Example: `[[0, 100], [101, 200]]` means two chunks covering indices 0–100 and 101–200.
 
 Following these guidelines ensures that the dataset's pre-existing embeddings are fully compatible with Spice.
