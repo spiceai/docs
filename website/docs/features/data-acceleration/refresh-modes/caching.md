@@ -459,11 +459,16 @@ This configuration provides:
 
 ### Row-Level Replacement
 
-The `caching` mode uses `InsertOp::Replace` to handle data updates. When new data is fetched for a given cache key (request metadata):
+When new data is fetched for a given cache key (request metadata):
 
-1. All existing rows matching that cache key are removed
-2. All new rows are inserted
-3. This operation is atomic, ensuring consistent cache state
+1. All existing rows matching that cache key are removed with a `DELETE`
+2. All new rows are appended
+
+The cost of caching one response therefore does not grow with everything already cached. On an accelerator that does not implement deletes, the write falls back to reading the acceleration back, filtering it in memory and overwriting it; the fallback is chosen while *planning*, so a replacement is never left half-applied. A cache key nothing holds yet is appended with no `DELETE` at all.
+
+The delete and the append are two statements rather than one transaction, and the delete runs first because that is the order that fails safely: if the append fails, the entry is gone and the next read re-fetches it, which is a cache miss and always a correct answer. Appending first would leave the key holding both responses, and a duplicated source row is a *wrong* answer that queries go on returning.
+
+A key is claimed by one writer for the duration of a replacement, so a concurrent reader that sees the delete-then-append gap reads a miss and cannot append its own copy beside a response it never saw. The claim is released if the writer is cancelled or its fetch never returns.
 
 This behavior differs from other modes:
 
@@ -552,6 +557,7 @@ The caching mode provides parameters to control cache freshness and staleness be
 | Parameter                            | Description                                                                                                                                                | Default    |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | `caching_ttl`                        | Duration that cached data is considered fresh. After this period, data becomes stale and triggers a background refresh.                                    | `30s`      |
+| `caching_item_ttl`                   | Alias for `caching_ttl`, spelling the `item_ttl` suffix used by the [results, search-results and embeddings caches](../../caching). Set one or the other — setting both to *different* values is a load error. | `30s`      |
 | `caching_stale_while_revalidate_ttl` | Duration after `caching_ttl` expires during which stale data is served while refreshing in the background. After this period, queries wait for fresh data. | None       |
 | `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error. Valid values: `enabled`, `disabled`.                            | `disabled` |
 
@@ -598,6 +604,58 @@ datasets:
 
 **Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
 
+### Cache Size and Item Limits
+
+A TTL alone does not bound how much a caching accelerator holds — a workload that keeps fetching new cache keys grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are deliberately kept as fallback material and are never expired away. Two parameters put a ceiling on it:
+
+| Parameter           | Description                                                                                                        | Default |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ | ------- |
+| `caching_max_size`  | Byte budget for the rows the acceleration stores, e.g. `512MiB` or `1GB`. A plain integer is a byte count.         | None    |
+| `caching_max_items` | Maximum number of rows the acceleration may keep, e.g. `100000`.                                                   | None    |
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows_bounded
+    params:
+      file_format: json
+      allowed_request_paths: '/shows/*'
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_stale_while_revalidate_ttl: 10s
+        caching_max_size: 512MiB # Byte budget for cached payloads
+        caching_max_items: 100000 # Row budget
+```
+
+Both parameters **refuse an unparseable value at load** rather than falling back to unbounded — the parameter is the bound, so a silent default would leave a limit that was set but is not in force.
+
+**How eviction works**:
+
+A periodic sweep applies three bounds, in this order:
+
+1. **Expiry** — entries fetched longer ago than `caching_ttl` plus the `caching_stale_while_revalidate_ttl` grace period. They can no longer be served, so keeping them only consumes budget.
+2. **Item count** — `caching_max_items`.
+3. **Byte budget** — `caching_max_size`.
+
+Eviction is **entry-granular**: a cached response can span several rows (a paginated response is fetched a page at a time, each page carrying its own `fetched_at`), so all of an entry's rows are removed together. An entry is only as old as its oldest page, and the oldest entries are evicted first, so the cache always holds the most recent entries it can afford.
+
+**What the byte budget measures**: the payload bytes of the rows the cache stores — text columns are measured exactly, fixed-width columns contribute their width, and the accelerator's own reserved caching columns are excluded. It is a payload measure, not an on-disk one: the engine's indexes and compression are not counted. The connector-managed `response_headers` map is also excluded and does not trigger the unmeasurable-column startup warning, so large or numerous headers can push real payload above `caching_max_size`. Columns of neither kind (for example a nested `Map`) cannot be weighed, and the runtime warns at startup naming any such column, since the budget under-counts by whatever they hold.
+
+**Sweep cadence**: the sweep runs at `caching_ttl`, clamped to a minimum of 30 seconds and a maximum of 5 minutes. Between sweeps the acceleration may overshoot its budget by whatever the workload writes, so a budget is only ever as tight as the sweep enforcing it. When the dataset also sets `retention_check_interval`, the tighter of the two cadences is used.
+
+**`retention_period` and `retention_sql` apply in caching mode**, and are evaluated **per entry** rather than per row — a rule matching one page of a paginated response removes the whole response. A retention rule is also a bound, so a dataset that sets one does not need a `caching_max_*` budget to be bounded.
+
+**Configurations that cannot be enforced are reported at startup**, naming the dataset, so unexplained growth is diagnosable from the log:
+
+- A schema with none of the request columns that identify a cache entry — entries cannot be named, so neither budget can be enforced.
+- A column the byte budget cannot measure — `caching_max_size` under-counts.
+- `caching_stale_if_error: enabled` with no `caching_max_size`, `caching_max_items`, `retention_period` or `retention_sql` — nothing evicts from this configuration at all.
+
 ### Stale-If-Error Behavior
 
 The `caching_stale_if_error` parameter controls whether expired cached data is served when the upstream data source returns an error during a refresh attempt. This provides fault tolerance by returning stale data instead of failing the query when the upstream source is temporarily unavailable.
@@ -619,7 +677,7 @@ datasets:
 
 When `caching_stale_if_error: enabled`:
 
-- If the upstream source returns an error during refresh, expired cached data is served instead of failing
+- If the upstream source fails during refresh, expired cached data is served instead of failing
 - Queries continue to return data even when the upstream API is unavailable
 - Useful for APIs with intermittent availability or rate limits
 
@@ -627,6 +685,12 @@ When `caching_stale_if_error: disabled` (default):
 
 - Errors from the upstream source propagate to the query
 - Queries fail when fresh data cannot be fetched and cached data has expired
+
+**A failing origin is not necessarily an error.** Once the HTTP connector has exhausted its own `max_retries`, it reports a failing origin as a *successful* fetch whose rows carry a 429 or 5xx status — which is the dominant failure mode of the sources caching mode accepts. A revalidation classifies that response as an unavailable origin, so `caching_stale_if_error` acts on it and the cached entry is kept rather than being overwritten with the origin's error body. The same classification stops the periodic background refresh from replacing a good entry with an error response.
+
+:::warning[`caching_stale_if_error` alone leaves the cache unbounded]
+Expired entries are deliberately retained as fallback material for a failing origin, so with `caching_stale_if_error: enabled` the expiry sweep removes nothing. Pair it with [`caching_max_size` or `caching_max_items`](#cache-size-and-item-limits) — or a `retention_period` / `retention_sql` rule — or the acceleration grows without bound. The runtime warns at startup, naming the dataset, when this configuration is loaded.
+:::
 
 :::warning[Stale-While-Revalidate Configuration Conflict]
 When using `refresh_mode: caching`, you cannot configure both the caching accelerator's `caching_stale_while_revalidate_ttl` and the [results cache](../../caching)'s `stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers, and having both enabled creates a conflict.
