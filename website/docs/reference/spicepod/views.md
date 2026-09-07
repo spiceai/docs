@@ -79,6 +79,18 @@ views:
       enabled: true
 ```
 
+:::warning[`acceleration.ready_state` is deprecated]
+`ready_state` also parses inside the `acceleration` block. When it is set there it **takes precedence** over the view's own top-level `ready_state`, and it applies whether or not `acceleration.enabled` is `true` — which is why it is never listed among the settings the [`enabled: false` warning](#accelerationenabled) reports as discarded.
+
+It is deprecated and will be removed. The runtime warns at load, naming the view:
+
+```
+View 'daily_totals' sets `acceleration.ready_state`, which is deprecated and will be removed. Move the setting to the view's own `ready_state` to keep it working. See: https://spiceai.org/docs/reference/spicepod/views
+```
+
+Move the setting to the top-level `ready_state` shown above.
+:::
+
 ## `acceleration`
 
 Optional. Accelerate queries to the view by caching data locally.
@@ -97,7 +109,7 @@ The runtime warns at load naming the view and the settings it discarded:
 View 'my_view' sets `acceleration.enabled: false`, so these settings in its acceleration block are read and then ignored: `engine`, `mode`, `refresh_mode`. Remove `enabled: false` to apply them, or remove them to keep the view unaccelerated. See: https://spiceai.org/docs/reference/spicepod/views#acceleration
 ```
 
-`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about.
+`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about. The deprecated [`acceleration.ready_state`](#ready_state) is also never reported, because a view applies it whether or not acceleration is enabled.
 
 :::
 

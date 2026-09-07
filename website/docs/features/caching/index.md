@@ -124,7 +124,7 @@ The status header indicates the cache status:
 | `HIT`                | The query result was served from the cache.                                                                                              |
 | `MISS`               | The cache was checked, but the result was not found.                                                                                     |
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
-| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
+| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is set to a non-zero duration). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table).                                       |
 
 The scope header indicates the cache namespace:
@@ -221,6 +221,31 @@ With this configuration:
 - After 20 seconds, the entry is evicted if not refreshed.
 
 This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
+
+#### Serving Stale After an Acceleration Refresh
+
+A cached result is judged against **two independent clocks**, both evaluated on every hit. The first to say "not servable" wins:
+
+| Clock            | Measured from                            | Fresh                                | Serve stale + revalidate                  | Miss                            |
+| ---------------- | ---------------------------------------- | ------------------------------------ | ----------------------------------------- | ------------------------------- |
+| **Age**          | When the entry was stored                | Up to `item_ttl`                     | `item_ttl` → `item_ttl + swr`             | Past `item_ttl + swr`           |
+| **Invalidation** | The refresh or DML write that touched a table the result read | The change predates the entry's own read | change → change + `swr`               | Past change + `swr`             |
+
+With no stale-serving window — `stale_while_revalidate_ttl` unset, or set to `0s` — an acceleration refresh or a DML write **evicts** every dependent entry, so a workload polling accelerated datasets turns a whole population of cached results into simultaneous synchronous misses at each refresh. An explicit `0s` is read as no window rather than as one that closes immediately, since keeping entries resident for it would hold memory no lookup could ever serve from.
+
+When `stale_while_revalidate_ttl` is set to a **non-zero** duration, the invalidation instead marks those entries stale and leaves them resident:
+
+- **Inside the window** — the previous result is served with `results-cache-status: STALE`, and a background revalidation starts. Revalidation is single-flighted per key, so concurrent requests produce one query and all of them are served stale. Its result replaces the entry, whose read time is then after the refresh, so the entry returns to a plain `HIT`.
+- **Past the window** — a miss, as before.
+- **A failed revalidation invalidates nothing** — the previous result keeps being served until the window closes, then becomes a miss. `results_cache_swr_revalidations` is the only visible symptom of that failure.
+
+Nothing is served *as fresh* once a table it read has moved on — only as `STALE`.
+
+There is no new configuration parameter: `stale_while_revalidate_ttl` is the opt-in for both clocks.
+
+:::note[The window is anchored to the change, but capped by the entry's own age]
+An entry is still dropped `item_ttl + stale_while_revalidate_ttl` after it was *stored*, whatever happened to the tables it read. A refresh landing late in an entry's life therefore leaves less than the full window — the effective window is the shorter of the two. This can only end stale-serving early, never extend it.
+:::
 
 :::warning[Conflict with Caching Accelerator SWR]
 When using a dataset with `refresh_mode: caching`, you cannot configure both the results cache's `stale_while_revalidate_ttl` and the caching accelerator's `caching_stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers.
@@ -432,11 +457,28 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `expired`     | The entry outlived `item_ttl`.                                                 |
 | `invalidated` | A dataset refresh or a DML write dropped the entries that referenced a table.  |
 
-On an accelerated dataset with a periodic refresh, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`.
+On an accelerated dataset with a periodic refresh and no stale-serving window, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`. With a non-zero `stale_while_revalidate_ttl` those refreshes mark entries stale instead of removing them, so they produce no `invalidated` evictions at all — watch `results_cache_table_invalidations` for them.
 
 Every cache counter is published at zero when the runtime starts, so a counter that has not yet fired still appears in a scrape as a zero series rather than being absent.
 
-The SQL results cache additionally emits `results_cache_stale_rejections`, a counter of lookups that found an entry but refused to serve it because a table the result read had since been invalidated. These are also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale".
+The SQL results cache additionally emits four counters covering [table invalidation](#serving-stale-after-an-acceleration-refresh):
+
+| Metric                                 | Labels    | Description                                                                                                                                                                    |
+| -------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `results_cache_stale_rejections`       | `reason`  | Lookups that found an entry but refused to serve it because a table the result read had since been invalidated. Also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale". |
+| `results_cache_table_invalidations`    | `mode`    | Table invalidations applied to the cache. Counts invalidations, not the entries each one affected.                                                                              |
+| `results_cache_invalidation_stale_hits`| —         | Results served from an entry an invalidation had marked stale, within the stale-while-revalidate window.                                                                        |
+| `results_cache_swr_revalidations`      | `outcome` | Completed background revalidations. Any outcome other than `stored` leaves the previous entry in place to be served stale until it expires.                                     |
+
+`reason` on `results_cache_stale_rejections` is one of `no_window` (stale serving is disabled — `stale_while_revalidate_ttl` unset or `0s`), `window_expired` (the window had closed), or `fresh_required` (the lookup was made on a path that serves only fresh results, and so treats the entry as a miss).
+
+`mode` on `results_cache_table_invalidations` is `evict` when the dependent entries were removed, or `mark_stale` when they were left resident to be served stale. A `mark_stale` invalidation removes nothing, so it is invisible to `results_cache_evictions` — without this counter the switch between the two modes is indistinguishable from refreshes having stopped.
+
+`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
+
+:::note
+These four counters are published at zero for the search-results and embeddings caches as well, but only the SQL results cache ever increments them.
+:::
 
 The `*` prefix corresponds to the cache type:
 
