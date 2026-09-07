@@ -413,7 +413,7 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auto` (default)   | Resolves to `position` (merge-on-read) for most tables. For CDC datasets (`refresh_mode: changes`) that declare a `primary_key`, `auto` resolves to `key` instead, so deletes compact concurrently with the continuous writer. |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
-| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. The explicit opt-out from merge-on-read for primary-key tables.    |
+| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables that use `on_conflict: upsert` under continuous writes, because compaction can keep running while writes continue. |
 
 ```yaml
 datasets:
@@ -424,8 +424,10 @@ datasets:
       mode: file
       primary_key: event_id
       params:
-        cayenne_deletion_mode: auto # default; set to `key` to opt out of merge-on-read
+        cayenne_deletion_mode: key # recommended for primary-key upsert tables
 ```
+
+For a table with `primary_key` + `on_conflict: upsert`, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Position deletes can block protected-snapshot compaction progress under sustained writes, which can cause delete-file growth over time. When this happens, the runtime can emit warnings that position-delete compaction is starved.
 
 Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
 
