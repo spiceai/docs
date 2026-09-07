@@ -46,7 +46,7 @@ The accelerator creates and writes tables in the configured database. Grant the 
 | `pg_connection_pool_min`  | `5`     | Minimum idle connections held by the pool.                              |
 | `connection_pool_size`    | `10`    | Maximum connections the pool will open.                                 |
 
-`connection_pool_min <= connection_pool_size` is enforced at startup; mismatched values are rejected as configuration errors.
+`pg_connection_pool_min <= connection_pool_size` is checked when the accelerated table is created; a larger minimum fails the dataset load as a configuration error. Note the asymmetry in the key names: the minimum is a component parameter and carries the `pg_` prefix, while the maximum is a runtime parameter and does not.
 
 ### Durability
 
@@ -86,7 +86,7 @@ PostgreSQL accelerator operations participate in [task history](../../../referen
 
 | Symptom                                                    | Likely cause                                                          | Resolution                                                                                         |
 | ---------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `connection_pool_min must be <= connection_pool_size` at startup | Misconfiguration.                                                | Correct the values so `min <= size`.                                                                |
+| `Invalid connection pool configuration: connection_pool_min_idle (N) cannot be greater than connection_pool_max (M)` at dataset load | `pg_connection_pool_min` is larger than `connection_pool_size`. | Correct the values so `pg_connection_pool_min <= connection_pool_size`.                             |
 | `FATAL: too many clients already`                          | Sum of pool sizes + other clients exceeds `max_connections`.          | Reduce `connection_pool_size`, raise `max_connections`, or front with PgBouncer.                   |
 | Refresh fails with `permission denied for table`           | Role lacks write/drop privileges on the target schema.                | Grant `CREATE`, `INSERT`, `UPDATE`, `DELETE`, `SELECT`, `TRUNCATE`, `DROP` on the schema.          |
 | Indexes disappear after refresh                            | Accelerator re-created the table.                                     | Reapply indexes post-refresh, or use a refresh mode that preserves the table structure.            |
