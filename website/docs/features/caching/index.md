@@ -96,7 +96,9 @@ Use `zstd` when maximizing cache efficiency is important, especially for large q
 
 Two components are deliberately **not** charged to any entry: a result's Arrow schema and the set of input tables it read. Both are shared process-wide across every entry of the same shape, so charging each entry for a private copy would bill one allocation thousands of times over. They are reported separately instead — see [Shared Entry Components](#shared-entry-components).
 
-`results_cache_size_bytes` reports the figure `max_size` is enforced against, so it is the number to alert on.
+That exclusion makes `max_size` an **entry budget, not a ceiling on cache memory**. The shared pools hold real memory that no entry is billed for, so a workload presenting enough distinct shapes can exceed `max_size` by the size of those allocations — the runtime reports the residual rather than enforcing it.
+
+Alert on both halves: `results_cache_size_bytes` is the figure `max_size` is enforced against, and `schema_interner_value_bytes` + `schema_interner_overhead_bytes` + `table_set_interner_value_bytes` + `table_set_interner_overhead_bytes` are the memory outside it. Total cache memory is the sum.
 
 ### Results That Cannot Be Cached
 
@@ -464,7 +466,7 @@ The `*` prefix corresponds to the cache type:
 
 ### Shared Entry Components
 
-The Arrow schema and the input-table set behind a cached SQL result are shared process-wide rather than copied per entry (see [What Counts Against `max_size`](#what-counts-against-max_size)). Because they are not charged to any entry, they do not appear in `results_cache_size_bytes`; two pools report them instead, one per component:
+The Arrow schema and the input-table set behind a cached result are shared process-wide rather than copied per entry (see [What Counts Against `max_size`](#what-counts-against-max_size)). Because they are not charged to any entry, they do not appear in `results_cache_size_bytes`; two pools report them instead, one per component:
 
 | Metric                            | Type       | Description                                                                                                                   |
 | --------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -473,14 +475,18 @@ The Arrow schema and the input-table set behind a cached SQL result are shared p
 | `*_interner_overhead_bytes`       | Gauge      | The pool's own bookkeeping: its hash-map slots and bucket vectors.                                                             |
 | `*_interner_collapsed`            | Counter    | Values collapsed onto an allocation the pool already held — the direct evidence that sharing is removing duplicates.           |
 | `*_interner_already_shared`       | Counter    | Interns whose caller already held the shared allocation. Counted apart from `collapsed` because no duplicate was removed.      |
-| `*_interner_misses`               | Counter    | Interns that adopted a value the pool had not seen. Misses without collapses mean values are arriving distinct and nothing is being shared. |
+| `*_interner_misses`               | Counter    | Interns that adopted a value the pool had not seen. Read alongside both sharing counters, not against `collapsed` alone.                    |
 
 The `*` prefix is the pool:
 
 - `schema_interner_*` - Arrow schemas
 - `table_set_interner_*` - input-table sets
 
-All six are observable instruments, sampled when metrics are collected rather than emitted as they happen. A point-lookup workload — many distinct queries over a handful of tables, the shape worth caching at all — should show `*_interner_collapsed` climbing far faster than `*_interner_rows`; `*_interner_misses` rising with no matching collapses means every result is arriving with a distinct schema, so the pools are holding memory without saving any.
+Both pools are **shared by the SQL results cache and the search results cache**, and are registered whenever either one is configured. A search entry interns the schema of each table's aggregated results and the set of input tables the search read, exactly as a SQL entry does. So neither pool's bytes can be attributed to `results_cache_size_bytes` alone: on a runtime with `search` caching enabled they also cover entries counted by `search_results_cache_size_bytes`.
+
+All six are observable instruments, sampled when metrics are collected rather than emitted as they happen. A point-lookup workload — many distinct queries over a handful of tables, the shape worth caching at all — should show `*_interner_collapsed` climbing far faster than `*_interner_rows`.
+
+Judging whether sharing is working takes **both** sharing counters, because they record different moments of the same saving. `*_interner_collapsed` counts a duplicate allocation removed; `*_interner_already_shared` counts a caller re-presenting the pointer the pool had already given it, which is the steady state once a workload's shapes have stabilized. A pool whose shapes settled long ago therefore shows `already_shared` climbing with `collapsed` flat while sharing is fully in effect. Treat rising `*_interner_misses` as evidence that values are arriving distinct and the pool is holding memory without saving any only when `*_interner_collapsed` **and** `*_interner_already_shared` are both flat.
 
 Reclamation is driven by the runtime's cache-maintenance loop, not by metric collection, so a pool holds the same memory whether or not `--metrics` is enabled.
 
