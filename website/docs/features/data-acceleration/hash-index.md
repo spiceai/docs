@@ -237,9 +237,9 @@ Uses XXH3_64 with a fixed seed (`0x5370_6963_6541_4920` = "SpiceAI ") for:
 
 ### Hash index not active despite `primary_key` being set
 
-**Cause**: `refresh_mode: caching` disables hash indexing even when `primary_key` is set; the caching path uses its own lookup strategy.
+**Cause**: `refresh_mode: caching` drops the primary-key constraint before the table is created, so a `primary_key` on its own activates nothing. It does **not** disable hash indexing as such — a secondary `indexes` entry is read from a different place and survives the drop.
 
-**Solution**: Use a non-caching `refresh_mode` (e.g. `full`, `append`, `changes`) for datasets that need point-lookup acceleration via the hash index.
+**Solution**: Either configure [`indexes`](./indexes) on the looked-up columns, which activates hash indexing under `caching` as it does under any other mode, or use a non-caching `refresh_mode` (e.g. `full`, `append`, `changes`) if you need the primary-key index specifically. Note that under `caching` the primary-key index stays absent even when `primary_key` and `indexes` are both set — only the secondary index is built.
 
 ### High Memory Usage
 
