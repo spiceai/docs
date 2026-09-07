@@ -506,6 +506,8 @@ The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_
 
 By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using a [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.
 
+A listed Parquet object that is overwritten while a refresh scan is reading it also counts as transient. Scans pin a single object generation (via the object store's version id, or an `If-Match` on the listed ETag), so the overwrite surfaces as a precondition failure rather than as a mix of rows from two generations or a decoder error. The refresh relists, replans and retries. These attempts are counted on [`dataset_acceleration_refresh_errors`](../observability#available-metrics) under `reason="object_generation_changed"`, so an expected overwrite cadence can be filtered out without also hiding genuine `parquet_decode` corruption.
+
 Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](../../reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](../../reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
 
 Example: Disable retries
