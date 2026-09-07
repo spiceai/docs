@@ -474,7 +474,7 @@ The SQL results cache additionally emits four counters covering [table invalidat
 
 `mode` on `results_cache_table_invalidations` is `evict` when the dependent entries were removed, or `mark_stale` when they were left resident to be served stale. A `mark_stale` invalidation removes nothing, so it is invisible to `results_cache_evictions` — without this counter the switch between the two modes is indistinguishable from refreshes having stopped.
 
-`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `encode_failed`, or `put_failed`.
+`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
 
 :::note
 These four counters are published at zero for the search-results and embeddings caches as well, but only the SQL results cache ever increments them.
