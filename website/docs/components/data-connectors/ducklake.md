@@ -64,6 +64,10 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                           |
 | `ducklake_automatic_migration`     | Optional. Set to `true` to automatically migrate an older DuckLake catalog schema to the version required by the DuckLake extension on attach. Default: `false`. Migration rewrites catalog metadata and **cannot be undone**. |
 
+:::info[Timestamps are read in UTC]
+Spice pins the DuckDB session backing this connector to `SET TimeZone = 'UTC'`, so a `TIMESTAMPTZ` column always reaches Spice as `Timestamp(us, "UTC")` rather than carrying the host's timezone into the dataset schema. See the [DuckDB connector](./duckdb/index.md) for why.
+:::
+
 ### Connection string formats
 
 | Backend    | Example                                                             |
