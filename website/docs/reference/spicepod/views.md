@@ -264,7 +264,7 @@ Optional. Specify which indexes should be applied to the locally accelerated tab
 
 The `indexes` field is a map where the key is the column reference and the value is the index type.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Indexes](../../features/data-acceleration/indexes)
 
@@ -284,7 +284,7 @@ views:
 
 Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
 
-The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -304,7 +304,7 @@ Optional. Specify what should happen when a constraint is violated. Not supporte
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
 
