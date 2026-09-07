@@ -116,6 +116,12 @@ docker pull ghcr.io/spiceai/spiceai-nightly:latest-data
 make install-data-only
 ```
 
+:::note
+`make install-data-only` builds from `SPICED_DATA_FEATURES` in the `Makefile` — a hand-maintained list that is **not** the `spiced` default feature set with `models` removed, and that differs from it in both directions. Compared with the default distribution it omits the [ADBC](../components/data-connectors/adbc) data connector and the [AWS Secrets Manager](../components/secret-stores/aws-secrets-manager), [Azure Key Vault](../components/secret-stores/azure-keyvault) and [keyring](../components/secret-stores/keyring) secret stores, and it adds the [PostgreSQL data accelerator](../components/data-accelerators/postgres) and [acceleration snapshots](../features/data-acceleration/snapshots). The [environment](../components/secret-stores/env) and [Kubernetes](../components/secret-stores/kubernetes) secret stores are not feature-gated and are available in every build.
+
+A feature added to the default set does not reach `make install-data-only` until it is added to `SPICED_DATA_FEATURES` too, so recompute the difference from that list and the `default = [...]` array in `bin/spiced/Cargo.toml` rather than assuming the two track each other.
+:::
+
 ## GPU-Accelerated Distributions
 
 ### Metal (macOS)
