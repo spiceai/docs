@@ -53,10 +53,11 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
+| ScyllaDB connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
-The default distribution includes all features including AI/ML model support. This is the recommended distribution for most users.
+The default distribution includes the standard `spiced` feature set, including AI/ML model support. This is the recommended distribution for most users.
 
 **Included Features:**
 
@@ -65,6 +66,10 @@ The default distribution includes all features including AI/ML model support. Th
 - AI/ML model inference (LLMs, embeddings)
 - Search capabilities (Vector and BM-25 Full-Text-Search)
 - Default memory allocator (snmalloc)
+
+**Not included by default:**
+
+- The ODBC (`odbc`), Elasticsearch (`elasticsearch`), NFS (`nfs`), and ScyllaDB (`scylladb`) data connectors — see [Additional Connectors](#additional-connectors)
 
 :::note
 The PostgreSQL data accelerator is only available in nightly builds. The PostgreSQL data connector is included in all distributions.
@@ -94,7 +99,7 @@ The data distribution excludes AI/ML model support, resulting in a smaller binar
 
 **Included Features:**
 
-- All data connectors
+- The default distribution's data connectors, minus ADBC
 - All data accelerators
 - Default memory allocator (snmalloc)
 
@@ -240,15 +245,16 @@ Native Windows support for the Spice runtime is available with the [Spice Cloud 
 
 ## Additional Connectors
 
-Some connectors require additional dependencies and are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing):
+Four data connectors sit outside the `spiced` default feature set, so the published open source images do not include them. Each is available in the [Spice.ai Enterprise](https://spice.ai/pricing) distributions (see [Distribution Availability](#distribution-availability) for Spice Cloud coverage), and open source users can build each locally for development and testing:
 
-- **ODBC** - Connect to any ODBC-compatible data source
+| Connector     | Cargo feature   | Local build            |
+| ------------- | --------------- | ---------------------- |
+| ODBC          | `odbc`          | `make install-odbc`     |
+| ScyllaDB      | `scylladb`      | `make install-scylladb` |
+| NFS           | `nfs`           | `make install-nfs`      |
+| Elasticsearch | `elasticsearch` | `SPICED_NON_DEFAULT_FEATURES="elasticsearch" make install` |
 
-These can be built locally for development and testing:
-
-```bash
-make install-odbc
-```
+For ScyllaDB specifically, a Spicepod using `from: scylladb:` on a build without the `scylladb` feature fails to load with an error naming the Cargo feature to build and linking the Enterprise distributions — the dataset is not silently skipped.
 
 ## Platform-Specific Notes
 
