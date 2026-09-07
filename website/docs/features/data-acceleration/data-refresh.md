@@ -551,7 +551,17 @@ Automatically evict time-series data exceeding a retention period by setting a r
 
 The policy is set using the [`acceleration.retention_check_enabled`](../../reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](../../reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](../../reference/spicepod/datasets#time_column) and [`time_format`](../../reference/spicepod/datasets#time_format) dataset parameters.
 
-When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+When `retention_check_enabled` is set to `true`, `retention_check_interval` is required, along with **either** `retention_period` (with a `time_column`) **or** `retention_sql`. Setting both applies both policies on every check.
+
+:::warning[An incomplete policy is reported, not silently dropped]
+A dataset that enables retention but leaves out one of these settings gets **no scheduled retention pass**, and the runtime logs a `[retention]` error naming the dataset and the missing setting rather than starting nothing quietly. There are three such refusals:
+
+- Neither `retention_period` nor `retention_sql` is set to a valid value, so nothing says which rows to delete.
+- `retention_period` is set but `time_column` is not, so there is nothing to compare against the cutoff.
+- `retention_check_interval` is missing or is not a valid duration. It has **no default**, so this is one unset field away from any otherwise-complete policy.
+
+`retention_check_enabled: false` stays silent — asking for no retention is not a policy that failed to assemble.
+:::
 
 Example:
 
