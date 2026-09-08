@@ -65,6 +65,7 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
   - [Conditional JSON Queries](#conditional-json-queries)
   - [Using JSON Functions in Views](#using-json-functions-in-views)
 - [Federation and Pushdown](#federation-and-pushdown)
+  - [How the document column is declared matters](#how-the-document-column-is-declared-matters)
 - [Further Reading](#further-reading)
 
 ---
@@ -659,37 +660,63 @@ scan. Whether — and which — JSON functions push down is therefore connector-
 connector](../../components/data-connectors/adbc) with `adbc_driver: bigquery` uses a BigQuery
 dialect that rewrites these functions into native BigQuery SQL, so they push down to the source:
 
-| Function                                    | Pushed down to BigQuery |
-| ------------------------------------------- | ----------------------- |
-| [`json_get_str`](#json_get_str)             | Yes                     |
-| [`json_get_int`](#json_get_int)             | Yes                     |
-| [`json_get_float`](#json_get_float)         | Yes                     |
-| [`json_get_bool`](#json_get_bool)           | Yes                     |
-| [`json_length`](#json_length)               | Yes (alias `json_len`)  |
-| [`json_object_keys`](#json_object_keys)     | Yes (alias `json_keys`) |
-| [`json_get`](#json_get)                     | No                      |
-| [`json_get_json`](#json_get_json)           | No                      |
-| [`json_get_array`](#json_get_array)         | No                      |
-| [`json_as_text`](#json_as_text)             | No                      |
-| [`json_contains`](#json_contains)           | No                      |
+| Function                                | Pushed down to BigQuery                            |
+| --------------------------------------- | -------------------------------------------------- |
+| [`json_get_str`](#json_get_str)         | Yes                                                 |
+| [`json_get_int`](#json_get_int)         | Yes                                                 |
+| [`json_get_float`](#json_get_float)     | Yes                                                 |
+| [`json_get_bool`](#json_get_bool)       | Yes                                                 |
+| [`json_length`](#json_length)           | Yes (alias `json_len`)                              |
+| [`json_object_keys`](#json_object_keys) | Yes (alias `json_keys`)                             |
+| [`json_contains`](#json_contains)       | Yes, when the source declares the document's type   |
+| [`json_as_text`](#json_as_text)         | Yes, on a `STRING` document only                    |
+| [`json_get`](#json_get)                 | Only as `json_get(...) IS NULL`, on a `STRING` document |
+| [`json_get_json`](#json_get_json)       | No                                                  |
+| [`json_get_array`](#json_get_array)     | No                                                  |
 
-The five that stay local do so because BigQuery cannot reproduce their results, not because the
-translation is unwritten:
-
-- `json_get_json` and `json_as_text` return the matched node's own bytes, spacing and number
-  spelling intact, where BigQuery's `JSON_QUERY` re-renders it — a document holding `{"b": -1}`
-  comes back as `{"b":-1}`.
-- `json_contains` counts a JSON `null` as present, and BigQuery returns SQL NULL for such a node
-  exactly as it does for a missing key, so the two cannot be told apart.
-- `json_get` and `json_get_array` return the library's JSON union type, which has no SQL type to
-  unparse into.
+`json_get_json` and `json_get_array` stay local because BigQuery cannot reproduce their results,
+not because the translation is unwritten: `json_get_json` returns the matched node's own bytes,
+spacing and number spelling intact, where BigQuery's `JSON_QUERY` re-renders it — a document
+holding `{"b": -1}` comes back as `{"b":-1}` — and `json_get_array` returns the library's JSON
+union type, which has no SQL type to unparse into. `json_get` returns that same union type, so
+only its nullness crosses the boundary (below).
 
 The [operators](#json-operators) `->`, `->>` and `?` are spellings of `json_get`, `json_as_text`
-and `json_contains`, so they are not pushed down either.
+and `json_contains`, and each follows its function's row above.
 
-Pushdown also requires every path argument to be a **literal**, because BigQuery's JSON path must
+Pushdown always requires every path argument to be a **literal**, because BigQuery's JSON path must
 be a constant. `json_get_int(doc, 'id')` pushes down; `json_get_int(doc, key_column)` is legal SQL
-in Spice but is evaluated locally.
+in Spice but is evaluated locally. A key containing a quote, a backslash or a control character is
+also refused.
+
+### How the document column is declared matters
+
+BigQuery holds JSON either as a native `JSON` column or as JSON text in a `STRING` column, and both
+arrive in Spice as a string. The three rows above that are conditional are the ones whose
+translation depends on which it is, so they read the remote type the driver reports for the column
+(the Arrow `arrow.json` extension name, or the driver's own `BIGQUERY:type`). An expression the
+source did not type — a computed string, or a literal — establishes neither, and the call stays
+local.
+
+- **`json_contains`** needs the declared type in order to pick between two BigQuery expressions
+  that are *not* interchangeable: `JSON_QUERY(doc, '<path>') IS NOT NULL` on a native `JSON`
+  column, and the same test over `SAFE.PARSE_JSON(doc)` on a `STRING` column. Applied to a raw
+  string, `JSON_QUERY` returns SQL `NULL` for a JSON `null` that is genuinely present, which is
+  exactly the confusion that would make the result wrong.
+- **`json_as_text`** and **`json_get(...) IS NULL`** push down on a `STRING` column only. On a
+  native `JSON` column, BigQuery need not retain a numeric token's input spelling — `1.50` and
+  `1e+00` do not survive — so the local answer and the remote one would differ.
+
+Two values cannot be extracted from a `STRING` document without changing the result, and rather
+than return a different answer the remote query fails with an error telling you to set
+[`query_federation: disabled`](../../components/data-connectors/adbc) on the dataset:
+
+- **A container.** `json_as_text` returns the matched array or object's original serialization,
+  and BigQuery's `JSON_QUERY` re-spaces it.
+- **A UTF-16 surrogate escape.** Extracting from a `STRING` can replace a `\uD800`–`\uDFFF` escape
+  with the replacement character `U+FFFD`. An escaped `U+FFFD` that was already in the document is
+  preserved by both engines and is not affected, so only a document carrying a surrogate escape
+  *and* an extracted value containing `U+FFFD` is refused.
 
 ## Further Reading
 
