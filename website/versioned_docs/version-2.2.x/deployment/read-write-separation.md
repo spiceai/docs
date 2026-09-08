@@ -195,9 +195,11 @@ datasets:
   - from: spiceai:orders_history
     name: orders_history
     params:
-      endpoint: grpcs://cluster.spice.svc.cluster.local:50051
-      api_key: ${ secrets:CLUSTER_API_KEY }
+      spiceai_endpoint: grpc+tls://cluster.spice.svc.cluster.local:50051
+      spiceai_api_key: ${ secrets:CLUSTER_API_KEY }
 ```
+
+Both params carry the connector's `spiceai_` prefix — an unprefixed `endpoint:` or `api_key:` is dropped at load time with a warning, leaving the connector with no endpoint at all. Use `grpc+tls://` (or `https://`) for TLS; plaintext Flight is `http://`.
 
 The application sees a single SQL surface — accelerated tables and delegated tables compose normally in joins and CTEs. See [Cluster-Sidecar Architecture](architectures/cluster-sidecar) for the conceptual model.
 
