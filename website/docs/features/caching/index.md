@@ -110,6 +110,31 @@ Entries written with `encoding: zstd` are exempt — they keep the serialized by
 
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
 
+## Logical Plan Cache
+
+Separately from the result caches above, the runtime keeps a small cache of **logical plans**, so a repeated query skips parsing and planning even when its results are not cached. It is not part of the `caching` configuration and has no `enabled` flag: it is installed on every runtime, whatever `sql_results`, `search_results` and `embeddings` are set to.
+
+| | |
+| --- | --- |
+| Configurable | No — always on |
+| Capacity | 512 plans |
+| Entry lifetime | 1 hour from insertion |
+| Key | The SQL text, plus any bound parameter values |
+| Hashing algorithm | [`sql_results.hashing_algorithm`](#choosing-a-hashing_algorithm) |
+
+Two consequences are worth knowing:
+
+- `sql_results.hashing_algorithm` is read even when `sql_results.enabled` is `false`, because the plan cache borrows it. It is the one `sql_results` setting that still has an effect with the results cache switched off.
+- Bypassing the results cache does not bypass the plan cache. A query sent with `cache-control: no-cache` re-executes, but it is still planned from the cached plan if one is present, and still populates the plan cache if one is not.
+
+The cache is dropped wholesale — every entry, not only the affected ones — whenever something a plan was built against changes:
+
+- a dataset or a view is registered, updated, or removed;
+- a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions);
+- an accelerated table's schema evolves, in place or by recreation.
+
+A plan is otherwise held for its full hour, so a change made outside these paths is not picked up until the entry expires.
+
 ## Per-Principal Cache Isolation
 
 When [authentication](../api/auth) is enabled, all cache layers (SQL results, search results, and caching-mode acceleration storage) are automatically scoped per principal. Each authenticated caller has an isolated cache namespace — one caller's cached output is never served to a different caller.
