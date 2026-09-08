@@ -147,7 +147,7 @@ Read instances run alongside applications — typically as Kubernetes pod sideca
 Read Spicepod responsibilities:
 
 - Bootstrap each accelerated dataset from the latest snapshot on startup. No source connection required.
-- Optionally refresh from newer snapshots on a schedule (`bootstrap_only` mode polls for new snapshots without writing them).
+- Optionally pick up newer snapshots on a schedule with [`refresh_mode: snapshot`](../features/data-acceleration/data-refresh#snapshot), which polls the snapshot store instead of the federated source.
 - Optionally delegate queries that fall outside the materialized working set to the cluster over Arrow Flight.
 
 ```yaml
@@ -168,6 +168,8 @@ datasets:
       enabled: true
       engine: duckdb
       mode: file
+      refresh_mode: snapshot # reload from the snapshot store; never query the source
+      refresh_check_interval: 1m # poll the snapshot store every minute
       snapshots: bootstrap_only # download only; never write back
       params:
         duckdb_file: /local/orders.db
@@ -178,12 +180,14 @@ datasets:
       enabled: true
       engine: duckdb
       mode: file
+      refresh_mode: snapshot
+      refresh_check_interval: 1m
       snapshots: bootstrap_only
       params:
         duckdb_file: /local/customers.db
 ```
 
-`snapshots: bootstrap_only` is the key setting — read instances **read** snapshots but never **write** them, so multiple replicas don't race to upload. Combine with a periodic refresh trigger to pick up new snapshots without re-querying the source.
+Two settings make the read tier read-only. `snapshots: bootstrap_only` means read instances **read** snapshots but never **write** them, so multiple replicas don't race to upload. `refresh_mode: snapshot` makes every steady-state refresh a snapshot reload — the federated source is never queried, so a read instance stays functional with no source credentials at all. `refresh_mode: snapshot` also rejects `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` against the accelerated table.
 
 ### Live delegation for the long tail
 
@@ -220,11 +224,12 @@ Steady-state refresh on read instances is configured per dataset:
 
 ```yaml
 acceleration:
-  refresh_check_interval: 1m # check the snapshot bucket every minute
+  refresh_mode: snapshot # refresh by reloading snapshots, not by querying the source
+  refresh_check_interval: 1m # poll the snapshot store every minute (default: 60s)
   snapshots: bootstrap_only
 ```
 
-When a newer snapshot is available, the dataset hot-swaps without restarting the pod.
+`refresh_mode: snapshot` is what turns `refresh_check_interval` into a snapshot-store poll. Without it the dataset keeps its normal refresh mode (`full` by default) and `refresh_check_interval` refreshes **from the federated source** — which a read instance holding no source credentials cannot do. When a newer snapshot is found, its schema is validated against the current acceleration and the accelerator file is swapped atomically, so queries keep being served from the previous snapshot until the swap completes; no pod restart is needed. See [Snapshot refresh mode](../features/data-acceleration/data-refresh#snapshot) for the full requirements.
 
 ### Snapshot retention and storage
 
