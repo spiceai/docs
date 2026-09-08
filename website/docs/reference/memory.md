@@ -250,7 +250,7 @@ The `runtime.query.memory_limit` parameter defines the maximum memory available 
 runtime:
   query:
     memory_limit: 4GiB
-    temp_directory: /tmp/spice  # Directory for spill files
+    temp_directory: /nvme/spice/tmp  # Spill directory — local NVMe/SSD with ample free space
 ```
 
 Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query execution engine, which provides vectorized, multi-threaded query execution with automatic memory management. DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured limit, improving throughput for high-concurrency queries with many partitions.
@@ -297,6 +297,8 @@ This is the usual reason a container is OOM-killed despite having a memory limit
 ### Spill-to-Disk
 
 Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors. DataFusion writes spill files using the [Arrow IPC Stream format](https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format).
+
+Spill files are written under `runtime.query.temp_directory`, which defaults to the operating system's temporary directory — on most hosts the root volume. Set it to a directory on local NVMe or SSD with room for 2–4× the largest spillable input: each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time; a spill that runs out of space fails the query with `ResourcesExhausted` rather than falling back to memory; and a RAM-backed directory (`tmpfs`, a Kubernetes `emptyDir` with `medium: Memory`) charges the spilled bytes to the same memory the query was trying to release. DataFusion stops spilling at 100 GB in total per runtime environment. See [Spill-to-Disk and the Temporary Directory](./performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](./performance-tuning#storage).
 
 **Spill Compression:**
 

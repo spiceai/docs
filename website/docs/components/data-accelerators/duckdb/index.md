@@ -188,26 +188,33 @@ Each DuckDB instance sizes its own thread pool from the runtime's CPU entitlemen
 
 ### Storage
 
-Ensure adequate disk space for temporary files, swap files, WAL files, and intermediate spilling. Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
+Store the `duckdb_file` on **local NVMe or SSD**, for its per-I/O latency above all: DuckDB's buffer manager serves every cache miss with a read the query waits on, so the tens of microseconds an NVMe read takes — against a millisecond or more on network storage — is multiplied along every query. DuckDB's own guidance is that its disk-based mode is designed for SSD and NVMe (HDDs give low performance, especially for writes) and that its native database format should not be used in read-write mode on network-attached file systems (NAS, NFS, SMB), which it notes can produce slow and unpredictable performance and spurious errors; network-backed cloud block disks such as Amazon EBS work for both read-only and read-write use. See [DuckDB's environment guide](https://duckdb.org/docs/stable/guides/performance/environment) and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
+
+The runtime tunes the instance for the resolved [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile): on `ebs` (EBS, Azure Managed Disks, NFS, SMB) it lowers the connection-pool floor to 4 and raises `checkpoint_threshold` to 256 MiB so each checkpoint amortizes more I/O; on `tmpfs` it raises `checkpoint_threshold` to 1 GiB; on local SSD the DuckDB defaults apply. Set the profile explicitly on network block devices that auto-detection cannot identify, such as GCP Persistent Disk.
+
+Ensure adequate disk space for the database file, its WAL, index serialization, and DuckDB's temporary files (see [Temporary Directory](#temporary-directory)). A repeatedly full-refreshed file grows by the whole table on every refresh until [`on_full_refresh`](#bounding-acceleration-file-growth) reclaims the space. Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
 
 ## Temporary Directory
 
-The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
+DuckDB spills sorts, joins, and aggregates that exceed its memory limit to temporary files. The Spice runtime passes `runtime.query.temp_directory` to every DuckDB instance it opens as DuckDB's own `temp_directory`, so the one setting covers DuckDB's spill and DataFusion's. When it is unset, DuckDB writes to a `.tmp` directory beside the `duckdb_file` (and to `.tmp` under the working directory for the shared in-memory instance). DuckDB caps its temporary files at 90% of the volume's free space.
 
-Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.query.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set `runtime.query.temp_directory` to a directory on **local NVMe or SSD** with ample free space — never the root volume, a network file system, or a RAM-backed mount. Spill is a sequence of synchronous writes and reads the query waits on, so the directory's per-I/O latency lands directly on query time. Where a host has two fast devices, placing spill on one and the DuckDB file on the other keeps a large spill from competing with scans for the same device queue.
 
 Example configuration:
 
 ```yaml
 runtime:
   query:
-    temp_directory: /tmp/spice
+    temp_directory: /nvme/spice/tmp
 ```
 
 Use this parameter when:
 
 - Handling workloads that frequently spill to disk.
+- The `duckdb_file` sits on a network block volume and the host also has local NVMe — spill has no durability requirement, so it belongs on the lower-latency device.
 - Distributing swap and data I/O operations across multiple storage volumes.
+
+See [Spill-to-Disk and the Temporary Directory](../../reference/performance-tuning#spill-to-disk-and-the-temporary-directory) for the DataFusion side of the same setting.
 
 For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime#runtimequerytemp_directory).
 

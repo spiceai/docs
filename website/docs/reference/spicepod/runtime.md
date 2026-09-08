@@ -648,13 +648,15 @@ This setting controls the trade-off between disk space usage and query performan
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, by every DuckDB accelerator instance (passed through as DuckDB's own `temp_directory`), and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`) and DuckDB to a `.tmp` directory beside its database file; when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
 
 ```yaml
 runtime:
   query:
-    temp_directory: /tmp/spice
+    temp_directory: /nvme/spice/tmp
 ```
+
+Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
 
 ## `runtime.output_level`
 

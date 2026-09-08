@@ -462,7 +462,7 @@ Optional. The storage profile for file-backed acceleration. The runtime uses thi
 
 Supported values:
 
-- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. On other platforms, detection returns unknown and the engine defaults apply.
+- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. NFS and SMB/CIFS mounts (`nfs`, `nfs4`, `cifs`, `smbfs`, `smb3`) are classified as `ebs`, the network-attached tier. Network block devices that are not EBS or Azure disks — GCP Persistent Disk and Hyperdisk, SAN and Ceph volumes — are not recognized by name: when they present as NVMe or non-rotational devices they resolve to `local_ssd`, otherwise to unknown, so set `ebs` explicitly for them. On other platforms, detection returns unknown and the engine defaults apply.
 - `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
 - `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Reduces connection-pool size and raises DuckDB's checkpoint threshold so per-IO latency is amortized across larger flushes. Spice Cayenne uses smaller per-file targets to reduce write amplification.
 - `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Raises DuckDB's checkpoint threshold so steady-state workloads don't pay checkpoint cost on small amounts of dirty data; Spice Cayenne uses larger per-file targets to improve scan throughput.
@@ -480,6 +480,8 @@ datasets:
       params:
         duckdb_file: /mnt/ebs/analytics.db
 ```
+
+For the per-engine adjustments each profile applies, and for guidance on choosing local NVMe over network block storage and network file systems, see [Storage](../performance-tuning#storage) in the Performance Tuning guide.
 
 ## `acceleration.snapshots`
 

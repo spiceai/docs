@@ -80,6 +80,18 @@ Two Kubernetes-specific consequences:
 
 Because instances are evicted, preempted, and replaced during rollouts, clients should retry a failed query against the Service before treating it as an outage. See [Managing Memory Usage](../reference/memory) for the full sizing model, the load-testing properties that make a memory validation trustworthy, and client resiliency guidance.
 
+## Storage
+
+File-mode accelerations (Cayenne, DuckDB, SQLite, Turso) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
+
+| Data                                              | Recommendation                                                                                                                                                       |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Acceleration files                                | A local NVMe PersistentVolume (`local-storage` class via the Local Volume Static Provisioner) with `stateful.enabled: true`; pair with [snapshots](../features/data-acceleration/snapshots) so a rescheduled pod bootstraps instead of refreshing. Network block storage (`io2` Block Express, Premium SSD v2, Hyperdisk Extreme, then `gp3`) when the volume must follow the pod. |
+| Spill (`runtime.query.temp_directory`)            | A directory on the same local NVMe volume. Never an `emptyDir` with `medium: Memory` — its files count against the container's memory limit.                          |
+| Network file systems (EFS, Azure Files, Filestore, NFS) | Not recommended for either.                                                                                                                                      |
+
+**[Local NVMe Storage](kubernetes/local-nvme)** is the step-by-step guide: picking NVMe node types on EKS, GKE, AKS, or self-hosted clusters, mounting the disks, publishing them as PersistentVolumes, deploying the chart onto them, and verifying the result. For the reasoning and the fallbacks see [Storage on Kubernetes](../reference/performance-tuning#storage-on-kubernetes), and for the per-cloud classes the [Helm storage class recommendations](kubernetes/helm#storage-class-recommendations).
+
 ## Prerequisites
 
 - Access to a Kubernetes cluster (v1.25+ recommended).
