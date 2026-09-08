@@ -232,9 +232,11 @@ Snapshots are written to Hive-partitioned paths so retention is straightforward:
 
 ```text
 s3://spiceai-snapshots/prod/
-  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z.db
-  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z.db
+  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z.duckdb
+  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z.duckdb
 ```
+
+The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, `.cayenne`, or `.turso`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
 Apply an object-store lifecycle rule (S3 lifecycle, GCS Object Lifecycle Management, ADLS Lifecycle) to expire old partitions. Most deployments keep 24–72 hours of refresh-triggered snapshots and a daily archive beyond that.
 
