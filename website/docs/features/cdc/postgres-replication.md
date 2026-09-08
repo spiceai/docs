@@ -387,11 +387,26 @@ On each start the decision is arithmetic rather than an inference:
 | --- | --- | --- |
 | None, on an accelerator that does not survive restarts | any | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
 | None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
+| None, on a durable acceleration observed to hold **no rows**, where an initial snapshot is going to run | any | **Bootstrap** — a table holding nothing cannot be hiding a row the source deleted, and the snapshot is what loads it |
 | Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
 | Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
+| Present, and the slot can serve it | The accelerated table is observed to hold **no rows**, and no snapshot is going to run | **Rebuild** — the watermark asserts every change below it is already applied, so those rows will never be resent |
+| Present, and the slot can serve it | The accelerated table **could not be read** to check, and no snapshot is going to run | **Rebuild** — an unanswered probe cannot license resuming onto a table that may have been recreated |
 | Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
 
 A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
+
+:::note Why an empty acceleration with a usable watermark is a gap
+
+A watermark says every change below it has already been applied here, so the slot will never resend those changes however much WAL it retains. An acceleration that is nonetheless empty is missing every row committed before that position, with nothing left anywhere to supply them — resuming completes without error and the table stays permanently short of the source.
+
+This is reachable without anything being broken: `mode: file_update` recreates the accelerated table when the source schema changes incompatibly, while the `spice_sys_postgres_replication` sidecar lives in the same accelerator and survives, so the next start finds an empty table and a perfectly usable watermark. Restoring an older accelerator file, or clearing the table by hand, lands in the same state.
+
+A legitimately empty acceleration — every source row deleted, or retention having aged them all out — is rebuilt too. The two states are indistinguishable from here, and the rebuild of a genuinely empty source reads nothing.
+
+Emptiness only counts when nothing else is going to load the table. Against a *missing* watermark the reading is the opposite: an acceleration observed to hold no rows has nothing stale and no missing deletion, so a snapshot bootstrap loads it and no rebuild is needed.
+
+:::
 
 :::note Why a rebuild rather than another snapshot
 
@@ -407,20 +422,51 @@ Replacement is rate-limited to **3 slots per hour per replication connection**. 
 
 If a durable acceleration has nowhere to record a watermark, Spice logs a warning at startup naming the dataset: slot loss cannot be detected for it, and rows deleted at the source while the slot was gone would survive in the acceleration.
 
-### Detecting an unplanned rebuild {#unplanned-rebuilds}
+### Detecting an unplanned source read {#unplanned-source-reads}
 
-A rebuild re-reads the whole source table without anyone asking for it, so it is worth alerting on. `dataset_postgres_replication_acceleration_rebuilt` reports `1` while the dataset's acceleration was rebuilt on its last attach instead of resuming, with a `cause` attribute naming which row of the decision table above was taken:
+Reading the source is the most expensive thing an acceleration does, and both paths that do it say so in the log, naming the dataset, the condition that fired, and where to read about changing it.
 
-| `cause` | What happened | Where to look |
+A **rebuild** re-reads a table the dataset was already serving, so it is logged at `warn!`:
+
+```text
+WARN Dataset 'orders' will have its acceleration rebuilt from the source before changes are applied,
+which re-reads the whole table: the slot no longer retains the changes following the position it
+recorded as applied. See: https://spiceai.org/docs/components/data-connectors/postgres
+```
+
+The line carries a `rebuild_cause` field holding a stable identifier to select on, alongside `recorded_position` and `slot_acknowledged_position`:
+
+| `rebuild_cause` | What happened | Where to look |
 | --- | --- | --- |
 | `no_record` | No position was recorded, on a durable acceleration that could have recorded one. | Expected exactly once per dataset on the first start after upgrading to a watermark-recording version. Recurring means the sidecar is not surviving restarts. |
 | `foreign_source` | The recorded position names a different server, database, or table than the dataset streams from now. | An endpoint or table was repointed under an existing accelerator. |
 | `unreadable` | The recorded position could not be read or parsed. | The `spice_sys_postgres_replication` sidecar in the dataset's own accelerator. |
-| `rewound_source` | The source no longer contains the recorded position, because it was restored or rewound afterwards. | Worth alerting on: one rewind escapes detection entirely, so check whether **other** datasets on the same source resumed when they should not have. |
+| `rewound_source` | The source no longer contains the recorded position, because it was restored or rewound afterwards. | Worth chasing: one rewind escapes detection entirely, so check whether **other** datasets on the same source resumed when they should not have. |
 | `acknowledged_past` | The slot acknowledged past the recorded position, so it can no longer be streamed from. | Not a WAL retention problem — the WAL may still be on disk. |
 | `retention_lost` | The slot no longer retains the WAL following the recorded position. | `max_slot_wal_keep_size` on the source, and replication lag. |
+| `empty_with_usable_position` | The accelerated table was observed to hold no rows while recording a position the slot can still stream from. | The accelerator itself — a `mode: file_update` recreate, a restored accelerator file, or a source whose rows were all legitimately deleted. |
+| `unproven_contents_with_usable_position` | The accelerated table could not be read to check whether it still holds rows, while recording a usable position. | The accelerator being unreadable is its own problem, and is what forced the re-read. |
 
-A dataset that resumed reports **no series at all** rather than `0`, because there is no `cause` to attribute it to. Alert on the metric being present, not on its value.
+A **creation** loads an acceleration that has nothing to resume from, which is ordinary, so it is logged at `info!` with a `creation_cause` field:
+
+| `creation_cause` | Why the source is read |
+| --- | --- |
+| `ephemeral_acceleration` | The acceleration does not persist across restarts, so it starts empty on every start and only the source can fill it. |
+| `snapshot_always` | `pg_replication_initial_snapshot: always` asks for the source to be re-read on every start, including one that resumes an existing slot. |
+| `table_added` | The table was only just added to the replication publication, so the slot carries no change history it could be built from. |
+| `slot_created` | The replication slot was created in this process, so the source retains no change history from before now. |
+
+#### What the metrics report
+
+The two paths are timed differently, because they are performed by different halves of the system.
+
+A **rebuild** is the runtime's: it replaces the accelerated table as an ordinary full refresh, so it reports on the shared acceleration refresh family — `dataset_acceleration_refresh_duration_ms{mode="full"}` for how long the re-read took, `dataset_acceleration_refresh_processed_rows` / `_processed_bytes` and `_rows_written` / `_bytes_written` for how much moved, and `dataset_acceleration_last_refresh_unix_time_ms` for when it finished.
+
+A dataset on `refresh_mode: changes` emits `mode="full"` for no other reason — the refresh-task runner is not built at all on a changes-mode dataset except to serve a rebuild. So **on a changes-mode dataset, every `mode="full"` observation is a rebuild**, which makes any new one the signal to alert on, and it arrives with the duration and row counts a bare "it rebuilt" flag could not carry.
+
+A **creation** is the connector's: it is read as the slot's initial snapshot, which reports rows and completion on `dataset_postgres_replication_bootstrap_rows_total`, `_bootstrap_rows_expected` and `_bootstrap_complete` — but is never timed, because at the apply loop a bootstrap row is indistinguishable from a live change, so there is no start and no end to measure. For a creation the `info!` line is the whole account of why it happened.
+
+The cause is deliberately **not** a metric label on either path. A source read is an event rather than a rate, so a per-cause series would carry a single point per dataset with no proportion to watch; the log line names it instead, where it can also name the dataset and say what to do about it.
 
 ### Rebuilding an accelerator from scratch
 
@@ -446,7 +492,6 @@ Core freshness signals (auto-registered):
 | `dataset_postgres_replication_transactions_total` | Counter | Committed transactions applied.                                                                 |
 | `dataset_postgres_replication_inserts_total` / `dataset_postgres_replication_updates_total` / `dataset_postgres_replication_deletes_total` | Counter | Row-level events from WAL.                                      |
 | `dataset_postgres_replication_reconnects_total` | Counter | Number of times the stream reconnected after a transient failure.                            |
-| `dataset_postgres_replication_acceleration_rebuilt` | Gauge | `1` while the acceleration was rebuilt on its last attach instead of resuming, labelled with the `cause`. Reports no series for a dataset that resumed — see [Detecting an unplanned rebuild](#unplanned-rebuilds). |
 
 Shared-slot delivery and coalescing (auto-registered; reported only for datasets on a shared, explicitly-named slot — see [Envelope coalescing](#envelope-coalescing)):
 
@@ -466,7 +511,7 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
-| The whole table is re-read on a restart that used to resume                  | The recorded position was missing or unusable on attach, so resume was not possible. Read the `cause` on [`dataset_postgres_replication_acceleration_rebuilt`](#unplanned-rebuilds) to tell which. See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
+| The whole table is re-read on a restart that used to resume                  | The recorded position was missing or unusable on attach, or the accelerated table was empty beneath a usable one, so resume was not possible. The `rebuild_cause` field on the `warn!` line says which — see [Detecting an unplanned source read](#unplanned-source-reads) and [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
 | `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
