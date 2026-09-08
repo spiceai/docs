@@ -168,7 +168,7 @@ datasets:
 
 **Requirements:**
 
-- `acceleration.snapshots` must be `enabled` or `bootstrap_only`
+- `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
 - The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**
 
 **Behavior:**
@@ -177,7 +177,7 @@ datasets:
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
-- `INSERT INTO` statements are rejected with an error since the acceleration is driven exclusively from snapshots
+- `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 
 :::tip
 Use `refresh_mode: snapshot` for read-only replicas that don't need direct access to the federated source — for example, edge nodes that receive snapshots from a centralized writer.
@@ -506,6 +506,8 @@ The `refresh_cron` parameter cannot be specified in conjunction with a `refresh_
 
 By default, data refreshes for accelerated datasets are retried on transient errors (connectivity issues, compute warehouse goes idle, etc.) using a [Fibonacci](https://en.wikipedia.org/wiki/Fibonacci_sequence) backoff strategy.
 
+A listed Parquet object that is overwritten while a refresh scan is reading it also counts as transient. Scans pin a single object generation (via the object store's version id, or an `If-Match` on the listed ETag), so the overwrite surfaces as a precondition failure rather than as a mix of rows from two generations or a decoder error. The refresh relists, replans and retries. These attempts are counted on [`dataset_acceleration_refresh_errors`](../observability#available-metrics) under `reason="object_generation_changed"`, so an expected overwrite cadence can be filtered out without also hiding genuine `parquet_decode` corruption.
+
 Retry behavior can be configured using the [`acceleration.refresh_retry_enabled`](../../reference/spicepod/datasets#accelerationrefresh_retry_enabled) and [`acceleration.refresh_retry_max_attempts`](../../reference/spicepod/datasets#accelerationrefresh_retry_max_attempts) parameters.
 
 Example: Disable retries
@@ -549,7 +551,17 @@ Automatically evict time-series data exceeding a retention period by setting a r
 
 The policy is set using the [`acceleration.retention_check_enabled`](../../reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](../../reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](../../reference/spicepod/datasets#time_column) and [`time_format`](../../reference/spicepod/datasets#time_format) dataset parameters.
 
-When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+When `retention_check_enabled` is set to `true`, `retention_check_interval` is required, along with **either** `retention_period` (with a `time_column`) **or** `retention_sql`. Setting both applies both policies on every check.
+
+:::warning[An incomplete policy is reported, not silently dropped]
+A dataset that enables retention but leaves out one of these settings gets **no scheduled retention pass**, and the runtime logs a `[retention]` error naming the dataset and the missing setting rather than starting nothing quietly. There are three such refusals:
+
+- Neither `retention_period` nor `retention_sql` is set to a valid value, so nothing says which rows to delete.
+- `retention_period` is set but `time_column` is not, so there is nothing to compare against the cutoff.
+- `retention_check_interval` is missing or is not a valid duration. It has **no default**, so this is one unset field away from any otherwise-complete policy.
+
+`retention_check_enabled: false` stays silent — asking for no retention is not a policy that failed to assemble.
+:::
 
 Example:
 

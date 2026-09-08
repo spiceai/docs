@@ -145,7 +145,7 @@ Set once under the top-level `runtime.params` and applied to every Cayenne-accel
 | `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
 | `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages. `0` disables the inline auto-checkpoint so the WAL is drained off the hot commit path by a dedicated background checkpoint instead. Defaults to `0`. |
 | `cayenne_metastore_wal_truncate_threshold_mb` | WAL size in megabytes above which the background checkpoint escalates to a TRUNCATE checkpoint to reclaim file space. Defaults to `160`. |
-| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Takes effect only on a fresh database (an existing database needs a full `VACUUM` to change it). Defaults to `none`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. SQLite fixes the mode at file creation. Switching an existing metastore between `full` and `incremental` takes effect from `PRAGMA auto_vacuum = <mode>` on its own; moving it to or from `none` needs a full `VACUUM` after the pragma, because the pragma alone is a no-op in that direction and a bare `VACUUM` keeps the file on the mode it already has. See the [SQLite `auto_vacuum` documentation](https://sqlite.org/pragma.html#pragma_auto_vacuum). Defaults to `none`. |
 
 ```yaml
 runtime:
@@ -775,6 +775,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
+- **No `refresh_append_overlap`**: A dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read.
 
 ## Example Spicepod
 

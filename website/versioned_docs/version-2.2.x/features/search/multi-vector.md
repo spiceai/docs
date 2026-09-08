@@ -23,7 +23,7 @@ Chunking splits one long string (such as a document body) into pieces and embeds
 | `Utf8` + chunking  | Chunked                | `List<FixedSizeList<Float32, N>>` |
 | `List<Utf8>`       | Multi-vector (default) | `List<FixedSizeList<Float32, N>>` |
 
-Multi-vector and chunked columns share the same Arrow type, but the per-element offsets column (`<column>_offsets`) is only produced for chunked columns.
+Multi-vector and chunked columns share the same Arrow type, but the per-element offset column (`<column>_offset`) is only produced for chunked columns.
 
 ## Configuring a Multi-Vector Column
 

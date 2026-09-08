@@ -76,7 +76,7 @@ Vortex compression typically delivers 2–4× better compression than Parquet Sn
 
 ## Metrics
 
-Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne also registers the following OpenTelemetry instruments for CDC ingestion, write/compaction, scan-path, and segment-cache observability, all tagged by `dataset`:
+Generic acceleration metrics are available with the `dataset_acceleration_` prefix. Cayenne also registers OpenTelemetry instruments for CDC ingestion, write/compaction, scan-path, segment-cache, maintenance, storage-footprint, and memory observability. Per-table series carry a `table` label (the accelerated dataset); metastore-wide series carry `catalog` (the metastore path).
 
 ### CDC Apply Metrics
 
@@ -107,13 +107,21 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 ### Memory Reconciliation Metrics
 
-Sampled every 2 seconds by the loop that resizes the in-memory CDC tier budget, so these are emitted whenever Cayenne acceleration is configured. Read them together: the pool gauges report what the memory accounting believes is reserved, `process_resident_memory_bytes` reports what the kernel will make its OOM decision on, and the gap between them is off-pool memory (encode buffers, caches, allocator retention) that no budget covers.
+The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne_*` gauges refresh on the maintenance tick — every `cayenne_compaction_background_interval_ms` (10–30 s by default), or only on writes when the background compactor is disabled — so a flat per-table value can be a stale sample. Read them together: the pool gauges report what the memory accounting believes is reserved, the `process_resident_*` gauges what the process actually holds, and the gap against `process_resident_anon_bytes` is off-pool memory (encode buffers, caches, allocator retention) that no budget covers.
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
 | `query_memory_pool_used_bytes` | Gauge | By | Live bytes reserved in the query memory pool (`runtime.query.memory_limit`), excluding the in-memory CDC tier's mirror account so the off-pool tier is not double-counted as query usage. |
 | `cayenne_compaction_memory_pool_used_bytes` | Gauge | By | Live bytes reserved in the dedicated compaction memory pool (whose size is reported by `cayenne_compaction_memory_pool_bytes`). |
-| `process_resident_memory_bytes` | Gauge | By | Resident set size of the `spiced` process. Read from `VmRSS` in `/proc/self/status` on Linux, and from the process's resident memory on other platforms. |
+| `process_resident_memory_bytes` | Gauge | By | Total resident set size of the `spiced` process. |
+| `process_resident_anon_bytes` | Gauge | By | Anonymous resident bytes: heap and stacks, which the kernel cannot reclaim. Take the gap against this figure rather than the total. |
+| `process_resident_file_bytes` | Gauge | By | File-backed resident bytes: mapped files and page cache the kernel evicts on demand. |
+| `cayenne_memory_account_bytes` | Gauge | By | Memory Cayenne computed for one table and registered against the DataFusion query pool, by `kind` (`keyset`, `deletion_index`, `cold_existence`). |
+| `cayenne_memory_account_reserved_bytes` | Gauge | By | Bytes the table's reservation actually holds on that pool. Components far above reserved means the accounting is not reaching it. |
+| `cayenne_inline_cache_bytes` | Gauge | By | Resident Arrow bytes of the table's decoded inline (level-0) view cache. |
+| `cayenne_inline_cache_batches` | Gauge | batches | Record batches held in that cache. |
+| `cayenne_mem_tier_bytes` | Gauge | By | Resident bytes of one table's in-memory CDC tier. |
+| `cayenne_scan_file_statistics_entries` | Gauge | entries | Cached scan statistics, one entry per data file. |
 
 #### Write-phase labels
 
@@ -143,6 +151,72 @@ Sampled every 2 seconds by the loop that resizes the in-memory CDC tier budget, 
 | `publish_commit` | Committing the new snapshot during finalize. |
 
 The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
+
+### Maintenance Decision Metrics
+
+Maintenance passes often decline to run. Each decline is a correct decision that still leaves the table slightly larger, so these counters name which pass declined and why.
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_compaction_outcome_total` | Counter | passes | One compaction-family attempt and how it ended. Labelled by `table`, `kind`, and `outcome`. Every exit records exactly one outcome, so `sum by (outcome)` over a `kind` is that pass's complete decision history. |
+| `cayenne_compaction_trigger_total` | Counter | passes | Compaction passes attempted, by the threshold that asked for the pass. Labelled by `table`, `kind`, and `trigger`. |
+| `cayenne_maintenance_outcome_total` | Counter | passes | The same grammar for the non-compaction passes. Labelled by `table`, `op` (`orphan_dv_sweep`, `retention`, `retired_dir_sweep`), and `outcome`. |
+
+`kind` uses the same vocabulary as `cayenne_compaction_duration_ms`, so an outcome joins to the duration of the pass that produced it:
+
+| `kind` | Pass |
+| ------ | ---- |
+| `full` | Full current-snapshot re-encode (also folds the protected set). |
+| `subset_current` | Current-snapshot small-file rewrite (hard-links the unpicked files). |
+| `subset` | Size-tiered merge over the protected-snapshot set. |
+| `bake` | Seq-prefix bake — consolidate the clean older prefix and prune the deletion index. |
+| `datalake` | Cold-tier graduation. |
+
+`outcome` falls into four classes:
+
+- **Work happened** — `committed`, or `no_op` (the pass ran its selection and found nothing to merge).
+- **Work was paid and thrown away** — `aborted_concurrent_change` (the merge finished, then a concurrent append, compaction, or overwrite invalidated its inputs at commit).
+- **The pass errored** — `failed`. Distinct from every decline: a decline is a decision, this is a fault, and it is the class that warrants an alert rather than a dashboard.
+- **The pass never ran** — a `declined_<reason>`.
+
+`trigger` names which threshold asked for a pass — `small_file_count`, `protected_snapshot_count`, `protected_snapshot_age`, `deletion_index`, `deletion_index_memory_ceiling`. Read against the outcome counter, it separates "the trigger never fired" from "it fired and the pass was declined".
+
+### Reclamation Metrics
+
+What each maintenance pass reclaimed. A footprint gauge that climbs while its reclaim counter stays flat means reclamation is running but freeing nothing.
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_maintenance_reclaimed_files_total` | Counter | files | Files physically unlinked, labelled by `table` and `op`. |
+| `cayenne_maintenance_reclaimed_bytes_total` | Counter | By | On-disk bytes of the files it unlinked, labelled by `table` and `op`. |
+| `cayenne_maintenance_reclaimed_rows_total` | Counter | rows | Tombstones a deletion-vector sweep retired from the metastore, labelled by `table` and `op`. |
+| `cayenne_maintenance_tombstoned_rows_total` | Counter | rows | Rows a pass **marked** deleted without freeing anything, labelled by `table` and `op`. Retention is the only producer today. |
+
+### Storage Footprint Metrics
+
+`cayenne_storage_*` is derived from the metastore manifest and split by the layer that produced it, which makes growth attributable: rising `protected` files are read amplification, rising `delete_vector` bytes a deletion set outgrowing the data it shadows.
+
+These ride a background tick, at most every 30 s per table and every 5 min for `cayenne_data_dir_*`, so a flat value can be a stale sample rather than a stable table. Tables with the compactor disabled (`cayenne_compaction_background_interval_ms: 0`) are sampled too.
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_storage_files` | Gauge | files | Data-file **paths** the table holds, by `tier` (`current`, `protected`, `cold`, `delete_vector`; the `inline` tier reports bytes and rows only). |
+| `cayenne_storage_bytes` | Gauge | By | On-disk bytes the table holds, by `tier`. |
+| `cayenne_storage_rows` | Gauge | rows | Rows the table holds, by `tier`, before deletions are applied. On the `delete_vector` tier this is the tombstone count. |
+| `cayenne_snapshot_manifest_rows` | Gauge | rows | `cayenne_snapshot_file` manifest rows, split by `reachable` — whether the snapshot they name is still live. |
+| `cayenne_data_dir_files` | Gauge | files | Files in the table's data directory by `kind` (`data`, `deletion_vector`, `staging`, `other`), measured by walking the directory rather than reading the manifest. Local filesystem only. |
+| `cayenne_data_dir_bytes` | Gauge | By | Bytes present in the table's data directory by `kind`. |
+| `cayenne_data_dir_snapshot_dirs` | Gauge | directories | Snapshot directories present on disk. A count far above the live snapshot count is retired directories the sweep has not reclaimed. |
+
+### Metastore Metrics
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `cayenne_metastore_db_bytes` | Gauge | By | Current size of the metastore SQLite database file, labelled by `catalog`. |
+| `cayenne_metastore_wal_bytes` | Gauge | By | Current size of the metastore `-wal` file, labelled by `catalog`. |
+| `cayenne_metastore_table_rows` | Gauge | rows | Metastore rows attributable to one dataset table, labelled by `table` and `metastore_table`. |
+
+The database file plus its `-wal` is the whole metadata footprint. Both carry a `catalog` label — the metastore path — because one metastore is shared by the pod's Cayenne tables, and a deployment can hold more than one.
 
 ### Segment Cache Metrics
 

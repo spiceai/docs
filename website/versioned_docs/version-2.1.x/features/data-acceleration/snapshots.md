@@ -73,7 +73,9 @@ snapshots:
 | Amazon S3            | `s3://`                   | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.)                                               |
 | Azure ADLS Gen2      | `abfss://`, `abfs://`     | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
 | Google Cloud Storage | `gs://`                   | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity                                                                         |
-| Local filesystem     | Absolute or relative path | N/A                                                                                                                         |
+| Local filesystem     | `file://`                 | N/A                                                                                                                         |
+
+`location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
 
 When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
 
@@ -111,7 +113,7 @@ The `snapshots_trigger` setting controls when Spice creates new snapshots. The a
 
 #### Batch-based datasets
 
-Datasets using `refresh_mode: full`, `refresh_mode: caching`, or `refresh_mode: append` with a `time_column` support the following triggers:
+Datasets using `refresh_mode: full`, or `refresh_mode: append` with a `time_column`, support the following triggers:
 
 | Trigger            | Description                                                     |
 | ------------------ | --------------------------------------------------------------- |
@@ -150,6 +152,16 @@ datasets:
       params:
         duckdb_file: /nvme/some_table.db
 ```
+
+#### Caching datasets
+
+Datasets using `refresh_mode: caching` support a single trigger:
+
+| Trigger         | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `time_interval` | Create snapshots at a fixed time interval. (Default, and the only supported trigger.) |
+
+The interval is set with `snapshots_trigger_threshold` and defaults to `10m`. Setting `snapshots_trigger` to `refresh_complete` or `stream_batches` on a caching dataset is a configuration error.
 
 #### Stream-based datasets
 

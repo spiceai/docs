@@ -40,7 +40,7 @@ datasets:
 
 ## Requirements
 
-- `acceleration.snapshots` must be `enabled` or `bootstrap_only`.
+- `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
 - The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**.
 
 ## Behavior
@@ -49,7 +49,7 @@ datasets:
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60s) for newer snapshots.
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading.
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes.
-- `INSERT INTO` statements are rejected with an error since the acceleration is driven exclusively from snapshots.
+- `INSERT`, `UPDATE`, and `DELETE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots.
 
 :::tip
 Use `refresh_mode: snapshot` for read-only replicas that should not access the federated source — for example, edge nodes that receive snapshots from a centralized writer.

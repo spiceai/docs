@@ -179,7 +179,7 @@ A global `cayenne_goal_*` setpoint steers only the datasets that run the closed 
 | `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
 | `cayenne_metastore_wal_autocheckpoint_pages` | SQLite metastore WAL auto-checkpoint threshold in pages. `0` disables the inline auto-checkpoint so the WAL is drained off the hot commit path by a dedicated background checkpoint instead. Defaults to `0`. |
 | `cayenne_metastore_wal_truncate_threshold_mb` | WAL size in megabytes above which the background checkpoint escalates to a TRUNCATE checkpoint to reclaim file space. Defaults to `160`. |
-| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Takes effect only on a fresh database (an existing database needs a full `VACUUM` to change it). Defaults to `none`. Under `incremental`, freed pages are marked reclaimable and reclaimed in bounded batches by the background maintenance pass — see `cayenne_metastore_incremental_vacuum_pages`. An unrecognized value logs a warning and falls back to `none`. |
+| `cayenne_metastore_auto_vacuum`            | SQLite metastore `auto_vacuum` mode: `none`, `incremental`, or `full`. Defaults to `incremental`, so freed pages are marked reclaimable and reclaimed in bounded batches by the background maintenance pass — see `cayenne_metastore_incremental_vacuum_pages`. An unrecognized value logs a warning and keeps the `incremental` default. SQLite fixes the mode at file creation, so a metastore created while the default was `none` stays on `none` — the runtime warns at startup when it finds one. To move it to `incremental`, stop the runtime, run `PRAGMA auto_vacuum = INCREMENTAL; VACUUM;` against the metastore file, and restart: the pragma alone is a no-op on a file created with `auto_vacuum = none`, and a bare `VACUUM` keeps it on `none`. Switching between `full` and `incremental` needs no `VACUUM`. See the [SQLite `auto_vacuum` documentation](https://sqlite.org/pragma.html#pragma_auto_vacuum). |
 | `cayenne_metastore_incremental_vacuum_pages` | Freelist pages the background maintenance pass reclaims per tick when the metastore is in `incremental` `auto_vacuum` mode; ignored in every other mode. Defaults to `256`, which is 1 MiB at SQLite's 4 KiB default page size. Reclamation holds the write lock while it relocates pages, so the cap is what keeps each pause short; raise it to drain a large freelist faster at the cost of longer write-lock holds, or set `0` to stop reclaiming without changing the database's `auto_vacuum` mode. |
 
 ```yaml
@@ -665,6 +665,8 @@ The following types require the `unsupported_type_action` parameter:
 - `Interval` types
 - `Duration` types
 - `FixedSizeBinary`
+- `Union` types
+- `RunEndEncoded`
 
 **`unsupported_type_action` options:**
 
@@ -793,10 +795,11 @@ Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
-- **Unsupported Data Types**: `Interval`, `Duration`, and `FixedSizeBinary` types require `unsupported_type_action` configuration.
+- **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
+- **No `refresh_append_overlap`**: A dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read. The check runs during file-mode initialization, so a `mode: memory` dataset is not rejected.
 
 ## Example Spicepod
 

@@ -106,6 +106,8 @@ Increase `client_timeout` for endpoints with large response bodies or expensive 
 
 When using `refresh_mode: caching`, transient HTTP errors (5xx, 429) are excluded from the cache and propagated to clients. Set `caching_stale_if_error: enabled` to serve expired cached data on upstream failure. Always set `caching_ttl` explicitly — the default of `30s` is rarely the desired window.
 
+Set `caching_max_size` (a byte budget, e.g. `512MiB`) or `caching_max_items` (a row budget) to bound the acceleration. A TTL alone does not: a workload that keeps fetching new request paths grows it indefinitely, and with `caching_stale_if_error: enabled` expired entries are deliberately kept as fallback material and are never expired away. The runtime warns at startup, naming the dataset, when a caching accelerator has nothing bounding it. The eviction sweep runs at `caching_ttl`, clamped to 30s–5m, so the acceleration may overshoot its budget by whatever the workload writes between sweeps. See [Cache Size and Item Limits](../../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
+
 ## Capacity & Sizing
 
 - **Throughput**: Bounded by the upstream rate limit, then by `max_concurrent_requests` and `connect_timeout`. Plan limits to stay within the API quota.

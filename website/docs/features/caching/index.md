@@ -90,6 +90,26 @@ The encoding algorithm determines how cached results are compressed in memory, t
 
 Use `zstd` when maximizing cache efficiency is important, especially for large queries that would otherwise quickly fill the cache. Use `none` for the lowest latency when memory is not constrained.
 
+### What Counts Against `max_size`
+
+`max_size` bounds what the cache **holds**, not the raw size of the results that went into it. Each entry is charged for the Arrow buffers it owns, plus a per-buffer allowance for the allocator rounding and array metadata around each one, plus a fixed per-entry allowance for the store's own bookkeeping — its entry record, key handle and hash-table slot, none of which is reachable from the cached value itself. A five-column single-row result is eight or more separate buffers, so on the small, high-cardinality results most worth caching this fixed overhead, not the row data, is the larger half of the entry.
+
+Two components are deliberately **not** charged to any entry: a result's Arrow schema and the set of input tables it read. Both are shared process-wide across every entry of the same shape, so charging each entry for a private copy would bill one allocation thousands of times over. They are reported separately instead — see [Shared Entry Components](#shared-entry-components).
+
+That exclusion makes `max_size` an **entry budget, not a ceiling on cache memory**. The shared pools hold real memory that no entry is billed for, so a workload presenting enough distinct shapes can exceed `max_size` by the size of those allocations — the runtime reports the residual rather than enforcing it.
+
+Alert on both halves: `results_cache_size_bytes` is the figure `max_size` is enforced against, and `schema_interner_value_bytes` + `schema_interner_overhead_bytes` + `table_set_interner_value_bytes` + `table_set_interner_overhead_bytes` are the memory outside it. Total cache memory is the sum.
+
+### Results That Cannot Be Cached
+
+An uncompressed (`encoding: none`) SQL results-cache entry must own the memory it holds. Some sources hand the runtime a result resting on memory they own themselves — a driver's result chunk imported over FFI, an Arrow Flight message body sliced out of a gRPC frame — and an entry over such a result would pin the producer's whole chunk while being billed only for the buffers it declares, so `max_size` could not bound it.
+
+The runtime therefore copies each result off the producer's memory before storing it, then checks whether the copy succeeded rather than predicting it from the column types. A result that still rests on memory it does not own is **declined**: nothing is stored, no error is returned to the caller, and a repeat of the same query re-executes instead of hitting the cache. The check is per result, so the same query can be cacheable against one source and declined against another.
+
+Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
+
+When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
+
 ## Per-Principal Cache Isolation
 
 When [authentication](../api/auth) is enabled, all cache layers (SQL results, search results, and caching-mode acceleration storage) are automatically scoped per principal. Each authenticated caller has an isolated cache namespace — one caller's cached output is never served to a different caller.
@@ -124,7 +144,7 @@ The status header indicates the cache status:
 | `HIT`                | The query result was served from the cache.                                                                                              |
 | `MISS`               | The cache was checked, but the result was not found.                                                                                     |
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
-| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
+| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is set to a non-zero duration). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table).                                       |
 
 The scope header indicates the cache namespace:
@@ -221,6 +241,31 @@ With this configuration:
 - After 20 seconds, the entry is evicted if not refreshed.
 
 This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
+
+#### Serving Stale After an Acceleration Refresh
+
+A cached result is judged against **two independent clocks**, both evaluated on every hit. The first to say "not servable" wins:
+
+| Clock            | Measured from                            | Fresh                                | Serve stale + revalidate                  | Miss                            |
+| ---------------- | ---------------------------------------- | ------------------------------------ | ----------------------------------------- | ------------------------------- |
+| **Age**          | When the entry was stored                | Up to `item_ttl`                     | `item_ttl` → `item_ttl + swr`             | Past `item_ttl + swr`           |
+| **Invalidation** | The refresh or DML write that touched a table the result read | The change predates the entry's own read | change → change + `swr`               | Past change + `swr`             |
+
+With no stale-serving window — `stale_while_revalidate_ttl` unset, or set to `0s` — an acceleration refresh or a DML write **evicts** every dependent entry, so a workload polling accelerated datasets turns a whole population of cached results into simultaneous synchronous misses at each refresh. An explicit `0s` is read as no window rather than as one that closes immediately, since keeping entries resident for it would hold memory no lookup could ever serve from.
+
+When `stale_while_revalidate_ttl` is set to a **non-zero** duration, the invalidation instead marks those entries stale and leaves them resident:
+
+- **Inside the window** — the previous result is served with `results-cache-status: STALE`, and a background revalidation starts. Revalidation is single-flighted per key, so concurrent requests produce one query and all of them are served stale. Its result replaces the entry, whose read time is then after the refresh, so the entry returns to a plain `HIT`.
+- **Past the window** — a miss, as before.
+- **A failed revalidation invalidates nothing** — the previous result keeps being served until the window closes, then becomes a miss. `results_cache_swr_revalidations` is the only visible symptom of that failure.
+
+Nothing is served *as fresh* once a table it read has moved on — only as `STALE`.
+
+There is no new configuration parameter: `stale_while_revalidate_ttl` is the opt-in for both clocks.
+
+:::note[The window is anchored to the change, but capped by the entry's own age]
+An entry is still dropped `item_ttl + stale_while_revalidate_ttl` after it was *stored*, whatever happened to the tables it read. A refresh landing late in an entry's life therefore leaves less than the full window — the effective window is the shorter of the two. This can only end stale-serving early, never extend it.
+:::
 
 :::warning[Conflict with Caching Accelerator SWR]
 When using a dataset with `refresh_mode: caching`, you cannot configure both the results cache's `stale_while_revalidate_ttl` and the caching accelerator's `caching_stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers.
@@ -416,10 +461,13 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `*_cache_max_size_bytes` | Gauge   | Maximum configured cache size in bytes.                    |
 | `*_cache_requests`       | Counter | Total number of cache lookup requests.                     |
 | `*_cache_hits`           | Counter | Total number of cache hits.                                |
+| `*_cache_misses`         | Counter | Total number of cache misses.                              |
 | `*_cache_items_count`    | Gauge   | Current number of items in the cache.                      |
 | `*_cache_size_bytes`     | Gauge   | Current cache size in bytes.                               |
 | `*_cache_evictions`      | Counter | Total number of entries removed from the cache, split by a `reason` label. |
 | `*_cache_hit_ratio`      | Gauge   | Current cache hit ratio (hits / total requests).           |
+| `*_cache_stale_swr_count` | Counter | Stale-while-revalidate background refreshes skipped because a revalidation was already in flight. |
+| `*_cache_swr_background_query_count` | Counter | Background queries triggered to revalidate a stale entry. |
 
 `*_cache_evictions` carries a `reason` label with one of three values:
 
@@ -429,17 +477,60 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `expired`     | The entry outlived `item_ttl`.                                                 |
 | `invalidated` | A dataset refresh or a DML write dropped the entries that referenced a table.  |
 
-On an accelerated dataset with a periodic refresh, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`.
+On an accelerated dataset with a periodic refresh and no stale-serving window, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`. With a non-zero `stale_while_revalidate_ttl` those refreshes mark entries stale instead of removing them, so they produce no `invalidated` evictions at all — watch `results_cache_table_invalidations` for them.
 
 Every cache counter is published at zero when the runtime starts, so a counter that has not yet fired still appears in a scrape as a zero series rather than being absent.
 
-The SQL results cache additionally emits `results_cache_stale_rejections`, a counter of lookups that found an entry but refused to serve it because a table the result read had since been invalidated. These are also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale".
+The SQL results cache additionally emits four counters covering [table invalidation](#serving-stale-after-an-acceleration-refresh):
+
+| Metric                                 | Labels    | Description                                                                                                                                                                    |
+| -------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `results_cache_stale_rejections`       | `reason`  | Lookups that found an entry but refused to serve it because a table the result read had since been invalidated. Also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale". |
+| `results_cache_table_invalidations`    | `mode`    | Table invalidations applied to the cache. Counts invalidations, not the entries each one affected.                                                                              |
+| `results_cache_invalidation_stale_hits`| —         | Results served from an entry an invalidation had marked stale, within the stale-while-revalidate window.                                                                        |
+| `results_cache_swr_revalidations`      | `outcome` | Completed background revalidations. Any outcome other than `stored` leaves the previous entry in place to be served stale until it expires.                                     |
+
+`reason` on `results_cache_stale_rejections` is one of `no_window` (stale serving is disabled — `stale_while_revalidate_ttl` unset or `0s`), `window_expired` (the window had closed), or `fresh_required` (the lookup was made on a path that serves only fresh results, and so treats the entry as a miss).
+
+`mode` on `results_cache_table_invalidations` is `evict` when the dependent entries were removed, or `mark_stale` when they were left resident to be served stale. A `mark_stale` invalidation removes nothing, so it is invisible to `results_cache_evictions` — without this counter the switch between the two modes is indistinguishable from refreshes having stopped.
+
+`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
+
+:::note
+These four counters are published at zero for the search-results and embeddings caches as well, but only the SQL results cache ever increments them.
+:::
 
 The `*` prefix corresponds to the cache type:
 
 - `results_*` - SQL query results cache metrics
 - `search_results_*` - Search results cache metrics
 - `embeddings_*` - Embeddings cache metrics
+
+### Shared Entry Components
+
+The Arrow schema and the input-table set behind a cached result are shared process-wide rather than copied per entry (see [What Counts Against `max_size`](#what-counts-against-max_size)). Because they are not charged to any entry, they do not appear in `results_cache_size_bytes`; two pools report them instead, one per component:
+
+| Metric                            | Type       | Description                                                                                                                   |
+| --------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `*_interner_rows`                 | Gauge      | Distinct values the pool currently shares.                                                                                     |
+| `*_interner_value_bytes`          | Gauge      | Total size of the shared values, counted once per distinct value rather than once per entry holding it.                        |
+| `*_interner_overhead_bytes`       | Gauge      | The pool's own bookkeeping: its hash-map slots and bucket vectors.                                                             |
+| `*_interner_collapsed`            | Counter    | Values collapsed onto an allocation the pool already held — the direct evidence that sharing is removing duplicates.           |
+| `*_interner_already_shared`       | Counter    | Interns whose caller already held the shared allocation. Counted apart from `collapsed` because no duplicate was removed.      |
+| `*_interner_misses`               | Counter    | Interns that adopted a value the pool had not seen. Read alongside both sharing counters, not against `collapsed` alone.                    |
+
+The `*` prefix is the pool:
+
+- `schema_interner_*` - Arrow schemas
+- `table_set_interner_*` - input-table sets
+
+Both pools are **shared by the SQL results cache and the search results cache**, and are registered whenever either one is configured. A search entry interns the schema of each table's aggregated results and the set of input tables the search read, exactly as a SQL entry does. So neither pool's bytes can be attributed to `results_cache_size_bytes` alone: on a runtime with `search` caching enabled they also cover entries counted by `search_results_cache_size_bytes`.
+
+All six are observable instruments, sampled when metrics are collected rather than emitted as they happen. A point-lookup workload — many distinct queries over a handful of tables, the shape worth caching at all — should show `*_interner_collapsed` climbing far faster than `*_interner_rows`.
+
+Judging whether sharing is working takes **both** sharing counters, because they record different moments of the same saving. `*_interner_collapsed` counts a duplicate allocation removed; `*_interner_already_shared` counts a caller re-presenting the pointer the pool had already given it, which is the steady state once a workload's shapes have stabilized. A pool whose shapes settled long ago therefore shows `already_shared` climbing with `collapsed` flat while sharing is fully in effect. Treat rising `*_interner_misses` as evidence that values are arriving distinct and the pool is holding memory without saving any only when `*_interner_collapsed` **and** `*_interner_already_shared` are both flat.
+
+Reclamation is driven by the runtime's cache-maintenance loop, not by metric collection, so a pool holds the same memory whether or not `--metrics` is enabled.
 
 Example metrics output:
 

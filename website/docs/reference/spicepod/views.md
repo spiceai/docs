@@ -79,6 +79,18 @@ views:
       enabled: true
 ```
 
+:::warning[`acceleration.ready_state` is deprecated]
+`ready_state` also parses inside the `acceleration` block. When it is set there it **takes precedence** over the view's own top-level `ready_state`, and it applies whether or not `acceleration.enabled` is `true` — which is why it is never listed among the settings the [`enabled: false` warning](#accelerationenabled) reports as discarded.
+
+It is deprecated and will be removed. The runtime warns at load, naming the view:
+
+```
+View 'daily_totals' sets `acceleration.ready_state`, which is deprecated and will be removed. Move the setting to the view's own `ready_state` to keep it working. See: https://spiceai.org/docs/reference/spicepod/views
+```
+
+Move the setting to the top-level `ready_state` shown above.
+:::
+
 ## `acceleration`
 
 Optional. Accelerate queries to the view by caching data locally.
@@ -86,6 +98,20 @@ Optional. Accelerate queries to the view by caching data locally.
 ## `acceleration.enabled`
 
 Enable or disable acceleration, defaults to `true`.
+
+:::warning `enabled: false` discards the rest of the acceleration block
+
+A view carries the same acceleration block as a dataset and discards it the same way: with `enabled: false`, every other setting in the block — `engine`, `mode`, `refresh_mode`, `primary_key`, `indexes`, `on_conflict`, everything under `params` — is read, accepted, and then never applied. The view loads and reports healthy while every query runs against its source.
+
+The runtime warns at load naming the view and the settings it discarded:
+
+```
+View 'my_view' sets `acceleration.enabled: false`, so these settings in its acceleration block are read and then ignored: `engine`, `mode`, `refresh_mode`. Remove `enabled: false` to apply them, or remove them to keep the view unaccelerated. See: https://spiceai.org/docs/reference/spicepod/views#acceleration
+```
+
+`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about. The deprecated [`acceleration.ready_state`](#ready_state) is also never reported, because a view applies it whether or not acceleration is enabled.
+
+:::
 
 ## `acceleration.engine`
 
@@ -167,6 +193,8 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 See [Duration](../duration)
 
+Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne view that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
+
 ## `acceleration.refresh_retry_enabled`
 
 Optional. Specifies whether an accelerated view should retry data refresh in the event of transient errors. The default setting is true.
@@ -236,7 +264,7 @@ Optional. Specify which indexes should be applied to the locally accelerated tab
 
 The `indexes` field is a map where the key is the column reference and the value is the index type.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Indexes](../../features/data-acceleration/indexes)
 
@@ -256,7 +284,7 @@ views:
 
 Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
 
-The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -276,7 +304,7 @@ Optional. Specify what should happen when a constraint is violated. Not supporte
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
 

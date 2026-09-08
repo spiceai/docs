@@ -168,7 +168,7 @@ datasets:
 
 **Requirements:**
 
-- `acceleration.snapshots` must be `enabled` or `bootstrap_only`
+- `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
 - The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, **Cayenne**, or **Turso**
 
 **Behavior:**
@@ -177,7 +177,7 @@ datasets:
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
-- `INSERT INTO` statements are rejected with an error since the acceleration is driven exclusively from snapshots
+- `INSERT`, `UPDATE`, and `DELETE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 
 :::tip
 Use `refresh_mode: snapshot` for read-only replicas that don't need direct access to the federated source — for example, edge nodes that receive snapshots from a centralized writer.
@@ -549,7 +549,7 @@ Automatically evict time-series data exceeding a retention period by setting a r
 
 The policy is set using the [`acceleration.retention_check_enabled`](../../reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](../../reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](../../reference/spicepod/datasets#time_column) and [`time_format`](../../reference/spicepod/datasets#time_format) dataset parameters.
 
-When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+When `retention_check_enabled` is set to `true`, `retention_check_interval` is required, along with **either** `retention_period` (with a `time_column`) **or** `retention_sql`. Setting both applies both policies on every check.
 
 Example:
 

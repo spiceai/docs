@@ -11,6 +11,7 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
 
 - JSON functions and operators are supported only **during DataFusion (Arrow)** execution.
 - **Federated or accelerated sources** (non-Arrow) may **not support all JSON functions**.
+  See [Federation and pushdown](#federation-and-pushdown).
 
 :::
 
@@ -63,6 +64,7 @@ JSON support in Spice is based on [datafusion-functions-json](https://github.com
   - [Array Access](#array-access)
   - [Conditional JSON Queries](#conditional-json-queries)
   - [Using JSON Functions in Views](#using-json-functions-in-views)
+- [Federation and Pushdown](#federation-and-pushdown)
 - [Further Reading](#further-reading)
 
 ---
@@ -644,6 +646,50 @@ FROM (SELECT UNNEST(json_tree(body)) AS rows FROM documents);
 ```
 
 The scalar form takes only the JSON argument and always runs with default caps; the named options above are only accepted in the UDTF (`FROM` clause) form.
+
+## Federation and Pushdown
+
+These functions come from a Spice library, not from the source database, so a remote engine has no
+equivalent to call. A connector that installs the Spice function deny-list will not federate a plan
+containing one: a predicate such as `WHERE json_get_int(doc, 'id') = 1` disqualifies the node, the
+column is streamed to Spice, and the filter runs there. That is correct, but it costs a full remote
+scan. Whether — and which — JSON functions push down is therefore connector-specific.
+
+**BigQuery** is the exception. A dataset read through the [ADBC data
+connector](../../components/data-connectors/adbc) with `adbc_driver: bigquery` uses a BigQuery
+dialect that rewrites these functions into native BigQuery SQL, so they push down to the source:
+
+| Function                                    | Pushed down to BigQuery |
+| ------------------------------------------- | ----------------------- |
+| [`json_get_str`](#json_get_str)             | Yes                     |
+| [`json_get_int`](#json_get_int)             | Yes                     |
+| [`json_get_float`](#json_get_float)         | Yes                     |
+| [`json_get_bool`](#json_get_bool)           | Yes                     |
+| [`json_length`](#json_length)               | Yes (alias `json_len`)  |
+| [`json_object_keys`](#json_object_keys)     | Yes (alias `json_keys`) |
+| [`json_get`](#json_get)                     | No                      |
+| [`json_get_json`](#json_get_json)           | No                      |
+| [`json_get_array`](#json_get_array)         | No                      |
+| [`json_as_text`](#json_as_text)             | No                      |
+| [`json_contains`](#json_contains)           | No                      |
+
+The five that stay local do so because BigQuery cannot reproduce their results, not because the
+translation is unwritten:
+
+- `json_get_json` and `json_as_text` return the matched node's own bytes, spacing and number
+  spelling intact, where BigQuery's `JSON_QUERY` re-renders it — a document holding `{"b": -1}`
+  comes back as `{"b":-1}`.
+- `json_contains` counts a JSON `null` as present, and BigQuery returns SQL NULL for such a node
+  exactly as it does for a missing key, so the two cannot be told apart.
+- `json_get` and `json_get_array` return the library's JSON union type, which has no SQL type to
+  unparse into.
+
+The [operators](#json-operators) `->`, `->>` and `?` are spellings of `json_get`, `json_as_text`
+and `json_contains`, so they are not pushed down either.
+
+Pushdown also requires every path argument to be a **literal**, because BigQuery's JSON path must
+be a constant. `json_get_int(doc, 'id')` pushes down; `json_get_int(doc, key_column)` is legal SQL
+in Spice but is evaluated locally.
 
 ## Further Reading
 

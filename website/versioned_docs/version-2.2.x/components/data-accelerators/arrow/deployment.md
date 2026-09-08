@@ -54,9 +54,9 @@ Arrow acceleration operations (refresh, query) participate in [task history](../
 
 - **No persistence**: Every restart refreshes from the source.
 - **No traditional indexes**: Arrow does not support B-tree indexes. Hash index provides point-lookup acceleration but not range or sort-order optimization.
-- **Only primary-key hash index**: The hash index requires a `primary_key` constraint; `unique` constraints alone do not enable the index.
+- **Activation is automatic and cannot be forced**: The index activates when `primary_key` or a secondary [`indexes`](../../../features/data-acceleration/indexes) entry is configured; the `hash_index` acceleration parameter is stripped with a warning and enables nothing on its own. A `primary_key` alone does not build an index under `refresh_mode: caching`, which drops the primary-key constraint before the table is created — configure `indexes` instead.
 - **Memory pressure**: If the dataset exceeds available RAM, the runtime will OOM; no spill-to-disk mechanism exists in the Arrow accelerator itself.
-- **`partition_by`**: Not applicable — Arrow accelerator holds a single in-memory representation.
+- **`partition_by` partitions in memory only**: Setting `partition_by` on `engine: arrow` switches the dataset to the partitioned Arrow accelerator, which holds one `MemTable` per partition value — see [Partitioning](../../../features/data-acceleration/partitioning). Every partition still lives in RAM, so partitioning prunes scans but does not relieve the memory ceiling above.
 
 ## Troubleshooting
 
@@ -64,6 +64,7 @@ Arrow acceleration operations (refresh, query) participate in [task history](../
 | ------------------------------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | OOM on refresh                                   | Source dataset larger than RAM.                         | Switch to a durable accelerator (DuckDB / SQLite / Cayenne) that supports spill to disk.       |
 | Long startup time                                | Full-dataset refresh runs on boot.                      | Switch to a durable accelerator so refresh is incremental, not full, on restart.               |
-| `hash_index` ignored                             | No primary-key constraint on the dataset.               | Add `primary_key:` to the dataset definition; hash index activates automatically.              |
+| `The hash_index acceleration parameter is ignored for Arrow acceleration` warning | `hash_index` no longer activates indexing on its own. | Remove `hash_index` from `params:` and set `primary_key:` or `indexes:` instead.               |
+| No hash index despite `primary_key` being set     | `refresh_mode: caching` drops the primary-key constraint. | Configure `indexes:` on the looked-up columns, or use a non-`caching` refresh mode.            |
 | Query slow for point lookups                     | No primary key/index, or wrong key column.              | Add a `primary_key:` (or secondary `indexes:` entry); ensure the query filter matches the indexed columns. |
 | Accelerator refuses to start with file mode      | Arrow rejects file-mode acceleration.                   | Switch `engine:` to `duckdb`, `sqlite`, `postgres`, or `cayenne`.                              |

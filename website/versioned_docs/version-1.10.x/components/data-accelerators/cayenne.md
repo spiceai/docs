@@ -67,6 +67,7 @@ Consider the following limitations when using Cayenne acceleration:
 - **No Snapshot Support**: Cayenne does not yet support [acceleration snapshots](../../features/data-acceleration/snapshots) for bootstrapping from object storage.
 - **Data Types**: Some advanced data types may have limited support. Test your specific schema requirements.
 - **Index Support**: Index capabilities are still being developed. Check release notes for the latest supported features.
+- **No `refresh_append_overlap`**: A dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read.
 
 :::warning[Alpha Software]
 

@@ -53,10 +53,11 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
+| ScyllaDB connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
-The default distribution includes all features including AI/ML model support. This is the recommended distribution for most users.
+The default distribution includes the standard `spiced` feature set, including AI/ML model support. This is the recommended distribution for most users.
 
 **Included Features:**
 
@@ -65,6 +66,10 @@ The default distribution includes all features including AI/ML model support. Th
 - AI/ML model inference (LLMs, embeddings)
 - Search capabilities (Vector and BM-25 Full-Text-Search)
 - Default memory allocator (snmalloc)
+
+**Not included by default:**
+
+- The ODBC (`odbc`), Elasticsearch (`elasticsearch`), NFS (`nfs`), and ScyllaDB (`scylladb`) data connectors — see [Additional Connectors](#additional-connectors)
 
 :::note
 The PostgreSQL data accelerator is only available in nightly builds. The PostgreSQL data connector is included in all distributions.
@@ -94,7 +99,7 @@ The data distribution excludes AI/ML model support, resulting in a smaller binar
 
 **Included Features:**
 
-- All data connectors
+- The default distribution's data connectors, minus ADBC
 - All data accelerators
 - Default memory allocator (snmalloc)
 
@@ -115,6 +120,12 @@ docker pull ghcr.io/spiceai/spiceai-nightly:latest-data
 ```bash
 make install-data-only
 ```
+
+:::note
+`make install-data-only` builds from `SPICED_DATA_FEATURES` in the `Makefile` — a hand-maintained list that is **not** the `spiced` default feature set with `models` removed, and that differs from it in both directions. Compared with the default distribution it omits the [ADBC](../components/data-connectors/adbc) data connector and the [AWS Secrets Manager](../components/secret-stores/aws-secrets-manager), [Azure Key Vault](../components/secret-stores/azure-keyvault) and [keyring](../components/secret-stores/keyring) secret stores, and it adds the [PostgreSQL data accelerator](../components/data-accelerators/postgres) and [acceleration snapshots](../features/data-acceleration/snapshots). The [environment](../components/secret-stores/env) and [Kubernetes](../components/secret-stores/kubernetes) secret stores are not feature-gated and are available in every build.
+
+A feature added to the default set does not reach `make install-data-only` until it is added to `SPICED_DATA_FEATURES` too, so recompute the difference from that list and the `default = [...]` array in `bin/spiced/Cargo.toml` rather than assuming the two track each other.
+:::
 
 ## GPU-Accelerated Distributions
 
@@ -199,6 +210,15 @@ The default allocator, optimized for concurrent workloads.
 
 Alternative allocator that may perform better for certain memory allocation patterns.
 
+**Heap profiling**: the shipped jemalloc build has the heap profiler compiled out, so `_RJEM_MALLOC_CONF=prof:true` is silently ignored. Build with the `alloc-jemalloc-profiling` feature to turn it on — it implies `alloc-jemalloc` and adds jemalloc's `--enable-prof`. jemalloc is built under the `_rjem_` prefix, so it reads `_RJEM_MALLOC_CONF`, not `MALLOC_CONF`:
+
+```bash
+make install SPICED_NON_DEFAULT_FEATURES="alloc-jemalloc-profiling"
+_RJEM_MALLOC_CONF=prof:true,prof_final:true,prof_prefix:/tmp/spiced.prof spiced
+```
+
+A profiling build reports its allocator as `jemalloc-profiling` rather than `jemalloc` at startup. In a crash report, the build is identified by the `alloc-jemalloc-profiling` entry in `SPICED_BUILD_FEATURES`.
+
 ### mimalloc
 
 Microsoft's mimalloc allocator, designed for performance and security.
@@ -234,15 +254,16 @@ Native Windows support for the Spice runtime is available with the [Spice Cloud 
 
 ## Additional Connectors
 
-Some connectors require additional dependencies and are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing):
+Four data connectors sit outside the `spiced` default feature set, so the published open source images do not include them. Each is available in the [Spice.ai Enterprise](https://spice.ai/pricing) distributions (see [Distribution Availability](#distribution-availability) for Spice Cloud coverage), and open source users can build each locally for development and testing:
 
-- **ODBC** - Connect to any ODBC-compatible data source
+| Connector     | Cargo feature   | Local build            |
+| ------------- | --------------- | ---------------------- |
+| ODBC          | `odbc`          | `make install-odbc`     |
+| ScyllaDB      | `scylladb`      | `make install-scylladb` |
+| NFS           | `nfs`           | `make install-nfs`      |
+| Elasticsearch | `elasticsearch` | `SPICED_NON_DEFAULT_FEATURES="elasticsearch" make install` |
 
-These can be built locally for development and testing:
-
-```bash
-make install-odbc
-```
+For ScyllaDB specifically, a Spicepod using `from: scylladb:` on a build without the `scylladb` feature fails to load with an error naming the Cargo feature to build and linking the Enterprise distributions — the dataset is not silently skipped.
 
 ## Platform-Specific Notes
 

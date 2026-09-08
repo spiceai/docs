@@ -47,7 +47,15 @@ The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers an
 
 ### Pagination
 
-GitHub paginates at 100 items per page. Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+Page width is chosen per table, not fixed at GitHub's 100-item maximum. GitHub enforces a **per-request compute budget** ([GraphQL API resource limits announcement](https://github.blog/changelog/2025-09-01-graphql-api-resource-limits/)) that is separate from — and reached long before — the [500,000-node ceiling](https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api#node-limit), and a page wide enough to exceed it is rejected outright with `Resource limits for this query exceeded`, every node in the page returned as `null`. Tables whose rows expand into many nested connections therefore request narrower pages: `pulls` is requested 25 at a time in both comment modes, while `issues` and `milestones` still use 100.
+
+Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+
+:::warning[`pulls` scan ceilings differ by query mode]
+In `github_query_mode: auto`, the connector fails with `Maximum pagination iterations (1000) exceeded` after 1,000 pagination iterations (1,001 total page fetches counting the initial page), rather than silently truncating. At 25 rows per page, that bounds a `pulls` dataset at `25 x 1001` = **25,025 pull requests** per refresh. In `github_query_mode: search`, GitHub Search has its own [1,000-result limit](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests), which is the effective cap for a single query.
+
+The page was wider in earlier releases, putting the arithmetic ceiling at 100,100 — but on a repository large enough for that to bind, the wider page was rejected by the compute budget and returned no rows at all. The number of pull requests actually reachable went up, not down.
+:::
 
 ### Retry Behavior
 

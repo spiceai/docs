@@ -313,6 +313,18 @@ datasets:
       enabled: true
 ```
 
+:::warning[`acceleration.ready_state` is deprecated]
+`ready_state` also parses inside the `acceleration` block. When it is set there it **takes precedence** over the dataset's own top-level `ready_state`, and it applies whether or not `acceleration.enabled` is `true` — which is why it is never listed among the settings the [`enabled: false` warning](#accelerationenabled) reports as discarded.
+
+It is deprecated and will be removed. The runtime warns at load, naming the dataset:
+
+```
+Dataset 'api_data' sets `acceleration.ready_state`, which is deprecated and will be removed. Move the setting to the dataset's own `ready_state` to keep it working. See: https://spiceai.org/docs/reference/spicepod/datasets
+```
+
+Move the setting to the top-level `ready_state` shown above.
+:::
+
 ## `check_availability`
 
 Spice can monitor whether the source backing a non-accelerated dataset is still reachable, marking the dataset `Error` while it is not. Availability monitoring is **opt-in**: it runs only for datasets that set [`check_availability_interval`](#check_availability_interval). Note that probing may trigger the startup of compute resources (for example, Databricks or Snowflake), potentially incurring additional costs.
@@ -409,6 +421,20 @@ Optional. Accelerate queries to the dataset by caching data locally.
 ## `acceleration.enabled`
 
 Enable or disable acceleration, defaults to `true`.
+
+:::warning `enabled: false` discards the rest of the acceleration block
+
+`enabled: false` turns the whole block off rather than parking it. Every other setting in it — `engine`, `mode`, `refresh_mode`, `primary_key`, `indexes`, `on_conflict`, everything under `params`, and the rest — is read, accepted, and then never applied. The dataset loads, reports healthy, and federates every query straight to the source, which is hard to tell from a working accelerator. It is most misleading under `refresh_mode: caching`, where a block that appears to cache with a one-second freshness window is sending every query to the origin.
+
+The runtime warns at load naming the dataset and the settings it discarded:
+
+```
+Dataset 'my_dataset' sets `acceleration.enabled: false`, so these settings in its acceleration block are read and then ignored: `engine`, `mode`, `params`, `primary_key`, `refresh_mode`. Remove `enabled: false` to apply them, or remove them to keep the dataset unaccelerated. See: https://spiceai.org/docs/reference/spicepod/datasets#acceleration
+```
+
+`enabled: false` on its own — with nothing else in the block — is a complete configuration and is not warned about. The deprecated `acceleration.ready_state` is also never reported, because a dataset applies it whether or not acceleration is enabled.
+
+:::
 
 ## `acceleration.engine`
 
@@ -561,6 +587,8 @@ See the [cron schedule reference](../cron).
 
 Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
 
+Also accepted as `acceleration.params.caching_item_ttl`, spelling the `item_ttl` suffix used by the results, search-results and embeddings caches. Both names are read, so neither is silently ignored; setting both to *different* values is a load error.
+
 When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
 
 **Example**:
@@ -643,6 +671,56 @@ datasets:
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) for detailed behavior.
 
+## `acceleration.params.caching_max_size`
+
+Optional. A byte budget for the rows a caching accelerator stores, e.g. `512MiB` or `1GB`. A plain integer is a byte count. Only applicable when `refresh_mode: caching`. Defaults to none (no byte budget).
+
+The budget measures the payload bytes of the stored rows — text columns exactly, fixed-width columns by their width — excluding the accelerator's own reserved caching columns. It is a payload measure rather than an on-disk one; the engine's indexes and compression are not counted. The connector-managed `response_headers` map is also not measured and does not trigger the unmeasurable-column startup warning, so large or numerous headers can put real cached payload above this budget.
+
+An unparseable value is a load error rather than a silent fallback to unbounded.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_size: 512MiB
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
+
+## `acceleration.params.caching_max_items`
+
+Optional. The maximum number of rows a caching accelerator may keep, e.g. `100000`. Only applicable when `refresh_mode: caching`. Defaults to none (no row budget).
+
+Eviction is entry-granular: all rows belonging to one cache entry are removed together, oldest entries first. An unparseable value is a load error.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_items: 100000
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
+
 ## `acceleration.refresh_sql`
 
 Optional. Filters the data fetched from the source to be stored in the accelerator engine. Supported for `full` and `append` refresh mode datasets.
@@ -673,6 +751,8 @@ This setting can help mitigate missing data issues caused by late arriving data.
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
 See [Duration](../duration)
+
+Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -773,7 +853,7 @@ Optional. Specify which indexes should be applied to the locally accelerated tab
 
 The `indexes` field is a map where the key is the column reference and the value is the index type.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Indexes](../../features/data-acceleration/indexes)
 
@@ -793,7 +873,7 @@ datasets:
 
 Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
 
-The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -813,7 +893,7 @@ Optional. Specify what should happen when a constraint is violated. Not supporte
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
 

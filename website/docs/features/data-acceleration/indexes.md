@@ -23,12 +23,15 @@ datasets:
 
 ## Column References
 
-Column references can be used to specify which columns to index. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+Column references can be used to specify which columns to index. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional.
 
 Examples
 
 - `number`: Index the `number` column
 - `(hash, timestamp)`: Index the `hash` and `timestamp` columns
+- `"service.instance.id"`: Index the `service.instance.id` column, written with the quotes SQL uses
+
+A column name may be double-quoted, and the quotes are not part of the name. Names are matched against the schema's field names as written rather than parsed as SQL identifiers, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced. See [Column names](./constraints#column-names) for the full rules, which are shared by `indexes`, `primary_key` and `on_conflict`.
 
 ## Index Types
 

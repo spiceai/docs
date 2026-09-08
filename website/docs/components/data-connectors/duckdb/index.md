@@ -68,6 +68,10 @@ The DuckDB data connector can be configured by providing the following `params`:
 
 Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
 
+:::info[Timestamps are read in UTC]
+Spice pins every DuckDB session it opens to `SET TimeZone = 'UTC'`, so a `TIMESTAMPTZ` column always reaches Spice as `Timestamp(us, "UTC")` regardless of the host's timezone. Without this the Arrow schema — and therefore the instant a naive literal such as `WHERE ts > TIMESTAMP '2024-01-15 15:00:00'` denotes — would differ from machine to machine, because DuckDB labels an exported `TIMESTAMPTZ` with the connection's own `TimeZone` setting. Convert in SQL (`ts AT TIME ZONE 'Asia/Tokyo'`) if you need a local-time reading.
+:::
+
 ## Examples
 
 ### Reading from a relative path

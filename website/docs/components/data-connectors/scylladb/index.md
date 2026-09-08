@@ -9,6 +9,10 @@ tags:
 
 The ScyllaDB Data Connector enables federated SQL queries on data stored in [ScyllaDB](https://www.scylladb.com/) clusters using CQL (Cassandra Query Language).
 
+:::note[Enterprise edition]
+The ScyllaDB Data Connector is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions). It is feature-gated and not included in the default open source build; open source users can build it from source with the `scylladb` feature (`make install-scylladb`).
+:::
+
 ```yaml
 datasets:
   - from: scylladb:users

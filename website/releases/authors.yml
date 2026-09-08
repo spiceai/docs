@@ -29,7 +29,7 @@ Corentin-pro:
 
 peasee:
   name: William Croxson
-  title: Senior Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/peasee
   image_url: https://github.com/peasee.png
   page: true
@@ -38,7 +38,7 @@ peasee:
 
 jeadie:
   name: Jack Eadie
-  title: Token Plumber at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/Jeadie
   image_url: https://github.com/Jeadie.png
   page: true
@@ -49,7 +49,7 @@ jeadie:
 
 ewgenius:
   name: Evgenii Khramkov
-  title: Senior Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/ewgenius
   image_url: https://github.com/ewgenius.png
   page: true
@@ -60,7 +60,7 @@ ewgenius:
 
 sgrebnov:
   name: Sergei Grebnov
-  title: Senior Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/sgrebnov
   image_url: https://github.com/sgrebnov.png
   page: true
@@ -81,7 +81,7 @@ sevenan:
 
 kczimm:
   name: Kevin Zimmerman
-  title: Principal Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/kczimm
   image_url: https://github.com/kczimm.png
   page: true
@@ -91,7 +91,7 @@ kczimm:
 
 krinart:
   name: Viktor Yershov
-  title: Senior Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/krinart
   image_url: https://github.com/krinart.png 
   page: true
@@ -101,10 +101,20 @@ krinart:
 
 mach-kernel:
   name: David Stancu 
-  title: Principal Software Engineer at Spice AI
+  title: Member of Technical Staff at Spice AI
   url: https://github.com/mach-kernel
   image_url: https://github.com/mach-kernel.png 
   page: true
   socials:
     github: mach-kernel
     linkedin: dstancu
+
+bjchambers:
+  name: Ben Chambers 
+  title: Member of Technical Staff at Spice AI
+  url: https://github.com/bjchambers
+  image_url: https://github.com/bjchambers.png 
+  page: true
+  socials:
+    github: bjchambers
+    linkedin: ben-chambers-291ba5

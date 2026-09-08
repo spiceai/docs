@@ -433,6 +433,8 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 Specify as a duration string (e.g., `10m`, `1h`, `24h`).
 
+Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
+
 ## `acceleration.refresh_retry_enabled`
 
 Optional. Specifies whether an accelerated dataset should retry data refresh in the event of transient errors. The default setting is true.
