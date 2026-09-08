@@ -51,7 +51,7 @@ datasets:
         cayenne_metadata_dir: /nvme/spice/metadata
 ```
 
-Local NVMe on cloud instances is ephemeral — instance store is erased when the instance stops or is replaced — so pair it with [acceleration snapshots](../../../features/data-acceleration/snapshots.md) for fast cold starts, with [S3 Express One Zone](./index.md#aws-s3-express-one-zone-storage) when the data files themselves must survive the instance, or with the [cold object-store tier](./index.md#cold-object-store-tier) when the table outgrows the device. The cross-engine guidance — storage tiers and their latencies, cloud specifics, Kubernetes volumes, and capacity planning — is in [Storage](../../../reference/performance-tuning.md#storage) in the Performance Tuning guide.
+Local NVMe on cloud instances is ephemeral — instance store is erased when the instance stops or is replaced — so pair it with [acceleration snapshots](../../../features/data-acceleration/snapshots.md) for fast cold starts, with [S3 Express One Zone](./index.md#aws-s3-express-one-zone-storage) when the data files themselves must survive the instance, or with the [cold object-store tier](./index.md#cold-object-store-tier) when the table outgrows the device. On Kubernetes, [Local NVMe Storage on Kubernetes](../../../deployment/kubernetes/local-nvme/index.md) walks through provisioning the NVMe volume step by step. The cross-engine guidance — storage tiers and their latencies, cloud specifics, and capacity planning — is in [Storage](../../../reference/performance-tuning.md#storage) in the Performance Tuning guide.
 
 ### Storage tier detection
 

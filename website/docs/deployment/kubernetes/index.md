@@ -90,7 +90,7 @@ File-mode accelerations (Cayenne, DuckDB, SQLite, Turso) and query spill run at 
 | Spill (`runtime.query.temp_directory`)            | A directory on the same local NVMe volume. Never an `emptyDir` with `medium: Memory` — its files count against the container's memory limit.                          |
 | Network file systems (EFS, Azure Files, Filestore, NFS) | Not recommended for either.                                                                                                                                      |
 
-See [Storage on Kubernetes](../reference/performance-tuning#storage-on-kubernetes) for the volume options and the [Helm storage class recommendations](kubernetes/helm#storage-class-recommendations) for the per-cloud classes.
+**[Local NVMe Storage](kubernetes/local-nvme)** is the step-by-step guide: picking NVMe node types on EKS, GKE, AKS, or self-hosted clusters, mounting the disks, publishing them as PersistentVolumes, deploying the chart onto them, and verifying the result. For the reasoning and the fallbacks see [Storage on Kubernetes](../reference/performance-tuning#storage-on-kubernetes), and for the per-cloud classes the [Helm storage class recommendations](kubernetes/helm#storage-class-recommendations).
 
 ## Prerequisites
 

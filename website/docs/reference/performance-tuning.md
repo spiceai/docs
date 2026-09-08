@@ -256,47 +256,24 @@ Spill cannot be directed at object storage, and acceleration files other than Ca
 
 Kubernetes adds a layer between the pod and the disk, and the defaults are wrong for Spice in two ways: the pod's writable layer and a plain `emptyDir` live on the node's ephemeral storage, which is usually the root disk; and the default StorageClass on every managed cloud is a network block volume.
 
-**Acceleration data:**
+**Follow the step-by-step guide: [Local NVMe Storage on Kubernetes](../deployment/kubernetes/local-nvme).** It covers choosing NVMe node types on EKS, GKE, AKS, and self-hosted clusters, mounting the disks, publishing them as PersistentVolumes with the Local Volume Static Provisioner, deploying the Helm chart with `stateful.enabled: true` on a `local-storage` class, and verifying that Spice detected local SSD. The short version:
 
-- **Local NVMe (recommended).** Expose the node's NVMe through the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) (or the equivalent on Bottlerocket and GKE) as a `local-storage` StorageClass, run Spice as a StatefulSet (the Helm chart's `stateful.enabled: true` with `stateful.storageClass: local-storage`), and accept that the pod is pinned to its node. Pair with [snapshots](../features/data-acceleration/snapshots) so a rescheduled pod bootstraps rather than refreshes.
-- **Network block storage** (`gp3`/`io2` via the EBS CSI driver, Premium SSD v2 via the Azure Disk CSI driver, Hyperdisk via the GCE PD CSI driver) when the volume must follow the pod between nodes. Set `storage_profile: ebs` on GCP, where auto-detection cannot identify the device.
-- **Never a `ReadWriteMany` file-system volume** (EFS, Azure Files, Filestore, an NFS provisioner) for acceleration files — see [Network file systems](#network-file-systems-nas-nfs-smb-efs-azure-files).
-
-**Spill (`runtime.query.temp_directory`):**
-
-- Put it in a directory on the same local NVMe volume as the data (`/data/tmp` in the example below), or on a second local volume.
-- A plain `emptyDir` is acceptable only when the node's ephemeral storage is itself on local NVMe — some node images can place the kubelet and container runtime directories on instance store for instance-store-backed types. Set `sizeLimit` so a runaway spill evicts the pod rather than filling the node.
-- Do not use `emptyDir` with `medium: Memory` for spill; see [RAM-backed storage](#ram-backed-storage-tmpfs).
+- **Acceleration data** goes on a local NVMe PersistentVolume, with the pod pinned to its node and [snapshots](../features/data-acceleration/snapshots) to bootstrap a replacement pod. Network block storage (`io2`/`gp3` via the EBS CSI driver, Premium SSD v2 via the Azure Disk CSI driver, Hyperdisk via the GCE PD CSI driver) is the fallback when the volume must follow the pod between nodes; set `storage_profile: ebs` on GCP, where auto-detection cannot identify the device. Never use a `ReadWriteMany` file-system volume (EFS, Azure Files, Filestore, an NFS provisioner) — see [Network file systems](#network-file-systems-nas-nfs-smb-efs-azure-files).
+- **Spill** (`runtime.query.temp_directory`) goes in a subdirectory of the same volume, such as `/data/tmp`. A plain `emptyDir` is acceptable only when the node's ephemeral storage is itself on NVMe (Karpenter's `instanceStorePolicy: RAID0`, GKE's `--ephemeral-storage-local-ssd`), with a `sizeLimit`. Never `emptyDir` with `medium: Memory` — see [RAM-backed storage](#ram-backed-storage-tmpfs).
 
 ```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: spice
-spec:
-  containers:
-    - name: spice
-      image: spiceai/spiceai:latest
-      resources:
-        requests:
-          memory: '8Gi'
-          cpu: '4'
-        limits:
-          memory: '12Gi'
-          # Do not set CPU limits - can cause throttling
-      volumeMounts:
-        - name: data
-          mountPath: /data # acceleration files under /data, spill under /data/tmp
-  volumes:
-    - name: data
-      persistentVolumeClaim:
-        claimName: spice-data # bound to a local NVMe PersistentVolume (local-storage class)
-```
-
-```yaml
-runtime:
-  query:
-    temp_directory: /data/tmp
+# values.yaml for the Spice Helm chart
+stateful:
+  enabled: true
+  storageClass: local-storage # nvme-ssd-block on GKE
+  size: 800Gi
+  mountPath: /data
+nodeSelector:
+  local-nvme: 'true'
+spicepod:
+  runtime:
+    query:
+      temp_directory: /data/tmp # acceleration files under /data, spill under /data/tmp
 ```
 
 The [Helm chart's storage class recommendations](../deployment/kubernetes/helm#storage-class-recommendations) list the per-cloud StorageClasses in order of preference.
@@ -914,8 +891,10 @@ spec:
   volumes:
     - name: data
       persistentVolumeClaim:
-        claimName: spice-data # local NVMe PersistentVolume; see Storage on Kubernetes
+        claimName: spice-data # local NVMe PersistentVolume; see Local NVMe Storage on Kubernetes
 ```
+
+For the volume itself — node types with NVMe, mounting the disks, and publishing them as PersistentVolumes — follow [Local NVMe Storage on Kubernetes](../deployment/kubernetes/local-nvme).
 
 :::tip[CPU Limits]
 
