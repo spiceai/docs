@@ -46,6 +46,7 @@ SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT 
 - **Check if acceleration is enabled**: Unaccelerated datasets query the remote source directly, adding network latency. Add `acceleration: enabled: true` to the dataset configuration.
 - **Review the query plan**: Run `EXPLAIN` before the query to verify it executes against the local accelerator and not the remote source.
 - **Check cache status**: For repeated queries, verify caching is active by inspecting the `Results-Cache-Status` HTTP header. A `MISS` on repeated identical queries may indicate a low `item_ttl`.
+- **Check where acceleration files and spill live**: a file-mode acceleration on a network file system (NFS, SMB, EFS, Azure Files) or on a network block volume runs at that storage's per-I/O latency — a millisecond or more per dependent read, against tens of microseconds on NVMe — and a spill directory left at its default lands on the root volume. Move both to local NVMe/SSD — see [Storage](reference/performance-tuning#storage).
 
 ### AI chat returns incorrect or empty results
 
@@ -65,6 +66,16 @@ SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT 
 - **Lowering the query limit is often the wrong lever**: bounding `runtime.query.max_concurrent_queries` reduces the peak directly, whereas lowering `runtime.query.memory_limit` shrinks each query's budget without reducing how many run at once.
 
 See [Managing Memory Usage](../reference/memory.md) for the sizing model and validation guidance.
+
+### Large queries fail with `ResourcesExhausted` while memory is available
+
+A sort, aggregation, or sort-merge join that exceeds the query memory pool spills to `runtime.query.temp_directory` — but only if that directory can take it. When it cannot, the query fails with the same `ResourcesExhausted` refusal as an out-of-memory query, even though the pool gauges show headroom.
+
+- **The spill directory is on a small or full volume**: the default is the operating system's temporary directory, which on a cloud instance is usually the small root volume. Set `runtime.query.temp_directory` to a directory on local NVMe/SSD with free space for 2–4× the largest spillable input. When Cayenne acceleration is active, the runtime logs a reminder at startup if the setting is unset.
+- **The spill exceeded DataFusion's 100 GB cap**: the error reads `The used disk space during the spilling process has exceeded the allowable limit`. The cap is per runtime environment and is not configurable; reduce the working set (more selective predicates, sorted data), lower `runtime.query.max_concurrent_queries`, or add memory.
+- **The operator cannot spill**: hash joins and the external sort's final merge do not spill, so a query that exceeds memory in one of them fails regardless of the directory. See [Spill Limitations](../reference/memory.md#spill-limitations).
+
+See [Spill-to-Disk and the Temporary Directory](reference/performance-tuning#spill-to-disk-and-the-temporary-directory).
 
 ### Port conflicts on startup
 

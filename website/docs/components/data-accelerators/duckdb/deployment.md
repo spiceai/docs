@@ -36,7 +36,11 @@ Full-refresh bulk loads bypass the WAL, so DuckDB's WAL-growth-based automatic c
 
 ### Spill Directory
 
-Large queries (sort, aggregate, join) can spill to disk. The spill directory is controlled by `runtime.query.temp_directory`. Point this at a fast local volume (NVMe SSD) and ensure adequate free space (2-4× the largest join input is a safe starting point).
+Large queries (sort, aggregate, join) can spill to disk. The spill directory is controlled by `runtime.query.temp_directory`, which the runtime also passes to DuckDB as its own `temp_directory`; unset, DuckDB spills to a `.tmp` directory beside the database file and DataFusion to the OS temporary directory. Point this at a fast local volume (NVMe SSD) — spill is a chain of synchronous writes and reads the query waits on, so the volume's per-I/O latency lands directly on query time — and ensure adequate free space (2-4× the largest join input is a safe starting point). Do not place it on a network file system or a RAM-backed mount — see [Storage](../../../reference/performance-tuning#storage).
+
+### Storage Medium
+
+Keep the database file on local NVMe or SSD for its per-I/O latency. DuckDB recommends against its native format in read-write mode on network-attached file systems (NFS, SMB, EFS, Azure Files), where it reports slow and unpredictable performance and spurious errors; network block storage (EBS, Azure Managed Disks) works, and the runtime switches the instance to the `ebs` [storage profile](../../../reference/spicepod/datasets#accelerationstorage_profile) — a pool floor of 4 and a 256 MiB checkpoint threshold — when it detects one. Set `storage_profile: ebs` explicitly on network block devices auto-detection cannot identify (GCP Persistent Disk, SAN).
 
 ### Vacuum
 
@@ -104,6 +108,7 @@ DuckDB acceleration operations participate in [task history](../../../reference/
 | Slow first startup after restart                       | WAL replay due to ungraceful shutdown.                        | Use graceful shutdown (`SIGTERM`). Subsequent starts will be fast once the checkpoint is clean.             |
 | OOM on refresh                                         | DuckDB memory limit too high for container cgroup.            | Set the `duckdb_memory_limit` acceleration parameter. Check the startup log for the coordinated-budget warning to see what the runtime capped each un-limited instance to. |
 | Disk fills during large queries                        | Spill directory on undersized volume.                         | Point `runtime.query.temp_directory` at a larger volume; monitor free space.                                |
+| Slow scans, refreshes, or `IO Error` on a network share | Database file on NFS/SMB/EFS, which DuckDB does not support well in read-write mode. | Move `duckdb_file` to local NVMe or a network block volume; see [Storage](../../../reference/performance-tuning#storage). |
 | Query uses table scan when an index exists             | `duckdb_index_scan_percentage` / `duckdb_index_scan_max_count` too low.     | Tune thresholds; `EXPLAIN` to confirm.                                                                       |
 | Indexes disappear after refresh                        | `on_refresh_sort_columns` triggers `CREATE OR REPLACE`.       | Re-create indexes post-refresh, or avoid sort-column refreshes until the underlying behavior is updated.    |
 | `IO Error: Could not set lock on file`                 | Another process holds a write lock.                           | Ensure single-writer semantics; verify no other Spice instance is using the same file.                      |

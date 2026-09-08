@@ -72,7 +72,20 @@ Cayenne supports `partition_by` (single and multi-expression). Partition on the 
 
 ### Storage Footprint
 
-Vortex compression typically delivers 2–4× better compression than Parquet Snappy for analytical datasets. Plan storage for 0.25–0.5× the raw data size as a starting estimate.
+Vortex compression typically delivers 2–4× better compression than Parquet Snappy for analytical datasets. Plan storage for 0.25–0.5× the raw data size as a starting estimate, plus headroom for a compaction pass to hold the old and new copies of the files it rewrites. The runtime warns at startup when the data or metastore volume has under 10% or under 2 GiB free.
+
+### Storage Tier
+
+Store data files and the metastore on **local NVMe** — per-I/O latency, not IOPS, is what Vortex's dependent segment reads and the metastore's `fsync` commits are sensitive to — and put `runtime.query.temp_directory` on the same fast volume. At registration Cayenne resolves the storage class behind the data directory and the metastore directory separately (the acceleration's [`storage_profile`](../../../reference/spicepod/datasets#accelerationstorage_profile), `auto` by default) and tunes for it:
+
+| Resolved tier | Detected from | Cayenne behavior |
+| ------------- | ------------- | ---------------- |
+| `local_ssd`   | NVMe and other non-rotational devices, including EC2 NVMe instance storage | Engine defaults; full write concurrency |
+| `ebs`         | Amazon EBS, Azure managed disks, and NFS/SMB mounts | Slow-tier tuning bias (larger inline flushes, earlier memory drain, fewer write shards), `O_DIRECT` compaction output writer, encode-concurrency cap from the instance's EBS baseline bandwidth or the measured write throughput |
+| `tmpfs`       | `tmpfs`/`ramfs` mounts | 64 MB target files; no bias |
+| `unknown`     | S3 Express One Zone, rotating disks, non-Linux hosts | Slow-tier bias; 512 MB target files on S3 Express |
+
+An 8 MiB calibration probe measures each volume's write throughput once, and on EC2 an IMDS query supplies the instance's EBS baseline bandwidth and burstable-CPU status. Set `storage_profile: ebs` explicitly on network block devices auto-detection cannot identify (GCP Persistent Disk and Hyperdisk, SAN, Ceph). The `cayenne_data_storage_class` and `cayenne_metastore_storage_class` gauges (`0` local SSD, `1` network-attached, `2` tmpfs, `3` unknown) and `cayenne_data_storage_write_mibps` / `cayenne_metastore_storage_write_mibps` report what was detected. Network file systems are not recommended at all — the metastore is a SQLite database and SQLite locking is unreliable on NFS and SMB; keep `cayenne_metadata_dir` on local disk in every configuration. See [Storage](./performance.md#storage) in the performance guide.
 
 ## Metrics
 
@@ -249,6 +262,10 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 | ------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Slow restart after a crash                       | WAL not checkpointed due to ungraceful shutdown.         | Use graceful shutdown (`SIGTERM`); first restart will catch up the WAL automatically.                   |
 | `database is locked` metastore errors            | Two writers sharing one metastore path.                  | Ensure only one writer; use distinct metastore paths per instance.                                      |
+| Metastore lock errors or corruption on a network share | `cayenne_metadata_dir` on NFS/SMB, where SQLite locking is unreliable. | Move `cayenne_metadata_dir` to local disk; keep only data files on the share if it cannot be avoided. |
+| Large query fails with `ResourcesExhausted` while the query pool shows headroom | Spill directory on a small or full volume — the OS temporary directory by default, usually the root volume. | Set `runtime.query.temp_directory` to a local NVMe path with free space; see [Spill-to-Disk](../../../reference/performance-tuning#spill-to-disk-and-the-temporary-directory). |
+| `cayenne_data_storage_class` reports `0` on a network block volume | Auto-detection recognizes EBS and Azure disks by device identity only. | Set `storage_profile: ebs` on the dataset (GCP Persistent Disk, Hyperdisk, SAN, Ceph).            |
+| Ingest slows or compaction stalls on EBS         | Volume or instance EBS bandwidth saturated, or per-I/O latency too high for the ingest rate. | Move to local NVMe or a sub-millisecond tier (`io2` Block Express); provision IOPS/throughput; choose an instance that sustains its EBS bandwidth. Watch `cayenne_write_phase_duration_ms` and the EBS `VolumeQueueLength` / `EBSIOBalance%` metrics. |
 | Dataset fails to load naming a data directory that contains the metastore directory | The resolved metastore sits inside the dataset's data directory — commonly a dataset named `metadata` under the stock defaults. | Set `cayenne_metadata_dir` outside the data directory, or rename the dataset. See [Metastore location](./index.md#metastore-location). |
 | Query slower than expected for cold data         | Segment cache too small for the working set of every table sharing it. | Increase `runtime.params.cayenne_segment_cache_mb`.                                       |
 | High S3 request cost                             | Segment cache misses on every query.                     | Increase `runtime.params.cayenne_segment_cache_mb`; consider `partition_by` aligned with query filters. |

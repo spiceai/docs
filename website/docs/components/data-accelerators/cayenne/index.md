@@ -42,7 +42,9 @@ Spice Cayenne follows a lakehouse architecture inspired by [DuckLake](https://du
 
 ## Storage Recommendations
 
-For optimal performance, store Cayenne data files on NVMe storage. NVMe provides the lowest latency and highest throughput for the random access patterns that Vortex files require.
+For optimal performance, store Cayenne data files **and the metastore** on local NVMe storage, and point `runtime.query.temp_directory` at the same fast volume. What matters most is per-I/O latency rather than IOPS: Vortex's random-access reads are a chain of dependent segment reads and the metastore commits with `fsync` on every write, so the tens of microseconds an NVMe operation takes — against a millisecond or more on network storage — is multiplied along every query and every commit. Local NVMe on cloud instances is ephemeral, so pair it with [acceleration snapshots](../../features/data-acceleration/snapshots) for fast cold starts.
+
+Network block storage (Amazon EBS, Azure Managed Disks, GCP Persistent Disk) works as a durable fallback: Cayenne detects it as the network-attached storage tier and adapts — larger inline flushes, an `O_DIRECT` compaction writer, and a write-concurrency cap derived from the volume's bandwidth — but every cache miss still pays the volume's per-read latency, so prefer a sub-millisecond tier such as `io2` Block Express. Network file systems (NFS, SMB, EFS, Azure Files) are **not recommended**: the metastore is a SQLite database, and SQLite locking is unreliable on them. See [Storage](./performance.md#storage) in the Cayenne performance guide and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
 
 Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
 
@@ -721,9 +723,11 @@ datasets:
 
 Spice Cayenne stores data in a columnar format optimized for analytical queries. Storage requirements include:
 
-- **Acceleration data**: Compressed Vortex files (typically 30-50% of raw data size with btrblocks)
-- **Metadata**: SQLite database for catalog and statistics (~10 MB per 1000 files)
-- **Temporary files**: Query spill files during complex operations
+- **Acceleration data**: Compressed Vortex files (typically 30-50% of raw data size with btrblocks), plus headroom for compaction, which holds the old and new copies of the files it rewrites until the new snapshot is published
+- **Metadata**: SQLite database for catalog and statistics (~10 MB per 1000 files), plus its WAL
+- **Temporary files**: Query spill files during complex operations, written under `runtime.query.temp_directory`; the in-memory CDC tier checkpoints to the data directory under memory pressure
+
+The runtime warns at startup when the data or metastore volume has under 10% or under 2 GiB free, because a full data volume fails CDC ingestion. Store all three on local NVMe — see [Storage Recommendations](#storage-recommendations).
 
 #### Metastore location
 

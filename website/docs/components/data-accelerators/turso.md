@@ -59,7 +59,7 @@ datasets:
 
 Turso acceleration supports the following optional parameters under `acceleration.params`:
 
-- `turso_file` (string, default: `.spice/data/{dataset_name}.turso`): Path to the Turso database file. Only applies if `mode` is `file`. If the file does not exist, Spice creates it automatically.
+- `turso_file` (string, default: `.spice/data/{dataset_name}.turso`): Path to the Turso database file. Only applies if `mode` is `file`. If the file does not exist, Spice creates it automatically. Keep it on local NVMe or SSD for its per-I/O latency: Turso is SQLite-derived and inherits SQLite's dependence on file-system locking, so a network file system (NFS, SMB, EFS, Azure Files) is not recommended. On network block storage (EBS, Azure Managed Disks) the runtime resolves the acceleration's [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile) to `ebs` and raises Turso's page cache to ~200 MB to absorb per-I/O latency. See [Storage](../../reference/performance-tuning#storage).
 - `internal_timestamp_format` (string, default: `rfc3339`): Internal timestamp storage format. See [Timestamp Storage](#timestamp-storage) section. Values: `rfc3339`, `integer_millis`.
 
 ### Example Configuration

@@ -292,7 +292,7 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 ## Best practices
 
-- **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts.
+- **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
 - **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
