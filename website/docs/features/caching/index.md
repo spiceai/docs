@@ -58,7 +58,7 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 - **`moka` (Default):** The built-in TTL-managed cache. A read never mutates the entry, and a table
   invalidation registers a predicate that moka applies lazily, so its cost does not scale with the
   number of cached entries.
-- **`pingora`:** A sharded LRU that is measurably faster on lookup-heavy workloads, with two costs.
+- **`pingora`:** A sharded LRU, built for concurrent lookup throughput, with two costs.
   Its library exposes no non-destructive read, so a hit is served by removing the entry and
   re-admitting it; that runs under an exclusive hold of the key's shard, so a concurrent reader sees
   the hit rather than a spurious miss, but reads of *other* keys in the same shard wait behind it.
@@ -71,8 +71,6 @@ That scan only applies to an invalidation that actually evicts. On `sql_results`
 records the table as changed and returns without touching the backend, so neither engine scans —
 the entries stay resident, are never served as fresh again, and leave on their own TTL.
 `search_results` has no stale-serving window, so its invalidations always evict.
-
-Stay on `moka` unless cache lookup is a measured bottleneck.
 
 ## `caching.sql_results` Parameters
 

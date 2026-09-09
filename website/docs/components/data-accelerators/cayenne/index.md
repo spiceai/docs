@@ -638,7 +638,9 @@ datasets:
 
 ## Data Type Support
 
-Cayenne (via Vortex) supports most Arrow data types with the following considerations:
+Cayenne (via Vortex) supports most Arrow data types with the following considerations. For the type
+each one is stored as, and how that compares with the other engines, see the
+[accelerator data type table](../../reference/datatypes/accelerators).
 
 ### Fully Supported Types
 
@@ -659,16 +661,18 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 | ------------- | ------------ | --------------------------------------------- |
 | `Float16`     | `Float32`    | Automatic conversion for Vortex compatibility |
 
-Timestamps are no longer normalized: a table created today stores the unit and timezone its source
-reports, so a PostgreSQL `timestamptz` accelerates as nanoseconds instead of being narrowed on every
-refresh. A table created before that change still stores microseconds and keeps doing so for its
-lifetime; no `on_schema_change` policy migrates it, because microsecond → nanosecond is not a
-widening cast. The write path recognizes the down-cast as the engine's own, so it is not reported as
-a source schema change — recreating the table (`mode: file_create` against an empty directory) is
-what moves it to the source's unit.
+A table stores the timestamp unit and timezone its source reports, so a PostgreSQL `timestamptz`
+accelerates as nanoseconds. `Float16` is the only unconditional rewrite.
 
-`Map` is stored as its `List<Struct<keys, values>>` representation — Vortex has no map type — and the
-map identity is restored from the table's schema on read, so a map column round-trips unchanged.
+:::note Tables created before v2.2.0
+
+Those tables normalize every timestamp to microseconds and keep doing so for their lifetime. No
+[`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) policy migrates them:
+microsecond → nanosecond is not a widening cast, and the write path recognizes the down-cast as the
+engine's own rather than as a source schema change. Recreating the table (`mode: file_create`
+against an empty directory) is what moves it to the source's unit.
+
+:::
 
 ### Unsupported Types
 
