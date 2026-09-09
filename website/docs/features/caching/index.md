@@ -51,6 +51,21 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | `moka`   | Which cache implementation backs this cache. Defaults to `moka`. Supports `moka` and `pingora`. See [Choosing an `engine`](#choosing-an-engine).                                                              |
+
+### Choosing an `engine`
+
+- **`moka` (Default):** The built-in TTL-managed cache. Expiry, eviction and reads are all handled
+  by the cache itself, and a read never mutates the entry.
+- **`pingora`:** A sharded LRU that is measurably faster on lookup-heavy workloads. Two costs come
+  with it. Its library exposes no non-destructive read, so a hit is served by removing the entry and
+  re-admitting it — that is done under an exclusive hold of the key's shard, so a concurrent reader
+  sees the hit rather than a spurious miss, but reads of different keys in the same shard are
+  serialized for the duration. And table-specific invalidation (what an acceleration refresh or a DML
+  write triggers) has to scan the cache rather than look keys up, so its cost is proportional to the
+  number of cached entries; the scan reads each shard in place and does not disturb LRU ordering.
+
+Stay on `moka` unless cache lookup is a measured bottleneck.
 
 ## `caching.sql_results` Parameters
 

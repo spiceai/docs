@@ -20,7 +20,7 @@ Spice supports various model providers for large language models (LLMs).
 | [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Release Candidate | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | OpenAI-compatible HTTP endpoint |
-| [`google`][google]         | Google AI language models                    | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google Vertex AI language models             | Alpha             | Vertex AI HTTP endpoint         |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | OpenAI-compatible HTTP endpoint |
 | ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -                               |
 
@@ -66,7 +66,7 @@ The following provider prefixes are supported:
 | `azure`      | Azure OpenAI                          |
 | `xai`        | xAI                                   |
 | `anthropic`  | Anthropic                             |
-| `google`     | Google AI                             |
+| `google`     | Google Vertex AI                      |
 | `hf`         | Hugging Face                          |
 | `file`       | Local filesystem                      |
 | `spiceai`    | Spice.ai Cloud Platform               |

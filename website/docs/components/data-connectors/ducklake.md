@@ -207,7 +207,7 @@ datasets:
 
 :::warning[Limitations]
 
-- Spice uses DuckDB 1.5.3, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
+- Spice embeds DuckDB **1.4.4**, and the DuckLake catalog schema it supports is the one that DuckDB version's `ducklake` extension requires. A catalog written against an older schema requires a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.

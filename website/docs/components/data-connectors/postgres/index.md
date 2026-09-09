@@ -154,7 +154,7 @@ The table below shows the PostgreSQL data types supported, along with the type m
 | `money`         | `Int64`                          |
 | `float4`        | `Float32`                        |
 | `float8`        | `Float64`                        |
-| `numeric`       | `Decimal128`                     |
+| `numeric`       | `Decimal128` <sup>[1](#numeric-precision-and-scale)</sup> |
 | `text`          | `Utf8`                           |
 | `varchar`       | `Utf8`                           |
 | `bpchar`        | `Utf8`                           |
@@ -186,6 +186,20 @@ The table below shows the PostgreSQL data types supported, along with the type m
 The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
 
 :::
+
+### `numeric` precision and scale
+
+A `numeric` column declared with a precision and scale — `numeric(12,2)` — maps to `Decimal128` with
+exactly that precision and scale. `numeric(12)`, with a precision but no scale, maps to
+`Decimal128(12, 0)`. PostgreSQL also permits a **negative** scale (`numeric(4,-3)`), and Spice
+carries it through rather than reading it as zero.
+
+An **unconstrained** `numeric` declares neither, so Spice reads it as `Decimal128(38, 20)`. A value
+needing more than 20 fractional digits, or more than 18 integral digits, does not fit that type and
+the read fails rather than returning a rounded or wrapped number.
+
+Declare a precision and scale on the column wherever the range is known: it is narrower than the
+unconstrained mapping and avoids that failure mode.
 
 ## Write Support
 

@@ -559,12 +559,13 @@ These two lines are the primary diagnostic: between them they name what the runt
 
 The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
 
-Three warnings cover the cases the summary cannot state on its own. Each names a cause and an action; none of them fires for a deployment that is merely sized small on purpose, which the summary already records.
+Four warnings cover the cases the summary cannot state on its own. Each names a cause and an action; none of them fires for a deployment that is merely sized small on purpose, which the summary already records.
 
 | Warning                                        | Fires when                                                                                        |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | CPU request present but not passed through      | Running under Kubernetes with a cgroup share but no `SPICE_CPU_REQUEST_MILLICORES` — the deployment surface is not emitting the block above, so sizing fell through to the machine. |
 | Declared request implausibly small              | A declared request below 10 millicores, which is what a `resourceFieldRef` missing its `divisor: 1m` produces for a request of one to nine cores. |
+| Configured cores above the real ceiling         | An **explicitly configured** entitlement (the one rung not resolved through `min(reading, affinity)`) exceeds the tightest ceiling the process can prove — the container's cgroup CPU limit, or the CPUs its affinity mask leaves it. The value is **not clamped**: an operator may be sizing for a ceiling they are about to raise. The warning names the ceiling and both remedies — lower the setting, or raise the ceiling. |
 | CPU share changed after startup                 | The cgroup share moved from its value at startup — the pod was resized in place. The entitlement cannot change without a restart, so this reports the drift rather than acting on it. |
 
 The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit_millicores`, and `spiced_cpu_request_millicores` gauges report the same figures — see [Observability](../../features/observability). The `source` label on `spiced_cpu_budget_cores` is the authority on which rung won, which is what makes a fleet greppable for pods that resolved somewhere unexpected. `tokio_runtime_workers` is the cross-check on the thread pools the entitlement sized.

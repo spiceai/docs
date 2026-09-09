@@ -300,9 +300,15 @@ The project half of the report comes from Spice Cloud, so the command needs an a
   "datasets_total": 0,
   "datasets_unhealthy": [],
   "runtime_error": null,
+  "health_not_reported": null,
   "link": { "connection": {}, "service": {}, "deployment": {} }
 }
 ```
+
+`instances` is empty with `runtime_error: null` when the runtime is hosted outside Spice Cloud — a
+Cloud Connect instance or a BYOC cluster — because the data plane does not inspect it. That is not a
+failure, so it does not affect the exit code; `health_not_reported` carries the server's stated
+reason, and the table output prints it in place of the instance list.
 
 ### `logs`
 

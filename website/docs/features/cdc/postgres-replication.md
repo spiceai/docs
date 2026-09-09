@@ -389,6 +389,7 @@ On each start the decision is arithmetic rather than an inference:
 | None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
 | Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
 | Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
+| Present, but the accelerated table holds no rows (or could not be read) | Slot can still stream from it | **Rebuild** — the watermark asserts those changes were already applied, so the slot will never resend them |
 | Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
 
 A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
@@ -401,7 +402,9 @@ A snapshot bootstrap emits only insert events, and nothing clears a durable acce
 
 The first start after upgrading a durable `refresh_mode: changes` dataset to a version that records watermarks has no recorded position, so it rebuilds once and records one from then on.
 
-A slot lost **while Spice is streaming** — dropped by an operator, or invalidated by PostgreSQL for exceeding `max_slot_wal_keep_size` or `idle_replication_slot_timeout` — is recovered on the same reconnect path, without a restart: the unusable slot is dropped and replaced, every acceleration on it is rebuilt from the source, and streaming continues on the replacement.
+The empty-table row above is reached without anything being broken: [`mode: file_update`](../../reference/spicepod/datasets#accelerationmode) recreates the accelerated table on an incompatible source schema change, and the watermark sidecar lives in the same accelerator and survives that — so the next start finds an empty table beside a perfectly usable position. Restoring an older accelerator file, or clearing the table by hand, lands in the same state. A source whose rows were all legitimately deleted also takes this path and rebuilds by reading nothing.
+
+A slot lost **while Spice is streaming** — dropped by an operator, or invalidated by PostgreSQL for exceeding `max_slot_wal_keep_size` or `idle_replication_slot_timeout` — is recovered on the same reconnect path, without a restart: the unusable slot is dropped and replaced, every acceleration on it is rebuilt from the source, and streaming continues on the replacement. That includes the datasets already streaming when a **newly joining** dataset is the one that finds the slot unusable and replaces it: replacing the slot breaks the history every member on it was resuming against, so they are all rebuilt, not just the joiner.
 
 Replacement is rate-limited to **3 slots per hour per replication connection**. A process running for months may legitimately be invalidated a few times, each one a genuine recovery, but three inside an hour means the source is not retaining enough WAL to cover the dataset — and every replacement costs a full re-read of every table on the slot, so retrying indefinitely would turn a retention limit into sustained load on the source. Past the budget the dataset surfaces a terminal error instead: raise `max_slot_wal_keep_size` on the source, or reduce replication lag, then reload the dataset.
 
@@ -440,6 +443,8 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | `dataset_postgres_replication_member_envelope_eager_merges_total`          | Counter | Committed transactions folded into an envelope the pump was still holding back, before it crossed into this dataset's buffer (stage 1).                                                   |
 | `dataset_postgres_replication_member_envelope_mailbox_merges_total`        | Counter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's buffer (stage 2). Rising alongside a flat `dataset_postgres_replication_member_send_stalled_seconds_total` means back-pressure is being absorbed rather than stalling the slot. |
 | `dataset_postgres_replication_member_mailbox_coalesce_limited_total`       | Counter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it, rather than because the changes were not foldable. `0` means the bounds never bind. |
+
+A [rebuild](#recovering-from-a-lost-replication-slot) has no metric of its own: it re-enters the ordinary full-refresh path, so it is reported by `dataset_acceleration_refresh_duration_ms{mode="full"}` with the duration, rows and bytes the re-read moved. A `refresh_mode: changes` dataset never runs a scheduled full refresh, so **every** `mode="full"` point on one is a rebuild. Why it rebuilt is in the log line that precedes it, which names the dataset and the condition.
 
 ## Troubleshooting
 

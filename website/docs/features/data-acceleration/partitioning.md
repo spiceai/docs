@@ -196,6 +196,11 @@ Each partition is a separate Cayenne (Vortex) table; the partition catalog is tr
 
 Requires `mode: file`.
 
+Two behaviours differ from an unpartitioned Cayenne table:
+
+- **In-place schema evolution is disabled.** Each partition holds its own schema, and the parent catalog entry cannot reach them, so a partitioned table never evolves a column in place; configuring [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) to evolve logs a warning saying so, and a schema change is handled by the recreate fallback instead. A CDC batch carrying a widened schema is refused rather than narrow-cast into the partitions.
+- **Snapshots are not published.** The exported metastore slice does not carry the partition children, so the archive could not be restored. See [Acceleration Snapshots](snapshots).
+
 ## Changing `partition_by` after refresh
 
 Once partitions exist on disk, changing `partition_by` is rejected:

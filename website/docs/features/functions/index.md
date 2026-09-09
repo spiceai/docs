@@ -305,6 +305,19 @@ functions:
     body: 'upper(s)'
 ```
 
+## Functions and query federation
+
+A user-defined function is Spice's, not the source's, so it never pushes down into a federated
+source. Connectors that install the Spice function deny-list refuse to federate any plan node
+containing one: the referenced columns are read from the source and the function is evaluated in
+Spice. A predicate such as `WHERE shout(name) = 'ACME'` is therefore correct, but costs a wider
+remote scan than the same predicate written in the source's own SQL — put the filter in
+[`refresh_sql`](../data-acceleration/data-refresh.md) or a view if that matters.
+
+The deny-list follows the live function registry, so a function registered after startup — or added
+by a hot reload — is refused from that moment, and cached plans built
+before the function set changed are discarded.
+
 ## Types
 
 Argument and return types use Arrow logical types. Both Spicepod aliases and Arrow display forms are accepted.

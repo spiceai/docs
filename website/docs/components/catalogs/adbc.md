@@ -60,6 +60,7 @@ The following parameters are supported:
 | `adbc_driver_options`     | Optional. Semicolon-delimited driver-specific database options (e.g., `key1=value1;key2=value2`).                    |
 | `connection_pool_size`    | Optional. Maximum number of connections in the connection pool. Default: `5`.                                         |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections to keep open in the pool. Default: `1`.                                 |
+| `query_federation`        | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`.                |
 
 ## Examples
 

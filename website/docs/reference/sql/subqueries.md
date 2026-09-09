@@ -338,6 +338,21 @@ HAVING
 +-------+--------+
 ```
 
+## Federation of a correlated `EXISTS`
+
+A correlated `[NOT] EXISTS` over a federated source is pushed down as an `EXISTS` in the SQL sent to
+the remote engine. A few shapes cannot be written as correct remote SQL, and Spice **refuses the
+query** rather than emitting SQL that the remote engine would run and answer wrongly:
+
+- The correlation's only qualifier is a name the subquery's own `FROM` also answers to, so the
+  reference would bind inside the subquery instead of to the outer query — turning `EXISTS` into
+  "this relation has a row".
+- The correlation names more than one of the build side's inputs, so no single scope name keeps
+  every reference bound to the relation it came from.
+
+Both fail with a message naming the captured correlation. To run such a query, remove the ambiguity
+by aliasing the relations so the correlated reference has a qualifier the subquery does not reuse.
+
 ## Subquery categories
 
 Subqueries can be categorized as one or more of the following based on the

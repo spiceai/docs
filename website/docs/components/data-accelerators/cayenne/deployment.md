@@ -117,6 +117,7 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `cayenne_compaction_duration_ms` | Histogram | ms | Wall-clock time of Cayenne background compaction passes. The histogram's count doubles as the compaction-pass counter. |
 | `cayenne_compaction_memory_pool_bytes` | Gauge | By | Size of the dedicated compaction memory pool carved from the query memory limit (see `cayenne_compaction_memory_fraction`). |
 | `cayenne_compaction_memory_exhausted_total` | Counter | passes | Compaction passes that hit `ResourcesExhausted` on the dedicated compaction memory pool. |
+| `cayenne_delete_main_visibility_downgrade_total` | Counter | deletes | `DELETE`s whose main-snapshot re-insert handling was downgraded because a protected snapshot was published after the pass captured its scan sources. The downgrade keeps the delete from hiding a live replacement row, at the cost of leaving rows for a later pass, so it is safe while it stays rare. Labelled by `table`. A rate that climbs with ingest load means `DELETE`s are routinely leaving work behind. |
 
 ### Memory Reconciliation Metrics
 

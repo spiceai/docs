@@ -152,6 +152,7 @@ Turso supports query federation, where queries can span multiple data sources. T
 - **Remote databases not supported**: Only local Turso databases (file-based or in-memory) are supported as accelerators. Remote Turso databases using `turso_url` and `turso_auth_token` are not supported in this accelerator context. Remote Turso support will be available when Turso is implemented as a data connector.
 - **Arrow Interval types**: Not supported, as SQLite/libSQL doesn't have a native interval type.
 - **Complex List types**: Only Arrow `List` types of primitive data types are supported; lists with structs are not supported.
+- **List columns in a pre-existing Turso file**: A list value is stored with a marker naming the encoding version its elements were written under. A payload written before that marker existed cannot be told apart from a legitimate one-element list holding `NULL`, so it is refused rather than decoded: those cells read as `NULL` and the runtime logs a warning naming the cause. A refresh rewrites them in the current encoding. Point the acceleration at a fresh file, or refresh it, after upgrading.
 - **Dictionary and Map types**: Not supported.
 - **Hot-reload federation**: Updating a dataset with Turso acceleration while the Spice Runtime is running (hot-reload) may disable query federation until the runtime is restarted.
 - **ROLLUP and GROUPING**: Advanced grouping features are not supported.

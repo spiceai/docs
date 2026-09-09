@@ -223,6 +223,12 @@ Write operations require `s3:PutObject` permission on the target S3 bucket in ad
 
 :::
 
+A discovered table whose format is not one of the supported ones is skipped rather than registered.
+It is no longer skipped silently: each skipped table's reason is logged at `debug`, and one `warn`
+per database summarizes what it withheld — a sample of the table names and how many more there were.
+That summary is rate-limited, so a standing condition is not re-reported on every catalog refresh,
+while a changed set of unreadable tables reports immediately.
+
 ## Cookbook
 
 There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure an AWS Glue Data Connector in Spice.
