@@ -30,7 +30,7 @@ While currently designed for HTTP-based datasets, future versions of Spice will 
 
 The `caching` mode uses HTTP request filter values as cache keys rather than enforcing primary key constraints. When a refresh occurs:
 
-1. **Cache Key Generation**: By default, the combination of `request_path`, `request_query`, and `request_body` acts as the cache key. If a `primary_key` is explicitly specified in the acceleration configuration, it will be used instead of the metadata fields.
+1. **Cache Key Generation**: The combination of `request_path`, `request_query`, and `request_body` acts as the cache key. A declared `acceleration.primary_key` does not replace it — see [Cache Key Behavior](#cache-key-behavior).
 2. **Row Replacement**: All existing rows matching the cache key are removed before inserting new data
 3. **Multiple Results**: Multiple rows with identical request metadata can coexist, representing different content items from the same API response
 4. **Timestamp Tracking**: Each row includes a `fetched_at` timestamp indicating when the data was retrieved
@@ -479,22 +479,22 @@ This behavior differs from other modes:
 
 ### Cache Key Behavior
 
-The `caching` mode determines cache keys based on the acceleration configuration:
+A cache entry is **always** addressed by HTTP request metadata — `request_path`, `request_query`, and `request_body` — whether or not a `primary_key` is declared. A lookup is built from the request alone, because that is all a query supplies before the response exists.
 
-**Default (No Primary Key Specified)**:
-
-- Uses HTTP request metadata fields as the cache key: `request_path`, `request_query`, and `request_body`
 - Multiple result rows can share the same request metadata
 - The cache key serves as the logical grouping mechanism for row replacement
 - Content within a response may have duplicate values across different requests
 
-**With Primary Key Specified**:
+A declared `primary_key` does not change how entries are addressed. It is a uniqueness constraint on the rows the accelerator stores, and it must name columns that exist in the dataset schema:
 
-- Uses the explicitly configured `primary_key` columns as the cache key
-- Provides fine-grained control over cache key composition
-- Useful when caching requires uniqueness based on response content fields rather than request metadata
+- **A key over response fields** (for example an API's own record id) declares that stored rows are unique on those fields. Response fields are not columns unless the dataset projects them, so this requires a [`columns:` block](../../../components/data-connectors/https#metadata-columns-with-json-schema-decomposition) — an HTTP dataset's schema is otherwise the request/response metadata plus `content`.
+- **A key over the request columns** asserts one row per request. That contradicts the multiple-rows-per-request shape `caching` mode is built for: a response holding several rows is refused rather than partially cached, the entry is not written, and every query for it goes to the origin.
 
-Example with custom primary key:
+:::warning
+`primary_key` takes a string naming one or more columns, optionally parenthesized — `primary_key: id` or `primary_key: '(id, season, number)'`. A YAML list (`primary_key: [id, season, number]`) is not a valid value and fails to parse, so the whole Spicepod is rejected at load.
+:::
+
+Example with a key over response fields, projecting them with a `columns:` block:
 
 ```yaml
 datasets:
@@ -503,12 +503,20 @@ datasets:
     params:
       file_format: json
       allowed_request_paths: '/shows/*/episodes'
+    columns:
+      - name: request_path # HTTP request metadata, kept queryable
+      - name: id # decomposed from the JSON response body
+      - name: season
+      - name: number
+      - name: details # catch-all for the remaining JSON keys
+        metadata:
+          json_object: '*'
     acceleration:
       enabled: true
       refresh_mode: caching
       engine: duckdb
       mode: file
-      primary_key: [id, season, number] # Use episode fields as cache key
+      primary_key: '(id, season, number)' # stored rows are unique per episode
       params:
         caching_ttl: 15s
         caching_stale_while_revalidate_ttl: 10s
@@ -517,6 +525,8 @@ datasets:
         SELECT * FROM tv_episodes_custom_key
         WHERE request_path = '/shows/82/episodes'
 ```
+
+Entries are still addressed by `request_path` here — the key only deduplicates episodes across refreshes of the same endpoint. Declaring a `columns:` block replaces the default schema, so every metadata field the dataset needs to stay queryable (`request_path` above, and anything a `refresh_sql` filters on) must be listed in it.
 
 ### HTTP Date Header
 
@@ -712,7 +722,7 @@ Choose one approach:
 
 - Currently only available for HTTP-based datasets using the [HTTPS connector](../../../components/data-connectors/https). Future releases will extend support to arbitrary queries from any data source.
 - Requires `acceleration.enabled: true`
-- When no `primary_key` is specified, cache keys default to request metadata fields (`request_path`, `request_query`, `request_body`)
+- Cache keys are always the request metadata fields (`request_path`, `request_query`, `request_body`); a declared `primary_key` constrains stored-row uniqueness, not entry addressing
 - On-demand refresh via `/v1/datasets/:name/acceleration/refresh` API triggers a new refresh for all cache keys defined in `refresh_sql`
 
 ## Related Documentation
