@@ -55,15 +55,22 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 
 ### Choosing an `engine`
 
-- **`moka` (Default):** The built-in TTL-managed cache. Expiry, eviction and reads are all handled
-  by the cache itself, and a read never mutates the entry.
-- **`pingora`:** A sharded LRU that is measurably faster on lookup-heavy workloads. Two costs come
-  with it. Its library exposes no non-destructive read, so a hit is served by removing the entry and
-  re-admitting it — that is done under an exclusive hold of the key's shard, so a concurrent reader
-  sees the hit rather than a spurious miss, but reads of different keys in the same shard are
-  serialized for the duration. And table-specific invalidation (what an acceleration refresh or a DML
-  write triggers) has to scan the cache rather than look keys up, so its cost is proportional to the
-  number of cached entries; the scan reads each shard in place and does not disturb LRU ordering.
+- **`moka` (Default):** The built-in TTL-managed cache. A read never mutates the entry, and a table
+  invalidation registers a predicate that moka applies lazily, so its cost does not scale with the
+  number of cached entries.
+- **`pingora`:** A sharded LRU that is measurably faster on lookup-heavy workloads, with two costs.
+  Its library exposes no non-destructive read, so a hit is served by removing the entry and
+  re-admitting it; that runs under an exclusive hold of the key's shard, so a concurrent reader sees
+  the hit rather than a spurious miss, but reads of *other* keys in the same shard wait behind it.
+  And it has no predicate mechanism, so an invalidation that evicts has to find its entries by
+  scanning the shards — a cost proportional to the number of cached entries. The scan reads each
+  value where it sits, so it leaves LRU ordering intact, and it runs off the calling worker.
+
+That scan only applies to an invalidation that actually evicts. On `sql_results` with a non-zero
+[`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), a refresh or DML write
+records the table as changed and returns without touching the backend, so neither engine scans —
+the entries stay resident, are never served as fresh again, and leave on their own TTL.
+`search_results` has no stale-serving window, so its invalidations always evict.
 
 Stay on `moka` unless cache lookup is a measured bottleneck.
 
