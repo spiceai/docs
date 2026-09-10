@@ -51,13 +51,33 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
-| `engine`            | Yes      | `moka`   | Cache backend: `moka` or `pingora`. See [Choosing an `engine`](#choosing-an-engine).                                                                                                                           |
+| `engine`            | Yes      | `moka`   | Cache backend: `moka`, or `pingora` on an [Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) build. See [Choosing an `engine`](#choosing-an-engine).                            |
 
 ### Choosing an `engine`
 
 - **`moka` (default):** Supports TTL expiration and lazy table invalidation.
 - **`pingora`:** Uses a sharded LRU cache. Reads lock the key's shard; table invalidations that
-  evict entries scan the cache, with cost proportional to its size.
+  evict entries scan the cache, with cost proportional to its size. `pingora` does not implement
+  `eviction_policy: tiny_lfu`; selecting both warns
+  (`Pingora cache engine does not support TinyLFU caching policy. Falling back to LRU.`) and uses LRU.
+
+:::note[Enterprise edition]
+
+The `pingora` cache engine is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions). It is compiled behind a build feature that the published open source `spiced` binaries and images do not enable.
+
+`engine: pingora` is **not** rejected on a build without it: the value parses, the runtime logs
+
+```
+The Pingora cache engine is included in the Enterprise distribution of Spice.ai. Learn more at https://docs.spice.ai/docs/enterprise Falling back to the Moka cache engine.
+```
+
+and the cache runs on Moka instead. The engine each cache actually started on is named in its own startup line, so that is what to check rather than the configured value — the sizes and TTL in it are the ones configured for that cache:
+
+```
+Initialized sql results cache; max size: 128.00 MiB, item ttl: 1s, engine: Moka
+```
+
+:::
 
 With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
 result invalidations mark entries stale without eviction, so neither engine scans.
