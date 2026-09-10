@@ -19,8 +19,13 @@ Run Spice - starts the Spice runtime, installing if necessary.
 4. Under `sudo`, the invoking user's `~/.spice/bin/spiced`.
 
 `PATH` is not searched. An invalid `$SPICED_PATH` causes an error; otherwise, `spice run` installs
-the runtime if none is found. For a runtime outside the managed install, the CLI reports
-its path and source. [`spice version`](./version) also reports these values.
+the runtime if none is found.
+
+Before launching, `spice run` logs the runtime it resolved and the rung it came from
+(`Using the Spice.ai runtime at '<path>' (<source>).`). It is logged at `info` only when the
+runtime is *not* the one [`spice install`](./install) manages — the case worth noticing — and at
+`debug` otherwise, so an ordinary managed install does not add a line to every run.
+[`spice version`](./version) reports the same path and source unconditionally.
 
 ### Usage
 
