@@ -142,7 +142,10 @@ The cache is dropped wholesale — every entry, not only the affected ones — w
 
 - a dataset or a view is registered, updated, or removed;
 - a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions);
+- a spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs) — one whose declaration changed, or one whose name a provider is already registered under. Re-registering a catalog builds a fresh provider under the same name, and a plan holds the table source it was planned against;
 - an accelerated table's schema evolves, in place or by recreation.
+
+A reload that adds a catalog name nothing was registered under invalidates nothing — no cached plan can have resolved a table in it — and a reload that changes no catalog leaves the cache intact.
 
 A plan is otherwise held for its full hour, so a change made outside these paths is not picked up until the entry expires.
 
