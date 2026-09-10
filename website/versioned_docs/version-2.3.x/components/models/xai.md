@@ -1,0 +1,29 @@
+---
+title: 'xAI Models'
+description: 'Instructions for using xAI models'
+sidebar_label: 'xAI'
+sidebar_position: 7
+---
+
+To use a language model hosted on xAI, specify `xai` path in the `from` field and the associated `xai_api_key` parameter. When no model is specified in the `from` field (i.e., `from: xai`), the default model is `grok-4.3`.
+
+| Param             | Description                                               | Default |
+| ----------------- | --------------------------------------------------------- | ------- |
+| `xai_api_key`     | The xAI API key.                                          | -       |
+| `xai_usage_tier`  | xAI usage tier (0-4). Used for rate limit defaults.       | -       |
+
+Example:
+
+```yaml
+models:
+  - from: xai:grok-4.3
+    name: xai
+    params:
+      xai_api_key: ${secrets:SPICE_GROK_API_KEY}
+```
+
+Refer to the [xAI models documentation](https://docs.x.ai/docs/models) for more details on available models and configurations.
+
+:::note
+Although the xAI [documentation](https://docs.x.ai/docs/guides/structured-outputs) shows that xAI models can return structured outputs, this is not true.
+:::

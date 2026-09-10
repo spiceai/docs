@@ -1,0 +1,82 @@
+---
+title: 'Catalog Connectors'
+sidebar_label: 'Catalog Connectors'
+description: 'Connect to external catalog providers like Unity Catalog, Databricks, Iceberg, AWS Glue, Snowflake, ADBC, PostgreSQL, MySQL, MSSQL, Oracle, and more for federated SQL query in Spice.'
+image: /img/og/catalog-connectors.png
+sidebar_position: 4
+pagination_prev: null
+pagination_next: null
+tags:
+  - catalogs
+  - data-connectors
+  - overview
+---
+
+In Spice, datasets are organized hierarchically with catalogs, schemas, and tables. A catalog, at the top level, contains multiple schemas. Each schema, in turn, contains multiple tables where the actual data is stored. By default a catalog named `spice` is created with all of the datasets defined in the `datasets` section of the Spicepod.
+
+<img src="/img/catalog-schema-table.png" />
+
+Creating schemas and tables within the `spice` catalog is configured by the `name` field in the dataset configuration. A name with a period (`.`) will create a schema, i.e. a dataset defined with `name: foo.bar` would have a full path of `spice.foo.bar`. If the name does not contain a period, the dataset will be created in the `public` schema of the `spice` catalog. For example, a dataset defined with `name: foo` would have a full path of `spice.public.foo`. Attempting to create a dataset with a name that contains a catalog name will result in an error. Adding catalogs to Spice is done via Catalog Connectors.
+
+Catalog Connectors connect to external catalog providers and make their tables available for federated SQL query in Spice. The schema hierarchy of the external catalog is preserved in Spice.
+
+Accelerating a catalog as a whole is supported by the [PostgreSQL Catalog Connector](./postgres.md), which CDC-accelerates every discovered table from a single replication slot — see [Catalog-Level CDC Acceleration](./postgres.md#catalog-level-cdc-acceleration). For every other Catalog Connector, an `acceleration` block on the catalog is a configuration error rather than a silent no-op. To accelerate an individual table from one of those catalogs, define it as a [dataset](../../reference/spicepod/datasets.md) with its own `acceleration` block.
+
+Supported Catalog Connectors include:
+
+| Name            | Description             | Status            | Protocol/Format              |
+| --------------- | ----------------------- | ----------------- | ---------------------------- |
+| `unity_catalog` | Unity Catalog           | Stable            | Delta Lake                   |
+| `databricks`    | Databricks              | Beta              | Spark Connect, S3/Delta Lake |
+| `iceberg`       | Apache Iceberg          | Beta              | Parquet                      |
+| `spice.ai`      | Spice.ai Cloud Platform | Beta              | Arrow Flight                 |
+| `ducklake`      | DuckLake                | Beta              | Parquet                      |
+| `pg`            | PostgreSQL              | Beta              | PostgreSQL Wire Protocol     |
+| `glue`          | AWS Glue                | Alpha             | Parquet, Iceberg             |
+| `snowflake`     | Snowflake               | Alpha             | Snowflake SQL                |
+| `mysql`         | MySQL                   | Alpha             | MySQL Wire Protocol          |
+| `mssql`         | Microsoft SQL Server    | Alpha             | TDS                          |
+| `adbc`          | ADBC                    | Alpha             | Arrow (ADBC)                 |
+| `oracle`        | Oracle                  | Alpha             | Oracle Net                   |
+
+The `pg` Catalog Connector also connects to PostgreSQL-compatible databases such as Amazon Redshift, on a best-effort basis and outside the stability claim above: the quality level in the table covers PostgreSQL, and Redshift clusters are not part of the connector's test matrix. See [PostgreSQL Catalog Connector](./postgres.md) for the limitations that apply.
+
+## Catalog Connector Docs
+
+Catalogs are configured using a Catalog Connector in the `catalogs` section of the Spicepod. See the specific Catalog Connector documentation for configuration details.
+
+### `include`
+
+Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` in the catalog from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
+
+Example:
+
+```yaml
+catalogs:
+  - from: spice.ai
+    name: spiceai
+    include:
+      - 'tpch.*' # Include only the "tpch" tables.
+```
+
+### `exclude`
+
+Use the `exclude` field to omit tables that would otherwise be included. It is matched against the same table name as `include`, using the same glob syntax, and multiple `exclude` patterns are OR'ed together. `exclude` takes precedence over `include`: a table is registered only when it matches `include` (or no `include` is set) **and** matches no `exclude` pattern.
+
+Every Catalog Connector applies `exclude`.
+
+Example:
+
+```yaml
+catalogs:
+  - from: pg
+    name: my_pg
+    include:
+      - 'public.*' # Consider every table in the "public" schema...
+    exclude:
+      - 'public.*_audit' # ...except the audit tables.
+```
+
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />
