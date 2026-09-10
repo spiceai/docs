@@ -670,6 +670,7 @@ const config: Config = {
           includeBlog: false,
           includePages: true,
           includeDocs: true,
+          includeVersionedDocs: false,
           enableLlmsFullTxt: true,
           enableMarkdownFiles: false,
           excludeRoutes: ['/tags/**', '/search', '/api/HTTP/**']
