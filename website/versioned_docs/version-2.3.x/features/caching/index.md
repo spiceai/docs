@@ -141,7 +141,7 @@ Two consequences are worth knowing:
 The cache is dropped wholesale — every entry, not only the affected ones — whenever something a plan was built against changes:
 
 - a dataset or a view is registered, updated, or removed;
-- a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions);
+- a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
 - an accelerated table's schema evolves, in place or by recreation.
 
 A plan is otherwise held for its full hour, so a change made outside these paths is not picked up until the entry expires.
