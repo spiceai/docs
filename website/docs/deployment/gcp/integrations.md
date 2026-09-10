@@ -93,11 +93,8 @@ For [Postgres replication-based CDC](../../features/cdc/postgres-replication), C
 
 ## AI Models (Vertex AI)
 
-Spice integrates with [Vertex AI](https://cloud.google.com/vertex-ai) for chat completion and reasoning models, including the Gemini family. Requests are scoped to a GCP project and region and authenticated with a service account or Application Default Credentials — the Google AI Studio API-key endpoint is not used.
-
-| Provider      | Supported Models                                                                                                             | Documentation                                             |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| **Vertex AI** | Gemini Pro and Flash, and the other models in your project's [Vertex AI model garden](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models). | [Google Vertex AI Models](../../components/models/google) |
+[Vertex AI](https://cloud.google.com/vertex-ai) Gemini models require a GCP project, location, and
+service account or Application Default Credentials. [Google Vertex AI Models](../../components/models/google) lists parameters and supported models.
 
 ### Example: Gemini Chat Model
 
@@ -111,15 +108,12 @@ models:
       google_service_account_path: /etc/spice/gcp-service-account.json
 ```
 
-On GKE with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity), set `google_application_default_credentials: true` instead and let the node's metadata credentials be picked up from `GOOGLE_APPLICATION_CREDENTIALS`.
+Application Default Credentials require `google_application_default_credentials: true` instead of
+`google_service_account_path`, with `GOOGLE_APPLICATION_CREDENTIALS` pointing to the credentials file.
 
 ## Embeddings (Vertex AI)
 
-Generate vector embeddings using Vertex AI embedding models for semantic search and retrieval-augmented generation (RAG).
-
-| Provider      | Supported Models                                                                                                                      | Documentation                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| **Vertex AI** | `gemini-embedding-001` and the other models in [Vertex AI text embeddings](https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings). | [Google Vertex AI Embeddings](../../components/embeddings/google) |
+[Vertex AI embedding models](../../components/embeddings/google) support semantic search and retrieval-augmented generation (RAG).
 
 ### Example: Vertex AI Embeddings
 

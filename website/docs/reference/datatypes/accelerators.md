@@ -52,4 +52,11 @@ Spice adheres to Apache Arrow data [types](https://docs.rs/arrow/latest/arrow/da
 | list_view               | A list of some logical data type represented by offset and size.             |                                                                 |                                                            |                                             |                                                                                  |
 | large_list_view         | Like LIST_VIEW, but with 64-bit offsets and sizes.                           |                                                                 |                                                            |                                             |                                                                                  |
 
-Note: Where `TYPE` is used (e.g. `TYPE[]`), it refers an established supported type for the specific data accelerator (e.g. `INTEGER[]`). Spice Cayenne (Vortex) provides zero-copy compatibility with Apache Arrow and supports most Arrow types through its logical type system. A `half_float` (Arrow `Float16`) column is widened to `Float32` before it is written, so it is stored — and read back — as `Primitive(F32)`; Vortex has no 2-byte float type. A `map` is stored as `List<Struct<keys, values>>`, since Vortex has no map type; the map identity is restored from the table's schema on read, so the column round-trips as a `map`. For DuckDB, the accelerator hands DuckDB the Arrow schema and uses the `CREATE TABLE` statement DuckDB derives from it, so unsigned Arrow integers keep their unsignedness (`uint32` becomes `UINTEGER`, not `INTEGER`) and `decimal128` keeps its precision and scale. `TYPE[N]` denotes a fixed-length list (e.g. `INTEGER[4]`), and a timezone-aware `timestamp` becomes `TIMESTAMP WITH TIME ZONE`.
+`TYPE` denotes a supported accelerator type, such as `INTEGER` in `INTEGER[]`. `TYPE[N]` denotes
+a fixed-length list, such as `INTEGER[4]`.
+
+- **Cayenne:** `Float16` is stored and read as `Primitive(F32)`. A `map` is stored as
+  `List<Struct<keys, values>>` and read back as a `map`.
+- **DuckDB:** Unsigned integers retain their unsignedness (`uint32` maps to `UINTEGER`),
+  `decimal128` retains its precision and scale, and timezone-aware timestamps map to
+  `TIMESTAMP WITH TIME ZONE`.

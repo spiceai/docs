@@ -638,9 +638,7 @@ datasets:
 
 ## Data Type Support
 
-Cayenne (via Vortex) supports most Arrow data types with the following considerations. For the type
-each one is stored as, and how that compares with the other engines, see the
-[accelerator data type table](../../reference/datatypes/accelerators).
+Cayenne supports most Arrow data types. The [accelerator data type table](../../reference/datatypes/accelerators) lists storage representations and engine comparisons.
 
 ### Fully Supported Types
 
@@ -649,7 +647,7 @@ each one is stored as, and how that compares with the other engines, see the
 - Boolean
 - Utf8 and LargeUtf8 strings
 - Binary and LargeBinary
-- Timestamps, in all four Arrow units, with the timezone preserved
+- Timestamps, preserving the source unit and timezone
 - Date32 and Date64
 - Lists and FixedSizeLists
 - Maps
@@ -661,16 +659,11 @@ each one is stored as, and how that compares with the other engines, see the
 | ------------- | ------------ | --------------------------------------------- |
 | `Float16`     | `Float32`    | Automatic conversion for Vortex compatibility |
 
-A table stores the timestamp unit and timezone its source reports, so a PostgreSQL `timestamptz`
-accelerates as nanoseconds. `Float16` is the only unconditional rewrite.
-
 :::note Tables created before v2.2.0
 
-Those tables normalize every timestamp to microseconds and keep doing so for their lifetime. No
-[`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) policy migrates them:
-microsecond → nanosecond is not a widening cast, and the write path recognizes the down-cast as the
-engine's own rather than as a source schema change. Recreating the table (`mode: file_create`
-against an empty directory) is what moves it to the source's unit.
+These tables continue to normalize timestamps to microseconds. Preserving the source unit requires
+recreating the table with `mode: file_create` in an empty directory. The
+[`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) setting does not migrate existing timestamps.
 
 :::
 
@@ -751,7 +744,7 @@ A file-mode Cayenne dataset whose resolved metastore directory falls inside its 
 
 Paths are compared after `.`/`..` are collapsed and symlinks are resolved, so neither hides an overlap, and a sibling that merely shares a name prefix (`…/meta` next to `…/metadata`) is not affected. Datasets whose data lives on object storage (for example an S3 Express `cayenne_file_path`) are exempt — the metastore is always local, so it cannot sit inside an object-store data path.
 
-Comparing the configured paths cannot catch a metastore that **no** parameter of this dataset names — one belonging to another dataset, or left behind by a configuration nothing refers to any more. So before a teardown deletes a data directory (a recreate, or `mode: file_create` against an existing directory) Spice also reads what is actually there, and refuses when a `cayenne.db` or one of its SQLite sidecars lies anywhere beneath it. The scan does not follow symlinks — matching the delete — but a directory link whose target directly holds a catalog is refused too, because the teardown unlinks the name and every manifest behind it becomes unreachable. An entry that cannot be read refuses the deletion rather than being treated as an empty directory.
+Before recreating or deleting a data directory, Spice checks for `cayenne.db` and its SQLite sidecars, including those belonging to other datasets. Deletion is refused if the directory contains a metastore, links directly to one, or has unreadable entries. Metastore files must reside outside data directories.
 
 ### CPU
 
@@ -792,24 +785,26 @@ The [PostgreSQL connector](../../data-connectors/postgres/index.md) delivers eac
 Remove `on_conflict` to keep writes on the accelerator, or choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). Atomic delivery for other connectors is planned.
 :::
 
-**Durable write-back requirements**, each checked at registration rather than discovered later:
+**Durable write-back requirements:**
 
 - The federated source must be **PostgreSQL** (see the warning above).
-- The dataset must declare a **single-column [`acceleration.primary_key`](../../reference/spicepod/datasets#accelerationprimary_key)**. Delivery keys each committed row on that column, and a composite key cannot be expressed as the key filter it delivers with, so a multi-column key — or none at all — is rejected with an error naming the columns rather than registering and then never delivering.
-- [`acceleration.mode`](../../reference/spicepod/datasets#accelerationmode) must be **`file`**. `memory`, `file_create` and `file_update` discard or recreate the accelerator, taking with them both the undelivered rows and the markers recording what still owes delivery.
-- The dataset must configure **no acceleration retention**. Retention prunes accelerator rows on a schedule, and a prune can remove a row that was acknowledged to the writer and not yet delivered — nothing else holds that value.
-- The accelerator must be the **sole writer** of the rows it delivers. The upsert is an unconditional `ON CONFLICT ... DO UPDATE` with no compare-and-set against the source, so a second writer mutating the same source row directly can be overwritten by a later delivery.
+- A **single-column [`acceleration.primary_key`](../../reference/spicepod/datasets#accelerationprimary_key)** is required.
+- [`acceleration.mode`](../../reference/spicepod/datasets#accelerationmode) must be **`file`**.
+- No acceleration retention may be configured, to preserve undelivered rows.
+- The accelerator must be the **sole writer** of these source rows; delivery can overwrite changes made directly at the source.
 
-**What a write-back dataset accepts:**
+**Supported writes:**
 
-- Writes must go through a [transaction](#transactions). The markers that drive delivery are written by the transactional commit, in the same commit as the data, so a write outside a transaction has nothing to carry it to the source and is refused rather than accepted under a durability guarantee that would not hold.
-- `DELETE` is refused in any form: it has no transaction-aware sink, so a deletion cannot be recorded for delivery. To delete at the source, first stop writing and wait for the dataset's `dataset_acceleration_write_back_pending_keys` gauge to reach zero **while write-back is still enabled** — the delivery worker is what drains it, and taking the dataset out of write-back stops that worker and clears the gauge without delivering anything. Then take the dataset out of write-back, delete at the source, and let the change stream refresh the accelerator.
+- `INSERT` and `UPDATE` must run inside a [transaction](#transactions).
+- `DELETE` and `MERGE` are not supported.
 
-Delivery is asynchronous and does not block accelerator commits: a delivery failure leaves the pending set to grow and retries on the next pass, and only a delivery that has been accepted by the source clears its marker. A committed key the accelerator cannot return on a given pass is **withheld**, not deleted at the source: its marker is kept and retried. Watch [`dataset_acceleration_write_back_pending_keys`](../../features/observability) for a backlog that never falls, which is a delivery that cannot succeed.
+Delivery is asynchronous. Failed deliveries and temporarily unreadable rows remain pending for retry; an unreadable row does not trigger a source deletion. A persistent [`dataset_acceleration_write_back_pending_keys`](../../features/observability) backlog indicates a delivery problem.
+
+Before a source deletion, writes must stop and pending keys must reach zero **while write-back is enabled**. Write-back can then be disabled and the source rows deleted, with CDC refreshing the accelerator. Disabling write-back resets the gauge without delivering pending rows.
 
 **Requirements and v1 limitations:**
 
-- Write targets must be **non-partitioned Cayenne datasets** that are either accelerator-only or configured for [durable write-back](#transactions). Other dataset modes route writes to the federated source — where the gate cannot govern them — and are rejected.
+- Write targets must be **non-partitioned Cayenne datasets** configured as accelerator-only or for durable write-back.
 - Only **`INSERT` and `UPDATE`** writes are supported inside a transaction. `DELETE` and `MERGE` are rejected.
 - At most **one write per table** per transaction. Multiple tables may be written in the same transaction and are committed atomically together.
 - Reading a Cayenne table that is not a registered participant (for example, a partitioned table) fails the transaction closed.
@@ -823,10 +818,11 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads. A dataset that sets `indexes` anyway loads, and the runtime warns that the setting is ignored — including a `unique` entry, which does **not** constrain writes here as it does on the other engines. Use `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict) to deduplicate on a column set.
-- **Retention behaves differently per setting**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is applied by Cayenne's own engine-level maintenance — armed by every write, overwrite (including a full refresh), and in-memory CDC tier checkpoint — so it runs whether or not the periodic retention check is configured. It reaches rows only through the deletion sink, which scans the table's Vortex files, so it is **not applied to a `mode: memory` acceleration**; that combination loads with a warning and the matching rows stay queryable. [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) is instead a scan-time keep filter: expired rows are hidden from every read in either mode, but nothing deletes them on a schedule unless **both** [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) (which has no default) are set. Without both, their storage comes back only if a compaction happens to rewrite the files holding them, and the runtime warns as much at load.
+- **Indexes**: `indexes` is ignored with a warning, including `unique` indexes. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
+- **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. It is ignored in `mode: memory`, with a warning; matching rows remain queryable.
+- **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
-- **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
+- **Transaction Constraints**: [Transactions](#transactions) support `INSERT`/`UPDATE` on non-partitioned, accelerator-only or durable write-back datasets, with one write per table. `DELETE` and `MERGE` are not supported.
 
 ## Example Spicepod
 

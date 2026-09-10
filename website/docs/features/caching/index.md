@@ -51,26 +51,17 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
-| `engine`            | Yes      | `moka`   | Which cache implementation backs this cache. Defaults to `moka`. Supports `moka` and `pingora`. See [Choosing an `engine`](#choosing-an-engine).                                                              |
+| `engine`            | Yes      | `moka`   | Cache backend: `moka` or `pingora`. See [Choosing an `engine`](#choosing-an-engine).                                                                                                                           |
 
 ### Choosing an `engine`
 
-- **`moka` (Default):** The built-in TTL-managed cache. A read never mutates the entry, and a table
-  invalidation registers a predicate that moka applies lazily, so its cost does not scale with the
-  number of cached entries.
-- **`pingora`:** A sharded LRU, built for concurrent lookup throughput, with two costs.
-  Its library exposes no non-destructive read, so a hit is served by removing the entry and
-  re-admitting it; that runs under an exclusive hold of the key's shard, so a concurrent reader sees
-  the hit rather than a spurious miss, but reads of *other* keys in the same shard wait behind it.
-  And it has no predicate mechanism, so an invalidation that evicts has to find its entries by
-  scanning the shards — a cost proportional to the number of cached entries. The scan reads each
-  value where it sits, so it leaves LRU ordering intact, and it runs off the calling worker.
+- **`moka` (default):** Supports TTL expiration and lazy table invalidation.
+- **`pingora`:** Uses a sharded LRU cache. Reads lock the key's shard; table invalidations that
+  evict entries scan the cache, with cost proportional to its size.
 
-That scan only applies to an invalidation that actually evicts. On `sql_results` with a non-zero
-[`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), a refresh or DML write
-records the table as changed and returns without touching the backend, so neither engine scans —
-the entries stay resident, are never served as fresh again, and leave on their own TTL.
-`search_results` has no stale-serving window, so its invalidations always evict.
+With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
+result invalidations mark entries stale without eviction, so neither engine scans.
+Search result invalidations always evict entries.
 
 ## `caching.sql_results` Parameters
 

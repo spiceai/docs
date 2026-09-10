@@ -118,19 +118,12 @@ columns:
         row_id: product_id
 ```
 
-### Index writes and deletes are verified
+### Index write and delete errors
 
-Every write and delete is checked against the body Elasticsearch returns, not just its HTTP status.
-`_delete_by_query` reports per-document outcomes — documents that errored, and documents skipped
-because their version moved after the request snapshotted the index — so a partial delete that would
-otherwise leave the index holding rows the dataset no longer has is raised as an error rather than
-recorded as a success. A response that is not a synchronous `_delete_by_query` body (an async task
-handle, or a proxy's envelope) cannot confirm the delete applied and is rejected the same way.
-
-The delete is not retried automatically: it addresses documents by the `_id` derived from the row's
-primary key, so the most likely cause of a version conflict is an upsert that just rewrote that row —
-retrying would delete the document that write produced. The error is logged to
-[`runtime.task_history`](../../reference/task_history), naming the document and the reported cause.
+Spice checks per-document write and delete results. Partial failures, including version conflicts,
+fail the operation and are logged to [`runtime.task_history`](../../reference/task_history) with the document and cause.
+Deletes require a synchronous `_delete_by_query` response; async task handles are rejected.
+Deletes are not retried automatically because a retry could remove a concurrently updated document.
 
 ### Custom Index and Vector Field Names
 

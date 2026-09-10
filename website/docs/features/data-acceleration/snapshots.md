@@ -305,6 +305,6 @@ For the production deployment pattern that uses snapshots to separate ingest fro
 :::warning[Limitations]
 
 - Only datasets are supported for snapshots. Views are not supported.
-- A **partitioned Cayenne** acceleration (`engine: cayenne` with `partition_by`) does not publish snapshots. The exported metastore slice does not yet carry the per-partition child tables, so the archive could not be restored. Both the periodic publish and the snapshot taken before a recreate are skipped, each with a warning naming the dataset.
+- **Partitioned Cayenne** accelerations (`engine: cayenne` with `partition_by`) skip periodic and pre-recreate snapshots, with a warning naming the dataset.
 
 :::

@@ -259,7 +259,15 @@ datasets:
 
 :::note
 
-In-place evolution (no restart) is supported for the `duckdb`, `sqlite`, `turso`, and Spice Cayenne (`cayenne`) acceleration engines, including for PostgreSQL CDC (`refresh_mode: changes`). A **partitioned** Cayenne acceleration is the exception: each partition holds its own schema, so in-place evolution is disabled and a change falls through to the recreate path (a warning names the dataset at load). Other engines (for example `arrow` and the PostgreSQL accelerator) log a clear unsupported message and degrade safely, applying additive changes on restart. Constraint and primary-key columns cannot be widened in place. For destructive schema changes (column removals or narrowing), set `on_schema_change: drop_and_recreate` with `refresh_mode: full` to drop and recreate the accelerated table from the source, or use [`mode: file_update`](#accelerationmode), which recreates the acceleration file on any change.
+In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
+(`cayenne`), including PostgreSQL CDC (`refresh_mode: changes`). Partitioned Cayenne tables log a
+warning and use the recreate fallback. Other engines, including `arrow` and PostgreSQL, log an
+unsupported message and apply additive changes on restart. Constraint and primary-key columns
+cannot be widened in place.
+
+For column removals or narrowing, `on_schema_change: drop_and_recreate` with `refresh_mode: full`
+recreates the table from the source. [`mode: file_update`](#accelerationmode) recreates the
+acceleration file on any schema change.
 
 :::
 
@@ -571,7 +579,7 @@ Optional. Controls how writes to a `read_write` accelerated dataset propagate be
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
-- `write_back` – Writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to the federated source. Choose this for write throughput when eventual consistency at the source is acceptable. Supported on a Spice Cayenne acceleration over a PostgreSQL source, and constrained: a single-column `primary_key`, `mode: file`, no acceleration retention, writes inside a transaction, and no `DELETE`. Each is checked at registration. See [Durable federated write-back](../../components/data-accelerators/cayenne/#transactions).
+- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
 
 ## `acceleration.refresh_check_interval`
 

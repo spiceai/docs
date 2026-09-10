@@ -307,16 +307,13 @@ functions:
 
 ## Functions and query federation
 
-A user-defined function is Spice's, not the source's, so it never pushes down into a federated
-source. Connectors that install the Spice function deny-list refuse to federate any plan node
-containing one: the referenced columns are read from the source and the function is evaluated in
-Spice. A predicate such as `WHERE shout(name) = 'ACME'` is therefore correct, but costs a wider
-remote scan than the same predicate written in the source's own SQL — put the filter in
-[`refresh_sql`](../data-acceleration/data-refresh.md) or a view if that matters.
+User-defined functions execute in Spice. Filters using them, such as `WHERE shout(name) = 'ACME'`,
+can require more data from the source than equivalent filters written in the source's SQL.
+Source-side filtering in [`refresh_sql`](../data-acceleration/data-refresh.md) or a source view can
+reduce that transfer.
 
-The deny-list follows the live function registry, so a function registered after startup — or added
-by a hot reload — is refused from that moment, and cached plans built
-before the function set changed are discarded.
+Functions added after startup or through hot reload follow the same rule. Changes to the function
+registry invalidate cached plans.
 
 ## Types
 

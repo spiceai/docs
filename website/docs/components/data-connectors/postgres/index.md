@@ -189,17 +189,11 @@ The Postgres federated queries may result in unexpected result types due to the 
 
 ### `numeric` precision and scale
 
-A `numeric` column declared with a precision and scale — `numeric(12,2)` — maps to `Decimal128` with
-exactly that precision and scale. `numeric(12)`, with a precision but no scale, maps to
-`Decimal128(12, 0)`. PostgreSQL also permits a **negative** scale (`numeric(4,-3)`), and Spice
-carries it through rather than reading it as zero.
+`numeric(p,s)` maps to `Decimal128(p,s)`, including negative scales. An omitted scale defaults to
+zero: `numeric(12)` becomes `Decimal128(12,0)`.
 
-An **unconstrained** `numeric` declares neither, so Spice reads it as `Decimal128(38, 20)`. A value
-needing more than 20 fractional digits, or more than 18 integral digits, does not fit that type and
-the read fails rather than returning a rounded or wrapped number.
-
-Declare a precision and scale on the column wherever the range is known: it is narrower than the
-unconstrained mapping and avoids that failure mode.
+Unconstrained `numeric` maps to `Decimal128(38,20)`. Reads fail for values requiring more than
+18 integral or 20 fractional digits. An explicit column precision and scale controls this mapping.
 
 ## Write Support
 

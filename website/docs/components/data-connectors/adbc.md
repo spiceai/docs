@@ -275,7 +275,7 @@ The ADBC connector maintains a pool of database connections for concurrent query
 
 Both values must be positive integers, and `connection_pool_min_idle` must not exceed `connection_pool_size` — a larger value causes connection pool initialization to fail.
 
-A client that cancels its query or hits its deadline releases its pooled connection promptly: the abandoned statement is cancelled on the driver, which also stops the remote job (on BigQuery, ending the slot consumption and the billing for it) rather than letting it run to completion. Repeated cancellations therefore do not exhaust a small pool.
+Query cancellation or deadline expiry cancels the driver statement and releases the pooled connection. For BigQuery, this also stops the remote job.
 
 ### Query Pushdown
 
@@ -288,7 +288,7 @@ The ADBC connector pushes SQL operations down to the source database when possib
 - **Sort pushdown**: `ORDER BY` clauses are applied at the source.
 - **Join pushdown**: Joins between datasets that reach the same remote engine are executed on the remote database.
 
-Two datasets reach the same remote engine when their driver, URI, credentials, driver options, and any explicitly configured `adbc_catalog`/`adbc_schema` all match. For BigQuery, the dataset half of a dataset-qualified `from:` path is **not** part of that identity: BigQuery resolves a dataset-qualified reference anywhere in the project, so tables in different datasets of one project federate into a single job rather than one job per dataset. An explicitly configured `adbc_schema` is still part of it, because a bare table reference resolves against it.
+Join pushdown requires matching driver, URI, credentials, driver options, and explicit `adbc_catalog`/`adbc_schema` settings. BigQuery tables in different datasets within one project can share a job: dataset qualifiers in `from:` do not need to match, but explicit `adbc_schema` settings do.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
 

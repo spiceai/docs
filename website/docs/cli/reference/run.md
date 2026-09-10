@@ -9,28 +9,18 @@ Run Spice - starts the Spice runtime, installing if necessary.
 
 `spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It applies developer-friendly defaults and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
 
-### Which `spiced` runs
+### Runtime selection
 
-`spice run` (and [`spice version`](./version)) resolve the runtime binary in this order, and install
-one only when no rung matches:
+`spice run` and [`spice version`](./version) look for `spiced` in this order:
 
-1. `$SPICED_PATH`, an explicit pin.
-2. `spiced` sitting beside the running `spice` — a CLI and runtime built or installed together.
-3. `$HOME/.spice/bin/spiced`, the managed install written by [`spice install`](./install).
-4. Under `sudo`, the invoking user's `~/.spice/bin/spiced`. `sudo` resets `HOME` to `/root`, so
-   without this rung an elevated command would miss the runtime the operator installed.
+1. `$SPICED_PATH`.
+2. Beside the running `spice` binary.
+3. `$HOME/.spice/bin/spiced`, managed by [`spice install`](./install).
+4. Under `sudo`, the invoking user's `~/.spice/bin/spiced`.
 
-`PATH` is deliberately not consulted: a `PATH` entry survives a privilege change without anyone
-acting, so it could nominate the binary that runs as the account being acted for. A `spice` and
-`spiced` installed together in the same directory resolve through rung 2 anyway.
-
-Whenever the runtime comes from anywhere other than the managed install, the CLI reports the path
-and where it came from — so a `trunk` CLI paired with a released runtime is visible rather than
-silent. `spice version` prints the same as a `Runtime path:` line (and as `runtime_path` /
-`runtime_source` under `--output json`).
-
-A `$SPICED_PATH` that names nothing runnable is reported as an error rather than falling through to
-a different runtime.
+`PATH` is not searched. An invalid `$SPICED_PATH` causes an error; otherwise, `spice run` installs
+the runtime if none is found. For a runtime outside the managed install, the CLI reports
+its path and source. [`spice version`](./version) also reports these values.
 
 ### Usage
 
