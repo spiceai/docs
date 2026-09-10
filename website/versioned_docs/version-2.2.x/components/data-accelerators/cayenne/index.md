@@ -645,7 +645,7 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 - Boolean
 - Utf8 and LargeUtf8 strings
 - Binary and LargeBinary
-- Timestamps (normalized to Microsecond precision)
+- Timestamps, preserving the source unit and timezone
 - Date32 and Date64
 - Lists and FixedSizeLists
 - Maps
@@ -653,10 +653,17 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 
 ### Automatically Converted Types
 
-| Original Type               | Converted To             | Notes                                         |
-| --------------------------- | ------------------------ | --------------------------------------------- |
-| `Float16`                   | `Float32`                | Automatic conversion for Vortex compatibility |
-| `Timestamp(Nanosecond/...)` | `Timestamp(Microsecond)` | Precision normalized                          |
+| Original Type | Converted To | Notes                                         |
+| ------------- | ------------ | --------------------------------------------- |
+| `Float16`     | `Float32`    | Automatic conversion for Vortex compatibility |
+
+:::note Tables created before v2.2.0
+
+These tables continue to normalize timestamps to microseconds. Preserving the source unit requires
+recreating the table with `mode: file_create` in an empty directory. The
+[`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) setting does not migrate existing timestamps.
+
+:::
 
 ### Unsupported Types
 
