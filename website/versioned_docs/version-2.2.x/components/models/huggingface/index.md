@@ -38,7 +38,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 | Param           | Description                                                                                                                                                                               | Default |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `hf_token`      | The Huggingface access token.                                                                                                                                                             | -       |
+| `huggingface_token` | The Huggingface access token. Spelled `huggingface_token` on this release line — see the note under [Access Tokens](#access-tokens).                                                   | -       |
 | `model_type`    | The architecture to load the model as. Supported text architectures: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3`, `qwen3`, `glm4`, `glm4moelite`, `glm4moe`, `qwen3moe`, `smollm3`, `granitemoehybrid`, `gpt_oss`, `qwen3next`. Supported multimodal architectures: `phi3v`, `idefics2`, `llava_next`, `llava`, `vllama`, `qwen2vl`, `idefics3`, `minicpmo`, `phi4mm`, `qwen2_5vl`, `gemma3`, `mistral3`, `llama4`, `gemma3n`, `gemma4`, `qwen3vl`, `qwen3vlmoe`, `qwen3_5`, `qwen3_5moe`, `voxtral`. | -       |
 | `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
@@ -59,6 +59,20 @@ models:
 
 ## Access Tokens
 
+:::warning[`huggingface_token` on v2.2.0 and v2.2.1]
+
+On this release line the parameter is spelled **`huggingface_token`**. `hf_token` is rejected: the runtime drops it with
+
+```text
+WARN runtime_parameters_typed: Ignoring parameter `hf_token`: not supported for model huggingface.
+```
+
+and loads the model anonymously, so a gated or private repository fails with an HTTP 401 that names no cause. A bare `token` is rejected too, with a warning that it must be prefixed with `huggingface_`. This affects `from: huggingface:` **models** only — the `hf_token` documented for [embeddings](../../embeddings/huggingface/index.md) and rerankers is read correctly on this release.
+
+Spelling reverted in v2.3.0: `hf_token` is the parameter again, and `huggingface_token` is kept as an alias so a Spicepod written against v2.2.x keeps loading. See [spiceai/spiceai#13932](https://github.com/spiceai/spiceai/issues/13932).
+
+:::
+
 Access tokens can be provided for Huggingface models in two ways:
 
 1. In the Huggingface token cache (i.e. `~/.cache/huggingface/token`). Default.
@@ -69,7 +83,7 @@ models:
   - name: llama_3.2_1B
     from: huggingface:huggingface.co/meta-llama/Llama-3.2-1B
     params:
-      hf_token: ${ secrets:HF_TOKEN }
+      huggingface_token: ${ secrets:HF_TOKEN }
 ```
 
 ## Examples
@@ -89,7 +103,7 @@ models:
   - name: llama_3.2_1B
     from: huggingface:huggingface.co/meta-llama/Llama-3.2-1B
     params:
-      hf_token: ${ secrets:HF_TOKEN }
+      huggingface_token: ${ secrets:HF_TOKEN }
 ```
 
 For more details on authentication, see [access tokens](#access-tokens).
