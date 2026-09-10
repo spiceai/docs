@@ -33,15 +33,15 @@ Check [Secrets Stores](../secret-stores) for more details.
 <Tabs>
   <TabItem value="env" label="Env">
     ```bash
-    SPICE_SPARK_REMOTE=<spark-remote> \
+    SPICE_SPARK_REMOTE="<spark-remote>" \
     spice run
     # Or using the CLI to configure the secrets into an `.env` file
-    spice login spark --spark_remote <spark-remote>
+    spice login spark --spark_remote "<spark-remote>"
     ```
 
     `.env`
     ```bash
-    SPICE_SPARK_REMOTE=<spark-remote>
+    SPICE_SPARK_REMOTE="<spark-remote>"
     ```
 
     `spicepod.yaml`
@@ -96,7 +96,7 @@ Check [Secrets Stores](../secret-stores) for more details.
     ```bash
     security add-generic-password -l "Spark Remote" \
     -a spiced -s spice_spark_remote \
-    -w <spark-remote>
+    -w "<spark-remote>"
     ```
 
     `spicepod.yaml`
