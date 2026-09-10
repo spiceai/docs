@@ -1,0 +1,231 @@
+---
+title: 'DuckDB Data Accelerator'
+sidebar_label: 'DuckDB Data Accelerator'
+description: 'DuckDB Data Accelerator Documentation'
+sidebar_position: 3
+---
+
+The DuckDB Data Accelerator helps improve query performance by using [DuckDB](https://duckdb.org/), an embedded analytical database engine optimized for efficient data processing.
+
+It supports in-memory and file-based operation modes, enabling workloads that exceed available memory and optionally providing persistent storage for datasets.
+
+To enable DuckDB acceleration, set the dataset's `acceleration.engine` to `duckdb`:
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      engine: duckdb
+      mode: file
+```
+
+## Modes
+
+### Memory Mode
+
+By default, DuckDB acceleration uses `mode: memory`, loading datasets into memory.
+
+### File Mode
+
+When using `mode: file`, datasets are stored by default in a DuckDB file on disk in the `.spice/data` directory relative to the spicepod.yaml. Specify the `duckdb_file` parameter to store the DuckDB file in a different location. For datasets intended to be joined, set the same `duckdb_file` path for all related datasets.
+
+## Configuration Parameters
+
+DuckDB acceleration supports the following optional parameters under `acceleration.params`:
+
+- `duckdb_file` (string, default:`.spice/data/accelerated_duckdb.db`): Path to the DuckDB database file. Applies if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
+- `duckdb_data_dir` (string, default:`.spice/data/`): Path to the directory the DuckDB database file(s) will be placed in. If both `duckdb_data_dir` and `duckdb_file` are specified, `duckdb_file` will be used and `duckdb_data_dir` will be ignored.
+- `duckdb_memory_limit` (string, default: none — the runtime computes a [coordinated memory budget](#coordinated-memory-budget) when this is unset): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
+- `duckdb_threads` (integer, default: the runtime's CPU entitlement — see [`runtime.cpu.cores`](../../reference/spicepod/runtime#runtimecpucores)): The size of DuckDB's own thread pool for this instance. Left unset, DuckDB sizes the pool from the **host** core count, so each instance in a CPU-constrained container spins up a node-sized pool alongside the runtime's — the same over-commitment the CPU entitlement exists to prevent. Must be a positive integer; a zero or non-numeric value is refused with an error naming `duckdb_threads`, rather than surfacing an opaque DuckDB error later. Like `memory_limit`, `threads` is a per-instance DuckDB setting, so it applies to the whole instance (one per distinct `duckdb_file`, plus one shared instance for all `mode: memory` datasets), not to a single dataset.
+- `duckdb_preserve_insertion_order` (boolean, default: `true`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
+- `connection_pool_size` (integer, default: `10` for local SSD / tmpfs / unspecified storage profiles, or `4` for `ebs`; whichever is larger between that floor and the number of datasets sharing the same DuckDB file): Controls the maximum number of connections to keep open in the connection pool for concurrent query execution. See [`acceleration.storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile) for how the storage profile is selected.
+- `on_refresh_recompute_statistics` (string, default: `enabled`, `disabled` when `refresh_mode` is `changes`): Triggers automatic `ANALYZE` execution after data refreshes. This keeps DuckDB optimizer statistics up-to-date for efficient query plans and performance. Set to `disabled` to turn automatic statistics recomputation off. See [DuckDB ANALYZE statement documentation](https://duckdb.org/docs/stable/sql/statements/analyze).
+- `duckdb_index_scan_percentage` (float, default: `0.001`): Sets the threshold percentage for performing an index scan instead of a table scan. An index scan is used when the number of matching rows is less than the maximum of `duckdb_index_scan_max_count` and `duckdb_index_scan_percentage` multiplied by total row count. Must be between `0.0` and `1.0`.
+- `duckdb_index_scan_max_count` (integer, default: `2048`): Sets the maximum row count threshold for performing an index scan instead of a table scan. An index scan is used when the number of matching rows is less than the maximum of `duckdb_index_scan_max_count` and `duckdb_index_scan_percentage` multiplied by total row count. Must be a non-negative integer.
+- `on_refresh_sort_columns` (string, default: none): Sorts data after each refresh by the specified columns, improving DuckDB [zone map](https://duckdb.org/2025/05/14/sorting-for-fast-selective-queries) (min/max) statistics for query pruning and significantly faster lookup queries. Format: `column1 ASC, column2 DESC` or `column1, column2` (defaults to ASC). Specified columns must exist in the dataset schema, and sort direction must be `ASC` or `DESC`.
+- `on_full_refresh` (string, default: `reuse_file`): How a full refresh writes into a file-mode acceleration, and whether the space held by the previous copy of the data is reclaimed. One of `reuse_file`, `replace_file`, or `checkpoint_file` — see [Bounding acceleration file growth](#bounding-acceleration-file-growth). `replace_file` and `checkpoint_file` require `mode: file`; configuring either with `mode: memory` is rejected at load time.
+- `optimizer_duckdb_aggregate_pushdown` (string, default: `disabled`): Enables aggregate pushdown optimization to execute supported aggregate queries directly in DuckDB. Set to `enabled` to push down aggregations for improved query performance on supported functions like `count`, `sum`, `avg`, `min`, and `max`. Requires `query_federation` to be `disabled`.
+
+Refer to the [datasets configuration reference](../../reference/spicepod/datasets#acceleration) for additional supported fields.
+
+### Example Configuration
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      engine: duckdb
+      mode: file
+      params:
+        duckdb_file: /my/chosen/location/duckdb.db
+        duckdb_memory_limit: '2GB'
+```
+
+## Bounding Acceleration File Growth
+
+A full refresh (`refresh_mode: full`) bulk-loads a fresh copy of the data into the DuckDB file. Bulk loads write row groups directly to the database file and send only block pointers to the WAL, so DuckDB's WAL-growth-based automatic checkpoint never fires — and the blocks freed by dropping the previous copy of the table are only returned to the free list at a checkpoint. On a repeatedly full-refreshed file-mode acceleration, the DuckDB file therefore **grows without bound** even though the data it holds does not.
+
+Set the `on_full_refresh` parameter to reclaim that space after each refresh:
+
+| `on_full_refresh`  | Behavior                                                                                                | Query impact                                                                                          | File size                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `reuse_file`       | Default. Keeps writing into the current database file. No space is reclaimed.                            | None.                                                                                                  | Grows with every refresh.                        |
+| `replace_file`     | Writes a new database file, checkpoints it, and atomically replaces the live file with it.                | Readers are never interrupted; writers pause briefly during the replacement.                            | Reclaimed on every refresh; the file can shrink. |
+| `checkpoint_file`  | Keeps the current file and checkpoints it after each refresh commits.                                     | A checkpoint that has to escalate stalls queries on that file for a bounded window (see below).          | Plateaus near the working set, but never shrinks below the file's high-water mark. |
+
+Both `replace_file` and `checkpoint_file` require file-mode acceleration. Configuring either alongside `mode: memory` is rejected at load time.
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      engine: duckdb
+      mode: file
+      refresh_mode: full
+      params:
+        duckdb_file: /data/shared.duckdb
+        on_full_refresh: replace_file # default: reuse_file
+```
+
+### `replace_file`
+
+A full refresh streams into a fresh staging database file while the live file keeps serving queries, then:
+
+1. copies every other object sharing the file into the staging file — other datasets' tables, views, and indexes, the `spice_sys_*` metadata tables (dataset checkpoints, CDC offsets), and HNSW indexes,
+2. checkpoints and cleanly closes the staging file, so it is compact and WAL-free, and
+3. atomically renames it over the configured path and repoints the shared connection pool at it.
+
+In-flight queries drain against the old file through their already-open descriptors and new queries see the new file, so readers never block; only writers pause, for the duration of the copy-and-replace window. Because the replacement always produces a checkpointed file, [acceleration snapshots](../../features/data-acceleration/snapshots) taken from it are exact.
+
+Several datasets can share one DuckDB file: replacements serialize on a per-file write gate and each one carries the other datasets' current data forward. A dataset accelerated into a *different* DuckDB file that reads this one needs no special handling — its attachment re-resolves when the file underneath it is replaced.
+
+If the process is interrupted mid-replacement, the leftover files are cleaned up on the next startup: incomplete staging files are deleted, and the newest completed replacement is adopted when the configured file itself is missing.
+
+`replace_file` cannot be combined with `refresh_mode: snapshot` on the same DuckDB file — whether on the same dataset or on another dataset sharing the file — and the combination is rejected at load time. Both mechanisms replace the file out-of-band on their own schedules, so refreshes would fail intermittently as each retires the other's file. Give one of them its own `duckdb_file`, or set `on_full_refresh: reuse_file`.
+
+### `checkpoint_file`
+
+After each full-refresh overwrite commits, the runtime runs `CHECKPOINT` on the live database. A plain `CHECKPOINT` fails fast while other transactions are open, in which case it escalates to `FORCE CHECKPOINT`, which waits for the in-flight transactions to finish while blocking new ones from starting — a stall bounded by the slowest in-flight query plus the checkpoint write itself, paid only when the escalation is needed. A checkpoint that fails is logged and never fails the refresh; the refreshed data is already durably committed.
+
+This is lighter than `replace_file` — there is no staging copy of cohabiting objects — at the cost of that stall, and of the file plateauing at its high-water mark instead of shrinking. Prefer `replace_file` where in-flight queries must not be interrupted.
+
+## Limitations
+
+Consider the following limitations when using DuckDB acceleration:
+
+- DuckDB does not support [enum and dictionary field types](https://duckdb.org/docs/sql/data_types/overview).
+- DuckDB's maximum decimal precision is 38 digits. `Decimal256` (76 digits) is unsupported.
+- Timezone-aware timestamp columns (e.g. a PostgreSQL `timestamptz` source) are stored at microsecond precision. DuckDB's `TIMESTAMP WITH TIME ZONE` type has no nanosecond variant, so a nanosecond-precision timezone-aware column is normalized to microsecond when accelerated, and sub-microsecond precision is not preserved. Timezone-naive timestamp columns are unaffected (DuckDB has a native nanosecond `TIMESTAMP_NS` type).
+- Queries using `on_zero_results: use_source` cannot filter binary columns directly (e.g., `WHERE col_blob <> ''`). Instead, cast binary columns to another type (e.g., `WHERE CAST(col_blob AS TEXT) <> ''`).
+- DuckDB indexes currently do not support spilling to disk.
+- Hot-reloading dataset configurations while the Spice Runtime is active disables DuckDB query federation until the runtime restarts.
+- `on_refresh_sort_columns` is not currently supported with primary keys or indexes.
+- DuckDB acceleration does not support [`partition_by`](../../../features/data-acceleration/partitioning.md). Configuring it is rejected at load time. Use the `arrow` or `cayenne` engine for partitioned acceleration.
+
+## Resource Considerations
+
+Resource requirements depend on workload, dataset size, query complexity, and refresh modes.
+
+### Memory
+
+:::tip[Datasets 10 GB or larger]
+
+For any dataset of **10 GB or larger**, [Spice Cayenne](../cayenne/index.md) is recommended over DuckDB, because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset, and its query execution is governed by [`runtime.query.memory_limit`](../../../reference/spicepod/runtime.md#runtimequerymemory_limit) with spill-to-disk rather than a separate per-instance pool.
+
+:::
+
+DuckDB manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance (one per distinct DuckDB file, plus one shared instance for all `mode: memory` datasets) sizes its own `memory_limit` at roughly 80% of **host** RAM — independently of every other instance and of the Spice query engine. To control memory usage explicitly, set the `duckdb_memory_limit` parameter:
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      engine: duckdb
+      mode: file
+      params:
+        duckdb_file: '/data/shared_duckdb_instance.db'
+        duckdb_memory_limit: '4GB'
+```
+
+Note that `duckdb_memory_limit` only limits the DuckDB instance it is set on, not the entire runtime process. Additionally, it does not cover all DuckDB operations, such as some insert operations. Index creation and scans are limited by the `duckdb_memory_limit` so ensure adequate memory is provisioned.
+
+Allocate at least 30% more container/machine memory for the runtime process.
+
+#### Coordinated memory budget
+
+Because those per-instance ceilings do not know about each other, a Spicepod with several DuckDB files declares several independent 80%-of-RAM ceilings, stacked on top of the [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit) pool (90% of RAM by default, 70% when Cayenne acceleration is also active) — an over-commit that risks an OOM kill under load.
+
+At startup, and again on hot-reload, Spice computes a coordinated budget so the **sum** of those ceilings fits within the memory the process can actually use — its cgroup memory limit when one binds, otherwise host RAM. The limit is read from the process's own cgroup path, taking the smallest limit at any level, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup are all honored. Coordination is always on and has no configuration parameter:
+
+- Each distinct DuckDB instance with **no** `duckdb_memory_limit` is capped at an equal share of what the query pool and any explicit ceilings leave, with a floor of 128 MiB per instance.
+- The query pool is reduced by the same amount, taking roughly half of the contested region and never dropping below a quarter of its uncoordinated default (or 256 MiB when every instance has an explicit ceiling).
+- An explicit `runtime.query.memory_limit` is honored verbatim, and an explicit `duckdb_memory_limit` remains that instance's ceiling — the coordination only sizes what you have not.
+- If the floors above cannot fit the projection, the ceilings are still applied and the residual over-commit is reported.
+
+Coordination is skipped entirely when no DuckDB accelerator is configured, or when the uncoordinated ceilings already fit. Whenever it engages, the runtime logs a warning naming the un-limited instances, the projected uncoordinated ceiling, and the caps it applied — set `duckdb_memory_limit` (and, if needed, `runtime.query.memory_limit`) to replace the automatic split with a deliberate one.
+
+:::note
+Because `memory_limit` is a per-instance DuckDB setting, an automatic cap is not applied to an instance where any dataset sharing the same DuckDB file sets `duckdb_memory_limit` explicitly — that would clobber the explicit value.
+:::
+
+### Indexes and Memory
+
+DuckDB indexes currently do not support spilling to disk. While index memory usage is registered through the buffer manager, index buffers are not managed by the buffer eviction mechanism. As a result, indexes may consume significant memory, impacting memory-intensive query performance.
+
+Indexes are serialized to disk and loaded lazily upon database reopening, ensuring they do not affect database opening performance. Also consider index serialization when allocating disk storage.
+
+For more details, see DuckDB's [Indexes and Memory documentation](https://duckdb.org/docs/stable/guides/performance/indexing.html#indexes-and-memory).
+
+### CPU
+
+Query performance, data load, and refresh operations scale with available CPU resources. Allocate sufficient CPU cores based on query complexity and concurrency.
+
+Each DuckDB instance sizes its own thread pool from the runtime's CPU entitlement rather than from the host core count, so a pod with a CPU limit or request does not get a node-sized DuckDB pool. Set [`runtime.cpu.cores`](../../reference/spicepod/runtime#runtimecpucores) to change the entitlement for every CPU-derived pool at once, or `duckdb_threads` to size one DuckDB instance's pool on its own.
+
+### Storage
+
+Store the `duckdb_file` on **local NVMe or SSD**, for its per-I/O latency above all: DuckDB's buffer manager serves every cache miss with a read the query waits on, so the tens of microseconds an NVMe read takes — against a millisecond or more on network storage — is multiplied along every query. DuckDB's own guidance is that its disk-based mode is designed for SSD and NVMe (HDDs give low performance, especially for writes) and that its native database format should not be used in read-write mode on network-attached file systems (NAS, NFS, SMB), which it notes can produce slow and unpredictable performance and spurious errors; network-backed cloud block disks such as Amazon EBS work for both read-only and read-write use. See [DuckDB's environment guide](https://duckdb.org/docs/stable/guides/performance/environment) and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
+
+The runtime tunes the instance for the resolved [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile): on `ebs` (EBS, Azure Managed Disks, NFS, SMB) it lowers the connection-pool floor to 4 and raises `checkpoint_threshold` to 256 MiB so each checkpoint amortizes more I/O; on `tmpfs` it raises `checkpoint_threshold` to 1 GiB; on local SSD the DuckDB defaults apply. Set the profile explicitly on network block devices that auto-detection cannot identify, such as GCP Persistent Disk.
+
+Ensure adequate disk space for the database file, its WAL, index serialization, and DuckDB's temporary files (see [Temporary Directory](#temporary-directory)). A repeatedly full-refreshed file grows by the whole table on every refresh until [`on_full_refresh`](#bounding-acceleration-file-growth) reclaims the space. Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
+
+## Temporary Directory
+
+DuckDB spills sorts, joins, and aggregates that exceed its memory limit to temporary files. The Spice runtime passes `runtime.query.temp_directory` to every DuckDB instance it opens as DuckDB's own `temp_directory`, so the one setting covers DuckDB's spill and DataFusion's. When it is unset, DuckDB writes to a `.tmp` directory beside the `duckdb_file` (and to `.tmp` under the working directory for the shared in-memory instance). DuckDB caps its temporary files at 90% of the volume's free space.
+
+Set `runtime.query.temp_directory` to a directory on **local NVMe or SSD** with ample free space — never the root volume, a network file system, or a RAM-backed mount. Spill is a sequence of synchronous writes and reads the query waits on, so the directory's per-I/O latency lands directly on query time. Where a host has two fast devices, placing spill on one and the DuckDB file on the other keeps a large spill from competing with scans for the same device queue.
+
+Example configuration:
+
+```yaml
+runtime:
+  query:
+    temp_directory: /nvme/spice/tmp
+```
+
+Use this parameter when:
+
+- Handling workloads that frequently spill to disk.
+- The `duckdb_file` sits on a network block volume and the host also has local NVMe — spill has no durability requirement, so it belongs on the lower-latency device.
+- Distributing swap and data I/O operations across multiple storage volumes.
+
+See [Spill-to-Disk and the Temporary Directory](../../reference/performance-tuning#spill-to-disk-and-the-temporary-directory) for the DataFusion side of the same setting.
+
+For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime#runtimequerytemp_directory).
+
+For detailed DuckDB limits, see the [DuckDB Memory Management Guide](https://duckdb.org/docs/operations_manual/limits.html).
+
+## Cookbook
+
+For practical examples, see the [DuckDB Data Accelerator Cookbook Recipe](https://github.com/spiceai/cookbook/tree/trunk/duckdb/accelerator#readme).
+
+## Related Documentation
+
+- [Performance Tuning](../../reference/performance-tuning) - Zone-maps, indexes, and optimization patterns
+- [Managing Memory Usage](../../reference/memory) - Memory configuration reference
+- [Data Refresh](../../features/data-acceleration/data-refresh) - Refresh mode configuration

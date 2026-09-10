@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Namespace exists"},"400":{"description":"Invalid namespace format"},"404":{"description":"Namespace does not exist"}}}

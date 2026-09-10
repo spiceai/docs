@@ -1,0 +1,1 @@
+{"parameters":[{"name":"format","in":"query","description":"The format of the response. Possible values are 'json' (default) or 'csv'.","required":false,"schema":{"type":"string","enum":["json","csv"],"title":"Format"}}]}
