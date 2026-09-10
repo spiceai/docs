@@ -143,7 +143,11 @@ A metric whose existing table has more than one column of the same name (Arrow p
 
 Histograms carry the same `time_unix_nano` and `start_time_unix_nano` columns as number data points.
 
-Data point attributes become additional columns named after the attribute key, typed by the attribute value (`Utf8`, `Boolean`, `Int64`, `Float64`, or `Binary`). When a metric starts reporting a new attribute, Spice evolves an accelerated table's schema in place before writing, subject to the dataset's [`on_schema_change`](../../reference/spicepod/datasets.md#on_schema_change) policy.
+Data point and resource attributes, such as `service.name` and `service.instance.id`, become columns
+named after the attribute key. Values determine the type: `Utf8`, `Boolean`, `Int64`, `Float64`, or
+`Binary`. Data point values take precedence when keys overlap. New attributes trigger in-place
+schema evolution before writing, subject to the dataset's
+[`on_schema_change`](../../reference/spicepod/datasets.md#on_schema_change) policy.
 
 Because OTLP timestamps are nanoseconds, set [`time_format: unix_nanos`](../../reference/spicepod/datasets.md#time_format) when using `time_unix_nano` as a dataset's `time_column`:
 

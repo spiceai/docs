@@ -1,36 +1,37 @@
 ---
-title: 'Google AI Embedding Models'
-sidebar_label: 'Google AI'
+title: 'Google Vertex AI Embedding Models'
+sidebar_label: 'Google Vertex AI'
 sidebar_position: 4
 ---
 
-To use a hosted Google AI embedding model, specify the `google` path in the `from` field of your configuration.
+`from: google:<model-id>` selects a Vertex AI embedding model. A model ID, GCP project, location,
+and Google Cloud credentials are required. Google AI Studio API keys are not supported.
 
-Include the model ID in the `from` field; a model ID is required. For example, `google:gemini-embedding-2` selects Google's latest generally available embedding model.
+| Parameter                                | Description                                                                                                                                                          | Default |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `google_project`                         | Required. GCP project ID containing lowercase letters, digits, and hyphens.                                                                                          | -       |
+| `google_location`                        | Required. GCP region (for example `us-central1`) or `global`.                                                                                                         | -       |
+| `google_service_account_path`            | Path to a GCP service account JSON key file.                                                                                                                          | -       |
+| `google_service_account_key`             | Service account JSON. Supports [secret replacement](../secret-stores).                                                                                              | -       |
+| `google_application_default_credentials` | Application Default Credentials from the file specified by `GOOGLE_APPLICATION_CREDENTIALS`.                                                                        | `false` |
+| `dimensions`                             | The output dimensionality of the embeddings. Some embedding models support dynamic output sizes.                                                                       | -       |
 
-The following parameters are specific to Google AI embedding models:
-
-| Parameter        | Description                                                                                      | Default |
-| ---------------- | ------------------------------------------------------------------------------------------------ | ------- |
-| `google_api_key` | The API key for accessing Google AI.                                                             | -       |
-| `dimensions`     | The output dimensionality of the embeddings. Some embedding models support dynamic output sizes. | -       |
+Authentication requires exactly one of `google_service_account_path`, `google_service_account_key`,
+or `google_application_default_credentials: true`.
 
 Below is an example configuration in `spicepod.yaml`:
 
 ```yaml
 embeddings:
-  - from: google:gemini-embedding-2
+  - from: google:gemini-embedding-001
     name: gemini_embeddings
     params:
-      google_api_key: ${ secrets:GEMINI_API_KEY }
+      google_project: my-gcp-project
+      google_location: us-central1
+      google_service_account_path: /etc/spice/gcp-service-account.json
       dimensions: 768 # optional parameter
-
-  - from: google:gemini-embedding-001
-    name: legacy_embeddings
-    params:
-      google_api_key: ${ secrets:GEMINI_API_KEY }
 ```
 
-See [Google AI Embedding Models](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding) for a list of supported embedding models.
+[Vertex AI text embeddings](https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings) lists model availability by project and region.
 
 For detailed instructions and examples on running vector searches, refer to the [Vector-Based Search documentation](../../features/search/vector-search).

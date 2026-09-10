@@ -223,6 +223,9 @@ Write operations require `s3:PutObject` permission on the target S3 bucket in ad
 
 :::
 
+Tables with unsupported formats are skipped. A warning summarizes skipped tables per database;
+debug logs provide each reason. Warnings are rate-limited unless the set of skipped tables changes.
+
 ## Cookbook
 
 There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure an AWS Glue Data Connector in Spice.

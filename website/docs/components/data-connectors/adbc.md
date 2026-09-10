@@ -275,6 +275,8 @@ The ADBC connector maintains a pool of database connections for concurrent query
 
 Both values must be positive integers, and `connection_pool_min_idle` must not exceed `connection_pool_size` — a larger value causes connection pool initialization to fail.
 
+Query cancellation or deadline expiry cancels the driver statement and releases the pooled connection. For BigQuery, this also stops the remote job.
+
 ### Query Pushdown
 
 The ADBC connector pushes SQL operations down to the source database when possible, reducing the amount of data transferred:
@@ -284,7 +286,9 @@ The ADBC connector pushes SQL operations down to the source database when possib
 - **Limit pushdown**: `LIMIT` clauses are applied at the source.
 - **Aggregation pushdown**: `GROUP BY`, `SUM`, `COUNT`, `AVG`, and other aggregations are executed on the source.
 - **Sort pushdown**: `ORDER BY` clauses are applied at the source.
-- **Join pushdown**: Joins between datasets from the same ADBC URI are executed on the remote database.
+- **Join pushdown**: Joins between datasets that reach the same remote engine are executed on the remote database.
+
+Join pushdown requires matching driver, URI, credentials, driver options, and explicit `adbc_catalog`/`adbc_schema` settings. BigQuery tables in different datasets within one project can share a job: dataset qualifiers in `from:` do not need to match, but explicit `adbc_schema` settings do.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
 

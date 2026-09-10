@@ -196,6 +196,13 @@ Each partition is a separate Cayenne (Vortex) table; the partition catalog is tr
 
 Requires `mode: file`.
 
+Partitioned Cayenne tables have these limitations:
+
+- **No in-place schema evolution.** Schema changes use the recreate fallback. Configuring
+  [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) to evolve logs a warning;
+  CDC batches with widened schemas are rejected.
+- **No snapshot publication.** [Acceleration snapshots](snapshots) do not support partitioned tables.
+
 ## Changing `partition_by` after refresh
 
 Once partitions exist on disk, changing `partition_by` is rejected:

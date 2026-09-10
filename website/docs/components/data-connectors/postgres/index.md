@@ -154,7 +154,7 @@ The table below shows the PostgreSQL data types supported, along with the type m
 | `money`         | `Int64`                          |
 | `float4`        | `Float32`                        |
 | `float8`        | `Float64`                        |
-| `numeric`       | `Decimal128`                     |
+| `numeric`       | `Decimal128` <sup>[1](#numeric-precision-and-scale)</sup> |
 | `text`          | `Utf8`                           |
 | `varchar`       | `Utf8`                           |
 | `bpchar`        | `Utf8`                           |
@@ -186,6 +186,14 @@ The table below shows the PostgreSQL data types supported, along with the type m
 The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
 
 :::
+
+### `numeric` precision and scale
+
+`numeric(p,s)` maps to `Decimal128(p,s)`, including negative scales. An omitted scale defaults to
+zero: `numeric(12)` becomes `Decimal128(12,0)`.
+
+Unconstrained `numeric` maps to `Decimal128(38,20)`. Reads fail for values requiring more than
+18 integral or 20 fractional digits. An explicit column precision and scale controls this mapping.
 
 ## Write Support
 

@@ -1,31 +1,39 @@
 ---
-title: 'Google AI Models'
-description: 'Instructions for using language models hosted on Google AI with Spice.'
-sidebar_label: 'Google AI'
+title: 'Google Vertex AI Models'
+description: 'Instructions for using language models hosted on Google Vertex AI with Spice.'
+sidebar_label: 'Google Vertex AI'
 sidebar_position: 5
 ---
 
-To use a language model hosted on Google AI, specify `google` in the `from` field.
+`from: google:<model-id>` selects a Vertex AI language model. A model ID, GCP project, location,
+and Google Cloud credentials are required. Google AI Studio API keys are not supported.
 
-Include a model ID in the `from` field (see example below); a model ID is required. Spice does not apply a default model — the model fails to load if the ID is omitted (`from: google`).
+| Parameter                                | Description                                                                                                                                                          | Default |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `google_project`                         | Required. GCP project ID containing lowercase letters, digits, and hyphens.                                                                                          | -       |
+| `google_location`                        | Required. GCP region (for example `us-central1`) or `global`.                                                                                                         | -       |
+| `google_service_account_path`            | Path to a GCP service account JSON key file.                                                                                                                          | -       |
+| `google_service_account_key`             | Service account JSON. Supports [secret replacement](../secret-stores).                                                                                              | -       |
+| `google_application_default_credentials` | Application Default Credentials from the file specified by `GOOGLE_APPLICATION_CREDENTIALS`.                                                                        | `false` |
 
-The following parameters are specific to Google AI models:
-
-| Parameter        | Description             | Default |
-| ---------------- | ----------------------- | ------- |
-| `google_api_key` | The Google AI API key.  | -       |
+Authentication requires exactly one of `google_service_account_path`, `google_service_account_key`,
+or `google_application_default_credentials: true`.
 
 Example `spicepod.yml` configuration:
 
 ```yaml
 models:
-  - from: google:gemini-3.5-flash
-    name: flash
+  - from: google:gemini-2.5-pro
+    name: gemini
     params:
-      google_api_key: ${ secrets:GEMINI_API_KEY }
+      google_project: my-gcp-project
+      google_location: us-central1
+      google_service_account_path: /etc/spice/gcp-service-account.json
 ```
 
-See [Google AI Models](https://ai.google.dev/gemini-api/docs/models/gemini) for a list of supported model names.
+`google_service_account_key: ${ secrets:GCP_SERVICE_ACCOUNT_KEY }` selects a secret instead of a file.
+
+[Vertex AI Generative AI models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models) lists model availability by project and region.
 
 See [Large Language Models](../../features/large-language-models) for additional configuration options:
 

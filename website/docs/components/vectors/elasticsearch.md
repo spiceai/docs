@@ -118,6 +118,13 @@ columns:
         row_id: product_id
 ```
 
+### Index write and delete errors
+
+Spice checks per-document write and delete results. Partial failures, including version conflicts,
+fail the operation and are logged to [`runtime.task_history`](../../reference/task_history) with the document and cause.
+Deletes require a synchronous `_delete_by_query` response; async task handles are rejected.
+Deletes are not retried automatically because a retry could remove a concurrently updated document.
+
 ### Custom Index and Vector Field Names
 
 By default the index name is a sanitized `{dataset}-{column}-{model}` and the vector field is `{column}_embedding`. Override either with `elasticsearch_index` and `elasticsearch_vector_field`:

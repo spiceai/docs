@@ -51,6 +51,17 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | `moka`   | Cache backend: `moka` or `pingora`. See [Choosing an `engine`](#choosing-an-engine).                                                                                                                           |
+
+### Choosing an `engine`
+
+- **`moka` (default):** Supports TTL expiration and lazy table invalidation.
+- **`pingora`:** Uses a sharded LRU cache. Reads lock the key's shard; table invalidations that
+  evict entries scan the cache, with cost proportional to its size.
+
+With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
+result invalidations mark entries stale without eviction, so neither engine scans.
+Search result invalidations always evict entries.
 
 ## `caching.sql_results` Parameters
 

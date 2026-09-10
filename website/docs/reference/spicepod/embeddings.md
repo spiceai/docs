@@ -32,7 +32,7 @@ The `from` field specifies the source of the embedding model. It supports the fo
 - `azure` - Azure OpenAI models
 - `databricks` - Databricks-hosted models
 - `bedrock` - Amazon Bedrock models
-- `google` - Google AI models
+- `google` - Google Vertex AI models
 - `model2vec` - Model2Vec static embedding models
 
 Follows the same convention as [`models.from`](./models#from).

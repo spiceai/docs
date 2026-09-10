@@ -91,42 +91,40 @@ datasets:
 
 For [Postgres replication-based CDC](../../features/cdc/postgres-replication), Cloud SQL requires the `cloudsql.logical_decoding = on` flag.
 
-## AI Models (Google AI)
+## AI Models (Vertex AI)
 
-Spice integrates with [Google AI Studio](https://aistudio.google.com) for chat completion and reasoning models, including the Gemini family.
-
-| Provider      | Supported Models                                                                                            | Documentation                                      |
-| ------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **Google AI** | Gemini 2.0/2.5/Pro, Gemini Flash, and other models from the [Gemini API](https://ai.google.dev/gemini-api). | [Google AI Models](../../components/models/google) |
+[Vertex AI](https://cloud.google.com/vertex-ai) Gemini models require a GCP project, location, and
+service account or Application Default Credentials. [Google Vertex AI Models](../../components/models/google) lists parameters and supported models.
 
 ### Example: Gemini Chat Model
 
 ```yaml
 models:
-  - from: google:gemini-2.0-flash-exp
+  - from: google:gemini-2.5-flash
     name: gemini
     params:
-      google_api_key: ${ secrets:GEMINI_API_KEY }
+      google_project: my-gcp-project
+      google_location: us-central1
+      google_service_account_path: /etc/spice/gcp-service-account.json
 ```
 
-See [Google AI Models](https://ai.google.dev/gemini-api/docs/models/gemini) for the full list of supported model names.
+Application Default Credentials require `google_application_default_credentials: true` instead of
+`google_service_account_path`, with `GOOGLE_APPLICATION_CREDENTIALS` pointing to the credentials file.
 
-## Embeddings (Google AI)
+## Embeddings (Vertex AI)
 
-Generate vector embeddings using Gemini embedding models for semantic search and retrieval-augmented generation (RAG).
+[Vertex AI embedding models](../../components/embeddings/google) support semantic search and retrieval-augmented generation (RAG).
 
-| Provider      | Supported Models                                                                                                                        | Documentation                                              |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Google AI** | `gemini-embedding-2` and other models from [Gemini API embeddings](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding). | [Google AI Embeddings](../../components/embeddings/google) |
-
-### Example: Google AI Embeddings
+### Example: Vertex AI Embeddings
 
 ```yaml
 embeddings:
-  - from: google:gemini-embedding-2
+  - from: google:gemini-embedding-001
     name: gemini_embeddings
     params:
-      google_api_key: ${ secrets:GEMINI_API_KEY }
+      google_project: my-gcp-project
+      google_location: us-central1
+      google_service_account_path: /etc/spice/gcp-service-account.json
 ```
 
 ## Snapshots and shared state

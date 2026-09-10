@@ -696,7 +696,8 @@ arrive in Spice as a string. The three rows above that are conditional are the o
 translation depends on which it is, so they read the remote type the driver reports for the column
 (the Arrow `arrow.json` extension name, or the driver's own `BIGQUERY:type`). An expression the
 source did not type — a computed string, or a literal — establishes neither, and the call stays
-local.
+local. `json_as_text` and `json_get(...) IS NULL` also support `COALESCE` of columns with the same
+declared type. `json_contains` requires a declared column.
 
 - **`json_contains`** needs the declared type in order to pick between two BigQuery expressions
   that are *not* interchangeable: `JSON_QUERY(doc, '<path>') IS NOT NULL` on a native `JSON`
@@ -707,9 +708,9 @@ local.
   native `JSON` column, BigQuery need not retain a numeric token's input spelling — `1.50` and
   `1e+00` do not survive — so the local answer and the remote one would differ.
 
-Two values cannot be extracted from a `STRING` document without changing the result, and rather
-than return a different answer the remote query fails with an error telling you to set
-[`query_federation: disabled`](../../components/data-connectors/adbc) on the dataset:
+The following extractions from `STRING` documents fail because BigQuery changes the result.
+These queries require [`query_federation: disabled`](../../components/data-connectors/adbc) on the dataset or its
+[ADBC catalog](../../components/catalogs/adbc):
 
 - **A container.** `json_as_text` returns the matched array or object's original serialization,
   and BigQuery's `JSON_QUERY` re-spaces it.

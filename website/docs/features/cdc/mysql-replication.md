@@ -105,7 +105,7 @@ Configure replication behavior with the following `params` on the MySQL dataset:
 | Parameter                                    | Default   | Description                                                                                                                                                                                                                        |
 | -------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mysql_replication_server_id`                | derived   | The `server_id` this replica registers with. Must be unique among all replicas attached to the source. The default is derived from the **connection identity** (host, port, user, credentials, TLS) mixed with a per-process nonce, so datasets sharing a connection coalesce onto one binlog connection while two spiced instances don't collide, and derived values stay at or above `100000` to avoid hand-assigned replica ids. Setting distinct explicit values is how to opt a dataset out of [connection sharing](#sharing-one-binlog-connection). |
-| `mysql_replication_initial_snapshot`         | `auto`    | When existing rows load: `auto` snapshots when no resumable position exists and resumes without a snapshot when one does; `disabled` streams changes only; `always` re-snapshots on every start, discarding any persisted position. |
+| `mysql_replication_initial_snapshot`         | `auto`    | `auto` resumes a saved position or snapshots if none exists; `disabled` initially streams changes only; `always` discards the saved position on every start. Existing accelerations may still require a [rebuild](#when-the-position-is-purged). |
 | `mysql_replication_checkpoint_interval`      | `10s`     | How often the committed position persists to the sidecar. Bounds crash-replay volume.                                                                                                                                              |
 | `mysql_replication_bootstrap_batch_size`     | `8192`    | Rows per emitted snapshot batch. Maximum: `1048576`.                                                                                                                                                                              |
 | `mysql_replication_invalid_checkpoint_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — it was purged from the source, the source's GTID history diverged from the checkpoint, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `restart` (drop the position and re-snapshot). |
@@ -140,7 +140,12 @@ params:
   mysql_replication_invalid_checkpoint_behavior: restart
 ```
 
-to instead drop the stale position, truncate the accelerator, and re-snapshot the table automatically.
+to instead drop the stale position and rebuild the accelerated table from the source automatically.
+
+With `restart`, an existing acceleration is rebuilt atomically even when
+`mysql_replication_initial_snapshot: disabled`. That setting controls the initial load and does
+not preserve stale rows after a lost position. Setting `mysql_replication_initial_snapshot: always`
+also rebuilds an existing acceleration by discarding its saved position.
 
 ## Sharing one binlog connection
 

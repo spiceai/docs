@@ -338,6 +338,16 @@ HAVING
 +-------+--------+
 ```
 
+## Federation of a correlated `EXISTS`
+
+A correlated `[NOT] EXISTS` can be pushed down to a federated source. Spice rejects queries when:
+
+- The subquery reuses the outer reference's only qualifier, making the reference ambiguous.
+- The correlation spans multiple build-side inputs that cannot share one scope name.
+
+The error identifies the correlation. Distinct relation aliases allow the outer reference to
+remain unambiguous inside the subquery.
+
 ## Subquery categories
 
 Subqueries can be categorized as one or more of the following based on the

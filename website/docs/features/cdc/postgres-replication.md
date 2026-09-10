@@ -389,6 +389,7 @@ On each start the decision is arithmetic rather than an inference:
 | None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
 | Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
 | Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
+| Present, but the accelerated table is empty or unreadable | Slot can still stream from it | **Rebuild** — changes before the watermark will not be replayed |
 | Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
 
 A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
@@ -401,7 +402,14 @@ A snapshot bootstrap emits only insert events, and nothing clears a durable acce
 
 The first start after upgrading a durable `refresh_mode: changes` dataset to a version that records watermarks has no recorded position, so it rebuilds once and records one from then on.
 
-A slot lost **while Spice is streaming** — dropped by an operator, or invalidated by PostgreSQL for exceeding `max_slot_wal_keep_size` or `idle_replication_slot_timeout` — is recovered on the same reconnect path, without a restart: the unusable slot is dropped and replaced, every acceleration on it is rebuilt from the source, and streaming continues on the replacement.
+An empty table is rebuilt even with a valid watermark, for example after
+[`mode: file_update`](../../reference/spicepod/datasets#accelerationmode) recreates it or its rows
+are deleted. If the source is also empty, the rebuild reads no rows.
+
+If a slot is lost while streaming, Spice replaces it, rebuilds every acceleration sharing it, and
+resumes streaming without a runtime restart. This also applies when a newly joining dataset
+triggers replacement. Slots can be dropped manually or invalidated by PostgreSQL's
+`max_slot_wal_keep_size` or `idle_replication_slot_timeout` limits.
 
 Replacement is rate-limited to **3 slots per hour per replication connection**. A process running for months may legitimately be invalidated a few times, each one a genuine recovery, but three inside an hour means the source is not retaining enough WAL to cover the dataset — and every replacement costs a full re-read of every table on the slot, so retrying indefinitely would turn a retention limit into sustained load on the source. Past the budget the dataset surfaces a terminal error instead: raise `max_slot_wal_keep_size` on the source, or reduce replication lag, then reload the dataset.
 
@@ -440,6 +448,10 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | `dataset_postgres_replication_member_envelope_eager_merges_total`          | Counter | Committed transactions folded into an envelope the pump was still holding back, before it crossed into this dataset's buffer (stage 1).                                                   |
 | `dataset_postgres_replication_member_envelope_mailbox_merges_total`        | Counter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's buffer (stage 2). Rising alongside a flat `dataset_postgres_replication_member_send_stalled_seconds_total` means back-pressure is being absorbed rather than stalling the slot. |
 | `dataset_postgres_replication_member_mailbox_coalesce_limited_total`       | Counter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it, rather than because the changes were not foldable. `0` means the bounds never bind. |
+
+[Rebuilds](#recovering-from-a-lost-replication-slot) appear in
+`dataset_acceleration_refresh_duration_ms{mode="full"}`. For `refresh_mode: changes` datasets,
+each full-refresh event is a rebuild; the preceding log gives its reason.
 
 ## Troubleshooting
 

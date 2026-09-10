@@ -7,7 +7,20 @@ pagination_next: null
 
 Run Spice - starts the Spice runtime, installing if necessary.
 
-`spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It installs `spiced` on first use, applies developer-friendly defaults, and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
+`spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It applies developer-friendly defaults and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
+
+### Runtime selection
+
+`spice run` and [`spice version`](./version) look for `spiced` in this order:
+
+1. `$SPICED_PATH`.
+2. Beside the running `spice` binary.
+3. `$HOME/.spice/bin/spiced`, managed by [`spice install`](./install).
+4. Under `sudo`, the invoking user's `~/.spice/bin/spiced`.
+
+`PATH` is not searched. An invalid `$SPICED_PATH` causes an error; otherwise, `spice run` installs
+the runtime if none is found. For a runtime outside the managed install, the CLI reports
+its path and source. [`spice version`](./version) also reports these values.
 
 ### Usage
 

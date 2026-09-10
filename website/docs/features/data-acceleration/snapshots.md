@@ -305,5 +305,6 @@ For the production deployment pattern that uses snapshots to separate ingest fro
 :::warning[Limitations]
 
 - Only datasets are supported for snapshots. Views are not supported.
+- **Partitioned Cayenne** accelerations (`engine: cayenne` with `partition_by`) skip periodic and pre-recreate snapshots, with a warning naming the dataset.
 
 :::

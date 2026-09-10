@@ -300,9 +300,14 @@ The project half of the report comes from Spice Cloud, so the command needs an a
   "datasets_total": 0,
   "datasets_unhealthy": [],
   "runtime_error": null,
+  "health_not_reported": null,
   "link": { "connection": {}, "service": {}, "deployment": {} }
 }
 ```
+
+For Cloud Connect and BYOC runtimes, `instances` is empty and `runtime_error` is `null`.
+`health_not_reported` explains why health is unavailable; the table output shows the same reason.
+This does not affect the exit code.
 
 ### `logs`
 

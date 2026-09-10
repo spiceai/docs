@@ -305,6 +305,16 @@ functions:
     body: 'upper(s)'
 ```
 
+## Functions and query federation
+
+User-defined functions execute in Spice. Filters using them, such as `WHERE shout(name) = 'ACME'`,
+can require more data from the source than equivalent filters written in the source's SQL.
+Source-side filtering in [`refresh_sql`](../data-acceleration/data-refresh.md) or a source view can
+reduce that transfer.
+
+Functions added after startup or through hot reload follow the same rule. Changes to the function
+registry invalidate cached plans.
+
 ## Types
 
 Argument and return types use Arrow logical types. Both Spicepod aliases and Arrow display forms are accepted.
