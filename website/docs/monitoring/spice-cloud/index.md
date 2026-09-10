@@ -75,7 +75,7 @@ The output includes the app's primary API key. Treat the key as a secret — any
 For an existing app, retrieve the current key with:
 
 ```bash
-spice cloud api-keys --project <org>/<app>
+spice cloud api-keys --project "<org>/<app>"
 ```
 
 ## Configuration
@@ -179,7 +179,7 @@ After restarting the runtime, confirm the connection is established:
 3. **Wait 5–10 seconds**, then query the target Spice Cloud app's task history. From any client logged in to Spice Cloud:
 
    ```bash
-   spice sql --cloud <org>/<app>
+   spice sql --cloud "<org>/<app>"
    ```
 
    ```sql

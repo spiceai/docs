@@ -59,7 +59,7 @@ The `spice nsql analyze` subcommand evaluates Text-to-SQL quality by comparing a
 ### Usage
 
 ```shell
-spice nsql analyze --query <natural-language-query> --expected <expected-sql> --model <model>
+spice nsql analyze --query "<natural-language-query>" --expected "<expected-sql>" --model "<model>"
 ```
 
 ### Flags

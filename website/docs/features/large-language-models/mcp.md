@@ -250,7 +250,7 @@ See the [mcp-server cookbook](https://github.com/spiceai/cookbook/tree/trunk/mcp
 A failing MCP server does not stop the runtime. Spice logs a warning, retries the connection in the background, and reports healthy — the tool is simply absent from `tools/list`. Verify the runtime log at startup:
 
 ```bash
-grep "Unable to load tool" <log>
+grep "Unable to load tool" "<log>"
 ```
 
 A server that starts but authenticates with empty or invalid credentials is harder to spot: it registers zero tools without producing that warning. Check for `runtime_secrets` errors, which indicate a `${secrets:...}` reference that did not resolve.

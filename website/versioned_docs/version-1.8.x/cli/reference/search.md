@@ -33,7 +33,7 @@ spice search [query] [flags]
 
 ```shell
 # Search with Spice Cloud
-spice search --cloud --api-key <your-api-key>
+spice search --cloud --api-key "<your-api-key>"
 
 # Search with a remote spiced instance
 spice search --endpoint http://my-remote-host:8090

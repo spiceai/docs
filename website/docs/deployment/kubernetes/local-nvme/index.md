@@ -56,8 +56,8 @@ Give those nodes a label so Spice — and only Spice — schedules onto them. Th
 #   gcloud container node-pools create: --node-labels=local-nvme=true (GKE also sets cloud.google.com/gke-local-nvme-ssd=true)
 #   az aks nodepool add: --labels local-nvme=true
 # On an existing node:
-kubectl label node <node-name> local-nvme=true
-kubectl taint node <node-name> local-nvme=true:NoSchedule   # optional
+kubectl label node "<node-name>" local-nvme=true
+kubectl taint node "<node-name>" local-nvme=true:NoSchedule   # optional
 ```
 
 ## Step 2 — Format and mount the NVMe on each node

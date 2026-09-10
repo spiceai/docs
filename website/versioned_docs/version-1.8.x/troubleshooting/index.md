@@ -181,13 +181,13 @@ The Spice sandbox container is a minimal container that doesn't include standard
 It's possible to run the SQL REPL from the container to debug SQL queries:
 
 ```console
-docker exec -it <container_id> spiced --repl
+docker exec -it "<container_id>" spiced --repl
 ```
 
 Or from `kubectl`:
 
 ```console
-kubectl exec -it <pod_name> -- spiced --repl
+kubectl exec -it "<pod_name>" -- spiced --repl
 ```
 
 ### Debug Kubernetes Pods with Ephemeral Containers
@@ -227,7 +227,7 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:1.3.0
+docker run -v busybox:/busy -v "<path_to_spicepod>:/app/spicepod" -d --name spiceai-debug spiceai/spiceai:1.3.0
 
 # Exec into the container
 docker exec -it spiceai-debug /busy/busybox sh

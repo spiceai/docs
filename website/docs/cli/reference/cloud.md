@@ -102,7 +102,7 @@ Lists the organizations this identity can act on, marking the active one and whi
 ### `org`
 
 ```shell
-spice cloud org use <ORG>
+spice cloud org use "<ORG>"
 spice cloud org current
 spice cloud org clear
 ```
@@ -121,7 +121,7 @@ An enrolled directory holds an instance identity in `.spice/identity.json`, and 
 
 ```shell
 spice cloud link
-spice cloud link <org>/<project>
+spice cloud link "<org>/<project>"
 ```
 
 Enrolls the current directory as a Spice Cloud instance and attaches it to a project. Omit the argument to choose from the projects available to you.
@@ -196,8 +196,8 @@ spice cloud project delete <org>/<project> [--yes]
 `--kind` decides which kind of project is created. Either way, the command prints the new project's primary API key.
 
 ```shell
-spice cloud project create <NAME>                              # Cloud Connect project
-spice cloud project create <NAME> --kind set --region <REGION> # Spice-managed project
+spice cloud project create "<NAME>"                              # Cloud Connect project
+spice cloud project create "<NAME>" --kind set --region "<REGION>" # Spice-managed project
 ```
 
 - **Omit `--kind`** for a **Cloud Connect** project — one Spice Cloud does not run, served by your own runtime. This is the project [`spice cloud link`](#link) attaches an instance to.
@@ -354,9 +354,9 @@ Shows a project's API keys. `--regenerate <1|2>` reissues one of the two keys. T
 
 ```shell
 spice cloud secrets list
-spice cloud secrets set <NAME> <VALUE>
-spice cloud secrets get <NAME>
-spice cloud secrets delete <NAME>
+spice cloud secrets set "<NAME>" "<VALUE>"
+spice cloud secrets get "<NAME>"
+spice cloud secrets delete "<NAME>"
 ```
 
 Manages a project's secrets. Every subcommand takes `--project <ORG/PROJECT>` and `-o`. `list` has the alias `ls`.
