@@ -165,6 +165,25 @@ ORDER BY score DESC;
 
 :::
 
+## Vectors an Index Will Not Store
+
+A vector is indexable only if it has a defined direction under the metrics the index offers. Two shapes do not, and a row carrying one is skipped instead of stored:
+
+| Shape | Examples | Why |
+| --- | --- | --- |
+| **No direction** — every component is `0` or `NaN` | `[0, 0, 0]`, `[NaN, NaN]`, `[0, NaN]` | The vector points nowhere, so a cosine distance to it is undefined. |
+| **Non-finite** — at least one component is `NaN` or `±Inf` | `[1.0, NaN]`, `[0.0, Inf]` | Every metric the index offers answers `NaN` or `Inf` for it, whatever it is compared against. |
+
+A vector that is both is reported as the first.
+
+Skipping is neither silent nor passive:
+
+- **The skip is logged, and the two reasons are reported apart.** The in-memory and `s3_vectors` write paths warn once per record, naming it and its reason — `its embedding has no direction — every component is zero or NaN`, or `its embedding has a NaN or infinite component, so every distance to it is undefined`. The `elasticsearch` path aggregates instead: one warning per reason per write, carrying the count of records skipped for it and a sample of their row indices.
+- **A skipped row evicts whatever its primary key already holds.** Within a write, the last row for a repeated key decides that key, so a key whose deciding row is skipped is removed from the index rather than left answering at the vector its previous text produced. The same applies to a row whose search text is `NULL` or empty.
+- A row whose primary key is `NULL` is skipped too, with its own warning, but evicts nothing — there is no key with which to address an earlier entry.
+
+This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them. The [`duckdb`](../../components/vectors/duckdb) engine's write path applies no such criterion and stores the vector as it arrives; it screens the **query** vector instead, failing a search whose query embedding has a non-finite component with `DuckDB vector query contains a non-finite value.`
+
 ## Using Existing Embeddings
 
 Spice supports vector searches on datasets with pre-existing embeddings. Ensure the dataset meets these requirements:
