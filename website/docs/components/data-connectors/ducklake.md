@@ -212,5 +212,6 @@ datasets:
 - The `ducklake_connection_string` parameter is required — unlike the catalog connector, it cannot be omitted.
 - Each dataset creates its own DuckDB connection pool. For querying many tables from the same catalog, consider using the [DuckLake Catalog Connector](../catalogs/ducklake) instead, which shares a single connection pool.
 - Writes are limited to `INSERT INTO`. `UPDATE`, `DELETE FROM`, and DDL (`CREATE TABLE`, `DROP TABLE`) are not supported on the data connector — use the [DuckLake Catalog Connector](../catalogs/ducklake) for schema operations.
+- This connector uses the DuckDB SQL dialect, so the `regexp_match`, `regexp_instr` and `regexp_count` functions are evaluated in Spice rather than pushed down. See [Regular Expression Functions and Federation](./duckdb#regular-expression-functions-and-federation).
 
 :::
