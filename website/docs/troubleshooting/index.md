@@ -41,6 +41,24 @@ Review the `task_history` table for detailed error messages:
 SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT NULL ORDER BY start_time DESC LIMIT 5;
 ```
 
+### `opendal::layers::retry` warnings on S3 reads
+
+An S3 read whose connection closes before the response completes is retried, and each retry logs one warning at the default verbosity:
+
+```console
+2026-09-10T19:16:30.158989Z  WARN opendal::layers::retry: Reading file 'https://my-bucket.s3.us-east-1.amazonaws.com/warehouse/metadata/1-m0.avro' (S3) was interrupted, so Spice will retry in 1s (attempt 1). Cause: The connection closed before the response completed. If this continues, check network access to S3 and any proxy timeouts. See: https://spiceai.org/docs/troubleshooting
+```
+
+The line names the object, the scheduled backoff, and which attempt this is — so an isolated warning followed by no further attempts for that object means the retry succeeded. A rising `attempt` count, or the same object retrying repeatedly, points at the network path rather than at the data: check egress and VPC endpoint reachability to S3, and any proxy or load balancer idle timeout between the runtime and the bucket. Credentials, query strings, and fragments are stripped from the logged URL, so a presigned URL's signature is not written to the log.
+
+The full underlying object-store diagnostic is emitted at `DEBUG` on the same target, labeled `S3 read retry diagnostic` and escaped onto a single line. It is above the default and `--verbose` levels; reach it with `--very-verbose`, or with a targeted filter that leaves everything else alone:
+
+```bash
+SPICED_LOG="WARN,opendal::layers::retry=DEBUG" spice run
+```
+
+`SPICED_LOG` applies only when neither `--verbose` nor `--very-verbose` is set — see [Tracing](../cli/tracing.md).
+
 ### Slow query performance
 
 - **Check if acceleration is enabled**: Unaccelerated datasets query the remote source directly, adding network latency. Add `acceleration: enabled: true` to the dataset configuration.
