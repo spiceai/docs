@@ -939,6 +939,8 @@ The following values are supported:
 - `return_empty` - Default. Return an empty result set when the accelerated query returns no rows.
 - `use_source` - Fall back to querying the original data source when the accelerated query returns no rows.
 
+The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
+
 ```yaml
 datasets:
   - from: spice.ai/eth.recent_blocks
