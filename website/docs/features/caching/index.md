@@ -150,11 +150,13 @@ Separately from the result caches above, the runtime keeps a small cache of **lo
 | Configurable | No — always on |
 | Capacity | 512 plans |
 | Entry lifetime | 1 hour from insertion |
-| Key | The SQL text, plus any bound parameter values |
+| Key | The SQL text — **not** the bound parameter values |
 | Hashing algorithm | [`sql_results.hashing_algorithm`](#choosing-a-hashing_algorithm) |
 
-Two consequences are worth knowing:
+Four consequences are worth knowing:
 
+- A parameterized query has **one** cached plan however many value tuples are sent through it. Planning happens against the placeholders and the values are bound into the plan afterwards, so the plan does not depend on them; keying on them would give each tuple its own entry and fill the 512 slots with copies of a single query.
+- The values still key the **results**. Two executions of the same SQL text with different parameter values share the cached plan and remain separate [`sql_results`](#cachingsql_results-parameters) cache entries, so each returns its own rows.
 - `sql_results.hashing_algorithm` is read even when `sql_results.enabled` is `false`, because the plan cache borrows it. It is the one `sql_results` setting that still has an effect with the results cache switched off.
 - Bypassing the results cache does not bypass the plan cache. A query sent with `cache-control: no-cache` re-executes, but it is still planned from the cached plan if one is present, and still populates the plan cache if one is not.
 
