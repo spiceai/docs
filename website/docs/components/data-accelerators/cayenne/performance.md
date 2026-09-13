@@ -352,6 +352,20 @@ params:
 
 Prefer the derived default on network storage: a smaller explicit value there multiplies both the metastore commits and the compaction passes the slow tier is trying to amortize.
 
+## Query Path Tuning
+
+### Repeated CTEs
+
+DataFusion inlines a `WITH` body at every reference, so a CTE used twice is planned and executed twice. [`runtime.query.cte_materialization: auto`](../../../reference/spicepod/runtime.md#runtimequerycte_materialization) lets the Cayenne query path compute a qualifying multi-reference CTE once and share the buffer at every reference.
+
+```yaml
+runtime:
+  query:
+    cte_materialization: auto # disabled (default) | auto
+```
+
+It applies only to a non-recursive CTE that is referenced more than once and whose body scans a Cayenne-accelerated table; a cheap or pass-through body stays inlined so projection and filter pushdown can still prune each copy. The shared buffer is charged to the query memory pool. The default is `disabled` — see the [parameter reference](../../../reference/spicepod/runtime.md#runtimequerycte_materialization) for the full keep-or-inline rules.
+
 ## Memory
 
 Cayenne query execution is DataFusion-native and bounded by `runtime.query.memory_limit`, with spill to `runtime.query.temp_directory`. Compaction runs on its own memory pool carved from the query pool, and CDC ingest stages batches in an in-memory tier sized from the memory left over after the pools. The interactions between these budgets — and why lowering the query limit on a CDC deployment can leave resident memory unchanged — are covered in [Managing Memory Usage](../../../reference/memory.md#spice-cayenne). The [Memory Reconciliation Metrics](./deployment.md#memory-reconciliation-metrics) attribute resident memory to each of them.

@@ -659,6 +659,39 @@ runtime:
 
 Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
 
+## `runtime.query.cte_materialization`
+
+Controls whether the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) query path computes a multi-reference `WITH` clause once and shares the result, instead of letting DataFusion inline the body at every reference.
+
+DataFusion inlines `WITH` bodies at bind time, so a CTE referenced twice is planned and executed twice. `auto` rewrites the qualifying cases into a producer/consumer pair — the body is computed once into a buffer that every reference reads.
+
+```yaml
+runtime:
+  query:
+    cte_materialization: auto # disabled (default) | auto
+```
+
+**Supported values:**
+
+- `disabled` (default): every CTE is inlined at each reference — DataFusion's own behavior.
+- `auto`: a CTE is materialized when it qualifies (below), and inlined otherwise.
+
+Behavior:
+
+- A CTE is only a candidate when it is referenced **more than once**, is **not recursive**, and its body **scans a Cayenne-accelerated table**. The setting is a no-op on a query that does not scan Cayenne, so a pod with no Cayenne acceleration behaves identically under either value.
+- Among the candidates, the keep-or-inline decision follows DuckDB's `CTEInlining` rules, in this order:
+  - a body containing a **volatile** function is materialized (so the function is evaluated once);
+  - a body ending in **aggregate**, **distinct**, or **window** (peeling single-child operators) is materialized;
+  - a **cheap** body — an empty relation, a `VALUES` list, or a scan of an already-materialized CTE — is inlined even with several references;
+  - otherwise, a body with **more than two base-table scans** where `scans × references > 10` is materialized;
+  - a consumer carrying a `LIMIT` (or a sort with a fetch) inlines a CTE that did not match a rule above, so the limit can still abort the work early;
+  - anything else that is referenced more than once is materialized.
+- The shared buffer is **charged to the query memory pool** ([`runtime.query.memory_limit`](#runtimequerymemory_limit)), so a materialized CTE spends the same budget the rest of the query does.
+- Simple pass-through CTEs stay inlined on purpose: inlining is what lets projection and filter pushdown prune each copy separately.
+- When `auto` is in effect the runtime logs `Applied runtime.query.cte_materialization=auto` at startup, and a materialized CTE appears in `EXPLAIN` output as a `MaterializedCte` node with a `CteScan` at each reference.
+
+Any other value is rejected when the Spicepod is loaded.
+
 ## `runtime.output_level`
 
 Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
