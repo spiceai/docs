@@ -283,6 +283,7 @@ Cayenne needs no explicit indexes. Each Vortex segment carries `min`, `max`, `nu
 
 - **Set `sort_columns`** to the columns most queries filter on (a comma-separated list, e.g. `sort_columns: tenant_id,created_at`). Sorted data gives each segment a tight `min`/`max` range, so a selective predicate skips most of the table, and `is_sorted` lets a point lookup binary-search within a segment instead of scanning it. Fewer segments read also means fewer dependent I/Os, which is the cost that dominates on every tier slower than NVMe.
 - **Provenance matters for CDC tables.** A sort order that [schema inference](../../data-connectors/index.md#schema-inference) filled in — the primary key, for most CDC datasets — is tagged `cayenne_sort_columns_origin: inferred` and ranks below the filter columns Cayenne observes on scans, so the adaptive layout clusters compacted and cold-tier files for the queries the table actually receives. An explicit `sort_columns` is authoritative and outranks the observations.
+- **A `refresh_mode: full` table is sorted by the replace itself.** `sort_columns` otherwise takes effect only in the compaction rewrite, and a whole-table replace leaves nothing to consolidate, so compaction never runs on such a table. Cayenne therefore orders the replacement stream before writing the new snapshot — the only write a full-refresh table makes, and so the only chance to establish the order. This applies to an **operator-configured** `sort_columns` only; an inference-derived order (`cayenne_sort_columns_origin: inferred`) does not trigger it.
 - **Partition where queries filter.** `partition_by` on the column(s) that dominate query filters prunes whole partitions at plan time (not supported in `mode: memory`).
 - **Enable filter propagation** (`runtime.params.cayenne_filter_propagation: enabled`) when joins between Cayenne tables are common; the optimizer rules it gates propagate a filter on one side of a join to the other, so both scans prune.
 
@@ -299,7 +300,7 @@ datasets:
         sort_columns: tenant_id,created_at
 ```
 
-Sorting has a cost at write time — sorted refreshes and the sort-and-rewrite compaction path write serially — so it pays back on tables that are read far more often than they are written.
+Sorting has a cost at write time — sorted refreshes and the sort-and-rewrite compaction path write through a single writer, because fanning a sorted stream out across shards hands every file the whole key range back and forfeits the pruning the sort exists for — so it pays back on tables that are read far more often than they are written.
 
 ## Write Path Tuning
 
