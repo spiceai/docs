@@ -93,7 +93,7 @@ For broader observability, also monitor:
 
 ## Task History
 
-GraphQL requests participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+GraphQL requests participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 
