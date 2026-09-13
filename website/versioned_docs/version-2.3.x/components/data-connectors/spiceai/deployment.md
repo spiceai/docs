@@ -188,7 +188,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for g
 
 ## Task History
 
-Queries to the upstream Spice runtime participate in [task history](../../../reference/task_history) via Flight client spans. Each Flight request is recorded as a child of the enclosing `sql_query` or `accelerated_table_refresh` task. The upstream runtime records its own task history independently — correlate by request timestamps or by propagated trace IDs.
+Queries to the upstream Spice runtime participate in [task history](../../../reference/task_history) via Flight client spans. Each Flight request is recorded as a child of the enclosing `sql_query` or `acceleration_refresh` task. The upstream runtime records its own task history independently — correlate by request timestamps or by propagated trace IDs.
 
 ## Known Limitations
 

@@ -78,7 +78,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for g
 
 ## Task History
 
-GitHub API calls participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+GitHub API calls participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

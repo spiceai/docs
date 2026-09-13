@@ -52,7 +52,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for c
 
 ## Task History
 
-Dremio queries participate in [task history](../../../reference/task_history) via Flight client spans. Each Flight request is captured as a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+Dremio queries participate in [task history](../../../reference/task_history) via Flight client spans. Each Flight request is captured as a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 
