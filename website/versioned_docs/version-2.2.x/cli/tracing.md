@@ -17,7 +17,7 @@ Trace output verbosity is determined by the following sources, listed in order o
 
 ### Default
 
-Spice's own components log at `INFO`, suitable for general information about the system. Everything else — the libraries the runtime is built on — logs at `WARN`, and a handful of particularly noisy targets are turned off outright.
+Spice's own components log at `INFO`, suitable for general information about the system. Everything else — the libraries the runtime is built on — logs at `WARN`, and a handful of particularly noisy targets are held down further still — turned off outright, or pinned to `warn`/`error`.
 
 ```bash
 SPICED_LOG="app=INFO,task_history=INFO,spiced=INFO,runtime=INFO,secrets=INFO,data_components=INFO,cayenne=INFO,cache=INFO,extensions=INFO,spice_cloud=INFO,llms=INFO,tpc_extension=INFO,workers=INFO,search=INFO,ballista=INFO,datafusion=INFO,runtime_rate_control=INFO,reqwest_retry::middleware=off,opentelemetry=warn,opentelemetry_sdk=off,delta_kernel::log_segment=off,delta_kernel::listed_log_files=off,aws_config::imds::region=off,aws_config::meta::credentials::chain=off,tower::buffer=off,h2::codec=off,datafusion_datasource::source=off,datafusion_optimizer::utils=off,datafusion_optimizer::optimizer=off,datafusion::physical_planner=off,tantivy=warn,text_embeddings_backend_candle=error,WARN"
