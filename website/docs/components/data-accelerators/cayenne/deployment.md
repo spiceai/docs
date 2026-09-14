@@ -252,7 +252,7 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 
 ## Known Limitations
 
-- **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment).
+- **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment). Ephemeral does not mean read-only — `INSERT`, `UPDATE` and `DELETE` apply to the in-RAM tier as they do in `mode: file`, on a runtime newer than v2.3.0 (see [Writes in memory mode](./index.md#writes-in-memory-mode)).
 - **Single-writer per table**: Two Spice instances cannot write the same Cayenne table concurrently.
 - **Vortex version compatibility**: Cayenne files are tied to the Vortex binary version shipped with Spice. Cross-version reads may be supported but not cross-version writes.
 - **Object-store write atomicity**: Standard S3 is eventually consistent for multipart uploads. S3 Express One Zone provides strong read-after-write consistency and is recommended for latency-sensitive workloads.
