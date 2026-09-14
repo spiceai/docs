@@ -870,6 +870,8 @@ runtime:
 
 Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
 
+The endpoint is dual-era: it serves the [`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/) revision statelessly and still answers the legacy `initialize` handshake with an `Mcp-Session-Id` session. See [Protocol Versions](../../features/large-language-models/mcp#protocol-versions).
+
 ### `runtime.mcp.allowed_hosts`
 
 Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This prevents [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks against the MCP server.
