@@ -3,7 +3,7 @@ title: 'Model Context Protocol Tools'
 sidebar_label: 'MCP Tools'
 ---
 
-Spice integrates with tools and services using the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). MCP tools can be configured to run internally or connect to external servers over HTTP using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport.
+Spice integrates with tools and services using the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). MCP tools can be configured to run internally or connect to external servers over HTTP using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports#streamable-http) transport.
 
 ## Overview
 
@@ -11,6 +11,28 @@ MCP helps extend the capabilities of the Spice runtime by enabling integration w
 
 1. Running stdio-based MCP servers internally.
 2. Connecting to external MCP servers over Streamable HTTP.
+
+## Protocol Versions
+
+Spice is dual-era. It serves the [`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/) revision and still answers the legacy `initialize` handshake, so existing clients on earlier revisions — including [`2025-03-26`](https://modelcontextprotocol.io/specification/2025-03-26/) — keep working unchanged.
+
+| Era | How a client talks to Spice | Session |
+| --- | --- | --- |
+| **Modern** (`2026-07-28`) | `server/discover`, then `tools/list` and `tools/call` with per-request `_meta` — no `initialize` first | Sessionless. No `Mcp-Session-Id`. |
+| **Legacy** (`2025-11-25` and earlier, including `2025-03-26`) | `initialize`, then `notifications/initialized` | Spice mints an `Mcp-Session-Id` and requires it on subsequent requests. |
+
+Spice advertises `2026-07-28`; a legacy client negotiates the revision it requests in `initialize`.
+
+Modern clients send the `MCP-Protocol-Version`, `Mcp-Method`, and — for `tools/call` — `Mcp-Name` Streamable HTTP headers. A tool argument annotated with `x-mcp-header` additionally requires a matching `Mcp-Param-<name>` header whose value equals that argument in the JSON-RPC body.
+
+| Condition | Response |
+| --- | --- |
+| A protocol version this runtime does not support | JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
+| A Streamable HTTP header that disagrees with the JSON-RPC body | HTTP `400` with JSON-RPC `-32020` |
+
+`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. A `2026-07-28` client POSTs `subscriptions/listen` instead of opening a GET stream.
+
+When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer is pre-2026. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
 
 ## Configuring MCP Tools
 
