@@ -53,7 +53,7 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports two storage modes:
 
 - **`mode: file`** (durable) — data is written as Vortex files on local disk or S3 Express One Zone, with a SQLite/Turso metastore, and the acceleration survives restarts. This is the recommended mode for Cayenne and is used in the examples throughout this page. The `mode: file_create` and `mode: file_update` variants control how an existing on-disk acceleration is reused or rebuilt on startup.
-- **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)).
+- **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)). `INSERT`, `UPDATE` and `DELETE` apply to the in-RAM tier the same way they apply to a `mode: file` acceleration — see [Writes in memory mode](#writes-in-memory-mode).
 
 ```yaml
 datasets:
@@ -485,6 +485,22 @@ When a primary key is deleted and then re-inserted:
 2. During scan, the delete doesn't apply to data with higher sequence numbers
 3. The new data is visible without requiring separate tracking of "undeleted" records
 
+### Writes in memory mode
+
+A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
+
+- `DELETE` evaluates its predicate against the mem-tier and rebuilds it without the matching rows. An unfiltered `DELETE FROM <table>` purges the tier.
+- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, incoming rows are validated against it as the input streams in, and conflicts resolve through [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict): `upsert` supersedes the existing row, while a `primary_key` with no `on_conflict` configured drops the conflicting incoming row instead.
+- `UPDATE` combines the two, so both rules above apply.
+
+[`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is the exception: it does not reach a `mode: memory` tier, and matching rows stay queryable (see [Limitations](#limitations)).
+
+:::note
+
+Memory-mode DML shipped after v2.3.0. On v2.3.0 and earlier, use `mode: file` for a Cayenne acceleration that is written to with `INSERT`, `UPDATE`, or a filtered `DELETE`.
+
+:::
+
 ## AWS S3 Express One Zone Storage
 
 Spice Cayenne supports storing data files in [AWS S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) for single-digit millisecond latency, ideal for latency-sensitive query workloads that require persistence. Metadata remains on local disk for fast catalog operations while data files are stored in S3 Express One Zone.
@@ -815,7 +831,7 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 
 Consider the following limitations when using Spice Cayenne acceleration:
 
-- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
+- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML is not among the constraints — see [Writes in memory mode](#writes-in-memory-mode) — but [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is, as the next-but-one entry notes.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **Indexes**: `indexes` is ignored with a warning, including `unique` indexes. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
