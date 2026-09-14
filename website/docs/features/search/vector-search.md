@@ -165,6 +165,49 @@ ORDER BY score DESC;
 
 :::
 
+## Vectors an Index Will Not Store
+
+A vector is indexable only if it has a defined direction under the metrics the index offers. Two shapes do not, and a row carrying one is skipped instead of stored:
+
+| Shape | Examples | Why |
+| --- | --- | --- |
+| **No direction** — every component is `0` or `NaN` | `[0, 0, 0]`, `[NaN, NaN]`, `[0, NaN]` | The vector points nowhere, so a cosine distance to it is undefined. |
+| **Non-finite** — at least one component is `NaN` or `±Inf` | `[1.0, NaN]`, `[0.0, Inf]` | Every metric the index offers answers `NaN` or `Inf` for it, whatever it is compared against. |
+
+A vector that is both is reported as the first.
+
+Skipping is neither silent nor passive:
+
+- **The skip is logged, and the two reasons are reported apart.** The in-memory and `s3_vectors` write paths warn once per record, naming it and its reason — `its embedding has no direction — every component is zero or NaN`, or `its embedding has a NaN or infinite component, so every distance to it is undefined`. The `elasticsearch` path aggregates instead: one warning per reason per write, carrying the count of records skipped for it and a sample of their row indices.
+- **A skipped row evicts whatever its primary key already holds.** Within a write, the last row for a repeated key decides that key, so a key whose deciding row is skipped is removed from the index rather than left answering at the vector its previous text produced. The same applies to a row whose search text is `NULL` or empty.
+- A row whose primary key is `NULL` is skipped too, with its own warning, but evicts nothing — there is no key with which to address an earlier entry.
+
+This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them. The [`duckdb`](../../components/vectors/duckdb) engine's write path applies no such criterion and stores the vector as it arrives; it screens the **query** vector instead, failing a search whose query embedding has a non-finite component with `DuckDB vector query contains a non-finite value.`
+
+## Chunks a Shortened Row Leaves Behind
+
+A [chunked](../../components/embeddings#chunking) embedding column is indexed one entry per chunk, addressed by the row's primary key plus a chunk id. A write upserts the entries the row's current text produces — chunk ids `0` through `n` — and nothing above them. So when a row's text is rewritten into **fewer** chunks than it held before, the entries the longer text produced above the new count are not overwritten by that write: unless the index removes them, a search can still match a row on content its current text no longer has.
+
+Which engine holds the entries decides whether they are removed:
+
+| Index | Entries a shortened row superseded |
+| --- | --- |
+| The in-memory warm index, written through to alongside a vector engine | Removed by the same write. |
+| [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) | **Kept.** Neither store can be addressed by part of a key, and the chunk ids a shorter text no longer produces are not known to it. |
+| [`duckdb`](../../components/vectors/duckdb) | Not applicable — the engine refuses a chunked column at load. |
+
+The warm index is added alongside the engine for an accelerated dataset whose engine distance metric it can also compute — cosine, Euclidean/L2, or dot product — and Spice logs when it is left out. Where it is present, a chunked column is written through both, so the warm index stops returning the superseded chunks while the engine's own store still holds them — and where it is not, nothing removes them at all. Spice reports that once per index, on its first write to it — whether or not a row has been shortened yet — naming the index that keeps them and the column:
+
+```
+The `s3_vector_index` search index cannot remove the entries a row's previous 'content' text produced when that text is rewritten to something shorter, so such a row can stay searchable by content it no longer has and a search can return it. The index can only be addressed by a complete key, and the entries a shorter text no longer produces are not known to it. Re-create the search index to rebuild it from the rows the dataset holds now. See: https://spiceai.org/docs/features/search
+```
+
+The index name is `elasticsearch_index` or `s3_vector_index`, and `'content'` is the search column of the reader's own dataset.
+
+**A full refresh does not clear them.** A [`refresh_mode: full`](../data-acceleration/refresh-modes) refresh re-upserts every row under the chunk ids its current text produces, but neither `elasticsearch` nor `s3_vectors` empties its store at the start of such a refresh, so a chunk id no row produces any more is never written over. The same is true of an `append`, an upsert, and a [`changes`](../cdc) CDC batch, each of which sees only the rows it carries. Re-creating the index is what clears them, because it is rebuilt from the rows the dataset holds now.
+
+A row whose search text becomes `NULL` or empty is a separate case, handled by eviction — see [Vectors an Index Will Not Store](#vectors-an-index-will-not-store).
+
 ## Using Existing Embeddings
 
 Spice supports vector searches on datasets with pre-existing embeddings. Ensure the dataset meets these requirements:

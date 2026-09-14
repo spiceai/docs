@@ -14,7 +14,7 @@ Adds a Spicepod dependency to the current project, and prints a deprecation warn
 ### Usage
 
 ```shell
-spice connect <org>/<pod>
+spice connect "<org>/<pod>"
 ```
 
 ### Example

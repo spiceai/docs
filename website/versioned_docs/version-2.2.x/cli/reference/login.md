@@ -48,7 +48,7 @@ spice login
 ### Additional Example
 
 ```shell
-spice login --key <API_KEY>
+spice login --key "<API_KEY>"
 ```
 
 ### Browser Login Flow
@@ -94,7 +94,7 @@ spice cloud login subscription --device
 Authenticate with a Spice Cloud access token. Alias: `pat`.
 
 ```shell
-spice cloud login token --token <TOKEN>
+spice cloud login token --token "<TOKEN>"
 ```
 
 Omit `--token` to enter the token at a secure prompt. Generate one at `/account/tokens` in the Spice Cloud portal.
@@ -102,7 +102,7 @@ Omit `--token` to enter the token at a secure prompt. Generate one at `/account/
 The token can also be provided via the `SPICE_CLOUD_PAT` environment variable:
 
 ```shell
-export SPICE_CLOUD_PAT=<TOKEN>
+export SPICE_CLOUD_PAT="<TOKEN>"
 spice cloud login token
 ```
 
@@ -111,14 +111,14 @@ spice cloud login token
 Authenticate using OAuth2 client credentials for CI/automation workflows.
 
 ```shell
-spice cloud login api --client-id <CLIENT_ID> --client-secret <CLIENT_SECRET>
+spice cloud login api --client-id "<CLIENT_ID>" --client-secret "<CLIENT_SECRET>"
 ```
 
 Credentials can also be provided via environment variables:
 
 ```shell
-export SPICE_CLOUD_CLIENT_ID=<CLIENT_ID>
-export SPICE_CLOUD_CLIENT_SECRET=<CLIENT_SECRET>
+export SPICE_CLOUD_CLIENT_ID="<CLIENT_ID>"
+export SPICE_CLOUD_CLIENT_SECRET="<CLIENT_SECRET>"
 spice cloud login api
 ```
 

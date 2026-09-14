@@ -1,0 +1,1 @@
+{"parameters":[{"name":"name","in":"path","description":"Name of the tool","required":true,"schema":{"type":"string"}}]}

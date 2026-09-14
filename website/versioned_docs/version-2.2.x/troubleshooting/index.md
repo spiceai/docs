@@ -336,10 +336,10 @@ The REPL needs no shell, because `spiced` is itself the binary being executed.
 
 ```console
 # Docker
-docker exec -it <container_id> spiced --repl
+docker exec -it "<container_id>" spiced --repl
 
 # Kubernetes
-kubectl exec -it <pod_name> -- spiced --repl
+kubectl exec -it "<pod_name>" -- spiced --repl
 ```
 
 Because `spiced --repl` runs inside the container, it connects to that container's own `http://localhost:50051` Flight endpoint — attaching to the runtime already serving there. The interactive SQL prompt that follows is therefore executing queries **inside the deployment**, not locally.
@@ -364,10 +364,10 @@ This is the recommended way to debug Spice on Kubernetes.
 
 ```bash
 # List pods in the namespace
-kubectl get pods -n <namespace>
+kubectl get pods -n "<namespace>"
 
 # List the container names inside the pod
-kubectl get pod <pod_name> -n <namespace> -o jsonpath='{.spec.containers[*].name}'
+kubectl get pod "<pod_name>" -n "<namespace>" -o jsonpath='{.spec.containers[*].name}'
 ```
 
 The Helm chart names the Spice container `spiceai`. Run the second command rather than assuming, since a custom manifest may name it something else.
@@ -460,7 +460,7 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
+docker run -v busybox:/busy -v "<path_to_spicepod>:/app/spicepod" -d --name spiceai-debug spiceai/spiceai:latest
 
 # Exec into the container — the shell that follows runs INSIDE the Spice container
 docker exec -it spiceai-debug /busy/busybox sh

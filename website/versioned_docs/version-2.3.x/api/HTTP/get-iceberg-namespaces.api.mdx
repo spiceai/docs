@@ -1,0 +1,71 @@
+---
+id: get-iceberg-namespaces
+title: "List Iceberg namespaces"
+description: "This endpoint retrieves namespaces available in the Iceberg catalog."
+sidebar_label: "List Iceberg namespaces"
+hide_title: true
+hide_table_of_contents: true
+api: eJztV99v2zYQ/leIe1ZsJ0uBTW9Zm24GOhdo0ifPcGjqbF1HkSxJKQkM/e/D6Yclz0ZaoAOGFX2ycUfe3ffdR+q4hyh3AdIlzBVu0O9glUCGQXlykayBFO5zCgJN5iyZKDxGT1hhEEYWGJxUGISsJGm50SjIiJij6IIJJaPUdjf508y3QooHJz2a+DDsFRSE87aiDLNEUBSPpLXQFGITR+Wks3Gm0mToG1dwqGhLmIk26AQSsA695LLnGaSww7imtpD1EAIScNLLAiN6Br4H9kEKbRhIgBj15xL9M5xygV26EYStt4V4zEnlItoDQSe1c4EeP5fkMYN0K3XABILKsZCQ7iE+O67Cbj6hikdLl1xaDNwZ5xliJAy8pTUPe6X3kmumiMXYHqIns4O6rhOIFDXbFn1dUNcrzhacNaGNezWb8c8x9MXQhB5iJkKpFIawLbXmxMqayByme5DOaVJNM6afAkfYfyXYUatOEI98X4b9X1B5zhw+dORCnQA+ycKx/xjM8lDCErpDs5awqpMz9g30ullfwqpe1U3a63NN+1VmgtFjiP9We9B7608JbM1f2FtgCHKHkLSruKIMT2M11iEUmYg79JDA1vpCxtb00xUkUJChoiwgndXJIfppt7p8J44E0PDuJSzsXanyQ8tunxS2HCbM4YeWwrF1biJ6I/Ud+gr9bU9K3/zuAmzs95xzrIyx85yj10u34Eg0B54PaGFuKqlpdNWMWt7hPY+h5fl6Nqt7CV2/cO6FsVFsbWmyH1L6XqU0NLv/KIvM8rfeRoFPNJbUCzB7XV13unp17mrqUYvQwBZtNT+U9Z0q69DuthbRbEvFm7fru9e/3/5xs168v1+/ff9x8WaQ2Lnye3W96m6thtKY227ga6a7mEMK0+py2k1/06Ppr9Vb+80tvYYU8hhdOp1qq6TObYjpz7NfZiez3zt2iwwr1NYVPAK2kSbitTVb2pUexSPFXDxcXHDEhwnwZBVQlZ7ic5NPOlr/hfx/xT4yW9s0vKPWlyZSgWfHzuBIYSaGJZoU8lCRHibYGydVjhdXEy6eMjSRB2R/7KkTYPht4KvJbDK7KE2IPL2zz9kQC2lGUd/xMN4P9EdMHhW5H07u/+nJ0Ekt4lOcOi3JMAmNLPadkpZQXTKf3fso+ceAyoLhRfv9Rgb86HVds7l9P3DPMwqMc5j5X6Dt214XZ7E0chseN5XUJS9qtFlJT03jWY8J5Cgzlsty3+26UXyXjHad3Mgc5XD+fru9h7r+G8IM/Mg=
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Iceberg namespaces"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/iceberg/namespaces"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint retrieves namespaces available in the Iceberg catalog.
+If a `parent` namespace is provided, it will list the child namespaces under the specified parent.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./get-iceberg-namespaces.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./get-iceberg-namespaces.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./get-iceberg-namespaces.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

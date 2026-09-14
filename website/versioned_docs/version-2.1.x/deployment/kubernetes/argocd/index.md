@@ -195,7 +195,7 @@ Roll back to a previous revision using the Argo CD CLI or UI:
 
 ```bash
 argocd app history spiceai
-argocd app rollback spiceai <history-id>
+argocd app rollback spiceai "<history-id>"
 ```
 
 When the `Application` is managed by Git, prefer reverting the commit that introduced the change so the desired state in Git matches the live state. With `selfHeal: true` enabled, Argo CD will otherwise re-apply the Git state.

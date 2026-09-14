@@ -373,6 +373,7 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 :::warning
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
+- **A subquery predicate does not take part in the zero-results decision.** The fallback check runs at the accelerator's scan, below the join that a subquery is rewritten into, so a filter containing `IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST` is left above the scan and the decision is made without it. When the acceleration is a subset of the source and holds any rows at all, the unfiltered scan is non-empty, fallback does not fire, and a query whose only filter is such a subquery can return an empty result even though the source has a matching row. Adding a filter the scan can evaluate itself (for example `WHERE id = 2 AND id IN (SELECT …)`) restores the fallback.
 
 :::
 

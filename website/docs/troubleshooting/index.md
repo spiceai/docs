@@ -41,6 +41,24 @@ Review the `task_history` table for detailed error messages:
 SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT NULL ORDER BY start_time DESC LIMIT 5;
 ```
 
+### `opendal::layers::retry` warnings on S3 reads
+
+An S3 read whose connection closes before the response completes is retried, and each retry logs one warning at the default verbosity:
+
+```console
+2026-09-10T19:16:30.158989Z  WARN opendal::layers::retry: Reading file 'https://my-bucket.s3.us-east-1.amazonaws.com/warehouse/metadata/1-m0.avro' (S3) was interrupted, so Spice will retry in 1s (attempt 1). Cause: The connection closed before the response completed. If this continues, check network access to S3 and any proxy timeouts. See: https://spiceai.org/docs/troubleshooting
+```
+
+The line names the object, the scheduled backoff, and which attempt this is — so an isolated warning followed by no further attempts for that object means the retry succeeded. A rising `attempt` count, or the same object retrying repeatedly, points at the network path rather than at the data: check egress and VPC endpoint reachability to S3, and any proxy or load balancer idle timeout between the runtime and the bucket. Credentials, query strings, and fragments are stripped from the logged URL, so a presigned URL's signature is not written to the log.
+
+The full underlying object-store diagnostic is emitted at `DEBUG` on the same target, labeled `S3 read retry diagnostic` and escaped onto a single line. It is above the default and `--verbose` levels; reach it with `--very-verbose`, or with a targeted filter that leaves everything else alone:
+
+```bash
+SPICED_LOG="WARN,opendal::layers::retry=DEBUG" spice run
+```
+
+`SPICED_LOG` applies only when neither `--verbose` nor `--very-verbose` is set — see [Tracing](../cli/tracing.md).
+
 ### Slow query performance
 
 - **Check if acceleration is enabled**: Unaccelerated datasets query the remote source directly, adding network latency. Add `acceleration: enabled: true` to the dataset configuration.
@@ -347,10 +365,10 @@ The REPL needs no shell, because `spiced` is itself the binary being executed.
 
 ```console
 # Docker
-docker exec -it <container_id> spiced --repl
+docker exec -it "<container_id>" spiced --repl
 
 # Kubernetes
-kubectl exec -it <pod_name> -- spiced --repl
+kubectl exec -it "<pod_name>" -- spiced --repl
 ```
 
 Because `spiced --repl` runs inside the container, it connects to that container's own `http://localhost:50051` Flight endpoint — attaching to the runtime already serving there. The interactive SQL prompt that follows is therefore executing queries **inside the deployment**, not locally.
@@ -375,10 +393,10 @@ This is the recommended way to debug Spice on Kubernetes.
 
 ```bash
 # List pods in the namespace
-kubectl get pods -n <namespace>
+kubectl get pods -n "<namespace>"
 
 # List the container names inside the pod
-kubectl get pod <pod_name> -n <namespace> -o jsonpath='{.spec.containers[*].name}'
+kubectl get pod "<pod_name>" -n "<namespace>" -o jsonpath='{.spec.containers[*].name}'
 ```
 
 The Helm chart names the Spice container `spiceai`. Run the second command rather than assuming, since a custom manifest may name it something else.
@@ -471,7 +489,7 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
+docker run -v busybox:/busy -v "<path_to_spicepod>:/app/spicepod" -d --name spiceai-debug spiceai/spiceai:latest
 
 # Exec into the container — the shell that follows runs INSIDE the Spice container
 docker exec -it spiceai-debug /busy/busybox sh

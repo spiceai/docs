@@ -56,7 +56,7 @@ On startup the connector performs a DNS + TCP reachability check against the res
 
 ### Flight Transport
 
-Data transfer uses Arrow Flight over gRPC. Transient gRPC errors (`UNAVAILABLE`, `DEADLINE_EXCEEDED`) surface to the caller; retries are handled by the Flight client's default policy.
+Data transfer uses Arrow Flight over gRPC. Transient gRPC errors (`UNAVAILABLE`, `DEADLINE_EXCEEDED`) surface to the caller on the first failure — the connector performs no automatic retry, and no per-operation retry parameters are exposed at the Spice layer. Build retry/backoff into the calling application, or accelerate the dataset so reads are served locally instead of federating upstream on every query.
 
 For self-hosted upstreams, prefer `https://` or `grpc+tls://` in production. `http://` is supported for local development and trusted networks but transmits Flight payloads unencrypted. Plain `grpc://` is rejected at startup.
 
@@ -196,7 +196,7 @@ Queries to the upstream Spice runtime participate in [task history](../../../ref
 - **Single endpoint per dataset.** A dataset binds to a single endpoint URL. Multi-endpoint failover lives at the load-balancer / DNS layer.
 - **API key auth only.** OIDC / SSO is not supported at the data-plane connector.
 - **Append-only changes stream.** Updates and deletes are not propagated.
-- **Cloud connections cap at 1000 requests per connection.** When the cap is hit the connection is reset; the Flight client retries automatically. The `spiceai-retryable` metadata flag indicates the retry path.
+- **Cloud connections cap at 1000 requests per connection.** When the cap is hit the connection is reset and the in-flight query fails; the connector does not re-issue it. The `spiceai-retryable` metadata flag on the returned error marks the failure as safe for the *caller* to retry — it does not mean a retry has already been performed.
 - **No `grpc://` (clear-text gRPC).** Use `http://` for unencrypted Flight or `https://` / `grpc+tls://` for TLS.
 
 ## Troubleshooting
@@ -210,5 +210,5 @@ Queries to the upstream Spice runtime participate in [task history](../../../ref
 | TLS handshake failure with self-signed upstream cert | System cert store doesn't trust the upstream CA.              | Set `spiceai_tls_ca_certificate_file` to the upstream's CA PEM, or have the upstream present a publicly-trusted certificate.        |
 | `message size exceeded` / `ResourceExhausted`        | Row batch exceeds gRPC message limit.                         | Increase `runtime.flight.max_message_size` on both client and server, or narrow the query projection.                                              |
 | Append stream stalled; acceleration lag climbing     | Network partition or upstream dataset paused.                 | Check upstream status; verify the source dataset is healthy; restart the runtime to re-establish the stream.                        |
-| Sudden 5xx / `UNAVAILABLE` errors                    | Transient service-side issue.                                 | Flight client auto-retries; if persistent, check upstream runtime health (or the [Spice.ai status page](https://status.spice.ai)).  |
+| Sudden 5xx / `UNAVAILABLE` errors                    | Transient service-side issue.                                 | The error surfaces on the first failure — retry the request from the application; if persistent, check upstream runtime health (or the [Spice.ai status page](https://status.spice.ai)). |
 | `MissingRequiredParameter: api_key or token`         | Targeting a Cloud endpoint with no API key configured.        | Set `spiceai_api_key` (Cloud requires authentication; self-hosted endpoints accept anonymous if upstream auth is off).              |

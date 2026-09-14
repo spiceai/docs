@@ -43,5 +43,5 @@ spice login
 ### Additional Example
 
 ```shell
-spice login --key <API_KEY>
+spice login --key "<API_KEY>"
 ```

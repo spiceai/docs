@@ -143,6 +143,22 @@ SELECT * FROM read_json('todos.json');
 
 :::
 
+## Regular Expression Functions and Federation
+
+Three of DataFusion's regular-expression built-ins are never sent to DuckDB, because DuckDB cannot answer them the way Spice does. A query using one of them is still valid — the call is evaluated in Spice, above the federated scan — but a plan containing it does not federate, so the scan under it reads its columns out of DuckDB instead of filtering there.
+
+| Function | Why it is not sent to DuckDB |
+| --- | --- |
+| `regexp_match` | It returns the first match's *capture groups* as a list, and `NULL` when nothing matches. DuckDB has no function with those semantics: `regexp_extract(s, p, 0)` returns the whole match as a plain string, and the empty string — not `NULL` — when nothing matches. |
+| `regexp_instr` | DuckDB has no function of that name, so a federated call failed outright with `Catalog Error: Scalar Function with name regexp_instr does not exist!`. |
+| `regexp_count` | Its DuckDB rendering, `len(regexp_extract_all(x, p))`, is `NULL` for a `NULL` input, where DataFusion counts zero matches and answers `0`. A `NULL` rather than `0` propagates differently through `SUM`, through `= 0`, and through a `WHERE` built on it. |
+
+**The "does it match at all" idiom still pushes down.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, and `regexp_like` the DuckDB dialect does render natively (as `regexp_matches`), so that shape stays a boolean and federates either way. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
+
+`regexp_like` and `regexp_replace` are the two remaining DataFusion regexp built-ins, and both federate — except when their optional flags argument is a string literal containing `U` or `R`, which DuckDB's regex engine does not support. Such a call is evaluated in Spice instead.
+
+The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)

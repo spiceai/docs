@@ -1,0 +1,70 @@
+---
+id: mcp-message
+title: "Send a Model Context Protocol message"
+description: "Send a JSON-RPC message to the Spice MCP server using the MCP Streamable HTTP transport. The response is either a single JSON-RPC response (`application/json`) or an SSE stream (`text/event-stream`), selected via the `Accept` header. Session continuity is carried via the `Mcp-Session-Id` header."
+sidebar_label: "Send a Model Context Protocol message"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVk1vIzcM/SuETkkx/oh3D61vadBiU9RdY509ZYOMPKIzbDSSInGcdQz/94KasfPhYIGeeunFNkSKfHyPpLxVrO+Sml6rpgrqplAGUxUpMHmnpmqBzoCGPxaf/xp8mV9AgynpOwT2wDXCIlCFMLuYQ8K4xghtIneXTXK44Ii60UuL8Onqag4ctUvBRx7CVY0QMQXvEgIlQOIaI2iQABafMx6cTkodgqVKC7TR38m78hR8BO1gsfgNUs4FJyXjdx7hGh0PurPytICEFitGA2vSGV55XlUYuIQatcE4hAWmRN5B5R2Ta4k3AqvSMdLLa7MqDHrXwaU5XFeF8gFjxnZp1FTYvO3JUoUKOuoGGaMwvVVON6im6nUsVSgSyruI6liJDh8ZdEwrwggRuY0ODSw3GVyvgXdQkiMmbekJS9DOQMSHliIaMaZ2mfChRcf5GBMn0bPR5FiT6+V8y4aUuI+ipittE+5u5KiTJ6npVk3GY/l6DfxIySF82QPXCY5VhZV/0QgH/X2Ed7SFxxrdy+q78wTaGJKY2u6bNg3VrlCT8eQY46xva52bAg2cCIYDcueF8Q5jgtEBUwKuNYPx4rHnGDREDHZzmtN9fI+SmbYrHxs0zymC3livTX/n7PjOV6dbrn2kJzTd+JSj9dmoqUIJ6Ezw5A4QEpSxdUwNDuVSKfIuUcRc0V0bJcDF/rfMz/n8Eu5xAyH6NRmMQA42vo3dfAdv+h7iuIFH4hqqiLkNtU094g/HiH/3cUnGoOvhfvLpMG+w1rbNgy/MUafgAXRThaG21j+iua194lSCpcQvUf/I10dIyEAsdZfX39RP39RNJiE7yidk1x77x/fYvnf+0Uko/B7y5Lwd/e7y2TuFzzstgb0Hq+MdDmGmv1PTNtAjhURPufoPE5jRr0O12xWqQa697I7gE+elwbWaql5lVaiuw7sV0kYru4I5TEcj6yttpaLpz+Nfxker408xg8E1Wh8amfsu0ks+s6zlYCARpbQbSVe1kXiT8+lAt/cov2/ERm7lpXAmtrLKejWOUovwSZrIwLOLpQpdQrnfb8LzoKsaB5OhgH/ecK8tu0JJ+V3gyXA8HA9al1ieF7EJa412L6L2j9fMG7RSqmwPmEfPvvKHrfAW8lbJzkPH/79+/+b1400QynP6YDU5kSQ36bZv5Gu1PlPF/m+GdKucbbdLnfBrtLudHD+0GHOTFWqtI2VtpeWK/bMovWgoiWH/DP1QwP/+0XyXmTxKx38A8lZUU5Xn77AP5p8XV2q3+wee7F7s
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Send a Model Context Protocol message"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/mcp"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Send a JSON-RPC message to the Spice MCP server using the MCP Streamable HTTP transport. The response is either a single JSON-RPC response (`application/json`) or an SSE stream (`text/event-stream`), selected via the `Accept` header. Session continuity is carried via the `Mcp-Session-Id` header.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./mcp-message.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./mcp-message.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./mcp-message.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,0 +1,1 @@
+{"parameters":[{"name":"Mcp-Session-Id","in":"header","description":"Session identifier returned by the server on `initialize` and required on subsequent requests to maintain MCP session continuity.","required":false}]}

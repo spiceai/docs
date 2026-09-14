@@ -762,8 +762,6 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 See [Duration](../duration)
 
-Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
-
 ## `acceleration.refresh_retry_enabled`
 
 Optional. Specifies whether an accelerated dataset should retry data refresh in the event of transient errors. The default setting is true.
@@ -940,6 +938,8 @@ The following values are supported:
 
 - `return_empty` - Default. Return an empty result set when the accelerated query returns no rows.
 - `use_source` - Fall back to querying the original data source when the accelerated query returns no rows.
+
+The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
 
 ```yaml
 datasets:
