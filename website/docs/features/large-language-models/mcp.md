@@ -103,6 +103,32 @@ runtime:
 
 Set `allowed_hosts: ["*"]` to disable host checking entirely.
 
+### Allowed Origins
+
+Separately from the `Host` check, `/v1/mcp` validates the browser `Origin` header against [`runtime.cors.allowed_origins`](../../reference/spicepod/runtime#runtimecorsallowed_origins) — there is no MCP-specific origin setting.
+
+| `runtime.cors.allowed_origins` | Effect on `/v1/mcp` |
+| --- | --- |
+| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms. Entries carry no port, so any port on those hosts matches. |
+| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. |
+
+A request that sends no `Origin` header at all is accepted in every case, which is why MCP clients such as Cursor and Claude Desktop are unaffected.
+
+:::warning
+
+`["*"]` does **not** accept every `Origin` on `/v1/mcp`. `*` is not a valid [RFC 6454](https://datatracker.ietf.org/doc/html/rfc6454) origin, so it expands to the localhost defaults above rather than disabling the check — unlike [`runtime.mcp.allowed_hosts`](../../reference/spicepod/runtime#runtimemcpallowed_hosts), where `["*"]` does disable the `Host` check. A remote browser-based MCP client must be given a concrete `runtime.cors.allowed_origins` list:
+
+```yaml
+runtime:
+  cors:
+    allowed_origins:
+      - https://app.example.com
+```
+
+:::
+
+This affects only MCP `Origin` validation. Browser CORS on the other HTTP endpoints is unchanged: `allowed_origins: ["*"]` remains allow-all there.
+
 ## Additional Configuration Options
 
 ### `from`
