@@ -214,4 +214,4 @@ For the OpenAI Responses API, `prompt_cache_retention` can also be set to reques
 
 The `prompt_cache_key` can also be passed per-request in the [`/v1/nsql` API](../../api/HTTP/post-nsql) body to enable caching for text-to-SQL queries.
 
-For local models using mistral-rs, paged-attention scheduling is enabled automatically on supported backends (CUDA + Unix) for KV-cache prefix reuse — no configuration is needed.
+For local models using mistral-rs, paged-attention scheduling is requested automatically for KV-cache prefix reuse, but it is not used everywhere: it needs a CUDA build on Unix with a CUDA device actually available, and even there the engine serves dense attention for architectures that have no paged kernel, such as the Multi-head Latent Attention GGUFs. On a `from: file:` model, `paged_attention: disabled` forces dense attention with a contiguous KV cache; a `huggingface:` model always takes the automatic path.
