@@ -44,7 +44,7 @@ runtime:
   output_level: verbose
 ```
 
-This raises Spice's own components to `DEBUG` and everything else to `INFO`:
+This raises Spice's own components to `DEBUG`. Everything else falls back to `INFO`, and the same handful of noisy targets stay held down — turned off outright, or pinned to `warn`/`error`:
 
 ```bash
 SPICED_LOG="app=DEBUG,task_history=DEBUG,spiced=DEBUG,runtime=DEBUG,secrets=DEBUG,data_components=DEBUG,cayenne=DEBUG,cache=DEBUG,extensions=DEBUG,spice_cloud=DEBUG,llms=DEBUG,tpc_extension=DEBUG,workers=DEBUG,search=DEBUG,ballista=DEBUG,datafusion=DEBUG,runtime_rate_control=DEBUG,reqwest_retry::middleware=off,opentelemetry=warn,opentelemetry_sdk=off,delta_kernel::log_segment=off,delta_kernel::listed_log_files=off,aws_config::imds::region=off,aws_config::meta::credentials::chain=off,tower::buffer=off,h2::codec=off,datafusion_datasource::source=off,datafusion_optimizer::utils=off,datafusion_optimizer::optimizer=off,datafusion::physical_planner=off,tantivy=warn,text_embeddings_backend_candle=error,INFO" spice run
@@ -65,7 +65,7 @@ runtime:
   output_level: very_verbose
 ```
 
-This raises Spice's own components to `TRACE` and everything else to `DEBUG`, and lifts the filters that are held down at the lower levels:
+This raises Spice's own components to `TRACE`. Everything else falls back to `DEBUG`, and the filters held down only at the lower levels are lifted, though a few noisy targets remain — turned off outright, or pinned to `warn`:
 
 ```bash
 SPICED_LOG="app=TRACE,task_history=TRACE,spiced=TRACE,runtime=TRACE,secrets=TRACE,data_components=TRACE,cayenne=TRACE,cache=TRACE,extensions=TRACE,spice_cloud=TRACE,llms=TRACE,tpc_extension=TRACE,workers=TRACE,search=TRACE,ballista=TRACE,datafusion=TRACE,runtime_rate_control=TRACE,reqwest_retry::middleware=off,opentelemetry=warn,opentelemetry_sdk=off,delta_kernel::log_segment=off,delta_kernel::listed_log_files=off,aws_config::imds::region=off,aws_config::meta::credentials::chain=off,tower::buffer=off,h2::codec=off,DEBUG" spice run
