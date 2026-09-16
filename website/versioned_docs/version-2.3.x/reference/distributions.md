@@ -54,6 +54,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
 | ScyllaDB connector | — | Local build only | ✅ | ✅ |
+| Elasticsearch connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
