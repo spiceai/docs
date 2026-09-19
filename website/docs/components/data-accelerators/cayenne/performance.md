@@ -279,7 +279,9 @@ Compression also decides how much the storage has to deliver: a `btrblocks` file
 
 ## Sorted Data and Segment Pruning
 
-Cayenne needs no explicit indexes. Each Vortex segment carries `min`, `max`, `null_count`, `is_sorted`, and `is_constant` statistics per column, and a query prunes every segment whose range cannot match its predicate before reading it. How much a query prunes depends on the physical order of the data:
+Cayenne prunes without any explicit index. Each Vortex segment carries `min`, `max`, `null_count`, `is_sorted`, and `is_constant` statistics per column, and a query prunes every segment whose range cannot match its predicate before reading it. How much a query prunes depends on the physical order of the data:
+
+Pruning is what makes a *selective* query cheap; it is not a row address. When a query pins an exact key that the data is not clustered on, statistics leave most files as candidates and the scan still opens them. That is the case [`indexes`](./index.md#secondary-indexes) exists for.
 
 - **Set `sort_columns`** to the columns most queries filter on (a comma-separated list, e.g. `sort_columns: tenant_id,created_at`). Sorted data gives each segment a tight `min`/`max` range, so a selective predicate skips most of the table, and `is_sorted` lets a point lookup binary-search within a segment instead of scanning it. Fewer segments read also means fewer dependent I/Os, which is the cost that dominates on every tier slower than NVMe.
 - **Provenance matters for CDC tables.** A sort order that [schema inference](../../data-connectors/index.md#schema-inference) filled in — the primary key, for most CDC datasets — is tagged `cayenne_sort_columns_origin: inferred` and ranks below the filter columns Cayenne observes on scans, so the adaptive layout clusters compacted and cold-tier files for the queries the table actually receives. An explicit `sort_columns` is authoritative and outranks the observations.

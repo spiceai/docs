@@ -130,12 +130,13 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `process_resident_memory_bytes` | Gauge | By | Total resident set size of the `spiced` process. |
 | `process_resident_anon_bytes` | Gauge | By | Anonymous resident bytes: heap and stacks, which the kernel cannot reclaim. Take the gap against this figure rather than the total. |
 | `process_resident_file_bytes` | Gauge | By | File-backed resident bytes: mapped files and page cache the kernel evicts on demand. |
-| `cayenne_memory_account_bytes` | Gauge | By | Memory Cayenne computed for one table and registered against the DataFusion query pool, by `kind` (`keyset`, `deletion_index`, `cold_existence`). |
+| `cayenne_memory_account_bytes` | Gauge | By | Memory Cayenne computed for one table and registered against the DataFusion query pool, by `kind` (`keyset`, `deletion_index`, `cold_existence`, `lookup_index`). |
 | `cayenne_memory_account_reserved_bytes` | Gauge | By | Bytes the table's reservation actually holds on that pool. Components far above reserved means the accounting is not reaching it. |
 | `cayenne_inline_cache_bytes` | Gauge | By | Resident Arrow bytes of the table's decoded inline (level-0) view cache. |
 | `cayenne_inline_cache_batches` | Gauge | batches | Record batches held in that cache. |
 | `cayenne_mem_tier_bytes` | Gauge | By | Resident bytes of one table's in-memory CDC tier. |
 | `cayenne_scan_file_statistics_entries` | Gauge | entries | Cached scan statistics, one entry per data file. |
+| `cayenne_lookup_index_probe_total` | Counter | probes | [Secondary index](./index.md#secondary-indexes) probes, labelled `table`, `shape` (the indexed columns as the `indexes` entry names them) and `outcome` (`selected`, `empty`, `unbuilt`, `snapshot_mismatch`). A rising `unbuilt` or `snapshot_mismatch` share is an index that is not covering the rows being read. |
 
 #### Write-phase labels
 
@@ -154,6 +155,7 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `inmemory_spill` | A synchronous RAM-tier checkpoint (spill) triggered when the per-table byte cap (`cayenne_cdc_mem_tier_max_bytes`) is breached, before the batch is appended. |
 | `inmemory_budget_wait` | Time spent waiting (bounded) for the process-global mem-tier byte budget to admit the batch, released by another table's checkpoint. |
 | `vortex_write` | Encoding and writing Vortex data files. |
+| `lookup_index` | Building a [secondary index](./index.md#secondary-indexes) — sorting and compressing it on the blocking pool. Recorded for a background rebuild as well as a write. |
 | `stage_wal_prepare` | Preparing the staged-append write-ahead log. |
 | `apply_on_conflict_deletions` | Applying merge-on-read deletions for on-conflict (upsert) writes. |
 | `publish` | Total publish/finalization of a new snapshot. |
@@ -164,7 +166,7 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `publish_move_files` | Moving staged files into place during finalize. |
 | `publish_commit` | Committing the new snapshot during finalize. |
 
-The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
+The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `lookup_index`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
 
 ### Maintenance Decision Metrics
 

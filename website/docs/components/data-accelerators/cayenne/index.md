@@ -463,6 +463,48 @@ datasets:
       primary_key: event_id  # Int64 column - uses optimized deletion
 ```
 
+### Secondary indexes
+
+Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field DuckDB, SQLite, Turso and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
+
+```yaml
+datasets:
+  - from: s3://bucket/service_configuration/
+    name: service_configuration
+    acceleration:
+      engine: cayenne
+      mode: file # or memory
+      indexes:
+        '(tenant_id, service_id)': enabled
+        '(tenant_id, pool_id)': enabled
+```
+
+There are no Cayenne-specific parameters for this. Nothing about an index is persisted with the table: the entries are read on every registration, so adding, changing or removing one takes effect the next time the dataset is registered.
+
+**When an index is used.** Only for a lookup whose filters pin **every** column of one index to a literal, compared against the bare column — `WHERE tenant_id = 7 AND service_id = 'a'`. A cast on the column side (`CAST(score AS BIGINT) = 5`, which also holds for `5.2`), a range, an `IN` list or an `OR` scans as before. A cast on the value side is evaluated, not stripped.
+
+**What it changes.** Only what is read. The index returns candidate rows; every original predicate still runs on them and `LIMIT` still applies above the scan, so an index can never add or hide a row. Postings are non-unique — uniqueness is never assumed — and in `mode: file` a candidate row selection is intersected with the table's deletion vectors, so a deleted row is never selected.
+
+**Index columns must have exact equality.** `Float16`, `Float32` and `Float64` columns are rejected at registration (values such as signed zero have no single byte representation); use an integer, decimal, string, or another exact-equality column.
+
+**`unique` builds an index but constrains nothing.** Both `enabled` and `unique` build the same structure. A `unique` entry does not reject duplicate rows, and registration warns:
+
+```
+Dataset '<name>' (cayenne): a `unique` entry in `indexes` speeds up lookups but does not constrain writes, so duplicate rows are not rejected. Set `primary_key` with `on_conflict` to deduplicate on a column set.
+```
+
+**Staleness in `mode: file`.** The index covers one snapshot. A full refresh publishes its index in the same fenced flip that makes the snapshot visible, so no lookup between the two falls back to a scan. Anything else that changes the files — an append, a compaction, a restart — leaves the index stale; it is dropped and the next lookup-shaped query claims a single background rebuild. Rebuilds run one at a time and are paced (at least `max(1s, 10 × the previous build)` apart, backing off after a build that publishes nothing, capped at one hour), so a table whose index cannot be built is not re-read on every lookup. In `mode: memory` each memory-tier segment carries its own index, so no rebuild is needed.
+
+**Memory.** Index bytes are admitted against the query memory pool ([`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit)) and reported on `cayenne_memory_account_bytes{kind="lookup_index"}`. When the pool cannot fit an index, `mode: file` publishes none and `mode: memory` reads that batch whole; results never change.
+
+**Observing it.** `EXPLAIN` reports the decision on `CayenneAccelerationExec` as `lookup_index`, `lookup_index_outcome`, and — where they apply — `candidate_files` and `candidate_rows`. An indexed table whose predicate does not pin a complete key reports `lookup_index=none, lookup_index_outcome=not_applicable`. Each probe is also counted on `cayenne_lookup_index_probe_total{table, shape, outcome}`, with `outcome` one of `selected`, `empty` (no candidate for the key), `unbuilt` (no index covers the rows read) or `snapshot_mismatch` (the index no longer matches the table's files).
+
+:::note
+
+Secondary indexes shipped after v2.3.0. On v2.3.0 and earlier, `indexes` is ignored on a Cayenne acceleration.
+
+:::
+
 ### Upsert Support
 
 When `on_conflict` is configured, Cayenne supports upsert semantics using sequence numbers (Iceberg-style ordering):
@@ -834,7 +876,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML is not among the constraints — see [Writes in memory mode](#writes-in-memory-mode) — but [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is, as the next-but-one entry notes.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **Indexes**: `indexes` is ignored with a warning, including `unique` indexes. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
+- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
 - **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. It is ignored in `mode: memory`, with a warning; matching rows remain queryable.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
