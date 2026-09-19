@@ -124,7 +124,7 @@ Consider the following limitations when using DuckDB acceleration:
 - Hot-reloading dataset configurations while the Spice Runtime is active disables DuckDB query federation until the runtime restarts.
 - `on_refresh_sort_columns` is not currently supported with primary keys or indexes.
 - DuckDB acceleration does not support [`partition_by`](../../../features/data-acceleration/partitioning.md). Configuring it is rejected at load time. Use the `arrow` or `cayenne` engine for partitioned acceleration.
-- The `regexp_match`, `regexp_instr` and `regexp_count` functions are never sent to DuckDB and are evaluated in Spice instead, so a query using one does not push down to the acceleration. See [Regular Expression Functions and Federation](../../data-connectors/duckdb/index.md#regular-expression-functions-and-federation).
+- The `regexp_match` and `regexp_instr` functions are never sent to DuckDB and are evaluated in Spice instead, so a query using one does not push down to the acceleration. `regexp_count` is sent only when the call is one both engines count alike — a literal pattern that cannot match the empty string and uses no engine-dependent syntax, an integer `start`, and no `flags`; any other shape is evaluated in Spice. See [Regular Expression Functions and Federation](../../data-connectors/duckdb/index.md#regular-expression-functions-and-federation).
 
 ## Resource Considerations
 

@@ -145,13 +145,24 @@ SELECT * FROM read_json('todos.json');
 
 ## Regular Expression Functions and Federation
 
-Three of DataFusion's regular-expression built-ins are never sent to DuckDB, because DuckDB cannot answer them the way Spice does. A query using one of them is still valid — the call is evaluated in Spice, above the federated scan — but a plan containing it does not federate, so the scan under it reads its columns out of DuckDB instead of filtering there.
+Two of DataFusion's regular-expression built-ins are never sent to DuckDB, because DuckDB cannot answer them the way Spice does. A query using one of them is still valid — the call is evaluated in Spice, above the federated scan — but a plan containing it does not federate, so the scan under it reads its columns out of DuckDB instead of filtering there.
 
 | Function | Why it is not sent to DuckDB |
 | --- | --- |
 | `regexp_match` | It returns the first match's *capture groups* as a list, and `NULL` when nothing matches. DuckDB has no function with those semantics: `regexp_extract(s, p, 0)` returns the whole match as a plain string, and the empty string — not `NULL` — when nothing matches. |
 | `regexp_instr` | DuckDB has no function of that name, so a federated call failed outright with `Catalog Error: Scalar Function with name regexp_instr does not exist!`. |
-| `regexp_count` | Its DuckDB rendering, `len(regexp_extract_all(x, p))`, is `NULL` for a `NULL` input, where DataFusion counts zero matches and answers `0`. A `NULL` rather than `0` propagates differently through `SUM`, through `= 0`, and through a `WHERE` built on it. |
+
+### `regexp_count` pushes down one call shape at a time
+
+`regexp_count` is sent to DuckDB, rendered as `coalesce(len(regexp_extract_all(x, p)), 0)` — the `coalesce` is what makes a `NULL` input count `0`, as DataFusion's kernel does, rather than `NULL`.
+
+Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differently, and a disagreement changes *which rows match* rather than raising an error, the dialect renders only a call it has been measured to count identically. Every other shape is evaluated in Spice instead — that refusal is not an error, and the query still answers. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal.** A pattern read from a column cannot be inspected at plan time, so such a call stays local.
+- **The pattern cannot match the empty string.** DataFusion skips an empty match that abuts the match before it and RE2 keeps it, so `regexp_count(s, 'a*')` over `ab` counts 2 in Spice and 3 in DuckDB. A pattern that can never match at all is refused for the same reason.
+- **The pattern uses only syntax both engines read alike.** Admitted: literal text and `\.`-style, `\xHH`, `\x{...}` and `\n`-style escapes; `.`; bracketed classes of literals and ranges, negated or not; the `?`, `*`, `+` and `{m,n}` repetitions, greedy or lazy, where the nested counted bounds multiply to at most RE2's limit of 1000; alternation; indexed and non-capturing groups; and the `^`, `$`, `\A` and `\z` anchors. Refused: the Perl classes `\d`, `\w`, `\s` and their negations (Unicode-aware in Spice, ASCII-only in RE2), word boundaries, Unicode properties, POSIX classes, named groups, inline flags including `(?i)` (the two engines' case-folding tables track different Unicode versions), class-set operations such as `[a&&b]`, `\u` escapes, a quantifier stacked on a quantifier (`a++`), a counted bound spelled with a leading zero or a space (`a{01}`, `a{1, 2}`), and a bracketed class of exactly two case variants such as `[Kk]` or `[Ss]`.
+- **A `start` argument is an integer literal between 1 and 4294967295.** The start is applied by narrowing the input to `SUBSTRING(x, start)`, which is 1-based in both engines. A non-literal start cannot become an offset at unparse time, and a start above DuckDB's `SUBSTRING` range is refused.
+- **There is no `flags` argument.** A call that passes flags is always evaluated in Spice.
 
 **The "does it match at all" idiom still pushes down.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, and `regexp_like` the DuckDB dialect does render natively (as `regexp_matches`), so that shape stays a boolean and federates either way. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
 
