@@ -280,7 +280,7 @@ The [Helm chart's storage class recommendations](../deployment/kubernetes/helm#s
 
 ### Storage on Docker and bare metal
 
-Bind-mount a directory on local NVMe into the container and point the accelerators and `runtime.query.temp_directory` at it — see [Docker persistence](../deployment/docker#persistence). Without a mount, acceleration files land in the container's writable layer (on the host's root disk, through the storage driver) and spill lands in the container's `/tmp`, which is the same place. Avoid Docker's `--tmpfs` for either, for the reasons in [RAM-backed storage](#ram-backed-storage-tmpfs).
+Bind-mount a directory on local NVMe into the container and point the accelerators and `runtime.query.temp_directory` at it — see [Docker persistence](../deployment/docker#persistence). Without a mount, acceleration files land in the container's writable layer (on the host's root disk, through the storage driver) and spill lands in the image's temporary directory, which is the same place — from v2.3.1 that is `/app/tmp`, because the published images are built `FROM scratch`, carry no `/tmp`, and set `TMPDIR=/app/tmp` (see [Temporary files](../deployment/docker#temporary-files)). Avoid Docker's `--tmpfs` for either, for the reasons in [RAM-backed storage](#ram-backed-storage-tmpfs).
 
 On a bare-metal or VM host, set the same two things — acceleration paths and `runtime.query.temp_directory` — to the NVMe mount. The runtime does not read `TMPDIR` for anything other than the spill fallback, and it does not relocate the default `.spice/data` directory, so the paths must be explicit.
 
