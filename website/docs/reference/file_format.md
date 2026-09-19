@@ -27,6 +27,7 @@ The `file_format` parameter accepts these values:
 | Value     | Reader              | Default Extension | Notes                                       |
 | --------- | ------------------- | ----------------- | ------------------------------------------- |
 | `parquet` | Apache Parquet      | `.parquet`        |                                             |
+| `orc`     | Apache ORC          | `.orc`            | Columnar format. Read-only.                 |
 | `vortex`  | Vortex              | `.vortex`         | Columnar format. Not available on Windows.  |
 | `csv`     | CSV                 | `.csv`            | Uses `csv_*` parameters.                    |
 | `tsv`     | TSV (tab-delimited) | `.tsv`            | Uses `tsv_*` parameters. Delimiter is tab.  |
@@ -91,6 +92,25 @@ Supported data encodings:
 - [`DELTA_LENGTH_BYTE_ARRAY`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#delta-length-byte-array-delta_length_byte_array--6)
 - [`DELTA_BYTE_ARRAY`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#delta-strings-delta_byte_array--7)
 - [`BYTE_STREAM_SPLIT`](https://parquet.apache.org/docs/file-format/data-pages/encodings/#byte-stream-split-byte_stream_split--9)
+
+## ORC
+
+[Apache ORC](https://orc.apache.org/) objects are read everywhere Parquet is — the S3, GCS, ABFS, file, FTP/SFTP, SMB and NFS connectors. Set `file_format: orc` or use a `.orc` path extension (auto-detection also resolves `.orc` when `file_format` is omitted or set to `auto`).
+
+ORC has no format-specific parameters, and the reader is read-only: `INSERT INTO` an ORC dataset is not supported.
+
+### Collection schema inference
+
+When the dataset points at a directory rather than a single object, Spice merges the footers of **every** matching ORC object to infer the schema, not just the most recently modified one — a column that appears only in older files would otherwise be dropped, and a later scan reads every object. Columns absent from an individual file are filled with NULLs at scan time.
+
+Two consequences:
+
+- Inference reads the scan path (`from`), so a narrower `schema_source_path` prefix cannot be used to speed it up on an ORC collection — a prefix that omits columns would publish an incomplete schema for the full scan.
+- More than **10,000** matching objects is a hard error rather than a silent truncation:
+
+  ```
+  ORC schema inference found more than 10000 matching objects, so the collection is too large for automatic ORC footer merge. A later scan reads every matching object, and a truncated inferred schema would omit columns or incompatible types that first appear after the cap.
+  ```
 
 ## Vortex
 
