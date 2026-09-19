@@ -103,7 +103,7 @@ datasets:
       mode: file
       params:
         caching_ttl: 30s
-        caching_stale_if_error: enabled
+        caching_stale_if_error: 10m # serve stale for up to 10m past caching_ttl on an upstream error
 
 runtime:
   caching:
@@ -125,7 +125,7 @@ In this configuration:
 | ------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
 | `caching_ttl`                        | `0s`       | Duration a cached entry in the accelerator is considered fresh.                                   |
 | `caching_stale_while_revalidate_ttl` | `0s`       | Duration after TTL expiry during which stale data is served while revalidating in the background. |
-| `caching_stale_if_error`             | `disabled` | When `enabled`, serves stale cached data if the upstream fetch fails.                             |
+| `caching_stale_if_error`             | `disabled` | Serves stale cached data if the upstream fetch fails. A duration (`600s`) bounds how stale the entry may be; `enabled` is unbounded.                             |
 
 :::warning
 Do not configure `stale_while_revalidate_ttl` on both the SQL results cache (`runtime.caching.sql_results`) and the dataset caching accelerator (`acceleration.params.caching_stale_while_revalidate_ttl`) for the same dataset. Use one or the other to avoid conflicting revalidation behavior.

@@ -652,14 +652,17 @@ See [Duration](../duration)
 
 ## `acceleration.params.caching_stale_if_error`
 
-Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+Optional. Controls whether — and for how long — expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
 
-When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+This is Spice's implementation of RFC 5861 `stale-if-error`, and it accepts a [duration](../duration) as well as the two keywords. The window is measured from the point the entry went stale — that is, past `caching_ttl` — not from when it was fetched.
 
 Valid values:
 
-- `enabled` - Serve expired cached data when upstream errors occur
-- `disabled` (default) - Propagate upstream errors to queries
+- A duration such as `600s` or `10m` — serve expired cached data on an upstream error only while its staleness past `caching_ttl` is at most that long; beyond it, the upstream error propagates. `0` and `0s` mean the same thing as `disabled`.
+- `enabled` — `stale-if-error` with no upper bound: expired data is served however old it is, and no eviction deadline is derived from this setting. See the warning in [Stale-If-Error Behavior](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior).
+- `disabled` (default) — never serve expired data; propagate upstream errors to queries.
+
+The two keywords match case-insensitively. A boolean (`true`/`false`, quoted or as a YAML boolean) and `infinity`/`inf` are rejected at load with `Invalid 'caching_stale_if_error' value: '<value>'. Expected a duration such as '600s', or 'enabled'/'disabled'.` — use `enabled` for an unbounded window.
 
 **Example**:
 
@@ -675,7 +678,7 @@ datasets:
       params:
         caching_ttl: 15s
         caching_stale_while_revalidate_ttl: 30s
-        caching_stale_if_error: enabled # Serve stale data on upstream errors
+        caching_stale_if_error: 60s # Serve stale data on upstream errors, up to 60s past caching_ttl
       refresh_check_interval: 60s
 ```
 
