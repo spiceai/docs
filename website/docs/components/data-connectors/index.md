@@ -120,6 +120,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                                                                                    |
 | --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [Apache ORC](../reference/file_format#orc)    | `file_format: orc`     | Stable  | Columnar format. Read-only; a directory of ORC objects infers its schema by merging every object's footer.      |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
 | JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
@@ -309,6 +310,7 @@ Runtime schema evolution controls are planned for a future release. When availab
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [Apache ORC](../reference/file_format#orc)    | `file_format: orc`     | ✅         | ❌                  |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |
