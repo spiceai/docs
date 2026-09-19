@@ -569,7 +569,7 @@ The caching mode provides parameters to control cache freshness and staleness be
 | `caching_ttl`                        | Duration that cached data is considered fresh. After this period, data becomes stale and triggers a background refresh.                                    | `30s`      |
 | `caching_item_ttl`                   | Alias for `caching_ttl`, spelling the `item_ttl` suffix used by the [results, search-results and embeddings caches](../../caching). Set one or the other — setting both to *different* values is a load error. | `30s`      |
 | `caching_stale_while_revalidate_ttl` | Duration after `caching_ttl` expires during which stale data is served while refreshing in the background. After this period, queries wait for fresh data. | None       |
-| `caching_stale_if_error`             | When set to `enabled`, serves expired cached data if the upstream source returns an error. Valid values: `enabled`, `disabled`.                            | `disabled` |
+| `caching_stale_if_error`             | How much staleness past `caching_ttl` to tolerate before an upstream error is propagated instead of the expired entry. A duration (`600s`), or `enabled` (unbounded) / `disabled` (never serve stale).                            | `disabled` |
 
 The `caching_ttl` parameter defines how long cached data is considered fresh before it becomes stale. Once cached data exceeds this age, the SWR pattern triggers background refresh to update the cache while continuing to serve the stale data during the `caching_stale_while_revalidate_ttl` window.
 
@@ -616,7 +616,7 @@ datasets:
 
 ### Cache Size and Item Limits
 
-A TTL alone does not bound how much a caching accelerator holds — a workload that keeps fetching new cache keys grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are deliberately kept as fallback material and are never expired away. Two parameters put a ceiling on it:
+A TTL alone does not bound how much a caching accelerator holds — a workload that keeps fetching new cache keys grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are deliberately kept as fallback material and are never expired away — a duration value instead derives an eviction deadline, so it keeps the fallback bounded. Two parameters put a ceiling on it:
 
 | Parameter           | Description                                                                                                        | Default |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------ | ------- |
@@ -668,7 +668,19 @@ Eviction is **entry-granular**: a cached response can span several rows (a pagin
 
 ### Stale-If-Error Behavior
 
-The `caching_stale_if_error` parameter controls whether expired cached data is served when the upstream data source returns an error during a refresh attempt. This provides fault tolerance by returning stale data instead of failing the query when the upstream source is temporarily unavailable.
+The `caching_stale_if_error` parameter controls whether — and for how long — expired cached data is served when the upstream data source returns an error during a refresh attempt. This provides fault tolerance by returning stale data instead of failing the query when the upstream source is temporarily unavailable.
+
+It is Spice's implementation of RFC 5861 `stale-if-error`, and takes a duration as well as the two keywords:
+
+| Value | Meaning |
+| --- | --- |
+| A duration, e.g. `600s`, `10m` | `stale-if-error=N`. On an upstream error, an expired entry is served only while its staleness *past `caching_ttl`* is at most `N`; beyond `N` the upstream error propagates. `0` and `0s` mean `disabled`. |
+| `enabled` | `stale-if-error=∞`. No age bound, so no eviction deadline is derived from this setting either — see the warning below. |
+| `disabled` (default) | `stale-if-error=0`. Never serve expired data; the upstream error propagates. |
+
+The keywords match case-insensitively. Duration *units* are case-sensitive, as everywhere else in acceleration config: `ms` is milliseconds and `Ms` is microseconds. A boolean (`true`/`false`, quoted or as a YAML boolean) and `infinity`/`inf` are rejected at load with `Invalid 'caching_stale_if_error' value: '<value>'. Expected a duration such as '600s', or 'enabled'/'disabled'.` — the unbounded window is spelled `enabled`.
+
+`caching_ttl` plus the longer of a finite `caching_stale_if_error` and `caching_stale_while_revalidate_ttl` is the entry's eviction deadline, and a pair whose sum does not fit a duration is a load error naming both values.
 
 ```yaml
 datasets:
@@ -682,24 +694,26 @@ datasets:
       params:
         caching_ttl: 15s
         caching_stale_while_revalidate_ttl: 30s
-        caching_stale_if_error: enabled # Serve stale data on upstream errors
+        caching_stale_if_error: 60s # Serve stale data on upstream errors, up to 60s past caching_ttl
 ```
 
-When `caching_stale_if_error: enabled`:
+When `caching_stale_if_error` is `enabled` or a duration within which the entry still falls:
 
 - If the upstream source fails during refresh, expired cached data is served instead of failing
 - Queries continue to return data even when the upstream API is unavailable
 - Useful for APIs with intermittent availability or rate limits
 
-When `caching_stale_if_error: disabled` (default):
+When `caching_stale_if_error: disabled` (default), or the entry is staler than the configured duration:
 
 - Errors from the upstream source propagate to the query
 - Queries fail when fresh data cannot be fetched and cached data has expired
 
+**A finite window fails closed on an entry whose age is unknown.** The staleness a duration is checked against is computed from the oldest `fetched_at` across the rows being served. When that timestamp is missing or null, the entry's age cannot be proven to be within the window, so it is *not* served and the upstream error propagates. `enabled` has no bound to check and serves the entry regardless.
+
 **A failing origin is not necessarily an error.** Once the HTTP connector has exhausted its own `max_retries`, it reports a failing origin as a *successful* fetch whose rows carry a 429 or 5xx status — which is the dominant failure mode of the sources caching mode accepts. A revalidation classifies that response as an unavailable origin, so `caching_stale_if_error` acts on it and the cached entry is kept rather than being overwritten with the origin's error body. The same classification stops the periodic background refresh from replacing a good entry with an error response.
 
-:::warning[`caching_stale_if_error` alone leaves the cache unbounded]
-Expired entries are deliberately retained as fallback material for a failing origin, so with `caching_stale_if_error: enabled` the expiry sweep removes nothing. Pair it with [`caching_max_size` or `caching_max_items`](#cache-size-and-item-limits) — or a `retention_period` / `retention_sql` rule — or the acceleration grows without bound. The runtime warns at startup, naming the dataset, when this configuration is loaded.
+:::warning[`caching_stale_if_error: enabled` alone leaves the cache unbounded]
+Expired entries are deliberately retained as fallback material for a failing origin, and `enabled` puts no age bound on them, so the expiry sweep removes nothing. Prefer a finite duration — `caching_stale_if_error: 10m` keeps the fallback for a bounded window and lets the sweep evict past it — or pair `enabled` with [`caching_max_size` or `caching_max_items`](#cache-size-and-item-limits) or a `retention_period` / `retention_sql` rule. The runtime warns at startup, naming the dataset, when `enabled` is loaded with none of those.
 :::
 
 :::warning[Stale-While-Revalidate Configuration Conflict]

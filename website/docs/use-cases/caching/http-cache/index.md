@@ -49,7 +49,7 @@ datasets:
       params:
         caching_ttl: 30s
         caching_stale_while_revalidate_ttl: 2m
-        caching_stale_if_error: enabled
+        caching_stale_if_error: 10m # serve stale for up to 10m past caching_ttl on an upstream error
 ```
 
 Query the cached API data over SQL:
@@ -107,7 +107,7 @@ datasets:
       mode: file
       params:
         caching_ttl: 30s
-        caching_stale_if_error: enabled
+        caching_stale_if_error: 10m # serve stale for up to 10m past caching_ttl on an upstream error
 
 runtime:
   caching:
