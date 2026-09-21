@@ -52,6 +52,14 @@ For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc
 
 :::
 
+## Primary keys and point lookups
+
+On [DuckDB](../../components/data-accelerators/duckdb), [`acceleration.primary_key`](./constraints) creates a DuckDB `PRIMARY KEY` (unique index) usable for **full-key** point lookups. A filter on only a leading or prefix column of a composite key does not use that unique index — add a secondary `indexes` entry on that column.
+
+On [Spice Cayenne](../../components/data-accelerators/cayenne), `primary_key` does not create an index. It identifies the key for upserts and deletes. To index that key, set a separate `indexes` entry on the same column or columns. See [Secondary indexes](../../components/data-accelerators/cayenne#secondary-indexes).
+
+[`on_refresh_sort_columns`](../../components/data-accelerators/duckdb#configuration-parameters) is incompatible with `primary_key`, `indexes`, and `on_conflict`: the sort rewrite drops those constraints. Prefer [Spice Cayenne](../../components/data-accelerators/cayenne) when you need physical clustering (`sort_columns` / `cayenne_cluster_by`) together with them.
+
 :::tip[Spice Cayenne Point Lookup Performance]
 
 Even without `indexes`, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](../../components/data-accelerators/cayenne#point-lookups-and-random-access) for details.

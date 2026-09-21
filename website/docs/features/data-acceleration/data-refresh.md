@@ -264,6 +264,8 @@ curl -i -X PATCH \
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.
 
+`refresh_sql` applies on the **initial** refresh and every later one.
+
 For the complete reference, view the `refresh_sql` section of [datasets](../../reference/spicepod/datasets#accelerationrefresh_sql).
 
 :::warning[Limitations]
@@ -334,6 +336,10 @@ datasets:
 This example will only accelerate data from the federated source that matches the filter `city = 'Seattle'` and is less than 1 day old. If a query against the accelerated data returns zero results, the query will fallback to the source and return the direct results without any filtering.
 
 If a query against the accelerated data returns some results, the query will not fall back. For example, attempting to query for the last 2 days of data would only return the last 1 day of data without falling back.
+
+### Cold start with `append`
+
+With [`refresh_mode: append`](./refresh-modes/append), the **first** load is already windowed — Spice pulls `WHERE time_column > now() - refresh_data_window`. [`retention_period`](#retention-policy) only ages out rows already in the acceleration; it does not backfill extra history on first load. To load more history at cold start, use an additional dataset or a wider `refresh_data_window`. [`refresh_sql`](#refresh-sql) applies on the initial refresh and every later one.
 
 ## Behavior on Zero Results
 
@@ -641,6 +647,8 @@ datasets:
 ```
 
 With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
+
+For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
 
 ## Refresh Jitter
 

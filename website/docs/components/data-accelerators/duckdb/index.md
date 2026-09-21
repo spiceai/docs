@@ -122,7 +122,8 @@ Consider the following limitations when using DuckDB acceleration:
 - Queries using `on_zero_results: use_source` cannot filter binary columns directly (e.g., `WHERE col_blob <> ''`). Instead, cast binary columns to another type (e.g., `WHERE CAST(col_blob AS TEXT) <> ''`).
 - DuckDB indexes currently do not support spilling to disk.
 - Hot-reloading dataset configurations while the Spice Runtime is active disables DuckDB query federation until the runtime restarts.
-- `on_refresh_sort_columns` is not currently supported with primary keys or indexes.
+- `on_refresh_sort_columns` is incompatible with `primary_key`, `indexes`, and `on_conflict`. The sort rewrite issues `CREATE OR REPLACE TABLE ... ORDER BY ...`, which drops those constraints. Prefer [Spice Cayenne](../cayenne/index.md) when you need physical clustering (`sort_columns` / `cayenne_cluster_by`) together with them.
+- `acceleration.primary_key` creates a DuckDB `PRIMARY KEY` (unique index) usable for full-key point lookups. A filter on only a leading column of a composite key needs a secondary [`indexes`](../../../features/data-acceleration/indexes.md) entry.
 - DuckDB acceleration does not support [`partition_by`](../../../features/data-acceleration/partitioning.md). Configuring it is rejected at load time. Use the `arrow` or `cayenne` engine for partitioned acceleration.
 - The `regexp_match` and `regexp_instr` functions are never sent to DuckDB and are evaluated in Spice instead, so a query using one does not push down to the acceleration. `regexp_count` is sent only when the call is one both engines count alike — a literal pattern that cannot match the empty string and uses no engine-dependent syntax, an integer `start`, and no `flags`; any other shape is evaluated in Spice. See [Regular Expression Functions and Federation](../../data-connectors/duckdb/index.md#regular-expression-functions-and-federation).
 

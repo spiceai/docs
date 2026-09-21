@@ -42,8 +42,10 @@ views:
 ## Limitations and Considerations
 
 - Views are read-only; insert, update, and delete operations are not supported.
-- Performance depends on SQL complexity and underlying data.
-- Ensure queries are optimized to prevent slow execution.
+- Performance depends on SQL complexity and underlying data. Ensure queries are optimized to prevent slow execution.
+- An accelerated view re-runs its **full** SQL on each [`refresh_check_interval`](../../reference/spicepod/views#accelerationrefresh_check_interval). There is no "only recompute rows that changed in the base" maintenance today. [Spice Cayenne](../../components/data-accelerators/cayenne#maintained-aggregates) incrementally maintains **aggregate** views declared with `maintained_aggregates` on CDC (`refresh_mode: changes`) datasets — that is a dataset feature, not a general accelerated-view maintenance path.
+- Prefer a few datasets plus [indexes](../data-acceleration/indexes.md) (and/or [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md)) over hundreds of per-key accelerated views. An accelerated view's store sits on top of the base — roughly twice the disk if it keeps a full filtered copy. Views do not compact the base dataset's history; bound disk with [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) / [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) on the source acceleration.
+- Spicepod datasets and views can [hot-reload](../../cli/reference/spiced) without a process restart (`spice run`, or `spiced --pods-watcher-enabled`). For large numbers of definitions, the [Spice.ai Enterprise Kubernetes Operator](https://docs.spice.ai/docs/enterprise/kubernetes-operator/kubernetes) is the recommended control plane.
 
 ## Schema Inference and Evolution
 

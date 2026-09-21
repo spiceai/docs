@@ -117,6 +117,8 @@ datasets:
 
 Learn more at [Datasets](../reference/spicepod/datasets).
 
+Datasets (and [views](../features/views)) can be added, updated, or removed by editing the Spicepod. With the pods watcher enabled (`spice run`, or `spiced --pods-watcher-enabled`), those changes hot-reload without a process restart. For large numbers of definitions, the [Spice.ai Enterprise Kubernetes Operator](https://docs.spice.ai/docs/enterprise/kubernetes-operator/kubernetes) is the recommended control plane. DuckDB-accelerated datasets have a [hot-reload federation caveat](../components/data-accelerators/duckdb#limitations).
+
 ### Catalogs
 
 Catalogs in a Spicepod can contain multiple schemas. Each schema, in turn, contains multiple tables where the actual data is stored.
