@@ -81,7 +81,7 @@ Refreshing from upstream sources, running Cayenne acceleration on large Iceberg 
 
 The cluster ingests each dataset once and produces one authoritative materialization. Source load is bounded by cluster size, not fleet size. A new pod's sidecar pulls its working set from the cluster (or from an [acceleration snapshot](../../features/data-acceleration/snapshots)) rather than re-scanning the source, so new nodes are operational in seconds.
 
-The same split applies to search. Build full-text and vector indexes on the cluster. Sidecars serve repeated searches from the [search results cache](../../features/caching) instead of rebuilding those indexes per pod. See [Where indexes are built](../../features/search#where-indexes-are-built).
+The same split applies to search. Build full-text and vector indexes on the cluster. Sidecars serve repeated searches from the [search results cache](../../features/caching) instead of rebuilding those indexes per pod. See [Search](../../features/search).
 
 Sidecars stay lightweight because they do **not** own ingest:
 
