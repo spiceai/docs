@@ -302,15 +302,16 @@ The same apply-on-scan path is how [`refresh_mode: full`](../../features/data-ac
 
 [`refresh_mode: changes`](../../features/data-acceleration/refresh-modes/changes) is for database CDC feeds — PostgreSQL WAL, MySQL binlog, Debezium, and the other [CDC connectors](../../features/cdc) — not for applying Iceberg delete files. Iceberg snapshot-diff into `changes` acceleration is not available yet.
 
-Until that path exists, prefer **soft deletes** in the Iceberg table (a `deleted` or `deleted_at` column) plus a Spice [view](../../features/views) that filters tombstones (`WHERE deleted = false` or `WHERE deleted_at IS NULL`). See [Current state from an append-only log](#current-state-from-an-append-only-log).
+Until that path exists, a workaround is **soft deletes** in the Iceberg table (a `deleted` or `deleted_at` column) plus a Spice [view](../../features/views) that filters tombstones (`WHERE deleted = false` or `WHERE deleted_at IS NULL`). The workaround is subject to change. It still lets you get fast queries by applying the soft-delete filter when creating the view. See [Current state from an append-only log](#current-state-from-an-append-only-log).
 
 ## Current state from an append-only log
 
 For an Iceberg table that records inserts and soft deletes as an append-only log:
 
 1. Accelerate the log **once** with `refresh_mode: append`, a `time_column`, and `primary_key` + `on_conflict: upsert`. See [End-to-End Incremental Ingestion](../../features/data-acceleration/data-refresh#end-to-end-incremental-ingestion-example).
-2. Optionally accelerate a Spice view that filters tombstones so "current state" is a first-class dataset. The view's store sits on top of the log — roughly twice the disk if it keeps a full filtered copy — and does **not** compact history by itself. Bound disk with [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) / [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) on the **log** acceleration.
-3. Prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../../features/caching) for hot point lookups, rather than re-accelerating the full log on every node.
+2. Optionally accelerate a Spice view that applies the soft-delete filter (`WHERE deleted = false` or `WHERE deleted_at IS NULL`) so "current state" is a first-class dataset. The view's store sits on top of the log — roughly twice the disk if it keeps a full filtered copy — and does **not** compact history by itself. Bound disk with [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) / [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) on the **log** acceleration.
+
+[Cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../../features/caching) addresses a different problem. The cache stores query results; it does not apply the soft-delete filter. It moves hot point lookups closer to the application, and it splits the deployment: the cluster holds the accelerated log, and each sidecar keeps its own result cache instead of another filtered copy of that log.
 
 A worked DuckDB example of this log-plus-filtered-view shape is in [Sorted views](../../reference/performance-tuning#sorted-views).
 

@@ -54,7 +54,9 @@ For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc
 
 ## Primary keys and point lookups
 
-[`acceleration.primary_key`](./constraints) creates a real unique constraint on the accelerated table. On [DuckDB](../../components/data-accelerators/duckdb) this is a DuckDB `PRIMARY KEY` (unique index) and is usable for **full-key** point lookups. A filter on only a leading or prefix column of a composite key does not use that unique index — add a secondary `indexes` entry on that column.
+On [DuckDB](../../components/data-accelerators/duckdb), [`acceleration.primary_key`](./constraints) creates a DuckDB `PRIMARY KEY` (unique index) usable for **full-key** point lookups. A filter on only a leading or prefix column of a composite key does not use that unique index — add a secondary `indexes` entry on that column.
+
+On [Spice Cayenne](../../components/data-accelerators/cayenne), `primary_key` does not create an index. It identifies the key for upserts and deletes. To index that key, set a separate `indexes` entry on the same column or columns. See [Secondary indexes](../../components/data-accelerators/cayenne#secondary-indexes).
 
 [`on_refresh_sort_columns`](../../components/data-accelerators/duckdb#configuration-parameters) is incompatible with `primary_key`, `indexes`, and `on_conflict`: the sort rewrite drops those constraints. Prefer [Spice Cayenne](../../components/data-accelerators/cayenne) when you need physical clustering (`sort_columns` / `cayenne_cluster_by`) together with them.
 
