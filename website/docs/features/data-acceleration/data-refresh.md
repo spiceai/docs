@@ -648,7 +648,7 @@ datasets:
 
 With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
 
-For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
+For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
 
 ## Refresh Jitter
 
