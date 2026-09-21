@@ -12,6 +12,8 @@ pagination_next: null
 
 Spice supports JDBC clients through a JDBC driver implementation based on the [Flight SQL](https://arrow.apache.org/docs/format/FlightSql.html) protocol. This enables any JDBC-compatible application to connect to Spice, execute queries, and retrieve data.
 
+Size the JDBC pool to Spice [`max_concurrent_queries`](../../reference/spicepod/runtime#runtimequerymax_concurrent_queries). For short lookups over TLS Flight, see [Short queries](../arrow-flight-sql#short-queries).
+
 ## Download and install the Flight SQL JDBC driver
 
 ### Download the Flight SQL JDBC driver

@@ -25,7 +25,7 @@ runtime:
     retention_check_interval: 15m
 ```
 
-- **`enabled`**: Enable or disable task history. Defaults to `true`.
+- **`enabled`**: Enable or disable task history. Defaults to `true`. Disabling it removes this table. Prometheus [`/metrics`](../features/observability#prometheus-metrics-endpoint) query counters stay available — see [Observability](../features/observability#prometheus-metrics-endpoint).
 - **`captured_output`**: Level of output captured. Defaults to `none`.
 - **`captured_context`**: How much of the AI and search task payload is stored. Defaults to `truncated`. See [Captured context](#captured-context).
 - **`retention_period`**: How long records are retained. Defaults to `8h`. Longer retention periods increase memory usage.

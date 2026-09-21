@@ -26,6 +26,8 @@ Spice provides monitoring and observability through three mechanisms:
 
 Spice exposes a Prometheus-compatible metrics endpoint that monitoring systems can scrape. The endpoint serves metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/), which is supported by most enterprise monitoring platforms including Datadog, New Relic, Chronosphere, Grafana Cloud, and others.
 
+Query metrics on this endpoint — `query_duration_ms`, `query_executions`, `query_failures` — are independent of [`runtime.task_history`](../reference/task_history). Disabling task history removes the `runtime.task_history` table and plan capture. It does not remove these counters. Scrape `/metrics` (or the [OpenTelemetry exporter](#opentelemetry-metrics-exporter) and the [Datadog](../monitoring/datadog) template) to confirm query observability on a lookup path that has turned task history off. Confirm the metric names against the release you run; the two subsystems are configured separately.
+
 ### Default Configuration
 
 The metrics endpoint listens on port `9090` by default. The endpoint address is logged at startup:

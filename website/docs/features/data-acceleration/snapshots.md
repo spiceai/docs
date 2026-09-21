@@ -292,11 +292,13 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 ## Best practices
 
+- **Treat the snapshot interval as a freshness gap.** A reader that bootstraps from object storage serves the last successful snapshot until its own next refresh. `refresh_complete` is as fresh as the writer's last refresh; `time_interval` can be older still. Size the trigger against the freshness the readers are allowed to serve, and keep a durable volume when that gap is too wide. See [Read/Write Separation](../../deployment/read-write-separation).
 - **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
 - **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
 - **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
+- **Search indexes are not all inside the accelerator file.** A DuckDB HNSW index lives in the DuckDB file, so it is part of that dataset's snapshot. A built-in full-text index does not: the default in-memory Tantivy index is rebuilt on every start, and `index_store: file` writes a separate directory (`.spice/data/fts/...` unless `index_directory` is set) that acceleration snapshots do not upload. For restart parity of full-text search, keep that directory on the same durable volume as the acceleration file, or build the index once on a central tier and serve sidecars from the [search results cache](../caching). See [Where indexes are built](../search#where-indexes-are-built).
 
 For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).
 

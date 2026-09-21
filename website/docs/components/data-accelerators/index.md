@@ -64,16 +64,21 @@ Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/d
 
 - Datasets are 10 GB or larger
 - Memory headroom is constrained, or the deployment must run in a smaller container
+- The dataset is mutable, refreshed often, or ingested with native CDC (`refresh_mode: changes`)
+- `refresh_mode: full` would be repeated often enough to grow a DuckDB file — see [Sizing the volume](data-accelerators/duckdb#sizing-the-volume)
 - Multi-file data ingestion is required (e.g., partitioned S3 data)
 - Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
 - Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
 
 **Choose DuckDB when:**
 
-- Datasets are under 10 GB
+- Datasets are under 10 GB and mostly static between refreshes
+- Point lookups go through a primary key or secondary indexes on that smaller table
 - Complex SQL features are required (window functions, CTEs)
 - Existing DuckDB tooling integration is beneficial
 - Database-enforced index semantics are required (a `unique` index that rejects duplicate writes; Cayenne's `indexes` narrow reads but do not constrain writes)
+
+**Moving a dataset from DuckDB to Cayenne** is an `acceleration.engine` change plus removal of DuckDB-only parameters. Cayenne does not read `duckdb_file`, `duckdb_memory_limit`, `duckdb_preserve_insertion_order`, `on_refresh_sort_columns`, or `on_full_refresh`. Set [`cayenne_file_path`](data-accelerators/cayenne#parameters) and an explicit shared [`cayenne_metadata_dir`](data-accelerators/cayenne#metastore-location). Clustering moves to [`sort_columns`](data-accelerators/cayenne/performance#sorted-data-and-segment-pruning), which is the control to use together with a primary key — DuckDB [`on_refresh_sort_columns`](data-accelerators/duckdb#configuration-parameters) drops `primary_key`, indexes, and `on_conflict`. CDC deletes use [`cayenne_deletion_mode`](data-accelerators/cayenne#deletion-strategies).
 
 ## Data Types
 

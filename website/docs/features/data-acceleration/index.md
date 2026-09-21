@@ -32,9 +32,9 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 **Refresh Latency**: The `refresh_check_interval` controls how frequently the runtime checks for new data. Shorter intervals increase load on the source database. For real-time requirements, use [Change Data Capture (CDC)](../cdc/index.md) instead of polling.
 
-**Schema Changes**: Spice infers the schema for each accelerated dataset at startup and does not apply schema changes at runtime. If the source schema changes (columns added, removed, or types changed) while the runtime is running, data refreshes will fail rather than silently applying the new schema. To pick up source schema changes, restart the runtime, or use [`mode: file_update`](../reference/spicepod/datasets#accelerationmode) which automatically detects schema changes on refresh and recreates the acceleration when incompatible changes are found. See [Schema Inference](../components/data-connectors#schema-inference) for details.
+**Schema Changes**: An accelerated dataset keeps the schema it registered at startup. The default [`on_schema_change: block`](../reference/spicepod/datasets#on_schema_change) does not adopt a later source change, and the dataset keeps serving the registered schema. Plan the rollout and set an explicit policy (`append_new_columns`, `sync_all_columns`, or `drop_and_recreate`) when the change should be accepted. [`mode: file_update`](../reference/spicepod/datasets#accelerationmode) recreates the acceleration file when an incompatible change is found. See [Runtime Schema Changes](../components/data-connectors#runtime-schema-changes).
 
-**Engine Selection**: Choose the acceleration engine based on workload characteristics:
+**Engine Selection**: Choose the acceleration engine based on workload characteristics. For the DuckDB versus Cayenne choice — mostly-static indexed lookups versus frequent refresh and CDC — see [Spice Cayenne vs DuckDB](../components/data-accelerators#spice-cayenne-vs-duckdb).
 
 | Engine     | Best For                                           | Mode                                              |
 | ---------- | -------------------------------------------------- | ------------------------------------------------- |

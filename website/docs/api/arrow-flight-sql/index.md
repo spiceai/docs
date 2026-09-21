@@ -21,3 +21,17 @@ Spice implements the Flight SQL protocol, enabling querying of the datasets conf
 ## Authentication
 
 API Key authentication is supported for the Arrow Flight SQL endpoint. For more details, see [API Key Authentication](auth).
+
+## Short queries
+
+Point lookups and other small Flight SQL responses spend more of their time in planning, admission, and the network than in the scan.
+
+- **`TCP_NODELAY`.** A small response waits on Nagle's algorithm when the accepted socket leaves it off. The HTTP server sets `TCP_NODELAY` ([spiceai#13874](https://github.com/spiceai/spiceai/pull/13874)). Non-TLS Flight uses the server stack that sets it. The TLS Flight listener binds its own TCP socket and does not set `TCP_NODELAY` on accepted connections — the gap recorded on [spiceai#13867](https://github.com/spiceai/spiceai/issues/13867). A proxy that only caches small results is better on the HTTP API. There is no Spicepod flag for the socket option.
+- **Prepared statements**, when planning dominates the lookup. `PREPARE` once and `EXECUTE` with bound parameters ([prepared statements](../../reference/sql/prepared_statements)). `PREPARE` is not admission-gated; `EXECUTE` is. Repeated SQL text also hits the [logical plan cache](../../features/caching#logical-plan-cache).
+- **A low [`target_partitions`](../../reference/performance-tuning#query-parallelism)** for a lookup that does not scan in parallel. Confirm the plan with [`EXPLAIN`](../../reference/sql/explain).
+
+JDBC, ODBC, and ADBC clients speak this protocol. Size their connection pools to [`max_concurrent_queries`](../../reference/spicepod/runtime#runtimequerymax_concurrent_queries) — see [Client connection pools](../../reference/performance-tuning#client-connection-pools).
+
+## Long `DoGet` streams
+
+[`runtime.query.timeout`](../../reference/spicepod/runtime#runtimequerytimeout) applies to Flight SQL for the whole query, including result streaming. If the timeout fires after rows have started, the `DoGet` stream ends with an error. Bytes already delivered stay delivered, and the stream does not close as a successful completion. Acceleration refreshes are exempt from that timeout.

@@ -112,6 +112,12 @@ After each full-refresh overwrite commits, the runtime runs `CHECKPOINT` on the 
 
 This is lighter than `replace_file` — there is no staging copy of cohabiting objects — at the cost of that stall, and of the file plateauing at its high-water mark instead of shrinking. Prefer `replace_file` where in-flight queries must not be interrupted.
 
+### Sizing the volume
+
+The on-disk file is not a proxy for the dataset size. `reuse_file` (the default) keeps every previous copy's free blocks until a checkpoint, so a PVC sized to the table fills across refreshes. `checkpoint_file` stops the growth and then sits at the file's high-water mark — it does not shrink. `replace_file` needs free space for the live file and the staging file at the same time, because the replacement is written beside the file that is still serving queries.
+
+Leave headroom for the WAL, index serialization, and that staging copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
+
 ## Limitations
 
 Consider the following limitations when using DuckDB acceleration:
@@ -193,7 +199,7 @@ Store the `duckdb_file` on **local NVMe or SSD**, for its per-I/O latency above 
 
 The runtime tunes the instance for the resolved [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile): on `ebs` (EBS, Azure Managed Disks, NFS, SMB) it lowers the connection-pool floor to 4 and raises `checkpoint_threshold` to 256 MiB so each checkpoint amortizes more I/O; on `tmpfs` it raises `checkpoint_threshold` to 1 GiB; on local SSD the DuckDB defaults apply. Set the profile explicitly on network block devices that auto-detection cannot identify, such as GCP Persistent Disk.
 
-Ensure adequate disk space for the database file, its WAL, index serialization, and DuckDB's temporary files (see [Temporary Directory](#temporary-directory)). A repeatedly full-refreshed file grows by the whole table on every refresh until [`on_full_refresh`](#bounding-acceleration-file-growth) reclaims the space. Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
+Ensure adequate disk space for the database file, its WAL, index serialization, and DuckDB's temporary files (see [Temporary Directory](#temporary-directory)). A repeatedly full-refreshed file grows by the whole table on every refresh until [`on_full_refresh`](#bounding-acceleration-file-growth) reclaims the space. Size the volume for the reclaim mode in use — including a second copy of the file while `replace_file` stages a replacement — rather than for the dataset alone. See [Sizing the volume](#sizing-the-volume). Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
 
 ## Temporary Directory
 

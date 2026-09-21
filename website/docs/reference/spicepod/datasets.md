@@ -228,7 +228,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## Schema Inference and Evolution
 
-Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default, schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts, and you must restart the runtime to re-infer the schema.
+Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default ([`on_schema_change: block`](#on_schema_change)), a later source change is not applied: the dataset keeps serving the registered schema, and a refresh that cannot write into that schema fails. Restarting re-infers the schema. An explicit `on_schema_change` policy is how a change is accepted.
 
 Accelerated datasets can opt into automatic, in-place schema evolution with the [`on_schema_change`](#on_schema_change) policy, which adopts lossless, widening-compatible source changes without a restart — and can additionally drop and recreate the accelerated table on incompatible changes (`drop_and_recreate`) when `refresh_mode: full` is set.
 

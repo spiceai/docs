@@ -46,6 +46,16 @@ The Debezium connector streams change events from a Kafka topic produced by Debe
 - `refresh_check_interval`, `refresh_cron`, on-demand refresh, `refresh_data_window`, and `retention_period` do not apply — updates are driven by the change stream rather than periodic polling.
 - [`refresh_sql`](../data-refresh#refresh-sql) can only modify selected columns in `changes` mode and cannot apply row filters.
 
+## Native CDC
+
+Use `refresh_mode: changes` when an interval [`full`](./full) or [`append`](./append) refresh is not fresh enough and the source can emit row-level changes. For PostgreSQL and MySQL, the native connectors are the path to use: [PostgreSQL logical replication](../../cdc/postgres-replication) and [MySQL binlog replication](../../cdc/mysql-replication). [Debezium](../../cdc/debezium) (with or without Kafka) remains the path for databases without a native Spice CDC connector, and for deployments that already run that pipeline.
+
+Point the dataset at a replica when that replica still exposes the log the connector reads — Postgres logical decoding (`wal_level=logical`), or the MySQL binary log — so the log read stays off the primary.
+
+[Spice Cayenne](../../../components/data-accelerators/cayenne#change-data-capture-refresh_mode-changes) is the accelerator for high-throughput CDC. `arrow`, `duckdb`, and `sqlite` can apply a change stream; they are a better fit when the table is small. An append-only acceleration still needs an application tombstone (a `deleted` or `deleted_at` column, filtered in a view) when the source does not emit deletes. `changes` applies source deletes into the accelerator.
+
+Schema changes on the source are not applied silently. See [`on_schema_change`](../../../reference/spicepod/datasets#on_schema_change), [MySQL schema changes](../../cdc/mysql-replication#schema-changes), and [PostgreSQL CDC limitations](../../cdc/postgres-replication#limitations).
+
 ## Related Topics
 
 - [Change Data Capture](../../cdc)

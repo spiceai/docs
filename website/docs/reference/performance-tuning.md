@@ -498,7 +498,14 @@ Requires `query_federation` to be disabled. Supports `count`, `sum`, `avg`, `min
 
 ### Bounding File Growth
 
-A repeatedly full-refreshed DuckDB file grows without bound because bulk loads bypass the WAL-triggered checkpoint that would reclaim the previous copy of the data. Set [`on_full_refresh`](../components/data-accelerators/duckdb#bounding-acceleration-file-growth) to `replace_file` (readers never interrupted, file can shrink) or `checkpoint_file` (lighter, file plateaus) so the acceleration volume is sized for the data rather than for its history.
+A repeatedly full-refreshed DuckDB file grows without bound because bulk loads bypass the WAL-triggered checkpoint that would reclaim the previous copy of the data. Set [`on_full_refresh`](../components/data-accelerators/duckdb#bounding-acceleration-file-growth) to `replace_file` (readers never interrupted, file can shrink) or `checkpoint_file` (lighter, file plateaus) so the acceleration volume is sized for the data rather than for its history. Size the volume for the live file plus the staging copy `replace_file` writes beside it. See [Sizing the volume](../components/data-accelerators/duckdb#sizing-the-volume).
+
+### Unsorted accelerations
+
+Zone-maps and Cayenne segment statistics only prune when the filter columns are physically ordered. When predicates do not prune, sort on insert:
+
+- On DuckDB, an accelerated view with `ORDER BY` and `duckdb_preserve_insertion_order: true` (above), or `on_refresh_sort_columns` on a table. `on_refresh_sort_columns` rewrites the table and drops `primary_key`, `indexes`, and `on_conflict`. Use it on a table that does not need those constraints.
+- On Cayenne, [`sort_columns`](../components/data-accelerators/cayenne/performance#sorted-data-and-segment-pruning) (or `partition_by` on the selective key). `sort_columns` is compatible with a primary key; `on_refresh_sort_columns` is not.
 
 ## SQLite and Turso
 
@@ -516,6 +523,8 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 ### Query Parallelism
 
 DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the runtime's [CPU entitlement](spicepod/runtime#runtimecpu) in whole cores, providing maximum parallelism. Override it with `runtime.query.target_partitions`, or state the entitlement itself with `runtime.cpu.cores` to size partitions and every other CPU-derived pool together.
+
+Match the override to the query shape, and check it with [`EXPLAIN`](sql/explain). A large scan benefits from more partitions. A point lookup, or any query whose working set is a few rows, often wants a **low** count: each partition reserves memory and adds a coordination step, and that overhead dominates when there is nothing to scan in parallel. There is no single numeric default that fits both shapes — read the plan (look for `RepartitionExec` fan-out) after changing it. The same low setting applies to non-partitioned [Flight SQL](../api/arrow-flight-sql#short-queries) lookups.
 
 DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured `memory_limit`. This approach improves throughput for high-concurrency queries with many partitions compared to dividing memory evenly.
 
@@ -929,6 +938,14 @@ runtime:
 
 A hand-written pod spec that sets a CPU request but does not pass it through gets neither behavior — it falls back to sizing for the machine, and the runtime warns at startup naming the variable to set. See [Sizing from a CPU request](spicepod/runtime#sizing-from-a-cpu-request).
 
+Constrain how much work runs at once with [`runtime.query.max_concurrent_queries`](spicepod/runtime#runtimequerymax_concurrent_queries) and [`runtime.query.target_partitions`](#query-parallelism). A Kubernetes CPU limit is a CFS quota; those runtime settings bound admission and fan-out without throttling the process.
+
+### Client connection pools
+
+Size client HTTP and JDBC/ODBC/ADBC pools to Spice [`max_concurrent_queries`](spicepod/runtime#runtimequerymax_concurrent_queries). A results-cache hit does not take an admission permit. A miss does, and the permit is held for execution and for streaming the result, so each in-flight call holds a client connection until Spice finishes or the client times out.
+
+A client pool much larger than the admission bound checks out every connection and then times out acquiring the next one, while Spice `query_failures` stays quiet: the queries are waiting for admission, not failing. Match the pool to the bound. Count admission wait in the client timeout — [`runtime.query.timeout`](spicepod/runtime#runtimequerytimeout) includes it. See [Client-side resiliency](memory#client-side-resiliency).
+
 Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `spiced_cpu_limit_millicores` to see what a pod sized for and what it was chosen against; the `source` label says which rung produced it. See [`runtime.cpu`](spicepod/runtime#runtimecpu).
 
 ### Storage Recommendations
@@ -993,7 +1010,11 @@ Use this checklist when optimizing Spice deployments:
 - [ ] Use `refresh_mode: append` or `changes` for large and time-series data; set `on_full_refresh` on full-refreshed DuckDB files
 - [ ] Sort accelerated data by filter columns (`sort_columns`, `on_refresh_sort_columns`, sorted views)
 - [ ] Configure indexes for point lookup queries (DuckDB/SQLite)
-- [ ] Set resource requests in Kubernetes; no CPU limit; `runtime.cpu.cores` to bound thread pools
+- [ ] Set resource requests in Kubernetes; no CPU limit; `runtime.cpu.cores` to bound thread pools; `max_concurrent_queries` to bound admission
+- [ ] Size client connection pools to `max_concurrent_queries`
+- [ ] Lower `runtime.query.target_partitions` for point lookups; confirm with `EXPLAIN`
+- [ ] Gate pod readiness on `/v1/ready` when serving only warm acceleration
+- [ ] Size the SQL results cache for the hot working set before shrinking Cayenne segment and footer caches
 - [ ] Enable observability for monitoring, including storage tier, footprint, and free-space metrics
 
 ## Related Documentation
