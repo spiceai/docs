@@ -26,7 +26,7 @@ API Key authentication is supported for the Arrow Flight SQL endpoint. For more 
 
 Point lookups and other small Flight SQL responses spend more of their time in planning, admission, and the network than in the scan.
 
-- **`TCP_NODELAY`.** A small response waits on Nagle's algorithm when the accepted socket leaves it off. The HTTP server sets `TCP_NODELAY` ([spiceai#13874](https://github.com/spiceai/spiceai/pull/13874)). Non-TLS Flight uses the server stack that sets it. The TLS Flight listener binds its own TCP socket and does not set `TCP_NODELAY` on accepted connections — the gap recorded on [spiceai#13867](https://github.com/spiceai/spiceai/issues/13867). A proxy that only caches small results is better on the HTTP API. There is no Spicepod flag for the socket option.
+- **`TCP_NODELAY`.** HTTP sets `TCP_NODELAY`. Non-TLS Flight inherits that path. TLS Flight currently does not set `TCP_NODELAY` on accepted connections, so a small response can wait on Nagle's algorithm. For a proxy that only caches small results, prefer the HTTP API. There is no Spicepod flag for the socket option.
 - **Prepared statements**, when planning dominates the lookup. `PREPARE` once and `EXECUTE` with bound parameters ([prepared statements](../reference/sql/prepared_statements)). `PREPARE` is not admission-gated; `EXECUTE` is. Repeated SQL text also hits the [logical plan cache](../features/caching#logical-plan-cache).
 - **A low [`target_partitions`](../reference/performance-tuning#query-parallelism)** for a lookup that does not scan in parallel. Confirm the plan with [`EXPLAIN`](../reference/sql/explain).
 
