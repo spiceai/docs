@@ -432,7 +432,7 @@ DuckDB automatically creates [zone-maps](https://duckdb.org/docs/stable/guides/p
 - Automatic predicate pushdown during scans
 - Effective when data is sorted by query filter columns
 
-**Optimization Pattern: Sorted Views**
+#### Sorted views
 
 Accelerate a view with `ORDER BY` to create sorted physical data, then set `duckdb_preserve_insertion_order: true` to maintain sort order:
 
@@ -449,6 +449,9 @@ datasets:
       primary_key: id
       on_conflict:
         id: upsert
+      retention_check_enabled: true
+      retention_check_interval: 1h
+      retention_period: 90d
       params:
         duckdb_memory_limit: 12GiB
         duckdb_preserve_insertion_order: false  # Raw data doesn't need order
@@ -481,7 +484,9 @@ views:
 
 Queries filtering on `account_id` or `(account_id, pool_id)` benefit from zone-map pruning, skipping entire row groups that don't match the filter predicates.
 
-For a table rather than a view, `on_refresh_sort_columns` sorts the data after each refresh for the same effect; note that it currently drops indexes and constraints on that table.
+The accelerated view does **not** compact the log. Bound disk with [`retention_period`](spicepod/datasets#accelerationretention_period) / [`retention_sql`](spicepod/datasets#accelerationretention_sql) on the source acceleration. For Iceberg tables, prefer soft deletes plus this filtered-view shape until snapshot-diff into `changes` exists — see [Current state from an append-only log](../components/data-connectors/iceberg#current-state-from-an-append-only-log). Prefer [cluster acceleration](../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../features/caching) rather than re-accelerating the full log on every node.
+
+For a table rather than a view, `on_refresh_sort_columns` sorts the data after each refresh for the same effect; note that it currently drops indexes and constraints on that table (`primary_key`, `indexes`, and `on_conflict`). Prefer [Spice Cayenne](../components/data-accelerators/cayenne) when you need physical clustering together with those constraints.
 
 ### Aggregate Pushdown
 

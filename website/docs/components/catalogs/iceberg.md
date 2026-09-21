@@ -282,7 +282,7 @@ INSERT INTO ice.sales.transactions
 SELECT * FROM staging_transactions;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported on Iceberg v2+ tables, written as equality delete files — which constrains what a `WHERE` condition may read, see [Deleting rows](../data-connectors/iceberg#deleting-rows). `UPDATE` operations are not currently supported.
+Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported on Iceberg v2+ tables, written as equality delete files — which constrains what a `WHERE` condition may read, see [Deleting rows](../data-connectors/iceberg#deleting-rows). Federated scans and `refresh_mode: full` apply those v2 position/equality delete files on table scan; `refresh_mode: append` does not retract already-accelerated rows when delete files appear. See [Delete files on federated reads](../data-connectors/iceberg#delete-files-on-federated-reads). `UPDATE` operations are not currently supported.
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 

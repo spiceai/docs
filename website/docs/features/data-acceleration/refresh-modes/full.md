@@ -34,6 +34,13 @@ On each refresh, the runtime issues a single `SELECT` against the source, materi
 - Each refresh fully scans the source. Any [`refresh_sql`](../data-refresh#refresh-sql) and [`refresh_data_window`](../data-refresh#refresh-data-window) filters are pushed down to limit data transferred.
 - Queries continue to be served from the previous result set until the new refresh completes.
 - Supported with all data connectors and all acceleration engines.
+- On [Iceberg](../../../components/data-connectors/iceberg) sources, the scan applies Iceberg v2 position and equality delete files, so a full refresh retracts rows that delete files have removed. [`append`](./append) does not. See [Delete files on federated reads](../../../components/data-connectors/iceberg#delete-files-on-federated-reads).
+
+## Cost and duration
+
+A full refresh re-reads the configured source on every interval. Use [`refresh_sql`](../data-refresh#refresh-sql) (and [`refresh_data_window`](../data-refresh#refresh-data-window)) to narrow what is downloaded and kept.
+
+Inspect refresh duration in [`runtime.task_history`](../../../reference/task_history) where `task = 'acceleration_refresh'`, or the [`dataset_acceleration_refresh_duration_ms`](../../observability#available-metrics) histogram (Prometheus exposes the bucket series as `dataset_acceleration_refresh_duration_ms_bucket`).
 
 ## Related Topics
 

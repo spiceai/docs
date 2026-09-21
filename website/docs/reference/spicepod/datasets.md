@@ -740,6 +740,8 @@ Optional. Filters the data fetched from the source to be stored in the accelerat
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
 
+`refresh_sql` applies on the initial refresh and every later one.
+
 :::warning[Limitations]
 
 - The refresh SQL only supports filtering data from the current dataset - joining across other datasets is not supported.
@@ -752,6 +754,8 @@ Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is t
 Optional. A duration to filter dataset refresh source queries to recent data (duration into past from now). Requires `time_column` and `time_format` to also be configured. Supported for `full` and `append` refresh mode datasets.
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
+
+With `refresh_mode: append`, the first load is already windowed. [`retention_period`](#accelerationretention_period) only ages out rows already in the acceleration — it does not backfill extra history on first load. To load more history at cold start, use an additional dataset or a wider window. See [Cold start with append](../../features/data-acceleration/data-refresh#cold-start-with-append).
 
 See [Duration](../duration)
 
@@ -885,6 +889,8 @@ datasets:
 Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
+
+On DuckDB this creates a real `PRIMARY KEY` (unique index) usable for full-key point lookups. A filter on only a leading column of a composite key needs a secondary [`indexes`](#accelerationindexes) entry. See [Primary keys and point lookups](../../features/data-acceleration/indexes#primary-keys-and-point-lookups).
 
 See [Constraints](../../features/data-acceleration/constraints)
 

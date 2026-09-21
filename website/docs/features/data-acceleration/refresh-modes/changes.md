@@ -23,6 +23,8 @@ Use `changes` when:
 
 [Apache Kafka](../../../components/data-connectors/kafka) is a real-time streaming source but is append-only — it uses [`refresh_mode: append`](./append), not `changes`.
 
+Iceberg delete files are not a CDC stream. `refresh_mode: changes` does not apply Iceberg v2 position or equality delete files to an acceleration — those files are applied on federated scans and on [`refresh_mode: full`](./full) only. See [Delete files on federated reads](../../../components/data-connectors/iceberg#delete-files-on-federated-reads).
+
 :::
 
 Any accelerator engine that supports writes can be a `changes` sink — `arrow`, `duckdb`, `sqlite`, and `cayenne`. [Spice Cayenne](../../../components/data-accelerators/cayenne) is recommended for large-scale CDC (incremental materialized views, in-memory CDC tier, and replication-lag/freshness SLOs).

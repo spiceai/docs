@@ -73,7 +73,7 @@ Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/d
 - Datasets are under 10 GB
 - Complex SQL features are required (window functions, CTEs)
 - Existing DuckDB tooling integration is beneficial
-- Explicit index control is required
+- Database-enforced index semantics are required (a `unique` index that rejects duplicate writes; Cayenne's `indexes` narrow reads but do not constrain writes)
 
 ## Data Types
 
@@ -106,4 +106,4 @@ import DocCardList from '@theme/DocCardList';
 - [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../reference/memory) - Memory configuration reference
 - [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, and Turso
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, Turso, PostgreSQL, and Spice Cayenne
