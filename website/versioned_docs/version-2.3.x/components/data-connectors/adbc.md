@@ -42,6 +42,8 @@ See the [`dbc` documentation](https://docs.columnar.tech/dbc/) for other install
 
 Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length`, `json_object_keys` and `json_contains`, plus `json_as_text` and `json_get(...) IS NULL` on a `STRING` document — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local, the ones whose translation depends on how the source declares the column, and why.
 
+`ILIKE` and `NOT ILIKE` are the exception: GoogleSQL has no such operator, so from v2.3.2 Spice keeps both local for `bigquery` datasets and catalogs and evaluates them after the rows arrive. Ordinary `LIKE`, comparisons and the JSON rewrites above still push down, and a query that mixes them sends the supported parts to BigQuery. An `ILIKE` anywhere in the predicate — including nested inside an `OR` — also holds any `LIMIT` local, so the filter runs before rows are discarded. On earlier versions such a query could emit invalid remote SQL or apply the limit before the filter.
+
 ## Configuration
 
 ### `from`

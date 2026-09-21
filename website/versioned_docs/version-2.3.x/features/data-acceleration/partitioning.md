@@ -203,6 +203,16 @@ Partitioned Cayenne tables have these limitations:
   CDC batches with widened schemas are rejected.
 - **No snapshot publication.** [Acceleration snapshots](snapshots) do not support partitioned tables.
 
+## Full refreshes and partitions
+
+A `refresh_mode: full` refresh — and any other whole-table overwrite — replaces the contents of **every** existing partition, not only the ones the new rows reach. A partition that receives no rows is emptied.
+
+:::warning[Behavior change in v2.3.2]
+
+Before v2.3.2 an overwrite replaced only the partitions the incoming rows landed in, and every other partition kept its previous rows. Rows removed at the source therefore stayed queryable after a full refresh of a partitioned acceleration, and a refresh that returned nothing changed nothing. This affected `engine: arrow` and `engine: cayenne` partitioned accelerations alike. Unpartitioned accelerations were never affected.
+
+:::
+
 ## Changing `partition_by` after refresh
 
 Once partitions exist on disk, changing `partition_by` is rejected:

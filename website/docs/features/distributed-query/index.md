@@ -136,7 +136,7 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 
 :::warning[Limitations]
 
-- In open source, distributed query targets partitioned data lake sources (e.g. Parquet, Delta Lake, Iceberg). Distributing **accelerated** datasets across executors is a Spice.ai Enterprise feature (see below).
+- In open source, distributed query targets partitioned data lake sources (e.g. Parquet, Delta Lake, Iceberg), and — from v2.3.2 — unaccelerated [HTTP/HTTPS](../../components/data-connectors/https/index.md) datasets, whose scan each executor issues with its own client, credentials and headers, preserving the connector's pagination. Distributing **accelerated** datasets across executors is a Spice.ai Enterprise feature (see below).
 - As a preview feature, clusters may encounter stability or performance issues.
 
 :::
