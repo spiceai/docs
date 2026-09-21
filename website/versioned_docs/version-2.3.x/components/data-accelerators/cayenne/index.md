@@ -53,7 +53,7 @@ Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of 
 To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports two storage modes:
 
 - **`mode: file`** (durable) — data is written as Vortex files on local disk or S3 Express One Zone, with a SQLite/Turso metastore, and the acceleration survives restarts. This is the recommended mode for Cayenne and is used in the examples throughout this page. The `mode: file_create` and `mode: file_update` variants control how an existing on-disk acceleration is reused or rebuilt on startup.
-- **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)).
+- **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)). `INSERT`, `UPDATE` and `DELETE` apply to the in-RAM tier the same way they apply to a `mode: file` acceleration — see [Writes in memory mode](#writes-in-memory-mode).
 
 ```yaml
 datasets:
@@ -108,7 +108,8 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_cdc_mem_tier_max_age_ms` | Maximum wall-clock milliseconds a RAM-tier epoch may age before a forced checkpoint, in `cayenne_cdc_durability: memory` mode only. Bounds the crash-replay window and the deferred source-slot acknowledgement for tables that never reach a byte threshold. Defaults to `10000` (10 s). Set to `0` to disable the age trigger. |
 | `cayenne_cdc_mem_tier_min_flush_bytes` | Minimum resident RAM-tier bytes before the periodic background checkpoint tick durably checkpoints, in `cayenne_cdc_durability: memory` mode only. Bounds snapshot / delete-file churn — below this size a tick is skipped unless the tier has reached `cayenne_cdc_mem_tier_max_age_ms`. Query freshness is unaffected (RAM rows are visible immediately); only the deferred slot acknowledgement waits. The write-path byte-cap spill is not gated by this value. Auto-derived as 1/8 of the resolved `cayenne_cdc_mem_tier_max_bytes` (clamped to 32–128 MiB; 32 MiB on hosts at or under 16 GiB). Set to `0` to flush on every tick. |
 | `cayenne_cdc_mem_tier_checkpoint_interval_ms` | Periodic background mem-tier checkpoint interval in milliseconds, in `cayenne_cdc_durability: memory` mode only. The accelerator spawns a per-table background task that checkpoints the RAM tier every interval, advancing the deferred source-slot acknowledgement on an idle or pure-upsert stream that never trips a write-path cap or event trigger. Defaults to `1000` (1 s). Set to `0` to disable the periodic task. |
-| `sort_columns`                    | Comma-separated list of columns to sort data by. Improves segment pruning for frequently filtered columns. The order is established by the compaction rewrite, so it applies to a table that accumulates files to consolidate — see `cayenne_compaction_background_interval_ms` for when such a table compacts at all. A `refresh_mode: full` refresh replaces the whole table rather than adding to it, so it never compacts: **on v2.3.0 its replacement data is written in arrival order and `sort_columns` has no effect on it; from v2.3.1 the whole-table replace itself orders the replacement stream**, which is the only write such a table makes and so the only chance to establish the order. Sorting a full refresh goes through a single writer, and requires an operator-configured value — an inference-derived order (see [`cayenne_sort_columns_origin`](#acceleration-parameters-accelerationparams)) does not trigger it. |
+| `sort_columns`                    | Comma-separated list of columns to sort data by. Improves segment pruning for frequently filtered columns. The order is established by the compaction rewrite, so it applies to a table that accumulates files to consolidate — see `cayenne_compaction_background_interval_ms` for when such a table compacts at all. A `refresh_mode: full` refresh replaces the whole table rather than adding to it, so it never compacts: **on v2.3.0 its replacement data is written in arrival order and `sort_columns` has no effect on it; from v2.3.1 the whole-table replace itself orders the replacement stream**, which is the only write such a table makes and so the only chance to establish the order. Sorting a full refresh goes through a single writer, and requires an operator-configured value — an inference-derived order (see [`cayenne_sort_columns_origin`](#acceleration-parameters-accelerationparams)) does not trigger it. Cannot be combined with `cayenne_cluster_by`; registration fails until one is removed. |
+| `cayenne_shard_key_columns`       | Comma-separated columns that decide which output file a row is written to when a write encodes several files in parallel. Defaults to the primary key. A CDC write hashes this key across the files; a compaction rewrite and a `refresh_mode: full` whole-table replace instead split it into ascending, disjoint ranges, one per file, so each file's statistics prune (see [Sorted data and segment pruning](./performance.md#sorted-data-and-segment-pruning)). It selects a *layout*, not an order: no sort is advertised to the planner and query results are unaffected. |
 | `cayenne_sort_columns_origin`     | Provenance of `cayenne_sort_columns`, which decides whether that sort order outranks the filter columns observed on scans. Accepts `user` (the default when absent) — the sort order is an explicit operator choice and is authoritative — or `inferred`, meaning schema inference filled it from the source's declared order (for most CDC datasets, the primary key). An `inferred` order is treated as a guess and ranks *below* the observed filter columns, so the default-on adaptive layout can cluster for the workload actually being queried. Schema inference sets this automatically whenever it populates `cayenne_sort_columns`; set it by hand only to reproduce an inferred configuration (for example in a benchmark or test). |
 | `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
@@ -136,7 +137,7 @@ These acceleration parameters (set under `acceleration.params`) configure the op
 | Parameter                                  | Description                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cayenne_datalake_location`                | Object-store URL prefix for the cold tier (the bottom tier of the storage cascade). Must be an `s3://` URL (e.g. `s3://bucket/prefix`) — a general-purpose S3 or S3-compatible bucket, distinct from the warm S3 Express One Zone store. When set, a background promotion stage graduates the warm local-disk tier to read-optimized, Z-order-clustered Vortex files on this store, and queries span the warm and cold tiers with per-tier pushdown. Unset (default) disables the cold tier. Requires key-based deletes (`cayenne_deletion_mode` auto-resolves to `key`; an explicit `position` is rejected at registration) and `refresh_mode: changes` or `append`. A `primary_key` is required to activate the tier — without one the tier registers but stays inactive. **v1 constraints:** local `file://` locations are not supported; partitioned and position-delete tables are not supported. |
-| `cayenne_datalake_clustering_columns`      | Comma-separated liquid-clustering key columns for cold files (multi-column Z-order), e.g. `tenant_id,ts`. Clustering tightens each cold file's per-column zone maps so selective queries on any clustering dimension prune at the storage layer. When unset, falls back to an operator-configured `cayenne_sort_columns`; when that is also unset, cold-tier promotion clusters by the hottest columns observed in query pushdown filters (default-on adaptive layout), then by an inference-derived `cayenne_sort_columns` (see [`cayenne_sort_columns_origin`](#acceleration-parameters-accelerationparams)), and finally by the primary key when no usable observed column exists. An entry that does not exist in the schema is ignored with a warning.                                                                              |
+| `cayenne_cluster_by`      | Comma-separated columns to Hilbert-cluster **both the warm and the datalake tier** by, e.g. `tenant_id,ts`. Clustering tightens each file's per-column zone maps so selective queries on any clustering dimension prune at the storage layer. It is a complete layout instruction: while it is set, automatic and inferred sort columns are not applied, and it **cannot be combined with `cayenne_sort_columns`** — registration fails until one is removed. Every column must exist and be a Boolean, numeric (except `Decimal256`), temporal, string, or binary column; a missing or unsupported column is rejected at registration. When unset, layout falls back to an operator-configured `cayenne_sort_columns`; when that is also unset, to the hottest columns observed in query pushdown filters (default-on adaptive layout), then to an inference-derived `cayenne_sort_columns` (see [`cayenne_sort_columns_origin`](#acceleration-parameters-accelerationparams)), and finally to the primary key when no usable observed column exists. Replaces the cold-tier-only `cayenne_datalake_clustering_columns`, which is no longer accepted.                                                                              |
 | `cayenne_datalake_target_file_size_mb`         | Target size for cold-tier Vortex files in MB. Larger than the warm `cayenne_target_file_size_mb` because object stores favor fewer, larger objects and cold scans are range reads. Accepts `auto` or an explicit MB value. Defaults to `512`.                                                                                                                                                        |
 | `cayenne_datalake_warm_max_bytes`         | The warm tier graduates to cold once its total Vortex bytes reach this threshold. `0` (default) disables the byte trigger; set alongside `cayenne_datalake_warm_max_files` to bound warm-tier size. When the tier is enabled and neither trigger is set, Cayenne applies a default byte trigger (16× `cayenne_datalake_target_file_size_mb`) so promotion is not silently disabled.                       |
 | `cayenne_datalake_warm_max_files`         | The warm tier graduates to cold once its Vortex file count reaches this threshold. `0` (default) disables the file-count trigger.                                                                                                                                                                                                                                                                   |
@@ -317,6 +318,15 @@ Cayenne is not the only engine that can apply a change stream — `arrow`, `duck
 - **In-memory CDC tier.** Change events can be staged through an in-memory tier (`cayenne_cdc_durability` and the `cayenne_cdc_mem_tier_*` parameters) for low apply latency, with exactly-once semantics via primary-key-idempotent replay. The [deployment guide](./deployment.md#cdc-apply-metrics) documents the CDC apply metrics for monitoring lag and throughput.
 - **Replication-lag and freshness SLOs.** The adaptive self-tuner can target an end-to-end replication-lag or data-freshness goal (`cayenne_goal_replication_lag`, `cayenne_goal_freshness`) and adjust its apply behavior to meet it. See [Goal-driven tuning](./performance.md#goal-driven-tuning).
 
+### Visibility of applied changes
+
+Cayenne caches the scan input a query reads — the merged view of files, in-memory rows, and deletions — and shares one build across concurrent scans. How long a cached view is reused is decided per dataset:
+
+- **A dataset Spice writes to** — `refresh_mode: full`, `append`, `snapshot` or `caching`, and a `changes` dataset that also takes `INSERT`/`UPDATE`/`DELETE` — reuses its cached view **until a write invalidates it**. Every write, delete, refresh and snapshot flip invalidates, so a query issued after a write always observes it; there is no staleness window. A capture that races a write is discarded and retaken rather than published.
+- **A read-only `refresh_mode: changes` dataset** — including the implicit `changes` mode of `cdc:` and `debezium:` sources — reuses its view for up to **1 second** (`CAYENNE_SCAN_VIEW_FRESHNESS_MS`), so a burst of CDC applies shares one build instead of forcing a rebuild per apply. A query may therefore see the table as it stood up to that long ago. Set `CAYENNE_SCAN_VIEW_FRESHNESS_MS=0` to recapture on every scan.
+
+Schema evolution and retention invalidate cached views in both modes, so neither can serve a view built against a schema or a file set that no longer exists.
+
 ### CDC Requirements
 
 - **A primary key is required.** In `changes` mode Cayenne always applies an inferred or declared primary key and routes source updates through an upsert. Declare `primary_key` on the dataset (and, where the connector requires it, `on_conflict: upsert`); the per-connector CDC pages document the exact requirement.
@@ -463,6 +473,42 @@ datasets:
       primary_key: event_id  # Int64 column - uses optimized deletion
 ```
 
+### Secondary indexes
+
+Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field DuckDB, SQLite, Turso and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
+
+```yaml
+datasets:
+  - from: s3://bucket/service_configuration/
+    name: service_configuration
+    acceleration:
+      engine: cayenne
+      mode: file # or memory
+      indexes:
+        '(tenant_id, service_id)': enabled
+        '(tenant_id, pool_id)': enabled
+```
+
+There are no Cayenne-specific parameters for this. Nothing about an index is persisted with the table: the entries are read on every registration, so adding, changing or removing one takes effect the next time the dataset is registered.
+
+**When an index is used.** Only for a lookup whose filters pin **every** column of one index to a literal, compared against the bare column — `WHERE tenant_id = 7 AND service_id = 'a'`. A cast on the column side (`CAST(score AS BIGINT) = 5`, which also holds for `5.2`), a range, an `IN` list or an `OR` scans as before. A cast on the value side is evaluated, not stripped.
+
+**What it changes.** Only what is read. The index returns candidate rows; every original predicate still runs on them and `LIMIT` still applies above the scan, so an index can never add or hide a row. Postings are non-unique — uniqueness is never assumed — and in `mode: file` a candidate row selection is intersected with the table's deletion vectors, so a deleted row is never selected.
+
+**Index columns must have exact equality.** `Float16`, `Float32` and `Float64` columns are rejected at registration (values such as signed zero have no single byte representation); use an integer, decimal, string, or another exact-equality column.
+
+**`unique` builds an index but constrains nothing.** Both `enabled` and `unique` build the same structure. A `unique` entry does not reject duplicate rows, and registration warns:
+
+```
+Dataset '<name>' (cayenne): a `unique` entry in `indexes` speeds up lookups but does not constrain writes, so duplicate rows are not rejected. Set `primary_key` with `on_conflict` to deduplicate on a column set.
+```
+
+**Staleness in `mode: file`.** The index covers one snapshot. A full refresh publishes its index in the same fenced flip that makes the snapshot visible, so no lookup between the two falls back to a scan. Anything else that changes the files — an append, a compaction, a restart — leaves the index stale; it is dropped and the next lookup-shaped query claims a single background rebuild. Rebuilds run one at a time and are paced (at least `max(1s, 10 × the previous build)` apart, backing off after a build that publishes nothing, capped at one hour), so a table whose index cannot be built is not re-read on every lookup. In `mode: memory` each memory-tier segment carries its own index, so no rebuild is needed.
+
+**Memory.** Index bytes are admitted against the query memory pool ([`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit)) and reported on `cayenne_memory_account_bytes{kind="lookup_index"}`. When the pool cannot fit an index, `mode: file` publishes none and `mode: memory` reads that batch whole; results never change.
+
+**Observing it.** `EXPLAIN` reports the decision on `CayenneAccelerationExec` as `lookup_index`, `lookup_index_outcome`, and — where they apply — `candidate_files` and `candidate_rows`. An indexed table whose predicate does not pin a complete key reports `lookup_index=none, lookup_index_outcome=not_applicable`. Each probe is also counted on `cayenne_lookup_index_probe_total{table, shape, outcome}`, with `outcome` one of `selected`, `empty` (no candidate for the key), `unbuilt` (no index covers the rows read) or `snapshot_mismatch` (the index no longer matches the table's files).
+
 ### Upsert Support
 
 When `on_conflict` is configured, Cayenne supports upsert semantics using sequence numbers (Iceberg-style ordering):
@@ -484,6 +530,22 @@ When a primary key is deleted and then re-inserted:
 1. The new insert gets a higher sequence number than the delete
 2. During scan, the delete doesn't apply to data with higher sequence numbers
 3. The new data is visible without requiring separate tracking of "undeleted" records
+
+### Writes in memory mode
+
+A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
+
+- `DELETE` evaluates its predicate against the mem-tier and rebuilds it without the matching rows. An unfiltered `DELETE FROM <table>` purges the tier.
+- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, incoming rows are validated against it as the input streams in, and conflicts resolve through [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict): `upsert` supersedes the existing row, while a `primary_key` with no `on_conflict` configured drops the conflicting incoming row instead.
+- `UPDATE` combines the two, so both rules above apply.
+
+[`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is the exception: it does not reach a `mode: memory` tier, and matching rows stay queryable (see [Limitations](#limitations)).
+
+:::note
+
+Memory-mode DML is available from v2.3.1. On v2.3.0, use `mode: file` for a Cayenne acceleration that is written to with `INSERT`, `UPDATE`, or a filtered `DELETE`.
+
+:::
 
 ## AWS S3 Express One Zone Storage
 
@@ -605,7 +667,11 @@ The cold tier lets a table grow beyond local NVMe capacity while keeping recent,
 - **Promotion (write path).** A dedicated background worker graduates the warm tier once the size or file-count threshold (`cayenne_datalake_warm_max_bytes` / `cayenne_datalake_warm_max_files`) is crossed, evaluated every `cayenne_datalake_tiering_check_interval_ms`. Promotion is **incremental carry-forward**: rather than re-materializing the whole table each cycle, it classifies the existing cold manifest into *dirty* files that may host a tombstoned key — using per-PK-column min/max rectangles from each file's persisted statistics, refined by a per-file PK bloom filter, and conservative in the safe direction (a false positive costs an extra rewrite; a missed tombstone is impossible) — and *clean* files that are provably untouched. Only the warm delta plus the dirty files are re-read (all deletes applied, one version per key), **Z-order clustered** for tight multi-column zone maps, and written as read-optimized Vortex at the larger `cayenne_datalake_target_file_size_mb` under a per-promotion prefix; clean files are carried forward by manifest reference and never re-read. The new files are atomically registered while the promoted warm files are cleared in a single transaction, so promotion cost tracks the *changed* data, not total table size.
 - **Cross-tier scan (read path).** Queries span all tiers and push filters, projection, and limits down to each. Cold files are pruned from statistics held in the metastore, so pruning requires **no object-store round-trip on the query path**. Each cold file's PK bloom lets an upsert's keyset rebuild answer cold-tier key existence without scanning the object store. A `DELETE` after promotion correctly hides a cold-resident row.
 - **Physical GC.** A periodic mark-and-sweep, rooted at the manifest, reclaims cold objects orphaned by carry-forward rewrites. It runs every `cayenne_datalake_gc_interval_ms` (default 5m), which doubles as the orphan grace period: an object no longer referenced by the manifest is deleted only after it has been observed orphaned for at least one interval.
-- **Clustering.** Cold files are clustered by `cayenne_datalake_clustering_columns` (multi-column Z-order / Morton order). When it is unset, clustering falls back to an operator-configured `cayenne_sort_columns`; when that is also unset, cold-tier promotion clusters by the hottest columns observed in query pushdown filters (default-on adaptive layout), then by an inference-derived `cayenne_sort_columns`, and finally the primary key. Clustering on more than one dimension prunes far better than a single-column sort for selective queries on any clustering column.
+- **Clustering.** `cayenne_cluster_by` names the clustering key, and applies it to **both** warm-tier rewrites and datalake promotion, so the two tiers share one layout contract. When it is unset, clustering falls back to an operator-configured `cayenne_sort_columns`; when that is also unset, promotion clusters by the hottest columns observed in query pushdown filters (default-on adaptive layout), then by an inference-derived `cayenne_sort_columns`, and finally the primary key. Clustering on more than one dimension prunes far better than a single-column sort for selective queries on any clustering column.
+
+  The curve is a **Hilbert** interleave, not Z-order/Morton: consecutive points on a Hilbert curve are always spatially adjacent, whereas Morton jumps a whole quadrant at each boundary and every jump is a zone map stretched over everything it skipped. Each column's values are rescaled onto a common coordinate space from the table's maintained `min`/`max` statistics before interleaving — without that, a wide column (a microsecond timestamp) consumes every high-order round before a narrow one (a tenant id) contributes anything, and the key degenerates into a single-column sort. Clustering is a layout-quality property, never a correctness one.
+
+  A Cayenne table created through SQL uses the equivalent `CREATE TABLE ... CLUSTER BY (column, ...)` clause in place of the parameter. It accepts bare column names only — any other expression is a planning error naming the clause.
 
   Only an *operator-configured* sort order shadows the observed filter columns. A sort order that [schema inference](../../data-connectors/index.md#schema-inference) supplied — which for most CDC datasets resolves to the primary key — is tagged `cayenne_sort_columns_origin: inferred` and ranks below the observations, so the adaptive layout still clusters cold files for the queries the table actually receives rather than for inference's guess. It is used as the pre-observation fallback, before the primary key.
 
@@ -631,7 +697,7 @@ datasets:
         # Enable the cold object-store tier (general-purpose S3, not S3 Express)
         cayenne_datalake_location: s3://my-cold-bucket/events/
         cayenne_datalake_s3_region: us-west-2
-        cayenne_datalake_clustering_columns: tenant_id,created_at
+        cayenne_cluster_by: tenant_id,created_at
         # Graduate the warm tier to cold once it reaches 8 GiB
         cayenne_datalake_warm_max_bytes: 8589934592
 ```
@@ -744,6 +810,14 @@ A file-mode Cayenne dataset whose resolved metastore directory falls inside its 
 
 Paths are compared after `.`/`..` are collapsed and symlinks are resolved, so neither hides an overlap, and a sibling that merely shares a name prefix (`…/meta` next to `…/metadata`) is not affected. Datasets whose data lives on object storage (for example an S3 Express `cayenne_file_path`) are exempt — the metastore is always local, so it cannot sit inside an object-store data path.
 
+Several file-mode Cayenne datasets that set **different** `cayenne_file_path` values must also set the **same** `cayenne_metadata_dir` on every one of them. Without it, which metastore a restart opens depends on which data root is resolved first, and Cayenne can come up with an empty catalog while the data files are still on disk — the acceleration looks lost. The spicepod is rejected at startup, naming every dataset and the path it configured:
+
+```text
+Invalid Cayenne configuration: datasets use different `cayenne_file_path` values without a shared `cayenne_metadata_dir`: `orders` (`/mnt/a/cayenne`), `customers` (`/mnt/b/cayenne`). Set the same `cayenne_metadata_dir` on every Cayenne dataset. See: https://spiceai.org/docs/components/data-accelerators/cayenne#metastore-location
+```
+
+Datasets that all share one `cayenne_file_path`, or that leave it unset, are unaffected; a trailing `/` does not make two paths differ.
+
 Before recreating or deleting a data directory, Spice checks for `cayenne.db` and its SQLite sidecars, including those belonging to other datasets. Deletion is refused if the directory contains a metastore, links directly to one, or has unreadable entries. Metastore files must reside outside data directories.
 
 ### CPU
@@ -815,10 +889,10 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 
 Consider the following limitations when using Spice Cayenne acceleration:
 
-- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required.
+- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML is not among the constraints — see [Writes in memory mode](#writes-in-memory-mode) — but [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is, as the next-but-one entry notes.
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **Indexes**: `indexes` is ignored with a warning, including `unique` indexes. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
+- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
 - **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. It is ignored in `mode: memory`, with a warning; matching rows remain queryable.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.

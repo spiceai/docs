@@ -301,7 +301,7 @@ Vortex provides [100x faster random access](https://bench.vortex.dev) compared t
 - **Compute push-down**: Filter execution on compressed data without full decompression
 - **Array statistics**: `is_sorted`, `is_constant`, `min`, `max` for query optimization
 
-For point lookups on large datasets, Spice Cayenne often matches or exceeds the performance of traditional B-tree indexes while consuming no additional memory for index structures.
+For point lookups on large datasets, Spice Cayenne often matches or exceeds the performance of traditional B-tree indexes while consuming no additional memory for index structures. Where a query pins an exact key the data is not clustered on, statistics alone cannot narrow it — declare [`indexes`](../features/data-acceleration/indexes) to have Cayenne build a [secondary index](../components/data-accelerators/cayenne#secondary-indexes) for that key set.
 
 ### Cache Configuration
 

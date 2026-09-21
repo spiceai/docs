@@ -39,6 +39,10 @@ datasets:
       enabled: true # This dataset accelerates the parent `test` dataset into in-memory Arrow records and is synchronized with the parent
 ```
 
+## Hot Reload
+
+A `localpod` child binds to the table its parent has registered at the moment the child loads. When a [hot reload](../../cli/reference/spiced.md) changes the parent — an edited `acceleration`, a new `refresh_sql`, or the parent being removed and added back — the runtime reloads every `localpod` dataset that reads through it as well, parents first, so each child rebinds to the parent's new table. Chains follow the same rule transitively: a child whose parent is queued behind a load of its own waits for it, and the chain is loaded from its root down.
+
 ## Cookbook
 
 - A cookbook recipe to configure Localpod as a data connector in Spice. [Local dataset replication (Localpod)](https://github.com/spiceai/cookbook/tree/trunk/localpod#readme)
