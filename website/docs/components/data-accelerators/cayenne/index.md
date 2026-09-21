@@ -804,6 +804,10 @@ One metastore holds the catalog — manifests, snapshot pointers, and partition 
 
 A file-mode Cayenne dataset whose resolved metastore directory falls inside its resolved data directory therefore **fails to load**, naming the dataset and both paths. The stock defaults reach this without any operator error: the data directory defaults to `{spice_data_path}/{dataset_name}/` and the metastore to `{spice_data_path}/metadata`, so a dataset **named `metadata`** collides. An explicit `cayenne_metadata_dir` set beneath a dataset's data directory collides the same way. Resolve it by pointing `cayenne_metadata_dir` outside the data directory, or by renaming the dataset.
 
+Set `cayenne_metadata_dir` **explicitly** on every Cayenne dataset, to the same path. If it is unset, the last Cayenne dataset to register can choose the metadata location for all — a restart then appears to lose data because later registrations open a different catalog. Datasets that set different `cayenne_file_path` values without a shared `cayenne_metadata_dir` are refused at load.
+
+Pointing `cayenne_metadata_dir` at an existing metadata location **adopts** that catalog in place. Pointing it elsewhere opens a new empty catalog without erroring — prior Vortex files remain on disk but no table resolves them, so the acceleration appears empty or from scratch. Move `cayenne.db` and its `-wal`/`-shm` sidecars with the path, rather than only changing the parameter.
+
 Paths are compared after `.`/`..` are collapsed and symlinks are resolved, so neither hides an overlap, and a sibling that merely shares a name prefix (`…/meta` next to `…/metadata`) is not affected. Datasets whose data lives on object storage (for example an S3 Express `cayenne_file_path`) are exempt — the metastore is always local, so it cannot sit inside an object-store data path.
 
 Before recreating or deleting a data directory, Spice checks for `cayenne.db` and its SQLite sidecars, including those belonging to other datasets. Deletion is refused if the directory contains a metastore, links directly to one, or has unreadable entries. Metastore files must reside outside data directories.
