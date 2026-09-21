@@ -43,12 +43,6 @@ datasets:
 
 A `localpod` child binds to the table its parent has registered at the moment the child loads. When a [hot reload](../../cli/reference/spiced.md) changes the parent — an edited `acceleration`, a new `refresh_sql`, or the parent being removed and added back — the runtime reloads every `localpod` dataset that reads through it as well, parents first, so each child rebinds to the parent's new table. Chains follow the same rule transitively: a child whose parent is queued behind a load of its own waits for it, and the chain is loaded from its root down.
 
-:::warning[Behavior change in v2.3.2]
-
-Before v2.3.2 only the dataset whose own spicepod entry changed was reloaded. A `localpod` child therefore went on answering from the parent's retired table — returning rows the parent no longer had — and that retired table kept refreshing from the source alongside the new one, so the source saw two loads per interval.
-
-:::
-
 ## Cookbook
 
 - A cookbook recipe to configure Localpod as a data connector in Spice. [Local dataset replication (Localpod)](https://github.com/spiceai/cookbook/tree/trunk/localpod#readme)

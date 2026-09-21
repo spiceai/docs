@@ -205,13 +205,7 @@ Partitioned Cayenne tables have these limitations:
 
 ## Full refreshes and partitions
 
-A `refresh_mode: full` refresh — and any other whole-table overwrite — replaces the contents of **every** existing partition, not only the ones the new rows reach. A partition that receives no rows is emptied.
-
-:::warning[Behavior change in v2.3.2]
-
-Before v2.3.2 an overwrite replaced only the partitions the incoming rows landed in, and every other partition kept its previous rows. Rows removed at the source therefore stayed queryable after a full refresh of a partitioned acceleration, and a refresh that returned nothing changed nothing. This affected `engine: arrow` and `engine: cayenne` partitioned accelerations alike. Unpartitioned accelerations were never affected.
-
-:::
+A `refresh_mode: full` refresh — and any other whole-table overwrite — replaces the contents of **every** existing partition, not only the ones the new rows reach. A partition the incoming rows never land in is emptied, so a row removed at the source does not stay queryable in a partition the refresh did not visit, and a refresh that returns nothing empties the table. This holds for `engine: arrow` and `engine: cayenne` alike.
 
 ## Changing `partition_by` after refresh
 
