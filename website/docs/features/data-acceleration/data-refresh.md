@@ -210,6 +210,14 @@ datasets:
       enabled: true
 ```
 
+:::warning[Warm-only serving]
+
+When queries must be served from a loaded acceleration, keep the defaults: dataset `ready_state: on_load`, runtime [`ready_state: on_load`](../../reference/spicepod/runtime#runtimeready_state), and a Kubernetes readiness probe on [`/v1/ready`](../../api/HTTP/ready). The pod stays out of rotation until the initial acceleration finishes.
+
+`ready_state: on_registration` (and `on_schema_resolved`) reports ready before that load and sends queries to the federated source in the meantime. Combined with a fleet starting together, that is a startup stampede against the origin. [`on_zero_results: use_source`](#behavior-on-zero-results) has the same shape on the query path: an empty accelerated result is followed by a second query to the source. Leave both off when the deployment is meant to serve only warm data.
+
+:::
+
 ## Fast Cold Starts with Snapshots
 
 File-based acceleration engines (DuckDB, SQLite, Cayenne, or Turso) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
@@ -380,6 +388,7 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
 - **A subquery predicate does not take part in the zero-results decision.** The fallback check runs at the accelerator's scan, below the join that a subquery is rewritten into, so a filter containing `IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST` is left above the scan and the decision is made without it. When the acceleration is a subset of the source and holds any rows at all, the unfiltered scan is non-empty, fallback does not fire, and a query whose only filter is such a subquery can return an empty result even though the source has a matching row. Adding a filter the scan can evaluate itself (for example `WHERE id = 2 AND id IN (SELECT …)`) restores the fallback.
+- **`use_source` doubles the cost of an empty accelerated result** and sends that second query to the origin. For a deployment that should serve only warm acceleration, keep the default `return_empty` and gate traffic with [readiness](#ready-state).
 
 :::
 
@@ -438,6 +447,16 @@ datasets:
 ```
 
 This configuration will refresh `taxi_trips` data every 10 seconds.
+
+Keep the interval aligned with the freshness SLA and with what the origin can serve. A shorter interval increases source load even when query serving is isolated from the refresh workers — see [Isolating refresh from queries](#isolating-refresh-from-queries).
+
+## Isolating refresh from queries
+
+By default the runtime runs acceleration refresh on a dedicated low-priority thread pool (`refresh-worker`), separate from the pool that executes queries. CDC apply (`refresh_mode: changes`) runs on its own default-priority pool (`cdc-apply-worker`) when any dataset streams changes, so a bulk refresh does not deprioritize the apply loop. Cayenne compaction runs on `compaction-worker` when a dataset can produce files to compact.
+
+The pools still share the machine's CPU and memory. A full refresh can raise latency if it saturates the node or the query memory pool. Leave the default in place, and set `runtime.params.dedicated_thread_pool: disabled` only when a single shared pool is intentional — that puts refresh back on the query runtime. See [`dedicated_thread_pool`](../../reference/spicepod/runtime#dedicated-thread-pools).
+
+For a stronger split, run ingest on a cluster and serve lookups from sidecars. The sidecars do not refresh from the origin. See [Cluster-Sidecar](../../deployment/architectures/cluster-sidecar).
 
 ## Refresh On-Demand
 
