@@ -124,16 +124,20 @@ spice run
 spice run -- --set-runtime task_history.captured_output=none
 ```
 
-#### `--http`
+#### `--http-endpoint`
 
 ```shell
 # Expose the HTTP server on all interfaces
-spice run -- --http 0.0.0.0:8090
+spice run --http-endpoint 0.0.0.0:8090
 ```
 
-#### `--flight`
+`spice run` always passes `--http` to `spiced`, so passing it again after `--` fails with
+`argument '--http <BIND_ADDRESS>' cannot be used multiple times`. Use `--http-endpoint`, or set
+`--http` when running `spiced` directly.
+
+#### `--flight-endpoint`
 
 ```shell
 # Expose the HTTP & Flight servers on all interfaces with TLS
-spice run -- --http 0.0.0.0:8090 --flight 0.0.0.0:50051 --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
+spice run --http-endpoint 0.0.0.0:8090 --flight-endpoint 0.0.0.0:50051 -- --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```
