@@ -87,7 +87,7 @@ Search result invalidations always evict entries.
 
 For a high-throughput lookup path:
 
-- Prefer `engine: pingora` (sharded reads). It is an [Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) build; open-source binaries fall back to `moka` and say so at startup.
+- Prefer `engine: pingora` (sharded reads). It is an [Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) feature; open-source binaries fall back to `moka` and say so at startup.
 - On `moka`, compare `eviction_policy: tiny_lfu` with `lru` using `results_cache_hit_ratio`. `tiny_lfu` is the better default when a small set of keys dominates. `pingora` ignores `tiny_lfu` and stays on LRU.
 - Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
 
