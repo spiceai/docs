@@ -21,3 +21,16 @@ Spice implements the Flight SQL protocol, enabling querying of the datasets conf
 ## Authentication
 
 API Key authentication is supported for the Arrow Flight SQL endpoint. For more details, see [API Key Authentication](auth).
+
+## Short queries
+
+For point lookups and other small Flight SQL responses, fixed per-query costs (planning, admission, and the network round trip) make up more of the total time than they do for large scans.
+
+- **Prepared statements**, for a lookup that runs often with different parameter values. `PREPARE` the statement, then `EXECUTE` it with bound parameters ([prepared statements](../reference/sql/prepared_statements)). Preparing saves parsing and planning work on each call, not queueing: `EXECUTE` still takes a [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) slot. Repeated SQL text also hits the [logical plan cache](../features/caching#logical-plan-cache).
+- **A low [`target_partitions`](../reference/performance-tuning#query-parallelism)** for a lookup that does not scan in parallel. Confirm the plan with [`EXPLAIN`](../reference/sql/explain).
+
+JDBC, ODBC, and ADBC clients connect to Spice over Flight SQL. Set the connection pool size to the sum of [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) across the Spice replicas behind the load balancer, divided by the number of application instances that share them — see [Client connection pools](../reference/performance-tuning#client-connection-pools).
+
+## Long `DoGet` streams
+
+[`runtime.query.timeout`](../reference/spicepod/runtime#runtimequerytimeout) applies to Flight SQL for the whole query, including result streaming. If a query times out while receiving results, the `DoGet` stream ends with an error. Acceleration refreshes are exempt from that timeout.
