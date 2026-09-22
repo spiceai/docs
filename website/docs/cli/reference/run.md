@@ -46,6 +46,14 @@ spice run [flags] -- [spiced flags]
 
 Flags that are passed to the `spiced` runtime directly using `--`.
 
+`spice run` sets some of these itself, and `spiced` rejects a flag given twice:
+
+- `--http` always collides through `spice run`, which passes its own. Use `--http-endpoint`.
+- `--flight` and `--metrics` work after `--` on their own, and collide only when paired with
+  `--flight-endpoint` or `--metrics-endpoint`.
+
+Running `spiced` directly takes all three.
+
 - `--http` Configure runtime HTTP address [default: 127.0.0.1:8090]
 - `--flight` Configure runtime Flight address [default: 127.0.0.1:50051]
 - `--metrics` Enable and configure the Prometheus metrics endpoint (disabled by default)
@@ -131,9 +139,9 @@ spice run -- --set-runtime task_history.captured_output=none
 spice run --http-endpoint 0.0.0.0:8090
 ```
 
-`spice run` always passes `--http` to `spiced`, so passing it again after `--` fails with
-`argument '--http <BIND_ADDRESS>' cannot be used multiple times`. Use `--http-endpoint`, or set
-`--http` when running `spiced` directly.
+`spice run -- --http 0.0.0.0:8090` fails with
+`argument '--http <BIND_ADDRESS>' cannot be used multiple times`, because `spice run` passes its own
+`--http`. See [Spiced Flags](#spiced-flags) for which flags can still go after `--`.
 
 #### `--flight-endpoint`
 
