@@ -27,10 +27,10 @@ API Key authentication is supported for the Arrow Flight SQL endpoint. For more 
 Point lookups and other small Flight SQL responses spend more of their time in planning, admission, and the network than in the scan.
 
 - **`TCP_NODELAY`.** HTTP sets `TCP_NODELAY`. Non-TLS Flight inherits that path. TLS Flight currently does not set `TCP_NODELAY` on accepted connections, so a small response can wait on Nagle's algorithm. For a proxy that only caches small results, prefer the HTTP API. There is no Spicepod flag for the socket option.
-- **Prepared statements**, when planning dominates the lookup. `PREPARE` once and `EXECUTE` with bound parameters ([prepared statements](../reference/sql/prepared_statements)). `PREPARE` is not admission-gated; `EXECUTE` is. Repeated SQL text also hits the [logical plan cache](../features/caching#logical-plan-cache).
+- **Prepared statements**, when planning dominates the lookup. `PREPARE` once per session and `EXECUTE` with bound parameters ([prepared statements](../reference/sql/prepared_statements)). A prepared statement is session state, and each Flight SQL handshake starts a new session. `PREPARE` is not admission-gated; `EXECUTE` is. Repeated SQL text also hits the [logical plan cache](../features/caching#logical-plan-cache).
 - **A low [`target_partitions`](../reference/performance-tuning#query-parallelism)** for a lookup that does not scan in parallel. Confirm the plan with [`EXPLAIN`](../reference/sql/explain).
 
-JDBC, ODBC, and ADBC clients speak this protocol. Size their connection pools to [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) — see [Client connection pools](../reference/performance-tuning#client-connection-pools).
+JDBC, ODBC, and ADBC clients speak this protocol. A pooled connection that authenticates with its own handshake has its own session, so run `PREPARE` on each connection that calls `EXECUTE`. Size the pools against the admission budget of the whole Spice tier, not one runtime's [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) — see [Client connection pools](../reference/performance-tuning#client-connection-pools).
 
 ## Long `DoGet` streams
 

@@ -50,7 +50,7 @@ The Debezium connector streams change events from a Kafka topic produced by Debe
 
 ## Native CDC
 
-Use `refresh_mode: changes` when an interval [`full`](./full) or [`append`](./append) refresh is not fresh enough and the source can emit row-level changes. For PostgreSQL and MySQL, the native connectors are the path to use: [PostgreSQL logical replication](../../cdc/postgres-replication) and [MySQL binlog replication](../../cdc/mysql-replication). [Debezium](../../cdc/debezium) (with or without Kafka) remains the path for databases without a native Spice CDC connector, and for deployments that already run that pipeline.
+Use `refresh_mode: changes` when an interval [`full`](./full) or [`append`](./append) refresh is not fresh enough and the source can emit row-level changes. For PostgreSQL and MySQL, the native connectors are the path to use: [PostgreSQL logical replication](../../cdc/postgres-replication) and [MySQL binlog replication](../../cdc/mysql-replication). Debezium remains the path for databases without a native Spice CDC connector, and for deployments that already run that pipeline. The [`debezium` connector](../../cdc/debezium) consumes a Kafka topic (`debezium_transport: kafka` is the only supported transport); [Debezium push ingest](../../cdc/debezium-ingest) accepts change events over HTTP without Kafka.
 
 Point the dataset at a replica when that replica still exposes the log the connector reads — Postgres logical decoding (`wal_level=logical`), or the MySQL binary log — so the log read stays off the primary.
 

@@ -301,6 +301,7 @@ That failure is intentional. Incompatible source changes stay blocked until an e
 | Policy               | What it accepts                                                                                                      |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `block` (default)    | Nothing. The registered schema stays in force.                                                                       |
+| `fail`               | Nothing. The dataset reports an error status with an actionable message while the source schema diverges, and recovers if the source reverts. |
 | `append_new_columns` | New nullable columns. Type and nullability changes stay on `block`.                                                 |
 | `sync_all_columns`   | Lossless widening changes: new nullable columns, widened types, relaxed nullability. Removals and narrowing stay blocked. |
 | `drop_and_recreate`  | Widening changes in place, and a destructive rebuild for incompatible changes. The rebuild runs only with `refresh_mode: full`. |

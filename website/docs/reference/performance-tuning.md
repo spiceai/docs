@@ -507,7 +507,7 @@ A repeatedly full-refreshed DuckDB file grows without bound because bulk loads b
 
 ### Unsorted accelerations
 
-Zone-maps and Cayenne segment statistics only prune when the filter columns are physically ordered. When predicates do not prune, sort on insert:
+Zone-maps and Cayenne segment statistics skip any row group or segment whose recorded `min`/`max` range excludes the predicate. That does not require sorted data, but order determines how much is skipped: in unordered data each range tends to span most of the column's values, so few row groups are skipped. Sorting or clustering on the filter columns tightens the ranges. When predicates do not prune, sort on insert:
 
 - On DuckDB, an accelerated view with `ORDER BY` and `duckdb_preserve_insertion_order: true` (above), or `on_refresh_sort_columns` on a table. `on_refresh_sort_columns` rewrites the table and drops `primary_key`, `indexes`, and `on_conflict`. Use it on a table that does not need those constraints.
 - On Cayenne, [`sort_columns`](../components/data-accelerators/cayenne/performance#sorted-data-and-segment-pruning) (or `partition_by` on the selective key). `sort_columns` is compatible with a primary key; `on_refresh_sort_columns` is not.
@@ -947,9 +947,11 @@ Constrain how much work runs at once with [`runtime.query.max_concurrent_queries
 
 ### Client connection pools
 
-Size client HTTP and JDBC/ODBC/ADBC pools to Spice [`max_concurrent_queries`](spicepod/runtime#runtimequerymax_concurrent_queries). A results-cache hit does not take an admission permit. A miss does, and the permit is held for execution and for streaming the result, so each in-flight call holds a client connection until Spice finishes or the client times out.
+[`max_concurrent_queries`](spicepod/runtime#runtimequerymax_concurrent_queries) bounds the plans executing in one runtime, not the connections in any one client pool. Budget concurrency across the fleet: the in-flight queries of all HTTP and JDBC/ODBC/ADBC client instances together should stay within the sum of `max_concurrent_queries` across the Spice replicas that serve them. For example, three replicas with `max_concurrent_queries: 16` admit up to 48 queries at once. Six application instances that share those replicas evenly get about 8 in-flight queries each, not 16. Recompute each share when either side scales, and validate the split under load.
 
-A client pool much larger than the admission bound checks out every connection and then times out acquiring the next one, while Spice `query_failures` stays quiet: the queries are waiting for admission, not failing. Match the pool to the bound. Count admission wait in the client timeout — [`runtime.query.timeout`](spicepod/runtime#runtimequerytimeout) includes it. See [Client-side resiliency](memory#client-side-resiliency).
+A results-cache hit does not take an admission permit. A miss does, and the permit is held for execution and for streaming the result, so each in-flight miss holds a pool slot until Spice finishes streaming or the client times out. Connection count can differ from query concurrency: a Flight (gRPC) connection can carry several concurrent calls, and cache hits return without a permit. Budget in-flight queries, not sockets.
+
+When the clients together offer more concurrency than the replicas admit, the excess queries wait for admission instead of failing. Spice `query_failures` stays quiet while clients time out acquiring a pooled connection. Count admission wait in the client timeout — [`runtime.query.timeout`](spicepod/runtime#runtimequerytimeout) includes it. See [Client-side resiliency](memory#client-side-resiliency).
 
 Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `spiced_cpu_limit_millicores` to see what a pod sized for and what it was chosen against; the `source` label says which rung produced it. See [`runtime.cpu`](spicepod/runtime#runtimecpu).
 
@@ -1016,7 +1018,7 @@ Use this checklist when optimizing Spice deployments:
 - [ ] Sort accelerated data by filter columns (`sort_columns`, `on_refresh_sort_columns`, sorted views)
 - [ ] Configure indexes for point lookup queries (DuckDB/SQLite)
 - [ ] Set resource requests in Kubernetes; no CPU limit; `runtime.cpu.cores` to bound thread pools; `max_concurrent_queries` to bound admission
-- [ ] Size client connection pools to `max_concurrent_queries`
+- [ ] Size client pools so all clients' in-flight queries together fit the summed `max_concurrent_queries` of the Spice replicas
 - [ ] Lower `runtime.query.target_partitions` for point lookups; confirm with `EXPLAIN`
 - [ ] Gate pod readiness on `/v1/ready` when serving only warm acceleration
 - [ ] Size the SQL results cache for the hot working set before shrinking Cayenne segment and footer caches
