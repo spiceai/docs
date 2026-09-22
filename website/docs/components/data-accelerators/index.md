@@ -64,16 +64,42 @@ Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/d
 
 - Datasets are 10 GB or larger
 - Memory headroom is constrained, or the deployment must run in a smaller container
+- The dataset is mutable, refreshed often, or ingested with native CDC (`refresh_mode: changes`)
+- `refresh_mode: full` would be repeated often enough to grow a DuckDB file — see [Sizing the volume](data-accelerators/duckdb#sizing-the-volume)
 - Multi-file data ingestion is required (e.g., partitioned S3 data)
 - Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
 - Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
 
 **Choose DuckDB when:**
 
-- Datasets are under 10 GB
+- Datasets are under 10 GB and mostly static between refreshes
+- Point lookups go through a primary key or secondary indexes on that smaller table
 - Complex SQL features are required (window functions, CTEs)
 - Existing DuckDB tooling integration is beneficial
 - Database-enforced index semantics are required (a `unique` index that rejects duplicate writes; Cayenne's `indexes` narrow reads but do not constrain writes)
+
+#### Moving a dataset from DuckDB to Cayenne
+
+Set `acceleration.engine` to `cayenne` and remove the DuckDB-only parameters, which Cayenne does not read: `duckdb_file`, `duckdb_memory_limit`, `duckdb_preserve_insertion_order`, `on_refresh_sort_columns`, and `on_full_refresh`. To keep the data clustered, replace [`on_refresh_sort_columns`](data-accelerators/duckdb#configuration-parameters) with Cayenne [`sort_columns`](data-accelerators/cayenne/performance#sorted-data-and-segment-pruning):
+
+```yaml
+datasets:
+  - from: s3://my-bucket/orders/
+    name: orders
+    params:
+      file_format: parquet
+    acceleration:
+      enabled: true
+      engine: cayenne # was: duckdb
+      mode: file
+      refresh_mode: full
+      params:
+        sort_columns: created_at # was: on_refresh_sort_columns
+```
+
+Unlike `on_refresh_sort_columns`, which drops `primary_key`, indexes, and `on_conflict`, `sort_columns` works with a primary key. For CDC datasets with a `primary_key`, the default [`cayenne_deletion_mode: auto`](data-accelerators/cayenne#deletion-strategies) applies deletes by key.
+
+Leave [`cayenne_file_path`](data-accelerators/cayenne#parameters) and [`cayenne_metadata_dir`](data-accelerators/cayenne#metastore-location) unset so every Cayenne dataset shares the default data root and catalog. If a deployment sets `cayenne_file_path`, use the same path on every Cayenne dataset; see [Metastore location](data-accelerators/cayenne#metastore-location) for why.
 
 ## Data Types
 

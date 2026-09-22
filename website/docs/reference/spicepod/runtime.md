@@ -157,6 +157,20 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 Optional. Global key-value parameters for the runtime.
 
+### Dedicated thread pools
+
+| Parameter Name          | Description                                                                                                                                                                                                                                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dedicated_thread_pool` | Where query execution, acceleration refresh, CDC apply, and Cayenne compaction run. `sql_engine` (the default, also used when the parameter is unset) gives each of those a dedicated Tokio runtime: queries on the CPU pool, refresh on a low-priority `refresh-worker` pool, CDC apply on `cdc-apply-worker` when any dataset uses `refresh_mode: changes`, and Cayenne compaction on `compaction-worker` when a dataset can produce files to compact. `disabled` runs that work on the main runtime. Any other value logs a warning and keeps `sql_engine`. |
+
+```yaml
+runtime:
+  params:
+    dedicated_thread_pool: sql_engine # default; set disabled to share one pool
+```
+
+See [Isolating refresh from queries](../../features/data-acceleration/data-refresh#isolating-refresh-from-queries).
+
 ### HTTP Rate Control
 
 HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following rate control defaults. The GitHub connector is **not** part of this family — it has its own limiter, configured with [`runtime.source_rate_control.github_concurrent_connections_limit`](#runtimesource_rate_control):
@@ -625,7 +639,7 @@ Behavior:
 
 - Applies to queries issued through the runtime's query APIs (HTTP, Flight, and Flight SQL). Internal runtime queries — acceleration refreshes and health checks — are exempt.
 - Enforcement is cooperative (best-effort): the query is cancelled at its next cancellation checkpoint, so actual runtime can slightly exceed the configured value.
-- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete.
+- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete. On Flight SQL that is a long `DoGet`: the stream ends with an error rather than a clean completion. Short-query tuning (prepared statements, partition fan-out) is separate — see [Arrow Flight SQL](../../api/arrow-flight-sql#short-queries).
 - If not set, queries run with **no timeout** (the default behavior). The value must be a positive duration greater than `0`.
 
 ## `runtime.query.spill_compression`

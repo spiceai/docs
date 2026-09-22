@@ -290,22 +290,26 @@ For connectors that read self-describing formats (Parquet, Arrow, Avro), the sch
 
 ### Runtime Schema Changes
 
-Spice does not apply schema changes at runtime. If the source schema changes while the runtime is running — for example, new columns are added, columns are removed, or data types change — subsequent data refreshes will fail with an error such as:
+Accelerated datasets keep the schema registered at startup. The default [`on_schema_change: block`](../reference/spicepod/datasets#on_schema_change) does not adopt a later source change. The dataset stays healthy and continues to serve queries on the registered schema. A refresh that cannot write the new source rows into that schema fails, for example:
 
 ```
 Failed to load data for dataset <name>: Cannot cast struct field ...
 ```
 
-This behavior is by design. Blocking runtime schema evolution protects accelerated tables from unintentional or breaking schema changes that could corrupt data or produce unexpected query results.
+That failure is intentional. Incompatible source changes stay blocked until an explicit policy accepts them. Plan the rollout, then set one of:
 
-To apply a new source schema, restart the Spice runtime. On startup, Spice re-infers the schema from the source and re-initializes the dataset with the updated column definitions.
+| Policy               | What it accepts                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `block` (default)    | Nothing. The registered schema stays in force.                                                                       |
+| `fail`               | Nothing. The dataset reports an error status with an actionable message while the source schema diverges, and recovers if the source reverts. |
+| `append_new_columns` | New nullable columns. Type and nullability changes stay on `block`.                                                 |
+| `sync_all_columns`   | Lossless widening changes: new nullable columns, widened types, relaxed nullability. Removals and narrowing stay blocked. |
+| `drop_and_recreate`  | Widening changes in place, and a destructive rebuild for incompatible changes. The rebuild runs only with `refresh_mode: full`. |
+
+Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) recreates the acceleration file when an incompatible change is found. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
-:::
-
-:::note
-Runtime schema evolution controls are planned for a future release. When available, schema evolution will remain off by default.
 :::
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |

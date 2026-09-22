@@ -235,6 +235,8 @@ The segment cache stores decompressed data segments. One cache serves every Caye
 
 The value of the segment cache scales with the latency of the storage beneath it. On local NVMe a miss costs a decompression and a fast read; on EBS or S3 Express it also costs a network round trip, so size the cache to the hot working set there. Measure the hit rate as `rate(cayenne_segment_cache_hits[5m]) / rate(cayenne_segment_cache_accesses[5m])` — see [Segment Cache Metrics](./deployment.md#segment-cache-metrics) — and grow the cache while the hit rate is low and the working set would fit.
 
+With a limited memory budget, size the [SQL results cache](../../../features/caching#serving-repeated-lookups) for the repeated queries first. A footer or segment cache too small to hold the segments those queries read adds misses without covering the hot set the results cache can hold.
+
 **Example - High-throughput configuration:**
 
 ```yaml
