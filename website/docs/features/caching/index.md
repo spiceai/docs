@@ -87,8 +87,7 @@ Search result invalidations always evict entries.
 
 For a high-throughput lookup path:
 
-- Prefer `engine: pingora` (sharded reads). It is an [Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) feature; open-source binaries fall back to `moka` and say so at startup.
-- On `moka`, compare `eviction_policy: tiny_lfu` with `lru` using `results_cache_hit_ratio`. `tiny_lfu` is the better default when a small set of keys dominates. `pingora` ignores `tiny_lfu` and stays on LRU.
+- Compare `eviction_policy: tiny_lfu` with the default `lru` using `results_cache_hit_ratio`.
 - Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
 
 When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a refresh or DML write, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.

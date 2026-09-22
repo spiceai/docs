@@ -114,9 +114,13 @@ This is lighter than `replace_file` — there is no staging copy of cohabiting o
 
 ### Sizing the volume
 
-The on-disk file is not a proxy for the dataset size. `reuse_file` (the default) keeps every previous copy's free blocks until a checkpoint, so a PVC sized to the table fills across refreshes. `checkpoint_file` stops the growth and then sits at the file's high-water mark — it does not shrink. `replace_file` needs free space for the live file and the staging file at the same time, because the replacement is written beside the file that is still serving queries.
+By default, `reuse_file` neither replaces the file nor runs a DuckDB [`CHECKPOINT`](https://duckdb.org/docs/lts/sql/statements/checkpoint) after a refresh, so the file keeps growing with every full refresh.
 
-Leave headroom for the WAL, index serialization, and that staging copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
+`checkpoint_file` runs a `CHECKPOINT` after each refresh, so later refreshes reuse the freed space. The file stops growing but does not shrink.
+
+`replace_file` replaces the DuckDB file on every full refresh, which reclaims free space by rewriting the file. It needs enough free space for two copies of the file, because the old file is not removed until the replacement succeeds, so queries continue without interruption.
+
+Leave headroom for the WAL, index serialization, and the `replace_file` copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
 
 ## Limitations
 

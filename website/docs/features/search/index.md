@@ -158,9 +158,7 @@ For complete rerank syntax and parameters, see [Search SQL Reference](../referen
 
 ## Where indexes are built
 
-Start with SQL predicates, [`LIKE` and regex](../reference/sql/search#lexical-search-like--and-regex), and [full-text search](search/full-text). Add [vector search](search/vector-search) when the retrieval has to be semantic. Use [hybrid search](#hybrid-search-with-rrf) when both semantic and literal matching matter for the same query.
-
-Build full-text and vector indexes on the central acceleration tier, and let application sidecars answer repeats from the [search results cache](./caching) (`runtime.caching.search_results`). Rebuilding a Tantivy or HNSW index inside every pod duplicates memory and cold-start work. The in-memory full-text index is rebuilt on every start; a file-backed one is a separate directory and is not part of an [acceleration snapshot](./data-acceleration/snapshots#best-practices). A DuckDB HNSW index lives in the DuckDB file, so it travels with that file's snapshot. See [Cluster-Sidecar](../deployment/architectures/cluster-sidecar).
+Build full-text and vector indexes on the central acceleration tier, and let application sidecars answer repeats from the [search results cache](./caching) (`runtime.caching.search_results`). The in-memory full-text index is rebuilt on every start; a file-backed one is a separate directory and is not part of an [acceleration snapshot](./data-acceleration/snapshots#best-practices). A DuckDB HNSW index lives in the DuckDB file, so it travels with that file's snapshot. See [Cluster-Sidecar](../deployment/architectures/cluster-sidecar).
 
 ## Dataset Readiness
 
