@@ -97,6 +97,11 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `allow_http`                | Enables insecure HTTP connections to `s3_endpoint`. Defaults to `false`.                                                                                                                                                                                                                                       |
 | `schema_source_path`        | Specifies the URL used to infer the dataset schema. Default to the most recently modified file                                                                                                                                                                                                                 |
 | `refresh_skip`              | Controls skipping refreshes for accelerated **single-file** S3 datasets when the cached `ETag` / version ID still matches the object in S3. Options: `enabled` and `disabled`. Defaults to `enabled`. Has no effect on directory (prefix) datasets or on datasets without acceleration.                          |
+| `s3_changes_queue_url`      | SQS queue URL that receives this dataset's S3 event notifications. Required with `refresh_mode: changes`, and rejected without it. Must be a queue URL (`https://sqs.<region>.amazonaws.com/<account>/<queue>`), not an ARN. Stored as a secret. See [Event-driven refresh with SQS](#event-driven-refresh-with-sqs). |
+| `s3_changes_region`         | Optional. AWS region of the SQS queue. Defaults to the region in `s3_changes_queue_url`, then `s3_region`. |
+| `s3_changes_key_prefix`     | Optional. Object-key prefix to apply from the queue and the listing backfill. Defaults to the key prefix of `from`. Must be equal to or nested under the dataset path. |
+| `s3_changes_backfill_interval` | Optional. How often Spice lists the dataset prefix and applies objects it has not yet applied, so missed or expired notifications still load. A duration greater than 0. Defaults to `1h`. |
+| `s3_on_object_removed`      | Optional. What to do with `s3:ObjectRemoved:*` notifications. `ignore` (default) keeps the removed object's rows. `rebuild` replaces the whole acceleration from a listing of the prefix; it does not delete individual rows. |
 
 For additional CSV, JSON, and Parquet specific parameters, see [File Formats](../../reference/file_format).
 
@@ -116,6 +121,77 @@ When `s3_url_style` is not set, the connector auto-detects the correct style:
 A dotted bucket name cannot use virtual-hosted style over HTTPS on standard AWS: the bucket becomes part of a multi-label hostname (`my.bucket.name.s3.<region>.amazonaws.com`) that the AWS wildcard certificate (`*.s3.<region>.amazonaws.com`) cannot match, so the TLS handshake fails. The connector defaults these buckets to path style, matching [AWS's own recommendation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html). An explicit `s3_url_style` always takes precedence.
 
 Set `s3_url_style` explicitly to skip auto-detection.
+
+## Event-driven refresh with SQS
+
+An accelerated S3 prefix can refresh from [S3 Event Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html) delivered to an Amazon SQS queue instead of on a polling interval. Set `refresh_mode: changes` and `s3_changes_queue_url`. Spice long-polls the queue and, for each `s3:ObjectCreated:*` notification, reads the new object and appends its rows to the acceleration.
+
+This is object-level, not row-level, change data capture. A new object adds rows; a removed object never deletes individual rows. For the list-and-poll alternative, see [`append` refresh](../../features/data-acceleration/refresh-modes/append) with `time_column: last_modified`.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/events/
+    name: events
+    params:
+      file_format: parquet
+      s3_region: us-east-1
+      s3_auth: iam_role
+      s3_changes_queue_url: ${secrets:s3_events_queue_url}
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: changes
+```
+
+### How objects are applied
+
+When the acceleration is empty, Spice lists the `from` prefix once and loads every object it finds before it marks the dataset ready. On a restart with a non-empty acceleration, Spice lists the prefix once and replaces the acceleration with that listing, rather than appending every listed object again. If any listed object cannot be read, Spice neither loads nor replaces from the partial listing, and retries.
+
+After that, Spice applies notifications from the queue:
+
+- **`s3:ObjectCreated:*`** reads the object and appends its rows as one write. A key that Spice has already applied is acknowledged without appending it again, so SQS redelivery and an overlap between the listing and the queue do not duplicate rows. The SQS message is deleted after the rows are written (at-least-once delivery).
+- **`s3:ObjectRemoved:*`** is acknowledged and ignored by default, so queries still return the removed object's rows. With `s3_on_object_removed: rebuild`, Spice lists the prefix and replaces the whole acceleration from it.
+- **Objects the dataset does not read**, such as a `_SUCCESS` marker or a file that does not match `file_format` or `file_extension`, are acknowledged without loading.
+
+Every `s3_changes_backfill_interval` (default `1h`), Spice lists the prefix again and applies objects it has not yet applied. SQS keeps unconsumed messages for 4 days by default and up to 14 days, so notifications sent while Spice is stopped are still delivered on restart; the backfill covers notifications that expired or were never delivered.
+
+Spice accepts direct S3-to-SQS notifications, S3 notifications wrapped by Amazon SNS (S3 → SNS → SQS), and Amazon EventBridge S3 events. `s3:TestEvent` messages are ignored.
+
+### AWS setup
+
+1. Create one SQS queue per dataset. A notification for a key outside the dataset's bucket and prefix is left on the queue, where it reappears after each visibility timeout until the queue's retention period expires. To feed several datasets from one bucket, fan out with SNS to one queue per dataset, or filter the bucket notification by the dataset prefix.
+2. Configure the bucket's event notifications to send `s3:ObjectCreated:*` to the queue. Add `s3:ObjectRemoved:*` only when `s3_on_object_removed: rebuild` is set.
+3. Grant the credentials Spice uses `s3:GetObject` and `s3:ListBucket` on the prefix, and `sqs:ReceiveMessage` and `sqs:DeleteMessage` on the queue.
+
+The SQS client uses the same credentials as the S3 connector (`s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, or the IAM role chain).
+
+### Configuration errors
+
+Spice refuses to register the dataset when:
+
+- `refresh_mode: changes` is set without `s3_changes_queue_url`, or `s3_changes_queue_url` is set without `refresh_mode: changes`.
+- `s3_changes_queue_url` is empty, is an ARN, or is not an HTTPS SQS queue URL.
+- `s3_auth` is `public`. An unauthenticated client cannot receive from SQS.
+- No SQS region can be resolved from `s3_changes_region`, the queue URL, or `s3_region`.
+- `s3_on_object_removed` is not `ignore` or `rebuild`, `s3_changes_key_prefix` is not under the `from` prefix, or `s3_changes_backfill_interval` is not a duration greater than 0.
+- The dataset has no structured file format (Parquet, CSV, JSON, TSV, ORC, or, except on Windows, Vortex) from `file_format`, `file_extension`, or the `from` path.
+- `from` contains a wildcard or names a single object instead of a prefix. End the prefix with `/`; keep a single object on `refresh_mode: full`.
+
+For example, an ARN in `s3_changes_queue_url` fails with:
+
+```
+Failed to register dataset events (s3): `s3_changes_queue_url` must be an SQS queue URL (https://sqs.<region>.amazonaws.com/...), not an ARN. See: https://spiceai.org/docs/components/data-connectors/s3
+```
+
+### Limitations
+
+- A removed object's rows are never deleted individually. `s3_on_object_removed: rebuild` replaces the whole acceleration from the prefix.
+- Overwriting an object in place under a key Spice has already applied does not reload it. Write changed data to a new key, or use `s3_on_object_removed: rebuild`.
+- The set of applied keys is held in memory. A restart replaces the acceleration from one listing of the prefix.
+- An object key with a `.` or `..` path segment is skipped by both the queue and the listing.
+- One queue cannot be shared across datasets.
+- A custom SQS endpoint, such as LocalStack, is not configurable.
 
 ## Authentication
 

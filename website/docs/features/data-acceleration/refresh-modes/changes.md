@@ -17,7 +17,7 @@ Use `changes` when:
 
 ## Configuration
 
-`refresh_mode: changes` requires a CDC-capable data connector. Spice supports CDC via [PostgreSQL Logical Replication](../../cdc/postgres-replication), [MySQL Binlog Replication](../../cdc/mysql-replication), [MongoDB Change Streams](../../cdc/mongodb-streams), [DynamoDB Streams](../../cdc/dynamodb-streams), and [Debezium](../../cdc/debezium) (over Kafka). See [Supported Data Connectors](../../cdc#supported-data-connectors) for details.
+`refresh_mode: changes` requires a CDC-capable data connector. Spice supports CDC via [PostgreSQL Logical Replication](../../cdc/postgres-replication), [MySQL Binlog Replication](../../cdc/mysql-replication), [MongoDB Change Streams](../../cdc/mongodb-streams), [DynamoDB Streams](../../cdc/dynamodb-streams), and [Debezium](../../cdc/debezium) (over Kafka). An accelerated S3 prefix can also use `refresh_mode: changes` with [S3 Event Notifications delivered to SQS](../../../components/data-connectors/s3#event-driven-refresh-with-sqs), which appends new objects rather than applying row-level changes. See [Supported Data Connectors](../../cdc#supported-data-connectors) for details.
 
 :::note
 
