@@ -75,9 +75,10 @@ Runtime caches support common configuration parameters:
 | ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                                          |
 | `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                    |
-| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used), `lfu` (Least Frequently Used), and `tiny_lfu` (Window TinyLFU, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | -        | Ignored. Accepted so existing spicepods still load; `engine: pingora` logs a one-time warning. [Learn more](../../features/caching#the-engine-parameter). |
 
 ### `runtime.caching.search_results`
 

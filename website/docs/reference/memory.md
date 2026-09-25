@@ -503,6 +503,7 @@ runtime:
 | Policy          | Description              | Performance                                 |
 | --------------- | ------------------------ | ------------------------------------------- |
 | `lru` (default) | Least Recently Used      | Good general-purpose hit rates              |
+| `lfu`           | Least Frequently Used    | Keeps a stable hot set through bursts of one-off queries |
 | `tiny_lfu`      | TinyLFU admission policy | Higher hit rates for skewed access patterns |
 
 TinyLFU maintains frequency information to admit only items likely to be accessed again, resulting in higher hit rates for workloads with varying query frequency patterns.
