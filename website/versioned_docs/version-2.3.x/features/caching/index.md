@@ -71,10 +71,16 @@ The `pingora` cache engine is available in the Spice [Enterprise edition](https:
 The Pingora cache engine is included in the Enterprise distribution of Spice.ai. Learn more at https://docs.spice.ai/docs/enterprise Falling back to the Moka cache engine.
 ```
 
-and the cache runs on Moka instead. The engine each cache actually started on is named in its own startup line, so that is what to check rather than the configured value — the sizes and TTL in it are the ones configured for that cache:
+and the cache runs on Moka instead. The search results and embeddings caches name the engine they actually started on in their startup lines, so check those lines rather than the configured value:
 
 ```
-Initialized sql results cache; max size: 128.00 MiB, item ttl: 1s, engine: Moka
+Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, engine: Moka
+```
+
+The SQL results cache's startup line does not name the engine. It reports the hashing algorithm and encoding instead:
+
+```
+Initialized sql results cache; max size: 128.00 MiB, item ttl: 1s, hashing algorithm: XXH3, encoding: none
 ```
 
 :::
