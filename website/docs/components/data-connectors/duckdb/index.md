@@ -164,9 +164,25 @@ Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differen
 - **A `start` argument is an integer literal between 1 and 4294967295.** The start is applied by narrowing the input to `SUBSTRING(x, start)`, which is 1-based in both engines. A non-literal start cannot become an offset at unparse time, and a start above DuckDB's `SUBSTRING` range is refused.
 - **There is no `flags` argument.** A call that passes flags is always evaluated in Spice.
 
-**The "does it match at all" idiom still pushes down.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, and `regexp_like` the DuckDB dialect does render natively (as `regexp_matches`), so that shape stays a boolean and federates either way. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
+**The "does it match at all" idiom is screened as `regexp_like`.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, so that shape stays a boolean and is subject to the `regexp_like` screen described below. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
 
-`regexp_like` and `regexp_replace` are the two remaining DataFusion regexp built-ins, and both federate — except when their optional flags argument is a string literal containing `U` or `R`, which DuckDB's regex engine does not support. Such a call is evaluated in Spice instead.
+### `regexp_like` and `regexp_replace` use the same pattern screen
+
+`regexp_like` is sent to DuckDB as `regexp_matches`, and `regexp_replace` is sent as `regexp_replace`. Both are sent only when the call passes the same screen as `regexp_count`, because the two regex engines disagree on some patterns without raising an error. For example, `regexp_like(s, '\d')` over `xy١` is `true` in Spice and `false` in DuckDB, since `\d` matches Unicode digits in Spice and only ASCII digits in RE2. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal that uses only syntax both engines read alike.** The admitted and refused syntax is the list above. Unlike `regexp_count`, a pattern that can match the empty string, such as `a*`, is admitted: whether a pattern matches, and what a replace produces, do not depend on how empty matches are counted.
+- **For `regexp_replace`, the replacement is a string literal with no `$` and no `\`.** Spice reads `$1` as a reference to a capture group and RE2 reads `\1`, so `regexp_replace(s, '(a)(b)', '$2$1')` returns `ba` in Spice and the literal text `$2$1` in DuckDB.
+- **The only flag is `g` on `regexp_replace`.** `g` selects replace-all over replace-first, and both engines apply it alike. Any other flags argument, including `i`, is refused, because each engine folds case with its own Unicode tables. `regexp_like` with any flags argument is evaluated in Spice.
+
+A call that fails the screen is evaluated in Spice, and the query still answers.
+
+| Call | Where it runs |
+| --- | --- |
+| `regexp_like(s, 'b')` | DuckDB, as `regexp_matches("s", 'b')` |
+| `regexp_like(s, '\d')` | Spice (`\d` is Unicode-aware in Spice, ASCII-only in RE2) |
+| `regexp_like(s, 'b', 'i')` | Spice (flags other than `g`) |
+| `regexp_replace(s, 'a', 'X', 'g')` | DuckDB |
+| `regexp_replace(s, '(a)(b)', '$2$1')` | Spice (the replacement holds `$`) |
 
 The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
 
