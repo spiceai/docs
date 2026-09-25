@@ -51,7 +51,7 @@ runtime:
       max_size: 256MiB           # Default: 128MiB
       item_ttl: 30s              # Default: 1s
       stale_while_revalidate_ttl: 5m  # Default: 0s (disabled)
-      eviction_policy: lru       # lru (default) or tiny_lfu
+      eviction_policy: lru       # lru (default), lfu, or tiny_lfu
       cache_key_type: plan       # plan (default) or sql
       encoding: zstd             # none (default) or zstd
 ```

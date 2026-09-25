@@ -48,46 +48,48 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                                          |
 | `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                    |
-| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used), `lfu` (Least Frequently Used), and `tiny_lfu` (Window TinyLFU, higher hit rate for skewed access patterns). See [Choosing an `eviction_policy`](#choosing-an-eviction_policy). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
-| `engine`            | Yes      | `moka`   | Cache backend: `moka`, or `pingora` on an [Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) build. See [Choosing an `engine`](#choosing-an-engine).                            |
+| `engine`            | Yes      | -        | Ignored. Accepted so existing spicepods still load. See [The `engine` parameter](#the-engine-parameter).                                                                                                    |
 
-### Choosing an `engine`
+### Choosing an `eviction_policy`
 
-- **`moka` (default):** Supports TTL expiration and lazy table invalidation.
-- **`pingora`:** Uses a sharded LRU cache. Reads lock the key's shard; table invalidations that
-  evict entries scan the cache, with cost proportional to its size. `pingora` does not implement
-  `eviction_policy: tiny_lfu`; selecting both warns
-  (`Pingora cache engine does not support TinyLFU caching policy. Falling back to LRU.`) and uses LRU.
+All three caches store entries in a sharded in-memory cache with 16 shards. `eviction_policy` decides which entry leaves a shard when the cache reaches `max_size`:
 
-:::note[Enterprise edition]
+- **`lru` (default):** Evicts the least recently used entry. Suited to recency-biased traffic, such as streaming or time-windowed reads.
+- **`lfu`:** Evicts the entry with the fewest hits, found by walking the whole shard. Suited to a stable set of keys that is read far more often than the rest and must survive a burst of one-off queries.
+- **`tiny_lfu`:** Window TinyLFU. A small admission window feeds a segmented LRU main region, and a frequency sketch decides whether a new entry displaces an existing one. The general-purpose choice for mixed database, search, and analytics workloads.
 
-The `pingora` cache engine is available in the Spice [Enterprise edition](https://docs.spice.ai/docs/enterprise/getting-started/distributions). It is compiled behind a build feature that the published open source `spiced` binaries and images do not enable.
+`caching_policy` is accepted as an alias for `eviction_policy`.
 
-`engine: pingora` is **not** rejected on a build without it: the value parses, the runtime logs
+### The `engine` parameter
 
-```
-The Pingora cache engine is included in the Enterprise distribution of Spice.ai. Learn more at https://docs.spice.ai/docs/enterprise Falling back to the Moka cache engine.
-```
-
-and the cache runs on Moka instead. The engine each cache actually started on is named in its own startup line, so that is what to check rather than the configured value — the sizes and TTL in it are the ones configured for that cache:
+`engine` is accepted for compatibility with existing spicepods and is ignored. SQL results, search results, and embeddings caches always use the sharded cache described above, whatever `engine` is set to. `engine: pingora` no longer selects the Pingora cache and logs a one-time warning at startup:
 
 ```
-Initialized sql results cache; max size: 128.00 MiB, item ttl: 1s, engine: Moka
+The `engine` cache setting is ignored at runtime; SQL, search, and embeddings caches always use the Spice sharded-cache backend (`engine: pingora` no longer selects Pingora). Remove `engine` from the spicepod, or leave it for compatibility. See: https://spiceai.org/docs/features/caching
 ```
 
-:::
+`engine: moka` is accepted without a warning, but it does not preserve Moka's eviction or timing behavior. Remove `engine` from the spicepod, and use `eviction_policy` to choose eviction behavior.
+
+The search results and embeddings caches name the shard count in their startup lines:
+
+```
+Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, shards: 16
+```
 
 With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
-result invalidations mark entries stale without eviction, so neither engine scans.
+result invalidations mark entries stale without evicting them. Otherwise, a table invalidation walks
+every shard to evict the entries that read the table, so its cost is proportional to the number of
+cached entries. The walk runs on a blocking thread, not on the query runtime.
 Search result invalidations always evict entries.
 
 ### Serving repeated lookups
 
 For a high-throughput lookup path:
 
-- Compare `eviction_policy: tiny_lfu` with the default `lru` using `results_cache_hit_ratio`.
+- Compare `eviction_policy: tiny_lfu` and `lfu` with the default `lru` using `results_cache_hit_ratio`.
 - Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
 
 When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a refresh or DML write, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.
