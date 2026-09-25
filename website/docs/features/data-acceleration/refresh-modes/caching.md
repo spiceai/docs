@@ -477,6 +477,14 @@ This behavior differs from other modes:
 - **`changes` mode**: Applies CDC events
 - **`caching` mode**: Replaces rows matching the specific cache key
 
+### Concurrent Cache Misses
+
+Concurrent cache misses for the same cache key share one origin fetch. The first request fetches from the origin and writes the result; requests that miss on the same key while that fetch is in flight wait for it and return its rows, without a second origin request and without writing a second copy. An empty result is shared the same way.
+
+A waiting request shares the fetch only when that fetch returns enough rows for it. An unbounded fetch serves any request. A fetch bounded by `LIMIT n` serves only requests whose own limit is `n` or lower, so a `LIMIT 3` miss that arrives during a `LIMIT 1` fetch queries the origin itself, and does not write. A stale-while-revalidate refresh shares its fetch with misses on the same key in the same way.
+
+A waiting request makes its own origin request when the shared fetch fails, is cancelled, or returns a `429` or `5xx` response, or when it has waited 30 seconds. [`caching_stale_if_error`](#transient-error-handling) then applies to that request as it does to any other.
+
 ### Cache Key Behavior
 
 A cache entry is **always** addressed by HTTP request metadata — `request_path`, `request_query`, and `request_body` — whether or not a `primary_key` is declared. A lookup is built from the request alone, because that is all a query supplies before the response exists.
