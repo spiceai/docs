@@ -50,7 +50,6 @@ models:
 | Parameter               | Description                                                                                       | Default     |
 | ----------------------- | ------------------------------------------------------------------------------------------------- | ----------- |
 | `aws_region`            | AWS region for Bedrock API requests.                                                              | `us-east-1` |
-| `aws_profile`           | AWS profile to use when loading credentials from shared config files.                             | -           |
 | `aws_access_key_id`     | AWS access key ID. If not provided, credentials load from environment variables or IAM roles.     | -           |
 | `aws_secret_access_key` | AWS secret access key. If not provided, credentials load from environment variables or IAM roles. | -           |
 | `aws_session_token`     | AWS session token for temporary credentials.                                                      | -           |
@@ -68,15 +67,16 @@ Bedrock Guardrails filter model inputs and outputs. See [GuardrailConfiguration]
 
 #### Model Parameters
 
-These parameters control model behavior and are passed in the request payload:
+Bedrock models accept the OpenAI-compatible chat completion parameters and map four of them onto the Bedrock Converse API inference configuration. To set a default for every request to the model, use the `bedrock_` prefix. A value in the request body takes precedence over the default.
 
-| Parameter       | Description                                                     |
-| --------------- | --------------------------------------------------------------- |
-| `maxTokens`     | Maximum number of tokens to generate.                           |
-| `temperature`   | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
-| `topP`          | Nucleus sampling probability (0.0 to 1.0).                      |
-| `topK`          | Number of highest probability tokens to consider.               |
-| `stopSequences` | Sequences that stop generation when encountered.                |
+| Parameter                       | Converse API field | Description                                                     |
+| ------------------------------- | ------------------ | --------------------------------------------------------------- |
+| `bedrock_max_completion_tokens` | `maxTokens`        | Maximum number of tokens to generate.                           |
+| `bedrock_temperature`           | `temperature`      | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
+| `bedrock_top_p`                 | `topP`             | Nucleus sampling probability (0.0 to 1.0).                      |
+| `bedrock_stop`                  | `stopSequences`    | Sequences that stop generation when encountered.                |
+
+Top-k sampling is not supported. Parameters named after the Converse API fields, such as `maxTokens` or `topK`, are not read and have no effect.
 
 See [Parameter Overrides](../../features/large-language-models/parameter_overrides) for details on setting default values.
 
