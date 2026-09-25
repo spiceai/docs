@@ -48,17 +48,20 @@ models:
 | `bedrock_guardrail_version`    | Guardrail version. Pattern: `(([1-9][0-9]{0,7}) \| (DRAFT))`                                                                                                                                                                                                                       | -        |
 | `bedrock_trace`                | Trace behavior for the guardrail. Valid values: `enabled`, `disabled`, `enabled_full`. Default: `disabled`.                                                                                                                                                                        | disabled |
 
-### OpenAI-Compatible Overrides
+### Model Parameters
 
-The following OpenAI-compatible parameters are supported and passed in the request payload:
+Bedrock models accept the OpenAI-compatible chat completion parameters and map four of them onto the Bedrock Converse API inference configuration. To set a default for every request to the model, use the `bedrock_` prefix. A value in the request body takes precedence over the default.
 
-- `maxTokens`
-- `temperature`
-- `topP`
-- `topK`
-- `stopSequences`
+| Parameter                       | Converse API field | Description                                                     |
+| ------------------------------- | ------------------ | --------------------------------------------------------------- |
+| `bedrock_max_completion_tokens` | `maxTokens`        | Maximum number of tokens to generate.                           |
+| `bedrock_temperature`           | `temperature`      | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
+| `bedrock_top_p`                 | `topP`             | Nucleus sampling probability (0.0 to 1.0).                      |
+| `bedrock_stop`                  | `stopSequences`    | Sequences that stop generation when encountered.                |
 
-See [Parameter Overrides](https://spiceai.org/docs/features/large-language-models/parameter_overrides) for details.
+Top-k sampling is not supported. Parameters named after the Converse API fields, such as `maxTokens` or `topK`, are not read and have no effect.
+
+See [Parameter Overrides](../../features/large-language-models/parameter_overrides) for details on setting default values.
 
 ## Example Configuration
 
