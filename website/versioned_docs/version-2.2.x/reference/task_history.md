@@ -55,6 +55,50 @@ Values are case-sensitive; an unrecognized value fails at load. Other task types
 `captured_context` shapes prompt, tool, and search payloads only. Whether task output is recorded at all is controlled separately by `captured_output`, which defaults to `none`.
 :::
 
+## Correlating Requests with `spice-trace-id`
+
+A client can set the trace ID for its request with the `spice-trace-id` header, so the request's work can be found again in `runtime.task_history` and in the runtime log. Over HTTP it is a request header; over Arrow Flight and Flight SQL it is gRPC metadata, which uses the same name.
+
+The value is 32 hexadecimal characters (a 16-byte ID), the same form as the `trace_id` column. Uppercase hex is accepted and recorded in lowercase. The all-zero ID is rejected.
+
+```bash
+curl -i -XPOST http://localhost:8090/v1/sql \
+  -H 'spice-trace-id: 4bf92f3577b34da6a3ce929d0e0e4736' \
+  --data 'SELECT count(*) FROM taxi_trips'
+```
+
+```sql
+SELECT task, input, error_message
+FROM runtime.task_history
+WHERE trace_id = '4bf92f3577b34da6a3ce929d0e0e4736';
+```
+
+For a SQL query, over HTTP (`/v1/sql`), Arrow Flight, or Flight SQL:
+
+- The query's `task_history` rows record the ID in `trace_id`, including when the query fails.
+- The response returns the ID in a `spice-trace-id` header, or `spice-trace-id` gRPC metadata for Flight. A request that sends no ID also gets one back: the ID the runtime generated for it. A client can read it from the response to look up the query later.
+- Every log record the query produces is prefixed with the ID, including records from query planning and data connectors:
+
+  ```
+  DEBUG query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed (InternalError): ...
+  ```
+
+`/v1/chat/completions`, `/v1/responses`, and `/v1/nsql` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
+
+A value that is not 32 hexadecimal characters, or is all zeros, does not fail the request. The runtime logs a warning and generates an ID instead:
+
+```
+WARN runtime_request_context::context: Received invalid HTTP header: In spice-trace-id header, invalid trace id 'nope'. Expected 32 hexadecimal characters, not all zero.
+```
+
+### `spice-trace-id` and `traceparent`
+
+A W3C [`traceparent`](https://www.w3.org/TR/trace-context/#traceparent-header) header also sets the trace ID, and its parent span ID is recorded in the `parent_span_id` column. Use `traceparent` when the caller is part of a distributed trace, and `spice-trace-id` when it only needs a correlation ID.
+
+When a request sends both, `spice-trace-id` takes precedence, because a proxy or APM agent can inject a `traceparent` the caller did not set. The `traceparent` parent span ID is then recorded only if its trace ID matches `spice-trace-id`.
+
+`task_history` rows are written in the background, so a row can take a few seconds to appear after the response.
+
 ## Querying Task History
 
 Task history is queryable as a standard SQL table at `runtime.task_history` (or `spice.runtime.task_history`). To retrieve all recorded tasks, run:
