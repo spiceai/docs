@@ -147,6 +147,8 @@ Turso uses connection pooling for efficient database access. Connection pools ar
 
 Turso supports query federation, where queries can span multiple data sources. The accelerator pushes down filters, projections, and limits when possible for improved performance.
 
+Turso SQL has no quantified comparisons, so a query that uses `ANY` or `ALL`, such as `WHERE v > ANY (SELECT val FROM details)`, is not sent to Turso as written. This applies wherever the comparison appears, including inside another subquery. Turso still reads the tables, and Spice evaluates the comparison. A filter that contains a subquery, an outer reference, or `unnest` is also evaluated in Spice rather than pushed into the Turso scan.
+
 ## Limitations
 
 - **Remote databases not supported**: Only local Turso databases (file-based or in-memory) are supported as accelerators. Remote Turso databases using `turso_url` and `turso_auth_token` are not supported in this accelerator context. Remote Turso support will be available when Turso is implemented as a data connector.
