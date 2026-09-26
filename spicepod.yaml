@@ -2,10 +2,14 @@ version: v2
 kind: Spicepod
 name: spice-oss-docs
 
-# The GitHub connector defaults to 10 concurrent requests. This app refreshes
-# the issues dataset and three file datasets on two replicas, and that burst
-# trips GitHub's secondary rate limit after a few pages. The refresh then
-# restarts from scratch and never finishes, so the dataset stays unhealthy.
+# File content is downloaded 10 files at a time, and that limit is not the
+# GitHub connector semaphore. Refreshing docs, cookbook, and releases together
+# with the full issues scan trips GitHub's secondary rate limit; the issues
+# refresh then restarts from scratch and never finishes.
+#
+# Issues is a full refresh at startup. The file datasets use caching mode so
+# their download starts only after `refresh_check_interval`, once the issues
+# scan has finished. GraphQL calls stay at one concurrent request.
 runtime:
   source_rate_control:
     github_concurrent_connections_limit: 1
@@ -29,9 +33,8 @@ datasets:
       include: 'website/docs/**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 4h
-      refresh_jitter_enabled: true
-      refresh_jitter_max: 30m
+      refresh_mode: caching
+      refresh_check_interval: 6m
     columns:
       - name: content
         embeddings:
@@ -58,9 +61,8 @@ datasets:
       include: '**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 4h
-      refresh_jitter_enabled: true
-      refresh_jitter_max: 30m
+      refresh_mode: caching
+      refresh_check_interval: 6m
     columns:
       - name: content
         embeddings:
@@ -88,9 +90,8 @@ datasets:
       include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
-      refresh_check_interval: 4h
-      refresh_jitter_enabled: true
-      refresh_jitter_max: 30m
+      refresh_mode: caching
+      refresh_check_interval: 6m
     columns:
       - name: content
         embeddings:
@@ -113,8 +114,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_check_interval: 4h
-      refresh_jitter_enabled: true
-      refresh_jitter_max: 30m
+      refresh_jitter_enabled: false
 
 embeddings:
   - from: openai
