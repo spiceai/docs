@@ -160,7 +160,8 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetDatabases",
           "glue:GetDatabase",
           "glue:GetTable",
-          "glue:GetTables"
+          "glue:GetTables",
+          "glue:UpdateTable"
         ],
         "Resource": "*"
       }
@@ -180,6 +181,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
+| `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
 ## Write Support
 
@@ -208,7 +210,7 @@ SELECT * FROM staging_table;
 
 Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
 
-Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+Write operations require `s3:PutObject` permission on the target S3 bucket and `glue:UpdateTable` permission to commit the new table snapshot to the Glue Data Catalog, in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Limitations
 
