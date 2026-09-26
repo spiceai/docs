@@ -274,6 +274,25 @@ Pruning applies when the `_last_modified` conditions are combined with `AND` and
 
 Spice reads every file in the listing when a filter references `_last_modified` under `OR` or `NOT`, or compares it with a value that is not a constant, such as another column. The results are the same, but the query does not skip any files.
 
+#### Queries That Read Only Partition or Metadata Columns
+
+Hive partition columns and metadata columns have the same value in every row of a file. When a query reads only these columns and answers them with `GROUP BY`, `DISTINCT`, `MAX`, or `MIN`, Spice needs one row per file instead of every row. Two common queries have this shape:
+
+```sql
+-- Find the newest partition
+SELECT year FROM partitioned_data GROUP BY year ORDER BY year DESC LIMIT 1;
+
+-- Find the most recent file change
+SELECT MAX(_last_modified) FROM my_data;
+```
+
+Spice answers these queries in one of two ways:
+
+- When every file reports an exact row count, such as Parquet, and the query reads only partition columns, Spice builds the result from the file listing and opens no data files.
+- Otherwise, including JSON, CSV, and compressed files, and any query that reads a metadata column, Spice reads at most the first record of each file. `EXPLAIN` shows `first_record_probe=true` on the scan.
+
+Files with no rows are skipped in both cases, so an empty partition does not appear in the result. A filter on partition or metadata columns keeps the optimization. A filter on a data column, or an aggregate that depends on row counts, such as `COUNT`, `SUM`, or `AVG`, reads the files in full.
+
 #### Applicable Connectors
 
 Metadata columns are supported by all file-based connectors:
