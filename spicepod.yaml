@@ -2,14 +2,9 @@ version: v2
 kind: Spicepod
 name: spice-oss-docs
 
-# File content is downloaded 10 files at a time, and that limit is not the
-# GitHub connector semaphore. Refreshing docs, cookbook, and releases together
-# with the full issues scan trips GitHub's secondary rate limit; the issues
-# refresh then restarts from scratch and never finishes.
-#
-# Issues is a full refresh at startup. The file datasets use caching mode so
-# their download starts only after `refresh_check_interval`, once the issues
-# scan has finished. GraphQL calls stay at one concurrent request.
+# One GitHub GraphQL call at a time. File content downloads use their own
+# 10-wide pool and are not covered by this limit; they are what push the
+# installation into GitHub's secondary rate limit during startup.
 runtime:
   source_rate_control:
     github_concurrent_connections_limit: 1
@@ -33,8 +28,9 @@ datasets:
       include: 'website/docs/**/*.md'
     acceleration:
       enabled: true
-      refresh_mode: caching
-      refresh_check_interval: 6m
+      refresh_check_interval: 4h
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 30m
     columns:
       - name: content
         embeddings:
@@ -61,8 +57,9 @@ datasets:
       include: '**/*.md'
     acceleration:
       enabled: true
-      refresh_mode: caching
-      refresh_check_interval: 6m
+      refresh_check_interval: 4h
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 30m
     columns:
       - name: content
         embeddings:
@@ -90,8 +87,9 @@ datasets:
       include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
-      refresh_mode: caching
-      refresh_check_interval: 6m
+      refresh_check_interval: 4h
+      refresh_jitter_enabled: true
+      refresh_jitter_max: 30m
     columns:
       - name: content
         embeddings:
@@ -115,6 +113,10 @@ datasets:
       enabled: true
       refresh_check_interval: 4h
       refresh_jitter_enabled: false
+      # A failed issues refresh retries immediately and keeps the pod from
+      # becoming ready. Leave it failed once; refresh it after the file
+      # datasets have finished and GitHub is quiet.
+      refresh_retry_enabled: false
 
 embeddings:
   - from: openai
