@@ -27,12 +27,12 @@ Supported Catalog Connectors include:
 | Name            | Description             | Status            | Protocol/Format              |
 | --------------- | ----------------------- | ----------------- | ---------------------------- |
 | `unity_catalog` | Unity Catalog           | Stable            | Delta Lake                   |
+| `glue`          | AWS Glue                | Stable            | Parquet, Iceberg             |
 | `databricks`    | Databricks              | Beta              | Spark Connect, S3/Delta Lake |
 | `iceberg`       | Apache Iceberg          | Beta              | Parquet                      |
 | `spice.ai`      | Spice.ai Cloud Platform | Beta              | Arrow Flight                 |
 | `ducklake`      | DuckLake                | Beta              | Parquet                      |
 | `pg`            | PostgreSQL              | Beta              | PostgreSQL Wire Protocol     |
-| `glue`          | AWS Glue                | Alpha             | Parquet, Iceberg             |
 | `snowflake`     | Snowflake               | Alpha             | Snowflake SQL                |
 | `mysql`         | MySQL                   | Alpha             | MySQL Wire Protocol          |
 | `mssql`         | Microsoft SQL Server    | Alpha             | TDS                          |
