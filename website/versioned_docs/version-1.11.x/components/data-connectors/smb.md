@@ -306,8 +306,8 @@ When connecting to a directory, ensure `file_format` is specified and matches th
 
 ### Debug Logging
 
-Enable debug logging to diagnose SMB connection issues:
+Enable debug logging to diagnose SMB connection issues. The runtime reads its log filter from the `SPICED_LOG` environment variable, not `RUST_LOG` (see [Tracing](../../cli/tracing.md)):
 
 ```bash
-RUST_LOG=runtime_object_store::store::smb=debug spiced
+SPICED_LOG="spiced=INFO,runtime=INFO,runtime_object_store::store::smb=DEBUG" spiced
 ```
