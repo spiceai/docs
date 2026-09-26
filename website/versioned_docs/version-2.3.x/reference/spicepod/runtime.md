@@ -235,7 +235,7 @@ runtime:
       s3_region: us-west-2
       s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
       s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
-    github_concurrent_connections_limit: 10
+    github_concurrent_connections_limit: 4
 ```
 
 | Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
@@ -243,7 +243,7 @@ runtime:
 | `state_location`                      | Yes      | -       | Root URI for globally persisted rate-control state (e.g. `s3://bucket/path/`). Enables cluster-wide rate control when set. Without this, limits are local to each Spice instance.                                                  |
 | `params`                              | Yes      | -       | Object-store authentication parameters for `state_location`. Supports the same keys as other object-store configurations (e.g. `s3_region`, `s3_key`, `s3_secret` for S3; `account`, `access_key` for Azure). Supports `${ secrets:NAME }` references. |
 | `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-source rate-control state. Longer intervals reduce object-store writes but adapt more slowly to demand changes.                                                                 |
-| `github_concurrent_connections_limit` | Yes      | `10`    | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
+| `github_concurrent_connections_limit` | Yes      | `4`     | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
 
 HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
 

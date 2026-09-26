@@ -126,7 +126,7 @@ Example Configuration:
 # ... other configuration ...
 runtime:
   source_rate_control:
-    github_concurrent_connections_limit: 5 # Defaults to 10
+    github_concurrent_connections_limit: 5 # Defaults to 4
 
 datasets:
   - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
@@ -149,7 +149,7 @@ The GitHub connector runs its own concurrency limiter, separate from the [shared
 
 | Parameter Name              | Description                                                                                                                                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `max_concurrent_requests`   | Maximum number of concurrent GitHub HTTP requests for this authentication context. When unset, the connector falls back to `runtime.source_rate_control.github_concurrent_connections_limit`, then to the deprecated `runtime.params.github_max_concurrent_connections`, and finally to the connector default of `10`. The GitHub connector does **not** read `runtime.params.http_max_concurrent_requests`, and concurrency limiting is never disabled. |
+| `max_concurrent_requests`   | Maximum number of concurrent GitHub HTTP requests for this authentication context. When unset, the connector falls back to `runtime.source_rate_control.github_concurrent_connections_limit`, then to the deprecated `runtime.params.github_max_concurrent_connections`, and finally to the connector default of `4`. The GitHub connector does **not** read `runtime.params.http_max_concurrent_requests`, and concurrency limiting is never disabled. |
 
 The GitHub connector uses its own rate limiter based on GitHub API `X-RateLimit-*` response headers. Multiple datasets targeting the same GitHub endpoint share this rate limiter.
 
