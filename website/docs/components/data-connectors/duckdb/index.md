@@ -186,6 +186,14 @@ A call that fails the screen is evaluated in Spice, and the query still answers.
 
 The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
 
+## `concat` and Binary Values
+
+`concat` is sent to DuckDB as the `||` operator only when none of its arguments is a binary value. DuckDB types `||` by its operands, so `BLOB || BLOB` returns a `BLOB`, while Spice's `concat` always returns a string. A `concat` with a binary argument (`Binary`, `LargeBinary`, `FixedSizeBinary`, or `BinaryView`) is evaluated in Spice, above the federated scan, and the query still answers.
+
+The check covers each argument's whole expression, not only its final type. A binary column inside a cast, `coalesce`, `CASE`, or a nested `concat` also keeps the call in Spice. For example, `concat(CAST(bin_col AS VARCHAR), 'z')` runs in Spice, because DuckDB renders the cast bytes as an escaped literal such as `\xFF\xFE` instead of the bytes themselves. An argument whose type Spice cannot determine is treated as binary. A `concat` over string columns and literals is sent to DuckDB.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)
