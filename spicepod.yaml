@@ -2,6 +2,14 @@ version: v2
 kind: Spicepod
 name: spice-oss-docs
 
+# The GitHub connector defaults to 10 concurrent requests. This app refreshes
+# the issues dataset and three file datasets on two replicas, and that burst
+# trips GitHub's secondary rate limit after a few pages. The refresh then
+# restarts from scratch and never finishes, so the dataset stays unhealthy.
+runtime:
+  source_rate_control:
+    github_concurrent_connections_limit: 1
+
 datasets:
   - from: github:github.com/spiceai/docs/files/trunk
     name: spiceai.docs
