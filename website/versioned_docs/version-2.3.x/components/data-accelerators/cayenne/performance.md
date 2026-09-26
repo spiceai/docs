@@ -18,7 +18,7 @@ Spice Cayenne performance depends on where its files live, how its caches are si
 Cayenne keeps two kinds of state on disk, and both sit on the query path:
 
 - **Data files** — immutable [Vortex](https://github.com/vortex-data/vortex) files under the dataset's data directory (`cayenne_file_path`, defaulting to `.spice/data/{dataset_name}/` under the working directory). Vortex is built for random access: a selective query reads the segments it needs rather than scanning the file, so a cold query is a chain of dependent small reads, each of which waits for the device. Compaction rewrites sets of these files in the background.
-- **The metastore** — a SQLite database (`cayenne_metadata_dir`, defaulting to `.spice/data/metadata`) holding manifests, snapshot pointers, statistics, and deletion vectors. Every write commits to it with `fsync`, and every query plan reads it.
+- **The metastore** — a SQLite database (`cayenne_metadata_dir`, defaulting to `{cayenne_file_path}/metadata` for a local `cayenne_file_path` and to `.spice/data/metadata` otherwise) holding manifests, snapshot pointers, statistics, and deletion vectors. Every write commits to it with `fsync`, and every query plan reads it.
 
 Queries that outgrow `runtime.query.memory_limit` additionally spill through DataFusion to `runtime.query.temp_directory`, and the in-memory CDC tier checkpoints to the data directory under memory pressure.
 
