@@ -21,13 +21,7 @@ This connector enables using Dremio as a data source for federated SQL queries.
 
 ### `from`
 
-The `from` field takes the form `dremio:dataset` where `dataset` is the fully qualified name of the dataset to read from.
-
-:::warning [Limitations]
-
-Currently, only up to three levels of nesting are supported for dataset names (e.g., a.b.c). Additional levels are not supported at this time.
-
-:::
+The `from` field takes the form `dremio:dataset` where `dataset` is the fully qualified name of the dataset to read from. The name can have any number of dot-separated parts, one for each space and folder in the Dremio path (for example, `dremio:my_space.my_folder.my_subfolder.my_dataset`).
 
 ### `name`
 
