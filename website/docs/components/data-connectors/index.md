@@ -263,6 +263,16 @@ GROUP BY _location, _size
 ORDER BY _location;
 ```
 
+#### File Listing Pruning with `_last_modified`
+
+When `_last_modified` is enabled and a query filters on it, Spice uses the object store listing to skip files before opening them. Only files whose last-modified time satisfies the filter are read. A file that the filter excludes is never opened, so its footer is not read and a compressed file such as `jsonl.gz` is not decompressed. Spice still applies the filter to each row after the scan, so query results are unchanged.
+
+This helps an `append` refresh that uses `_last_modified` as its `time_column`, which enables the column automatically. Each refresh filters on `_last_modified > <last refresh watermark>`, so a refresh with no new files reads no data files.
+
+Pruning applies when the `_last_modified` conditions are combined with `AND` and each one compares the column with a constant timestamp using `>`, `>=`, `<`, `<=`, `=`, or `BETWEEN`. A condition that casts `_last_modified` to a coarser precision, such as `Timestamp(Second)`, does not prune files, because the truncated value can match rows that the file's exact last-modified time would exclude.
+
+Spice reads every file in the listing when a filter references `_last_modified` under `OR` or `NOT`, or compares it with a value that is not a constant, such as another column. The results are the same, but the query does not skip any files.
+
 #### Applicable Connectors
 
 Metadata columns are supported by all file-based connectors:
