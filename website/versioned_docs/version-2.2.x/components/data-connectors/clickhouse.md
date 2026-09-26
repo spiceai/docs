@@ -130,7 +130,7 @@ datasets:
   - from: clickhouse:my.dataset
     name: my_dataset
     params:
-      clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database?connection_timeout=10000&secure=true
+      clickhouse_connection_string: tcp://my_user:${secrets:my_clickhouse_pass}@localhost:9000/my_database?connection_timeout=10000ms&secure=true
 ```
 
 ## Secrets
