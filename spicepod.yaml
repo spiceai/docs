@@ -2,10 +2,12 @@ version: v2
 kind: Spicepod
 name: spice-oss-docs
 
-# One GitHub GraphQL call at a time. File content downloads use their own
-# 10-wide pool and are not covered by this limit; they are what push the
-# installation into GitHub's secondary rate limit during startup.
+# File downloads run 10 at a time and are not covered by the GitHub semaphore.
+# A full issues scan then hits GitHub's secondary rate limit around 800 rows
+# and the refresh fails closed. Serve as soon as components are registered,
+# and keep GraphQL to one request at a time.
 runtime:
+  ready_state: on_registration
   source_rate_control:
     github_concurrent_connections_limit: 1
 
@@ -105,18 +107,20 @@ datasets:
   - from: github:github.com/spiceai/spiceai/issues
     name: spiceai.issues
     description: Spice.ai OSS issues from https://github.com/spiceai/spiceai/issues
+    time_column: updated_at
     params:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      # Search mode pushes the refresh window to GitHub. A full GraphQL scan
+      # of every issue is secondary-rate-limited and never commits.
+      github_query_mode: search
     acceleration:
       enabled: true
-      refresh_check_interval: 4h
+      refresh_mode: full
+      refresh_data_window: 7d
+      refresh_check_interval: 1h
       refresh_jitter_enabled: false
-      # A failed issues refresh retries immediately and keeps the pod from
-      # becoming ready. Leave it failed once; refresh it after the file
-      # datasets have finished and GitHub is quiet.
-      refresh_retry_enabled: false
 
 embeddings:
   - from: openai
