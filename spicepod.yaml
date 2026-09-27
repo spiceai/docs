@@ -7,7 +7,6 @@ name: spice-oss-docs
 # and the refresh fails closed. Serve as soon as components are registered,
 # and keep GraphQL to one request at a time.
 runtime:
-  ready_state: on_registration
   source_rate_control:
     github_concurrent_connections_limit: 1
 
