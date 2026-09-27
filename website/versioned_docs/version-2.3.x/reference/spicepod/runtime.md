@@ -235,7 +235,7 @@ runtime:
       s3_region: us-west-2
       s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
       s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
-    github_concurrent_connections_limit: 4
+    github_concurrent_connections_limit: 10
 ```
 
 | Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
