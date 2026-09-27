@@ -2,8 +2,8 @@
 title: 'Getting Started with Spice.ai OSS'
 sidebar_label: 'Getting started'
 sidebar_position: 1
-description: 'Get started with Spice.ai in 5 minutes. Install the CLI, connect to datasets, run SQL queries, and use AI models with OpenAI-compatible APIs.'
-keywords: [spice.ai, getting started, quickstart, tutorial, install, cli, sql, ai, openai]
+description: 'Get started with Spice.ai in 5 minutes. Install the CLI, connect to a dataset, and run SQL queries. Optionally add an OpenAI, Anthropic, or xAI model to chat with your data.'
+keywords: [spice.ai, getting started, quickstart, tutorial, install, cli, sql, ai, openai, anthropic, xai]
 image: /img/og/getting-started.png
 pagination_next: null
 ---
@@ -24,7 +24,7 @@ import TabItem from '@theme/TabItem'
 
 ### Follow these steps to get started with Spice
 
-Download the latest version of Spice, connect to a dataset in S3, and ask questions about the data using AI, in less than 5 minutes.
+Download the latest version of Spice, connect to a dataset in S3, and query it with SQL, in less than 5 minutes. No AI model or model provider API key is required. An optional section at the end shows how to [add an AI model and chat with the data](#add-an-ai-model) using an OpenAI, Anthropic, or xAI API key.
 
 **Step 1.** Install the Spice CLI:
 
@@ -81,26 +81,7 @@ dependencies:
   - spiceai/quickstart
 ```
 
-**Step 4.** Add an [OpenAI] model to the Spicepod with tools enabled, so the model can query the `taxi_trips` dataset directly:
-
-[OpenAI]: /docs/components/models/openai
-
-```yaml
-models:
-  - from: openai:gpt-4o-mini
-    name: openai_model
-    params:
-      openai_api_key: ${ env:OPENAI_API_KEY }
-      tools: auto
-```
-
-Add your OpenAI API key to a `.env` file that Spice automatically loads at startup:
-
-```bash
-echo "OPENAI_API_KEY=sk-..." > .env
-```
-
-Start the Spice runtime:
+**Step 4.** Start the Spice runtime:
 
 ```bash
 spice run
@@ -115,18 +96,7 @@ Spice.ai runtime starting...
 2024-08-05T13:02:40.248611Z  INFO runtime::http: Spice Runtime HTTP listening on 127.0.0.1:8090
 ```
 
-**Step 5.** Start the Spice Chat REPL and ask a question:
-
-```bash
-$ spice chat
-Using model: openai_model
-chat> How many taxi trips were taken?
-A total of 2,964,624 trips were taken according to the dataset.
-```
-
-The OpenAI model was automatically provided with the `taxi_trips` dataset and was able to answer the question.
-
-**Step 6.** Start the Spice SQL REPL:
+**Step 5.** In a second terminal, start the Spice SQL REPL:
 
 ```bash
 spice sql
@@ -183,6 +153,85 @@ Output:
 Time: 0.045150667 seconds. 10 rows.
 ```
 
+Spice is now running and the `taxi_trips` dataset can be queried with SQL. Continue to [Next Steps](#next-steps), or add an AI model to ask questions about the data.
+
+## Add an AI model and chat with your data (optional) {#add-an-ai-model}
+
+This section is optional. It requires an API key from [OpenAI](https://platform.openai.com/), [Anthropic](https://platform.claude.com/), or [xAI](https://console.x.ai/). With tools enabled, the model can query the `taxi_trips` dataset directly to answer questions in the Spice Chat REPL.
+
+**Step 6.** Add a model to `spicepod.yaml` for the provider that matches your key, and add the key to a `.env` file that Spice automatically loads at startup:
+
+<Tabs>
+  <TabItem value="openai" label="OpenAI" default>
+    ```yaml
+    models:
+      - from: openai:gpt-4o-mini
+        name: assistant
+        params:
+          openai_api_key: ${ env:OPENAI_API_KEY }
+          tools: auto
+    ```
+
+    ```bash
+    echo "OPENAI_API_KEY=sk-..." > .env
+    ```
+
+  </TabItem>
+  <TabItem value="anthropic" label="Anthropic">
+    ```yaml
+    models:
+      - from: anthropic:claude-sonnet-4-6
+        name: assistant
+        params:
+          anthropic_api_key: ${ env:ANTHROPIC_API_KEY }
+          tools: auto
+    ```
+
+    ```bash
+    echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
+    ```
+
+  </TabItem>
+  <TabItem value="xai" label="xAI">
+    ```yaml
+    models:
+      - from: xai:grok-4.3
+        name: assistant
+        params:
+          xai_api_key: ${ env:XAI_API_KEY }
+          tools: auto
+    ```
+
+    ```bash
+    echo "XAI_API_KEY=xai-..." > .env
+    ```
+
+  </TabItem>
+</Tabs>
+
+See the [OpenAI], [Anthropic], and [xAI] model documentation for the full list of parameters for each provider.
+
+[OpenAI]: /docs/components/models/openai
+[Anthropic]: /docs/components/models/anthropic
+[xAI]: /docs/components/models/xai
+
+**Step 7.** Restart the Spice runtime so it loads the `.env` file and the model. Press `Ctrl+C` in the terminal running `spice run`, then start it again:
+
+```bash
+spice run
+```
+
+**Step 8.** Start the Spice Chat REPL and ask a question:
+
+```bash
+$ spice chat
+Using model: assistant
+chat> How many taxi trips were taken?
+A total of 2,964,624 trips were taken according to the dataset.
+```
+
+The model was automatically provided with the `taxi_trips` dataset and was able to answer the question. The `Using model` line shows the `name` of the model from the Spicepod.
+
 ## Next Steps
 
 Now that Spice is running, explore the key capabilities:
@@ -195,7 +244,8 @@ import DocCardList from '@theme/DocCardList'
       type: 'link',
       label: 'Spicepods',
       href: '/docs/getting-started/spicepods',
-      description: 'Understand the Spicepod configuration format that defines datasets, models, and secrets.'
+      description:
+        'Understand the Spicepod configuration format that defines datasets, models, and secrets.'
     },
     {
       type: 'link',
