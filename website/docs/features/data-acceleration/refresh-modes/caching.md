@@ -718,6 +718,10 @@ When `caching_stale_if_error: disabled` (default), or the entry is staler than t
 
 **A finite window fails closed on an entry whose age is unknown.** The staleness a duration is checked against is computed from the oldest `fetched_at` across the rows being served. When that timestamp is missing or null, the entry's age cannot be proven to be within the window, so it is *not* served and the upstream error propagates. `enabled` has no bound to check and serves the entry regardless.
 
+**The window is measured when the origin request starts.** Spice computes an entry's staleness at the moment it sends the request to the origin, not when the origin's error or response arrives. A slow failure does not push an entry out of the window: with `caching_stale_if_error: 5s`, an entry that is 3 seconds past `caching_ttl` when the request starts is still served when the origin fails 10 seconds later.
+
+**An expired entry with no rows is not a fallback.** When the expired entry holds zero rows, Spice has nothing to serve in place of the failing origin, so the query receives the origin's error, or its 429 or 5xx response, rather than an empty result.
+
 **A failing origin is not necessarily an error.** Once the HTTP connector has exhausted its own `max_retries`, it reports a failing origin as a *successful* fetch whose rows carry a 429 or 5xx status — which is the dominant failure mode of the sources caching mode accepts. A revalidation classifies that response as an unavailable origin, so `caching_stale_if_error` acts on it and the cached entry is kept rather than being overwritten with the origin's error body. The same classification stops the periodic background refresh from replacing a good entry with an error response.
 
 :::warning[`caching_stale_if_error: enabled` alone leaves the cache unbounded]

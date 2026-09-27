@@ -27,7 +27,7 @@ API key authentication supports the following configuration parameters:
 | Parameter name | Optional | Default | Description                                                    |
 | -------------- | -------- | ------- | -------------------------------------------------------------- |
 | `enabled`      | Yes      | `false` | Defaults to `false`. Whether API key authentication is enabled |
-| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+| `keys`         | No       | -       | A list of API keys used to authenticate requests.              |
 
 ## `runtime.dataset_load_parallelism`
 
