@@ -654,7 +654,7 @@ See [Duration](../duration)
 
 Optional. Controls whether — and for how long — expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
 
-This is Spice's implementation of RFC 5861 `stale-if-error`, and it accepts a [duration](../duration) as well as the two keywords. The window is measured from the point the entry went stale — that is, past `caching_ttl` — not from when it was fetched.
+This is Spice's implementation of RFC 5861 `stale-if-error`, and it accepts a [duration](../duration) as well as the two keywords. The window is measured from the point the entry went stale — that is, past `caching_ttl` — not from when it was fetched. Staleness is taken when Spice sends the request to the origin, so a slow origin failure does not move an entry out of the window. An expired entry with no rows is never served as a fallback; the origin's error propagates instead.
 
 Valid values:
 
