@@ -166,7 +166,7 @@ This section is optional. It requires an API key from [OpenAI](https://platform.
     ```yaml
     models:
       - from: openai:gpt-4o-mini
-        name: openai_model
+        name: assistant
         params:
           openai_api_key: ${ env:OPENAI_API_KEY }
           tools: auto
@@ -181,7 +181,7 @@ This section is optional. It requires an API key from [OpenAI](https://platform.
     ```yaml
     models:
       - from: anthropic:claude-sonnet-4-6
-        name: anthropic_model
+        name: assistant
         params:
           anthropic_api_key: ${ env:ANTHROPIC_API_KEY }
           tools: auto
@@ -196,7 +196,7 @@ This section is optional. It requires an API key from [OpenAI](https://platform.
     ```yaml
     models:
       - from: xai:grok-4.3
-        name: xai_model
+        name: assistant
         params:
           xai_api_key: ${ env:XAI_API_KEY }
           tools: auto
@@ -225,7 +225,7 @@ spice run
 
 ```bash
 $ spice chat
-Using model: openai_model
+Using model: assistant
 chat> How many taxi trips were taken?
 A total of 2,964,624 trips were taken according to the dataset.
 ```
