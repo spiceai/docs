@@ -475,7 +475,7 @@ runtime:
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`).                           |
 | `partition_management.interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `partition_management.max_assignments_per_cycle`   | Yes      | `100`   | Maximum number of partition assignments per cycle.                     |
 | `partition_management.max_partitions_per_executor` | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
