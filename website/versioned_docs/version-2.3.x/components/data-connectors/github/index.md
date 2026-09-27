@@ -126,7 +126,7 @@ Example Configuration:
 # ... other configuration ...
 runtime:
   source_rate_control:
-    github_concurrent_connections_limit: 5 # Defaults to 4
+    github_concurrent_connections_limit: 5 # Defaults to 10
 
 datasets:
   - from: github:github.com/spiceai/spiceai/files/v0.17.2-beta
