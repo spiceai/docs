@@ -123,13 +123,35 @@ In this configuration:
 
 | Parameter                            | Default    | Description                                                                                       |
 | ------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
-| `caching_ttl`                        | `0s`       | Duration a cached entry in the accelerator is considered fresh.                                   |
-| `caching_stale_while_revalidate_ttl` | `0s`       | Duration after TTL expiry during which stale data is served while revalidating in the background. |
-| `caching_stale_if_error`             | `disabled` | When `enabled`, serves stale cached data if the upstream fetch fails.                             |
+| `caching_ttl`                        | `30s`      | How long an accelerated entry is fresh. `0` marks entries stale immediately. Zero TTL alone does not serve the accelerator on every read. |
+| `caching_stale_while_revalidate_ttl` | None       | How long after `caching_ttl` to serve a stale entry while the origin revalidates. `0`, or omitting the parameter, skips that window. |
+| `caching_stale_if_error`             | `disabled` | When `enabled`, serves the accelerated entry if the origin fails. `enabled` is unbounded.         |
 
 :::warning
 Do not configure `stale_while_revalidate_ttl` on both the SQL results cache (`runtime.caching.sql_results`) and the dataset caching accelerator (`acceleration.params.caching_stale_while_revalidate_ttl`) for the same dataset. Use one or the other to avoid conflicting revalidation behavior.
 :::
+
+### Prefer the origin, fall back on failure
+
+When the goal is to prefer the origin and use the accelerator only if the origin fails, set all three accelerator parameters. These are `acceleration.params` on `refresh_mode: caching`, separate from `runtime.caching.sql_results`.
+
+```yaml
+acceleration:
+  enabled: true
+  refresh_mode: caching
+  engine: cayenne
+  mode: file
+  params:
+    caching_ttl: 0
+    caching_stale_while_revalidate_ttl: 0
+    caching_stale_if_error: enabled
+    caching_max_size: 512MiB
+    caching_max_items: 100000
+```
+
+While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails. `caching_ttl: 0` alone does not mean "always use the accelerator." With stale-while-revalidate at `0` and `caching_stale_if_error` left `disabled`, a zero TTL still waits on the origin and returns the origin's error.
+
+Pair `caching_stale_if_error: enabled` with `caching_max_size`, `caching_max_items`, or retention so stale entries do not grow without a bound. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
 
 ## Benefits
 

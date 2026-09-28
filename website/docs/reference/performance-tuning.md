@@ -129,7 +129,7 @@ Keep spill and data on the **same fast device** rather than moving spill to a sl
 | **RAM-backed (`tmpfs`)**                                               | Memory speed             | Lost on restart                                              | Only when data is small and RAM abundant | Not recommended — defeats the point of spilling |
 | **Network block storage** (EBS, Azure Managed Disks, GCP PD/Hyperdisk) | Sub-millisecond (`io2`, Premium SSD v2, Hyperdisk Extreme) to single-digit ms (`gp3`) | Survives instance replacement            | Acceptable with provisioned IOPS; Spice adapts | Acceptable; never the small root volume |
 | **Network file systems** (NFS, SMB/CIFS, EFS, Azure Files, Filestore)  | Milliseconds, variable   | Shared and durable                                           | **Not recommended**                      | **Not recommended**                       |
-| **Object storage**                                                     | Single-digit ms (S3 Express One Zone) to tens of ms (S3 Standard) | Durable, shared                          | Cayenne data files on S3 Express only; cold tier and snapshots on standard S3 | Not supported |
+| **Object storage**                                                     | Single-digit ms (S3 Express One Zone) to tens of ms (S3 Standard) | Durable, shared                          | Cayenne data files on S3 Express only; cold tier on standard S3; snapshot copies on standard S3, GCS, or ADLS | Not supported |
 | **HDD**                                                                | ~10 ms seeks             | Survives restarts                                            | Not recommended                          | Not recommended                           |
 
 ### How Spice adapts to the storage medium
@@ -248,7 +248,7 @@ Object storage is not a file system and is used in three specific ways:
 
 - **Cayenne data files on [S3 Express One Zone](../components/data-accelerators/cayenne#aws-s3-express-one-zone-storage)** — single-digit-millisecond object storage that persists Cayenne accelerations independently of the instance. The metastore stays on local disk; only data files move. Standard S3 buckets are not supported for the warm tier.
 - **Cayenne [cold tier](../components/data-accelerators/cayenne#cold-object-store-tier)** on standard S3, for tables larger than local capacity.
-- **[Snapshots](../features/data-acceleration/snapshots)** and [read/write separation](../deployment/read-write-separation) — whole acceleration files copied to and from S3, Azure ADLS, or GCS to bootstrap ephemeral local storage.
+- **[Snapshots](../features/data-acceleration/snapshots)** and [read/write separation](../deployment/read-write-separation) — each snapshot is a complete copy of the acceleration file on standard S3, Azure ADLS, or GCS, used to bootstrap ephemeral local storage. Keep `snapshots.location` on that standard bucket. S3 Express One Zone (`cayenne_file_path`, `cayenne_s3_*`) is the Cayenne data tier and does not substitute for the snapshot bucket.
 
 Spill cannot be directed at object storage, and acceleration files other than Cayenne's cannot be placed on it.
 
@@ -963,7 +963,7 @@ Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `s
 | Network block storage (EBS, Azure Disk, PD/Hyperdisk) | Durable fallback; provision IOPS; `storage_profile: ebs` where undetected | Acceptable; not the root volume  |
 | RAM-backed (`tmpfs`, `emptyDir` `medium: Memory`)   | Small datasets only                          | Never                                              |
 | Network file systems (NFS, SMB, EFS, Azure Files)   | Not recommended                              | Not recommended                                    |
-| Object storage                                      | Cayenne on S3 Express One Zone; snapshots and the Cayenne cold tier on standard S3 | Not supported |
+| Object storage                                      | Cayenne data files on S3 Express One Zone; snapshot copies and the Cayenne cold tier on standard S3, GCS, or ADLS | Not supported |
 | HDD                                                 | Cold archives only                           | Not recommended                                    |
 
 See [Storage](#storage) for the reasoning, the per-engine adjustments, and the platform specifics.
