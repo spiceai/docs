@@ -88,16 +88,31 @@ Adaptive rate control and `rate_control_slow_response_threshold` require an unre
 
 Set `rate_control_mode: adaptive` to reduce requests when an origin fails or slows down. Adaptive control scales an existing limit; it never exceeds it and requires at least one concurrency or request-rate limit.
 
+A complete `spicepod.yaml` combining slow-response detection with concurrency, request quotas, jitter, and an admission timeout. Replace the example URL with the upstream API endpoint:
+
 ```yaml
+version: v2
+kind: Spicepod
+name: adaptive-http-api
+
 datasets:
   - from: https://api.example.com/v1/items
     name: items
     params:
-      requests_per_second_limit: 10
-      rate_control_mode: adaptive
       client_timeout: 30
+      max_concurrent_requests: 4
+      requests_per_second_limit: 10
+      requests_per_minute_limit: 300
+      rate_control_mode: adaptive
+      rate_control_failure_threshold: '10%'
+      rate_control_window: 10s
       rate_control_slow_response_threshold: 2s
+      rate_control_acquire_timeout: 15s
+      rate_control_jitter_min: 5ms
+      rate_control_jitter_max: 10ms
 ```
+
+All three limits apply together, and adaptive control can reduce requests further. The `15s` admission budget bounds waiting for permission to send; it is separate from the `30`-second request timeout and is not included in the `2s` slow-response measurement.
 
 A successful response taking strictly longer than `2s` still returns the same rows, without a retry or query error caused by slowness. It counts as `slow` for adaptive control, with the same effect as a failure. Responses at the threshold count as successes. Requests exceeding `client_timeout` still fail normally.
 
@@ -121,6 +136,43 @@ Each actual attempt is timed immediately before sending through complete body co
 | Other `4xx` | Not recorded; throttling cannot fix client or authentication errors |
 
 Datasets sharing an origin may set different slow-response thresholds. Their outcomes feed the same controller, but each dataset classifies latency independently. All other rate-control settings must agree. If request timeouts differ, explicitly set the same `rate_control_acquire_timeout` rather than inheriting different defaults.
+
+#### Runtime defaults with dataset-specific thresholds
+
+This complete `spicepod.yaml` sets shared rate-control defaults while giving two endpoints different slow-response and request timeouts:
+
+```yaml
+version: v2
+kind: Spicepod
+name: adaptive-shared-origin
+
+runtime:
+  params:
+    http_max_concurrent_requests: 4
+    http_requests_per_second_limit: 10
+    http_requests_per_minute_limit: 300
+    http_rate_control_mode: adaptive
+    http_rate_control_failure_threshold: '10%'
+    http_rate_control_window: 10s
+    http_rate_control_acquire_timeout: 15s
+    http_rate_control_jitter_min: 5ms
+    http_rate_control_jitter_max: 10ms
+
+datasets:
+  - from: https://api.example.com/v1/items
+    name: items
+    params:
+      client_timeout: 10
+      rate_control_slow_response_threshold: 1s
+
+  - from: https://api.example.com/v1/search
+    name: search
+    params:
+      client_timeout: 60
+      rate_control_slow_response_threshold: 20s
+```
+
+The datasets share the origin's limits; they do not each receive a separate quota. The explicit runtime `15s` admission timeout keeps their shared settings consistent despite different request timeouts. Runtime defaults apply separately to other origins. There is no `http_rate_control_slow_response_threshold` runtime parameter: set the threshold on each dataset.
 
 #### Choose a slow-response threshold
 

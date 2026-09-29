@@ -44,17 +44,32 @@ Adaptive rate control and `rate_control_slow_response_threshold` require an unre
 
 GraphQL supports the same [adaptive rate-control settings](../https/deployment.md#adaptive-rate-control-and-slow-responses) as HTTPS. A slow `2xx` response still returns its rows normally, without a latency retry, but counts toward the controller's failure threshold.
 
+A complete `spicepod.yaml` combining slow-response detection with the other rate-control settings. Replace the example endpoint and query with those of the upstream API:
+
 ```yaml
+version: v2
+kind: Spicepod
+name: adaptive-graphql-api
+
 datasets:
   - from: graphql:https://api.example.com/graphql
     name: items
     params:
       graphql_query: '{ items { id name } }'
       json_pointer: /data/items
+      max_concurrent_requests: 4
       requests_per_second_limit: 10
+      requests_per_minute_limit: 300
       rate_control_mode: adaptive
+      rate_control_failure_threshold: '10%'
+      rate_control_window: 10s
       rate_control_slow_response_threshold: 2s
+      rate_control_acquire_timeout: 15s
+      rate_control_jitter_min: 5ms
+      rate_control_jitter_max: 10ms
 ```
+
+All three limits apply together, and adaptive control can reduce requests further. The `15s` admission timeout bounds waiting to send, not the request itself; that wait is excluded from the `2s` slow-response measurement. Do not add `client_timeout`: GraphQL uses a fixed `30s` request timeout. To inherit common settings across datasets, use the [runtime-defaults example](../https/deployment.md#runtime-defaults-with-dataset-specific-thresholds), keeping the slow-response threshold on each dataset.
 
 The optional threshold accepts durations such as `2s` or `500ms`. Unset or `0` disables it; static mode ignores it. GraphQL's fixed request timeout is `30s`, so a threshold at or above `30s` fails dataset registration:
 
