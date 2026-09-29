@@ -17,7 +17,7 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      github_concurrent_connections_limit: 1
+      max_concurrent_requests: 1
       include: 'website/docs/**/*.md'
     acceleration:
       enabled: true
@@ -46,7 +46,7 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      github_concurrent_connections_limit: 1
+      max_concurrent_requests: 1
       include: '**/*.md'
     acceleration:
       enabled: true
@@ -76,7 +76,7 @@ datasets:
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
-      github_concurrent_connections_limit: 1
+      max_concurrent_requests: 1
       include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
