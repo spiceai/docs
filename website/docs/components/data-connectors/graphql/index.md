@@ -142,7 +142,9 @@ The GraphQL connector supports shared HTTP rate control to limit concurrency and
 | `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
 | `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
 
-Multiple datasets targeting the same GraphQL endpoint share the same rate controller.
+Multiple datasets targeting the same upstream origin share the same rate controller.
+
+In unreleased builds, `rate_control_mode: adaptive` reduces requests when the origin fails or slows down. The optional dataset-only `rate_control_slow_response_threshold` accepts durations such as `2s` or `500ms`; unset or `0` disables it, and static mode ignores it. It must be less than GraphQL's fixed `30s` request timeout. A successful response strictly above the threshold still returns normally, but counts as `slow` for adaptive control. Datasets sharing an origin may use different thresholds. See [adaptive rate control](./deployment.md#adaptive-rate-control) for configuration and metrics. These settings are not available in v2.3.x.
 
 ## Pagination
 

@@ -34,6 +34,38 @@ Use HTTPS endpoints in production. Self-signed certificates require a trusted CA
 
 ## Resilience Controls
 
+### Adaptive Rate Control
+
+:::note Unreleased
+
+Adaptive rate control and `rate_control_slow_response_threshold` require an unreleased runtime build. They are not available in v2.3.x. See the [slow-response specification](https://github.com/spiceai/spiceai/issues/14483).
+
+:::
+
+GraphQL supports the same [adaptive rate-control settings](../https/deployment.md#adaptive-rate-control-and-slow-responses) as HTTPS. A slow `2xx` response still returns its rows normally, without a latency retry, but counts toward the controller's failure threshold.
+
+```yaml
+datasets:
+  - from: graphql:https://api.example.com/graphql
+    name: items
+    params:
+      graphql_query: '{ items { id name } }'
+      json_pointer: /data/items
+      requests_per_second_limit: 10
+      rate_control_mode: adaptive
+      rate_control_slow_response_threshold: 2s
+```
+
+The optional threshold accepts durations such as `2s` or `500ms`. Unset or `0` disables it; static mode ignores it. GraphQL's fixed request timeout is `30s`, so a threshold at or above `30s` fails dataset registration:
+
+```text
+The 'rate_control_slow_response_threshold' parameter (45s) must be less than the GraphQL connector's 30s request timeout. A slower response fails rather than succeeding, so it is never counted as slow. Lower 'rate_control_slow_response_threshold'. See: https://spiceai.org/docs/components/data-connectors/graphql
+```
+
+Each page and retry is a separate attempt. Timing starts after all admission waits and ends after the complete body is read. A body-read timeout counts once as a failure. Datasets on one origin may have different thresholds while sharing the controller; the threshold has no runtime-wide default.
+
+Use the [request-duration histogram](../https/deployment.md#choose-a-slow-response-threshold) to select a threshold above normal latency. Large responses include download time. A threshold below normal latency can keep the origin at its minimum request rate and triggers a once-per-dataset warning after a full window at the floor. Low traffic remains sensitive to individual outcomes. Adaptive mode is single-node only and is rejected with cluster rate control.
+
 ### Retry Behavior
 
 HTTP-level retries cover 408 (request timeout) and 5xx (server errors) plus transient network errors. 429 responses are handled proactively by the built-in rate limiter rather than retried. Retries use fibonacci backoff with a maximum of 5 attempts.
@@ -90,6 +122,10 @@ For broader observability, also monitor:
 
 - Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - The upstream GraphQL provider's rate-limit dashboards.
+
+Unreleased builds also record `http_client_request_duration_ms` for each sent attempt, including the body download and excluding admission waits. It has `origin` and `http.response.status_code` attributes, no component prefix, and is present in every rate-control mode. Status is absent when no headers arrived.
+
+Adaptive mode exposes `rate_control_adaptive_outcomes_total` with `outcome=success|slow|failure`, `rate_control_adaptive_admission_ratio`, and `rate_control_adaptive_throttled_total`. These use the owning connector's component prefix, share the origin's counters, and are absent in static mode. See [request latency and adaptive outcomes](../https/deployment.md#request-latency-and-adaptive-outcomes).
 
 ## Task History
 

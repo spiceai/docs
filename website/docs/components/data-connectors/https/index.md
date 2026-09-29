@@ -202,6 +202,8 @@ HTTP-based connectors share a rate control system that limits concurrency and re
 
 Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin.
 
+In unreleased builds, `rate_control_mode: adaptive` reduces requests when the origin fails or slows down. The optional dataset-only `rate_control_slow_response_threshold` accepts durations such as `2s` or `500ms`; unset or `0` disables it, and static mode ignores it. It must be less than `client_timeout`. A successful response strictly above the threshold still returns normally, but counts as `slow` for adaptive control. Datasets sharing an origin may use different thresholds. See [adaptive rate control](./deployment.md#adaptive-rate-control-and-slow-responses) for configuration, timing, metrics, and threshold selection. These settings are not available in v2.3.x.
+
 ```yaml
 runtime:
   params:

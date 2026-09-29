@@ -78,9 +78,92 @@ datasets:
 
 Use rate control when the upstream API enforces request quotas, when many datasets share a single origin, or when running large `IN`-list refreshes that would otherwise burst hundreds of concurrent requests.
 
+#### Adaptive rate control and slow responses
+
+:::note Unreleased
+
+Adaptive rate control and `rate_control_slow_response_threshold` require an unreleased runtime build. They are not available in v2.3.x. See the [adaptive rate-control specification](https://github.com/spiceai/spiceai/issues/14136) and [slow-response specification](https://github.com/spiceai/spiceai/issues/14483).
+
+:::
+
+Set `rate_control_mode: adaptive` to reduce requests when an origin fails or slows down. Adaptive control scales an existing limit; it never exceeds it and requires at least one concurrency or request-rate limit.
+
+```yaml
+datasets:
+  - from: https://api.example.com/v1/items
+    name: items
+    params:
+      requests_per_second_limit: 10
+      rate_control_mode: adaptive
+      client_timeout: 30
+      rate_control_slow_response_threshold: 2s
+```
+
+A successful response taking strictly longer than `2s` still returns the same rows, without a retry or query error caused by slowness. It counts as `slow` for adaptive control, with the same effect as a failure. Responses at the threshold count as successes. Requests exceeding `client_timeout` still fail normally.
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `rate_control_mode` | `static` | `static` applies limits unchanged; `adaptive` reduces them while the origin is unhealthy. |
+| `rate_control_failure_threshold` | `10%` | Error or slow-response fraction above which throttling begins. Accepts percentages or fractions strictly between zero and one, such as `25%` or `0.25`. |
+| `rate_control_window` | `10s` | Positive duration defining the outcome decay half-life. Shorter windows react and recover faster. |
+| `rate_control_acquire_timeout` | Connector request timeout | Maximum admission wait, in either mode; `0` waits indefinitely. |
+| `rate_control_slow_response_threshold` | Off | Duration such as `2s` or `500ms`. Unset or `0` disables it. Adaptive mode only. Must be less than `client_timeout`. |
+
+The first four parameters have matching `runtime.params.http_*` defaults. The slow-response threshold is dataset-only, with **no runtime-wide default**. Static mode ignores it, including invalid values. The default failure threshold is `10%` because timeouts and server errors indicate trouble before half the requests fail.
+
+Each actual attempt is timed immediately before sending through complete body consumption. Concurrency, quota, jitter, `Retry-After`, and retry-backoff waits are excluded. A body-read error counts once as `failure`, not as a success at headers. Retry attempts are timed separately.
+
+| Response | Adaptive outcome |
+| --- | --- |
+| `2xx`, within the threshold or threshold off | `success` |
+| `2xx`, strictly above the threshold | `slow` |
+| Timeout, transport error, body-read error, `408`, `429`, or `5xx` | `failure` |
+| Other `4xx` | Not recorded; throttling cannot fix client or authentication errors |
+
+Datasets sharing an origin may set different slow-response thresholds. Their outcomes feed the same controller, but each dataset classifies latency independently. All other rate-control settings must agree. If request timeouts differ, explicitly set the same `rate_control_acquire_timeout` rather than inheriting different defaults.
+
+#### Choose a slow-response threshold
+
+Start with the threshold unset. Measure normal latency with `http_client_request_duration_ms`, including representative response sizes. Set the threshold above normal high-percentile latency and below the request timeout. A large healthy response can count as slow because downloading its body is included.
+
+For example, a five-minute P99 in milliseconds:
+
+```promql
+histogram_quantile(0.99,
+  sum by (origin, le) (rate(http_client_request_duration_ms_bucket[5m])))
+```
+
+Use `0.999` for P99.9. The histogram combines endpoints on one origin; measure an endpoint independently when their normal latencies differ. Compare the `slow` and `failure` outcome proportions with `rate_control_adaptive_admission_ratio`. A ratio of `1` admits the configured limits in full.
+
+When slow responses contribute to throttling, the warning names both conditions:
+
+```text
+WARN Upstream 'https://api.example.com' is failing, or responding slower than its `rate_control_slow_response_threshold`, on more than the 10% `rate_control_failure_threshold`, so adaptive rate control is reducing requests to it below the configured limits until it recovers. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
+```
+
+The controller keeps a minimum request rate to probe recovery. If the origin stays at that floor for a full `rate_control_window` and a dataset still returns slow responses, Spice warns once for that dataset:
+
+```text
+WARN Responses from 'https://api.example.com' for dataset 'items' still take longer than its 1s `rate_control_slow_response_threshold` at the minimum request rate, so the threshold may be below this API's normal response time. Check `http_client_request_duration_ms` and raise `rate_control_slow_response_threshold` for dataset 'items'.
+```
+
+Invalid durations fail dataset registration with:
+
+```text
+The 'rate_control_slow_response_threshold' parameter must be a duration such as '2s' or '500ms'. See: https://spiceai.org/docs/components/data-connectors/http
+```
+
+A threshold at or above the effective request timeout fails with durations expressed in seconds:
+
+```text
+The 'rate_control_slow_response_threshold' parameter (30s) must be less than `client_timeout` (30s). A response slower than `client_timeout` fails rather than succeeding, so it is never counted as slow. Lower 'rate_control_slow_response_threshold', or raise `client_timeout`. See: https://spiceai.org/docs/components/data-connectors/http
+```
+
+Adaptive slow-response control supports dynamic HTTPS API and GraphQL datasets on a single node. It is rejected with cluster rate control (`runtime.source_rate_control.state_location`). Structured HTTP file datasets do not support it. Databricks does not declare or read the threshold parameter. Low traffic remains sensitive to individual outcomes; a minimum sample count is not enforced.
+
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx responses plus transient network errors are retried. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+HTTP-level retries cover 429 and 5xx responses plus transient network and body-read errors. HTTP 408 counts as an adaptive failure but is not retried by the HTTPS connector. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
 
 | Parameter              | Default     | Description                                                                                                  |
 | ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
@@ -170,6 +253,18 @@ Instruments from both families are exposed with the prefix `dataset_http_` — t
 For broader observability, also monitor:
 
 - Spice query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
+
+### Request latency and adaptive outcomes
+
+In unreleased builds, `http_client_request_duration_ms` records every sent attempt in every rate-control mode. This histogram has `origin` and `http.response.status_code` attributes; status is absent when no headers arrived. It has no component prefix. Prometheus exposes `_bucket`, `_sum`, and `_count` series and renders the status attribute as `http_response_status_code`.
+
+| Component metric | Type | Meaning |
+| --- | --- | --- |
+| `rate_control_adaptive_outcomes_total` | Counter | Completed recorded attempts, with `outcome=success`, `slow`, or `failure`. All three start at zero in adaptive mode. |
+| `rate_control_adaptive_admission_ratio` | Gauge | Fraction of configured limits admitted, from `0` to `1`. |
+| `rate_control_adaptive_throttled_total` | Counter | Requests charged above-normal admission weight. |
+
+The three adaptive metrics are absent in static mode. They use the owning connector's `dataset_http_` or `dataset_graphql_` prefix and the shared `origin` attribute. Each origin has one metric owner, so datasets sharing a controller do not duplicate its totals.
 
 ## Task History
 
