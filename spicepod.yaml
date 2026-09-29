@@ -14,10 +14,10 @@ datasets:
         Also replace `/index.md` with `/` in the path.
       reference_base_url: https://docs.spiceai.org/<docs_path>
     params:
-      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_concurrent_connections_limit: 1
       include: 'website/docs/**/*.md'
     acceleration:
       enabled: true
@@ -43,10 +43,10 @@ datasets:
       instructions: Documents are stored in Markdown. Always provide citations.
       reference_base_url: https://github.com/spiceai/cookbook/tree/trunk/<recipe_path>
     params:
-      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_concurrent_connections_limit: 1
       include: '**/*.md'
     acceleration:
       enabled: true
@@ -73,10 +73,10 @@ datasets:
         This dataset provides access to the Spice.ai OSS project release notes in Markdown format. The content is sourced from the Spice.ai OSS blog repository at https://github.com/spiceai/blog.
       reference_base_url: https://github.com/spiceai/docs/tree/trunk/website/releases/<post_path>
     params:
-      file_format: md
       github_client_id: ${secrets:GITHUB_CLIENT_ID}
       github_private_key: ${secrets:GITHUB_PRIVATE_KEY}
       github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_concurrent_connections_limit: 1
       include: 'website/releases/**/*.md'
     acceleration:
       enabled: true
