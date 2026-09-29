@@ -194,6 +194,14 @@ The check covers each argument's whole expression, not only its final type. A bi
 
 The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
 
+## Text Casts over Binary Values
+
+A `CAST` or `TRY_CAST` into a string type (`Utf8`, `LargeUtf8`, or `Utf8View`) is sent to DuckDB only when its operand does not reach a binary value. Spice checks that the bytes are valid UTF-8: `CAST` returns the error `Encountered non UTF-8 data`, and `TRY_CAST` returns `NULL`. DuckDB's `CAST(BLOB AS VARCHAR)` performs no check and returns the bytes as an escaped literal such as `\xFF\xFE bad`. A text cast over a binary value is therefore evaluated in Spice, above the federated scan, so the result matches an unaccelerated query.
+
+As with `concat`, the check covers the operand's whole expression, and an operand whose type Spice cannot determine is treated as binary. A text cast over a string or numeric column, such as `CAST(id AS VARCHAR)`, is sent to DuckDB. Casts from a binary value into a number, date, boolean, or decimal are sent to DuckDB unchanged.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)
