@@ -79,7 +79,7 @@ The 'rate_control_slow_response_threshold' parameter (45s) must be less than the
 
 Each page and retry is a separate attempt. Timing starts after all admission waits and ends after the complete body is read. A body-read timeout counts once as a failure. Datasets on one origin may have different thresholds while sharing the controller; the threshold has no runtime-wide default.
 
-Use the [request-duration histogram](../https/deployment.md#choose-a-slow-response-threshold) to select a threshold above normal latency. Large responses include download time. A threshold below normal latency can keep the origin at its minimum request rate and triggers a once-per-dataset warning after a full window at the floor. Low traffic remains sensitive to individual outcomes. Adaptive mode is single-node only and is rejected with cluster rate control.
+Use the [request-duration histogram](../https/deployment.md#choose-a-slow-response-threshold) to select a threshold above normal latency. Large responses include download time. A threshold below normal latency can keep the origin throttled. After two consecutive `rate_control_window` intervals of slow responses from a dataset and reduced admission for its origin, Spice warns once for that dataset. Low traffic remains sensitive to individual outcomes. Adaptive mode is single-node only and is rejected with cluster rate control.
 
 ### Retry Behavior
 

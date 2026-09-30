@@ -193,10 +193,10 @@ When slow responses contribute to throttling, the warning names both conditions:
 WARN Upstream 'https://api.example.com' is failing, or responding slower than its `rate_control_slow_response_threshold`, on more than the 10% `rate_control_failure_threshold`, so adaptive rate control is reducing requests to it below the configured limits until it recovers. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
 ```
 
-The controller keeps a minimum request rate to probe recovery. If the origin stays at that floor for a full `rate_control_window` and a dataset still returns slow responses, Spice warns once for that dataset:
+Adaptive control retains capacity for recovery probes. If a dataset keeps returning slow responses and the origin's admission remains reduced for two consecutive `rate_control_window` intervals, Spice warns once for that dataset. With the default `10s` window, this requires at least `20s` and is evaluated when a slow response completes. A non-slow outcome for that dataset or recovery to full admission restarts the observation period:
 
 ```text
-WARN Responses from 'https://api.example.com' for dataset 'items' still take longer than its 1s `rate_control_slow_response_threshold` at the minimum request rate, so the threshold may be below this API's normal response time. Check `http_client_request_duration_ms` and raise `rate_control_slow_response_threshold` for dataset 'items'.
+WARN Responses from 'https://api.example.com' for dataset 'items' still take longer than its 1s `rate_control_slow_response_threshold` while adaptive rate control is reducing requests, so the threshold may be below this API's normal response time. Check `http_client_request_duration_ms` and raise `rate_control_slow_response_threshold` for dataset 'items'.
 ```
 
 Invalid durations fail dataset registration with:
