@@ -492,6 +492,8 @@ This configuration permits requests only from the `https://example.com` origin.
 
 The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, DuckDB's per-instance `threads`, and a cluster executor's concurrent-task advertisement.
 
+The entitlement also sets the partition count of the DataFusion sessions the runtime builds for its own work outside the user query session: refresh and accelerator writes, Cayenne compaction and maintenance, results caching, search, and SQL user-defined functions. These sessions do not use DataFusion's default of the host's core count, so on a pod with a CPU request and no CPU limit, background work is partitioned for the entitlement rather than for the whole node.
+
 ### `runtime.cpu.cores`
 
 ```yaml
