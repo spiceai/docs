@@ -222,7 +222,7 @@ The footer cache stores Vortex file metadata, including schemas, statistics, and
 
 - Default: unset — when omitted, DataFusion's default file-metadata-cache limit of 50 MB applies
 - Increase for datasets with many small files
-- Each file requires approximately 1-10 KB of footer cache
+- Each file counts against the limit at its fully expanded size: the serialized footer plus about 4 KB per file, 2.5 KB per top-level column, and 768 bytes per segment. A 20-column file with 100 segments counts about 130 KB plus its serialized footer, so size the cache from column and segment counts, not file count alone
 
 **Segment Cache (`cayenne_segment_cache_mb`) — runtime parameter:**
 
