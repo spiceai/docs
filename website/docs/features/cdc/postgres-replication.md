@@ -255,6 +255,19 @@ Notes:
 - Each source table can back **at most one dataset per shared slot**. Pointing two datasets at the same `(schema, table)` through one slot is rejected — give the second dataset a different `pg_replication_slot` (or remove the param for a dedicated slot).
 - Sharing is per Spice instance. Across replicas, each replica must still use its own unique slot — see [Multi-replica deployments](#multi-replica-deployments).
 
+### Published tables with no dataset
+
+When Spice resumes a shared slot, it holds the slot's acknowledged position for every table in the publication that has no dataset yet. The hold keeps a dataset that loads later from resuming past changes it never received. A dataset that subscribes to the table takes the hold over.
+
+A hold that no dataset claims within 5 minutes pins WAL retention for every dataset on the slot, so Spice retires it. This usually happens after a dataset is removed from the spicepod or renamed. The outcome depends on how the publication includes the table:
+
+| Publication                                                      | What Spice does                                                                                                                                                                                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Names the table (the default `<slot>_pub`, or a `FOR TABLE` list) | Drops the table from the publication with `ALTER PUBLICATION ... DROP TABLE`, releases the hold, and logs an error naming the table. A dataset added for the table later takes a fresh initial snapshot.            |
+| `FOR ALL TABLES` or `FOR TABLES IN SCHEMA`                        | PostgreSQL cannot drop a single table from these publications, so the table stays published. Spice releases the hold and logs a warning naming the table, slot, and publication. A dataset added for the table later is reloaded from the source when the changes since it last ran are no longer retained. |
+
+If the drop fails for another reason, such as a lost connection or a missing privilege, Spice keeps the hold, logs a warning, and retries after another 5 minutes. Until a retry succeeds, the slot keeps retaining WAL for every dataset on it. When the cause is a privilege Spice lacks, drop the table from the publication manually; the next retry then finds it unpublished and releases the hold.
+
 ### Envelope coalescing
 
 Committed changes reach each member of a shared slot as **change envelopes**, not one unit of work per source transaction. A workload that commits constantly in small transactions would otherwise put an envelope per commit into each member's buffer, filling it long before the buffered rows are worth an apply — and while the shared pump is blocked delivering, it is not reading from the replication connection, so the back-pressure reaches the source walsender.
