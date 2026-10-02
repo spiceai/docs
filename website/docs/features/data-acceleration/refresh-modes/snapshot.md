@@ -15,6 +15,8 @@ Use `snapshot` when:
 - Read replicas need fast, source-independent startup and refresh.
 - The federated source should not be queried by the replica (e.g., edge nodes, security boundaries, or to reduce source load).
 
+To read snapshots published to S3 without naming a source, an engine, or a top-level `snapshots` section, set the dataset's `from` to the snapshot location and `file_format: snapshot`. See [Serve a dataset from published snapshots](../snapshots#serve-a-dataset-from-published-snapshots).
+
 ## Configuration
 
 ```yaml

@@ -286,6 +286,45 @@ datasets:
         duckdb_file: /nvme/stream_table.db
 ```
 
+## Serve a dataset from published snapshots
+
+A Spice instance can serve the snapshots another instance publishes without any connection to the original source. Set `from` to the S3 prefix that holds the snapshots' `metadata.json` and set `file_format: snapshot`:
+
+```yaml
+datasets:
+  - from: s3://some_bucket/some_folder/ # The prefix that holds metadata.json
+    name: some_table # Selects the some_table entry in metadata.json
+    params:
+      file_format: snapshot
+      s3_region: us-east-1
+      s3_auth: iam_role
+```
+
+The dataset name selects the entry in `metadata.json`, so it must match the name of the dataset that publishes the snapshots. Spice reads `metadata.json`, detects the engine that created the dataset's current snapshot (Cayenne, DuckDB, SQLite, or Turso), restores that snapshot into the same engine, and serves queries from it. It then checks for newer snapshots and swaps each one in, as the [`snapshot` refresh mode](./refresh-modes/snapshot) does.
+
+A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
+
+### Loading and readiness
+
+The dataset reports Ready only after the current process has restored a snapshot. A local copy left from an earlier run is never served as current. Until the first snapshot is published, the dataset reports an error status and Spice logs a warning such as `Dataset 'some_table' has no snapshot to load yet, so it cannot be queried until one is published`. Spice keeps checking, with a backoff capped at `refresh_check_interval`. A query that reaches the dataset before a snapshot loads returns an error, not an empty result.
+
+Spice keeps the local copy under `.spice/data/`. DuckDB, SQLite, and Turso copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout.
+
+### Configuration constraints
+
+The dataset is read-only. Spice rejects a configuration that contradicts reading snapshots, with an error that names the setting to remove:
+
+- `from` must be an `s3://` location. Other connectors are not supported.
+- `params` accepts only `file_format`, `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` must be `iam_role` or `key`.
+- `access` must be `read` (the default).
+- `embeddings`, `vectors`, and `full_text_search` are not supported. Configure them on the dataset that publishes the snapshots.
+- In the `acceleration` block, Spice rejects `enabled: false`, any `refresh_mode` other than `snapshot`, `mode: file_create` or `mode: file_update`, `snapshots: enabled` or `snapshots: create_only`, `refresh_sql`, the `retention_*` settings, `on_zero_results: use_source`, and an `engine` other than the one that created the snapshots.
+- Engine path params (`duckdb_file`, `duckdb_data_dir`, `sqlite_file`, `turso_file`, `cayenne_file_path`, `cayenne_metadata_dir`, and `cayenne_s3_zone_ids`) are rejected, because Spice chooses where the local copy lives.
+
+### HTTP API behavior
+
+`GET /v1/datasets/{name}/acceleration/snapshots` lists the snapshots at the dataset's own location. `POST /v1/datasets/{name}/acceleration/snapshots/current` returns `400 Bad Request`, because a reader never changes the metadata it reads; set the current snapshot on the instance that publishes the snapshots. `POST /v1/datasets/{name}/acceleration/refresh` checks for a newer snapshot.
+
 :::info Readiness with append refreshes
 Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
 :::
