@@ -58,7 +58,7 @@ In-memory limitations can be mitigated by storing acceleration data on disk, whi
 
 ## Casts and Federation
 
-SQLite's `CAST` never fails. It converts the longest numeric prefix of its operand and returns `0` when there is none, so `CAST('abc' AS BIGINT)` returns `0` and `CAST('12abc' AS BIGINT)` returns `12`. It also formats floats and booleans as text differently, stores dates and timestamps in its own representation, and has no `TRY_CAST`. To return the same results as an unaccelerated query, Spice sends a cast to the SQLite accelerator only when SQLite evaluates it the same way:
+SQLite's `CAST` never fails. A cast into a numeric type converts the longest numeric prefix of its operand and returns `0` when there is none, so `CAST('abc' AS BIGINT)` returns `0` and `CAST('12abc' AS BIGINT)` returns `12` (see [CAST expressions](https://www.sqlite.org/lang_expr.html#castexpr) in the SQLite documentation). SQLite also formats floats and booleans as text differently, stores dates and timestamps in its own representation, and has no `TRY_CAST`. To return the same results as an unaccelerated query, Spice sends a cast to the SQLite accelerator only when SQLite evaluates it the same way:
 
 - A cast between two string types, or between two binary types.
 - An integer cast into a wider integer type, into `Float64`, or into text.
