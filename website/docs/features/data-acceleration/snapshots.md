@@ -286,6 +286,10 @@ datasets:
         duckdb_file: /nvme/stream_table.db
 ```
 
+:::info Readiness with append refreshes
+Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
+:::
+
 ## Serve a dataset from published snapshots
 
 A Spice instance can serve the snapshots another instance publishes without any connection to the original source. Set `from` to the S3 prefix that holds the snapshots' `metadata.json` and set `file_format: snapshot`:
@@ -324,10 +328,6 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 ### HTTP API behavior
 
 `GET /v1/datasets/{name}/acceleration/snapshots` lists the snapshots at the dataset's own location. `POST /v1/datasets/{name}/acceleration/snapshots/current` returns `400 Bad Request`, because a reader never changes the metadata it reads; set the current snapshot on the instance that publishes the snapshots. `POST /v1/datasets/{name}/acceleration/refresh` checks for a newer snapshot.
-
-:::info Readiness with append refreshes
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
-:::
 
 ## Best practices
 
