@@ -347,5 +347,6 @@ For the production deployment pattern that uses snapshots to separate ingest fro
 
 - Only datasets are supported for snapshots. Views are not supported.
 - **Partitioned Cayenne** accelerations (`engine: cayenne` with `partition_by`) skip periodic and pre-recreate snapshots, with a warning naming the dataset.
+- **Cayenne with a cold tier** (`cayenne_datalake_location` set) neither creates nor bootstraps from snapshots. The dataset loads from its source, with a warning naming the dataset. See [Cold Object-Store Tier](../../components/data-accelerators/cayenne/index.md#requirements-and-v1-constraints).
 
 :::
