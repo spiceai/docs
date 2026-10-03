@@ -201,7 +201,7 @@ For a query it does not own, a caller always receives **404 Not Found** — neve
 
 | Caller             | Query is running or complete | Query's results have expired |
 | ------------------ | ---------------------------- | ---------------------------- |
-| The owner          | `200 OK`                     | `410 Gone`                   |
+| The owner          | `200 OK`                     | `410 Gone`, then `404 Not Found` once [cleanup](#storage-layout) deletes the job |
 | Any other principal | `404 Not Found`              | `404 Not Found`              |
 
 Ownership tracking was introduced in **v2.2.0**. A job written by an earlier runtime carries no owner and is treated as belonging to the `public` scope.
@@ -613,13 +613,15 @@ PENDING → RUNNING → SUCCEEDED → CLOSED (after 12h TTL)
 | `CANCELLED` | Job was cancelled by the user                        |
 | `CLOSED`    | Job results have expired and been cleaned up         |
 
+The first final status a job reaches is kept. A job that is `SUCCEEDED`, `FAILED`, or `CANCELLED` is not restarted or moved to another status. For example, a cancellation that arrives before the job starts running leaves the job `CANCELLED`.
+
 ### Error Codes
 
 When a query fails, the `error` object contains an `error_code` field:
 
 | Error Code                 | Description                                             |
 | -------------------------- | ------------------------------------------------------- |
-| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable                 |
+| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable, or the scheduler running the query stopped and the query cannot be resumed (see [Scheduler Failover](#scheduler-failover)) |
 | `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
 | `EXECUTION_FAILED`         | The query failed during execution                       |
 | `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
@@ -642,6 +644,8 @@ Job state and result chunks are stored in the shared object store configured via
 │       ├── chunk_1.arrow      # Result chunk 1
 │       └── ...
 ```
+
+Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
 
 ### Defaults and Limitations
 
@@ -705,6 +709,8 @@ The object store is used for scheduler registration and discovery, and to persis
 ### Scheduler Failover
 
 When `runtime.scheduler.state_location` is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
+
+A job submitted by an authenticated principal is not resumed. The job records only an opaque owner ID, not an identity that table access and masking can be applied to, so resuming it would run the query without the submitter's permissions. Instead, the scheduler that detects the orphaned job marks it `FAILED` with the error code `SCHEDULER_UNAVAILABLE` and a message to resubmit the query. Jobs submitted without a principal are resumed.
 
 This failover applies to async queries, which require `scheduler.state_location`. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without `scheduler.state_location`, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
