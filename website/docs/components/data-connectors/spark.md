@@ -131,6 +131,8 @@ Check [Secrets Stores](../secret-stores/) for more details.
 
 - The Spark connector does not yet support streaming query results from Spark.
 
+- Spice-specific functions, such as the [JSON functions](../../reference/sql/json) and user-defined functions, are evaluated in Spice, not sent to Spark. For a query such as `WHERE json_get_str(doc, 'id') = 'a'`, Spark still reads the table, and Spice applies the filter. See [Federation and Pushdown](../../reference/sql/json#federation-and-pushdown).
+
 ## Cookbook
 
 - A cookbook recipe to configure Spark as a data connector in Spice. [Apache Spark Data Connector](https://github.com/spiceai/cookbook/tree/trunk/spark#readme)
