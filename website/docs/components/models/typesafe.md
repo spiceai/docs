@@ -88,10 +88,10 @@ The response carries `model`, the model version that answered, and `answers`, on
 | `400`  | The request is invalid, for example `questions` is empty.                                         |
 | `404`  | No System One or chat model with that name is loaded.                                             |
 | `422`  | The request body is not valid JSON for this endpoint.                                             |
-| `401`  | TypeSafe rejected the API key.                                                                    |
-| `403`  | TypeSafe denied the request.                                                                      |
+| `401`  | TypeSafe, or a chat model's provider, rejected the API key.                                       |
+| `403`  | TypeSafe, or a chat model's provider, denied the request.                                         |
 | `429`  | The request was rate limited.                                                                     |
-| `503`  | TypeSafe is unavailable.                                                                          |
+| `503`  | TypeSafe, or a chat model's provider, is unavailable.                                             |
 | `500`  | The evaluation failed for another reason.                                                         |
 
 A request to `/v1/chat/completions` that names a TypeSafe model returns `400` and directs the caller to `/v1/evaluate`.

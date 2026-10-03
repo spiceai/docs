@@ -47,7 +47,7 @@ curl -X POST http://localhost:8090/v1/evaluate \
   }'
 ```
 
-The request and response have the same shape as for a System One model. The question types (`noul`, `choice`, and `score`), their answer fields, and the error status codes are described in [TypeSafe Models](../../components/models/typesafe.md#evaluate-api). A response looks like this:
+The request and response have the same shape as for a System One model. The question types (`noul`, `choice`, and `score`), their answer fields, and the error status codes are described in [TypeSafe Models](../../components/models/typesafe.md#evaluate-api). For a chat model, the provider's errors map to the same status codes: a rejected API key returns `401`, a permission error returns `403`, a rate limit returns `429`, and an unreachable provider returns `503`. A response looks like this:
 
 ```json
 {
@@ -69,7 +69,7 @@ The request and response have the same shape as for a System One model. The ques
 
 Spice turns the questions into a JSON schema that pins each answer to its own options or rubric levels, and writes the schema into the system prompt. The `state` is sent as an untrusted document, and the prompt tells the model not to follow instructions found in it.
 
-The model is called without the Spice runtime tools that its `tools` param enables, so text in `state` cannot trigger a tool call. The model's `system_prompt` and parameter defaults still apply.
+The model is called without the Spice runtime tools that its `tools` param enables, so text in `state` cannot trigger a tool call. The model's `system_prompt` and other parameter defaults still apply. A `stream` default is not applied, and because no tools are offered, `tool_choice` and `parallel_tool_calls` defaults are not sent.
 
 Spice validates every reply. Each question must be answered, nothing else may be present, and every value must be inside its question's domain. The reply's JSON object may be wrapped in a Markdown code fence or surrounded by prose, but a reply with two objects, a repeated key, or an unclosed object is rejected. A malformed reply is sent back to the model once, with its problems listed. If the second reply is also malformed, the request fails with HTTP `500` rather than returning a partial answer.
 
