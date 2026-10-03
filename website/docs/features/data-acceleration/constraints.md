@@ -95,7 +95,7 @@ Neither option is ordered by [`time_column`](../../reference/spicepod/datasets#t
 
 `upsert_dedup_by_row_id` is last-write-wins by the order rows land in that batch, not by an update timestamp. Parallel scan or insert can reorder rows across partitions. An `ORDER BY` in [`refresh_sql`](./data-refresh#refresh-sql) is not a guarantee through to conflict resolution.
 
-Safer pattern: collapse to latest-per-key first (upstream, or by filtering in `refresh_sql` so a batch cannot carry two revisions of the same key), then upsert.
+To keep the latest version of each key by a timestamp, use [`upsert_dedup_by_time_column`](#upsert_dedup_by_time_column).
 
 The new behavior is only triggered when an incoming batch has a constraint violation, minimizing the effect of applying these computations to only when its necessary. However, they can have a performance impact and are not enabled by default.
 
@@ -144,6 +144,47 @@ acceleration:
         - `upsert_dedup_by_row_id`: Will succeed in loading 2 rows, `a,10` and `b,2`. The primary key violation is resolved to the row that occurred later.
       </div>
     </details>
+
+### `upsert_dedup_by_time_column`
+
+`upsert_dedup_by_time_column` keeps, for each primary key, the row with the greatest [`time_column`](../../reference/spicepod/datasets#time_column), whatever order the source returns rows in. Use it when a source can return an older version of a row after a newer one, for example a late-arriving file or an Iceberg snapshot that adds older rows.
+
+```yaml
+datasets:
+  - from: s3://my-bucket/events/
+    name: events
+    time_column: occurred_at
+    params:
+      file_format: parquet
+    acceleration:
+      enabled: true
+      engine: cayenne
+      refresh_mode: append
+      refresh_append_overlap: 1d
+      primary_key: id
+      on_conflict:
+        id: upsert_dedup_by_time_column
+```
+
+How it works:
+
+- A refresh writes a row only when its `time_column` is greater than every other version of its key it has seen, whether stored in the acceleration or read earlier in the same refresh. Every other row is skipped.
+- With `refresh_mode: full`, the result is the newest row per key across the whole source.
+- With `refresh_mode: append`, a refresh compares incoming rows with the rows already stored from `refresh_append_overlap` before the newest stored time onward. A late row inside that window replaces the stored version only if it is newer. Set `refresh_append_overlap` to the most a row can arrive late: a row that reaches the source with a time before the window is never fetched, so its key keeps its current version.
+- When two versions of a key have the same time, the version already kept stays. Within a full refresh, which of the tied rows is read first can vary between refreshes.
+- A refresh holds one key and one timestamp per key it reads (every key on a full refresh, the keys in the window on append), never whole rows. This memory is not limited by a memory budget.
+
+Requirements:
+
+- A `time_column`, outside the primary key, and an `acceleration.primary_key`.
+- `refresh_mode: full` or `append`. For change data capture (`refresh_mode: changes`), use `upsert`.
+- `engine: cayenne` or `sqlite`.
+
+A dataset that does not meet these requirements fails to load, with an error naming the setting to change.
+
+If a row's `time_column` is `NULL`, the refresh fails and the acceleration keeps its previous data. Fill the column at the source, or exclude those rows with [`refresh_sql`](./data-refresh#refresh-sql).
+
+The `dataset_acceleration_refresh_rows_superseded` metric counts the rows a refresh read but did not write, labelled `reason="older"` or `reason="equal_time"`. On append it also counts the rows re-read from the overlap window on every refresh, so a change in its rate, rather than its level, shows out-of-order data arriving.
 
 ## Limitations
 
