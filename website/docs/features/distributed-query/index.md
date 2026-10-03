@@ -201,7 +201,7 @@ For a query it does not own, a caller always receives **404 Not Found** — neve
 
 | Caller             | Query is running or complete | Query's results have expired |
 | ------------------ | ---------------------------- | ---------------------------- |
-| The owner          | `200 OK`                     | `410 Gone`                   |
+| The owner          | `200 OK`                     | `410 Gone`, then `404 Not Found` once [cleanup](#storage-layout) deletes the job |
 | Any other principal | `404 Not Found`              | `404 Not Found`              |
 
 Ownership tracking was introduced in **v2.2.0**. A job written by an earlier runtime carries no owner and is treated as belonging to the `public` scope.
@@ -645,7 +645,7 @@ Job state and result chunks are stored in the shared object store configured via
 │       └── ...
 ```
 
-Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted, so the API responses do not change.
+Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
 
 ### Defaults and Limitations
 
