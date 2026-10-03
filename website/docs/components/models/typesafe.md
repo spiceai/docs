@@ -7,6 +7,8 @@ sidebar_position: 11
 
 [TypeSafe Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) is an evaluation model, not a chat model. It takes unstructured input (the `state`) and a set of typed questions, and returns a structured answer to each question with calibrated probabilities. Spice serves TypeSafe models through the `POST /v1/evaluate` endpoint. They cannot be used with `/v1/chat/completions` or `/v1/responses`.
 
+Chat models answer `/v1/evaluate` too, with uncalibrated probabilities. See [Evaluate API](../../features/large-language-models/evaluate.md).
+
 ## Configuration
 
 Specify `typesafe:<model>` in the `from` field and provide a TypeSafe API key.
@@ -84,7 +86,7 @@ The response carries `model`, the model version that answered, and `answers`, on
 | Status | Cause                                                                                             |
 | ------ | ------------------------------------------------------------------------------------------------- |
 | `400`  | The request is invalid, for example `questions` is empty.                                         |
-| `404`  | No evaluation model with that name is loaded.                                                     |
+| `404`  | No System One or chat model with that name is loaded.                                             |
 | `422`  | The request body is not valid JSON for this endpoint.                                             |
 | `401`  | TypeSafe rejected the API key.                                                                    |
 | `403`  | TypeSafe denied the request.                                                                      |
