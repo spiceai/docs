@@ -73,7 +73,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for g
 
 ## Task History
 
-PostgreSQL accelerator operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`accelerated_table_refresh`, `sql_query`).
+PostgreSQL accelerator operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`acceleration_refresh`, `sql_query`).
 
 ## Known Limitations
 

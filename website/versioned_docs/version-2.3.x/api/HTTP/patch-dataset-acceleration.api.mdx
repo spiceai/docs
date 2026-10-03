@@ -1,0 +1,73 @@
+---
+id: patch-dataset-acceleration
+title: "Update Refresh SQL"
+description: "Update the refresh SQL for a dataset's acceleration."
+sidebar_label: "Update Refresh SQL"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVl1v2zYU/SvEfWkbKLITdMCmhwFZmqEDUmxzU+whDRxavLbYUiRLXtkxDP334VKSP2Iv2LDHzS+2xcvDw3sOj7gBkosIxT28kyQjUoSHDBTGMmhP2lko4JNXklBQhSLgPGCsxMffb8XcBSGF6qa9ikKWJRoMkmfln+1ne1fpKNAq77QlIY1xq5hmNQyo7SJBPvaY0/jNPAovg6yRMLwILySJ0FjSNea8DoqyknaBQkdxdkZYexdkWJ+dCWmVWGljRMAlBhLkukWj1yV6p/J1bR6Fwrm2ekDmAotP2yVEwEgyUA4ZON9T+EVBAV5SWU17jtN9hpDBdivc3g1YWSMU3VcG2nbTK3jebd4NFwk3T0x6dGae+oZMI+C3RgdUUFBoMINYVlhLKDZAa8/LRAraLqBtH7pijPSTU2uuOF6uw1VJ1UiSsEZLSYA9Aq/ioD4TKJ0ltMR40nujy7Tr0ZfIoJtjPm72BUvirgRuIWmMPLqn/a74fmCfgW2MOTbkIc8motqSHSiKdziXjaHIfSubELjy0Gqls3O9aAIq8Ro1Vey54OoEM9hDJBP6gEvtmvgMoGvbmxzaNgPSZHijV3smmHSNhzYDfJK154Jne4aPN7c313fiTPw8+fWDQKqmAUu0NJ0ZV36N4o/3N5Mbkf5MbVPPMIgfxcV4DC2veuiD9CB6Z2PX3cvx+LTg+8d4JePWALEpS4xx3hizzpn22/Hb0wjRY6nnGtXWn4xjHdumserfOGS3p3uoMUa5QLbAoXGGgSPHnzpOfbHoRmZD8gSMjaHhnIVBrD0xP3QTJ31Tnwm55TBk5wn5dh1pk2DfnZLkygptCYOVRkQMSwwCQ3BBuDJZV4lVpQ0e5uaehv+xbvfHSsylNqhy8Y/bt9e6POnSZlAjVW6b6Sm+qYICRsuLUW/xONpwMLejZ0HfrdmlfBP4UFdEvhiNjCulqVyk4vvxD+OjZt3ysFC4RON8irIOKRfXQzSJlaZKPJ6fM+JjDhznEcsmaFqn9aTX06/Ivx94jPWe7OL+5q9SZ3g98Ito7pKuvQj9O++ksikVldiVGF0iK1VsX29XXpYVnl/mvF2t0BKnRDgcaTPghnXAl/k4H583NpKcmSS6d5FqafdQ+xvI5MDyB/w2uxPw/31l777SH1fCJxp5I7XlBieTbnqH38Pygrs5XP8yKPo7yoHNHzJgJ3P9ZjOTET8F07b8+FuDIRkwg6UMOqnI1lQ68m8FxVyaiC8I9nrSh9Ab8bduPyc31T+Udg1MxDT8DzJIp6MzUvvQZlChVGzI+00/dN3xOL9jgN3Uoxhts2EGv+M9vVj7sJcov13dXb+HDGb9Bax2Kp00ueL8lauOp0uN6W5F/GwDRtpF00VeB8qfPwECJx0o
+sidebar_class_name: "patch api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update Refresh SQL"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"/v1/datasets/{name}/acceleration"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Update the refresh SQL for a dataset's acceleration.
+
+This endpoint allows for updating the `refresh_sql` parameter for a dataset's acceleration at runtime.
+The change is **temporary** and will revert to the `spicepod.yml` definition at the next runtime restart.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./patch-dataset-acceleration.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./patch-dataset-acceleration.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./patch-dataset-acceleration.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

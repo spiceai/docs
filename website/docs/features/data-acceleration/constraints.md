@@ -91,6 +91,12 @@ Spice provides two `upsert` options to resolve duplicates within a single update
 - `upsert_dedup`: Removes exact duplicates in the incoming batch if there is a constraint violation. (i.e. the equivalent of running `SELECT DISTINCT * FROM [batch]`)
 - `upsert_dedup_by_row_id`: Resolves conflicts by taking the row with the greatest row id. This is the behavior that would occur if the upsert were applied row-by-row. This guarantees that no constraint violations would result in an error, but it has the tradeoff of being effectively "random" if the incoming data is not ordered.
 
+Neither option is ordered by [`time_column`](../../reference/spicepod/datasets#time_column). `upsert_dedup` drops only **exact** duplicates (every column equal). If the same primary key appears twice in one batch with different payloads, the load errors rather than picking one revision.
+
+`upsert_dedup_by_row_id` is last-write-wins by the order rows land in that batch, not by an update timestamp. Parallel scan or insert can reorder rows across partitions. An `ORDER BY` in [`refresh_sql`](./data-refresh#refresh-sql) is not a guarantee through to conflict resolution.
+
+Safer pattern: collapse to latest-per-key first (upstream, or by filtering in `refresh_sql` so a batch cannot carry two revisions of the same key), then upsert.
+
 The new behavior is only triggered when an incoming batch has a constraint violation, minimizing the effect of applying these computations to only when its necessary. However, they can have a performance impact and are not enabled by default.
 
 Full configuration example:

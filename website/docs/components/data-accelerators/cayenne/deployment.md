@@ -72,7 +72,20 @@ Cayenne supports `partition_by` (single and multi-expression). Partition on the 
 
 ### Storage Footprint
 
-Vortex compression typically delivers 2–4× better compression than Parquet Snappy for analytical datasets. Plan storage for 0.25–0.5× the raw data size as a starting estimate.
+Vortex compression typically delivers 2–4× better compression than Parquet Snappy for analytical datasets. Plan storage for 0.25–0.5× the raw data size as a starting estimate, plus headroom for a compaction pass to hold the old and new copies of the files it rewrites. The runtime warns at startup when the data or metastore volume has under 10% or under 2 GiB free.
+
+### Storage Tier
+
+Store data files and the metastore on **local NVMe** — per-I/O latency, not IOPS, is what Vortex's dependent segment reads and the metastore's `fsync` commits are sensitive to — and put `runtime.query.temp_directory` on the same fast volume. At registration Cayenne resolves the storage class behind the data directory and the metastore directory separately (the acceleration's [`storage_profile`](../../../reference/spicepod/datasets#accelerationstorage_profile), `auto` by default) and tunes for it:
+
+| Resolved tier | Detected from | Cayenne behavior |
+| ------------- | ------------- | ---------------- |
+| `local_ssd`   | NVMe and other non-rotational devices, including EC2 NVMe instance storage | Engine defaults; full write concurrency |
+| `ebs`         | Amazon EBS, Azure managed disks, and NFS/SMB mounts | Slow-tier tuning bias (larger inline flushes, earlier memory drain, fewer write shards), `O_DIRECT` compaction output writer, encode-concurrency cap from the instance's EBS baseline bandwidth or the measured write throughput |
+| `tmpfs`       | `tmpfs`/`ramfs` mounts | 64 MB target files; no bias |
+| `unknown`     | S3 Express One Zone, rotating disks, non-Linux hosts | Slow-tier bias; 512 MB target files on S3 Express |
+
+An 8 MiB calibration probe measures each volume's write throughput once, and on EC2 an IMDS query supplies the instance's EBS baseline bandwidth and burstable-CPU status. Set `storage_profile: ebs` explicitly on network block devices auto-detection cannot identify (GCP Persistent Disk and Hyperdisk, SAN, Ceph). The `cayenne_data_storage_class` and `cayenne_metastore_storage_class` gauges (`0` local SSD, `1` network-attached, `2` tmpfs, `3` unknown) and `cayenne_data_storage_write_mibps` / `cayenne_metastore_storage_write_mibps` report what was detected. Network file systems are not recommended at all — the metastore is a SQLite database and SQLite locking is unreliable on NFS and SMB; keep `cayenne_metadata_dir` on local disk in every configuration. See [Storage](./performance.md#storage) in the performance guide.
 
 ## Metrics
 
@@ -104,6 +117,7 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `cayenne_compaction_duration_ms` | Histogram | ms | Wall-clock time of Cayenne background compaction passes. The histogram's count doubles as the compaction-pass counter. |
 | `cayenne_compaction_memory_pool_bytes` | Gauge | By | Size of the dedicated compaction memory pool carved from the query memory limit (see `cayenne_compaction_memory_fraction`). |
 | `cayenne_compaction_memory_exhausted_total` | Counter | passes | Compaction passes that hit `ResourcesExhausted` on the dedicated compaction memory pool. |
+| `cayenne_delete_main_visibility_downgrade_total` | Counter | deletes | Delete passes that deferred row cleanup to protect concurrent replacement rows. Label: `table`. A sustained increase indicates deferred cleanup under ingest load. |
 
 ### Memory Reconciliation Metrics
 
@@ -116,12 +130,13 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `process_resident_memory_bytes` | Gauge | By | Total resident set size of the `spiced` process. |
 | `process_resident_anon_bytes` | Gauge | By | Anonymous resident bytes: heap and stacks, which the kernel cannot reclaim. Take the gap against this figure rather than the total. |
 | `process_resident_file_bytes` | Gauge | By | File-backed resident bytes: mapped files and page cache the kernel evicts on demand. |
-| `cayenne_memory_account_bytes` | Gauge | By | Memory Cayenne computed for one table and registered against the DataFusion query pool, by `kind` (`keyset`, `deletion_index`, `cold_existence`). |
+| `cayenne_memory_account_bytes` | Gauge | By | Memory Cayenne computed for one table and registered against the DataFusion query pool, by `kind` (`keyset`, `deletion_index`, `cold_existence`, `lookup_index`). |
 | `cayenne_memory_account_reserved_bytes` | Gauge | By | Bytes the table's reservation actually holds on that pool. Components far above reserved means the accounting is not reaching it. |
 | `cayenne_inline_cache_bytes` | Gauge | By | Resident Arrow bytes of the table's decoded inline (level-0) view cache. |
 | `cayenne_inline_cache_batches` | Gauge | batches | Record batches held in that cache. |
 | `cayenne_mem_tier_bytes` | Gauge | By | Resident bytes of one table's in-memory CDC tier. |
 | `cayenne_scan_file_statistics_entries` | Gauge | entries | Cached scan statistics, one entry per data file. |
+| `cayenne_lookup_index_probe_total` | Counter | probes | [Secondary index](./index.md#secondary-indexes) probes, labelled `table`, `shape` (the indexed columns as the `indexes` entry names them) and `outcome` (`selected`, `empty`, `unbuilt`, `snapshot_mismatch`). A rising `unbuilt` or `snapshot_mismatch` share is an index that is not covering the rows being read. |
 
 #### Write-phase labels
 
@@ -140,6 +155,7 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `inmemory_spill` | A synchronous RAM-tier checkpoint (spill) triggered when the per-table byte cap (`cayenne_cdc_mem_tier_max_bytes`) is breached, before the batch is appended. |
 | `inmemory_budget_wait` | Time spent waiting (bounded) for the process-global mem-tier byte budget to admit the batch, released by another table's checkpoint. |
 | `vortex_write` | Encoding and writing Vortex data files. |
+| `lookup_index` | Building a [secondary index](./index.md#secondary-indexes) — sorting and compressing it on the blocking pool. Recorded for a background rebuild as well as a write. |
 | `stage_wal_prepare` | Preparing the staged-append write-ahead log. |
 | `apply_on_conflict_deletions` | Applying merge-on-read deletions for on-conflict (upsert) writes. |
 | `publish` | Total publish/finalization of a new snapshot. |
@@ -150,7 +166,7 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `publish_move_files` | Moving staged files into place during finalize. |
 | `publish_commit` | Committing the new snapshot during finalize. |
 
-The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
+The `cdc_path_*` phases are the mutually-exclusive terminal phase of a write — exactly one is recorded per write. The `cdc_path_inmemory*` phases and the `inmemory_*` sub-phases are emitted only under `cayenne_cdc_durability: memory`. The remaining phases (`vortex_write`, `stage_wal_prepare`, `apply_on_conflict_deletions`, `lookup_index`, `inmemory_*`, and `publish*`) are sub-components useful for attributing where write time is spent.
 
 ### Maintenance Decision Metrics
 
@@ -234,11 +250,11 @@ See [Component Metrics](../../../features/observability/component_metrics) for e
 
 ## Task History
 
-Cayenne refresh, append, and query operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`accelerated_table_refresh`, `sql_query`) plus Cayenne's own internal spans for segment uploads and metastore commits.
+Cayenne refresh, append, and query operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`acceleration_refresh`, `sql_query`) plus Cayenne's own internal spans for segment uploads and metastore commits.
 
 ## Known Limitations
 
-- **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment).
+- **Memory mode is ephemeral**: `mode: memory` keeps all data in RAM with no durable storage — the dataset reloads from its source on restart and enforces a hard RAM bound (no disk spill). Use `mode: file` when persistence across restarts is required; for a non-Cayenne pure in-memory accelerator, see [Arrow](../arrow/deployment). Ephemeral does not mean read-only — `INSERT`, `UPDATE` and `DELETE` apply to the in-RAM tier as they do in `mode: file`, on a runtime newer than v2.3.0 (see [Writes in memory mode](./index.md#writes-in-memory-mode)).
 - **Single-writer per table**: Two Spice instances cannot write the same Cayenne table concurrently.
 - **Vortex version compatibility**: Cayenne files are tied to the Vortex binary version shipped with Spice. Cross-version reads may be supported but not cross-version writes.
 - **Object-store write atomicity**: Standard S3 is eventually consistent for multipart uploads. S3 Express One Zone provides strong read-after-write consistency and is recommended for latency-sensitive workloads.
@@ -249,7 +265,14 @@ Cayenne refresh, append, and query operations participate in [task history](../.
 | ------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Slow restart after a crash                       | WAL not checkpointed due to ungraceful shutdown.         | Use graceful shutdown (`SIGTERM`); first restart will catch up the WAL automatically.                   |
 | `database is locked` metastore errors            | Two writers sharing one metastore path.                  | Ensure only one writer; use distinct metastore paths per instance.                                      |
+| Metastore lock errors or corruption on a network share | `cayenne_metadata_dir` on NFS/SMB, where SQLite locking is unreliable. | Move `cayenne_metadata_dir` to local disk; keep only data files on the share if it cannot be avoided. |
+| Large query fails with `ResourcesExhausted` while the query pool shows headroom | Spill directory on a small or full volume — the OS temporary directory by default, usually the root volume. | Set `runtime.query.temp_directory` to a local NVMe path with free space; see [Spill-to-Disk](../../../reference/performance-tuning#spill-to-disk-and-the-temporary-directory). |
+| `cayenne_data_storage_class` reports `0` on a network block volume | Auto-detection recognizes EBS and Azure disks by device identity only. | Set `storage_profile: ebs` on the dataset (GCP Persistent Disk, Hyperdisk, SAN, Ceph).            |
+| Ingest slows or compaction stalls on EBS         | Volume or instance EBS bandwidth saturated, or per-I/O latency too high for the ingest rate. | Move to local NVMe or a sub-millisecond tier (`io2` Block Express); provision IOPS/throughput; choose an instance that sustains its EBS bandwidth. Watch `cayenne_write_phase_duration_ms` and the EBS `VolumeQueueLength` / `EBSIOBalance%` metrics. |
+| Startup fails with `Invalid Cayenne configuration: datasets use different cayenne_file_path values...` | Two or more file-mode Cayenne datasets put their data on different roots without agreeing on one metastore, so a restart could open the wrong catalog. | Set the same `cayenne_metadata_dir` on every Cayenne dataset. See [Metastore location](./index.md#metastore-location). |
 | Dataset fails to load naming a data directory that contains the metastore directory | The resolved metastore sits inside the dataset's data directory — commonly a dataset named `metadata` under the stock defaults. | Set `cayenne_metadata_dir` outside the data directory, or rename the dataset. See [Metastore location](./index.md#metastore-location). |
+| Acceleration appears empty after a restart, or after changing `cayenne_metadata_dir` | The parameter now points at a different directory than the catalog that holds the manifests. Prior Vortex files are orphaned without an error. | Point `cayenne_metadata_dir` back at the existing metadata location (that adopts the catalog in place). To move the catalog, stop Spice with a graceful shutdown (`SIGTERM`) first so the WAL is checkpointed and no writer is active, then move `cayenne.db` together with its `-wal` and `-shm` sidecars. Moving those files while Cayenne is writing can leave the catalog inconsistent. Set the same explicit `cayenne_metadata_dir` on every Cayenne dataset. See [Metastore location](./index.md#metastore-location). |
+| Load refused: datasets use different `cayenne_file_path` values without a shared `cayenne_metadata_dir` | A local `cayenne_file_path` with no `cayenne_metadata_dir` resolves the catalog to `{cayenne_file_path}/metadata` for that data root, not to the `{spice_data_path}/metadata` fallback. The runtime opens one shared catalog from whichever dataset initializes it first, so the other root's manifests would be unused. | Set the same `cayenne_metadata_dir` on every Cayenne dataset. See [Metastore location](./index.md#metastore-location). |
 | Query slower than expected for cold data         | Segment cache too small for the working set of every table sharing it. | Increase `runtime.params.cayenne_segment_cache_mb`.                                       |
 | High S3 request cost                             | Segment cache misses on every query.                     | Increase `runtime.params.cayenne_segment_cache_mb`; consider `partition_by` aligned with query filters. |
 | Upload throughput does not scale with concurrency | Network or S3 Express One Zone TPS limit.                | Use S3 Express One Zone in the same AZ; benchmark with `upload_concurrency` to find the right setting.  |

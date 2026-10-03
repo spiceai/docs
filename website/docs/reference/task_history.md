@@ -25,7 +25,7 @@ runtime:
     retention_check_interval: 15m
 ```
 
-- **`enabled`**: Enable or disable task history. Defaults to `true`.
+- **`enabled`**: Enable or disable task history. Defaults to `true`. Disabling it removes this table. Prometheus [`/metrics`](../features/observability#prometheus-metrics-endpoint) query counters stay available — see [Observability](../features/observability#prometheus-metrics-endpoint).
 - **`captured_output`**: Level of output captured. Defaults to `none`.
 - **`captured_context`**: How much of the AI and search task payload is stored. Defaults to `truncated`. See [Captured context](#captured-context).
 - **`retention_period`**: How long records are retained. Defaults to `8h`. Longer retention periods increase memory usage.
@@ -49,11 +49,55 @@ runtime:
 | `redacted`            | The payload is replaced with `[redacted]`.                                                    |
 | `full`                | The payload is stored in full.                                                                |
 
-Values are case-sensitive; an unrecognized value fails at load. Other task types (for example `sql_query` and `accelerated_refresh`) are unaffected by this setting.
+Values are case-sensitive; an unrecognized value fails at load. Other task types (for example `sql_query` and `acceleration_refresh`) are unaffected by this setting.
 
 :::note
 `captured_context` shapes prompt, tool, and search payloads only. Whether task output is recorded at all is controlled separately by `captured_output`, which defaults to `none`.
 :::
+
+## Correlating Requests with `spice-trace-id`
+
+A client can set the trace ID for its request with the `spice-trace-id` header, so the request's work can be found again in `runtime.task_history` and in the runtime log. Over HTTP it is a request header; over Arrow Flight and Flight SQL it is gRPC metadata, which uses the same name.
+
+The value is 32 hexadecimal characters (a 16-byte ID), the same form as the `trace_id` column. Uppercase hex is accepted and recorded in lowercase. The all-zero ID is rejected.
+
+```bash
+curl -i -XPOST http://localhost:8090/v1/sql \
+  -H 'spice-trace-id: 4bf92f3577b34da6a3ce929d0e0e4736' \
+  --data 'SELECT count(*) FROM taxi_trips'
+```
+
+```sql
+SELECT task, input, error_message
+FROM runtime.task_history
+WHERE trace_id = '4bf92f3577b34da6a3ce929d0e0e4736';
+```
+
+For a SQL query, over HTTP (`/v1/sql`), Arrow Flight, or Flight SQL:
+
+- The query's `task_history` rows record the ID in `trace_id`, including when the query fails.
+- The response returns the ID in a `spice-trace-id` header, or `spice-trace-id` gRPC metadata for Flight. A request that sends no ID also gets one back: the ID the runtime generated for it. A client can read it from the response to look up the query later.
+- Every log record the query produces is prefixed with the ID, including records from query planning and data connectors:
+
+  ```
+  DEBUG query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed (InternalError): ...
+  ```
+
+`/v1/chat/completions`, `/v1/responses`, `/v1/nsql`, and `/v1/evaluate` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
+
+A value that is not 32 hexadecimal characters, or is all zeros, does not fail the request. The runtime logs a warning and generates an ID instead:
+
+```
+WARN runtime_request_context::context: Received invalid HTTP header: In spice-trace-id header, invalid trace id 'nope'. Expected 32 hexadecimal characters, not all zero.
+```
+
+### `spice-trace-id` and `traceparent`
+
+A W3C [`traceparent`](https://www.w3.org/TR/trace-context/#traceparent-header) header also sets the trace ID, and its parent span ID is recorded in the `parent_span_id` column. Use `traceparent` when the caller is part of a distributed trace, and `spice-trace-id` when it only needs a correlation ID.
+
+When a request sends both, `spice-trace-id` takes precedence, because a proxy or APM agent can inject a `traceparent` the caller did not set. The `traceparent` parent span ID is then recorded only if its trace ID matches `spice-trace-id`.
+
+`task_history` rows are written in the background, so a row can take a few seconds to appear after the response.
 
 ## Querying Task History
 
@@ -150,29 +194,29 @@ WHERE start_time >= NOW() - INTERVAL '10 MINUTES'
 Example output:
 
 ```console
-+----------------------------------+------------------+---------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
-| trace_id                         | span_id          | task                | start_time                 | end_time                   | execution_duration_ms | error_message                                                                               |
-+----------------------------------+------------------+---------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
-| 687e0970f8c49d19c5a08764ea2d4dc1 | f4f52ed29db8b151 | text_embed          | 2024-11-25T05:39:37.444749 | 2024-11-25T05:39:53.577195 | 16132.446000000002    |                                                                                             |
-| 687e0970f8c49d19c5a08764ea2d4dc1 | e47b17bd9fd9fe37 | accelerated_refresh | 2024-11-25T05:39:31.112504 | 2024-11-25T05:39:53.579933 | 22467.429             |                                                                                             |
-| 1e881188e5fd252b26adb8a8d838efb8 | 532b0019ad778094 | sql_query           | 2024-11-25T05:40:38.864982 | 2024-11-25T05:40:38.871090 | 6.108                 |                                                                                             |
-| 2ee1c700b450034bb6c2da3de2e2386c | 235dafed1e7d8c02 | sql_query           | 2024-11-25T05:39:38.249113 | 2024-11-25T05:39:39.387258 | 1138.145              |                                                                                             |
-| 20e75df9ea77ba1c8cb99a2632cdd091 | d07551cd172ffa80 | sql_query           | 2024-11-25T05:39:39.458135 | 2024-11-25T05:39:39.482181 | 24.046000000000003    |                                                                                             |
-| ca1d470b12191726b61d825df6f2ce2a | 65597a0bc0a4fde3 | sql_query           | 2024-11-25T05:39:39.675726 | 2024-11-25T05:39:39.822479 | 146.753               |                                                                                             |
-| ac5abd8bfec7e5aa7c19fc84772c55f1 | 316622ac359e3c00 | sql_query           | 2024-11-25T05:39:39.872946 | 2024-11-25T05:39:39.872994 | 0.048                 | This feature is not implemented: The context currently only supports a single SQL statement |
-| 1c640298e248ba297a12b1e3b59fffc7 | 031c3a25dc56d8e9 | sql_query           | 2024-11-25T05:39:40.467032 | 2024-11-25T05:39:40.486156 | 19.124                |                                                                                             |
-| 2c4d9abee740ced8ae423e0eb4fcff6b | a324b699b8bcf338 | sql_query           | 2024-11-25T05:39:40.525506 | 2024-11-25T05:39:40.525526 | 0.02                  | This feature is not implemented: The context currently only supports a single SQL statement |
-| e5ed7f7a98e62f493ef8af2e0cd7734e | e84c30862a546bb5 | sql_query           | 2024-11-25T05:39:40.560891 | 2024-11-25T05:39:40.560911 | 0.02                  | This feature is not implemented: The context currently only supports a single SQL statement |
-| d471f83092a95bde8663438cda74627f | 3dd9c4d4ebff4cb9 | sql_query           | 2024-11-25T05:39:40.600892 | 2024-11-25T05:39:40.647092 | 46.199999999999996    |                                                                                             |
-| 701874d7282dd47791e7519b343a9694 | 5dacf75c4537ee0e | accelerated_refresh | 2024-11-25T05:39:30.452534 | 2024-11-25T05:39:30.452900 | 0.366                 |                                                                                             |
-| 2e6b672a49a8cd5f0862a760661dc846 | f813941e0699e783 | accelerated_refresh | 2024-11-25T05:39:30.848425 | 2024-11-25T05:39:30.857242 | 8.817                 |                                                                                             |
-| 18d76b6389898cc5253a49294607477d | cc0d06a4e69cbcd5 | health              | 2024-11-25T05:39:30.451626 | 2024-11-25T05:39:31.563876 | 1112.25               |                                                                                             |
-| c75af81360e8962639faa64e6804b830 | 1ea2c95b243a5717 | accelerated_refresh | 2024-11-25T05:39:31.036470 | 2024-11-25T05:39:31.607845 | 571.375               |                                                                                             |
-| 817d88778e91322640414263779ce7f1 | 513a58d83f0416a7 | accelerated_refresh | 2024-11-25T05:39:30.998455 | 2024-11-25T05:39:32.076359 | 1077.904              |                                                                                             |
-| 3c507ee30211e6fab7d8a2eaf686e451 | d9be117925fb6d42 | accelerated_refresh | 2024-11-25T05:39:31.061851 | 2024-11-25T05:39:32.078412 | 1016.561              |                                                                                             |
-| aa6010405a12a14b6afaf76e9fabedb8 | 1f50a2b177003c54 | accelerated_refresh | 2024-11-25T05:39:30.933543 | 2024-11-25T05:39:32.476197 | 1542.654              |                                                                                             |
-| 3c75d16b6b4b8da98c551d115e1c049c | 9a16dc065a95236a | sql_query           | 2024-11-25T05:42:27.386754 | 2024-11-25T05:42:27.386859 | 0.10500000000000001   | SQL error: ParserError("Expected: an SQL statement, found: ELECT")                          |
-+----------------------------------+------------------+---------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
++----------------------------------+------------------+----------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
+| trace_id                         | span_id          | task                 | start_time                 | end_time                   | execution_duration_ms | error_message                                                                               |
++----------------------------------+------------------+----------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
+| 687e0970f8c49d19c5a08764ea2d4dc1 | f4f52ed29db8b151 | text_embed           | 2024-11-25T05:39:37.444749 | 2024-11-25T05:39:53.577195 | 16132.446000000002    |                                                                                             |
+| 687e0970f8c49d19c5a08764ea2d4dc1 | e47b17bd9fd9fe37 | acceleration_refresh | 2024-11-25T05:39:31.112504 | 2024-11-25T05:39:53.579933 | 22467.429             |                                                                                             |
+| 1e881188e5fd252b26adb8a8d838efb8 | 532b0019ad778094 | sql_query            | 2024-11-25T05:40:38.864982 | 2024-11-25T05:40:38.871090 | 6.108                 |                                                                                             |
+| 2ee1c700b450034bb6c2da3de2e2386c | 235dafed1e7d8c02 | sql_query            | 2024-11-25T05:39:38.249113 | 2024-11-25T05:39:39.387258 | 1138.145              |                                                                                             |
+| 20e75df9ea77ba1c8cb99a2632cdd091 | d07551cd172ffa80 | sql_query            | 2024-11-25T05:39:39.458135 | 2024-11-25T05:39:39.482181 | 24.046000000000003    |                                                                                             |
+| ca1d470b12191726b61d825df6f2ce2a | 65597a0bc0a4fde3 | sql_query            | 2024-11-25T05:39:39.675726 | 2024-11-25T05:39:39.822479 | 146.753               |                                                                                             |
+| ac5abd8bfec7e5aa7c19fc84772c55f1 | 316622ac359e3c00 | sql_query            | 2024-11-25T05:39:39.872946 | 2024-11-25T05:39:39.872994 | 0.048                 | This feature is not implemented: The context currently only supports a single SQL statement |
+| 1c640298e248ba297a12b1e3b59fffc7 | 031c3a25dc56d8e9 | sql_query            | 2024-11-25T05:39:40.467032 | 2024-11-25T05:39:40.486156 | 19.124                |                                                                                             |
+| 2c4d9abee740ced8ae423e0eb4fcff6b | a324b699b8bcf338 | sql_query            | 2024-11-25T05:39:40.525506 | 2024-11-25T05:39:40.525526 | 0.02                  | This feature is not implemented: The context currently only supports a single SQL statement |
+| e5ed7f7a98e62f493ef8af2e0cd7734e | e84c30862a546bb5 | sql_query            | 2024-11-25T05:39:40.560891 | 2024-11-25T05:39:40.560911 | 0.02                  | This feature is not implemented: The context currently only supports a single SQL statement |
+| d471f83092a95bde8663438cda74627f | 3dd9c4d4ebff4cb9 | sql_query            | 2024-11-25T05:39:40.600892 | 2024-11-25T05:39:40.647092 | 46.199999999999996    |                                                                                             |
+| 701874d7282dd47791e7519b343a9694 | 5dacf75c4537ee0e | acceleration_refresh | 2024-11-25T05:39:30.452534 | 2024-11-25T05:39:30.452900 | 0.366                 |                                                                                             |
+| 2e6b672a49a8cd5f0862a760661dc846 | f813941e0699e783 | acceleration_refresh | 2024-11-25T05:39:30.848425 | 2024-11-25T05:39:30.857242 | 8.817                 |                                                                                             |
+| 18d76b6389898cc5253a49294607477d | cc0d06a4e69cbcd5 | health               | 2024-11-25T05:39:30.451626 | 2024-11-25T05:39:31.563876 | 1112.25               |                                                                                             |
+| c75af81360e8962639faa64e6804b830 | 1ea2c95b243a5717 | acceleration_refresh | 2024-11-25T05:39:31.036470 | 2024-11-25T05:39:31.607845 | 571.375               |                                                                                             |
+| 817d88778e91322640414263779ce7f1 | 513a58d83f0416a7 | acceleration_refresh | 2024-11-25T05:39:30.998455 | 2024-11-25T05:39:32.076359 | 1077.904              |                                                                                             |
+| 3c507ee30211e6fab7d8a2eaf686e451 | d9be117925fb6d42 | acceleration_refresh | 2024-11-25T05:39:31.061851 | 2024-11-25T05:39:32.078412 | 1016.561              |                                                                                             |
+| aa6010405a12a14b6afaf76e9fabedb8 | 1f50a2b177003c54 | acceleration_refresh | 2024-11-25T05:39:30.933543 | 2024-11-25T05:39:32.476197 | 1542.654              |                                                                                             |
+| 3c75d16b6b4b8da98c551d115e1c049c | 9a16dc065a95236a | sql_query            | 2024-11-25T05:42:27.386754 | 2024-11-25T05:42:27.386859 | 0.10500000000000001   | SQL error: ParserError("Expected: an SQL statement, found: ELECT")                          |
++----------------------------------+------------------+----------------------+----------------------------+----------------------------+-----------------------+---------------------------------------------------------------------------------------------+
 ```
 
 ## Retrieve the most recent error messages
@@ -216,21 +260,21 @@ ORDER BY task_count DESC;
 Example output:
 
 ```console
-+-------------------------------+------------+---------------------+
-| task                          | task_count | avg_duration_ms     |
-+-------------------------------+------------+---------------------+
-| sql_query                     | 65         | 55.10198461538462   |
-| accelerated_refresh           | 27         | 749.1187407407407   |
-| ai_completion                 | 9          | 5026.337888888888   |
-| tool_use::list_datasets       | 4          | 0.16899999999999998 |
-| text_embed                    | 4          | 3341.08975          |
-| ai_chat                       | 4          | 7151.03675          |
-| search                        | 3          | 384.376             |
-| tool_use::search              | 3          | 385.0406666666667   |
-| tool_use::get_readiness       | 1          | 0.12999999999999998 |
-| tool_use::sample_data         | 1          | 2.275               |
-| health                        | 1          | 661.0169999999999   |
-+-------------------------------+------------+---------------------+
++--------------------------------+------------+---------------------+
+| task                           | task_count | avg_duration_ms     |
++--------------------------------+------------+---------------------+
+| sql_query                      | 65         | 55.10198461538462   |
+| acceleration_refresh           | 27         | 749.1187407407407   |
+| ai_completion                  | 9          | 5026.337888888888   |
+| tool_use::list_datasets        | 4          | 0.16899999999999998 |
+| text_embed                     | 4          | 3341.08975          |
+| ai_chat                        | 4          | 7151.03675          |
+| search                         | 3          | 384.376             |
+| tool_use::search               | 3          | 385.0406666666667   |
+| tool_use::get_readiness        | 1          | 0.12999999999999998 |
+| tool_use::sample_data          | 1          | 2.275               |
+| health                         | 1          | 661.0169999999999   |
++--------------------------------+------------+---------------------+
 ```
 
 ## Identify the longest-running tasks
@@ -250,20 +294,20 @@ LIMIT 10;
 Example output:
 
 ```console
-+---------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
-| task                | trace_id                         | parent_span_id   | execution_duration_ms | labels                                                                                         |
-+---------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
-| accelerated_refresh | d9c38c7e58a02ec939240385a4a25a04 |                  | 1093711.474           | {sql: SELECT * FROM react.issues}                                                              |
-| ai_chat             | 7a6427313880942316bf3018cd23a198 |                  | 17202.836000000003    | {model: gpt-4o}                                                                                |
-| ai_completion       | 7a6427313880942316bf3018cd23a198 | 59b1fd88c8397e3f | 17202.475             | {model: gpt-4o, total_tokens: 2673, prompt_tokens: 1807, completion_tokens: 866, stream: true} |
-| accelerated_refresh | 96758c1132164204a68e1a7234a06cda |                  | 15660.023000000001    | {sql: SELECT * FROM react.docs}                                                                |
-| text_embed          | 96758c1132164204a68e1a7234a06cda | 109c489b24602356 | 12406.787             | {outputs_produced: 2086}                                                                       |
-| ai_chat             | b2a69503a1b83215603ead321eea6f61 |                  | 6445.162              | {model: gpt-4o}                                                                                |
-| ai_completion       | b2a69503a1b83215603ead321eea6f61 | 95411c59fc9c8cb8 | 6444.1990000000005    | {prompt_tokens: 1454, stream: true, total_tokens: 1484, model: gpt-4o, completion_tokens: 30}  |
-| ai_completion       | b2a69503a1b83215603ead321eea6f61 | 95411c59fc9c8cb8 | 5608.6359999999995    | {prompt_tokens: 1529, total_tokens: 1559, model: gpt-4o, completion_tokens: 30, stream: true}  |
-| text_embed          | 65880ecfc884a41555ac4d21ceef9aef |                  | 5143.494000000001     | {outputs_produced: 1}                                                                          |
-| text_embed          | f51e5e9d4e26de31a2f7d5e9286dd8f4 |                  | 4769.832              | {outputs_produced: 1}                                                                          |
-+---------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
++----------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
+| task                 | trace_id                         | parent_span_id   | execution_duration_ms | labels                                                                                         |
++----------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
+| acceleration_refresh | d9c38c7e58a02ec939240385a4a25a04 |                  | 1093711.474           | {sql: SELECT * FROM react.issues}                                                              |
+| ai_chat              | 7a6427313880942316bf3018cd23a198 |                  | 17202.836000000003    | {model: gpt-4o}                                                                                |
+| ai_completion        | 7a6427313880942316bf3018cd23a198 | 59b1fd88c8397e3f | 17202.475             | {model: gpt-4o, total_tokens: 2673, prompt_tokens: 1807, completion_tokens: 866, stream: true} |
+| acceleration_refresh | 96758c1132164204a68e1a7234a06cda |                  | 15660.023000000001    | {sql: SELECT * FROM react.docs}                                                                |
+| text_embed           | 96758c1132164204a68e1a7234a06cda | 109c489b24602356 | 12406.787             | {outputs_produced: 2086}                                                                       |
+| ai_chat              | b2a69503a1b83215603ead321eea6f61 |                  | 6445.162              | {model: gpt-4o}                                                                                |
+| ai_completion        | b2a69503a1b83215603ead321eea6f61 | 95411c59fc9c8cb8 | 6444.1990000000005    | {prompt_tokens: 1454, stream: true, total_tokens: 1484, model: gpt-4o, completion_tokens: 30}  |
+| ai_completion        | b2a69503a1b83215603ead321eea6f61 | 95411c59fc9c8cb8 | 5608.6359999999995    | {prompt_tokens: 1529, total_tokens: 1559, model: gpt-4o, completion_tokens: 30, stream: true}  |
+| text_embed           | 65880ecfc884a41555ac4d21ceef9aef |                  | 5143.494000000001     | {outputs_produced: 1}                                                                          |
+| text_embed           | f51e5e9d4e26de31a2f7d5e9286dd8f4 |                  | 4769.832              | {outputs_produced: 1}                                                                          |
++----------------------+----------------------------------+------------------+-----------------------+------------------------------------------------------------------------------------------------+
 ```
 
 ## Retrieve details of all tasks associated with a specific trace

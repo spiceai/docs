@@ -250,7 +250,7 @@ The `runtime.query.memory_limit` parameter defines the maximum memory available 
 runtime:
   query:
     memory_limit: 4GiB
-    temp_directory: /tmp/spice  # Directory for spill files
+    temp_directory: /nvme/spice/tmp  # Spill directory — local NVMe/SSD with ample free space
 ```
 
 Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query execution engine, which provides vectorized, multi-threaded query execution with automatic memory management. DataFusion's [GreedyMemoryPool](https://docs.rs/datafusion/latest/datafusion/execution/memory_pool/struct.GreedyMemoryPool.html) allows memory reservations on a first-come, first-served basis up to the configured limit, improving throughput for high-concurrency queries with many partitions.
@@ -297,6 +297,8 @@ This is the usual reason a container is OOM-killed despite having a memory limit
 ### Spill-to-Disk
 
 Operators such as Sort, Join, and GroupByHash spill intermediate results to disk when memory limits are exceeded, preventing out-of-memory errors. DataFusion writes spill files using the [Arrow IPC Stream format](https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format).
+
+Spill files are written under `runtime.query.temp_directory`, which defaults to the operating system's temporary directory — on most hosts the root volume. Set it to a directory on local NVMe or SSD with room for 2–4× the largest spillable input: each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time; a spill that runs out of space fails the query with `ResourcesExhausted` rather than falling back to memory; and a RAM-backed directory (`tmpfs`, a Kubernetes `emptyDir` with `medium: Memory`) charges the spilled bytes to the same memory the query was trying to release. DataFusion stops spilling at 100 GB in total per runtime environment. See [Spill-to-Disk and the Temporary Directory](./performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](./performance-tuning#storage).
 
 **Spill Compression:**
 
@@ -372,6 +374,7 @@ Recommended client behavior:
 - **Set an explicit client timeout** so a slow query cannot consume the caller's own request budget.
 - **Fall back to the underlying data source last, not first.** Where a fallback path to the source of truth exists, place it after the in-cluster retry, so a single unhealthy instance does not divert all traffic away from the accelerated path.
 - **Consider a circuit breaker for sustained failure.** Retries handle isolated failures; they make a sustained one worse. After a threshold of consecutive failures, stop sending traffic for a cooldown, then probe with a fraction of it and restore full load only once the probes succeed. This is usually best implemented at the load balancer or service mesh rather than in each client, so the decision is shared across callers instead of being re-learned by each one.
+- **Fail fast when the tier is saturated.** A retry that lands on another healthy instance helps. A retry against a tier that is already out of memory, query slots, or CPU adds load. The two capacity limits surface differently. A memory refusal fails the query (`503`, gRPC `RESOURCE_EXHAUSTED`) and counts in `query_failures{err_code="ResourcesExhausted"}`. Admission saturation does not refuse queries: they wait for a slot, so `query_failures` stays flat while `query_duration_ms` rises and clients time out acquiring pooled connections. When either signal is sustained across instances, shed the call or fall back in the application, and turn limited retries back on only after the refusals, latency, and acquire timeouts return to normal. See [Client connection pools](./performance-tuning#client-connection-pools).
 
 Distinguish the two cases when alerting: an isolated failure that a retry resolves is expected operational noise, while a sustained rate of capacity refusals is a sizing signal — see the metric guidance above.
 
@@ -500,6 +503,7 @@ runtime:
 | Policy          | Description              | Performance                                 |
 | --------------- | ------------------------ | ------------------------------------------- |
 | `lru` (default) | Least Recently Used      | Good general-purpose hit rates              |
+| `lfu`           | Least Frequently Used    | Keeps a stable hot set through bursts of one-off queries |
 | `tiny_lfu`      | TinyLFU admission policy | Higher hit rates for skewed access patterns |
 
 TinyLFU maintains frequency information to admit only items likely to be accessed again, resulting in higher hit rates for workloads with varying query frequency patterns.

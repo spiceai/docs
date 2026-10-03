@@ -17,14 +17,27 @@ Production operating guide for loading models from the Hugging Face Hub and runn
 
 | Parameter    | Description                                                                                           |
 | ------------ | ----------------------------------------------------------------------------------------------------- |
-| `hf_token`   | Hugging Face access token. Required for private or gated repos.                                       |
-| `token`      | Alias accepted by some integrations.                                                                   |
+| `huggingface_token` | Hugging Face access token. Required for private or gated repos. Spelled `huggingface_token` on this release line, not `hf_token`. |
+
+:::warning[`huggingface_token` on v2.2.0 and v2.2.1]
+
+`hf_token` is rejected on this release line: the runtime drops it with
+
+```text
+WARN runtime_parameters_typed: Ignoring parameter `hf_token`: not supported for model huggingface.
+```
+
+and downloads the repository anonymously, so a gated or private repo fails with an HTTP 401 that names no cause. A bare `token` is rejected too, with a warning that it must be prefixed with `huggingface_`. This affects `from: huggingface:` **models** only — the `hf_token` documented for [embeddings](../../embeddings/huggingface/deployment.md) and rerankers is read correctly on this release.
+
+Spelling reverted in v2.3.0: `hf_token` is the parameter again, and `huggingface_token` is kept as an alias so a Spicepod written against v2.2.x keeps loading. See [spiceai/spiceai#13932](https://github.com/spiceai/spiceai/issues/13932).
+
+:::
 
 Tokens must be sourced from a [secret store](../../secret-stores/) in production. For public, non-gated models the token is optional; for private / gated repos (Llama, most Mistral checkpoints), the token is required.
 
 ### Token Discovery Fallback
 
-When `hf_token` is unset, the loader falls back to the `HF_TOKEN` environment variable, then `HF_HUB_TOKEN`, then the Hugging Face token file (`$HF_HOME/token`, default `~/.cache/huggingface/token`, written by `huggingface-cli login`). This makes local development portable but should be explicitly set in production via the secret store to avoid surprise auth behavior across environments.
+When `huggingface_token` is unset, the loader falls back to the `HF_TOKEN` environment variable, then `HF_HUB_TOKEN`, then the Hugging Face token file (`$HF_HOME/token`, default `~/.cache/huggingface/token`, written by `huggingface-cli login`). This makes local development portable but should be explicitly set in production via the secret store to avoid surprise auth behavior across environments.
 
 ## Resilience Controls
 
@@ -89,7 +102,7 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 
 | Symptom                                                         | Likely cause                                               | Resolution                                                                                                                    |
 | --------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `401 Unauthorized` on download                                  | Missing or invalid `hf_token`; gated model.                | Set `hf_token`; accept the model's license on Hugging Face; verify token has `read` scope.                                    |
+| `401 Unauthorized` on download                                  | Missing or invalid `huggingface_token`; gated model.       | Set `huggingface_token` (not `hf_token`, which this release ignores); accept the model's license on Hugging Face; verify token has `read` scope. |
 | OOM on model load                                               | Model size exceeds device memory.                          | Choose a smaller quantized variant; switch to CPU + larger system RAM; use multi-GPU if supported.                             |
 | Inference falls back to CPU unexpectedly                        | CUDA / Metal unavailable or not detected.                  | Use a CUDA-enabled Spice build on GPU hosts; verify `nvidia-smi` shows devices; for macOS, use Apple Silicon build.            |
 | Model output changes between restarts                           | Revision unpinned (default branch).                        | Pin the revision with a colon: `from: huggingface:huggingface.co/org/model:<commit_sha>`.                                       |

@@ -18,7 +18,6 @@ Production operating guide for loading models from the Hugging Face Hub and runn
 | Parameter    | Description                                                                                           |
 | ------------ | ----------------------------------------------------------------------------------------------------- |
 | `hf_token`   | Hugging Face access token. Required for private or gated repos.                                       |
-| `token`      | Alias accepted by some integrations.                                                                   |
 
 Tokens must be sourced from a [secret store](../../secret-stores/) in production. For public, non-gated models the token is optional; for private / gated repos (Llama, most Mistral checkpoints), the token is required.
 

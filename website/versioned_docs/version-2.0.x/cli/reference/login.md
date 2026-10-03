@@ -48,7 +48,7 @@ spice login
 ### Additional Example
 
 ```shell
-spice login --key <API_KEY>
+spice login --key "<API_KEY>"
 ```
 
 ## `spice cloud login`
@@ -76,13 +76,13 @@ spice cloud login subscription --device
 Authenticate with a personal access token.
 
 ```shell
-spice cloud login pat --token <TOKEN>
+spice cloud login pat --token "<TOKEN>"
 ```
 
 The token can also be provided via the `SPICE_CLOUD_PAT` environment variable:
 
 ```shell
-export SPICE_CLOUD_PAT=<TOKEN>
+export SPICE_CLOUD_PAT="<TOKEN>"
 spice cloud login pat
 ```
 
@@ -91,14 +91,14 @@ spice cloud login pat
 Authenticate using OAuth2 client credentials for CI/automation workflows.
 
 ```shell
-spice cloud login api --client-id <CLIENT_ID> --client-secret <CLIENT_SECRET>
+spice cloud login api --client-id "<CLIENT_ID>" --client-secret "<CLIENT_SECRET>"
 ```
 
 Credentials can also be provided via environment variables:
 
 ```shell
-export SPICE_CLOUD_CLIENT_ID=<CLIENT_ID>
-export SPICE_CLOUD_CLIENT_SECRET=<CLIENT_SECRET>
+export SPICE_CLOUD_CLIENT_ID="<CLIENT_ID>"
+export SPICE_CLOUD_CLIENT_SECRET="<CLIENT_SECRET>"
 spice cloud login api
 ```
 

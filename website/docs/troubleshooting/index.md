@@ -41,11 +41,30 @@ Review the `task_history` table for detailed error messages:
 SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT NULL ORDER BY start_time DESC LIMIT 5;
 ```
 
+### `opendal::layers::retry` warnings on S3 reads
+
+An S3 read whose connection closes before the response completes is retried, and each retry logs one warning at the default verbosity:
+
+```console
+2026-09-10T19:16:30.158989Z  WARN opendal::layers::retry: Reading file 'https://my-bucket.s3.us-east-1.amazonaws.com/warehouse/metadata/1-m0.avro' (S3) was interrupted, so Spice will retry in 1s (attempt 1). Cause: The connection closed before the response completed. If this continues, check network access to S3 and any proxy timeouts. See: https://spiceai.org/docs/troubleshooting
+```
+
+The line names the object, the scheduled backoff, and which attempt this is — so an isolated warning followed by no further attempts for that object means the retry succeeded. A rising `attempt` count, or the same object retrying repeatedly, points at the network path rather than at the data: check egress and VPC endpoint reachability to S3, and any proxy or load balancer idle timeout between the runtime and the bucket. Credentials, query strings, and fragments are stripped from the logged URL, so a presigned URL's signature is not written to the log.
+
+The full underlying object-store diagnostic is emitted at `DEBUG` on the same target, labeled `S3 read retry diagnostic` and escaped onto a single line. It is above the default and `--verbose` levels; reach it with `--very-verbose`, or with a targeted filter that leaves everything else alone:
+
+```bash
+SPICED_LOG="WARN,opendal::layers::retry=DEBUG" spice run
+```
+
+`SPICED_LOG` applies only when neither `--verbose` nor `--very-verbose` is set — see [Tracing](../cli/tracing.md).
+
 ### Slow query performance
 
 - **Check if acceleration is enabled**: Unaccelerated datasets query the remote source directly, adding network latency. Add `acceleration: enabled: true` to the dataset configuration.
 - **Review the query plan**: Run `EXPLAIN` before the query to verify it executes against the local accelerator and not the remote source.
 - **Check cache status**: For repeated queries, verify caching is active by inspecting the `Results-Cache-Status` HTTP header. A `MISS` on repeated identical queries may indicate a low `item_ttl`.
+- **Check where acceleration files and spill live**: a file-mode acceleration on a network file system (NFS, SMB, EFS, Azure Files) or on a network block volume runs at that storage's per-I/O latency — a millisecond or more per dependent read, against tens of microseconds on NVMe — and a spill directory left at its default lands on the root volume. Move both to local NVMe/SSD — see [Storage](reference/performance-tuning#storage).
 
 ### AI chat returns incorrect or empty results
 
@@ -65,6 +84,16 @@ SELECT task, error_message FROM runtime.task_history WHERE error_message IS NOT 
 - **Lowering the query limit is often the wrong lever**: bounding `runtime.query.max_concurrent_queries` reduces the peak directly, whereas lowering `runtime.query.memory_limit` shrinks each query's budget without reducing how many run at once.
 
 See [Managing Memory Usage](../reference/memory.md) for the sizing model and validation guidance.
+
+### Large queries fail with `ResourcesExhausted` while memory is available
+
+A sort, aggregation, or sort-merge join that exceeds the query memory pool spills to `runtime.query.temp_directory` — but only if that directory can take it. When it cannot, the query fails with the same `ResourcesExhausted` refusal as an out-of-memory query, even though the pool gauges show headroom.
+
+- **The spill directory is on a small or full volume**: the default is the operating system's temporary directory, which on a cloud instance is usually the small root volume. Set `runtime.query.temp_directory` to a directory on local NVMe/SSD with free space for 2–4× the largest spillable input. When Cayenne acceleration is active, the runtime logs a reminder at startup if the setting is unset.
+- **The spill exceeded DataFusion's 100 GB cap**: the error reads `The used disk space during the spilling process has exceeded the allowable limit`. The cap is per runtime environment and is not configurable; reduce the working set (more selective predicates, sorted data), lower `runtime.query.max_concurrent_queries`, or add memory.
+- **The operator cannot spill**: hash joins and the external sort's final merge do not spill, so a query that exceeds memory in one of them fails regardless of the directory. See [Spill Limitations](../reference/memory.md#spill-limitations).
+
+See [Spill-to-Disk and the Temporary Directory](reference/performance-tuning#spill-to-disk-and-the-temporary-directory).
 
 ### Port conflicts on startup
 
@@ -172,13 +201,13 @@ select start_time, end_time, task, captured_output, error_message from runtime.t
 The `task_history` table also includes start and end times, including execution duration and any error messages during the operation. An example `task_history` output with a failed SQL query:
 
 ```console
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
-| start_time                    | end_time                      | task                | captured_output | error_message                                                     |
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
-| 2025-02-07T00:29:13.429351004 | 2025-02-07T00:29:13.432404760 | accelerated_refresh |                 |                                                                   |
-| 2025-02-07T00:29:13.429022167 | 2025-02-07T00:29:13.432472389 | accelerated_refresh |                 |                                                                   |
-| 2025-02-07T00:29:19.313382657 | 2025-02-07T00:29:19.313648021 | sql_query           |                 | Error during planning: table 'spice.public.not_a_table' not found |
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
+| start_time                    | end_time                      | task                 | captured_output | error_message                                                     |
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
+| 2025-02-07T00:29:13.429351004 | 2025-02-07T00:29:13.432404760 | acceleration_refresh |                 |                                                                   |
+| 2025-02-07T00:29:13.429022167 | 2025-02-07T00:29:13.432472389 | acceleration_refresh |                 |                                                                   |
+| 2025-02-07T00:29:19.313382657 | 2025-02-07T00:29:19.313648021 | sql_query            |                 | Error during planning: table 'spice.public.not_a_table' not found |
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
 ```
 
 For more information, view the [task history documentation](../reference/task_history.md)
@@ -198,15 +227,15 @@ runtime:
 Example captured output:
 
 ```console
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
-| start_time                    | end_time                      | task                | captured_output               | error_message |
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
-| 2025-02-07T00:17:41.999469156 | 2025-02-07T00:17:42.002922183 | accelerated_refresh |                               |               |
-| 2025-02-07T00:17:42.007874330 | 2025-02-07T00:17:44.512541448 | health              |                               |               |
-| 2025-02-07T00:17:44.510484956 | 2025-02-07T00:17:48.889947970 | text_embed          |                               |               |
-| 2025-02-07T00:17:42.278785968 | 2025-02-07T00:17:48.913729643 | accelerated_refresh |                               |               |
-| 2025-02-07T00:17:54.717312222 | 2025-02-07T00:17:54.728507220 | sql_query           | [{"subject":"Hello, world!"}] |               |
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
+| start_time                    | end_time                      | task                 | captured_output               | error_message |
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
+| 2025-02-07T00:17:41.999469156 | 2025-02-07T00:17:42.002922183 | acceleration_refresh |                               |               |
+| 2025-02-07T00:17:42.007874330 | 2025-02-07T00:17:44.512541448 | health               |                               |               |
+| 2025-02-07T00:17:44.510484956 | 2025-02-07T00:17:48.889947970 | text_embed           |                               |               |
+| 2025-02-07T00:17:42.278785968 | 2025-02-07T00:17:48.913729643 | acceleration_refresh |                               |               |
+| 2025-02-07T00:17:54.717312222 | 2025-02-07T00:17:54.728507220 | sql_query            | [{"subject":"Hello, world!"}] |               |
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
 ```
 
 ## Capturing SQL Query Plans in Task History
@@ -336,10 +365,10 @@ The REPL needs no shell, because `spiced` is itself the binary being executed.
 
 ```console
 # Docker
-docker exec -it <container_id> spiced --repl
+docker exec -it "<container_id>" spiced --repl
 
 # Kubernetes
-kubectl exec -it <pod_name> -- spiced --repl
+kubectl exec -it "<pod_name>" -- spiced --repl
 ```
 
 Because `spiced --repl` runs inside the container, it connects to that container's own `http://localhost:50051` Flight endpoint — attaching to the runtime already serving there. The interactive SQL prompt that follows is therefore executing queries **inside the deployment**, not locally.
@@ -364,10 +393,10 @@ This is the recommended way to debug Spice on Kubernetes.
 
 ```bash
 # List pods in the namespace
-kubectl get pods -n <namespace>
+kubectl get pods -n "<namespace>"
 
 # List the container names inside the pod
-kubectl get pod <pod_name> -n <namespace> -o jsonpath='{.spec.containers[*].name}'
+kubectl get pod "<pod_name>" -n "<namespace>" -o jsonpath='{.spec.containers[*].name}'
 ```
 
 The Helm chart names the Spice container `spiceai`. Run the second command rather than assuming, since a custom manifest may name it something else.
@@ -460,7 +489,7 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
+docker run -v busybox:/busy -v "<path_to_spicepod>:/app/spicepod" -d --name spiceai-debug spiceai/spiceai:latest
 
 # Exec into the container — the shell that follows runs INSIDE the Spice container
 docker exec -it spiceai-debug /busy/busybox sh

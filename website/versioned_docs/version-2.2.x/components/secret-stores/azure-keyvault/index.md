@@ -84,10 +84,10 @@ The principal used by Spice must have read access to secrets in the target Key V
 
 ```bash
 az role assignment create \
-  --assignee-object-id <PRINCIPAL_OBJECT_ID> \
+  --assignee-object-id "<PRINCIPAL_OBJECT_ID>" \
   --assignee-principal-type ServicePrincipal \
   --role "Key Vault Secrets User" \
-  --scope /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<vault>
+  --scope "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<vault>"
 ```
 
 The store performs a `list_secret_properties` call on startup to validate connectivity and fail fast on misconfiguration. A `403 Forbidden` on list is tolerated, so principals scoped only to per-secret `Microsoft.KeyVault/vaults/secrets/getSecret/action` (for example, **Key Vault Reader** combined with a custom role) are supported.

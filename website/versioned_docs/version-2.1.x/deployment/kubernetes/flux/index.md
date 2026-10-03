@@ -233,7 +233,7 @@ Flux records each Helm release revision. List history and roll back with the Hel
 
 ```bash
 helm history spiceai -n spiceai
-helm rollback spiceai <revision> -n spiceai
+helm rollback spiceai "<revision>" -n spiceai
 ```
 
 For automatic rollback on failed upgrades, configure `spec.upgrade.remediation` on the `HelmRelease`:

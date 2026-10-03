@@ -136,7 +136,7 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 
 :::warning[Limitations]
 
-- In open source, distributed query targets partitioned data lake sources (e.g. Parquet, Delta Lake, Iceberg). Distributing **accelerated** datasets across executors is a Spice.ai Enterprise feature (see below).
+- In open source, distributed query targets partitioned data lake sources (e.g. Parquet, Delta Lake, Iceberg) and unaccelerated [HTTP/HTTPS](../../components/data-connectors/https/index.md) datasets, whose scan each executor issues with its own client, credentials and headers, preserving the connector's pagination. Distributing **accelerated** datasets across executors is a Spice.ai Enterprise feature (see below).
 - As a preview feature, clusters may encounter stability or performance issues.
 
 :::
@@ -170,7 +170,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-state
     params:
-      region: us-east-1
+      s3_region: us-east-1
 ```
 
 The state location is a shared object store (S3, GCS, Azure Blob, or local filesystem via `file://`) used to persist async query job state and result chunks.
@@ -201,7 +201,7 @@ For a query it does not own, a caller always receives **404 Not Found** — neve
 
 | Caller             | Query is running or complete | Query's results have expired |
 | ------------------ | ---------------------------- | ---------------------------- |
-| The owner          | `200 OK`                     | `410 Gone`                   |
+| The owner          | `200 OK`                     | `410 Gone`, then `404 Not Found` once [cleanup](#storage-layout) deletes the job |
 | Any other principal | `404 Not Found`              | `404 Not Found`              |
 
 Ownership tracking was introduced in **v2.2.0**. A job written by an earlier runtime carries no owner and is treated as belonging to the `public` scope.
@@ -613,13 +613,15 @@ PENDING → RUNNING → SUCCEEDED → CLOSED (after 12h TTL)
 | `CANCELLED` | Job was cancelled by the user                        |
 | `CLOSED`    | Job results have expired and been cleaned up         |
 
+The first final status a job reaches is kept. A job that is `SUCCEEDED`, `FAILED`, or `CANCELLED` is not restarted or moved to another status. For example, a cancellation that arrives before the job starts running leaves the job `CANCELLED`.
+
 ### Error Codes
 
 When a query fails, the `error` object contains an `error_code` field:
 
 | Error Code                 | Description                                             |
 | -------------------------- | ------------------------------------------------------- |
-| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable                 |
+| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable, or the scheduler running the query stopped and the query cannot be resumed (see [Scheduler Failover](#scheduler-failover)) |
 | `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
 | `EXECUTION_FAILED`         | The query failed during execution                       |
 | `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
@@ -642,6 +644,8 @@ Job state and result chunks are stored in the shared object store configured via
 │       ├── chunk_1.arrow      # Result chunk 1
 │       └── ...
 ```
+
+Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
 
 ### Defaults and Limitations
 
@@ -697,7 +701,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster
     params:
-      region: us-east-1
+      s3_region: us-east-1
 ```
 
 The object store is used for scheduler registration and discovery, and to persist [async query](#async-queries-api) job state (the execution graph plus its status) so that schedulers are effectively stateless for async queries.
@@ -705,6 +709,8 @@ The object store is used for scheduler registration and discovery, and to persis
 ### Scheduler Failover
 
 When `runtime.scheduler.state_location` is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
+
+A job submitted by an authenticated principal is not resumed. The job records only an opaque owner ID, not an identity that table access and masking can be applied to, so resuming it would run the query without the submitter's permissions. Instead, the scheduler that detects the orphaned job marks it `FAILED` with the error code `SCHEDULER_UNAVAILABLE` and a message to resubmit the query. Jobs submitted without a principal are resumed.
 
 This failover applies to async queries, which require `scheduler.state_location`. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without `scheduler.state_location`, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
@@ -717,8 +723,8 @@ The `runtime.scheduler.params` section supports the following S3 parameters:
 | `s3_region`        | AWS region for the S3 bucket                          | -          |
 | `s3_endpoint`      | Custom S3-compatible endpoint URL                     | -          |
 | `s3_auth`          | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `s3_key`           | AWS access key ID (when `auth: key`)                  | -          |
-| `s3_secret`        | AWS secret access key (when `auth: key`)              | -          |
+| `s3_key`           | AWS access key ID (when `s3_auth: key`)               | -          |
+| `s3_secret`        | AWS secret access key (when `s3_auth: key`)           | -          |
 | `s3_session_token` | AWS session token for temporary credentials           | -          |
 | `client_timeout`   | S3 client timeout                                     | -          |
 | `allow_http`       | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
@@ -730,10 +736,10 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster
     params:
-      region: us-east-1
-      auth: key
-      key: ${secrets:aws_access_key}
-      secret: ${secrets:aws_secret_key}
+      s3_region: us-east-1
+      s3_auth: key
+      s3_key: ${secrets:aws_access_key}
+      s3_secret: ${secrets:aws_secret_key}
 ```
 
 ### Starting an HA Cluster
@@ -745,7 +751,7 @@ runtime:
      scheduler:
        state_location: s3://my-bucket/spice-cluster
        params:
-         region: us-east-1
+         s3_region: us-east-1
    ```
 
 2. **Start multiple schedulers**, each with unique certificates:

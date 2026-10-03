@@ -70,7 +70,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_user}`. |
 | `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_pass}`. |
 | `smb_port`                  | SMB server port. Default: `445`.                                                                |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                           |
+| `client_timeout`            | Maximum time to wait for each response from the SMB server, including the responses during connection setup and login. E.g. `30s`, `1m`. Default: `30s`. The initial TCP connect is not bounded by this value. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.   |
 
 ## Examples
@@ -273,7 +273,7 @@ Direct network access to the SMB server is required; proxy connections are not s
 
 ### Connection Timeouts
 
-If connections frequently timeout, increase the `client_timeout` value:
+Spice waits up to `client_timeout` (default `30s`) for each response from the SMB server. When a response does not arrive in time, the operation fails with an error that includes `SMB server read timed out; connection poisoned`. If the server is slow to respond, for example under heavy load, increase the `client_timeout` value:
 
 ```yaml
 params:
@@ -306,10 +306,10 @@ When connecting to a directory, ensure `file_format` is specified and matches th
 
 ### Debug Logging
 
-Enable debug logging to diagnose SMB connection issues:
+Enable debug logging to diagnose SMB connection issues. The runtime reads its log filter from the `SPICED_LOG` environment variable, not `RUST_LOG` (see [Tracing](../../cli/tracing.md)):
 
 ```bash
-RUST_LOG=runtime_object_store::store::smb=debug spiced
+SPICED_LOG="spiced=INFO,runtime=INFO,smb=DEBUG,runtime_object_store::store::smb=DEBUG" spiced
 ```
 
 ## Cookbook

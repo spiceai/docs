@@ -53,7 +53,7 @@ For filesystem-level issues (disk utilization, IOPS), use the underlying OS metr
 
 ## Task History
 
-File reads participate in [task history](../../../reference/task_history) through DataFusion's execution-plan spans. Listings, opens, and reads are attributed to the enclosing `sql_query` or `accelerated_table_refresh` task.
+File reads participate in [task history](../../../reference/task_history) through DataFusion's execution-plan spans. Listings, opens, and reads are attributed to the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

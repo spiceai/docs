@@ -48,7 +48,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for e
 
 ## Task History
 
-Arrow acceleration operations (refresh, query) participate in [task history](../../../reference/task_history) through the shared acceleration spans (`accelerated_table_refresh`, `sql_query`). No Arrow-specific spans are emitted — the accelerator is a thin wrapper over Arrow memory.
+Arrow acceleration operations (refresh, query) participate in [task history](../../../reference/task_history) through the shared acceleration spans (`acceleration_refresh`, `sql_query`). No Arrow-specific spans are emitted — the accelerator is a thin wrapper over Arrow memory.
 
 ## Known Limitations
 

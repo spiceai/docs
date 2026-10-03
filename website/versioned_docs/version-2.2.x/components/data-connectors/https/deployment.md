@@ -155,7 +155,7 @@ For broader observability, also monitor:
 
 ## Task History
 
-HTTP requests participate in [task history](../../../reference/task_history) through the HTTP client's span. Each partitioned request and each pagination page is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+HTTP requests participate in [task history](../../../reference/task_history) through the HTTP client's span. Each partitioned request and each pagination page is a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

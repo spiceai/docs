@@ -65,21 +65,21 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     ```bash
     # Password-based
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PASSWORD=<password> \
+    SPICE_SECRET_SNOWFLAKE_ACCOUNT="<account-identifier>" \
+    SPICE_SECRET_SNOWFLAKE_USERNAME="<username>" \
+    SPICE_SECRET_SNOWFLAKE_PASSWORD="<password>" \
     spice run
     # Key-pair using private key file (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PATH=<path-to-private-key> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SECRET_SNOWFLAKE_ACCOUNT="<account-identifier>" \
+    SPICE_SECRET_SNOWFLAKE_USERNAME="<username>" \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PATH="<path-to-private-key>" \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE="<private-key-passphrase>" \
     spice run
     # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
-    SPICE_SECRET_SNOWFLAKE_ACCOUNT=<account-identifier> \
-    SPICE_SECRET_SNOWFLAKE_USERNAME=<username> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY=<private-key-pem-content> \
-    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=<private-key-passphrase> \
+    SPICE_SECRET_SNOWFLAKE_ACCOUNT="<account-identifier>" \
+    SPICE_SECRET_SNOWFLAKE_USERNAME="<username>" \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY="<private-key-pem-content>" \
+    SPICE_SECRET_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE="<private-key-passphrase>" \
     spice run
     ```
 
@@ -87,9 +87,9 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
 
     ```bash
     # Password-based
-    spice login snowflake -a <account-identifier> -u <username> -p <password>
+    spice login snowflake -a "<account-identifier>" -u "<username>" -p "<password>"
     # Key-pair (the `<private-key-passphrase>` is an optional parameter and is used for encrypted private key only)
-    spice login snowflake -a <account-identifier> -u <username> -k <path-to-private-key> -s <private-key-passphrase>
+    spice login snowflake -a "<account-identifier>" -u "<username>" -k "<path-to-private-key>" -s "<private-key-passphrase>"
     ```
 
     The CLI will create or update an `.env` file that looks like:
@@ -180,7 +180,7 @@ The connector supports password-based and [key-pair](https://docs.snowflake.com/
     # Password-based
     security add-generic-password -l "Snowflake Secret" \
     -a spiced -s spice_snowflake_password\
-    -w <password>
+    -w "<password>"
 
     # Key-pair using private key content (the `<private-key-passphrase>` is optional, used for encrypted keys only)
     security add-generic-password -l "Snowflake Secret" \

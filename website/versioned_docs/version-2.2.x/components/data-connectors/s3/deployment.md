@@ -83,7 +83,7 @@ The connector does not currently register S3-specific dataset-level instruments.
 
 ## Task History
 
-S3 object reads participate in Spice [task history](../../../reference/task_history) through DataFusion's object-store plan nodes. Individual object GETs are attributed to their enclosing `sql_query` or `accelerated_table_refresh` task via the DataFusion execution plan.
+S3 object reads participate in Spice [task history](../../../reference/task_history) through DataFusion's object-store plan nodes. Individual object GETs are attributed to their enclosing `sql_query` or `acceleration_refresh` task via the DataFusion execution plan.
 
 ## Known Limitations
 

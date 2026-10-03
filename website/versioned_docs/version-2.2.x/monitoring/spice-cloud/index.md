@@ -75,7 +75,7 @@ The output includes the app's primary API key. Treat the key as a secret — any
 For an existing app, retrieve the current key with:
 
 ```bash
-spice cloud api-keys --project <org>/<app>
+spice cloud api-keys --project "<org>/<app>"
 ```
 
 ## Configuration
@@ -164,7 +164,7 @@ After restarting the runtime, confirm the connection is established:
    INFO runtime::management: Connected to Spice Cloud for management and monitoring
    ```
 
-   For deeper logging during setup, run with `RUST_LOG=runtime::management=debug`.
+   For deeper logging during setup, run with `SPICED_LOG="spiced=INFO,runtime=INFO,runtime::management=DEBUG"`. The runtime reads its log filter from `SPICED_LOG`, not `RUST_LOG` (see [Tracing](../../cli/tracing.md)).
 
 2. **Run a query** against the local runtime to generate task history:
 
@@ -179,7 +179,7 @@ After restarting the runtime, confirm the connection is established:
 3. **Wait 5–10 seconds**, then query the target Spice Cloud app's task history. From any client logged in to Spice Cloud:
 
    ```bash
-   spice sql --cloud <org>/<app>
+   spice sql --cloud "<org>/<app>"
    ```
 
    ```sql
@@ -233,7 +233,7 @@ ORDER BY task_count DESC;
 | Repeated `Failed to export runtime task history records` warnings                                 | Transient network failure between the runtime and Spice Cloud.                | The runtime retries automatically on the next 5-second tick. If errors persist, check outbound network policy, DNS resolution, and the [Spice.ai status page](https://status.spice.ai).          |
 | Records appear, but `spicepod_name` is empty for some runtimes                                   | The runtime's spicepod has no `name:` field.                                  | Set `name:` at the top of `spicepod.yaml` on each runtime so consolidated rows can be filtered.                                                                                                  |
 
-For detailed export logging, set `RUST_LOG=runtime::management=trace` and watch for per-flush log lines like `Exported {n} task history records`.
+For detailed export logging, set `SPICED_LOG="spiced=INFO,runtime=INFO,runtime::management=TRACE"` and watch for per-flush log lines like `Exported {n} task history records`.
 
 ## Related
 

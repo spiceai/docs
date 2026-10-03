@@ -37,15 +37,15 @@ Check [Secrets Stores](../secret-stores/) for more details.
 <Tabs>
   <TabItem value="env" label="Env">
     ```bash
-    SPICE_SPARK_REMOTE=<spark-remote> \
+    SPICE_SPARK_REMOTE="<spark-remote>" \
     spice run
     # Or using the CLI to configure the secrets into an `.env` file
-    spice login spark --spark_remote <spark-remote>
+    spice login spark --spark_remote "<spark-remote>"
     ```
 
     `.env`
     ```bash
-    SPICE_SPARK_REMOTE=<spark-remote>
+    SPICE_SPARK_REMOTE="<spark-remote>"
     ```
 
     `spicepod.yaml`
@@ -100,7 +100,7 @@ Check [Secrets Stores](../secret-stores/) for more details.
     ```bash
     security add-generic-password -l "Spark Remote" \
     -a spiced -s spice_spark_remote \
-    -w <spark-remote>
+    -w "<spark-remote>"
     ```
 
     `spicepod.yaml`
@@ -130,6 +130,8 @@ Check [Secrets Stores](../secret-stores/) for more details.
 - Correlated scalar subqueries are only supported in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
 - The Spark connector does not yet support streaming query results from Spark.
+
+- Spice-specific functions, such as the [JSON functions](../../reference/sql/json) and user-defined functions, are evaluated in Spice, not sent to Spark. For a query such as `WHERE json_get_str(doc, 'id') = 'a'`, Spark still reads the table, and Spice applies the filter. See [Federation and Pushdown](../../reference/sql/json#federation-and-pushdown).
 
 ## Cookbook
 

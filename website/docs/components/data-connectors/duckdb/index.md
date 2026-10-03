@@ -143,6 +143,65 @@ SELECT * FROM read_json('todos.json');
 
 :::
 
+## Regular Expression Functions and Federation
+
+Two of DataFusion's regular-expression built-ins are never sent to DuckDB, because DuckDB cannot answer them the way Spice does. A query using one of them is still valid — the call is evaluated in Spice, above the federated scan — but a plan containing it does not federate, so the scan under it reads its columns out of DuckDB instead of filtering there.
+
+| Function | Why it is not sent to DuckDB |
+| --- | --- |
+| `regexp_match` | It returns the first match's *capture groups* as a list, and `NULL` when nothing matches. DuckDB has no function with those semantics: `regexp_extract(s, p, 0)` returns the whole match as a plain string, and the empty string — not `NULL` — when nothing matches. |
+| `regexp_instr` | DuckDB has no function of that name, so a federated call failed outright with `Catalog Error: Scalar Function with name regexp_instr does not exist!`. |
+
+### `regexp_count` pushes down one call shape at a time
+
+`regexp_count` is sent to DuckDB, rendered as `coalesce(len(regexp_extract_all(x, p)), 0)` — the `coalesce` is what makes a `NULL` input count `0`, as DataFusion's kernel does, rather than `NULL`.
+
+Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differently, and a disagreement changes *which rows match* rather than raising an error, the dialect renders only a call it has been measured to count identically. Every other shape is evaluated in Spice instead — that refusal is not an error, and the query still answers. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal.** A pattern read from a column cannot be inspected at plan time, so such a call stays local.
+- **The pattern cannot match the empty string.** DataFusion skips an empty match that abuts the match before it and RE2 keeps it, so `regexp_count(s, 'a*')` over `ab` counts 2 in Spice and 3 in DuckDB. A pattern that can never match at all is refused for the same reason.
+- **The pattern uses only syntax both engines read alike.** Admitted: literal text and `\.`-style, `\xHH`, `\x{...}` and `\n`-style escapes; `.`; bracketed classes of literals and ranges, negated or not; the `?`, `*`, `+` and `{m,n}` repetitions, greedy or lazy, where the nested counted bounds multiply to at most RE2's limit of 1000; alternation; indexed and non-capturing groups; and the `^`, `$`, `\A` and `\z` anchors. Refused: the Perl classes `\d`, `\w`, `\s` and their negations (Unicode-aware in Spice, ASCII-only in RE2), word boundaries, Unicode properties, POSIX classes, named groups, inline flags including `(?i)` (the two engines' case-folding tables track different Unicode versions), class-set operations such as `[a&&b]`, `\u` escapes, a quantifier stacked on a quantifier (`a++`), a counted bound spelled with a leading zero or a space (`a{01}`, `a{1, 2}`), and a bracketed class of exactly two case variants such as `[Kk]` or `[Ss]`.
+- **A `start` argument is an integer literal between 1 and 4294967295.** The start is applied by narrowing the input to `SUBSTRING(x, start)`, which is 1-based in both engines. A non-literal start cannot become an offset at unparse time, and a start above DuckDB's `SUBSTRING` range is refused.
+- **There is no `flags` argument.** A call that passes flags is always evaluated in Spice.
+
+**The "does it match at all" idiom is screened as `regexp_like`.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, so that shape stays a boolean and is subject to the `regexp_like` screen described below. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
+
+### `regexp_like` and `regexp_replace` use the same pattern screen
+
+`regexp_like` is sent to DuckDB as `regexp_matches`, and `regexp_replace` is sent as `regexp_replace`. Both are sent only when the call passes the same screen as `regexp_count`, because the two regex engines disagree on some patterns without raising an error. For example, `regexp_like(s, '\d')` over `xy١` is `true` in Spice and `false` in DuckDB, since `\d` matches Unicode digits in Spice and only ASCII digits in RE2. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal that uses only syntax both engines read alike.** The admitted and refused syntax is the list above. Unlike `regexp_count`, a pattern that can match the empty string, such as `a*`, is admitted: whether a pattern matches, and what a replace produces, do not depend on how empty matches are counted.
+- **For `regexp_replace`, the replacement is a string literal with no `$` and no `\`.** Spice reads `$1` as a reference to a capture group and RE2 reads `\1`, so `regexp_replace(s, '(a)(b)', '$2$1')` returns `ba` in Spice and the literal text `$2$1` in DuckDB.
+- **The only flag is `g` on `regexp_replace`.** `g` selects replace-all over replace-first, and both engines apply it alike. Any other flags argument, including `i`, is refused, because each engine folds case with its own Unicode tables. `regexp_like` with any flags argument is evaluated in Spice.
+
+A call that fails the screen is evaluated in Spice, and the query still answers.
+
+| Call | Where it runs |
+| --- | --- |
+| `regexp_like(s, 'b')` | DuckDB, as `regexp_matches("s", 'b')` |
+| `regexp_like(s, '\d')` | Spice (`\d` is Unicode-aware in Spice, ASCII-only in RE2) |
+| `regexp_like(s, 'b', 'i')` | Spice (flags other than `g`) |
+| `regexp_replace(s, 'a', 'X', 'g')` | DuckDB |
+| `regexp_replace(s, '(a)(b)', '$2$1')` | Spice (the replacement holds `$`) |
+
+The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
+
+## `concat` and Binary Values
+
+`concat` is sent to DuckDB as the `||` operator only when none of its arguments is a binary value. DuckDB types `||` by its operands, so `BLOB || BLOB` returns a `BLOB`, while Spice's `concat` always returns a string. A `concat` with a binary argument (`Binary`, `LargeBinary`, `FixedSizeBinary`, or `BinaryView`) is evaluated in Spice, above the federated scan, and the query still answers.
+
+The check covers each argument's whole expression, not only its final type. A binary column inside a cast, `coalesce`, `CASE`, or a nested `concat` also keeps the call in Spice. For example, `concat(CAST(bin_col AS VARCHAR), 'z')` runs in Spice, because DuckDB renders the cast bytes as an escaped literal such as `\xFF\xFE` instead of the bytes themselves. An argument whose type Spice cannot determine is treated as binary. A `concat` over string columns and literals is sent to DuckDB.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
+## Text Casts over Binary Values
+
+A `CAST` or `TRY_CAST` into a string type (`Utf8`, `LargeUtf8`, or `Utf8View`) is sent to DuckDB only when its operand does not reach a binary value. Spice checks that the bytes are valid UTF-8: `CAST` returns the error `Encountered non UTF-8 data`, and `TRY_CAST` returns `NULL`. DuckDB's `CAST(BLOB AS VARCHAR)` performs no check and returns the bytes as an escaped literal such as `\xFF\xFE bad`. A text cast over a binary value is therefore evaluated in Spice, above the federated scan, so the result matches an unaccelerated query.
+
+As with `concat`, the check covers the operand's whole expression, and an operand whose type Spice cannot determine is treated as binary. A text cast over a string or numeric column, such as `CAST(id AS VARCHAR)`, is sent to DuckDB. Casts from a binary value into a number, date, boolean, or decimal are sent to DuckDB unchanged.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)

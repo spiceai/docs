@@ -48,9 +48,51 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                                          |
 | `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                    |
-| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used), `lfu` (Least Frequently Used), and `tiny_lfu` (Window TinyLFU, higher hit rate for skewed access patterns). See [Choosing an `eviction_policy`](#choosing-an-eviction_policy). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | -        | Ignored. Accepted so existing spicepods still load. See [The `engine` parameter](#the-engine-parameter).                                                                                                    |
+
+### Choosing an `eviction_policy`
+
+All three caches store entries in a sharded in-memory cache with 16 shards. `eviction_policy` decides which entry leaves a shard when the cache reaches `max_size`:
+
+- **`lru` (default):** Evicts the least recently used entry. Suited to recency-biased traffic, such as streaming or time-windowed reads.
+- **`lfu`:** Evicts the entry with the fewest hits, found by walking the whole shard. Suited to a stable set of keys that is read far more often than the rest and must survive a burst of one-off queries.
+- **`tiny_lfu`:** Window TinyLFU. A small admission window feeds a segmented LRU main region, and a frequency sketch decides whether a new entry displaces an existing one. The general-purpose choice for mixed database, search, and analytics workloads.
+
+`caching_policy` is accepted as an alias for `eviction_policy`.
+
+### The `engine` parameter
+
+`engine` is accepted for compatibility with existing spicepods and is ignored. SQL results, search results, and embeddings caches always use the sharded cache described above, whatever `engine` is set to. `engine: pingora` no longer selects the Pingora cache and logs a one-time warning at startup:
+
+```
+The `engine` cache setting is ignored at runtime; SQL, search, and embeddings caches always use the Spice sharded-cache backend (`engine: pingora` no longer selects Pingora). Remove `engine` from the spicepod, or leave it for compatibility. See: https://spiceai.org/docs/features/caching
+```
+
+`engine: moka` is accepted without a warning, but it does not preserve Moka's eviction or timing behavior. Remove `engine` from the spicepod, and use `eviction_policy` to choose eviction behavior.
+
+The search results and embeddings caches name the shard count in their startup lines:
+
+```
+Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, shards: 16
+```
+
+With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
+result invalidations mark entries stale without evicting them. Otherwise, a table invalidation walks
+every shard to evict the entries that read the table, so its cost is proportional to the number of
+cached entries. The walk runs on a blocking thread, not on the query runtime.
+Search result invalidations always evict entries.
+
+### Serving repeated lookups
+
+For a high-throughput lookup path:
+
+- Compare `eviction_policy: tiny_lfu` and `lfu` with the default `lru` using `results_cache_hit_ratio`.
+- Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
+
+When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a refresh or DML write, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.
 
 ## `caching.sql_results` Parameters
 
@@ -109,6 +151,36 @@ The runtime therefore copies each result off the producer's memory before storin
 Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
 
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
+
+## Logical Plan Cache
+
+Separately from the result caches above, the runtime keeps a small cache of **logical plans**, so a repeated query skips parsing and planning even when its results are not cached. It is not part of the `caching` configuration and has no `enabled` flag: it is installed on every runtime, whatever `sql_results`, `search_results` and `embeddings` are set to.
+
+| | |
+| --- | --- |
+| Configurable | No — always on |
+| Capacity | 512 plans |
+| Entry lifetime | 1 hour from insertion |
+| Key | The SQL text — **not** the bound parameter values |
+| Hashing algorithm | [`sql_results.hashing_algorithm`](#choosing-a-hashing_algorithm) |
+
+Four consequences are worth knowing:
+
+- A parameterized query has **one** cached plan however many value tuples are sent through it. Planning happens against the placeholders and the values are bound into the plan afterwards, so the plan does not depend on them; keying on them would give each tuple its own entry and fill the 512 slots with copies of a single query.
+- The values still key the **results**. Two executions of the same SQL text with different parameter values share the cached plan and remain separate [`sql_results`](#cachingsql_results-parameters) cache entries, so each returns its own rows.
+- `sql_results.hashing_algorithm` is read even when `sql_results.enabled` is `false`, because the plan cache borrows it. It is the one `sql_results` setting that still has an effect with the results cache switched off.
+- Bypassing the results cache does not bypass the plan cache. A query sent with `cache-control: no-cache` re-executes, but it is still planned from the cached plan if one is present, and still populates the plan cache if one is not.
+
+The cache is dropped wholesale — every entry, not only the affected ones — whenever something a plan was built against changes:
+
+- a dataset or a view is registered, updated, or removed;
+- a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
+- a spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md) — one whose declaration changed, or one whose name a provider is already registered under. Re-registering a catalog builds a fresh provider under the same name, and a plan holds the table source it was planned against;
+- an accelerated table's schema evolves, in place or by recreation.
+
+A reload that adds a catalog name nothing was registered under invalidates nothing — no cached plan can have resolved a table in it — and a reload that changes no catalog leaves the cache intact.
+
+A plan is otherwise held for its full hour, so a change made outside these paths is not picked up until the entry expires.
 
 ## Per-Principal Cache Isolation
 
@@ -250,6 +322,8 @@ A cached result is judged against **two independent clocks**, both evaluated on 
 | ---------------- | ---------------------------------------- | ------------------------------------ | ----------------------------------------- | ------------------------------- |
 | **Age**          | When the entry was stored                | Up to `item_ttl`                     | `item_ttl` → `item_ttl + swr`             | Past `item_ttl + swr`           |
 | **Invalidation** | The refresh or DML write that touched a table the result read | The change predates the entry's own read | change → change + `swr`               | Past change + `swr`             |
+
+A dataset **reload** counts as a change on that clock: a hot reload, or any other re-registration of a dataset, invalidates the results cached from its previous contents — both when the reload starts and again once the new registration is in place, so a query that began mid-reload cannot store a result the clock would then accept. It invalidates the [logical plan cache](#logical-plan-cache) too. If the invalidation cannot be recorded the reload still completes, and the runtime warns that queries may be answered from the previous contents until they expire.
 
 With no stale-serving window — `stale_while_revalidate_ttl` unset, or set to `0s` — an acceleration refresh or a DML write **evicts** every dependent entry, so a workload polling accelerated datasets turns a whole population of cached results into simultaneous synchronous misses at each refresh. An explicit `0s` is read as no window rather than as one that closes immediately, since keeping entries resident for it would hold memory no lookup could ever serve from.
 

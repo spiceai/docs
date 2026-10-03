@@ -175,7 +175,11 @@ datasets:
 
 - On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes)
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
+- Each poll reads the snapshot store's metadata conditionally, sending the `ETag` recorded by the previous poll in `If-None-Match`. When the store reports that the metadata is unchanged, the poll ends without downloading it
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
+- A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll
+- With [`bootstrap_on_failure_behavior: retry`](./snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up
+- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one, in which case every poll logs the `snapshot metadata current id is older than the locally loaded snapshot` warning
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
 - `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 
@@ -209,6 +213,14 @@ datasets:
     acceleration:
       enabled: true
 ```
+
+:::warning[Warm-only serving]
+
+When queries must be served from a loaded acceleration, keep the defaults: dataset `ready_state: on_load`, runtime [`ready_state: on_load`](../../reference/spicepod/runtime#runtimeready_state), and a Kubernetes readiness probe on [`/v1/ready`](../../api/HTTP/ready). The pod stays out of rotation until the initial acceleration finishes.
+
+`ready_state: on_registration` (and `on_schema_resolved`) reports ready before that load and sends queries to the federated source in the meantime. Combined with a fleet starting together, that is a startup stampede against the origin. [`on_zero_results: use_source`](#behavior-on-zero-results) has the same shape on the query path: an empty accelerated result is followed by a second query to the source. Leave both off when the deployment is meant to serve only warm data.
+
+:::
 
 ## Fast Cold Starts with Snapshots
 
@@ -263,6 +275,8 @@ curl -i -X PATCH \
 ```
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.
+
+`refresh_sql` applies on the **initial** refresh and every later one.
 
 For the complete reference, view the `refresh_sql` section of [datasets](../../reference/spicepod/datasets#accelerationrefresh_sql).
 
@@ -335,6 +349,10 @@ This example will only accelerate data from the federated source that matches th
 
 If a query against the accelerated data returns some results, the query will not fall back. For example, attempting to query for the last 2 days of data would only return the last 1 day of data without falling back.
 
+### Cold start with `append`
+
+With [`refresh_mode: append`](./refresh-modes/append), the **first** load is already windowed — Spice pulls `WHERE time_column > now() - refresh_data_window`. [`retention_period`](#retention-policy) only ages out rows already in the acceleration; it does not backfill extra history on first load. To load more history at cold start, use an additional dataset or a wider `refresh_data_window`. [`refresh_sql`](#refresh-sql) applies on the initial refresh and every later one.
+
 ## Behavior on Zero Results
 
 |                             |                  |
@@ -373,6 +391,8 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 :::warning
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
+- **A subquery predicate does not take part in the zero-results decision.** The fallback check runs at the accelerator's scan, below the join that a subquery is rewritten into, so a filter containing `IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST` is left above the scan and the decision is made without it. When the acceleration is a subset of the source and holds any rows at all, the unfiltered scan is non-empty, fallback does not fire, and a query whose only filter is such a subquery can return an empty result even though the source has a matching row. Adding a filter the scan can evaluate itself (for example `WHERE id = 2 AND id IN (SELECT …)`) restores the fallback.
+- **`use_source` doubles the cost of an empty accelerated result** and sends that second query to the origin. For a deployment that should serve only warm acceleration, keep the default `return_empty` and gate traffic with [readiness](#ready-state).
 
 :::
 
@@ -431,6 +451,16 @@ datasets:
 ```
 
 This configuration will refresh `taxi_trips` data every 10 seconds.
+
+Keep the interval aligned with the freshness SLA and with what the origin can serve. A shorter interval increases source load even when query serving is isolated from the refresh workers — see [Isolating refresh from queries](#isolating-refresh-from-queries).
+
+## Isolating refresh from queries
+
+By default the runtime runs acceleration refresh on a dedicated low-priority thread pool (`refresh-worker`), separate from the pool that executes queries. CDC apply (`refresh_mode: changes`) runs on its own default-priority pool (`cdc-apply-worker`) when any dataset streams changes, so a bulk refresh does not deprioritize the apply loop. Cayenne compaction runs on `compaction-worker` when a dataset can produce files to compact.
+
+The pools still share the machine's CPU and memory. A full refresh can raise latency if it saturates the node or the query memory pool. Leave the default in place, and set `runtime.params.dedicated_thread_pool: disabled` only when a single shared pool is intentional — that puts refresh back on the query runtime. See [`dedicated_thread_pool`](../../reference/spicepod/runtime#dedicated-thread-pools).
+
+For a stronger split, run ingest on a cluster and serve lookups from sidecars. The sidecars do not refresh from the origin. See [Cluster-Sidecar](../../deployment/architectures/cluster-sidecar).
 
 ## Refresh On-Demand
 
@@ -640,6 +670,8 @@ datasets:
 ```
 
 With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
+
+For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
 
 ## Refresh Jitter
 

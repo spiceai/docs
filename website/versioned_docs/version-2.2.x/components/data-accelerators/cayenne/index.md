@@ -89,7 +89,7 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_force_view_types`        | Whether scans emit Arrow view types (`Utf8View`/`BinaryView`) instead of native `Utf8`/`Binary`. Accepts `true` or `false`; defaults to `false`. View types are not compacted across `RepartitionExec`, so wide strings fanned out through a partitioned join can inflate query-pool memory reservations — the native types avoid that. Set to `true` to re-enable view types for a table. Any value other than `false` (case-insensitive) enables view types. |
 | `cayenne_file_path`               | Custom path for storing Cayenne data files. Supports local paths or S3 Express One Zone URLs (e.g., `s3://bucket--usw2-az1--x-s3/prefix/`).                                                   |
 | `cayenne_target_file_size_mb`     | Target size for individual Vortex files in MB. When writes exceed this size, a new Vortex file is created. Accepts `auto` (default) or an explicit MB value. `auto` is storage-aware: `256` MB on EBS-class network storage, `64` MB on RAM-backed (tmpfs) mounts, `512` MB on S3 Express (large immutable objects cut object count and per-request cost), and `256` MB on local SSD or unknown storage. Smaller files enable better parallelism and predicate pushdown. |
-| `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). Defaults to `{spice_data_path}/metadata`. Must resolve **outside** the dataset's data directory — see [Metastore location](#metastore-location).                                                                                     |
+| `cayenne_metadata_dir`            | Custom directory for storing Cayenne metadata (SQLite catalog). When unset, a local `cayenne_file_path` selects `{cayenne_file_path}/metadata`; otherwise the directory is `{spice_data_path}/metadata`, including when `cayenne_file_path` is an object-store URL. Must resolve **outside** the dataset's data directory — see [Metastore location](#metastore-location).                                                                                     |
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Accepts `auto` (default) or an explicit value; `auto` uses the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores. The aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that same entitlement, less a query reserve of a quarter of the cores (at least 2).                                                                                              |
 | `cayenne_write_concurrency`       | Writer partition override for unsorted ingests, controlling how many Vortex files are encoded in parallel during a write. Accepts `auto` (default) or an explicit value. `auto` encodes up to `min(4, session target_partitions)` files in parallel per write — an intentionally small per-table default (not the full CPU entitlement), so many independently-writing tables do not oversubscribe CPU under concurrent CDC. An explicitly-set value is capped at the session `target_partitions`, which defaults to the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores; the aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that entitlement. Values below `1` are clamped to `1`. The sort-and-rewrite compaction path always writes serially regardless of this setting. |
@@ -106,7 +106,7 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_cdc_mem_tier_max_age_ms` | Maximum wall-clock milliseconds a RAM-tier epoch may age before a forced checkpoint, in `cayenne_cdc_durability: memory` mode only. Bounds the crash-replay window and the deferred source-slot acknowledgement for tables that never reach a byte threshold. Defaults to `10000` (10 s). Set to `0` to disable the age trigger. |
 | `cayenne_cdc_mem_tier_min_flush_bytes` | Minimum resident RAM-tier bytes before the periodic background checkpoint tick durably checkpoints, in `cayenne_cdc_durability: memory` mode only. Bounds snapshot / delete-file churn — below this size a tick is skipped unless the tier has reached `cayenne_cdc_mem_tier_max_age_ms`. Query freshness is unaffected (RAM rows are visible immediately); only the deferred slot acknowledgement waits. The write-path byte-cap spill is not gated by this value. Auto-derived as 1/8 of the resolved `cayenne_cdc_mem_tier_max_bytes` (clamped to 32–128 MiB; 32 MiB on hosts at or under 16 GiB). Set to `0` to flush on every tick. |
 | `cayenne_cdc_mem_tier_checkpoint_interval_ms` | Periodic background mem-tier checkpoint interval in milliseconds, in `cayenne_cdc_durability: memory` mode only. The accelerator spawns a per-table background task that checkpoints the RAM tier every interval, advancing the deferred source-slot acknowledgement on an idle or pure-upsert stream that never trips a write-path cap or event trigger. Defaults to `1000` (1 s). Set to `0` to disable the periodic task. |
-| `sort_columns`                    | Comma-separated list of columns to sort data by on refresh operations. Improves segment pruning for frequently filtered columns.                                                              |
+| `sort_columns`                    | Comma-separated list of columns to sort data by. Improves segment pruning for frequently filtered columns. The order is established by the compaction rewrite, so it applies to a table that accumulates files to consolidate. A `refresh_mode: full` refresh replaces the whole table rather than adding to it, and its replacement data is written in arrival order — see `cayenne_compaction_background_interval_ms` for when such a table compacts at all. |
 | `cayenne_sort_columns_origin`     | Provenance of `cayenne_sort_columns`, which decides whether that sort order outranks the filter columns observed on scans. Accepts `user` (the default when absent) — the sort order is an explicit operator choice and is authoritative — or `inferred`, meaning schema inference filled it from the source's declared order (for most CDC datasets, the primary key). An `inferred` order is treated as a guess and ranks *below* the observed filter columns, so the default-on adaptive layout can cluster for the workload actually being queried. Schema inference sets this automatically whenever it populates `cayenne_sort_columns`; set it by hand only to reproduce an inferred configuration (for example in a benchmark or test). |
 | `unsupported_type_action`         | Action when encountering unsupported data types. Options: `error` (default), `string`, `warn`, `ignore`.                                                                                      |
 
@@ -645,7 +645,7 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 - Boolean
 - Utf8 and LargeUtf8 strings
 - Binary and LargeBinary
-- Timestamps (normalized to Microsecond precision)
+- Timestamps, preserving the source unit and timezone
 - Date32 and Date64
 - Lists and FixedSizeLists
 - Maps
@@ -653,10 +653,17 @@ Cayenne (via Vortex) supports most Arrow data types with the following considera
 
 ### Automatically Converted Types
 
-| Original Type               | Converted To             | Notes                                         |
-| --------------------------- | ------------------------ | --------------------------------------------- |
-| `Float16`                   | `Float32`                | Automatic conversion for Vortex compatibility |
-| `Timestamp(Nanosecond/...)` | `Timestamp(Microsecond)` | Precision normalized                          |
+| Original Type | Converted To | Notes                                         |
+| ------------- | ------------ | --------------------------------------------- |
+| `Float16`     | `Float32`    | Automatic conversion for Vortex compatibility |
+
+:::note Tables created before v2.2.0
+
+These tables continue to normalize timestamps to microseconds. Preserving the source unit requires
+recreating the table with `mode: file_create` in an empty directory. The
+[`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) setting does not migrate existing timestamps.
+
+:::
 
 ### Unsupported Types
 
@@ -789,7 +796,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **No Traditional Indexes**: Spice Cayenne does not support explicit index creation via the `indexes` configuration. Vortex's segment statistics and fast random access encodings provide equivalent or better performance for most point lookup workloads.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **Transaction Constraints**: [Transactions](#transactions) support gated `INSERT`/`UPDATE` writes on accelerator-only, non-partitioned Cayenne tables only (no `DELETE`/`MERGE`, one write per table). See [Transactions](#transactions) for the full list.
-- **No `refresh_append_overlap`**: A dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read. The check runs during file-mode initialization, so a `mode: memory` dataset is not rejected.
+- **No `refresh_append_overlap` in v2.2.0**: In v2.2.0, a dataset accelerated by Spice Cayenne that sets [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap) fails to load, with `Cayenne data accelerator does not yet support refresh_append_overlap. Please remove this configuration`. [`refresh_mode: append`](../../features/data-acceleration/data-refresh) itself is supported — only the overlap window is not, so late-arriving rows behind the high-water mark are missed rather than re-read. The check runs during file-mode initialization, so a `mode: memory` dataset is not rejected. **v2.2.1 supports the overlap window**: the high-water mark is moved back by the configured duration and the re-fetched rows are deduplicated before the write.
 
 ## Example Spicepod
 

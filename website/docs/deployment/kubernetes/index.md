@@ -57,7 +57,7 @@ runtime:
 
 The [Spice Cloud Platform](https://spice.ai) sets `SPICE_CPU_CORES=all` on hosted instances for exactly this reason — maximum burst capacity, so an instance is never sized down to a fraction of the machine it is scheduled on.
 
-Prefer `runtime.cpu.cores` over `resources.limits.cpu` for bounding Spice. A CPU limit is a CFS quota and [throttles](https://home.robusta.dev/blog/stop-using-cpu-limits) even when the node has idle CPU; `runtime.cpu.cores` caps how much machine the runtime organizes itself around without capping how much CPU it may use. See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu) and [Resource Allocation](../reference/performance-tuning#resource-allocation).
+Prefer `runtime.cpu.cores` over `resources.limits.cpu` for bounding Spice. A CPU limit is a CFS quota and [throttles](https://home.robusta.dev/blog/stop-using-cpu-limits) even when the node has idle CPU; `runtime.cpu.cores` caps how much machine the runtime organizes itself around without capping how much CPU it may use. Bound how many queries each Spice pod runs with [`runtime.query.max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries). The bound is per runtime, so with several application pods and several Spice replicas, size the client pools so their combined in-flight queries fit the replicas' summed bound — see [Client connection pools](../reference/performance-tuning#client-connection-pools). See [`runtime.cpu`](../reference/spicepod/runtime#runtimecpu) and [Resource Allocation](../reference/performance-tuning#resource-allocation).
 
 ## Memory sizing
 
@@ -79,6 +79,24 @@ Two Kubernetes-specific consequences:
 - **A pod that plateaus just under its memory limit is sized too tightly**, even while healthy. It has no margin for a refresh spike or a burst of concurrency.
 
 Because instances are evicted, preempted, and replaced during rollouts, clients should retry a failed query against the Service before treating it as an outage. See [Managing Memory Usage](../reference/memory) for the full sizing model, the load-testing properties that make a memory validation trustworthy, and client resiliency guidance.
+
+## Storage
+
+File-mode accelerations (Cayenne, DuckDB, SQLite, Turso) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
+
+| Data                                              | Recommendation                                                                                                                                                       |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Acceleration files                                | A local NVMe PersistentVolume (`local-storage` class via the Local Volume Static Provisioner) with `stateful.enabled: true`; pair with [snapshots](../features/data-acceleration/snapshots) so a rescheduled pod bootstraps instead of refreshing. Network block storage (`io2` Block Express, Premium SSD v2, Hyperdisk Extreme, then `gp3`) when the volume must follow the pod. |
+| Spill (`runtime.query.temp_directory`)            | A directory on the same local NVMe volume. Never an `emptyDir` with `medium: Memory` — its files count against the container's memory limit.                          |
+| Network file systems (EFS, Azure Files, Filestore, NFS) | Not recommended for either.                                                                                                                                      |
+
+**[Local NVMe Storage](kubernetes/local-nvme)** is the step-by-step guide: picking NVMe node types on EKS, GKE, AKS, or self-hosted clusters, mounting the disks, publishing them as PersistentVolumes, deploying the chart onto them, and verifying the result. For the reasoning and the fallbacks see [Storage on Kubernetes](../reference/performance-tuning#storage-on-kubernetes), and for the per-cloud classes the [Helm storage class recommendations](kubernetes/helm#storage-class-recommendations).
+
+### Confirm the mount from the main container
+
+Acceleration paths (`duckdb_file`, `cayenne_file_path`, `cayenne_metadata_dir`, a full-text `index_directory`) and `runtime.query.temp_directory` are resolved inside the **main** Spice container. A debug container or ephemeral debug sidecar that mounts the volume at a different path does not show where `spiced` writes. Exec into the Spice container and confirm those paths sit on the persistent volume.
+
+When a reused accelerator file looks stale, point the dataset at a new empty path so the next start creates a file. That separates a mount that never received the data from a file that was reused. Keep the previous file until the new path is serving. Keep spill on that same volume — the container writable layer and a default `emptyDir` are ephemeral and are the wrong place for `temp_directory`.
 
 ## Prerequisites
 

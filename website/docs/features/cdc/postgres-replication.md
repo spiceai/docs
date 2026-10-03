@@ -255,6 +255,19 @@ Notes:
 - Each source table can back **at most one dataset per shared slot**. Pointing two datasets at the same `(schema, table)` through one slot is rejected — give the second dataset a different `pg_replication_slot` (or remove the param for a dedicated slot).
 - Sharing is per Spice instance. Across replicas, each replica must still use its own unique slot — see [Multi-replica deployments](#multi-replica-deployments).
 
+### Published tables with no dataset
+
+When Spice resumes a shared slot, it holds the slot's acknowledged position for every table in the publication that has no dataset yet. The hold keeps a dataset that loads later from resuming past changes it never received. A dataset that subscribes to the table takes the hold over.
+
+A hold that no dataset claims within 5 minutes pins WAL retention for every dataset on the slot, so Spice retires it. This usually happens after a dataset is removed from the spicepod or renamed. The outcome depends on how the publication includes the table:
+
+| Publication                                                      | What Spice does                                                                                                                                                                                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Names the table (the default `<slot>_pub`, or a `FOR TABLE` list) | Drops the table from the publication with `ALTER PUBLICATION ... DROP TABLE`, releases the hold, and logs an error naming the table. A dataset added for the table later takes a fresh initial snapshot.            |
+| `FOR ALL TABLES` or `FOR TABLES IN SCHEMA`                        | PostgreSQL cannot drop a single table from these publications, so the table stays published. Spice releases the hold and logs a warning naming the table, slot, and publication. A dataset added for the table later is reloaded from the source when the changes since it last ran are no longer retained. |
+
+If the drop fails for another reason, such as a lost connection or a missing privilege, Spice keeps the hold, logs a warning, and retries after another 5 minutes. Until a retry succeeds, the slot keeps retaining WAL for every dataset on it. When the cause is a privilege Spice lacks, drop the table from the publication manually; the next retry then finds it unpublished and releases the hold.
+
 ### Envelope coalescing
 
 Committed changes reach each member of a shared slot as **change envelopes**, not one unit of work per source transaction. A workload that commits constantly in small transactions would otherwise put an envelope per commit into each member's buffer, filling it long before the buffered rows are worth an apply — and while the shared pump is blocked delivering, it is not reading from the replication connection, so the back-pressure reaches the source walsender.
@@ -416,7 +429,14 @@ A snapshot bootstrap emits only insert events, and nothing clears a durable acce
 
 The first start after upgrading a durable `refresh_mode: changes` dataset to a version that records watermarks has no recorded position, so it rebuilds once and records one from then on.
 
-A slot lost **while Spice is streaming** — dropped by an operator, or invalidated by PostgreSQL for exceeding `max_slot_wal_keep_size` or `idle_replication_slot_timeout` — is recovered on the same reconnect path, without a restart: the unusable slot is dropped and replaced, every acceleration on it is rebuilt from the source, and streaming continues on the replacement.
+An empty table is rebuilt even with a valid watermark, for example after
+[`mode: file_update`](../../reference/spicepod/datasets#accelerationmode) recreates it or its rows
+are deleted. If the source is also empty, the rebuild reads no rows.
+
+If a slot is lost while streaming, Spice replaces it, rebuilds every acceleration sharing it, and
+resumes streaming without a runtime restart. This also applies when a newly joining dataset
+triggers replacement. Slots can be dropped manually or invalidated by PostgreSQL's
+`max_slot_wal_keep_size` or `idle_replication_slot_timeout` limits.
 
 Replacement is rate-limited to **3 slots per hour per replication connection**. A process running for months may legitimately be invalidated a few times, each one a genuine recovery, but three inside an hour means the source is not retaining enough WAL to cover the dataset — and every replacement costs a full re-read of every table on the slot, so retrying indefinitely would turn a retention limit into sustained load on the source. Past the budget the dataset surfaces a terminal error instead: raise `max_slot_wal_keep_size` on the source, or reduce replication lag, then reload the dataset.
 
@@ -501,6 +521,10 @@ Shared-slot delivery and coalescing (auto-registered; reported only for datasets
 | `dataset_postgres_replication_member_envelope_eager_merges_total`          | Counter | Committed transactions folded into an envelope the pump was still holding back, before it crossed into this dataset's buffer (stage 1).                                                   |
 | `dataset_postgres_replication_member_envelope_mailbox_merges_total`        | Counter | Committed transactions folded into an envelope already sitting unclaimed in this dataset's buffer (stage 2). Rising alongside a flat `dataset_postgres_replication_member_send_stalled_seconds_total` means back-pressure is being absorbed rather than stalling the slot. |
 | `dataset_postgres_replication_member_mailbox_coalesce_limited_total`       | Counter | Times a committed transaction could not be folded into the unclaimed buffer tail because a configured bound refused it, rather than because the changes were not foldable. `0` means the bounds never bind. |
+
+[Rebuilds](#recovering-from-a-lost-replication-slot) appear in
+`dataset_acceleration_refresh_duration_ms{mode="full"}`. For `refresh_mode: changes` datasets,
+each full-refresh event is a rebuild; the preceding log gives its reason.
 
 ## Troubleshooting
 

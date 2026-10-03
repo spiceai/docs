@@ -110,7 +110,7 @@ A source read is **not** on this family. An acceleration rebuilt from the source
 
 ## Task History
 
-PostgreSQL operations participate in Spice [task history](../../../reference/task_history) via the shared SQL data-connector spans. Queries executed against Postgres are captured as child spans of the enclosing `sql_query` or `accelerated_table_refresh` task.
+PostgreSQL operations participate in Spice [task history](../../../reference/task_history) via the shared SQL data-connector spans. Queries executed against Postgres are captured as child spans of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

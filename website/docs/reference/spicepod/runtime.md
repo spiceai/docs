@@ -55,7 +55,7 @@ API key authentication supports the following configuration parameters:
 | Parameter name | Optional | Default | Description                                                    |
 | -------------- | -------- | ------- | -------------------------------------------------------------- |
 | `enabled`      | Yes      | `true`  | Defaults to `true`. Whether API key authentication is enabled  |
-| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+| `keys`         | No       | -       | A list of API keys used to authenticate requests.              |
 
 ## `runtime.dataset_load_parallelism`
 
@@ -75,9 +75,10 @@ Runtime caches support common configuration parameters:
 | ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                                          |
 | `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                    |
-| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used), `lfu` (Least Frequently Used), and `tiny_lfu` (Window TinyLFU, higher hit rate for skewed access patterns). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | -        | Ignored. Accepted so existing spicepods still load; `engine: pingora` logs a one-time warning. [Learn more](../../features/caching#the-engine-parameter). |
 
 ### `runtime.caching.search_results`
 
@@ -157,6 +158,20 @@ Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, 
 
 Optional. Global key-value parameters for the runtime.
 
+### Dedicated thread pools
+
+| Parameter Name          | Description                                                                                                                                                                                                                                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dedicated_thread_pool` | Where query execution, acceleration refresh, CDC apply, and Cayenne compaction run. `sql_engine` (the default, also used when the parameter is unset) gives each of those a dedicated Tokio runtime: queries on the CPU pool, refresh on a low-priority `refresh-worker` pool, CDC apply on `cdc-apply-worker` when any dataset uses `refresh_mode: changes`, and Cayenne compaction on `compaction-worker` when a dataset can produce files to compact. `disabled` runs that work on the main runtime. Any other value logs a warning and keeps `sql_engine`. |
+
+```yaml
+runtime:
+  params:
+    dedicated_thread_pool: sql_engine # default; set disabled to share one pool
+```
+
+See [Isolating refresh from queries](../../features/data-acceleration/data-refresh#isolating-refresh-from-queries).
+
 ### HTTP Rate Control
 
 HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following rate control defaults. The GitHub connector is **not** part of this family — it has its own limiter, configured with [`runtime.source_rate_control.github_concurrent_connections_limit`](#runtimesource_rate_control):
@@ -235,7 +250,7 @@ runtime:
       s3_region: us-west-2
       s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
       s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
-    github_concurrent_connections_limit: 10
+    github_concurrent_connections_limit: 4
 ```
 
 | Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
@@ -243,7 +258,7 @@ runtime:
 | `state_location`                      | Yes      | -       | Root URI for globally persisted rate-control state (e.g. `s3://bucket/path/`). Enables cluster-wide rate control when set. Without this, limits are local to each Spice instance.                                                  |
 | `params`                              | Yes      | -       | Object-store authentication parameters for `state_location`. Supports the same keys as other object-store configurations (e.g. `s3_region`, `s3_key`, `s3_secret` for S3; `account`, `access_key` for Azure). Supports `${ secrets:NAME }` references. |
 | `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-source rate-control state. Longer intervals reduce object-store writes but adapt more slowly to demand changes.                                                                 |
-| `github_concurrent_connections_limit` | Yes      | `10`    | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
+| `github_concurrent_connections_limit` | Yes      | `4`     | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
 
 HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
 
@@ -460,6 +475,8 @@ Enables or disables CORS for the HTTP endpoint. Defaults to `false`.
 
 A list of allowed origins for CORS requests. Defaults to `["*"]`, which permits all origins.
 
+This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; a request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
+
 Example:
 
 ```yaml
@@ -474,6 +491,8 @@ This configuration permits requests only from the `https://example.com` origin.
 ## `runtime.cpu`
 
 The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, DuckDB's per-instance `threads`, and a cluster executor's concurrent-task advertisement.
+
+The entitlement also sets the partition count of the DataFusion sessions the runtime builds for its own work outside the user query session: refresh and accelerator writes, Cayenne compaction and maintenance, results caching, search, and SQL user-defined functions. These sessions do not use DataFusion's default of the host's core count, so on a pod with a CPU request and no CPU limit, background work is partitioned for the entitlement rather than for the whole node.
 
 ### `runtime.cpu.cores`
 
@@ -559,12 +578,13 @@ These two lines are the primary diagnostic: between them they name what the runt
 
 The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
 
-Three warnings cover the cases the summary cannot state on its own. Each names a cause and an action; none of them fires for a deployment that is merely sized small on purpose, which the summary already records.
+The following warnings identify CPU configuration issues and remedies:
 
 | Warning                                        | Fires when                                                                                        |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | CPU request present but not passed through      | Running under Kubernetes with a cgroup share but no `SPICE_CPU_REQUEST_MILLICORES` — the deployment surface is not emitting the block above, so sizing fell through to the machine. |
 | Declared request implausibly small              | A declared request below 10 millicores, which is what a `resourceFieldRef` missing its `divisor: 1m` produces for a request of one to nine cores. |
+| Configured cores above the real ceiling         | The explicit CPU entitlement exceeds the cgroup or affinity limit. The configured value remains unchanged; the warning identifies the limit so the entitlement or limit can be adjusted. |
 | CPU share changed after startup                 | The cgroup share moved from its value at startup — the pod was resized in place. The entitlement cannot change without a restart, so this reports the drift rather than acting on it. |
 
 The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit_millicores`, and `spiced_cpu_request_millicores` gauges report the same figures — see [Observability](../../features/observability). The `source` label on `spiced_cpu_budget_cores` is the authority on which rung won, which is what makes a fleet greppable for pods that resolved somewhere unexpected. `tokio_runtime_workers` is the cross-check on the thread pools the entitlement sized.
@@ -622,7 +642,7 @@ Behavior:
 
 - Applies to queries issued through the runtime's query APIs (HTTP, Flight, and Flight SQL). Internal runtime queries — acceleration refreshes and health checks — are exempt.
 - Enforcement is cooperative (best-effort): the query is cancelled at its next cancellation checkpoint, so actual runtime can slightly exceed the configured value.
-- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete.
+- On expiry, the query fails with a timeout error. If the timeout is observed before the response starts, the client receives an HTTP `504` / gRPC `DEADLINE_EXCEEDED`. If results are already streaming, the status can no longer change, so the in-progress stream is terminated with the error — data streamed before expiry will have been delivered, but the stream never ends silently as if complete. On Flight SQL that is a long `DoGet`: the stream ends with an error rather than a clean completion. Short-query tuning (prepared statements, partition fan-out) is separate — see [Arrow Flight SQL](../../api/arrow-flight-sql#short-queries).
 - If not set, queries run with **no timeout** (the default behavior). The value must be a positive duration greater than `0`.
 
 ## `runtime.query.spill_compression`
@@ -648,13 +668,48 @@ This setting controls the trade-off between disk space usage and query performan
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. For more details, see the [Managing Memory Usage documentation](../memory) and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb).
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, by every DuckDB accelerator instance (passed through as DuckDB's own `temp_directory`), and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`) and DuckDB to a `.tmp` directory beside its database file; when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
 
 ```yaml
 runtime:
   query:
-    temp_directory: /tmp/spice
+    temp_directory: /nvme/spice/tmp
 ```
+
+Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
+
+## `runtime.query.cte_materialization`
+
+Controls whether the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) query path computes a multi-reference `WITH` clause once and shares the result, instead of letting DataFusion inline the body at every reference.
+
+DataFusion inlines `WITH` bodies at bind time, so a CTE referenced twice is planned and executed twice. `auto` rewrites the qualifying cases into a producer/consumer pair — the body is computed once into a buffer that every reference reads.
+
+```yaml
+runtime:
+  query:
+    cte_materialization: auto # disabled (default) | auto
+```
+
+**Supported values:**
+
+- `disabled` (default): every CTE is inlined at each reference — DataFusion's own behavior.
+- `auto`: a CTE is materialized when it qualifies (below), and inlined otherwise.
+
+Behavior:
+
+- A CTE is only a candidate when it is referenced **more than once**, is **not recursive**, and its body **scans a Cayenne-accelerated table**. The setting is a no-op on a query that does not scan Cayenne, so a pod with no Cayenne acceleration behaves identically under either value.
+- Among the candidates, the keep-or-inline decision follows DuckDB's `CTEInlining` rules, in this order:
+  - a body containing a **volatile** function is materialized (so the function is evaluated once);
+  - a body ending in **aggregate**, **distinct**, or **window** (peeling single-child operators) is materialized;
+  - a **cheap** body — an empty relation, a `VALUES` list, or a scan of an already-materialized CTE — is inlined even with several references;
+  - otherwise, a body with **more than two base-table scans** where `scans × references > 10` is materialized;
+  - a consumer carrying a `LIMIT` (or a sort with a fetch) inlines a CTE that did not match a rule above, so the limit can still abort the work early;
+  - anything else that is referenced more than once is materialized.
+- The shared buffer is **charged to the query memory pool** ([`runtime.query.memory_limit`](#runtimequerymemory_limit)), so a materialized CTE spends the same budget the rest of the query does.
+- Simple pass-through CTEs stay inlined on purpose: inlining is what lets projection and filter pushdown prune each copy separately.
+- When `auto` is in effect the runtime logs `Applied runtime.query.cte_materialization=auto` at startup, and a materialized CTE appears in `EXPLAIN` output as a `MaterializedCte` node with a `CteScan` at each reference.
+
+Any other value is rejected when the Spicepod is loaded.
 
 ## `runtime.output_level`
 
@@ -867,6 +922,8 @@ runtime:
 
 Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
 
+The endpoint is dual-era: it serves the [`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/) revision statelessly and still answers the legacy `initialize` handshake with an `Mcp-Session-Id` session. See [Protocol Versions](../../features/large-language-models/mcp#protocol-versions).
+
 ### `runtime.mcp.allowed_hosts`
 
 Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This prevents [DNS rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks against the MCP server.
@@ -929,7 +986,7 @@ runtime:
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`).                           |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |

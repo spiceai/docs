@@ -88,20 +88,20 @@ The following Apache Arrow / DataFusion SQL types are supported. Other types wil
 
 ### LargeUtf8 Data Type Is Not Supported
 
-To work around this limitation, use [views](https://spiceai.org/docs/components/views) to manually convert `LargeUtf8` columns to `Utf8` by casting them with `::TEXT`.
+To work around this limitation, use [views](https://spiceai.org/docs/components/views) to convert `LargeUtf8` columns to `Utf8` by casting them with `arrow_cast(<column>, 'Utf8')`. A `::TEXT` cast does not produce `Utf8`: it plans as `Utf8View`.
 
 **Example:**
 
 ```yaml
 views:
-    - name: taxi_zone_lookup
-        sql: |
-            SELECT
-                LocationID as LocationID,
-                Borough::TEXT as Borough,
-                Zone::TEXT as Zone,
-                service_zone::TEXT as service_zone
-            FROM taxi_zone_lookup_temp;
+  - name: taxi_zone_lookup
+    sql: |
+      SELECT
+        LocationID,
+        arrow_cast(Borough, 'Utf8') AS Borough,
+        arrow_cast(Zone, 'Utf8') AS Zone,
+        arrow_cast(service_zone, 'Utf8') AS service_zone
+      FROM taxi_zone_lookup_temp
 ```
 
 ### Date Time Arithmetic Operations Are Not Supported

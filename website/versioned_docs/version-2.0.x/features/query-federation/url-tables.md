@@ -11,7 +11,7 @@ tags:
   - azure
 ---
 
-URL tables enable querying files in object stores directly using their URLs, without pre-registering datasets in a Spicepod. This provides an ad-hoc query capability for exploring data stored in S3, Azure Blob Storage, or HTTP endpoints.
+URL tables enable querying files in object stores directly using their URLs, without pre-registering datasets in a Spicepod. This provides an ad-hoc query capability for exploring data stored in S3, Azure Blob Storage, Google Cloud Storage, or HTTP endpoints.
 
 ## Enabling URL Tables
 
@@ -25,13 +25,15 @@ runtime:
 
 ## Supported URL Schemes
 
-| Scheme     | Description                  | Example                                                |
-| ---------- | ---------------------------- | ------------------------------------------------------ |
-| `s3://`    | Amazon S3                    | `s3://bucket/path/file.parquet`                        |
-| `abfs://`  | Azure Blob Storage           | `abfs://container@account/path/file.parquet`           |
-| `abfss://` | Azure Data Lake Storage Gen2 | `abfss://container@account.dfs.core.windows.net/path/` |
-| `https://` | HTTPS endpoints              | `https://example.com/data.parquet`                     |
-| `http://`  | HTTP endpoints               | `http://localhost:8080/data.csv`                       |
+| Scheme     | Description                              | Example                                                |
+| ---------- | ---------------------------------------- | ------------------------------------------------------ |
+| `s3://`    | Amazon S3                                | `s3://bucket/path/file.parquet`                        |
+| `abfs://`  | Azure Blob Storage                       | `abfs://container@account/path/file.parquet`           |
+| `abfss://` | Azure Data Lake Storage Gen2             | `abfss://container@account.dfs.core.windows.net/path/` |
+| `gs://`    | Google Cloud Storage                     | `gs://bucket/path/file.parquet`                        |
+| `gcs://`   | Google Cloud Storage (alias for `gs://`) | `gcs://bucket/path/file.parquet`                       |
+| `https://` | HTTPS endpoints                          | `https://example.com/data.parquet`                     |
+| `http://`  | HTTP endpoints                           | `http://localhost:8080/data.csv`                       |
 
 ## Query Patterns
 
@@ -110,6 +112,10 @@ Additional authentication options:
 - Environment variable: `AZURE_STORAGE_KEY` for access key authentication
 - Azure Managed Identity (automatic when running on Azure)
 - Azure CLI credentials
+
+### Google Cloud Storage
+
+For Google Cloud Storage, a URL table carries no credential parameters, so credentials are read from the environment by the object store's own GCS builder (`GoogleCloudStorageBuilder::from_env()`) — a service-account key or key file, or application default credentials. To supply credentials explicitly, register a dataset with the [Google Cloud Storage Data Connector](../../components/data-connectors/gcs) instead.
 
 ## Examples
 
