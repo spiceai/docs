@@ -46,7 +46,7 @@ For optimal performance, store Cayenne data files **and the metastore** on local
 
 Network block storage (Amazon EBS, Azure Managed Disks, GCP Persistent Disk) works as a durable fallback: Cayenne detects it as the network-attached storage tier and adapts — larger inline flushes, an `O_DIRECT` compaction writer, and a write-concurrency cap derived from the volume's bandwidth — but every cache miss still pays the volume's per-read latency, so prefer a sub-millisecond tier such as `io2` Block Express. Network file systems (NFS, SMB, EFS, Azure Files) are **not recommended**: the metastore is a SQLite database, and SQLite locking is unreliable on them. See [Storage](./performance.md#storage) in the Cayenne performance guide and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
 
-Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
+Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release. Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`) only. [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS, and the [cold tier](#cold-object-store-tier) uses `cayenne_datalake_location` on standard object storage. An Express directory bucket does not substitute for the snapshot bucket.
 
 ## Configuration
 
@@ -653,7 +653,9 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 ### Important Considerations
 
-- **Standard S3 not supported**: Cayenne currently only supports S3 Express One Zone, not standard S3 buckets.
+- **Warm data files use S3 Express One Zone.** `cayenne_file_path` and the `cayenne_s3_*` parameters store Cayenne data files on an S3 Express One Zone directory bucket. A general-purpose S3 bucket is not accepted as `cayenne_file_path`.
+- **Express One Zone does not replace the snapshot bucket.** [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS so bucket or object replication and readers in another region can use the prefix. An Express directory bucket, and the `cayenne_file_path` / `cayenne_s3_*` settings, are the data tier only. See [Snapshot location and the Cayenne data tier](../../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+- **The cold tier is standard object storage.** [`cayenne_datalake_location`](#cold-object-store-tier) is a general-purpose S3 or S3-compatible prefix, separate from both the Express data tier and `snapshots.location`.
 - **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (a 2-minute per-request timeout by default, configurable via `cayenne_s3_client_timeout`) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
@@ -662,7 +664,7 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 Cayenne can cascade data across three storage tiers — an in-RAM mem-tier, a local-disk **warm** tier, and an object-store **cold** tier — with each row living in exactly one tier. The cold tier is optional and disabled by default; it is enabled by setting [`cayenne_datalake_location`](#cold-object-store-tier-parameters). When unset, a table is warm-only and behaves byte-identically to before.
 
-The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data.
+The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data. Promotion is incremental: unchanged cold files are carried forward. The cold prefix is standard object storage, separate from [acceleration snapshots](../../features/data-acceleration/snapshots) (a full copy of the acceleration file on each write) and from the S3 Express One Zone data tier.
 
 ### How it works
 

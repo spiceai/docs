@@ -53,6 +53,19 @@ The timestamp is recorded in UTC using ISO 8601 without punctuation. The file ex
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.
 :::
 
+## What each snapshot contains
+
+Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, Cayenne, or Turso — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
+
+A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times how often snapshots are written, until a lifecycle rule expires older objects. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
+
+When the workload needs incremental replication of changed data between regions or storage tiers, use a path that publishes the changed objects:
+
+- **Cayenne cold / datalake tier.** [`cayenne_datalake_location`](../../components/data-accelerators/cayenne#cold-object-store-tier) graduates data onto standard object storage (a general-purpose S3 or S3-compatible bucket). Promotion carries unchanged cold files forward and rewrites the cold files a change can touch. The tier requires `refresh_mode: changes` or `append` and a primary key. It is a data tier, separate from `snapshots.location`.
+- **Iceberg batched writes with merge-on-read.** [Iceberg writes](../../components/data-connectors/iceberg#write-support) append new data files, and [deletes](../../components/data-connectors/iceberg#deleting-rows) are equality delete files that readers merge on scan. A catalog commit publishes those objects. Use this path when the dataset lives in Iceberg and readers apply delete files during scan.
+
+Neither path bootstraps a file-mode accelerator. Keep snapshots for that.
+
 ## Configure snapshot storage
 
 Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location can point to S3, Azure ADLS Gen2, Google Cloud Storage, or the local filesystem.
@@ -78,6 +91,14 @@ snapshots:
 `location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
 
 When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
+
+### Snapshot location and the Cayenne data tier
+
+Keep `location` on standard object storage: Amazon S3 (`s3://`), Google Cloud Storage (`gs://`), or Azure ADLS Gen2 (`abfss://`, `abfs://`). A local `file://` folder is valid on a single machine. Standard cloud storage is what bucket and object replication, and readers in another region, use.
+
+`location` is independent of Cayenne's S3 Express One Zone data tier. `cayenne_file_path` and the `cayenne_s3_*` parameters (`cayenne_s3_region`, `cayenne_s3_zone_ids`, `cayenne_s3_auth`, and the related keys) store Cayenne Vortex files on an Express One Zone directory bucket. That bucket is single-zone storage for the accelerator's data files. It does not substitute for the snapshot bucket, and it does not provide the replication or multi-region reads a standard snapshot location does. See [S3 Express One Zone storage](../../components/data-accelerators/cayenne#aws-s3-express-one-zone-storage).
+
+The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) also uses standard object storage, through `cayenne_datalake_location`. That prefix is the cold data tier, separate from `snapshots.location`.
 
 ### Failure behavior
 
@@ -331,6 +352,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 
 ## Best practices
 
+- **Budget storage for a full file on every write.** Each snapshot is a complete copy of the accelerated dataset. See [What each snapshot contains](#what-each-snapshot-contains) and [Snapshot location and the Cayenne data tier](#snapshot-location-and-the-cayenne-data-tier).
 - **Treat the snapshot interval as a freshness gap.** A reader that bootstraps from object storage serves the last successful snapshot until its own next refresh. `refresh_complete` is as fresh as the writer's last refresh; `time_interval` can be older still. Size the trigger against the freshness the readers are allowed to serve, and keep a durable volume when that gap is too wide. See [Read/Write Separation](../../deployment/read-write-separation).
 - **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
 - **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
