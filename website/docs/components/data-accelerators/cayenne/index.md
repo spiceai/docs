@@ -685,6 +685,7 @@ The cold tier lets a table grow beyond local NVMe capacity while keeping recent,
 - **S3-only location.** The cold location must be an `s3://` URL — a general-purpose S3 or S3-compatible bucket (for example MinIO via `cayenne_datalake_s3_endpoint`), authenticated independently through the `cayenne_datalake_s3_*` parameters. It is a separate store from the warm S3 Express One Zone tier and does not need to share its bucket. Local `file://` cold locations are not supported in v1.
 - **Continuous refresh only.** The cold tier requires `refresh_mode: changes` or `refresh_mode: append`; a `full` refresh re-materializes the whole table each cycle and is rejected.
 - **Unsupported in v1:** partitioned tables and position-delete tables.
+- **No acceleration snapshots.** A dataset with `cayenne_datalake_location` set does not create [acceleration snapshots](../../../features/data-acceleration/snapshots.md) and does not bootstrap from one. It loads from its source instead, and Spice logs a warning naming the dataset. A snapshot does not cover the cold tier: it refers to cold files that the instance that created it later deletes, and a copy restored from it would share that instance's cold prefix, where each instance's garbage collection deletes the other's files.
 
 ```yaml
 datasets:
