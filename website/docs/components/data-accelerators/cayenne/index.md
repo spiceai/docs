@@ -497,7 +497,7 @@ There are no Cayenne-specific parameters for this. Nothing about an index is per
 
 **What it changes.** Only what is read. The index returns candidate rows; every original predicate and join still runs on them and `LIMIT` still applies above the scan, so an index can never add or hide a row. Postings are non-unique — uniqueness is never assumed — and in `mode: file` a candidate row selection is intersected with the table's deletion vectors, so a deleted row is never selected.
 
-**Index columns must have exact equality.** `Float16`, `Float32` and `Float64` columns are rejected at registration (values such as signed zero have no single byte representation); use an integer, decimal, string, or another exact-equality column.
+**Index columns must have exact equality.** `Float16`, `Float32` and `Float64` columns are rejected at registration (values such as signed zero have no single byte representation); use an integer, decimal, string, or another exact-equality column. This applies to an index declared in `indexes`. When a dataset declares no `indexes`, schema inference copies the source's secondary indexes into the acceleration; an inferred index with a floating-point key column is skipped instead, and the dataset loads with the remaining inferred indexes. The runtime logs one warning per skipped index naming the dataset, the index columns, and the floating-point column. Equality lookups on those columns scan the table.
 
 **`unique` builds an index but constrains nothing.** Both `enabled` and `unique` build the same structure. A `unique` entry does not reject duplicate rows, and registration warns:
 
