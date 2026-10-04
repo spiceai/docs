@@ -168,7 +168,7 @@ runtime:
 Warmup works in two phases:
 
 1. **Record.** The runtime remembers the first 10 distinct query *shapes* it caches and persists them. A shape is the query's logical plan with each equality-filter value replaced by a placeholder, so `WHERE id = 1` and `WHERE id = 2` are one shape. Only the first 10 are kept, not the 10 most frequent.
-2. **Replay.** After a restart, once each accelerated dataset with `refresh_mode: full` or `refresh_mode: append` completes its first refresh, the runtime fills each placeholder with values from `SELECT DISTINCT` of the filtered column and runs the resulting queries until the cache is full. Later refreshes do not warm the cache again.
+2. **Replay.** After a restart, once each accelerated dataset with `refresh_mode: full` or `refresh_mode: append` completes its first refresh, the runtime runs one `SELECT DISTINCT` over the shape's filtered columns and replays the shape once for each returned combination of values, until the cache is full. A shape with several equality filters is replayed only with value combinations that exist together in the dataset, not every possible pairing. Later refreshes do not warm the cache again.
 
 While the replay runs, datasets stay not ready, so [`/v1/ready`](../api/HTTP/ready) does not report ready on a cold cache. Each replayed query is bounded by [`runtime.query.timeout`](../reference/spicepod/runtime#runtimequerytimeout), or 1 minute when that is unset; a query that exceeds it is skipped with a warning. Warmup runs on the refresh thread pool and bypasses query admission, so it does not compete with user queries for concurrency slots.
 
