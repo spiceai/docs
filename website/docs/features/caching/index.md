@@ -155,7 +155,7 @@ When a background [stale-while-revalidate](#stale-while-revalidate) revalidation
 
 ## Warming the Cache After a Restart
 
-A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the results of every replay that succeeds are already cached when the runtime reports ready. A replay that times out or fails is skipped, so its results are not cached until a live query runs it.
+A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the cacheable results of the replays that succeed are already cached when the runtime reports ready. A replay goes through the same cache as a live query, so a result the cache [declines](#results-that-cannot-be-cached) is not stored by warmup either. A replay that times out or fails is skipped, so its results are not cached until a live query runs it.
 
 ```yaml
 runtime:
