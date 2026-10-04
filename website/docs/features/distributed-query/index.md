@@ -633,7 +633,7 @@ When a query fails, the `error` object contains an `error_code` field:
 
 ### Storage Layout
 
-Job state and result chunks are stored in the shared object store configured via `scheduler.state_location`, or `runtime.state.location` when that is omitted:
+Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted:
 
 ```
 {base_prefix}/
@@ -656,7 +656,7 @@ Each scheduler deletes expired jobs, with their result chunks, every 10 minutes.
 | List limit | 100 queries |
 
 - Only available in cluster mode with `--role scheduler`
-- Requires `scheduler.state_location` or `runtime.state.location` to be configured
+- Requires `runtime.scheduler.state_location` or `runtime.state.location` to be configured
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)

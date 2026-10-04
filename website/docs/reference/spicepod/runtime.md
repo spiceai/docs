@@ -240,7 +240,7 @@ runtime:
 
 Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
 
-Without a state location, rate limits are local to each Spice instance. When `state_location` is set, or when it is omitted and [`runtime.state`](#runtimestate) is set, Spice instances coordinate through object storage so that a configured limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 RPS total across all replicas, not 20 RPS per replica.
+Without a state location, rate limits are local to each Spice instance. When `state_location` is set, or when it is omitted and [`runtime.state`](#runtimestate) is set, Spice instances coordinate through object storage so that a configured limit is shared across the cluster. Persisted rate-control state requires a Spice.ai Enterprise build; other builds keep limits local to each instance, and log a warning when `state_location` is set. For example, `requests_per_second_limit: 20` means approximately 20 RPS total across all replicas, not 20 RPS per replica.
 
 ```yaml
 runtime:
