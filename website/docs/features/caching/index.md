@@ -155,7 +155,7 @@ When a background [stale-while-revalidate](#stale-while-revalidate) revalidation
 
 ## Warming the Cache After a Restart
 
-A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the cache already holds their results when the runtime reports ready.
+A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the results of every replay that succeeds are already cached when the runtime reports ready. A replay that times out or fails is skipped, so its results are not cached until a live query runs it.
 
 ```yaml
 runtime:
@@ -179,7 +179,7 @@ Warmup has the following requirements and limits:
 - `enabled` must be `true`.
 - `cache_key_type` must be `plan` (the default). `warmup: on_first_refresh` with `cache_key_type: sql` fails Spicepod validation, because a warmed entry keyed by raw SQL can never match a live query.
 - Only queries in the public cache namespace are recorded. Queries from authenticated principals, which are cached [per principal](#per-principal-cache-isolation), are not recorded or replayed.
-- Datasets with other refresh modes, such as `changes` or `caching`, do not trigger a replay.
+- Only datasets with `refresh_mode: full` or `refresh_mode: append` gate the replay. Datasets with other refresh modes, such as `changes` or `caching`, are not waited for, so when no `full` or `append` refresh remains, the replay starts immediately.
 - Queries that read the `runtime` schema (for example, `runtime.task_history`) and DML, DDL, and statement plans are never recorded.
 - A shape with no equality filters is recorded and replayed as-is, whatever other tables it reads. A shape with equality filters is recorded only when its filters can be refilled from a single table: it is not recorded when its equality filters span more than one table (for example, filters on both sides of a join), bind the same column more than once, sit under an `OR`, or filter a subquery rather than a table. Such queries are still cached normally; they are only left out of warmup.
 - Each shape is replayed for at most 1,024 distinct key combinations.
