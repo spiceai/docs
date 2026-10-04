@@ -12,7 +12,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
 
-`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
+`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
@@ -130,6 +130,7 @@ In addition to the common cache configuration parameters, `sql_results` also sup
 | `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
 | `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
 | `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| `warmup`                     | Yes      | `disabled` | `on_first_refresh` records the first 10 distinct query plans and replays them after the next restart, once accelerated `full` and `append` datasets finish their first refresh. Datasets stay not ready until the replay completes. Requires `enabled: true` and `cache_key_type: plan`. See [Warming the Cache After a Restart](../../features/caching#warming-the-cache-after-a-restart). |
 
 :::info
 
@@ -985,9 +986,37 @@ runtime:
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
-| `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`).                           |
+| `state_location`                                   | Yes      | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Required unless [`runtime.state`](#runtimestate) is set, in which case `runtime.state.location` is used. |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). When `state_location` is omitted, defaults to `runtime.state.params`. |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
 | `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
+
+## `runtime.state`
+
+Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `abfs://`, and `abfss://`.
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice-state
+    params:
+      s3_region: us-east-1
+      s3_auth: iam_role
+```
+
+| Parameter name | Optional | Default | Description |
+| -------------- | -------- | ------- | ----------- |
+| `location`     | No       | -       | Root URI for runtime state storage (e.g. `s3://bucket/path/`). |
+| `params`       | Yes      | -       | Object store parameters (e.g. `s3_region`, `s3_auth`). Supports `${ secrets:NAME }` references. |
+
+The following features store their state under `runtime.state` when their own section does not set a location:
+
+| Feature | Uses `runtime.state` when |
+| ------- | ------------------------- |
+| [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
+| [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
+| [Source rate control](#runtimesource_rate_control) | `runtime.source_rate_control.state_location` is not set. Persisted rate-control state requires a Spice.ai Enterprise build. |
+
+A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
