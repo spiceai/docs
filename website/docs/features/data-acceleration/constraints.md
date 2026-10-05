@@ -65,9 +65,7 @@ A key can repeat within the incoming data itself, not only against a stored row.
 
 **`drop` on DuckDB and SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
 
-**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)).
-
-**Full refresh on DuckDB:** a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
+**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
 :::
 
 Example Spicepod:
