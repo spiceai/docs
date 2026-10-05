@@ -550,7 +550,7 @@ A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-
 - `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, incoming rows are validated against it as the input streams in, and conflicts resolve through [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict): `upsert` supersedes the existing row, while a `primary_key` with no `on_conflict` configured drops the conflicting incoming row instead.
 - `UPDATE` combines the two, so both rules above apply.
 
-[`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is the exception: it does not reach a `mode: memory` tier, and matching rows stay queryable (see [Limitations](#limitations)).
+[`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) applies to the tier the same way. Each write queues a retention pass, and the pass deletes the rows its predicate matches from the tier, as it does in `mode: file`.
 
 :::note
 
@@ -915,11 +915,11 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 
 Consider the following limitations when using Spice Cayenne acceleration:
 
-- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML is not among the constraints — see [Writes in memory mode](#writes-in-memory-mode) — but [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) is, as the next-but-one entry notes.
+- **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML and [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) are not among the constraints — see [Writes in memory mode](#writes-in-memory-mode).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
-- **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. It is ignored in `mode: memory`, with a warning; matching rows remain queryable.
+- **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. In `mode: memory`, it runs after writes, because that mode has no checkpoints.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
 - **Transaction Constraints**: [Transactions](#transactions) support `INSERT`/`UPDATE` on non-partitioned, accelerator-only or durable write-back datasets, with one write per table. `DELETE` and `MERGE` are not supported.
