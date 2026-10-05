@@ -136,7 +136,8 @@ The process gauges are sampled on a fixed 2-second timer; the per-table `cayenne
 | `cayenne_inline_cache_batches` | Gauge | batches | Record batches held in that cache. |
 | `cayenne_mem_tier_bytes` | Gauge | By | Resident bytes of one table's in-memory CDC tier. |
 | `cayenne_scan_file_statistics_entries` | Gauge | entries | Cached scan statistics, one entry per data file. |
-| `cayenne_lookup_index_probe_total` | Counter | probes | [Secondary index](./index.md#secondary-indexes) probes, labelled `table`, `shape` (the indexed columns as the `indexes` entry names them) and `outcome` (`selected`, `empty`, `unbuilt`, `snapshot_mismatch`). A rising `unbuilt` or `snapshot_mismatch` share is an index that is not covering the rows being read. |
+| `cayenne_lookup_index_probe_total` | Counter | probes | Lookups a [secondary index](./index.md#secondary-indexes) served, labelled `table` and `shape` (the indexed columns as the `indexes` entry names them). |
+| `cayenne_lookup_index_files` | Gauge | files | `mode: file` data files of a table that each secondary index covers, labelled `table`, `shape` and `coverage` (`covered`, `uncovered`). A rising `uncovered` count is files that lookups read in full. |
 
 #### Write-phase labels
 
