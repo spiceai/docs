@@ -312,7 +312,23 @@ A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceler
 
 The dataset reports Ready only after the current process has restored a snapshot. A local copy left from an earlier run is never served as current. Until the first snapshot is published, the dataset reports an error status and Spice logs a warning such as `Dataset 'some_table' has no snapshot to load yet, so it cannot be queried until one is published`. Spice keeps checking, with a backoff capped at `refresh_check_interval`. A query that reaches the dataset before a snapshot loads returns an error, not an empty result.
 
-Spice keeps the local copy under `.spice/data/`. DuckDB, SQLite, and Turso copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout.
+Spice keeps the local copy under `.spice/data/`. DuckDB, SQLite, and Turso copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout: a data directory per dataset and one shared catalog, both under `.spice/data/` unless the dataset sets `cayenne_file_path` and `cayenne_metadata_dir`. Setting them lets a reader keep its copy on a chosen volume, in the same layout as the writer:
+
+```yaml
+datasets:
+  - from: s3://some_bucket/some_folder/
+    name: some_table
+    params:
+      file_format: snapshot
+      s3_region: us-east-1
+      s3_auth: iam_role
+    acceleration:
+      params:
+        cayenne_file_path: /data/some_table/
+        cayenne_metadata_dir: /data/metadata/
+```
+
+Snapshot datasets follow the same [metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location) rule as other Cayenne datasets: datasets that set different `cayenne_file_path` values must all set the same `cayenne_metadata_dir`, or the Spicepod is rejected at startup.
 
 ### Configuration constraints
 
@@ -323,7 +339,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - `access` must be `read` (the default).
 - `embeddings`, `vectors`, and `full_text_search` are not supported. Configure them on the dataset that publishes the snapshots.
 - In the `acceleration` block, Spice rejects `enabled: false`, any `refresh_mode` other than `snapshot`, `mode: file_create` or `mode: file_update`, `snapshots: enabled` or `snapshots: create_only`, `refresh_sql`, the `retention_*` settings, `on_zero_results: use_source`, and an `engine` other than the one that created the snapshots.
-- Engine path params (`duckdb_file`, `duckdb_data_dir`, `sqlite_file`, `turso_file`, `cayenne_file_path`, `cayenne_metadata_dir`, and `cayenne_s3_zone_ids`) are rejected, because Spice chooses where the local copy lives.
+- Engine path params (`duckdb_file`, `duckdb_data_dir`, `sqlite_file`, `turso_file`, and `cayenne_s3_zone_ids`) are rejected, because Spice chooses where the local copy lives. `cayenne_file_path` and `cayenne_metadata_dir` are accepted when the snapshots were created by Cayenne, and rejected by name when another engine created them.
 
 ### HTTP API behavior
 
