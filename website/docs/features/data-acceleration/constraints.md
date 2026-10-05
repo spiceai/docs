@@ -61,7 +61,7 @@ Either populate the column in the source data, or choose a `primary_key` made on
 The behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
 
 :::warning
-If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+A key can repeat within the incoming data itself, not only against a stored row. With `drop`, the DuckDB and SQLite accelerators keep the first copy of each key in arrival order and drop the later copies, then resolve the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule, and with `upsert` a repeated key fails the write unless one of the [advanced upsert options](#advanced-upsert-options) is set.
 :::
 
 Example Spicepod:
