@@ -533,6 +533,33 @@ When a primary key is deleted and then re-inserted:
 2. During scan, the delete doesn't apply to data with higher sequence numbers
 3. The new data is visible without requiring separate tracking of "undeleted" records
 
+### Duplicate primary keys in one write
+
+With a `primary_key`, Cayenne checks keys as each batch of a write arrives. Duplicate keys inside one batch are collapsed. `on_conflict: upsert` keeps the last row. A primary key with no `on_conflict` keeps the first row in that batch and drops the later copies. `upsert_dedup` and `upsert_dedup_by_row_id` are also applied per batch. The same key in a later batch of that write is rejected:
+
+```text
+Incoming data contains duplicate primary key across batches
+```
+
+A key already stored in the acceleration is a separate case. `upsert` replaces the stored row. With no `on_conflict`, the incoming row is dropped.
+
+An append refresh hits the error when one poll's incoming rows contain two versions of a key in different batches. A cold load of a history or log does this, and so does a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that itself holds two source rows for the key. Append refresh drops a re-read that matches a stored row on every column before the write, so that re-read is not a second incoming copy. With `on_conflict: upsert`, a single changed version of a stored key replaces the stored row.
+
+[DuckDB](../duckdb/index.md) applies `on_conflict: upsert` across batches of one write. The [end-to-end incremental ingestion example](../../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses DuckDB.
+
+When the source is a log of versions, append without a `primary_key` and read the latest version from a view:
+
+```yaml
+views:
+  - name: events_latest
+    sql: |
+      SELECT *
+      FROM events
+      QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY event_time DESC) = 1
+```
+
+See [`QUALIFY`](../../../reference/sql/select.md#qualify-clause) and [Views](../../../reference/spicepod/views.md). Each changed version is appended, and the view returns the row with the latest `event_time` for that key.
+
 ### Writes in memory mode
 
 A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
