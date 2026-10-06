@@ -265,30 +265,6 @@ HTTP/API rate limits are configured through [`runtime.params`](#http-rate-contro
 dataset param > runtime.params.http_* default > unset
 ```
 
-:::warning[Breaking change]
-`runtime.source_rate_control.state_location` and `runtime.source_rate_control.params` are removed. Spice rejects a Spicepod that sets either field. Move the location to [`runtime.state.location`](#runtimestate) and the object store parameters to `runtime.state.params`:
-
-```yaml
-# Before
-runtime:
-  source_rate_control:
-    state_location: s3://my-bucket/spice/rate-control/
-    params:
-      s3_region: us-west-2
-    refresh_interval: 30s
-
-# After
-runtime:
-  state:
-    location: s3://my-bucket/spice/rate-control/
-    params:
-      s3_region: us-west-2
-  source_rate_control:
-    refresh_interval: 30s
-```
-
-:::
-
 ### Cluster rate control
 
 :::info Enterprise Feature
