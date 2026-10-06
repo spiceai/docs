@@ -527,7 +527,7 @@ The `on_error_response` parameter decides what happens when the origin answers a
 | `warn`            | The response is recorded as a row, and a warning names the endpoint and the status.      | The request fails.                           | The request fails.                                 |
 | `store`           | The response is recorded as a row without a warning.                                      | The request fails.                           | The request fails.                                 |
 
-A `5xx` or `429` is retried up to `max_retries` times. If the last attempt still returns one of these statuses, the request fails under every `on_error_response` value, because the status describes the origin's health rather than the requested resource. A client error is not retried. A connection failure or timeout is unaffected by this parameter.
+A `5xx` or `429` is retried up to `max_retries` times. If the last attempt still returns one of these statuses, the request fails under every `on_error_response` value, because the status describes the origin's health rather than the requested resource. A client error other than `429` is not retried. A connection failure or timeout is unaffected by this parameter.
 
 Use `warn` or `store` when a client error is a meaningful answer for the dataset, for example an API that returns `404` for a record that does not exist. The status is available in the [`response_status`](#response-metadata-fields) column:
 
