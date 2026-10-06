@@ -154,7 +154,7 @@ Two of DataFusion's regular-expression built-ins are never sent to DuckDB, becau
 
 ### `regexp_count` pushes down one call shape at a time
 
-`regexp_count` is sent to DuckDB, rendered as `coalesce(len(regexp_extract_all(x, p)), 0)` — the `coalesce` is what makes a `NULL` input count `0`, as DataFusion's kernel does, rather than `NULL`.
+`regexp_count` is sent to DuckDB, rendered as `len(regexp_extract_all(x, p))`. Both engines return `NULL` for a `NULL` input, so an accelerated query and an unaccelerated one agree on `NULL` rows.
 
 Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differently, and a disagreement changes *which rows match* rather than raising an error, the dialect renders only a call it has been measured to count identically. Every other shape is evaluated in Spice instead — that refusal is not an error, and the query still answers. A call is sent only when all of the following hold:
 
