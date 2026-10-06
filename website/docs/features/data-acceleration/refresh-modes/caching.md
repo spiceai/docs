@@ -656,6 +656,8 @@ A finite duration such as `10m` serves the cached entry only while its staleness
 
 `caching_ttl: 0s` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0s` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
 
+These rules describe the accelerator. The [SQL results cache](../../caching) sits in front of it and is on by default with an `item_ttl` of `1s`: an identical query inside that window returns the earlier result, including a fallback served during an outage, without a new origin request. When every query must reach the origin, send it with [`Cache-Control: no-cache`](../../caching#cache-control) or set `runtime.caching.sql_results.enabled: false`. The HTTP connector's [response cache](../../../components/data-connectors/https#response-cache) is not involved, because an accelerated dataset skips it whatever `Cache-Control` the origin sends.
+
 `caching_stale_if_error: enabled` keeps expired entries as fallback material and does not derive an eviction deadline from age. Pair that unbounded setting with `caching_max_size`, `caching_max_items`, or a `retention_period` / `retention_sql` rule so stale entries do not grow without a bound. A finite `caching_stale_if_error` duration already supplies an eviction deadline. See [Cache Size and Item Limits](#cache-size-and-item-limits).
 
 ### Cache Size and Item Limits

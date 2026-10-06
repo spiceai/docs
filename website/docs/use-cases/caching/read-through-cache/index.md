@@ -151,6 +151,8 @@ acceleration:
 
 While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails. `caching_ttl: 0s` alone does not mean "always use the accelerator." With stale-while-revalidate at `0s` and `caching_stale_if_error` left `disabled`, a zero TTL still waits on the origin and returns the origin's error.
 
+The SQL results cache still sits in front of the accelerator. With its default `item_ttl` of `1s`, an identical query inside that window returns the earlier result, including a fallback served during an outage, without a new origin request. When every query must reach the origin, send it with [`Cache-Control: no-cache`](../../features/caching#cache-control) or set `runtime.caching.sql_results.enabled: false`. The HTTP connector's [response cache](../../components/data-connectors/https#response-cache) is not involved, because an accelerated dataset skips it whatever `Cache-Control` the origin sends.
+
 Pair unbounded `caching_stale_if_error: enabled` with `caching_max_size`, `caching_max_items`, or retention so stale entries do not grow without a bound. A finite duration already bounds how old a fallback entry may be. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
 
 ## Benefits

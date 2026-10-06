@@ -98,7 +98,7 @@ Keep `location` on standard object storage: Amazon S3 (`s3://`), Google Cloud St
 
 `location` is independent of Cayenne's S3 Express One Zone data tier. `cayenne_file_path` and the `cayenne_s3_*` parameters (`cayenne_s3_region`, `cayenne_s3_zone_ids`, `cayenne_s3_auth`, and the related keys) store Cayenne Vortex files on an Express One Zone directory bucket. That bucket is single-zone storage for the accelerator's data files. It does not substitute for the snapshot bucket, and it does not provide the replication or multi-region reads a standard snapshot location does. See [S3 Express One Zone storage](../../components/data-accelerators/cayenne#aws-s3-express-one-zone-storage).
 
-The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) also uses standard object storage, through `cayenne_datalake_location`. That prefix is the cold data tier, separate from `snapshots.location`.
+The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) uses a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`, not GCS or ADLS. That prefix is the cold data tier, separate from `snapshots.location`.
 
 ### Failure behavior
 

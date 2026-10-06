@@ -253,7 +253,7 @@ S3 Express One Zone is available in select regions. Spice automatically derives 
 
 See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
 
-S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate `snapshots.location` on standard S3, GCS, or ADLS. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is also standard object storage, through `cayenne_datalake_location`.
+S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate `snapshots.location` on standard S3, GCS, or ADLS. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`. It does not accept GCS or ADLS.
 
 ## Secret Management
 

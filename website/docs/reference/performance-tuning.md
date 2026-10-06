@@ -963,7 +963,7 @@ Compare `spiced_cpu_budget_cores` against `spiced_cpu_request_millicores` and `s
 | Network block storage (EBS, Azure Disk, PD/Hyperdisk) | Durable fallback; provision IOPS; `storage_profile: ebs` where undetected | Acceptable; not the root volume  |
 | RAM-backed (`tmpfs`, `emptyDir` `medium: Memory`)   | Small datasets only                          | Never                                              |
 | Network file systems (NFS, SMB, EFS, Azure Files)   | Not recommended                              | Not recommended                                    |
-| Object storage                                      | Cayenne data files on S3 Express One Zone; snapshot copies and the Cayenne cold tier on standard S3, GCS, or ADLS | Not supported |
+| Object storage                                      | Cayenne data files on S3 Express One Zone; the Cayenne cold tier on standard S3; snapshot copies on standard S3, GCS, or ADLS | Not supported |
 | HDD                                                 | Cold archives only                           | Not recommended                                    |
 
 See [Storage](#storage) for the reasoning, the per-engine adjustments, and the platform specifics.
