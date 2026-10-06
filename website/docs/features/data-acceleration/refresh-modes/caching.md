@@ -622,6 +622,44 @@ datasets:
 
 **Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
 
+A `caching_ttl` of `0s` marks entries stale immediately. That setting does not mean queries always read the accelerator. See [Prefer the origin, fall back on failure](#prefer-the-origin-fall-back-on-failure).
+
+### Prefer the origin, fall back on failure
+
+Use this pattern for availability-first HTTP read-through caching: prefer the origin while it is healthy, and read the accelerator only if the origin fails.
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: api_cache
+    params:
+      file_format: json
+      allowed_request_paths: '/v1/*'
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: cayenne
+      mode: file
+      params:
+        caching_ttl: 0s # immediately stale
+        caching_stale_while_revalidate_ttl: 0s
+        caching_stale_if_error: enabled # or a finite duration, for example 10m
+        caching_max_size: 512MiB
+        caching_max_items: 100000
+```
+
+Write a zero duration with a unit, such as `0s`. A bare `0` is a YAML integer, which Spice rejects when it loads the dataset: `Invalid 'caching_ttl' param value: Int(0). Expected a duration string.`
+
+`caching_ttl: 0s` marks an entry stale as soon as it is stored, so the accelerator is not a fresh result. `caching_stale_while_revalidate_ttl: 0s` closes the window that would return that stale entry while the origin is revalidated. While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails, including a 429 or 5xx response once the HTTP connector has exhausted `max_retries`, and `caching_stale_if_error` is `enabled` or a finite duration.
+
+A finite duration such as `10m` serves the cached entry only while its staleness past `caching_ttl` stays within that duration. With `caching_ttl: 0s`, that staleness starts as soon as the entry is stored, so the duration is the maximum age of a fallback entry. `enabled` has no age bound. `caching_stale_if_error: 0s` means `disabled`, the same as leaving the fallback off.
+
+`caching_ttl: 0s` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0s` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
+
+These rules describe the accelerator. The [SQL results cache](../../caching) sits in front of it and is on by default with an `item_ttl` of `1s`: an identical query inside that window returns the earlier result, including a fallback served during an outage, without a new origin request. When every query must reach the origin, send it with [`Cache-Control: no-cache`](../../caching#cache-control) or set `runtime.caching.sql_results.enabled: false`. The HTTP connector's [response cache](../../../components/data-connectors/https#response-cache) is not involved, because an accelerated dataset skips it whatever `Cache-Control` the origin sends.
+
+`caching_stale_if_error: enabled` keeps expired entries as fallback material and does not derive an eviction deadline from age. Pair that unbounded setting with `caching_max_size`, `caching_max_items`, or a `retention_period` / `retention_sql` rule so stale entries do not grow without a bound. A finite `caching_stale_if_error` duration already supplies an eviction deadline. See [Cache Size and Item Limits](#cache-size-and-item-limits).
+
 ### Cache Size and Item Limits
 
 A TTL alone does not bound how much a caching accelerator holds — a workload that keeps fetching new cache keys grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are deliberately kept as fallback material and are never expired away — a duration value instead derives an eviction deadline, so it keeps the fallback bounded. Two parameters put a ceiling on it:
