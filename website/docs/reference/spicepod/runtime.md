@@ -540,6 +540,8 @@ A CPU limit outranks a request: bursting past a quota does not produce CPU, it p
 
 A process that declares **no** CPU request skips rung 2 entirely and is sized for every CPU it can see. That covers every bare-metal deployment, `docker run` without CPU flags, and every benchmark.
 
+If the host or cgroup metadata reports more CPUs than the process should use, set `runtime.cpu.cores` explicitly to the process allocation. This keeps thread pools and CPU-derived defaults sized to the deployment's intended CPU budget instead of the host total.
+
 #### Sizing from a CPU request
 
 A pod that sets `resources.requests.cpu` without `resources.limits.cpu` has no cgroup quota. Sizing for the whole node would build thread pools and query fan-out for a machine the pod does not own, so the entitlement is derived from the request instead — as a **bounded multiple** of it, currently 2×.

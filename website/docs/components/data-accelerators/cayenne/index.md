@@ -46,7 +46,7 @@ For optimal performance, store Cayenne data files **and the metastore** on local
 
 Network block storage (Amazon EBS, Azure Managed Disks, GCP Persistent Disk) works as a durable fallback: Cayenne detects it as the network-attached storage tier and adapts — larger inline flushes, an `O_DIRECT` compaction writer, and a write-concurrency cap derived from the volume's bandwidth — but every cache miss still pays the volume's per-read latency, so prefer a sub-millisecond tier such as `io2` Block Express. Network file systems (NFS, SMB, EFS, Azure Files) are **not recommended**: the metastore is a SQLite database, and SQLite locking is unreliable on them. See [Storage](./performance.md#storage) in the Cayenne performance guide and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
 
-Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
+Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release. Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`) only. [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS, and the [cold tier](#cold-object-store-tier) uses `cayenne_datalake_location` on a general-purpose S3 or S3-compatible bucket. An Express directory bucket does not substitute for the snapshot bucket.
 
 ## Configuration
 
@@ -425,21 +425,27 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auto` (default)   | Resolves to `position` (merge-on-read) for most tables. For CDC datasets (`refresh_mode: changes`) that declare a `primary_key`, `auto` resolves to `key` instead, so deletes compact concurrently with the continuous writer. |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
-| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. The explicit opt-out from merge-on-read for primary-key tables.    |
+| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables that use `on_conflict: upsert` under continuous writes, because compaction can keep running while writes continue. |
 
 ```yaml
 datasets:
   - from: s3://bucket/events/
     name: events
+    time_column: updated_at
     acceleration:
       engine: cayenne
       mode: file
+      refresh_mode: append
       primary_key: event_id
+      on_conflict:
+        event_id: upsert
       params:
-        cayenne_deletion_mode: auto # default; set to `key` to opt out of merge-on-read
+        cayenne_deletion_mode: key # recommended for primary-key upsert tables
 ```
 
-Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
+For a table with a `primary_key` and `on_conflict: upsert` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for a CDC dataset or a [cold-tier](#cold-object-store-tier) table (`cayenne_datalake_location`) that has a primary key, so the explicit setting matters for other tables, such as an `append` table without a cold tier.
+
+Under `position` mode (the `auto` resolution for every table except a CDC dataset or a cold-tier table that has a primary key):
 
 - **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 - **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
@@ -662,7 +668,9 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 ### Important Considerations
 
-- **Standard S3 not supported**: Cayenne currently only supports S3 Express One Zone, not standard S3 buckets.
+- **Warm data files use S3 Express One Zone.** `cayenne_file_path` and the `cayenne_s3_*` parameters store Cayenne data files on an S3 Express One Zone directory bucket. A general-purpose S3 bucket is not accepted as `cayenne_file_path`.
+- **Express One Zone does not replace the snapshot bucket.** [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS so bucket or object replication and readers in another region can use the prefix. An Express directory bucket, and the `cayenne_file_path` / `cayenne_s3_*` settings, are the data tier only. See [Snapshot location and the Cayenne data tier](../../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+- **The cold tier is standard object storage.** [`cayenne_datalake_location`](#cold-object-store-tier) is a general-purpose S3 or S3-compatible prefix, separate from both the Express data tier and `snapshots.location`.
 - **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (a 2-minute per-request timeout by default, configurable via `cayenne_s3_client_timeout`) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
@@ -671,7 +679,7 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 Cayenne can cascade data across three storage tiers — an in-RAM mem-tier, a local-disk **warm** tier, and an object-store **cold** tier — with each row living in exactly one tier. The cold tier is optional and disabled by default; it is enabled by setting [`cayenne_datalake_location`](#cold-object-store-tier-parameters). When unset, a table is warm-only and behaves byte-identically to before.
 
-The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data.
+The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data. Promotion is incremental: unchanged cold files are carried forward. The cold prefix is standard object storage, separate from [acceleration snapshots](../../features/data-acceleration/snapshots) (a full copy of the acceleration file on each write) and from the S3 Express One Zone data tier.
 
 ### How it works
 
