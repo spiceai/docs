@@ -62,6 +62,8 @@ The behavior of inserting data that violates the constraint can be configured vi
 
 :::warning
 If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+
+**Spice Cayenne** applies its own rule on an append refresh: a key repeated within one record batch is collapsed instead of failing the write (`upsert` keeps the last copy, `drop` the first), and the same key in a later batch of that write fails it. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 :::
 
 Example Spicepod:
@@ -84,7 +86,7 @@ datasets:
 
 ### Advanced Upsert Options
 
-By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html))
+By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne is the exception: an append refresh collapses a key repeated within one batch, so plain `upsert` keeps the last copy there instead of failing.
 
 Spice provides two `upsert` options to resolve duplicates within a single update:
 
