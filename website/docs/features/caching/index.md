@@ -103,6 +103,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 | `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
 | `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
 | `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| `warmup`                     | Yes      | `disabled` | Whether to warm the cache after a restart. `disabled` or `on_first_refresh`. See [Warming the Cache After a Restart](#warming-the-cache-after-a-restart). |
 
 ### Choosing a `cache_key_type`
 
@@ -151,6 +152,56 @@ The runtime therefore copies each result off the producer's memory before storin
 Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
 
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
+
+## Warming the Cache After a Restart
+
+A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the cacheable results of the replays that succeed are already cached when the runtime reports ready. A replay goes through the same cache as a live query, so a result the cache [declines](#results-that-cannot-be-cached) is not stored by warmup either. A replay that times out or fails is skipped, so its results are not cached until a live query runs it.
+
+```yaml
+runtime:
+  caching:
+    sql_results:
+      enabled: true
+      warmup: on_first_refresh
+```
+
+Warmup works in two phases:
+
+1. **Record.** The runtime remembers the first 10 distinct query *shapes* it caches and persists them. A shape is the query's logical plan with each equality-filter value replaced by a placeholder, so `WHERE id = 1` and `WHERE id = 2` are one shape. Only the first 10 are kept, not the 10 most frequent.
+2. **Replay.** After a restart, once each accelerated dataset with `refresh_mode: full` or `refresh_mode: append` completes its first refresh, the runtime runs one `SELECT DISTINCT` over the shape's filtered columns and replays the shape once for each returned combination of values, until the cache is full. A shape with several equality filters is replayed only with value combinations that exist together in the dataset, not every possible pairing. Later refreshes do not warm the cache again.
+
+While the replay runs, datasets stay not ready, so [`/v1/ready`](../api/HTTP/ready) does not report ready on a cold cache. Each replayed query is bounded by [`runtime.query.timeout`](../reference/spicepod/runtime#runtimequerytimeout), or 1 minute when that is unset; a query that exceeds it is skipped with a warning. Warmup bypasses query admission, so it does not compete with user queries for concurrency slots. It runs on the refresh thread pool, unless [`runtime.params.dedicated_thread_pool`](../reference/spicepod/runtime#dedicated-thread-pools) is `disabled`.
+
+The first start with warmup enabled has no recorded shapes, so it records only. The restart after that is the first one that warms the cache.
+
+Warmup has the following requirements and limits:
+
+- `enabled` must be `true`.
+- `cache_key_type` must be `plan` (the default). `warmup: on_first_refresh` with `cache_key_type: sql` fails Spicepod validation, because a warmed entry keyed by raw SQL can never match a live query.
+- Only queries in the public cache namespace are recorded. Queries from authenticated principals, which are cached [per principal](#per-principal-cache-isolation), are not recorded or replayed.
+- Only datasets with `refresh_mode: full` or `refresh_mode: append` gate the replay. Datasets with other refresh modes, such as `changes` or `caching`, are not waited for, so when no `full` or `append` refresh remains, the replay starts immediately.
+- Queries that read the `runtime` schema (for example, `runtime.task_history`) and DML, DDL, and statement plans are never recorded.
+- A shape with no equality filters is recorded and replayed as-is, whatever other tables it reads. A shape with equality filters is recorded only when its filters can be refilled from a single table: it is not recorded when its equality filters span more than one table (for example, filters on both sides of a join), bind the same column more than once, sit under an `OR`, or filter a subquery rather than a table. Such queries are still cached normally; they are only left out of warmup.
+- Each shape is replayed for at most 1,024 distinct key combinations.
+
+### Where recorded shapes are stored
+
+By default, the recorded shapes are written to `.spice/data/results_cache_warmup.json` on the local disk. To keep them across replicas or across ephemeral containers, set [`runtime.state`](../reference/spicepod/runtime#runtimestate) to a shared object store:
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice-state
+    params:
+      s3_region: us-east-1
+      s3_auth: iam_role
+  caching:
+    sql_results:
+      enabled: true
+      warmup: on_first_refresh
+```
+
+If the object store fails to initialize, the runtime logs a warning and writes the shapes to the local file instead.
 
 ## Logical Plan Cache
 
