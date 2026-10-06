@@ -159,6 +159,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `retry_backoff_method`     | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                                                                                                                                                                                                                                                      |
 | `retry_max_duration`       | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                                                                                                                                                                                                                                                   |
 | `retry_jitter`             | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                                                                                                                                                                                                                                               |
+| `on_error_response`        | Optional. What a response outside `2xx` becomes: `error` fails the request, `warn` records a client error's response as a row and logs a warning, and `store` records a client error's response as a row without a warning. `warn` and `store` apply only to a `4xx` other than `429`. Default: `error`. See [Error Responses](#error-responses). |
 | `max_request_query_length` | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                                                                                                                                                                                                                                               |
 | `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).
 | `request_header_filters`   | Optional. Set to `enabled` to allow `request_headers` filters to push down dynamic HTTP request headers. Default: `disabled`. Requires `request_header_allowlist`.
@@ -246,6 +247,8 @@ When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-mo
 :::warning[`caching_ttl` defaults to 30 seconds]
 If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
 :::
+
+To prefer the origin and fall back to the accelerator only when the origin fails, set `caching_ttl: 0s`, `caching_stale_while_revalidate_ttl: 0s`, and `caching_stale_if_error` to `enabled` or a finite duration. While the origin is healthy, Spice does not serve the accelerator. A successful response is still stored and is consulted only after a later origin failure. A zero TTL does not mean every read is served from the accelerator. Pair unbounded `enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
 
 :::warning[A TTL does not bound the cache]
 A workload that keeps fetching new request paths grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are kept as fallback material and never expire away. A duration instead of `enabled` keeps that fallback bounded. Set `caching_max_size` or `caching_max_items` — see [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
@@ -459,7 +462,7 @@ In addition to request metadata, the HTTP connector includes response metadata f
 | Field Name         | Type                   | Description                                                                                                                                                                                 |
 | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `content`          | String                 | The response body content.                                                                                                                                                                  |
-| `response_status`  | UInt16                 | The HTTP status code of the response (e.g., `200`, `404`, `500`).                                                                                                                           |
+| `response_status`  | UInt16                 | The HTTP status code of the response (e.g., `200`). A row carries a client error status such as `404` only when [`on_error_response`](#error-responses) is `warn` or `store`.                |
 | `response_headers` | Map(String, String)    | The HTTP response headers as key-value pairs. Each header name maps to its value. Available for inspection in queries, e.g., to check `content-type` or custom headers returned by the API. |
 | `_fetched_at`      | Timestamp (Nanosecond) | The timestamp when the data was fetched. Uses the HTTP `Date` response header when available, falling back to the current system time. Always present in the dataset schema, even when not declared explicitly — this is required for caching TTL eviction and for append-mode datasets that set `time_column: _fetched_at`. |
 
@@ -477,7 +480,7 @@ WHERE request_path = '/api/data';
 ```
 
 :::note
-When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), transient HTTP error responses (5xx server errors and 429 Too Many Requests) are automatically excluded from the cache. These responses are still returned to the querying client but are not persisted, preventing temporary failures from polluting cached data.
+A `5xx` or `429` response that is still failing after the connector's retries fails the request; it never becomes a row. When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), the query receives that error, or the cached entry when [`caching_stale_if_error`](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) applies, and nothing is written to the cache. See [Error Responses](#error-responses).
 :::
 
 ### Metadata Columns with JSON Schema Decomposition
@@ -515,6 +518,43 @@ Metadata columns retain their native types (`UInt16` for `response_status`, `Tim
 - A JSON body key that collides with a reserved metadata name is dropped — it does not shadow the real HTTP value and does not leak into the catch-all column.
 - Declaring the catch-all column itself (`json_object: "*"`) with a reserved metadata name is rejected at registration time.
 - Datasets that don't use JSON schema decomposition are unaffected.
+
+### Error Responses
+
+The `on_error_response` parameter decides what happens when the origin answers a request with a status outside `2xx`. It defaults to `error`, so a refresh that receives an error response fails and the accelerated table keeps its previous contents. Without this, a `full` refresh would replace the table's rows with the error body.
+
+| Value             | Client error (`4xx` other than `429`)                                                     | Server error (`5xx`) or `429`, after retries | Any other status outside `2xx` (for example `304`) |
+| ----------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------------------- |
+| `error` (default) | The request fails.                                                                        | The request fails.                           | The request fails.                                 |
+| `warn`            | The response is recorded as a row, and a warning names the endpoint and the status.      | The request fails.                           | The request fails.                                 |
+| `store`           | The response is recorded as a row without a warning.                                      | The request fails.                           | The request fails.                                 |
+
+A `5xx` or `429` is retried up to `max_retries` times. If the last attempt still returns one of these statuses, the request fails under every `on_error_response` value, because the status describes the origin's health rather than the requested resource. A client error other than `429` is not retried. A connection failure or timeout is unaffected by this parameter.
+
+Use `warn` or `store` when a client error is a meaningful answer for the dataset, for example an API that returns `404` for a record that does not exist. The status is available in the [`response_status`](#response-metadata-fields) column:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: records
+    params:
+      allowed_request_paths: /records/1,/records/2
+      on_error_response: warn
+```
+
+```sql
+SELECT request_path, response_status, content
+FROM records
+WHERE request_path = '/records/2';
+```
+
+On a `full` refresh, a recorded client error replaces the dataset's previous contents, which is why `warn` logs it. Prefer `warn` over `store`.
+
+`on_error_response` applies to dynamic JSON API endpoints. A structured HTTP file dataset (`csv`, `parquet`, and other file formats) always fails a request the origin did not answer successfully: it accepts `on_error_response: error`, and rejects `warn` and `store` at registration. An unrecognized value is rejected at registration on every dataset, with an error that lists the accepted values.
+
+:::warning[Behavior change]
+Before this parameter existed, the connector recorded every response as a row, including `4xx` responses and a `5xx` or `429` that was still failing after retries. A dataset that depends on recording a client error as a row now needs `on_error_response: warn` or `store`.
+:::
 
 ### Endpoint Validation
 

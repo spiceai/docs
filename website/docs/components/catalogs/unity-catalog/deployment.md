@@ -65,6 +65,8 @@ For catalogs with thousands of tables, initial discovery can take minutes while 
 
 Unsupported table types are skipped during catalog discovery. When referenced directly, an error is returned.
 
+This connector reads each table from its Delta Lake storage location, and `VIEW` and `STREAMING_TABLE` objects have none. To query either type, use the [Databricks connector](../../data-connectors/databricks/deployment#table-type-filtering) with `mode: sql_warehouse` or `mode: spark_connect`.
+
 ### Effective Permissions
 
 Before creating a table provider, the connector checks permissions via `GET /api/2.1/unity-catalog/effective-permissions/table/{catalog.schema.table}`. The following privileges grant read access:

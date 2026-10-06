@@ -548,12 +548,12 @@ If the `Date` header is not present, the system falls back to using the current 
 
 ### Transient Error Handling
 
-When caching HTTP responses, transient server errors are automatically excluded from the cache to prevent temporary failures from polluting cached data. Specifically:
+Transient HTTP errors never reach the cache. Specifically:
 
 - **5xx responses** (500–599) — Server errors indicating temporary issues (e.g., overload, outage)
 - **429 Too Many Requests** — Rate limiting responses
 
-These responses are still returned to the querying client, but they are **not written to the cache**. This ensures that subsequent cache reads return valid data rather than error responses from temporary failures.
+The [HTTP connector](../../../components/data-connectors/https/index.md#error-responses) retries these statuses up to its `max_retries`. When the last attempt still returns one, the fetch fails with an error: the querying client receives that error, or the expired cached entry when [`caching_stale_if_error`](#stale-if-error-behavior) permits serving it, and nothing is written to the cache. A row that carries one of these statuses in a `response_status` column is also kept out of the cache, so subsequent cache reads return valid data rather than error responses from temporary failures.
 
 ## Refresh Configuration
 
@@ -621,6 +621,44 @@ datasets:
 - Mixed: `1h30m`, `2h15m30s`
 
 **Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
+
+A `caching_ttl` of `0s` marks entries stale immediately. That setting does not mean queries always read the accelerator. See [Prefer the origin, fall back on failure](#prefer-the-origin-fall-back-on-failure).
+
+### Prefer the origin, fall back on failure
+
+Use this pattern for availability-first HTTP read-through caching: prefer the origin while it is healthy, and read the accelerator only if the origin fails.
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: api_cache
+    params:
+      file_format: json
+      allowed_request_paths: '/v1/*'
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: cayenne
+      mode: file
+      params:
+        caching_ttl: 0s # immediately stale
+        caching_stale_while_revalidate_ttl: 0s
+        caching_stale_if_error: enabled # or a finite duration, for example 10m
+        caching_max_size: 512MiB
+        caching_max_items: 100000
+```
+
+Write a zero duration with a unit, such as `0s`. A bare `0` is a YAML integer, which Spice rejects when it loads the dataset: `Invalid 'caching_ttl' param value: Int(0). Expected a duration string.`
+
+`caching_ttl: 0s` marks an entry stale as soon as it is stored, so the accelerator is not a fresh result. `caching_stale_while_revalidate_ttl: 0s` closes the window that would return that stale entry while the origin is revalidated. While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails, including a 429 or 5xx response once the HTTP connector has exhausted `max_retries`, and `caching_stale_if_error` is `enabled` or a finite duration.
+
+A finite duration such as `10m` serves the cached entry only while its staleness past `caching_ttl` stays within that duration. With `caching_ttl: 0s`, that staleness starts as soon as the entry is stored, so the duration is the maximum age of a fallback entry. `enabled` has no age bound. `caching_stale_if_error: 0s` means `disabled`, the same as leaving the fallback off.
+
+`caching_ttl: 0s` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0s` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
+
+These rules describe the accelerator. The [SQL results cache](../../caching) sits in front of it and is on by default with an `item_ttl` of `1s`: an identical query inside that window returns the earlier result, including a fallback served during an outage, without a new origin request. When every query must reach the origin, send it with [`Cache-Control: no-cache`](../../caching#cache-control) or set `runtime.caching.sql_results.enabled: false`. The HTTP connector's [response cache](../../../components/data-connectors/https#response-cache) is not involved, because an accelerated dataset skips it whatever `Cache-Control` the origin sends.
+
+`caching_stale_if_error: enabled` keeps expired entries as fallback material and does not derive an eviction deadline from age. Pair that unbounded setting with `caching_max_size`, `caching_max_items`, or a `retention_period` / `retention_sql` rule so stale entries do not grow without a bound. A finite `caching_stale_if_error` duration already supplies an eviction deadline. See [Cache Size and Item Limits](#cache-size-and-item-limits).
 
 ### Cache Size and Item Limits
 
@@ -722,7 +760,7 @@ When `caching_stale_if_error: disabled` (default), or the entry is staler than t
 
 **An expired entry with no rows is not a fallback.** When the expired entry holds zero rows, Spice has nothing to serve in place of the failing origin, so the query receives the origin's error, or its 429 or 5xx response, rather than an empty result.
 
-**A failing origin is not necessarily an error.** Once the HTTP connector has exhausted its own `max_retries`, it reports a failing origin as a *successful* fetch whose rows carry a 429 or 5xx status — which is the dominant failure mode of the sources caching mode accepts. A revalidation classifies that response as an unavailable origin, so `caching_stale_if_error` acts on it and the cached entry is kept rather than being overwritten with the origin's error body. The same classification stops the periodic background refresh from replacing a good entry with an error response.
+**A 429 or 5xx is a failed fetch.** Once the HTTP connector has exhausted its own `max_retries` on a 429 or 5xx, the fetch fails with an error rather than returning the origin's error body as a row, so `caching_stale_if_error` acts on it and the cached entry is kept. A fetch that succeeds but returns rows carrying a 429 or 5xx `response_status` is treated the same way, and the periodic background refresh does not replace a good entry with such rows.
 
 :::warning[`caching_stale_if_error: enabled` alone leaves the cache unbounded]
 Expired entries are deliberately retained as fallback material for a failing origin, and `enabled` puts no age bound on them, so the expiry sweep removes nothing. Prefer a finite duration — `caching_stale_if_error: 10m` keeps the fallback for a bounded window and lets the sweep evict past it — or pair `enabled` with [`caching_max_size` or `caching_max_items`](#cache-size-and-item-limits) or a `retention_period` / `retention_sql` rule. The runtime warns at startup, naming the dataset, when `enabled` is loaded with none of those.

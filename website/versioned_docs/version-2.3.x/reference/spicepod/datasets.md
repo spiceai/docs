@@ -617,6 +617,8 @@ datasets:
       refresh_check_interval: 30s # Periodic background refresh
 ```
 
+A `caching_ttl` of `0s` marks entries stale immediately. With `caching_stale_while_revalidate_ttl: 0s` and `caching_stale_if_error: enabled`, Spice does not serve the accelerator while the origin is healthy. A successful origin response is still stored, and that entry is consulted only when a later origin request fails. Zero TTL alone does not mean every read is served from the accelerator. Pair `enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
+
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
 
 See [Duration](../duration)

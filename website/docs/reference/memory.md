@@ -466,6 +466,12 @@ Allocator variants are available with the [Spice Cloud Platform and Spice.ai Ent
 
 The memory allocator operates independently from the query memory management described above. `runtime.query.memory_limit` controls DataFusion's query execution memory pool, while the allocator determines how the runtime process itself requests and releases memory from the operating system.
 
+When a deployment running the system allocator (glibc `malloc`) shows resident memory that keeps climbing under steady load and never flattens, switch to the jemalloc [allocator variant](./distributions#allocator-variants) first, then re-measure query latency and memory shape under the same workload. Memory that rises and then holds a high plateau is expected allocator behavior, not a reason to switch; see [Reading a Memory Graph](#reading-a-memory-graph).
+
+With glibc, arena count is based on detected CPU count and can over-allocate even when `runtime.cpu.cores` is set lower for Spice thread-pool sizing. Setting [`MALLOC_ARENA_MAX`](https://man7.org/linux/man-pages/man3/mallopt.3.html) can reduce RSS in some environments, but it can also hurt query latency, so it is usually a second-line control after trying jemalloc for fragmentation-heavy workloads.
+
+`MALLOC_TRIM_THRESHOLD_` and `MALLOC_MMAP_THRESHOLD_` are separate controls from `MALLOC_ARENA_MAX`; tune them independently when experimenting with glibc reclaim behavior.
+
 ## Results Cache Memory
 
 Spice maintains in-memory caches for SQL query results, search results, and embeddings. These caches consume memory in addition to accelerator and query execution memory.
