@@ -40,7 +40,9 @@ dbc install redshift
 
 See the [`dbc` documentation](https://docs.columnar.tech/dbc/) for other installation methods (pip, Homebrew, Windows MSI) and platform support.
 
-Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length` and `json_object_keys` — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local and why.
+Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length`, `json_object_keys` and `json_contains`, plus `json_as_text` and `json_get(...) IS NULL` on a `STRING` document — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local, the ones whose translation depends on how the source declares the column, and why.
+
+`ILIKE` and `NOT ILIKE` are the exception: GoogleSQL has no such operator, so Spice keeps both local for `bigquery` datasets and catalogs and evaluates them after the rows arrive. Ordinary `LIKE`, comparisons and the JSON rewrites above still push down, and a query that mixes them sends the supported parts to BigQuery. An `ILIKE` anywhere in the predicate — including nested inside an `OR` — also holds any `LIMIT` local, so the filter runs before rows are discarded.
 
 For BigQuery sources, ISO timestamp strings that include a timezone offset (or trailing `Z`) must be cast to `TIMESTAMP`, not `DATETIME`.
 
@@ -282,6 +284,8 @@ The ADBC connector maintains a pool of database connections for concurrent query
 
 Both values must be positive integers, and `connection_pool_min_idle` must not exceed `connection_pool_size` — a larger value causes connection pool initialization to fail.
 
+Query cancellation or deadline expiry cancels the driver statement and releases the pooled connection. For BigQuery, this also stops the remote job.
+
 ### Query Pushdown
 
 The ADBC connector pushes SQL operations down to the source database when possible, reducing the amount of data transferred:
@@ -291,7 +295,9 @@ The ADBC connector pushes SQL operations down to the source database when possib
 - **Limit pushdown**: `LIMIT` clauses are applied at the source.
 - **Aggregation pushdown**: `GROUP BY`, `SUM`, `COUNT`, `AVG`, and other aggregations are executed on the source.
 - **Sort pushdown**: `ORDER BY` clauses are applied at the source.
-- **Join pushdown**: Joins between datasets from the same ADBC URI are executed on the remote database.
+- **Join pushdown**: Joins between datasets that reach the same remote engine are executed on the remote database.
+
+Join pushdown requires matching driver, URI, credentials, driver options, and explicit `adbc_catalog`/`adbc_schema` settings. BigQuery tables in different datasets within one project can share a job: dataset qualifiers in `from:` do not need to match, but explicit `adbc_schema` settings do.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
 

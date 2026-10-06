@@ -269,7 +269,7 @@ datasets:
 - **Single endpoint per dataset.** Multi-endpoint failover must be handled at the load-balancer / DNS layer.
 - **API key auth only.** OIDC / SSO is not supported at the data-plane connector. Use API keys for both Cloud and self-hosted federation.
 - **Append-only changes stream.** Updates and deletes from the upstream are not propagated; rely on `refresh_mode: full` for datasets that mutate.
-- **Cloud connections cap at 1000 requests per connection.** When the cap is hit the connection is reset; the Flight client retries automatically. If you see `Connection is reset by the server. Please retry the request.` or the `spiceai-retryable` metadata, the query has been retried already.
+- **Cloud connections cap at 1000 requests per connection.** When the cap is hit the connection is reset and the in-flight query fails; the connector does not re-issue it. If you see `Connection is reset by the server. Please retry the request.` or the `spiceai-retryable` metadata on the error, retry the query from your application.
 - **`grpc://` (without TLS) is rejected.** Use `http://` for clear-text or `https://` / `grpc+tls://` for TLS.
 
 :::warning Memory considerations

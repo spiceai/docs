@@ -87,6 +87,10 @@ The `access` field controls what operations are allowed on the catalog:
 | `ducklake_aws_allow_http`          | Optional. Set to `true` to allow HTTP (non-TLS) connections to S3. Default: `false`.                                                                  |
 | `ducklake_automatic_migration`     | Optional. Set to `true` to automatically migrate an older DuckLake catalog schema to the version required by the DuckLake extension on attach. Default: `false`. Migration rewrites catalog metadata and **cannot be undone**.                        |
 
+:::info[Timestamps are read in UTC]
+Spice pins the DuckDB session backing this catalog to `SET TimeZone = 'UTC'`, so a `TIMESTAMPTZ` column always reaches Spice as `Timestamp(us, "UTC")` rather than carrying the host's timezone into the dataset schema. See the [DuckDB connector](../data-connectors/duckdb/index.md) for why.
+:::
+
 ## Authentication
 
 ### AWS S3
@@ -204,10 +208,11 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 :::warning[Limitations]
 
-- Spice uses DuckDB 1.5.3, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
+- Spice embeds DuckDB **1.4.4** and supports the catalog schema required by its `ducklake` extension. For older catalogs, `ducklake_automatic_migration: true` performs an irreversible [metadata migration](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake) on attach.
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `information_schema` and `pg_catalog` system schemas are automatically filtered out during discovery.
 - Catalog refresh is non-incremental — a full re-query of `information_schema` is performed on each refresh cycle.
 - If a table fails to load during catalog refresh, it is skipped with a warning and does not fail the entire catalog.
+- This catalog uses the DuckDB SQL dialect, so the `regexp_match` and `regexp_instr` functions are evaluated in Spice rather than pushed down, and `regexp_count` pushes down only for the call shapes both engines count alike. See [Regular Expression Functions and Federation](../data-connectors/duckdb#regular-expression-functions-and-federation). `AVG` over a decimal column is also evaluated in Spice. See [Decimal Averages](../data-connectors/duckdb#decimal-averages).
 
 :::

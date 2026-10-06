@@ -170,7 +170,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-state
     params:
-      region: us-east-1
+      s3_region: us-east-1
 ```
 
 The state location is a shared object store (S3, GCS, Azure Blob, or local filesystem via `file://`) used to persist async query job state and result chunks.
@@ -670,7 +670,7 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster
     params:
-      region: us-east-1
+      s3_region: us-east-1
 ```
 
 The object store is used for scheduler registration and discovery, and to persist [async query](#async-queries-api) job state (the execution graph plus its status) so that schedulers are effectively stateless for async queries.
@@ -690,8 +690,8 @@ The `runtime.scheduler.params` section supports the following S3 parameters:
 | `s3_region`        | AWS region for the S3 bucket                          | -          |
 | `s3_endpoint`      | Custom S3-compatible endpoint URL                     | -          |
 | `s3_auth`          | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `s3_key`           | AWS access key ID (when `auth: key`)                  | -          |
-| `s3_secret`        | AWS secret access key (when `auth: key`)              | -          |
+| `s3_key`           | AWS access key ID (when `s3_auth: key`)               | -          |
+| `s3_secret`        | AWS secret access key (when `s3_auth: key`)           | -          |
 | `s3_session_token` | AWS session token for temporary credentials           | -          |
 | `client_timeout`   | S3 client timeout                                     | -          |
 | `allow_http`       | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
@@ -703,10 +703,10 @@ runtime:
   scheduler:
     state_location: s3://my-bucket/spice-cluster
     params:
-      region: us-east-1
-      auth: key
-      key: ${secrets:aws_access_key}
-      secret: ${secrets:aws_secret_key}
+      s3_region: us-east-1
+      s3_auth: key
+      s3_key: ${secrets:aws_access_key}
+      s3_secret: ${secrets:aws_secret_key}
 ```
 
 ### Starting an HA Cluster
@@ -718,7 +718,7 @@ runtime:
      scheduler:
        state_location: s3://my-bucket/spice-cluster
        params:
-         region: us-east-1
+         s3_region: us-east-1
    ```
 
 2. **Start multiple schedulers**, each with unique certificates:

@@ -13,10 +13,11 @@ Spice collects anonymous telemetry data to help improve the product. Usage telem
 The following anonymous information is collected:
 
 - The version of Spice being used (i.e. `v1.0.0`)
-- An anonymous identifier for the Spice instance, computed as `sha256(hostname + spicepod.name)`.
+- An anonymous identifier for the Spice instance, computed as `sha256(hostname + ":" + spicepod.name)`.
 - An anonymous identifier for the Spicepod, computed as `sha256(spicepod.name)`.
-  - The code to calculate these identifiers is here: [https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/anonymous.rs#L65](https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/anonymous.rs#L65)
-- Various metrics related to usage of features of the runtime, see the full list here: [https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/lib.rs#L32](https://github.com/spiceai/spiceai/blob/trunk/crates/telemetry/src/lib.rs#L32)
+  - The code to calculate these identifiers is here: [https://github.com/spiceai/spiceai/blob/v2.0.1/crates/telemetry/src/anonymous.rs#L61-L108](https://github.com/spiceai/spiceai/blob/v2.0.1/crates/telemetry/src/anonymous.rs#L61-L108)
+- The shape of the host: its vCPU count, GPU count, and total memory in bytes, reported as `host.cpu.count`, `host.gpu.count`, and `host.memory.bytes`.
+- Various metrics related to usage of features of the runtime, see the full list here: [https://github.com/spiceai/spiceai/blob/v2.0.1/crates/telemetry/src/lib.rs](https://github.com/spiceai/spiceai/blob/v2.0.1/crates/telemetry/src/lib.rs)
 
 Data collected is sent to `https://telemetry.spiceai.org` once every hour.
 

@@ -59,7 +59,7 @@ The Delta Lake connector does not currently register connector-specific dataset-
 
 ## Task History
 
-Delta Lake reads participate in Spice [task history](../../../reference/task_history) through DataFusion's execution-plan spans. Individual object reads are attributed to their enclosing `sql_query` or `accelerated_table_refresh` task.
+Delta Lake reads participate in Spice [task history](../../../reference/task_history) through DataFusion's execution-plan spans. Individual object reads are attributed to their enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

@@ -72,11 +72,11 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 
 ### `params`
 
-| Parameter Name              | Description                                                                                   |
-| --------------------------- | --------------------------------------------------------------------------------------------- |
-| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                 |
-| `client_timeout`            | Connection timeout duration. E.g. `30s`, `1m`. No timeout when unset.                         |
-| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`. |
+| Parameter Name              | Description                                                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                                                         |
+| `client_timeout`            | Accepted for consistency with other file connectors, but has no effect on NFS. The value must still be a valid duration (e.g. `30s`). |
+| `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                                         |
 
 ## Examples
 
@@ -100,19 +100,6 @@ When pointing to a specific file, the format is inferred from the file extension
 datasets:
   - from: nfs://nfs-server.local/data/reports/summary.parquet
     name: summary
-```
-
-### Connection with Timeout
-
-Configure a timeout for slow or unreliable network connections:
-
-```yaml
-datasets:
-  - from: nfs://remote-nfs.example.com/exports/large-data/
-    name: large_data
-    params:
-      file_format: parquet
-      client_timeout: 120s
 ```
 
 ### Reading CSV Files
@@ -255,12 +242,7 @@ If you can connect but receive permission errors:
 
 ### Timeout Errors
 
-For slow or unreliable network connections, increase the timeout:
-
-```yaml
-params:
-  client_timeout: 120s
-```
+Setting `client_timeout` does not change NFS timeouts. The libnfs bindings Spice uses do not expose a timeout setting, so the value is parsed and then ignored. For timeouts on slow or unreliable networks, check latency and packet loss between the Spice host and the NFS server.
 
 ### File Format Errors
 

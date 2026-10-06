@@ -91,7 +91,7 @@ Key signals to alert on:
 
 ## Task History
 
-MySQL operations participate in Spice [task history](../../../reference/task_history) via the shared SQL data-connector spans. Queries executed against MySQL are captured as child spans of the enclosing `sql_query` or `accelerated_table_refresh` task.
+MySQL operations participate in Spice [task history](../../../reference/task_history) via the shared SQL data-connector spans. Queries executed against MySQL are captured as child spans of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

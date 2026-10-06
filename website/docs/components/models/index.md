@@ -20,7 +20,7 @@ Spice supports various model providers for large language models (LLMs).
 | [`spice.ai`][spice]        | Models hosted on the Spice.ai Cloud Platform | Release Candidate | OpenAI-compatible HTTP endpoint |
 | [`azure`][azure]           | Azure OpenAI                                 | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`anthropic`][ant]         | Models hosted on Anthropic                   | Alpha             | OpenAI-compatible HTTP endpoint |
-| [`google`][google]         | Google AI language models                    | Alpha             | OpenAI-compatible HTTP endpoint |
+| [`google`][google]         | Google Vertex AI language models             | Alpha             | Vertex AI HTTP endpoint         |
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI      | Alpha             | OpenAI-compatible HTTP endpoint |
 | ~~`perplexity`~~           | ~~Perplexity~~ ([Deprecated][perplexity])    | Deprecated        | -                               |
 
@@ -34,7 +34,10 @@ Spice supports various model providers for large language models (LLMs).
 [google]: ./google.md
 [xai]: ./xai.md
 [databricks]: ./databricks.md
+[typesafe]: ./typesafe.md
 [perplexity]: ./perplexity.md
+
+Spice also serves [TypeSafe][typesafe] evaluation models, which answer typed questions through `POST /v1/evaluate` rather than chat completions. Chat models answer `POST /v1/evaluate` as well. See [Evaluate API](../../features/large-language-models/evaluate.md).
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../reference/models).
 
@@ -66,12 +69,13 @@ The following provider prefixes are supported:
 | `azure`      | Azure OpenAI                          |
 | `xai`        | xAI                                   |
 | `anthropic`  | Anthropic                             |
-| `google`     | Google AI                             |
+| `google`     | Google Vertex AI                      |
 | `hf`         | Hugging Face                          |
 | `file`       | Local filesystem                      |
 | `spiceai`    | Spice.ai Cloud Platform               |
 | `databricks` | Databricks Mosaic AI                  |
 | `bedrock`    | Amazon Bedrock                        |
+| `typesafe`   | TypeSafe                              |
 
 **Example usage in `spicepod.yaml`:**
 

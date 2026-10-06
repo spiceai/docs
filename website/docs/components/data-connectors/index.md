@@ -37,44 +37,45 @@ Supported Data Connectors include:
 
 | Name                               | Description                           | Status            | Protocol/Format              |
 | ---------------------------------- | ------------------------------------- | ----------------- | ---------------------------- |
+| `adbc`                             | ADBC                                  | Stable            | Arrow                        |
 | `databricks (mode: delta_lake)`    | [Databricks][databricks]              | Stable            | S3/Delta Lake                |
+| `databricks (mode: spark_connect)` | [Databricks][databricks]              | Stable            | [Spark Connect][spark]       |
+| `databricks (mode: sql_warehouse)` | [Databricks][databricks]              | Stable            | SQL Statement Execution API  |
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
 | `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
 | `file`                             | File                                  | Stable            | Parquet, CSV                 |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
+| `http`, `https`                    | HTTP(s) (dynamic headers, pagination) | Stable            | Parquet, CSV, JSON           |
+| `localpod`                         | [Local dataset replication][localpod] | Stable            |                              |
 | `postgres`                         | PostgreSQL (with native WAL CDC)      | Stable            |                              |
 | `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
 | `mysql`                            | MySQL (with native binlog CDC)        | Stable            |                              |
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `dynamodb`                         | Amazon DynamoDB (with Streams)        | Stable            |                              |
+| `iceberg`                          | [Apache Iceberg][iceberg] (read+write) | Stable            | Parquet                      |
+| `flightsql`                        | FlightSQL                             | Stable            | Arrow Flight SQL             |
+| `glue`                             | [AWS Glue][glue]                      | Stable            | Iceberg, Parquet, CSV        |
+| `mongodb`                          | MongoDB (with native Change Streams CDC) | Stable         |                              |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `cosmosdb`                         | Azure Cosmos DB (NoSQL)               | Release Candidate |                              |
 | `git`                              | Git repositories                      | Release Candidate |                              |
 | `snowflake`                        | Snowflake                             | Release Candidate | Arrow                        |
-| `adbc`                             | ADBC                                  | Release Candidate | Arrow                        |
-| `iceberg`                          | [Apache Iceberg][iceberg] (read+write) | Release Candidate | Parquet                      |
-| `databricks (mode: spark_connect)` | [Databricks][databricks]              | Beta              | [Spark Connect][spark]       |
+| `oracle`                           | Oracle                                | Release Candidate | [Oracle ODPI-C][ODPIC]       |
 | `ducklake`                         | [DuckLake][ducklake]                  | Beta              | Parquet                      |
-| `flightsql`                        | FlightSQL                             | Beta              | Arrow Flight SQL             |
 | `mssql`                            | Microsoft SQL Server                  | Beta              | Tabular Data Stream (TDS)    |
 | `odbc`                             | ODBC (Spice.ai Enterprise)            | Beta              | ODBC                         |
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Beta              | Object-store listing         |
-| `oracle`                           | Oracle                                | Alpha             | [Oracle ODPI-C][ODPIC]       |
+| `kafka`                            | Kafka                                 | Beta              | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
 | `clickhouse`                       | ClickHouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
 | `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON           |
-| `kafka`                            | Kafka                                 | Alpha             | Kafka + JSON                 |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
-| `glue`                             | [AWS Glue][glue]                      | Alpha             | Iceberg, Parquet, CSV        |
-| `http`, `https`                    | HTTP(s) (dynamic headers, pagination) | Alpha             | Parquet, CSV, JSON           |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
-| `localpod`                         | [Local dataset replication][localpod] | Alpha             |                              |
-| `mongodb`                          | MongoDB (with native Change Streams CDC) | Alpha          |                              |
-| `scylladb`                         | ScyllaDB                              | Alpha             |                              |
+| `scylladb`                         | ScyllaDB (Spice.ai Enterprise)        | Alpha             |                              |
 | `smb`                              | SMB 3.1.1                             | Alpha             | SMB                          |
 | `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON           |
 
@@ -120,6 +121,7 @@ datasets:
 | Name                                          | Parameter              | Status  | Description                                                                                                    |
 | --------------------------------------------- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | Stable  | Columnar format optimized for analytics                                                                        |
+| [Apache ORC](../reference/file_format#orc)    | `file_format: orc`     | Stable  | Columnar format. Read-only; a directory of ORC objects infers its schema by merging every object's footer.      |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | Stable  | Comma-separated values                                                                                         |
 | JSON                                          | `file_format: json`    | Stable  | JavaScript Object Notation                                                                                     |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | Stable  | Open table format with ACID transactions. Object stores only.                                                  |
@@ -262,6 +264,35 @@ GROUP BY _location, _size
 ORDER BY _location;
 ```
 
+#### File Listing Pruning with `_last_modified`
+
+When `_last_modified` is enabled and a query filters on it, Spice uses the object store listing to skip files before opening them. Only files whose last-modified time satisfies the filter are read. A file that the filter excludes is never opened, so its footer is not read and a compressed file such as `jsonl.gz` is not decompressed. Spice still applies the filter to each row after the scan, so query results are unchanged.
+
+This helps an `append` refresh that uses `_last_modified` as its `time_column`, which enables the column automatically. Each refresh filters on `_last_modified > <last refresh watermark>`, so a refresh with no new files reads no data files.
+
+Pruning applies when the `_last_modified` conditions are combined with `AND` and each one compares the column with a constant timestamp using `>`, `>=`, `<`, `<=`, `=`, or `BETWEEN`. A condition that casts `_last_modified` to a coarser precision, such as `Timestamp(Second)`, does not prune files, because the truncated value can match rows that the file's exact last-modified time would exclude.
+
+Spice reads every file in the listing when a filter references `_last_modified` under `OR` or `NOT`, or compares it with a value that is not a constant, such as another column. The results are the same, but the query does not skip any files.
+
+#### Queries That Read Only Partition or Metadata Columns
+
+Hive partition columns and metadata columns have the same value in every row of a file. When a query reads only these columns and answers them with `GROUP BY`, `DISTINCT`, `MAX`, or `MIN`, Spice needs one row per file instead of every row. Two common queries have this shape:
+
+```sql
+-- Find the newest partition
+SELECT year FROM partitioned_data GROUP BY year ORDER BY year DESC LIMIT 1;
+
+-- Find the most recent file change
+SELECT MAX(_last_modified) FROM my_data;
+```
+
+Spice answers these queries in one of two ways:
+
+- When every file reports an exact row count, such as Parquet, and the query reads only partition columns, Spice builds the result from the file listing and opens no data files.
+- Otherwise, including JSON, CSV, and compressed files, and any query that reads a metadata column, Spice reads at most the first record of each file. `EXPLAIN` shows `first_record_probe=true` on the scan.
+
+Files with no rows are skipped in both cases, so an empty partition does not appear in the result. A filter on partition or metadata columns keeps the optimization. A filter on a data column, or an aggregate that depends on row counts, such as `COUNT`, `SUM`, or `AVG`, reads the files in full.
+
 #### Applicable Connectors
 
 Metadata columns are supported by all file-based connectors:
@@ -289,26 +320,31 @@ For connectors that read self-describing formats (Parquet, Arrow, Avro), the sch
 
 ### Runtime Schema Changes
 
-Spice does not apply schema changes at runtime. If the source schema changes while the runtime is running — for example, new columns are added, columns are removed, or data types change — subsequent data refreshes will fail with an error such as:
+Accelerated datasets keep the schema registered at startup. The default [`on_schema_change: block`](../reference/spicepod/datasets#on_schema_change) does not adopt a later source change. The dataset stays healthy and continues to serve queries on the registered schema. A refresh that cannot write the new source rows into that schema fails, for example:
 
 ```
 Failed to load data for dataset <name>: Cannot cast struct field ...
 ```
 
-This behavior is by design. Blocking runtime schema evolution protects accelerated tables from unintentional or breaking schema changes that could corrupt data or produce unexpected query results.
+That failure is intentional. Incompatible source changes stay blocked until an explicit policy accepts them. Plan the rollout, then set one of:
 
-To apply a new source schema, restart the Spice runtime. On startup, Spice re-infers the schema from the source and re-initializes the dataset with the updated column definitions.
+| Policy               | What it accepts                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `block` (default)    | Nothing. The registered schema stays in force.                                                                       |
+| `fail`               | Nothing. The dataset reports an error status with an actionable message while the source schema diverges, and recovers if the source reverts. |
+| `append_new_columns` | New nullable columns. Type and nullability changes stay on `block`.                                                 |
+| `sync_all_columns`   | Lossless widening changes: new nullable columns, widened types, relaxed nullability. Removals and narrowing stay blocked. |
+| `drop_and_recreate`  | Widening changes in place, and a destructive rebuild for incompatible changes. The rebuild runs only with `refresh_mode: full`. |
+
+Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) recreates the acceleration file when an incompatible change is found. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
 :::
-
-:::note
-Runtime schema evolution controls are planned for a future release. When available, schema evolution will remain off by default.
-:::
 | Name                                          | Parameter              | Supported | Is Document Format |
 | --------------------------------------------- | ---------------------- | --------- | ------------------ |
 | [Apache Parquet](https://parquet.apache.org/) | `file_format: parquet` | ✅         | ❌                  |
+| [Apache ORC](../reference/file_format#orc)    | `file_format: orc`     | ✅         | ❌                  |
 | [CSV](../reference/file_format#csv)           | `file_format: csv`     | ✅         | ❌                  |
 | [Delta Lake](https://delta.io/)               | `file_format: delta`   | ✅         | ❌                  |
 | [Apache Iceberg](https://iceberg.apache.org/) | `file_format: iceberg` | ✅         | ❌                  |

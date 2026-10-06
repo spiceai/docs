@@ -11,7 +11,7 @@ tags:
   - mcp
 ---
 
-The Model Context Protocol (MCP) helps integrate external tools and services into the Spice runtime. MCP tools can be run internally or connected over HTTP using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport.
+The Model Context Protocol (MCP) helps integrate external tools and services into the Spice runtime. MCP tools can be run internally or connected over HTTP using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports#streamable-http) transport.
 
 ![Spice.ai Open Source Model-Context-Protocol (MCP) support](/img/features/mcp.png)
 
@@ -23,6 +23,28 @@ MCP enables Spice to:
 2. Connect to external MCP servers over Streamable HTTP.
 
 This flexibility helps extend the capabilities of language models by providing access to external tools and services.
+
+## Protocol Versions
+
+Spice is dual-era. It serves the [`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/) revision and still answers the legacy `initialize` handshake, so existing clients on earlier revisions — including [`2025-03-26`](https://modelcontextprotocol.io/specification/2025-03-26/) — keep working unchanged.
+
+| Era | How a client talks to Spice | Session |
+| --- | --- | --- |
+| **Modern** (`2026-07-28`) | `server/discover`, then `tools/list` and `tools/call` with per-request `_meta` — no `initialize` first | Sessionless. No `Mcp-Session-Id`. |
+| **Legacy** (`2025-11-25` and earlier, including `2025-03-26`) | `initialize`, then `notifications/initialized` | Spice mints an `Mcp-Session-Id` and requires it on subsequent requests. |
+
+Spice advertises `2026-07-28`; a legacy client negotiates the revision it requests in `initialize`.
+
+Modern clients send the `MCP-Protocol-Version`, `Mcp-Method`, and — for `tools/call` — `Mcp-Name` Streamable HTTP headers. A tool argument annotated with `x-mcp-header` additionally requires a matching `Mcp-Param-<name>` header whose value equals that argument in the JSON-RPC body.
+
+| Condition | Response |
+| --- | --- |
+| A protocol version this runtime does not support | JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
+| A Streamable HTTP header that disagrees with the JSON-RPC body | HTTP `400` with JSON-RPC `-32020` |
+
+`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. A `2026-07-28` client POSTs `subscriptions/listen` instead of opening a GET stream.
+
+When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer is pre-2026. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
 
 ## Configuring MCP Tools
 
@@ -102,6 +124,32 @@ runtime:
 ```
 
 Set `allowed_hosts: ["*"]` to disable host checking entirely.
+
+### Allowed Origins
+
+Separately from the `Host` check, `/v1/mcp` validates the browser `Origin` header against [`runtime.cors.allowed_origins`](../../reference/spicepod/runtime#runtimecorsallowed_origins) — there is no MCP-specific origin setting.
+
+| `runtime.cors.allowed_origins` | Effect on `/v1/mcp` |
+| --- | --- |
+| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms. Entries carry no port, so any port on those hosts matches. |
+| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. |
+
+A request that sends no `Origin` header at all is accepted in every case, which is why MCP clients such as Cursor and Claude Desktop are unaffected.
+
+:::warning
+
+`["*"]` does **not** accept every `Origin` on `/v1/mcp`. `*` is not a valid [RFC 6454](https://datatracker.ietf.org/doc/html/rfc6454) origin, so it expands to the localhost defaults above rather than disabling the check — unlike [`runtime.mcp.allowed_hosts`](../../reference/spicepod/runtime#runtimemcpallowed_hosts), where `["*"]` does disable the `Host` check. A remote browser-based MCP client must be given a concrete `runtime.cors.allowed_origins` list:
+
+```yaml
+runtime:
+  cors:
+    allowed_origins:
+      - https://app.example.com
+```
+
+:::
+
+This affects only MCP `Origin` validation. Browser CORS on the other HTTP endpoints is unchanged: `allowed_origins: ["*"]` remains allow-all there.
 
 ## Additional Configuration Options
 
@@ -250,7 +298,7 @@ See the [mcp-server cookbook](https://github.com/spiceai/cookbook/tree/trunk/mcp
 A failing MCP server does not stop the runtime. Spice logs a warning, retries the connection in the background, and reports healthy — the tool is simply absent from `tools/list`. Verify the runtime log at startup:
 
 ```bash
-grep "Unable to load tool" <log>
+grep "Unable to load tool" "<log>"
 ```
 
 A server that starts but authenticates with empty or invalid credentials is harder to spot: it registers zero tools without producing that warning. Check for `runtime_secrets` errors, which indicate a `${secrets:...}` reference that did not resolve.

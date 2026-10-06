@@ -27,19 +27,45 @@ datasets:
 
 ## Column References
 
-Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional.
 
 Examples
 
 - `number`: Reference a constraint on the `number` column
 - `(hash, timestamp)`: Reference a constraint on the `hash` and `timestamp` columns
+- `hash, timestamp`: The same multicolumn key, written without parentheses
+
+### Column names
+
+The names in a column reference are matched against the schema's field names as written — they are not SQL identifiers, so a name that SQL would read as a qualifier chain (`service.instance.id`) or reject outright (`sentry-environment`, `2xx_count`) is a single column name here and needs no special treatment.
+
+A name may also be double-quoted the way SQL writes it. The quotes are not part of the name, and any whitespace or casing inside them is preserved:
+
+- `service.instance.id` and `"service.instance.id"` both reference the same column
+- `(time_unix_nano, "service.instance.id")`: A multicolumn key mixing both forms
+
+A column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced. Each of those characters separates fields in the strings a column reference is carried in, so such a name cannot be read back unambiguously; the runtime refuses it at load with a configuration error naming the column and the character, rather than silently splitting it.
+
+### Primary key columns must be non-null
+
+Every column named by `primary_key` must be populated in the incoming data. On the [Spice Cayenne](../../components/data-accelerators/cayenne) accelerator a batch carrying a null in any primary key column is rejected with an error naming the offending column(s), for example:
+
+```text
+Primary key column 'region' has null values. Every primary key column must be non-null: populate it in the source data, or set `primary_key` to columns that are always present.
+```
+
+Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
 
 ## Handling conflicts
 
 The behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
 
 :::warning
-If there are multiple rows in the incoming data that violate any constraint, the entire incoming batch of data will be dropped.
+A key can repeat within the incoming data itself, not only against a stored row.
+
+**`drop` on DuckDB and SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
+
+**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
 :::
 
 Example Spicepod:
@@ -68,6 +94,12 @@ Spice provides two `upsert` options to resolve duplicates within a single update
 
 - `upsert_dedup`: Removes exact duplicates in the incoming batch if there is a constraint violation. (i.e. the equivalent of running `SELECT DISTINCT * FROM [batch]`)
 - `upsert_dedup_by_row_id`: Resolves conflicts by taking the row with the greatest row id. This is the behavior that would occur if the upsert were applied row-by-row. This guarantees that no constraint violations would result in an error, but it has the tradeoff of being effectively "random" if the incoming data is not ordered.
+
+Neither option is ordered by [`time_column`](../../reference/spicepod/datasets#time_column). `upsert_dedup` drops only **exact** duplicates (every column equal). If the same primary key appears twice in one batch with different payloads, the load errors rather than picking one revision.
+
+`upsert_dedup_by_row_id` is last-write-wins by the order rows land in that batch, not by an update timestamp. Parallel scan or insert can reorder rows across partitions. An `ORDER BY` in [`refresh_sql`](./data-refresh#refresh-sql) is not a guarantee through to conflict resolution.
+
+Safer pattern: collapse to latest-per-key first (upstream, or by filtering in `refresh_sql` so a batch cannot carry two revisions of the same key), then upsert.
 
 The new behavior is only triggered when an incoming batch has a constraint violation, minimizing the effect of applying these computations to only when its necessary. However, they can have a performance impact and are not enabled by default.
 

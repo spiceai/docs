@@ -7,7 +7,25 @@ pagination_next: null
 
 Run Spice - starts the Spice runtime, installing if necessary.
 
-`spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It installs `spiced` on first use, applies developer-friendly defaults, and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
+`spice run` is a wrapper around the [`spiced`](./spiced) runtime binary. It applies developer-friendly defaults and forwards arguments after `--` to the runtime. To invoke the runtime directly (for containers, systemd units, or CI), see the [`spiced` reference](./spiced).
+
+### Runtime selection
+
+`spice run` and [`spice version`](./version) look for `spiced` in this order:
+
+1. `$SPICED_PATH`.
+2. Beside the running `spice` binary.
+3. `$HOME/.spice/bin/spiced`, managed by [`spice install`](./install).
+4. Under `sudo`, the invoking user's `~/.spice/bin/spiced`.
+
+`PATH` is not searched. An invalid `$SPICED_PATH` causes an error; otherwise, `spice run` installs
+the runtime if none is found.
+
+Before launching, `spice run` logs the runtime it resolved and the rung it came from
+(`Using the Spice.ai runtime at '<path>' (<source>).`). It is logged at `info` only when the
+runtime is *not* the one [`spice install`](./install) manages — the case worth noticing — and at
+`debug` otherwise, so an ordinary managed install does not add a line to every run.
+[`spice version`](./version) reports the same path and source unconditionally.
 
 ### Usage
 
@@ -27,6 +45,14 @@ spice run [flags] -- [spiced flags]
 #### Spiced Flags
 
 Flags that are passed to the `spiced` runtime directly using `--`.
+
+`spice run` sets some of these itself, and `spiced` rejects a flag given twice:
+
+- `--http` always collides through `spice run`, which passes its own. Use `--http-endpoint`.
+- `--flight` and `--metrics` work after `--` on their own, and collide only when paired with
+  `--flight-endpoint` or `--metrics-endpoint`.
+
+Running `spiced` directly takes all three.
 
 - `--http` Configure runtime HTTP address [default: 127.0.0.1:8090]
 - `--flight` Configure runtime Flight address [default: 127.0.0.1:50051]
@@ -106,16 +132,20 @@ spice run
 spice run -- --set-runtime task_history.captured_output=none
 ```
 
-#### `--http`
+#### `--http-endpoint`
 
 ```shell
 # Expose the HTTP server on all interfaces
-spice run -- --http 0.0.0.0:8090
+spice run --http-endpoint 0.0.0.0:8090
 ```
 
-#### `--flight`
+`spice run -- --http 0.0.0.0:8090` fails with
+`argument '--http <BIND_ADDRESS>' cannot be used multiple times`, because `spice run` passes its own
+`--http`. See [Spiced Flags](#spiced-flags) for which flags can still go after `--`.
+
+#### `--flight-endpoint`
 
 ```shell
 # Expose the HTTP & Flight servers on all interfaces with TLS
-spice run -- --http 0.0.0.0:8090 --flight 0.0.0.0:50051 --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
+spice run --http-endpoint 0.0.0.0:8090 --flight-endpoint 0.0.0.0:50051 -- --tls-enabled true --tls-certificate-file /path/to/cert.pem --tls-key-file /path/to/key.pem
 ```

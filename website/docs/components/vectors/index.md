@@ -32,6 +32,15 @@ Supported Vector engines:
 | [`elasticsearch`][elasticsearch] | Elasticsearch (Spice.ai Enterprise) |
 | [`duckdb`][duckdb]               | DuckDB VSS (HNSW) extension         |
 
+## Choosing an engine
+
+The engines differ in where the index lives:
+
+- **External engines**, for high-QPS serving where the index lives outside the Spice process and survives a restart of it. [S3 Vectors](./vectors/s3_vectors#handling-filters) stores vectors in S3 and pushes predicates on columns marked `metadata.vectors: filterable` into the index query. [Elasticsearch](./vectors/elasticsearch) keeps the kNN index in the cluster (and can combine it with full-text in that cluster).
+- **In-process HNSW** ([DuckDB VSS](./vectors/duckdb)) when the dataset is already DuckDB-accelerated and modest in size. The index lives in the DuckDB file. A full refresh rebuilds it. Plan memory for the graph and a cold start that reopens or rebuilds it.
+
+Add vector search only when semantic retrieval is required. Hybrid retrieval ([`rrf`](../reference/sql/search#reciprocal-rank-fusion-rrf) over `vector_search` and `text_search`) is for queries that need both semantic and literal matches. Otherwise stay on SQL, regex, or [full-text search](../features/search/full-text). See [Where indexes are built](../features/search#where-indexes-are-built).
+
 [s3vectors]: /docs/components/vectors/s3_vectors.md
 [elasticsearch]: /docs/components/vectors/elasticsearch.md
 [duckdb]: /docs/components/vectors/duckdb.md

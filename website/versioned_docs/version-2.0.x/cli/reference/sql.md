@@ -88,7 +88,7 @@ gas_used               | 12500000
 
 ```shell
 # Connect to Spice Cloud
-spice sql --cloud --api-key <your-api-key>
+spice sql --cloud --api-key "<your-api-key>"
 
 # Connect to a remote spiced instance over HTTP
 spice sql --endpoint http://my-remote-host:8090

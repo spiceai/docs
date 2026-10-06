@@ -26,6 +26,8 @@ Supported parameters:
 - [`n`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-n)
 - [`parallel_tool_calls`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-parallel_tool_calls)
 - [`presence_penalty`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-presence_penalty)
+- [`prompt_cache_key`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-prompt_cache_key)
+- [`reasoning_effort`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort)
 - [`response_format`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-response_format)
 - [`seed`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-seed)
 - [`stop`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-stop)
@@ -34,7 +36,6 @@ Supported parameters:
 - [`stream_options`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-stream_options)
 - [`temperature`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature)
 - [`tool_choice`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tool_choice)
-- [`tools`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools)
 - [`top_logprobs`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-top_logprobs)
 - [`top_p`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-top_p)
 - [`user`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-user)
@@ -213,4 +214,4 @@ For the OpenAI Responses API, `prompt_cache_retention` can also be set to reques
 
 The `prompt_cache_key` can also be passed per-request in the [`/v1/nsql` API](../../api/HTTP/post-nsql) body to enable caching for text-to-SQL queries.
 
-For local models using mistral-rs, paged-attention scheduling is enabled automatically on supported backends (CUDA + Unix) for KV-cache prefix reuse — no configuration is needed.
+For local models using mistral-rs, paged-attention scheduling is requested automatically for KV-cache prefix reuse, but it is not used everywhere: it needs a CUDA build on Unix with a CUDA device actually available, and even there the engine serves dense attention for architectures that have no paged kernel, such as the Multi-head Latent Attention GGUFs. On a `from: file:` model, `paged_attention: disabled` forces dense attention with a contiguous KV cache; a `huggingface:` model always takes the automatic path.

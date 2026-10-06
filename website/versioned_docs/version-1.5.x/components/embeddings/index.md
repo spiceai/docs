@@ -257,7 +257,7 @@ To ensure compatibility, these table columns must adhere to the following constr
      2. If the column is [**chunked**](#chunking), use `List[FixedSizeList[Float32 or Float64, N]]`.
 
 4. **Offset Column for Chunked Data:**
-   - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offsets` with the following Arrow data type:
+   - If the underlying column is chunked, there must be an additional offset column named `<column_name>_offset` with the following Arrow data type:
      1. `List[FixedSizeList[Int32, 2]]`, where each element is a pair of integers `[start, end]` representing the start and end indices of the chunk in the underlying text column. This offset column maps each chunk in the embeddings back to the corresponding segment in the underlying text column.
      - _For instance, `[[0, 100], [101, 200]]` indicates two chunks covering indices 0–100 and 101–200, respectively._
 

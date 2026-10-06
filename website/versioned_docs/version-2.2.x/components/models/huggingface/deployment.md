@@ -17,28 +17,41 @@ Production operating guide for loading models from the Hugging Face Hub and runn
 
 | Parameter    | Description                                                                                           |
 | ------------ | ----------------------------------------------------------------------------------------------------- |
-| `hf_token`   | Hugging Face access token. Required for private or gated repos.                                       |
-| `token`      | Alias accepted by some integrations.                                                                   |
+| `huggingface_token` | Hugging Face access token. Required for private or gated repos. Spelled `huggingface_token` on this release line, not `hf_token`. |
+
+:::warning[`huggingface_token` on v2.2.0 and v2.2.1]
+
+`hf_token` is rejected on this release line: the runtime drops it with
+
+```text
+WARN runtime_parameters_typed: Ignoring parameter `hf_token`: not supported for model huggingface.
+```
+
+and downloads the repository anonymously, so a gated or private repo fails with an HTTP 401 that names no cause. A bare `token` is rejected too, with a warning that it must be prefixed with `huggingface_`. This affects `from: huggingface:` **models** only — the `hf_token` documented for [embeddings](../../embeddings/huggingface/deployment.md) and rerankers is read correctly on this release.
+
+Spelling reverted in v2.3.0: `hf_token` is the parameter again, and `huggingface_token` is kept as an alias so a Spicepod written against v2.2.x keeps loading. See [spiceai/spiceai#13932](https://github.com/spiceai/spiceai/issues/13932).
+
+:::
 
 Tokens must be sourced from a [secret store](../../secret-stores/) in production. For public, non-gated models the token is optional; for private / gated repos (Llama, most Mistral checkpoints), the token is required.
 
 ### Token Discovery Fallback
 
-When `hf_token` is unset, the local loader falls back to the Hugging Face token cache (typically `~/.cache/huggingface/token` or `HF_TOKEN_PATH`). This makes local development portable but should be explicitly set in production via the secret store to avoid surprise auth behavior across environments.
+When `huggingface_token` is unset, the loader falls back to the `HF_TOKEN` environment variable, then `HF_HUB_TOKEN`, then the Hugging Face token file (`$HF_HOME/token`, default `~/.cache/huggingface/token`, written by `huggingface-cli login`). This makes local development portable but should be explicitly set in production via the secret store to avoid surprise auth behavior across environments.
 
 ## Resilience Controls
 
 ### Download & Cache
 
-Models are downloaded on first use into `~/.spice/models/<name>/<revision>/`. Existing files are skipped on subsequent starts (cache-by-file-existence). Download requests use bearer auth when a token is configured. Path-traversal protections ensure all downloaded files stay within the model directory.
+Models are downloaded on first use into the standard Hugging Face Hub cache, resolved in this order: `HF_HUB_CACHE`, then `$HF_HOME/hub`, then `~/.cache/huggingface/hub`. Blobs already present in that cache are reused on subsequent starts. Download requests use bearer auth when a token is configured. Set `HF_HUB_CACHE` (or `HF_HOME`) to place the cache on a volume with enough space and to share it between restarts or replicas.
 
 ### Revision Pinning
 
-Model IDs support explicit revision pinning (e.g. `org/model@revision`). `latest` maps to `main`. Revisions are sanitized for path safety before use. Pin revisions in production to guarantee reproducibility — `main` is a moving target.
+Model IDs support explicit revision pinning by appending a **colon** and the revision to the `from` value — `from: huggingface:huggingface.co/<org>/<model>:<revision>` (see [`from` format](./index.md#from)). The revision is passed to the Hub verbatim, so it must name a real branch, tag or commit SHA on the repo; `latest` is *not* translated to `main` and fails unless the repo actually has a `latest` ref. An `@` is not a valid separator: `org/model@revision` fails the `from` pattern and the model does not load. Pin revisions to a commit SHA in production to guarantee reproducibility — the default branch is a moving target.
 
 ### Retry Behavior
 
-Download retries follow the shared HTTP-client policy with exponential/fibonacci backoff on transient failures. For very large models over slow networks, pre-download into the cache directory with the Hugging Face CLI to avoid first-request latency.
+Download retries follow the shared HTTP-client policy with exponential/fibonacci backoff on transient failures. Models are downloaded and instantiated during startup, so a slow or large download delays the model reaching `Ready` rather than slowing the first request. For very large models over slow networks, pre-download into the cache directory with the Hugging Face CLI (passing `--revision` when the `from` pins one).
 
 ## Capacity & Sizing
 
@@ -83,15 +96,15 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 - **No hot reload**: Switching model revisions requires a spicepod reload.
 - **Limited Responses API support**: Responses API routing is currently tied to specific providers (OpenAI, xAI); a local HF-loaded model does not serve the Responses API.
 - **Quantized formats**: Support depends on the local loader (mistral / candle). Verify the format is supported before production deployment.
-- **Disk-space requirements**: First-run downloads can be multi-GB; ensure `~/.spice/models/` has adequate space.
+- **Disk-space requirements**: First-run downloads can be multi-GB; ensure the Hub cache directory (`HF_HUB_CACHE`, `$HF_HOME/hub`, or `~/.cache/huggingface/hub`) has adequate space.
 
 ## Troubleshooting
 
 | Symptom                                                         | Likely cause                                               | Resolution                                                                                                                    |
 | --------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `401 Unauthorized` on download                                  | Missing or invalid `hf_token`; gated model.                | Set `hf_token`; accept the model's license on Hugging Face; verify token has `read` scope.                                    |
+| `401 Unauthorized` on download                                  | Missing or invalid `huggingface_token`; gated model.       | Set `huggingface_token` (not `hf_token`, which this release ignores); accept the model's license on Hugging Face; verify token has `read` scope. |
 | OOM on model load                                               | Model size exceeds device memory.                          | Choose a smaller quantized variant; switch to CPU + larger system RAM; use multi-GPU if supported.                             |
 | Inference falls back to CPU unexpectedly                        | CUDA / Metal unavailable or not detected.                  | Use a CUDA-enabled Spice build on GPU hosts; verify `nvidia-smi` shows devices; for macOS, use Apple Silicon build.            |
-| Model output changes between restarts                           | Revision unpinned (`main`).                                | Pin the revision: `org/model@revision_hash`.                                                                                    |
-| First request extremely slow                                    | Model downloading on first run.                            | Pre-warm with `huggingface-cli download` into the Spice model cache, or start with `initial_load: true` if supported.           |
-| Path traversal error on startup                                 | Malformed revision string.                                 | Use a clean revision: alphanumeric + underscores + dashes only; commit SHAs are safe.                                          |
+| Model output changes between restarts                           | Revision unpinned (default branch).                        | Pin the revision with a colon: `from: huggingface:huggingface.co/org/model:<commit_sha>`.                                       |
+| Model stays `Initializing` for a long time after startup       | First-run download. Models are fetched and instantiated during startup (`load_models`), not lazily on the first inference request, so the model is unavailable until the download completes. | Pre-warm the Hub cache with `huggingface-cli download <org>/<model> --revision <revision>` — passing the same revision the `from` pins — and point `HF_HOME` / `HF_HUB_CACHE` at the directory Spice uses. |
+| Model fails to load with an invalid-`from` error                | `from` does not match the HuggingFace pattern — most often an `@` used as the revision separator, or a character outside `[A-Za-z0-9_.-]` in the revision. | Use `from: huggingface:huggingface.co/<org>/<model>:<revision>`; the revision accepts word characters, digits, dashes and dots, so commit SHAs are safe. |

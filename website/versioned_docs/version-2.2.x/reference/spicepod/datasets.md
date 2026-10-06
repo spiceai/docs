@@ -674,7 +674,7 @@ Example: If the latest timestamp in the accelerated data table is `2020-01-01T02
 
 See [Duration](../duration)
 
-Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
+Supported by the Spice Cayenne (`cayenne`) acceleration engine from v2.2.1. In v2.2.0 a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
 
 ## `acceleration.refresh_retry_enabled`
 

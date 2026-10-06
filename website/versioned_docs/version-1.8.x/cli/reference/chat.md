@@ -54,13 +54,13 @@ Time: 0.57s (first token 0.53s). Tokens: 18. Prompt: 8. Completion: 10 (325.04/s
 
 ```shell
 # Chat with Spice Cloud
-spice chat --cloud --api-key <your-api-key> --model <model>
+spice chat --cloud --api-key "<your-api-key>" --model "<model>"
 
 # Chat with a remote spiced instance over HTTP
-spice chat --endpoint http://my-remote-host:8090 --model <model>
+spice chat --endpoint http://my-remote-host:8090 --model "<model>"
 
 # Chat with a remote spiced instance over Arrow Flight SQL (gRPC)
-spice chat --endpoint grpc://my-remote-host:50051 --model <model>
+spice chat --endpoint grpc://my-remote-host:50051 --model "<model>"
 ```
 
 When multiple models are **ready**, the command prompts for a selection before starting the REPL:

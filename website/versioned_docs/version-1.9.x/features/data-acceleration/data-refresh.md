@@ -486,7 +486,7 @@ Automatically evict time-series data exceeding a retention period by setting a r
 
 The policy is set using the [`acceleration.retention_check_enabled`](../../reference/spicepod/datasets#accelerationretention_check_enabled), [`acceleration.retention_period`](../../reference/spicepod/datasets#accelerationretention_period) and [`acceleration.retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval) parameters, along with the [`time_column`](../../reference/spicepod/datasets#time_column) and [`time_format`](../../reference/spicepod/datasets#time_format) dataset parameters.
 
-When `retention_check_enabled` is set to `true`, `retention_check_interval` and `retention_period` are required parameters.
+When `retention_check_enabled` is set to `true`, `retention_check_interval` is required, along with **either** `retention_period` (with a `time_column`) **or** `retention_sql`. Setting both applies both policies on every check.
 
 Example:
 

@@ -59,7 +59,7 @@ datasets:
 
 Turso acceleration supports the following optional parameters under `acceleration.params`:
 
-- `turso_file` (string, default: `.spice/data/{dataset_name}.turso`): Path to the Turso database file. Only applies if `mode` is `file`. If the file does not exist, Spice creates it automatically.
+- `turso_file` (string, default: `.spice/data/{dataset_name}.turso`): Path to the Turso database file. Only applies if `mode` is `file`. If the file does not exist, Spice creates it automatically. Keep it on local NVMe or SSD for its per-I/O latency: Turso is SQLite-derived and inherits SQLite's dependence on file-system locking, so a network file system (NFS, SMB, EFS, Azure Files) is not recommended. On network block storage (EBS, Azure Managed Disks) the runtime resolves the acceleration's [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile) to `ebs` and raises Turso's page cache to ~200 MB to absorb per-I/O latency. See [Storage](../../reference/performance-tuning#storage).
 - `internal_timestamp_format` (string, default: `rfc3339`): Internal timestamp storage format. See [Timestamp Storage](#timestamp-storage) section. Values: `rfc3339`, `integer_millis`.
 
 ### Example Configuration
@@ -147,11 +147,14 @@ Turso uses connection pooling for efficient database access. Connection pools ar
 
 Turso supports query federation, where queries can span multiple data sources. The accelerator pushes down filters, projections, and limits when possible for improved performance.
 
+Turso SQL has no quantified comparisons, so a query that uses `ANY` or `ALL`, such as `WHERE v > ANY (SELECT val FROM details)`, is not sent to Turso as written. This applies wherever the comparison appears, including inside another subquery. Turso still reads the tables, and Spice evaluates the comparison. A filter that contains a subquery, an outer reference, or `unnest` is also evaluated in Spice rather than pushed into the Turso scan.
+
 ## Limitations
 
 - **Remote databases not supported**: Only local Turso databases (file-based or in-memory) are supported as accelerators. Remote Turso databases using `turso_url` and `turso_auth_token` are not supported in this accelerator context. Remote Turso support will be available when Turso is implemented as a data connector.
 - **Arrow Interval types**: Not supported, as SQLite/libSQL doesn't have a native interval type.
 - **Complex List types**: Only Arrow `List` types of primitive data types are supported; lists with structs are not supported.
+- **Older list encodings**: List values stored without an encoding-version marker read as `NULL` with a warning. Refreshing the acceleration or using a fresh file rewrites them in the supported encoding.
 - **Dictionary and Map types**: Not supported.
 - **Hot-reload federation**: Updating a dataset with Turso acceleration while the Spice Runtime is running (hot-reload) may disable query federation until the runtime is restarted.
 - **ROLLUP and GROUPING**: Advanced grouping features are not supported.

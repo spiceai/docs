@@ -74,7 +74,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for e
 
 ## Task History
 
-Stream polling and bootstrap operations emit spans that participate in [task history](../../../reference/task_history) under the enclosing `accelerated_table_refresh` and changes-stream tasks.
+Stream polling and bootstrap operations emit spans that participate in [task history](../../../reference/task_history) under the enclosing `acceleration_refresh` and changes-stream tasks.
 
 ## Known Limitations
 

@@ -26,6 +26,7 @@ Supported parameters:
 - [`n`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-n)
 - [`parallel_tool_calls`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-parallel_tool_calls)
 - [`presence_penalty`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-presence_penalty)
+- [`reasoning_effort`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort)
 - [`response_format`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-response_format)
 - [`seed`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-seed)
 - [`stop`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-stop)

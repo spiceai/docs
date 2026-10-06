@@ -15,6 +15,8 @@ Use `snapshot` when:
 - Read replicas need fast, source-independent startup and refresh.
 - The federated source should not be queried by the replica (e.g., edge nodes, security boundaries, or to reduce source load).
 
+To read snapshots published to S3 without naming the original federated source, an engine, or a top-level `snapshots` section, set the dataset's `from` to the snapshot location and `file_format: snapshot`. See [Serve a dataset from published snapshots](../snapshots#serve-a-dataset-from-published-snapshots).
+
 ## Configuration
 
 ```yaml
@@ -47,7 +49,11 @@ datasets:
 
 - On startup, the runtime bootstraps from the most recent snapshot, identical to other snapshot-enabled modes.
 - After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60s) for newer snapshots.
+- Each poll reads the snapshot store's metadata conditionally, sending the `ETag` recorded by the previous poll in `If-None-Match`. When the store reports that the metadata is unchanged, the poll ends without downloading it.
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading.
+- A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll.
+- With [`bootstrap_on_failure_behavior: retry`](../snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up.
+- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one, in which case every poll logs the `snapshot metadata current id is older than the locally loaded snapshot` warning.
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes.
 - `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots.
 

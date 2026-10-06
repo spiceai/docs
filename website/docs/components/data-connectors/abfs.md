@@ -66,7 +66,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 | Parameter name              | Description                                                                                                                                         |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details. |
+| `file_format`               | Specifies the data format. Required if not inferrable from `from`. Options: `parquet`, `orc`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details. |
 | `abfs_account`              | Azure storage account name                                                                                                                          |
 | `abfs_container_name`       | Azure container name                                                                                                                                |
 | `abfs_sas_string`           | SAS (Shared Access Signature) Token to use for authorization                                                                                        |

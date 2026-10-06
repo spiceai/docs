@@ -172,13 +172,13 @@ select start_time, end_time, task, captured_output, error_message from runtime.t
 The `task_history` table also includes start and end times, including execution duration and any error messages during the operation. An example `task_history` output with a failed SQL query:
 
 ```console
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
-| start_time                    | end_time                      | task                | captured_output | error_message                                                     |
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
-| 2025-02-07T00:29:13.429351004 | 2025-02-07T00:29:13.432404760 | accelerated_refresh |                 |                                                                   |
-| 2025-02-07T00:29:13.429022167 | 2025-02-07T00:29:13.432472389 | accelerated_refresh |                 |                                                                   |
-| 2025-02-07T00:29:19.313382657 | 2025-02-07T00:29:19.313648021 | sql_query           |                 | Error during planning: table 'spice.public.not_a_table' not found |
-+-------------------------------+-------------------------------+---------------------+-----------------+-------------------------------------------------------------------+
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
+| start_time                    | end_time                      | task                 | captured_output | error_message                                                     |
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
+| 2025-02-07T00:29:13.429351004 | 2025-02-07T00:29:13.432404760 | acceleration_refresh |                 |                                                                   |
+| 2025-02-07T00:29:13.429022167 | 2025-02-07T00:29:13.432472389 | acceleration_refresh |                 |                                                                   |
+| 2025-02-07T00:29:19.313382657 | 2025-02-07T00:29:19.313648021 | sql_query            |                 | Error during planning: table 'spice.public.not_a_table' not found |
++-------------------------------+-------------------------------+----------------------+-----------------+-------------------------------------------------------------------+
 ```
 
 For more information, view the [task history documentation](../reference/task_history.md)
@@ -198,15 +198,15 @@ runtime:
 Example captured output:
 
 ```console
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
-| start_time                    | end_time                      | task                | captured_output               | error_message |
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
-| 2025-02-07T00:17:41.999469156 | 2025-02-07T00:17:42.002922183 | accelerated_refresh |                               |               |
-| 2025-02-07T00:17:42.007874330 | 2025-02-07T00:17:44.512541448 | health              |                               |               |
-| 2025-02-07T00:17:44.510484956 | 2025-02-07T00:17:48.889947970 | text_embed          |                               |               |
-| 2025-02-07T00:17:42.278785968 | 2025-02-07T00:17:48.913729643 | accelerated_refresh |                               |               |
-| 2025-02-07T00:17:54.717312222 | 2025-02-07T00:17:54.728507220 | sql_query           | [{"subject":"Hello, world!"}] |               |
-+-------------------------------+-------------------------------+---------------------+-------------------------------+---------------+
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
+| start_time                    | end_time                      | task                 | captured_output               | error_message |
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
+| 2025-02-07T00:17:41.999469156 | 2025-02-07T00:17:42.002922183 | acceleration_refresh |                               |               |
+| 2025-02-07T00:17:42.007874330 | 2025-02-07T00:17:44.512541448 | health               |                               |               |
+| 2025-02-07T00:17:44.510484956 | 2025-02-07T00:17:48.889947970 | text_embed           |                               |               |
+| 2025-02-07T00:17:42.278785968 | 2025-02-07T00:17:48.913729643 | acceleration_refresh |                               |               |
+| 2025-02-07T00:17:54.717312222 | 2025-02-07T00:17:54.728507220 | sql_query            | [{"subject":"Hello, world!"}] |               |
++-------------------------------+-------------------------------+----------------------+-------------------------------+---------------+
 ```
 
 ## Capturing SQL Query Plans in Task History
@@ -336,10 +336,10 @@ The REPL needs no shell, because `spiced` is itself the binary being executed.
 
 ```console
 # Docker
-docker exec -it <container_id> spiced --repl
+docker exec -it "<container_id>" spiced --repl
 
 # Kubernetes
-kubectl exec -it <pod_name> -- spiced --repl
+kubectl exec -it "<pod_name>" -- spiced --repl
 ```
 
 Because `spiced --repl` runs inside the container, it connects to that container's own `http://localhost:50051` Flight endpoint — attaching to the runtime already serving there. The interactive SQL prompt that follows is therefore executing queries **inside the deployment**, not locally.
@@ -364,10 +364,10 @@ This is the recommended way to debug Spice on Kubernetes.
 
 ```bash
 # List pods in the namespace
-kubectl get pods -n <namespace>
+kubectl get pods -n "<namespace>"
 
 # List the container names inside the pod
-kubectl get pod <pod_name> -n <namespace> -o jsonpath='{.spec.containers[*].name}'
+kubectl get pod "<pod_name>" -n "<namespace>" -o jsonpath='{.spec.containers[*].name}'
 ```
 
 The Helm chart names the Spice container `spiceai`. Run the second command rather than assuming, since a custom manifest may name it something else.
@@ -460,7 +460,7 @@ docker volume create busybox
 docker run --rm -v busybox:/data busybox:stable-musl sh -c "mkdir -p /data && cp /bin/busybox /data/busybox"
 
 # Run the Spice.ai container with the busybox binary mounted, ensure that any other volumes are mounted as well (i.e. for spicepod)
-docker run -v busybox:/busy -v <path_to_spicepod>:/app/spicepod -d --name spiceai-debug spiceai/spiceai:latest
+docker run -v busybox:/busy -v "<path_to_spicepod>:/app/spicepod" -d --name spiceai-debug spiceai/spiceai:latest
 
 # Exec into the container — the shell that follows runs INSIDE the Spice container
 docker exec -it spiceai-debug /busy/busybox sh

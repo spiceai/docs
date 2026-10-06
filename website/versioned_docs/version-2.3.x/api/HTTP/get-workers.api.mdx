@@ -1,0 +1,70 @@
+---
+id: get-workers
+title: "List Workers"
+description: "Returns a list of all registered workers in the runtime. Workers are configurable processing units that can perform tasks like load balancing between models or implementing fallback strategies."
+sidebar_label: "List Workers"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdV99v20YM/leIe1oBxUkLDNj0FqzdkCFbgbZDH5IgpiXKuuZ0p95RdlND//vA0w/Llru16Z72lFi6Iz+S30dSO8W4Diq9Ue+dfyAf1F2icgqZ1zVrZ1Wq3hA33gZAMDowuALQGPC01oHJUw7b7iZoC1wS+MayrmgBvUVAT5A5W+h143FlCGrvMgpB2zU0VnMALpEhQws1+cL5ChjDQwCjHwiMwxxWaNBmcmFFvCWyULmcTADnQVe1oYosy+sCjVlh9gCBPTKtNYWFSpSryaPEc5WrVK2J73vQKlE1eqyI5Ud6s1MWK1KpEhjIKlFacvCxIf+ojjPzriTozklWYuwUamcDwQ+0WC8SWH4Izi4F5TILm+UzweLpY6M95Sot0ARKVMhKqlClO8WPtfgO7LVdq0SRbSqpjVhRicrCRsrDmo0c+7WD2LZ3YrRzHMTMi4sL+XMI9rov3qRav799/SeMgWbOMlmWm1jXRmcxYefRd7qbo3SrD5TxLClvhhRsPdY1eXEQc7M83zw/770vgWxeO235MCM3E6vIKNHWXorHugstPt1jQO9R6qKZqvDv2DpGgrZd0NpZ8JHdlA/sPUQ5pPUYZSRJonS4N6Y6gXLqdQB1s6+rbYyZC+0SJr9jqUQWAqrDA7mjoNrR7T7clXOG0M7jLYlLkvTrMBgRma0ImkA5YAC0cH39Rycnsd3Rf07FOfPl5MD7zrbcD4zcxCQ4S6+LKKneVoy6TY6JKba6W4fWRg29Icwflwksr6xmjUZ/1nYtv1957/zymej72Nc/4M5cVTtLlkGLCvYmAW0O1jE8EoMXpxMJTn2rO4niGz1Fg8AOMMuoZumIljI5HSZuYqxPsp/rIM01H6PwjbWHbeRlf+TA/hekcmmBJL3gsqzxfi+Q0WkCW82lEMjFS2j6GxWFgGs6kkws1lwq3eNvEMn342rbJ6S399KPLmGqp8JTKIU4MsOEwnRQyeH1k8o59xfKhuOMy93WThy97Z+/lMd3MgzoE8pMjM24Y/EwMt523tu7tt0/7LrilS2cCHiOyxxODjnUk+ar+oScmM9HNFt8DLAU48tnao5H5tUwS8TlGNRu9K7k8jAqJrPbu8bmZ96t9LwlvtQCddUwiSQ/NhQ4jEtF4VyUzwr9sGBoCwgTg1BgKLWzi1u7HwAp+4akyMPy0G8hc1UxU1WLR/RQaB84kbxEz/1/K/wMuoDa00a7Jgw4CtTmhM+ukPSJz2U5ODWm+8pMM6hurQBNJtgSOZ10pm/tJN7k9j9MmUpkm7vvtjlKJIJbOyQruf3u9Jy0H/Wufjy1E11ZJi8NIpDfkD/uLNtSH26r+6Xxa5elQ+JS1+zUZV3HFj1OH8oFpeCsiEvXL6lxOeVSpWqylKhEdWi7dbXxRqWqZK7T83PjMjSlC5z+dPHzxYx91/IactqQcbVszH3cC/ilX8+p653LszOxuFwoaSeBssZrfoz+sNb3DyT/x1Yjq1QkW6/dfvk/2QhCrTPKYX/E6IxE3ekonMsas5LOXiwEvM5lqS80+cM3baIk/M7wi8XF4uKssYFltMm72gWu0E6sxtX3/Zi+o+1sLOX/4kunV31sCbVBbSUlkSS7nkw3avNcJWq7/94Txsjz3W6Fgf7ypm3lcffRI0Ufdovxk+WLKXzaJ9FJ0JFl+++wDZpGDkVKbtDrWG+hYaJKwlxYcrPrb13GHWtyayZSsTJq7bdX71Tb/g3yIUk1
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List Workers"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/workers"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a list of all registered workers in the runtime. Workers are configurable processing units that can perform tasks like load balancing between models or implementing fallback strategies.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./get-workers.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./get-workers.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./get-workers.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

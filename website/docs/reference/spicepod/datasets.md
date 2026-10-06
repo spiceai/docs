@@ -228,7 +228,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## Schema Inference and Evolution
 
-Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default, schema changes at the source are not applied at runtime — data refreshes will fail if the source schema drifts, and you must restart the runtime to re-infer the schema.
+Spice infers the dataset schema from the data source at startup. The inferred schema defines the column names, data types, and nullability used for the lifetime of that runtime process. By default ([`on_schema_change: block`](#on_schema_change)), a later source change is not applied: the dataset keeps serving the registered schema, and a refresh that cannot write into that schema fails. Restarting re-infers the schema. An explicit `on_schema_change` policy is how a change is accepted.
 
 Accelerated datasets can opt into automatic, in-place schema evolution with the [`on_schema_change`](#on_schema_change) policy, which adopts lossless, widening-compatible source changes without a restart — and can additionally drop and recreate the accelerated table on incompatible changes (`drop_and_recreate`) when `refresh_mode: full` is set.
 
@@ -259,7 +259,15 @@ datasets:
 
 :::note
 
-In-place evolution (no restart) is supported for the `duckdb`, `sqlite`, `turso`, and Spice Cayenne (`cayenne`) acceleration engines, including for PostgreSQL CDC (`refresh_mode: changes`). Other engines (for example `arrow` and the PostgreSQL accelerator) log a clear unsupported message and degrade safely, applying additive changes on restart. Constraint and primary-key columns cannot be widened in place. For destructive schema changes (column removals or narrowing), set `on_schema_change: drop_and_recreate` with `refresh_mode: full` to drop and recreate the accelerated table from the source, or use [`mode: file_update`](#accelerationmode), which recreates the acceleration file on any change.
+In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
+(`cayenne`), including PostgreSQL CDC (`refresh_mode: changes`). Partitioned Cayenne tables log a
+warning and use the recreate fallback. Other engines, including `arrow` and PostgreSQL, log an
+unsupported message and apply additive changes on restart. Constraint and primary-key columns
+cannot be widened in place.
+
+For column removals or narrowing, `on_schema_change: drop_and_recreate` with `refresh_mode: full`
+recreates the table from the source. [`mode: file_update`](#accelerationmode) recreates the
+acceleration file on any schema change.
 
 :::
 
@@ -312,6 +320,18 @@ datasets:
     acceleration:
       enabled: true
 ```
+
+:::warning[`acceleration.ready_state` is deprecated]
+`ready_state` also parses inside the `acceleration` block. When it is set there it **takes precedence** over the dataset's own top-level `ready_state`, and it applies whether or not `acceleration.enabled` is `true` — which is why it is never listed among the settings the [`enabled: false` warning](#accelerationenabled) reports as discarded.
+
+It is deprecated and will be removed. The runtime warns at load, naming the dataset:
+
+```
+Dataset 'api_data' sets `acceleration.ready_state`, which is deprecated and will be removed. Move the setting to the dataset's own `ready_state` to keep it working. See: https://spiceai.org/docs/reference/spicepod/datasets
+```
+
+Move the setting to the top-level `ready_state` shown above.
+:::
 
 ## `check_availability`
 
@@ -450,7 +470,7 @@ Optional. The storage profile for file-backed acceleration. The runtime uses thi
 
 Supported values:
 
-- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. On other platforms, detection returns unknown and the engine defaults apply.
+- `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. NFS and SMB/CIFS mounts (`nfs`, `nfs4`, `cifs`, `smbfs`, `smb3`) are classified as `ebs`, the network-attached tier. Network block devices that are not EBS or Azure disks — GCP Persistent Disk and Hyperdisk, SAN and Ceph volumes — are not recognized by name: when they present as NVMe or non-rotational devices they resolve to `local_ssd`, otherwise to unknown, so set `ebs` explicitly for them. On other platforms, detection returns unknown and the engine defaults apply.
 - `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
 - `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Reduces connection-pool size and raises DuckDB's checkpoint threshold so per-IO latency is amortized across larger flushes. Spice Cayenne uses smaller per-file targets to reduce write amplification.
 - `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Raises DuckDB's checkpoint threshold so steady-state workloads don't pay checkpoint cost on small amounts of dirty data; Spice Cayenne uses larger per-file targets to improve scan throughput.
@@ -468,6 +488,8 @@ datasets:
       params:
         duckdb_file: /mnt/ebs/analytics.db
 ```
+
+For the per-engine adjustments each profile applies, and for guidance on choosing local NVMe over network block storage and network file systems, see [Storage](../performance-tuning#storage) in the Performance Tuning guide.
 
 ## `acceleration.snapshots`
 
@@ -557,7 +579,7 @@ Optional. Controls how writes to a `read_write` accelerated dataset propagate be
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
-- `write_back` – Writes are applied to the local accelerator first (fast ACK), then forwarded asynchronously to the federated source. Choose this for write throughput when eventual consistency at the source is acceptable.
+- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
 
 ## `acceleration.refresh_check_interval`
 
@@ -574,6 +596,8 @@ See the [cron schedule reference](../cron).
 ## `acceleration.params.caching_ttl`
 
 Optional. The time-to-live (TTL) for cached data before it is considered stale. Only applicable when `refresh_mode: caching`. Defaults to `30s`.
+
+Also accepted as `acceleration.params.caching_item_ttl`, spelling the `item_ttl` suffix used by the results, search-results and embeddings caches. Both names are read, so neither is silently ignored; setting both to *different* values is a load error.
 
 When cached data exceeds this age (measured from the `fetched_at` timestamp), it becomes stale. If `caching_stale_while_revalidate_ttl` is also configured, stale data is immediately served to queries (no delay) while a background refresh is triggered to update the cache, implementing the Stale-While-Revalidate (SWR) pattern. If `caching_stale_while_revalidate_ttl` is not set, queries wait for fresh data once the TTL expires.
 
@@ -628,14 +652,17 @@ See [Duration](../duration)
 
 ## `acceleration.params.caching_stale_if_error`
 
-Optional. Controls whether expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
+Optional. Controls whether — and for how long — expired cached data is served when the upstream data source returns an error. Only applicable when `refresh_mode: caching`. Defaults to `disabled`.
 
-When set to `enabled`, queries return expired cached data instead of failing if the upstream source returns an error during a refresh attempt. This provides fault tolerance for APIs with intermittent availability or rate limits.
+This is Spice's implementation of RFC 5861 `stale-if-error`, and it accepts a [duration](../duration) as well as the two keywords. The window is measured from the point the entry went stale — that is, past `caching_ttl` — not from when it was fetched. Staleness is taken when Spice sends the request to the origin, so a slow origin failure does not move an entry out of the window. An expired entry with no rows is never served as a fallback; the origin's error propagates instead.
 
 Valid values:
 
-- `enabled` - Serve expired cached data when upstream errors occur
-- `disabled` (default) - Propagate upstream errors to queries
+- A duration such as `600s` or `10m` — serve expired cached data on an upstream error only while its staleness past `caching_ttl` is at most that long; beyond it, the upstream error propagates. `0` and `0s` mean the same thing as `disabled`.
+- `enabled` — `stale-if-error` with no upper bound: expired data is served however old it is, and no eviction deadline is derived from this setting. See the warning in [Stale-If-Error Behavior](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior).
+- `disabled` (default) — never serve expired data; propagate upstream errors to queries.
+
+The two keywords match case-insensitively. A boolean (`true`/`false`, quoted or as a YAML boolean) and `infinity`/`inf` are rejected at load with `Invalid 'caching_stale_if_error' value: '<value>'. Expected a duration such as '600s', or 'enabled'/'disabled'.` — use `enabled` for an unbounded window.
 
 **Example**:
 
@@ -651,17 +678,69 @@ datasets:
       params:
         caching_ttl: 15s
         caching_stale_while_revalidate_ttl: 30s
-        caching_stale_if_error: enabled # Serve stale data on upstream errors
+        caching_stale_if_error: 60s # Serve stale data on upstream errors, up to 60s past caching_ttl
       refresh_check_interval: 60s
 ```
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) for detailed behavior.
+
+## `acceleration.params.caching_max_size`
+
+Optional. A byte budget for the rows a caching accelerator stores, e.g. `512MiB` or `1GB`. A plain integer is a byte count. Only applicable when `refresh_mode: caching`. Defaults to none (no byte budget).
+
+The budget measures the payload bytes of the stored rows — text columns exactly, fixed-width columns by their width — excluding the accelerator's own reserved caching columns. It is a payload measure rather than an on-disk one; the engine's indexes and compression are not counted. The connector-managed `response_headers` map is also not measured and does not trigger the unmeasurable-column startup warning, so large or numerous headers can put real cached payload above this budget.
+
+An unparseable value is a load error rather than a silent fallback to unbounded.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_size: 512MiB
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
+
+## `acceleration.params.caching_max_items`
+
+Optional. The maximum number of rows a caching accelerator may keep, e.g. `100000`. Only applicable when `refresh_mode: caching`. Defaults to none (no row budget).
+
+Eviction is entry-granular: all rows belonging to one cache entry are removed together, oldest entries first. An unparseable value is a load error.
+
+**Example**:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_shows
+    acceleration:
+      enabled: true
+      refresh_mode: caching
+      engine: duckdb
+      mode: file
+      params:
+        caching_ttl: 15s
+        caching_max_items: 100000
+```
+
+See [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
 
 ## `acceleration.refresh_sql`
 
 Optional. Filters the data fetched from the source to be stored in the accelerator engine. Supported for `full` and `append` refresh mode datasets.
 
 Must be of the form `SELECT * FROM {name} WHERE {refresh_filter}`. `{name}` is the dataset name declared above, `{refresh_filter}` is any SQL expression that can be used to filter the data, i.e. `WHERE city = 'Seattle'` to reduce the working set of data that is accelerated within Spice from the data source.
+
+`refresh_sql` applies on the initial refresh and every later one.
 
 :::warning[Limitations]
 
@@ -676,6 +755,8 @@ Optional. A duration to filter dataset refresh source queries to recent data (du
 
 For example, `refresh_data_window: 24h` will include only records with a timestamp within the last 24 hours.
 
+With `refresh_mode: append`, the first load is already windowed. [`retention_period`](#accelerationretention_period) only ages out rows already in the acceleration — it does not backfill extra history on first load. To load more history at cold start, use an additional dataset or a wider window. See [Cold start with append](../../features/data-acceleration/data-refresh#cold-start-with-append).
+
 See [Duration](../duration)
 
 ## `acceleration.refresh_append_overlap`
@@ -687,8 +768,6 @@ This setting can help mitigate missing data issues caused by late arriving data.
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
 See [Duration](../duration)
-
-Not supported by the Spice Cayenne (`cayenne`) acceleration engine: a file-mode Cayenne dataset that sets this fails to load. See [Cayenne limitations](../../components/data-accelerators/cayenne#limitations).
 
 ## `acceleration.refresh_retry_enabled`
 
@@ -789,7 +868,7 @@ Optional. Specify which indexes should be applied to the locally accelerated tab
 
 The `indexes` field is a map where the key is the column reference and the value is the index type.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 See [Indexes](../../features/data-acceleration/indexes)
 
@@ -809,7 +888,9 @@ datasets:
 
 Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
 
-The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
+
+On DuckDB this creates a real `PRIMARY KEY` (unique index) usable for full-key point lookups. A filter on only a leading column of a composite key needs a secondary [`indexes`](#accelerationindexes) entry. See [Primary keys and point lookups](../../features/data-acceleration/indexes#primary-keys-and-point-lookups).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -829,7 +910,7 @@ Optional. Specify what should happen when a constraint is violated. Not supporte
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
 
-A column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+A column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
 Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with `drop`.
 
@@ -866,6 +947,8 @@ The following values are supported:
 
 - `return_empty` - Default. Return an empty result set when the accelerated query returns no rows.
 - `use_source` - Fall back to querying the original data source when the accelerated query returns no rows.
+
+The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
 
 ```yaml
 datasets:

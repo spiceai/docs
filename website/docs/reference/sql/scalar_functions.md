@@ -2112,7 +2112,7 @@ SELECT regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i');
 
 ### `regexp_count`
 
-Returns the number of matches that a regular expression has in a string.
+Returns the number of matches that a regular expression has in a string. Returns `NULL` when `str`, `regexp`, `start`, or `flags` is `NULL`.
 
 ```sql
 regexp_count(str, regexp[, start, flags])
@@ -2419,7 +2419,7 @@ date_part(part, expression)
   - dow (day of the week where Sunday is 0)
   - doy (day of the year)
   - epoch (seconds since Unix epoch)
-  - isodow (day of the week where Monday is 0)
+  - isodow (ISO 8601 day of the week where Monday is 1 and Sunday is 7)
 
 - **expression**: Time expression to operate on. Can be a constant, column, or function.
 

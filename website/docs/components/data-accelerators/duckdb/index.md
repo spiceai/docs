@@ -37,6 +37,7 @@ DuckDB acceleration supports the following optional parameters under `accelerati
 - `duckdb_file` (string, default:`.spice/data/accelerated_duckdb.db`): Path to the DuckDB database file. Applies if `mode` is set to `file`. If the file does not exist, Spice creates it automatically.
 - `duckdb_data_dir` (string, default:`.spice/data/`): Path to the directory the DuckDB database file(s) will be placed in. If both `duckdb_data_dir` and `duckdb_file` are specified, `duckdb_file` will be used and `duckdb_data_dir` will be ignored.
 - `duckdb_memory_limit` (string, default: none — the runtime computes a [coordinated memory budget](#coordinated-memory-budget) when this is unset): Limits DuckDB's memory usage for instance. Acceptable units are KB, MB, GB, TB (decimal: 1000^i) or KiB, MiB, GiB, TiB (binary: 1024^i). See [DuckDB memory limit documentation](https://duckdb.org/docs/stable/configuration/overview).
+- `duckdb_threads` (integer, default: the runtime's CPU entitlement — see [`runtime.cpu.cores`](../../reference/spicepod/runtime#runtimecpucores)): The size of DuckDB's own thread pool for this instance. Left unset, DuckDB sizes the pool from the **host** core count, so each instance in a CPU-constrained container spins up a node-sized pool alongside the runtime's — the same over-commitment the CPU entitlement exists to prevent. Must be a positive integer; a zero or non-numeric value is refused with an error naming `duckdb_threads`, rather than surfacing an opaque DuckDB error later. Like `memory_limit`, `threads` is a per-instance DuckDB setting, so it applies to the whole instance (one per distinct `duckdb_file`, plus one shared instance for all `mode: memory` datasets), not to a single dataset.
 - `duckdb_preserve_insertion_order` (boolean, default: `true`): Controls whether DuckDB preserves the insertion order of rows in tables. When set to `true`, rows are returned in the order they were inserted. See [DuckDB preserve insertion order documentation](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) and [order preservation documentation](https://duckdb.org/docs/stable/sql/dialect/order_preservation).
 - `connection_pool_size` (integer, default: `10` for local SSD / tmpfs / unspecified storage profiles, or `4` for `ebs`; whichever is larger between that floor and the number of datasets sharing the same DuckDB file): Controls the maximum number of connections to keep open in the connection pool for concurrent query execution. See [`acceleration.storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile) for how the storage profile is selected.
 - `on_refresh_recompute_statistics` (string, default: `enabled`, `disabled` when `refresh_mode` is `changes`): Triggers automatic `ANALYZE` execution after data refreshes. This keeps DuckDB optimizer statistics up-to-date for efficient query plans and performance. Set to `disabled` to turn automatic statistics recomputation off. See [DuckDB ANALYZE statement documentation](https://duckdb.org/docs/stable/sql/statements/analyze).
@@ -111,6 +112,16 @@ After each full-refresh overwrite commits, the runtime runs `CHECKPOINT` on the 
 
 This is lighter than `replace_file` — there is no staging copy of cohabiting objects — at the cost of that stall, and of the file plateauing at its high-water mark instead of shrinking. Prefer `replace_file` where in-flight queries must not be interrupted.
 
+### Sizing the volume
+
+By default, `reuse_file` neither replaces the file nor runs a DuckDB [`CHECKPOINT`](https://duckdb.org/docs/lts/sql/statements/checkpoint) after a refresh, so the file keeps growing with every full refresh.
+
+`checkpoint_file` runs a `CHECKPOINT` after each refresh, so later refreshes reuse the freed space. The file stops growing but does not shrink.
+
+`replace_file` replaces the DuckDB file on every full refresh, which reclaims free space by rewriting the file. It needs enough free space for two copies of the file, because the old file is not removed until the replacement succeeds, so queries continue without interruption.
+
+Leave headroom for the WAL, index serialization, and the `replace_file` copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
+
 ## Limitations
 
 Consider the following limitations when using DuckDB acceleration:
@@ -121,8 +132,13 @@ Consider the following limitations when using DuckDB acceleration:
 - Queries using `on_zero_results: use_source` cannot filter binary columns directly (e.g., `WHERE col_blob <> ''`). Instead, cast binary columns to another type (e.g., `WHERE CAST(col_blob AS TEXT) <> ''`).
 - DuckDB indexes currently do not support spilling to disk.
 - Hot-reloading dataset configurations while the Spice Runtime is active disables DuckDB query federation until the runtime restarts.
-- `on_refresh_sort_columns` is not currently supported with primary keys or indexes.
+- `on_refresh_sort_columns` is incompatible with `primary_key`, `indexes`, and `on_conflict`. The sort rewrite issues `CREATE OR REPLACE TABLE ... ORDER BY ...`, which drops those constraints. Prefer [Spice Cayenne](../cayenne/index.md) when you need physical clustering (`sort_columns` / `cayenne_cluster_by`) together with them.
+- `acceleration.primary_key` creates a DuckDB `PRIMARY KEY` (unique index) usable for full-key point lookups. A filter on only a leading column of a composite key needs a secondary [`indexes`](../../../features/data-acceleration/indexes.md) entry.
 - DuckDB acceleration does not support [`partition_by`](../../../features/data-acceleration/partitioning.md). Configuring it is rejected at load time. Use the `arrow` or `cayenne` engine for partitioned acceleration.
+- The `regexp_match` and `regexp_instr` functions are never sent to DuckDB and are evaluated in Spice instead, so a query using one does not push down to the acceleration. `regexp_count` is sent only when the call is one both engines count alike — a literal pattern that cannot match the empty string and uses no engine-dependent syntax, an integer `start`, and no `flags`. `regexp_like` and `regexp_replace` are sent only with a literal pattern that uses no engine-dependent syntax; `regexp_replace` also needs a literal replacement with no `$` or `\` and no flags other than `g`, and `regexp_like` no flags. Any other shape is evaluated in Spice. See [Regular Expression Functions and Federation](../../data-connectors/duckdb/index.md#regular-expression-functions-and-federation).
+- `concat` is sent to DuckDB only when none of its arguments is a binary value, including a binary column inside a cast or another function. A `concat` with a binary argument is evaluated in Spice. See [`concat` and Binary Values](../../data-connectors/duckdb/index.md#concat-and-binary-values).
+- A `CAST` or `TRY_CAST` into a string type is sent to DuckDB only when its operand does not reach a binary value. A text cast over a binary value is evaluated in Spice, which checks that the bytes are valid UTF-8. See [Text Casts over Binary Values](../../data-connectors/duckdb/index.md#text-casts-over-binary-values).
+- `AVG` over a decimal column is evaluated in Spice rather than sent to DuckDB, because DuckDB averages a decimal as a `DOUBLE`. See [Decimal Averages](../../data-connectors/duckdb/index.md#decimal-averages).
 
 ## Resource Considerations
 
@@ -183,28 +199,37 @@ For more details, see DuckDB's [Indexes and Memory documentation](https://duckdb
 
 Query performance, data load, and refresh operations scale with available CPU resources. Allocate sufficient CPU cores based on query complexity and concurrency.
 
+Each DuckDB instance sizes its own thread pool from the runtime's CPU entitlement rather than from the host core count, so a pod with a CPU limit or request does not get a node-sized DuckDB pool. Set [`runtime.cpu.cores`](../../reference/spicepod/runtime#runtimecpucores) to change the entitlement for every CPU-derived pool at once, or `duckdb_threads` to size one DuckDB instance's pool on its own.
+
 ### Storage
 
-Ensure adequate disk space for temporary files, swap files, WAL files, and intermediate spilling. Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
+Store the `duckdb_file` on **local NVMe or SSD**, for its per-I/O latency above all: DuckDB's buffer manager serves every cache miss with a read the query waits on, so the tens of microseconds an NVMe read takes — against a millisecond or more on network storage — is multiplied along every query. DuckDB's own guidance is that its disk-based mode is designed for SSD and NVMe (HDDs give low performance, especially for writes) and that its native database format should not be used in read-write mode on network-attached file systems (NAS, NFS, SMB), which it notes can produce slow and unpredictable performance and spurious errors; network-backed cloud block disks such as Amazon EBS work for both read-only and read-write use. See [DuckDB's environment guide](https://duckdb.org/docs/stable/guides/performance/environment) and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
+
+The runtime tunes the instance for the resolved [`storage_profile`](../../reference/spicepod/datasets#accelerationstorage_profile): on `ebs` (EBS, Azure Managed Disks, NFS, SMB) it lowers the connection-pool floor to 4 and raises `checkpoint_threshold` to 256 MiB so each checkpoint amortizes more I/O; on `tmpfs` it raises `checkpoint_threshold` to 1 GiB; on local SSD the DuckDB defaults apply. Set the profile explicitly on network block devices that auto-detection cannot identify, such as GCP Persistent Disk.
+
+Ensure adequate disk space for the database file, its WAL, index serialization, and DuckDB's temporary files (see [Temporary Directory](#temporary-directory)). A repeatedly full-refreshed file grows by the whole table on every refresh until [`on_full_refresh`](#bounding-acceleration-file-growth) reclaims the space. Size the volume for the reclaim mode in use — including a second copy of the file while `replace_file` stages a replacement — rather than for the dataset alone. See [Sizing the volume](#sizing-the-volume). Monitor disk usage regularly and adjust storage capacity based on dataset growth and query patterns.
 
 ## Temporary Directory
 
-The Spice runtime supports configuring a temporary directory for query and acceleration operations that spill to disk. By default, this is the directory of the `duckdb_file`.
+DuckDB spills sorts, joins, and aggregates that exceed its memory limit to temporary files. The Spice runtime passes `runtime.query.temp_directory` to every DuckDB instance it opens as DuckDB's own `temp_directory`, so the one setting covers DuckDB's spill and DataFusion's. When it is unset, DuckDB writes to a `.tmp` directory beside the `duckdb_file` (and to `.tmp` under the working directory for the shared in-memory instance). DuckDB caps its temporary files at 90% of the volume's free space.
 
-Set the `runtime.query.temp_directory` parameter to specify a custom temporary directory. This can help distribute I/O operations across multiple volumes for improved throughput. For example, setting `runtime.query.temp_directory` to a high-IOPS volume separate from the DuckDB data file can improve performance for workloads exceeding available memory.
+Set `runtime.query.temp_directory` to a directory on **local NVMe or SSD** with ample free space — never the root volume, a network file system, or a RAM-backed mount. Spill is a sequence of synchronous writes and reads the query waits on, so the directory's per-I/O latency lands directly on query time. Where a host has two fast devices, placing spill on one and the DuckDB file on the other keeps a large spill from competing with scans for the same device queue.
 
 Example configuration:
 
 ```yaml
 runtime:
   query:
-    temp_directory: /tmp/spice
+    temp_directory: /nvme/spice/tmp
 ```
 
 Use this parameter when:
 
 - Handling workloads that frequently spill to disk.
+- The `duckdb_file` sits on a network block volume and the host also has local NVMe — spill has no durability requirement, so it belongs on the lower-latency device.
 - Distributing swap and data I/O operations across multiple storage volumes.
+
+See [Spill-to-Disk and the Temporary Directory](../../reference/performance-tuning#spill-to-disk-and-the-temporary-directory) for the DataFusion side of the same setting.
 
 For more details, refer to the [runtime parameters documentation](../../reference/spicepod/runtime#runtimequerytemp_directory).
 

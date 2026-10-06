@@ -18,7 +18,7 @@ models:
   - name: llama_3.2_1B
     from: huggingface:huggingface.co/meta-llama/Llama-3.2-1B
     params:
-      hf_token: ${ secrets:HF_TOKEN }
+      huggingface_token: ${ secrets:HF_TOKEN } # `huggingface_token` on v2.2.x; `hf_token` from v2.3.0
 ```
 
 ## Filesystem

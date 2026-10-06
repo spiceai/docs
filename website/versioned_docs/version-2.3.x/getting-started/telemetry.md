@@ -1,0 +1,70 @@
+---
+title: 'Telemetry'
+sidebar_label: 'Telemetry'
+sidebar_position: 3
+description: 'Learn how Spice AI uses anonymous telemetry.'
+pagination_next: null
+---
+
+Spice collects anonymous telemetry data to help improve the product. Usage telemetry is anonymous and aggregated.
+
+## Data Collected
+
+The following anonymous information is collected:
+
+- The version of Spice being used (i.e. `v1.0.0`)
+- An anonymous identifier for the Spice instance, computed as `sha256(hostname + ":" + spicepod.name)`.
+- An anonymous identifier for the Spicepod, computed as `sha256(spicepod.name)`.
+  - The code to calculate these identifiers is here: [https://github.com/spiceai/spiceai/blob/v2.3.0/crates/telemetry/src/anonymous.rs#L61-L108](https://github.com/spiceai/spiceai/blob/v2.3.0/crates/telemetry/src/anonymous.rs#L61-L108)
+- The shape of the host: its vCPU count, GPU count, and total memory in bytes, reported as `host.cpu.count`, `host.gpu.count`, and `host.memory.bytes`.
+- Various metrics related to usage of features of the runtime, see the full list here: [https://github.com/spiceai/spiceai/blob/v2.3.0/crates/telemetry/src/lib.rs](https://github.com/spiceai/spiceai/blob/v2.3.0/crates/telemetry/src/lib.rs)
+
+Data collected is sent to `https://telemetry.spiceai.org` once every hour.
+
+## Disabling Telemetry
+
+:::warning[Open Source builds]
+In Spice.ai Open Source builds that include the `anonymous_telemetry` feature (the default), setting `runtime.telemetry.enabled: false` in a Spicepod or passing `--telemetry-enabled=false` **does not** disable anonymous usage telemetry. The runtime will log a warning when these settings are detected but are not applied.
+
+To fully remove anonymous telemetry from an Open Source build, compile from source without the `anonymous_telemetry` feature (option 3 below), or use Spice.ai Enterprise.
+:::
+
+Telemetry can be disabled in the following ways:
+
+1. **Spice.ai Enterprise**: Anonymous telemetry respects the `runtime.telemetry.enabled` and `--telemetry-enabled` settings.
+
+2. **Compile without the `anonymous_telemetry` feature** (Open Source):
+
+```bash
+cargo build --release --no-default-features --features "<other_default_features>"
+```
+
+i.e.
+
+```bash
+cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
+```
+
+### Configuration Settings (Enterprise only)
+
+The following settings disable telemetry in Spice.ai Enterprise builds:
+
+Running the Spice runtime with the CLI flag `--telemetry-enabled false`:
+
+```bash
+spice run -- --telemetry-enabled false
+```
+
+or
+
+```bash
+spiced --telemetry-enabled false
+```
+
+Adding the following configuration to the Spicepod configuration file (`spicepod.yaml`):
+
+```yaml
+runtime:
+  telemetry:
+    enabled: false
+```

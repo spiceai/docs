@@ -67,7 +67,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 
 | Parameter name              | Description                                                                                                                                                              |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `file_format`               | Specifies the data format. Required if it cannot be inferred from the object URI. Options: `parquet`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details. |
+| `file_format`               | Specifies the data format. Required if it cannot be inferred from the object URI. Options: `parquet`, `orc`, `csv`, `json`. Refer to [File Formats](./#file-formats) for details. |
 | `allow_http`                | Allow insecure HTTP connections. Defaults to `false`.                                                                                                                    |
 | `client_timeout`            | Optional. Timeout for GCS client operations.                                                                                                                             |
 | `hive_partitioning_enabled` | Enable partitioning using hive-style partitioning from the folder structure. Defaults to `false`.                                                                        |

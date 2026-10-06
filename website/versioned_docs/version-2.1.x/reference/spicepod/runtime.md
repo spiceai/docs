@@ -27,7 +27,7 @@ API key authentication supports the following configuration parameters:
 | Parameter name | Optional | Default | Description                                                    |
 | -------------- | -------- | ------- | -------------------------------------------------------------- |
 | `enabled`      | Yes      | `true`  | Defaults to `true`. Whether API key authentication is enabled  |
-| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+| `keys`         | No       | -       | A list of API keys used to authenticate requests.              |
 
 ## `runtime.dataset_load_parallelism`
 
@@ -131,7 +131,7 @@ Optional. Global key-value parameters for the runtime.
 
 ### HTTP Rate Control
 
-HTTP-based connectors (HTTP/HTTPS, GraphQL, GitHub) support the following rate control defaults:
+HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following rate control defaults. The GitHub connector is **not** part of this family — it has its own limiter, configured with [`runtime.source_rate_control.github_concurrent_connections_limit`](#runtimesource_rate_control):
 
 | Parameter Name                    | Description                                                                                                                                                    |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -770,7 +770,7 @@ runtime:
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | No       | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`).  |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `aws_region`).                           |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`).                           |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |

@@ -27,7 +27,7 @@ API key authentication supports the following configuration parameters:
 | Parameter name | Optional | Default | Description                                                    |
 | -------------- | -------- | ------- | -------------------------------------------------------------- |
 | `enabled`      | Yes      | `false` | Defaults to `false`. Whether API key authentication is enabled |
-| `keys`         | Yes      | `[]`    | A list of API keys used to authenticate requests.              |
+| `keys`         | No       | -       | A list of API keys used to authenticate requests.              |
 
 ## `runtime.dataset_load_parallelism`
 
@@ -420,78 +420,4 @@ runtime:
     - name: dataset_acceleration_refresh_lag_ms
       enabled: false
     - name: dataset_acceleration_ingestion_lag_ms
-```
-
-## `runtime.scheduler`
-
-Configures shared state for [high availability distributed query](/docs/features/distributed-query) clusters. When configured, multiple schedulers can coordinate via a shared object store.
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-```
-
-### `runtime.scheduler.state_location`
-
-The S3 URI for shared cluster state. This is required to enable HA mode with multiple schedulers.
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-```
-
-### `runtime.scheduler.params`
-
-Optional parameters for S3 authentication and configuration.
-
-| Parameter        | Description                                     | Default    |
-| ---------------- | ----------------------------------------------- | ---------- |
-| `region`         | AWS region for the S3 bucket                    | -          |
-| `endpoint`       | Custom S3-compatible endpoint URL               | -          |
-| `auth`           | Authentication method: `iam_role` or `key`      | `iam_role` |
-| `key`            | AWS access key ID (when `auth: key`)            | -          |
-| `secret`         | AWS secret access key (when `auth: key`)        | -          |
-| `session_token`  | AWS session token for temporary credentials     | -          |
-| `client_timeout` | S3 client timeout                               | -          |
-| `allow_http`     | Allow HTTP (non-TLS) connections to S3 endpoint | `false`    |
-
-Example with IAM role authentication (default):
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-```
-
-Example with explicit credentials:
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      region: us-east-1
-      auth: key
-      key: ${secrets:aws_access_key}
-      secret: ${secrets:aws_secret_key}
-```
-
-Example with a custom S3-compatible endpoint (e.g., MinIO):
-
-```yaml
-runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
-    params:
-      endpoint: http://minio.local:9000
-      auth: key
-      key: ${secrets:minio_access_key}
-      secret: ${secrets:minio_secret_key}
-      allow_http: true
 ```

@@ -135,7 +135,7 @@ Optional. A stable key forwarded to the LLM provider to enable prompt/prefix cac
 | xAI (Grok) | Sent as the `x-grok-conv-id` HTTP header |
 | AWS Bedrock (Converse) | Appends a native `CachePoint` block |
 | Databricks (hosted Claude) | Adds Claude-style `cache_control` to the last content part |
-| Local (mistral-rs) | Paged-attention scheduling is enabled automatically on supported backends (CUDA + Unix) |
+| Local (mistral-rs) | Paged-attention scheduling is requested automatically, and used only on a CUDA build on Unix with a CUDA device available — never for architectures with no paged kernel. On a `from: file:` model, `paged_attention: disabled` forces dense attention. |
 
 ```yaml
 models:

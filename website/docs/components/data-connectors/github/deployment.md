@@ -43,11 +43,25 @@ GitHub's REST API rate limits:
 | GitHub App installation     | 15,000 requests/hr    |
 | Enterprise Server (typical) | Configurable          |
 
-The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers and backs off accordingly. When the remaining budget falls below a small threshold, requests pause until the next reset window.
+The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers and backs off accordingly. It stops issuing requests while the primary limit's remaining budget is at or below **10%** of the limit, so other users of the same token keep a reserve, and resumes at the next reset window.
+
+GraphQL is paced separately. GitHub's GraphQL [secondary rate limit](https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api#secondary-rate-limits) is **2,000 points per minute**, and a non-mutation GraphQL request costs **1 point** regardless of how many nodes or nested connections it asks for. The connector paces itself to 90% of that — a sustained **1,800 requests per minute** — and every GraphQL-backed table on one authentication context shares a single limiter, so adding datasets divides that budget rather than multiplying it. Because every query costs the same 1 point, the shared limiter is first-come-first-served across tables: one large scan cannot starve the others. A secondary-limit `403` is retried on the same page using the response's `retry-after`.
+
+GraphQL CPU time is not estimated locally: HTTP duration is not GitHub's CPU accounting, and budgeting against it would serialize scans GitHub would still accept.
 
 ### Pagination
 
-GitHub paginates at 100 items per page. Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+Page width is chosen per table, not fixed at GitHub's 100-item maximum. GitHub enforces a **per-request compute budget** ([GraphQL API resource limits announcement](https://github.blog/changelog/2025-09-01-graphql-api-resource-limits/)) that is separate from — and reached long before — the [500,000-node ceiling](https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api#node-limit), and a page wide enough to exceed it is rejected outright with `Resource limits for this query exceeded`, every node in the page returned as `null`. Tables whose rows expand into many nested connections therefore request narrower pages: `pulls` is requested 25 at a time in both comment modes, while `issues` and `milestones` still use 100.
+
+**Nested connections are paged too.** `reviews`, `review_threads` and `release_assets` exist only underneath a parent in GitHub's GraphQL schema, and GitHub caps a nested connection page at 100 nodes and will not page it from inside the parent query. The connector fetches the remainder with follow-up requests addressed at the parent, so a pull request with more than 100 reviews is read completely rather than truncated — a truncated nested connection would drop whole rows, and a short `COUNT(*)` gives no sign it is short. When a nested connection cannot be continued, the scan fails and names the parent rather than returning a partial set.
+
+Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
+
+:::warning[`pulls` scan ceilings differ by query mode]
+In `github_query_mode: auto`, the connector fails with `Maximum pagination iterations (1000) exceeded` after 1,000 pagination iterations (1,001 total page fetches counting the initial page), rather than silently truncating. At 25 rows per page, that bounds a `pulls` dataset at `25 x 1001` = **25,025 pull requests** per refresh. In `github_query_mode: search`, GitHub Search has its own [1,000-result limit](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests), which is the effective cap for a single query.
+
+The page was wider in earlier releases, putting the arithmetic ceiling at 100,100 — but on a repository large enough for that to bind, the wider page was rejected by the compute budget and returned no rows at all. The number of pull requests actually reachable went up, not down.
+:::
 
 ### Retry Behavior
 
@@ -70,7 +84,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for g
 
 ## Task History
 
-GitHub API calls participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+GitHub API calls participate in [task history](../../../reference/task_history) through the HTTP client's span. Each page fetch is a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 

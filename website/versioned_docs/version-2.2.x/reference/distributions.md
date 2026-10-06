@@ -53,6 +53,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
 | Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
+| Elasticsearch connector | — | Local build only | ✅ | ✅ |
 
 ## Default Distribution
 
@@ -94,8 +95,8 @@ The data distribution excludes AI/ML model support, resulting in a smaller binar
 
 **Included Features:**
 
-- All data connectors
-- All data accelerators
+- The default distribution's data connectors, minus ADBC
+- All embedded data accelerators, including the PostgreSQL data accelerator and acceleration snapshots, which the released default binaries do not carry
 - Default memory allocator (snmalloc)
 
 **Excluded Features:**
@@ -115,6 +116,12 @@ docker pull ghcr.io/spiceai/spiceai-nightly:latest-data
 ```bash
 make install-data-only
 ```
+
+:::note
+`make install-data-only` builds from `SPICED_DATA_FEATURES` in the `Makefile` — a hand-maintained list that is **not** the `spiced` default feature set with `models` removed, and that differs from it in both directions. Compared with the default distribution it omits the [ADBC](../components/data-connectors/adbc) data connector and the [AWS Secrets Manager](../components/secret-stores/aws-secrets-manager), [Azure Key Vault](../components/secret-stores/azure-keyvault) and [keyring](../components/secret-stores/keyring) secret stores, and it adds the [PostgreSQL data accelerator](../components/data-accelerators/postgres) and [acceleration snapshots](../features/data-acceleration/snapshots). The [environment](../components/secret-stores/env) and [Kubernetes](../components/secret-stores/kubernetes) secret stores are not feature-gated and are available in every build.
+
+A feature added to the default set does not reach `make install-data-only` until it is added to `SPICED_DATA_FEATURES` too, so recompute the difference from that list and the `default = [...]` array in `bin/spiced/Cargo.toml` rather than assuming the two track each other.
+:::
 
 ## GPU-Accelerated Distributions
 
@@ -237,11 +244,13 @@ Native Windows support for the Spice runtime is available with the [Spice Cloud 
 Some connectors require additional dependencies and are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing):
 
 - **ODBC** - Connect to any ODBC-compatible data source
+- **Elasticsearch** - Query Elasticsearch indexes with federated SQL
 
 These can be built locally for development and testing:
 
 ```bash
 make install-odbc
+make install SPICED_NON_DEFAULT_FEATURES="elasticsearch"
 ```
 
 ## Platform-Specific Notes

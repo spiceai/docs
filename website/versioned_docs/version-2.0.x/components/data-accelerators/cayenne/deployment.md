@@ -142,7 +142,7 @@ See [Component Metrics](../../../features/observability/component_metrics) for e
 
 ## Task History
 
-Cayenne refresh, append, and query operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`accelerated_table_refresh`, `sql_query`) plus Cayenne's own internal spans for segment uploads and metastore commits.
+Cayenne refresh, append, and query operations participate in [task history](../../../reference/task_history) through the shared acceleration spans (`acceleration_refresh`, `sql_query`) plus Cayenne's own internal spans for segment uploads and metastore commits.
 
 ## Known Limitations
 

@@ -80,7 +80,7 @@ PRINCIPAL_ID=$(az identity show -g $RG -n spiceai-identity --query principalId -
 az role assignment create \
   --assignee-object-id $PRINCIPAL_ID --assignee-principal-type ServicePrincipal \
   --role "Storage Blob Data Reader" \
-  --scope /subscriptions/<sub>/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/<acct>
+  --scope "/subscriptions/<sub>/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/<acct>"
 
 # 3. Federate the identity with the Kubernetes ServiceAccount
 ISSUER=$(az aks show -g $RG -n $CLUSTER --query oidcIssuerProfile.issuerUrl -o tsv)
@@ -189,7 +189,7 @@ PRINCIPAL_ID=$(az identity show -g $RG -n spiceai-identity --query principalId -
 az role assignment create \
   --assignee-object-id $PRINCIPAL_ID --assignee-principal-type ServicePrincipal \
   --role "Storage Blob Data Reader" \
-  --scope /subscriptions/<sub>/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/<acct>
+  --scope "/subscriptions/<sub>/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/<acct>"
 ```
 
 #### 3. Deploy Spice.ai

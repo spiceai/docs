@@ -23,12 +23,15 @@ datasets:
 
 ## Column References
 
-Column references can be used to specify which columns to index. The column reference can be a single column name or a multicolumn key. The column reference must be enclosed in parentheses if it is a multicolumn key.
+Column references can be used to specify which columns to index. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional.
 
 Examples
 
 - `number`: Index the `number` column
 - `(hash, timestamp)`: Index the `hash` and `timestamp` columns
+- `"service.instance.id"`: Index the `service.instance.id` column, written with the quotes SQL uses
+
+A column name may be double-quoted, and the quotes are not part of the name. Names are matched against the schema's field names as written rather than parsed as SQL identifiers, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced. See [Column names](./constraints#column-names) for the full rules, which are shared by `indexes`, `primary_key` and `on_conflict`.
 
 ## Index Types
 
@@ -41,14 +44,24 @@ There are two types of indexes that can be specified in a Spicepod:
 
 :::warning[Limitations]
 
-Traditional indexes are not supported for the in-memory Arrow or [Spice Cayenne](../../components/data-accelerators/cayenne) acceleration engines. Use [DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [Turso](../../components/data-accelerators/turso), or [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine to enable indexing.
+Traditional indexes are not supported for the in-memory Arrow acceleration engine. Use [DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [Turso](../../components/data-accelerators/turso), or [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine to enable indexing.
+
+[Spice Cayenne](../../components/data-accelerators/cayenne) reads `indexes` and builds a secondary index per entry, but the index is a read-path structure rather than a database index — a `unique` entry does not constrain writes. See [Secondary indexes](../../components/data-accelerators/cayenne#secondary-indexes).
 
 For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc.2+) for O(1) point lookups on primary key columns.
 
 :::
 
+## Primary keys and point lookups
+
+On [DuckDB](../../components/data-accelerators/duckdb), [`acceleration.primary_key`](./constraints) creates a DuckDB `PRIMARY KEY` (unique index) usable for **full-key** point lookups. A filter on only a leading or prefix column of a composite key does not use that unique index — add a secondary `indexes` entry on that column.
+
+On [Spice Cayenne](../../components/data-accelerators/cayenne), `primary_key` does not create an index. It identifies the key for upserts and deletes. To index that key, set a separate `indexes` entry on the same column or columns. See [Secondary indexes](../../components/data-accelerators/cayenne#secondary-indexes).
+
+[`on_refresh_sort_columns`](../../components/data-accelerators/duckdb#configuration-parameters) is incompatible with `primary_key`, `indexes`, and `on_conflict`: the sort rewrite drops those constraints. Prefer [Spice Cayenne](../../components/data-accelerators/cayenne) when you need physical clustering (`sort_columns` / `cayenne_cluster_by`) together with them.
+
 :::tip[Spice Cayenne Point Lookup Performance]
 
-While Spice Cayenne does not support traditional indexes, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](../../components/data-accelerators/cayenne#point-lookups-and-random-access) for details.
+Even without `indexes`, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](../../components/data-accelerators/cayenne#point-lookups-and-random-access) for details.
 
 :::

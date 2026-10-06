@@ -59,7 +59,7 @@ The following parameters are supported for configuring the connection to the Glu
 | `glue_session_token`   | Session token (e.g. AWS_SESSION_TOKEN for AWS) for temporary credentials                                                                                                                                     |
 | `glue_iam_role_source` | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
 
-The following parameters control how the embedded S3 reader fetches Parquet/CSV data files referenced by Glue table metadata. They are inherited from the [S3 data connector](./s3/) and do not apply to Iceberg-format tables, whose object I/O is handled by the Iceberg client.
+The following parameters control how the embedded S3 reader fetches Parquet/ORC/CSV data files referenced by Glue table metadata. They are inherited from the [S3 data connector](./s3/) and do not apply to Iceberg-format tables, whose object I/O is handled by the Iceberg client.
 
 | Parameter Name    | Definition                                                                                                                                                                                                                       |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -181,7 +181,8 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetDatabases",
           "glue:GetDatabase",
           "glue:GetTable",
-          "glue:GetTables"
+          "glue:GetTables",
+          "glue:UpdateTable"
         ],
         "Resource": "*"
       }
@@ -201,6 +202,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
+| `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
 ## Write Support
 
@@ -229,13 +231,19 @@ SELECT * FROM staging_lineitem;
 
 Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
 
-Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+Write operations require `s3:PutObject` permission on the target S3 bucket and `glue:UpdateTable` permission to commit the new table snapshot to the Glue Data Catalog, in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Limitations
 
 :::warning[Data Source/Data Format Restrictions]
 
-This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported. Additionally, this catalog connector is currently limited to Iceberg tables, tables with parquet or CSV data format only.
+This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported. Additionally, this catalog connector is limited to Iceberg tables and tables whose data format is Parquet, ORC, or CSV.
+
+A Hive ACID/transactional ORC table (the Glue table property `transactional` set to `true`, `yes`, or `1`) is refused at registration rather than registered and left unqueryable, because Spice does not implement Hive ACID snapshot semantics (`base_*`, `delta_*`, `delete_delta_*`):
+
+```
+Cannot read Hive ACID/transactional ORC table '<table>', so queries against it will not resolve. Spice does not support Hive ACID snapshot semantics (`base_*`, `delta_*`, `delete_delta_*`). Export or materialize the current snapshot into a genuinely non-transactional ORC location and register that table instead.
+```
 
 :::
 

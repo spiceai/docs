@@ -48,9 +48,51 @@ Every cache type (`sql_results`, `search_results`, `embeddings`) supports the fo
 | ------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `enabled`           | Yes      | `true`   | Defaults to `true`.                                                                                                                                                                                          |
 | `max_size`          | Yes      | `128MiB` | Maximum cache size. Defaults to `128MiB`.                                                                                                                                                                    |
-| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used) and `tiny_lfu` (Tiny Least Frequently Used, higher hit rate for skewed access patterns). |
+| `eviction_policy`   | Yes      | `lru`    | Cache replacement policy when the cache reaches `max_size`. Defaults to `lru`. Supports `lru` (Least Recently Used), `lfu` (Least Frequently Used), and `tiny_lfu` (Window TinyLFU, higher hit rate for skewed access patterns). See [Choosing an `eviction_policy`](#choosing-an-eviction_policy). |
 | `item_ttl`          | Yes      | `1s`     | Cache entry expiration duration (Time to Live). Defaults to 1 second.                                                                                                                                        |
 | `hashing_algorithm` | Yes      | `xxh3`   | Selects which hashing algorithm is used to hash the cache keys when storing the results. Defaults to `xxh3`. Supports `xxh3`, `ahash`, `siphash`, `blake3`, `xxh32`, `xxh64`, or `xxh128`.                   |
+| `engine`            | Yes      | -        | Ignored. Accepted so existing spicepods still load. See [The `engine` parameter](#the-engine-parameter).                                                                                                    |
+
+### Choosing an `eviction_policy`
+
+All three caches store entries in a sharded in-memory cache with 16 shards. `eviction_policy` decides which entry leaves a shard when the cache reaches `max_size`:
+
+- **`lru` (default):** Evicts the least recently used entry. Suited to recency-biased traffic, such as streaming or time-windowed reads.
+- **`lfu`:** Evicts the entry with the fewest hits, found by walking the whole shard. Suited to a stable set of keys that is read far more often than the rest and must survive a burst of one-off queries.
+- **`tiny_lfu`:** Window TinyLFU. A small admission window feeds a segmented LRU main region, and a frequency sketch decides whether a new entry displaces an existing one. The general-purpose choice for mixed database, search, and analytics workloads.
+
+`caching_policy` is accepted as an alias for `eviction_policy`.
+
+### The `engine` parameter
+
+`engine` is accepted for compatibility with existing spicepods and is ignored. SQL results, search results, and embeddings caches always use the sharded cache described above, whatever `engine` is set to. `engine: pingora` no longer selects the Pingora cache and logs a one-time warning at startup:
+
+```
+The `engine` cache setting is ignored at runtime; SQL, search, and embeddings caches always use the Spice sharded-cache backend (`engine: pingora` no longer selects Pingora). Remove `engine` from the spicepod, or leave it for compatibility. See: https://spiceai.org/docs/features/caching
+```
+
+`engine: moka` is accepted without a warning, but it does not preserve Moka's eviction or timing behavior. Remove `engine` from the spicepod, and use `eviction_policy` to choose eviction behavior.
+
+The search results and embeddings caches name the shard count in their startup lines:
+
+```
+Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, shards: 16
+```
+
+With a non-zero [`stale_while_revalidate_ttl`](#serving-stale-after-an-acceleration-refresh), SQL
+result invalidations mark entries stale without evicting them. Otherwise, a table invalidation walks
+every shard to evict the entries that read the table, so its cost is proportional to the number of
+cached entries. The walk runs on a blocking thread, not on the query runtime.
+Search result invalidations always evict entries.
+
+### Serving repeated lookups
+
+For a high-throughput lookup path:
+
+- Compare `eviction_policy: tiny_lfu` and `lfu` with the default `lru` using `results_cache_hit_ratio`.
+- Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
+
+When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a refresh or DML write, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.
 
 ## `caching.sql_results` Parameters
 
@@ -61,6 +103,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 | `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
 | `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
 | `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| `warmup`                     | Yes      | `disabled` | Whether to warm the cache after a restart. `disabled` or `on_first_refresh`. See [Warming the Cache After a Restart](#warming-the-cache-after-a-restart). |
 
 ### Choosing a `cache_key_type`
 
@@ -89,6 +132,106 @@ The encoding algorithm determines how cached results are compressed in memory, t
 - **`zstd`:** Uses the [Zstandard compression algorithm](https://facebook.github.io/zstd/) to compress cached query results. Provides high compression ratios (often 50-90% reduction) with fast decompression speeds. Recommended when caching large result sets to maximize cache capacity.
 
 Use `zstd` when maximizing cache efficiency is important, especially for large queries that would otherwise quickly fill the cache. Use `none` for the lowest latency when memory is not constrained.
+
+### What Counts Against `max_size`
+
+`max_size` bounds what the cache **holds**, not the raw size of the results that went into it. Each entry is charged for the Arrow buffers it owns, plus a per-buffer allowance for the allocator rounding and array metadata around each one, plus a fixed per-entry allowance for the store's own bookkeeping — its entry record, key handle and hash-table slot, none of which is reachable from the cached value itself. A five-column single-row result is eight or more separate buffers, so on the small, high-cardinality results most worth caching this fixed overhead, not the row data, is the larger half of the entry.
+
+Two components are deliberately **not** charged to any entry: a result's Arrow schema and the set of input tables it read. Both are shared process-wide across every entry of the same shape, so charging each entry for a private copy would bill one allocation thousands of times over. They are reported separately instead — see [Shared Entry Components](#shared-entry-components).
+
+That exclusion makes `max_size` an **entry budget, not a ceiling on cache memory**. The shared pools hold real memory that no entry is billed for, so a workload presenting enough distinct shapes can exceed `max_size` by the size of those allocations — the runtime reports the residual rather than enforcing it.
+
+Alert on both halves: `results_cache_size_bytes` is the figure `max_size` is enforced against, and `schema_interner_value_bytes` + `schema_interner_overhead_bytes` + `table_set_interner_value_bytes` + `table_set_interner_overhead_bytes` are the memory outside it. Total cache memory is the sum.
+
+### Results That Cannot Be Cached
+
+An uncompressed (`encoding: none`) SQL results-cache entry must own the memory it holds. Some sources hand the runtime a result resting on memory they own themselves — a driver's result chunk imported over FFI, an Arrow Flight message body sliced out of a gRPC frame — and an entry over such a result would pin the producer's whole chunk while being billed only for the buffers it declares, so `max_size` could not bound it.
+
+The runtime therefore copies each result off the producer's memory before storing it, then checks whether the copy succeeded rather than predicting it from the column types. A result that still rests on memory it does not own is **declined**: nothing is stored, no error is returned to the caller, and a repeat of the same query re-executes instead of hitting the cache. The check is per result, so the same query can be cacheable against one source and declined against another.
+
+Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
+
+When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
+
+## Warming the Cache After a Restart
+
+A restarted runtime starts with an empty SQL results cache, so the first queries after a deploy or a crash all miss. Setting `warmup: on_first_refresh` records the queries the runtime serves and replays them after the next restart, so the cacheable results of the replays that succeed are already cached when the runtime reports ready. A replay goes through the same cache as a live query, so a result the cache [declines](#results-that-cannot-be-cached) is not stored by warmup either. A replay that times out or fails is skipped, so its results are not cached until a live query runs it.
+
+```yaml
+runtime:
+  caching:
+    sql_results:
+      enabled: true
+      warmup: on_first_refresh
+```
+
+Warmup works in two phases:
+
+1. **Record.** The runtime remembers the first 10 distinct query *shapes* it caches and persists them. A shape is the query's logical plan with each equality-filter value replaced by a placeholder, so `WHERE id = 1` and `WHERE id = 2` are one shape. Only the first 10 are kept, not the 10 most frequent.
+2. **Replay.** After a restart, once each accelerated dataset with `refresh_mode: full` or `refresh_mode: append` completes its first refresh, the runtime runs one `SELECT DISTINCT` over the shape's filtered columns and replays the shape once for each returned combination of values, until the cache is full. A shape with several equality filters is replayed only with value combinations that exist together in the dataset, not every possible pairing. Later refreshes do not warm the cache again.
+
+While the replay runs, datasets stay not ready, so [`/v1/ready`](../api/HTTP/ready) does not report ready on a cold cache. Each replayed query is bounded by [`runtime.query.timeout`](../reference/spicepod/runtime#runtimequerytimeout), or 1 minute when that is unset; a query that exceeds it is skipped with a warning. Warmup bypasses query admission, so it does not compete with user queries for concurrency slots. It runs on the refresh thread pool, unless [`runtime.params.dedicated_thread_pool`](../reference/spicepod/runtime#dedicated-thread-pools) is `disabled`.
+
+The first start with warmup enabled has no recorded shapes, so it records only. The restart after that is the first one that warms the cache.
+
+Warmup has the following requirements and limits:
+
+- `enabled` must be `true`.
+- `cache_key_type` must be `plan` (the default). `warmup: on_first_refresh` with `cache_key_type: sql` fails Spicepod validation, because a warmed entry keyed by raw SQL can never match a live query.
+- Only queries in the public cache namespace are recorded. Queries from authenticated principals, which are cached [per principal](#per-principal-cache-isolation), are not recorded or replayed.
+- Only datasets with `refresh_mode: full` or `refresh_mode: append` gate the replay. Datasets with other refresh modes, such as `changes` or `caching`, are not waited for, so when no `full` or `append` refresh remains, the replay starts immediately.
+- Queries that read the `runtime` schema (for example, `runtime.task_history`) and DML, DDL, and statement plans are never recorded.
+- A shape with no equality filters is recorded and replayed as-is, whatever other tables it reads. A shape with equality filters is recorded only when its filters can be refilled from a single table: it is not recorded when its equality filters span more than one table (for example, filters on both sides of a join), bind the same column more than once, sit under an `OR`, or filter a subquery rather than a table. Such queries are still cached normally; they are only left out of warmup.
+- Each shape is replayed for at most 1,024 distinct key combinations.
+
+### Where recorded shapes are stored
+
+By default, the recorded shapes are written to `.spice/data/results_cache_warmup.json` on the local disk. To keep them across replicas or across ephemeral containers, set [`runtime.state`](../reference/spicepod/runtime#runtimestate) to a shared object store:
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice-state
+    params:
+      s3_region: us-east-1
+      s3_auth: iam_role
+  caching:
+    sql_results:
+      enabled: true
+      warmup: on_first_refresh
+```
+
+If the object store fails to initialize, the runtime logs a warning and writes the shapes to the local file instead.
+
+## Logical Plan Cache
+
+Separately from the result caches above, the runtime keeps a small cache of **logical plans**, so a repeated query skips parsing and planning even when its results are not cached. It is not part of the `caching` configuration and has no `enabled` flag: it is installed on every runtime, whatever `sql_results`, `search_results` and `embeddings` are set to.
+
+| | |
+| --- | --- |
+| Configurable | No — always on |
+| Capacity | 512 plans |
+| Entry lifetime | 1 hour from insertion |
+| Key | The SQL text — **not** the bound parameter values |
+| Hashing algorithm | [`sql_results.hashing_algorithm`](#choosing-a-hashing_algorithm) |
+
+Four consequences are worth knowing:
+
+- A parameterized query has **one** cached plan however many value tuples are sent through it. Planning happens against the placeholders and the values are bound into the plan afterwards, so the plan does not depend on them; keying on them would give each tuple its own entry and fill the 512 slots with copies of a single query.
+- The values still key the **results**. Two executions of the same SQL text with different parameter values share the cached plan and remain separate [`sql_results`](#cachingsql_results-parameters) cache entries, so each returns its own rows.
+- `sql_results.hashing_algorithm` is read even when `sql_results.enabled` is `false`, because the plan cache borrows it. It is the one `sql_results` setting that still has an effect with the results cache switched off.
+- Bypassing the results cache does not bypass the plan cache. A query sent with `cache-control: no-cache` re-executes, but it is still planned from the cached plan if one is present, and still populates the plan cache if one is not.
+
+The cache is dropped wholesale — every entry, not only the affected ones — whenever something a plan was built against changes:
+
+- a dataset or a view is registered, updated, or removed;
+- a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
+- a spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md) — one whose declaration changed, or one whose name a provider is already registered under. Re-registering a catalog builds a fresh provider under the same name, and a plan holds the table source it was planned against;
+- an accelerated table's schema evolves, in place or by recreation.
+
+A reload that adds a catalog name nothing was registered under invalidates nothing — no cached plan can have resolved a table in it — and a reload that changes no catalog leaves the cache intact.
+
+A plan is otherwise held for its full hour, so a change made outside these paths is not picked up until the entry expires.
 
 ## Per-Principal Cache Isolation
 
@@ -124,7 +267,7 @@ The status header indicates the cache status:
 | `HIT`                | The query result was served from the cache.                                                                                              |
 | `MISS`               | The cache was checked, but the result was not found.                                                                                     |
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
-| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is configured). |
+| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is set to a non-zero duration). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled or querying a system table).                                       |
 
 The scope header indicates the cache namespace:
@@ -221,6 +364,33 @@ With this configuration:
 - After 20 seconds, the entry is evicted if not refreshed.
 
 This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
+
+#### Serving Stale After an Acceleration Refresh
+
+A cached result is judged against **two independent clocks**, both evaluated on every hit. The first to say "not servable" wins:
+
+| Clock            | Measured from                            | Fresh                                | Serve stale + revalidate                  | Miss                            |
+| ---------------- | ---------------------------------------- | ------------------------------------ | ----------------------------------------- | ------------------------------- |
+| **Age**          | When the entry was stored                | Up to `item_ttl`                     | `item_ttl` → `item_ttl + swr`             | Past `item_ttl + swr`           |
+| **Invalidation** | The refresh or DML write that touched a table the result read | The change predates the entry's own read | change → change + `swr`               | Past change + `swr`             |
+
+A dataset **reload** counts as a change on that clock: a hot reload, or any other re-registration of a dataset, invalidates the results cached from its previous contents — both when the reload starts and again once the new registration is in place, so a query that began mid-reload cannot store a result the clock would then accept. It invalidates the [logical plan cache](#logical-plan-cache) too. If the invalidation cannot be recorded the reload still completes, and the runtime warns that queries may be answered from the previous contents until they expire.
+
+With no stale-serving window — `stale_while_revalidate_ttl` unset, or set to `0s` — an acceleration refresh or a DML write **evicts** every dependent entry, so a workload polling accelerated datasets turns a whole population of cached results into simultaneous synchronous misses at each refresh. An explicit `0s` is read as no window rather than as one that closes immediately, since keeping entries resident for it would hold memory no lookup could ever serve from.
+
+When `stale_while_revalidate_ttl` is set to a **non-zero** duration, the invalidation instead marks those entries stale and leaves them resident:
+
+- **Inside the window** — the previous result is served with `results-cache-status: STALE`, and a background revalidation starts. Revalidation is single-flighted per key, so concurrent requests produce one query and all of them are served stale. Its result replaces the entry, whose read time is then after the refresh, so the entry returns to a plain `HIT`.
+- **Past the window** — a miss, as before.
+- **A failed revalidation invalidates nothing** — the previous result keeps being served until the window closes, then becomes a miss. `results_cache_swr_revalidations` is the only visible symptom of that failure.
+
+Nothing is served *as fresh* once a table it read has moved on — only as `STALE`.
+
+There is no new configuration parameter: `stale_while_revalidate_ttl` is the opt-in for both clocks.
+
+:::note[The window is anchored to the change, but capped by the entry's own age]
+An entry is still dropped `item_ttl + stale_while_revalidate_ttl` after it was *stored*, whatever happened to the tables it read. A refresh landing late in an entry's life therefore leaves less than the full window — the effective window is the shorter of the two. This can only end stale-serving early, never extend it.
+:::
 
 :::warning[Conflict with Caching Accelerator SWR]
 When using a dataset with `refresh_mode: caching`, you cannot configure both the results cache's `stale_while_revalidate_ttl` and the caching accelerator's `caching_stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers.
@@ -432,17 +602,60 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `expired`     | The entry outlived `item_ttl`.                                                 |
 | `invalidated` | A dataset refresh or a DML write dropped the entries that referenced a table.  |
 
-On an accelerated dataset with a periodic refresh, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`.
+On an accelerated dataset with a periodic refresh and no stale-serving window, `invalidated` is usually the dominant — often the only — reason, which is why it is a separate label value rather than folded into an unlabelled total: an alert on cache pressure should watch `size` and `expired`. With a non-zero `stale_while_revalidate_ttl` those refreshes mark entries stale instead of removing them, so they produce no `invalidated` evictions at all — watch `results_cache_table_invalidations` for them.
 
 Every cache counter is published at zero when the runtime starts, so a counter that has not yet fired still appears in a scrape as a zero series rather than being absent.
 
-The SQL results cache additionally emits `results_cache_stale_rejections`, a counter of lookups that found an entry but refused to serve it because a table the result read had since been invalidated. These are also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale".
+The SQL results cache additionally emits four counters covering [table invalidation](#serving-stale-after-an-acceleration-refresh):
+
+| Metric                                 | Labels    | Description                                                                                                                                                                    |
+| -------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `results_cache_stale_rejections`       | `reason`  | Lookups that found an entry but refused to serve it because a table the result read had since been invalidated. Also counted in `results_cache_misses`, so the two together separate "nothing was cached" from "something was cached but had gone stale". |
+| `results_cache_table_invalidations`    | `mode`    | Table invalidations applied to the cache. Counts invalidations, not the entries each one affected.                                                                              |
+| `results_cache_invalidation_stale_hits`| —         | Results served from an entry an invalidation had marked stale, within the stale-while-revalidate window.                                                                        |
+| `results_cache_swr_revalidations`      | `outcome` | Completed background revalidations. Any outcome other than `stored` leaves the previous entry in place to be served stale until it expires.                                     |
+
+`reason` on `results_cache_stale_rejections` is one of `no_window` (stale serving is disabled — `stale_while_revalidate_ttl` unset or `0s`), `window_expired` (the window had closed), or `fresh_required` (the lookup was made on a path that serves only fresh results, and so treats the entry as a miss).
+
+`mode` on `results_cache_table_invalidations` is `evict` when the dependent entries were removed, or `mark_stale` when they were left resident to be served stale. A `mark_stale` invalidation removes nothing, so it is invisible to `results_cache_evictions` — without this counter the switch between the two modes is indistinguishable from refreshes having stopped.
+
+`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
+
+:::note
+These four counters are published at zero for the search-results and embeddings caches as well, but only the SQL results cache ever increments them.
+:::
 
 The `*` prefix corresponds to the cache type:
 
 - `results_*` - SQL query results cache metrics
 - `search_results_*` - Search results cache metrics
 - `embeddings_*` - Embeddings cache metrics
+
+### Shared Entry Components
+
+The Arrow schema and the input-table set behind a cached result are shared process-wide rather than copied per entry (see [What Counts Against `max_size`](#what-counts-against-max_size)). Because they are not charged to any entry, they do not appear in `results_cache_size_bytes`; two pools report them instead, one per component:
+
+| Metric                            | Type       | Description                                                                                                                   |
+| --------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `*_interner_rows`                 | Gauge      | Distinct values the pool currently shares.                                                                                     |
+| `*_interner_value_bytes`          | Gauge      | Total size of the shared values, counted once per distinct value rather than once per entry holding it.                        |
+| `*_interner_overhead_bytes`       | Gauge      | The pool's own bookkeeping: its hash-map slots and bucket vectors.                                                             |
+| `*_interner_collapsed`            | Counter    | Values collapsed onto an allocation the pool already held — the direct evidence that sharing is removing duplicates.           |
+| `*_interner_already_shared`       | Counter    | Interns whose caller already held the shared allocation. Counted apart from `collapsed` because no duplicate was removed.      |
+| `*_interner_misses`               | Counter    | Interns that adopted a value the pool had not seen. Read alongside both sharing counters, not against `collapsed` alone.                    |
+
+The `*` prefix is the pool:
+
+- `schema_interner_*` - Arrow schemas
+- `table_set_interner_*` - input-table sets
+
+Both pools are **shared by the SQL results cache and the search results cache**, and are registered whenever either one is configured. A search entry interns the schema of each table's aggregated results and the set of input tables the search read, exactly as a SQL entry does. So neither pool's bytes can be attributed to `results_cache_size_bytes` alone: on a runtime with `search` caching enabled they also cover entries counted by `search_results_cache_size_bytes`.
+
+All six are observable instruments, sampled when metrics are collected rather than emitted as they happen. A point-lookup workload — many distinct queries over a handful of tables, the shape worth caching at all — should show `*_interner_collapsed` climbing far faster than `*_interner_rows`.
+
+Judging whether sharing is working takes **both** sharing counters, because they record different moments of the same saving. `*_interner_collapsed` counts a duplicate allocation removed; `*_interner_already_shared` counts a caller re-presenting the pointer the pool had already given it, which is the steady state once a workload's shapes have stabilized. A pool whose shapes settled long ago therefore shows `already_shared` climbing with `collapsed` flat while sharing is fully in effect. Treat rising `*_interner_misses` as evidence that values are arriving distinct and the pool is holding memory without saving any only when `*_interner_collapsed` **and** `*_interner_already_shared` are both flat.
+
+Reclamation is driven by the runtime's cache-maintenance loop, not by metric collection, so a pool holds the same memory whether or not `--metrics` is enabled.
 
 Example metrics output:
 

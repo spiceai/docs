@@ -86,6 +86,10 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 Pair `refresh_mode: append` with a `primary_key` and `on_conflict: upsert` to handle source rows that are occasionally updated. See [End-to-End Incremental Ingestion Example](../data-refresh#end-to-end-incremental-ingestion-example).
 
+## Iceberg delete files
+
+Iceberg v2 position and equality delete files are applied on federated scans and on [`refresh_mode: full`](./full). They are **not** applied by `append`: once a row is in the acceleration, a later delete file does not retract it. Prefer soft deletes plus a filtering [view](../../views) until Iceberg snapshot-diff into [`changes`](./changes) exists. See [Delete files on federated reads](../../../components/data-connectors/iceberg#delete-files-on-federated-reads).
+
 ## Related Topics
 
 - [Refresh Interval](../data-refresh#refresh-interval)

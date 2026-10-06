@@ -122,12 +122,12 @@ For broader observability, also monitor:
 
 ## Task History
 
-Cosmos DB requests participate in [task history](../../../reference/task_history) through the connector span. Each query is captured as a child of the enclosing `sql_query` or `accelerated_table_refresh` task.
+Cosmos DB requests participate in [task history](../../../reference/task_history) through the connector span. Each query is captured as a child of the enclosing `sql_query` or `acceleration_refresh` task.
 
 ## Known Limitations
 
 - **Read-only**: Writes (`INSERT` / `UPDATE` / `DELETE`) are not supported.
-- **No filter / projection / limit pushdown**: SQL predicates are evaluated locally by DataFusion. Use a custom `query:` to narrow at the Cosmos side.
+- **Partial filter pushdown**: When `query` is left at its default, `SELECT * FROM c`, Spice pushes the projection and supported `WHERE` conditions into the Cosmos DB query. Supported conditions are a column compared with a literal (`=`, `<>`, `<`, `<=`, `>`, `>=`), `IS NULL`, `IS NOT NULL`, `BETWEEN` with literal bounds, an `IN` list of up to 256 non-null literals, `LIKE 'prefix%'` and DataFusion's built-in `starts_with` with a non-empty literal prefix on a string column, a boolean column or its `NOT`, and `AND` and `OR` combinations of these. `NOT IN`, `NOT BETWEEN`, and other functions are evaluated in Spice. A condition pushes down only on a column of type `Utf8`, `Int64`, `Float64`, or `Boolean`. A comparison on a boolean column supports only `=` and `<>` (and `BETWEEN` does not push down on one), a string range comparison (`<`, `<=`, `>`, `>=`) needs an ASCII bound, an integer literal must be smaller than 2^53 in absolute value, and a floating-point literal must be finite: a condition on `NaN`, `Infinity`, or `-Infinity` is evaluated in Spice. Spice evaluates any other condition itself. Each pushed condition reads a superset of the matching documents, and DataFusion filters the rows again, so the returned rows match a query that pushes nothing down. A document that a pushed condition excludes is not read, so a value in it that another column cannot hold no longer fails the query. With a custom `query`, Spice pushes no conditions or projection and reads the documents that query returns. With either kind of query, a `LIMIT` stops the read once enough documents have been read.
 - **Schema is frozen at registration**: Mapping changes after startup require a runtime restart.
 - **No change feed**: `RefreshMode::Changes` is not wired.
 - **Mid-stream retries are not safe**: Retries apply to the schema-inference pass only. Errors during a streaming scan propagate immediately; rely on dataset refresh-level retry instead.

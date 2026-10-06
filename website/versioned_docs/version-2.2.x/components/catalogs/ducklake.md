@@ -204,7 +204,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 :::warning[Limitations]
 
-- Spice uses DuckDB 1.5.3, which supports DuckLake 1.0. Older DuckLake catalogs require a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
+- Spice v2.2.1 embeds DuckDB 1.4.4; v2.2.0 embeds DuckDB 1.5.5. Older DuckLake catalogs require a metadata migration before use — set `ducklake_automatic_migration: true` to perform it on attach (this rewrites catalog metadata and cannot be undone). See [DuckLake migration guide](https://ducklake.select/docs/stable/duckdb/guides/troubleshooting#connecting-to-an-older-ducklake).
 - The DuckLake DuckDB extension is downloaded at runtime on first use, requiring network connectivity.
 - The `information_schema` and `pg_catalog` system schemas are automatically filtered out during discovery.
 - Catalog refresh is non-incremental — a full re-query of `information_schema` is performed on each refresh cycle.
