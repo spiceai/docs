@@ -106,7 +106,7 @@ The PostgreSQL connector exposes observable metrics for its replication pipeline
 
 Metric instruments are exposed with the prefix `dataset_postgres_`. Each instrument carries a `name` attribute set to the dataset name; `replication_member_attached` also carries a `slot` attribute for grouping shared-slot members.
 
-A source read is **not** on this family. An acceleration rebuilt from the source runs as an ordinary full refresh, so it reports on `dataset_acceleration_refresh_duration_ms{mode="full"}` with the shared refresh counters beside it, and why it happened is logged rather than labelled — see [Detecting an unplanned source read](../../../features/cdc/postgres-replication#unplanned-source-reads).
+A **rebuild** is not on this family. An acceleration rebuilt from the source runs as an ordinary full refresh, so it reports on `dataset_acceleration_refresh_duration_ms{mode="full"}` with the shared refresh counters beside it, and why it happened is logged rather than labeled. A **creation** — an initial snapshot of an acceleration with nothing to resume from — does report here, on the `replication_bootstrap_*` instruments above. See [Detecting an unplanned source read](../../../features/cdc/postgres-replication#unplanned-source-reads).
 
 ## Task History
 

@@ -396,16 +396,20 @@ The watermark is written by the same call that acknowledges the slot, so it can 
 
 On each start the decision is arithmetic rather than an inference:
 
-| Recorded watermark | Slot state | Action |
+Each start matches exactly one row. "The slot can serve it" means the slot has acknowledged no further than the watermark and its `restart_lsn` is at or before it, so the WAL in between is still retained. "A snapshot is going to run" means one of the [`creation_cause`](#unplanned-source-reads) conditions holds — the acceleration does not persist, `pg_replication_initial_snapshot: always`, the table was only just added to the publication, or the slot was created by this process — and `pg_replication_initial_snapshot` is not `disabled`.
+
+| Recorded watermark | Slot and acceleration state | Action |
 | --- | --- | --- |
 | None, on an accelerator that does not survive restarts | any | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
-| None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
-| None, on a durable acceleration observed to hold **no rows**, where an initial snapshot is going to run | any | **Bootstrap** — a table holding nothing cannot be hiding a row the source deleted, and the snapshot is what loads it |
-| Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
-| Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
-| Present, and the slot can serve it | The accelerated table is observed to hold **no rows**, and no snapshot is going to run | **Rebuild** — the watermark asserts every change below it is already applied, so those rows will never be resent |
-| Present, and the slot can serve it | The accelerated table **could not be read** to check, and no snapshot is going to run | **Rebuild** — an unanswered probe cannot license resuming onto a table that may have been recreated |
-| Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
+| None, on a durable acceleration that has nowhere to record one | any | **No rebuild** — slot loss cannot be detected for it, and Spice warns at startup (see below) |
+| None, on a durable acceleration that can record one | The acceleration is observed to hold **no rows**, and a snapshot is going to run | **Bootstrap** — a table holding nothing cannot be hiding a row the source deleted, and the snapshot is what loads it |
+| None, on a durable acceleration that can record one | Anything else: rows present, the acceleration could not be read, or no snapshot is going to run | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
+| Recorded against a different source, unreadable, or ahead of a source that was rewound | any | **Rebuild** — LSNs are only comparable within one source's history |
+| Present | The slot cannot serve it: it acknowledged past the watermark, its `restart_lsn` is past it, or the slot is gone | **Rebuild** — the missing changes can no longer be streamed |
+| Present | The slot can serve it, and a snapshot is going to run | **Snapshot, then resume** — the snapshot loads the table, and the retained WAL is replayed on top of it |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table is observed to hold rows | **Resume** — the WAL in between is still retained and is replayed |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table is observed to hold **no rows** | **Rebuild** — the watermark asserts every change below it is already applied, so those rows will never be resent |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table **could not be read** to check | **Rebuild** — an unanswered probe cannot license resuming onto a table that may have been recreated |
 
 A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
 
@@ -464,8 +468,8 @@ The line carries a `rebuild_cause` field holding a stable identifier to select o
 | `rewound_source` | The source no longer contains the recorded position, because it was restored or rewound afterwards. | Worth chasing: one rewind escapes detection entirely, so check whether **other** datasets on the same source resumed when they should not have. |
 | `acknowledged_past` | The slot acknowledged past the recorded position, so it can no longer be streamed from. | Not a WAL retention problem — the WAL may still be on disk. |
 | `retention_lost` | The slot no longer retains the WAL following the recorded position. | `max_slot_wal_keep_size` on the source, and replication lag. |
-| `empty_with_usable_position` | The accelerated table was observed to hold no rows while recording a position the slot can still stream from. | The accelerator itself — a `mode: file_update` recreate, a restored accelerator file, or a source whose rows were all legitimately deleted. |
-| `unproven_contents_with_usable_position` | The accelerated table could not be read to check whether it still holds rows, while recording a usable position. | The accelerator being unreadable is its own problem, and is what forced the re-read. |
+| `empty_with_usable_position` | The accelerated table was observed to hold no rows while recording a position the slot can still stream from, and no snapshot was going to load it. | The accelerator itself — a `mode: file_update` recreate, a restored accelerator file, or a source whose rows were all legitimately deleted. |
+| `unproven_contents_with_usable_position` | The accelerated table could not be read to check whether it still holds rows, while recording a usable position, and no snapshot was going to load it. | The accelerator being unreadable is its own problem, and is what forced the re-read. |
 
 A **creation** loads an acceleration that has nothing to resume from, which is ordinary, so it is logged at `info!` with a `creation_cause` field:
 
