@@ -198,7 +198,7 @@ runtime:
 
 HTTP rate control is adaptive. On a healthy origin the configured limits apply unchanged. While the origin fails or times out, Spice sends it fewer requests than the limits, and returns to the full limits as it recovers. An origin with no limit is not affected. The HTTP/HTTPS and GraphQL connectors report request outcomes and adapt. The Databricks connector applies its configured limits unchanged and ignores `http_rate_control_failure_threshold` and `http_rate_control_window`. See [Rate Control](../../components/data-connectors/https/deployment#rate-control) for details.
 
-A request that cannot get a rate-control permit within `http_rate_control_acquire_timeout` (or the dataset's `rate_control_acquire_timeout`) fails. Earlier releases waited indefinitely. Set the value to `0` to keep that behavior.
+A request that cannot get a rate-control permit within `http_rate_control_acquire_timeout` (or the dataset's `rate_control_acquire_timeout`) fails.
 
 ### Spatial SQL Functions (opt-in)
 
@@ -268,7 +268,7 @@ dataset param > runtime.params.http_* default > unset
 ### Cluster rate control
 
 :::info Enterprise Feature
-Cluster rate control is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise). Other builds keep rate limits local to each instance, and log no warning when `runtime.state` is set.
+Cluster rate control is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
 :::
 
 Without cluster rate control, each Spice instance applies the configured limits on its own. When [`runtime.state`](#runtimestate) is set, Spice instances that share `runtime.state.location` coordinate through object storage, so that a configured request-rate limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 requests per second in total across all replicas, not 20 per replica. The object store parameters come from `runtime.state.params`. There is no separate setting to turn cluster rate control on: `runtime.state` also serves the [scheduler](#runtimescheduler) and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart), and setting it for those features also turns on cluster rate control for every origin with a request-rate limit.
@@ -292,32 +292,10 @@ datasets:
 
 The configured quota becomes a token budget per lease window (one `refresh_interval`). Replicas divide that budget with a demand-weighted leased token-bucket model, so a busy replica gets a larger share and an idle replica releases budget to the others.
 
-Cluster rate control applies to `requests_per_second_limit` and `requests_per_minute_limit` only. `max_concurrent_requests` is a per-instance limit that is not shared through object storage. An origin that has only `max_concurrent_requests` logs this warning at startup, and its limit stays local to each instance:
+Cluster rate control applies to `requests_per_second_limit` and `requests_per_minute_limit` only. `max_concurrent_requests` is a per-instance limit that is not shared through object storage. Cluster rate control are instantiated at startup. [Adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) also works with cluster rate control, with the exception of `max_concurrent_requests` not being supported in a cluster.
 
-```text
-Cluster rate control is set for origin 'https://api.example.com:443', but no request-rate limit is set. Cluster rate control at `runtime.state.location` applies to `requests_per_second_limit` and `requests_per_minute_limit` only. `max_concurrent_requests` stays local to each instance. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimesource_rate_control
-```
+If an instance cannot read or write the shared state, it keeps using the lease it already holds. 
 
-Spice reads `runtime.state` and `refresh_interval` once, when `spiced` starts. Restart `spiced` after a change; a reload logs a warning and the previous values stay in effect.
-
-#### Adaptive cluster rate control
-
-[Adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) also works with cluster rate control, and needs no extra configuration. Each replica publishes the number of successful and failed requests it saw in each window next to its lease. Every replica reads the same counts from the shared state and calculates the same admission coefficient, with no traffic between replicas. The coefficient lowers the cluster budget, so the whole cluster backs off together: failures that one replica sees also reduce the requests that the other replicas send.
-
-Cluster adaptation uses the same `rate_control_failure_threshold` (default `10%`) and the same formula as a single instance, with these differences:
-
-- It scales the cluster budgets for `requests_per_second_limit` and `requests_per_minute_limit`. It never changes the per-instance `max_concurrent_requests`, so an origin limited only by concurrency does not adapt with cluster rate control.
-- The shared state records outcomes one window at a time, so `rate_control_window` defaults to `refresh_interval`. A shorter explicit value is raised to one `refresh_interval`, and Spice logs an info line (shown after this list).
-- When the scaled budget is not a whole number of tokens, each replica carries the fraction forward to later windows. A small budget still throttles, and a failing origin still receives occasional requests that show when it recovers.
-- The `rate_control_adaptive_throttled_total` metric stays `0`, because the cluster lowers its budget instead of charging requests a higher weight. Use `rate_control_adaptive_admission_ratio` and the [cluster metrics](../../components/data-connectors/https/deployment#metrics).
-
-```text
-Cluster rate control for origin 'https://api.example.com:443' raised `rate_control_window` from 5000ms to the 30000ms `refresh_interval`. The shared state records request outcomes one window at a time, so the reaction and recovery half-life cannot be shorter than one window.
-```
-
-If an instance cannot read or write the shared state, it keeps using the lease it already holds. When that lease expires and the shared state is still unreachable, the instance refuses requests to the origin with the error `Cluster rate-control budget exhausted for origin <origin>; persisted store is unavailable and the lease has expired`, and counts them in `rate_control_fail_closed_total`.
-
-The shared state format is compatible across versions. During a rolling upgrade, instances that do not support cluster adaptation ignore the published outcome counts and apply the configured limits unchanged.
 
 ## `runtime.functions`
 
