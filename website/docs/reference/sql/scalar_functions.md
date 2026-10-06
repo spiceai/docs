@@ -2112,7 +2112,7 @@ SELECT regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i');
 
 ### `regexp_count`
 
-Returns the number of matches that a regular expression has in a string.
+Returns the number of matches that a regular expression has in a string. Returns `NULL` when `str`, `regexp`, `start`, or `flags` is `NULL`.
 
 ```sql
 regexp_count(str, regexp[, start, flags])
