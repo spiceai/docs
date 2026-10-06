@@ -200,6 +200,12 @@ A `CAST` or `TRY_CAST` into a string type (`Utf8`, `LargeUtf8`, or `Utf8View`) i
 
 As with `concat`, the check covers the operand's whole expression, and an operand whose type Spice cannot determine is treated as binary. A text cast over a string or numeric column, such as `CAST(id AS VARCHAR)`, is sent to DuckDB. Casts from a binary value into a number, date, boolean, or decimal are sent to DuckDB unchanged.
 
+## Decimal Averages
+
+`AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum and truncates the result to `Decimal128(p + 4, s + 4)`. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
+
+DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md) and the [DuckLake connector](../ducklake.md).
+
 The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
 
 ## Cookbook

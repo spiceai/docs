@@ -44,6 +44,7 @@ datasets:
 - SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](duckdb) instead.
 - The SQLite accelerator doesn't support advanced grouping features such as `ROLLUP` and `GROUPING`.
 - `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
+- `AVG` and `SUM` over a decimal column are never sent to SQLite. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
 :::
@@ -66,6 +67,12 @@ SQLite's `CAST` never fails. A cast into a numeric type converts the longest num
 - A string literal cast into a date when the literal is already written as `YYYY-MM-DD`, such as `DATE '1994-01-01'`.
 
 Every other `CAST`, and every `TRY_CAST`, is evaluated in Spice above the scan of the accelerated table. This includes a cast whose operand type Spice cannot determine. For example, `CAST(s AS BIGINT)` over a string column that holds `'abc'` returns the error a DataFusion query returns, not `0`, and `CAST(1 AS DECIMAL) / CAST(2 AS DECIMAL)` returns `0.5`, not the result of SQLite integer division. A query whose plan contains such a cast still runs, but that cast does not push down to SQLite.
+
+## Decimal Aggregates and Federation
+
+SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER`, and computes `avg` and `sum` over it in floating point or in 64-bit integers. Its `avg` rounds where Spice truncates the exact result to `Decimal128(p + 4, s + 4)`, and its `sum` fails with an integer overflow once the total exceeds the 64-bit integer range.
+
+To return the same results as an unaccelerated query, Spice does not send `AVG` or `SUM` over a decimal column to the SQLite accelerator, whether called as an aggregate or as a window function. The aggregate is evaluated in Spice above the scan of the accelerated table, and the scan, its filters, and its projection are still sent to SQLite. An aggregate whose argument type Spice cannot determine is also evaluated in Spice. Aggregates over integer and floating-point columns, and other aggregates over decimal columns such as `MIN`, `MAX`, and `COUNT`, are still sent to SQLite.
 
 ## Cookbook
 
