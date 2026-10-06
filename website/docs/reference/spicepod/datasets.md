@@ -266,8 +266,8 @@ unsupported message and apply additive changes on restart. Constraint and primar
 cannot be widened in place.
 
 For column removals or narrowing, `on_schema_change: drop_and_recreate` with `refresh_mode: full`
-recreates the table from the source. [`mode: file_update`](#accelerationmode) recreates the
-acceleration file on any schema change.
+recreates the table from the source. [`mode: file_update`](#accelerationmode) drops and recreates
+the accelerated table on an incompatible schema change.
 
 :::
 
@@ -462,7 +462,7 @@ Optional. The mode of acceleration. The following values are supported:
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
 - `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 - `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the accelerated table is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
 ## `acceleration.storage_profile`
 
