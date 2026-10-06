@@ -66,6 +66,8 @@ A key can repeat within the incoming data itself, not only against a stored row.
 **`drop` on DuckDB and SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
 
 **`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
+
+**Spice Cayenne** applies its own rule on an append refresh: a key repeated within one record batch is collapsed instead of failing the write (`upsert` keeps the last copy, `drop` the first), and the same key in a later batch of that write fails it. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 :::
 
 Example Spicepod:
@@ -88,7 +90,7 @@ datasets:
 
 ### Advanced Upsert Options
 
-By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html))
+By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne is the exception: an append refresh collapses a key repeated within one batch, so plain `upsert` keeps the last copy there instead of failing.
 
 Spice provides two `upsert` options to resolve duplicates within a single update:
 

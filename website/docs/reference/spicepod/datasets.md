@@ -923,6 +923,8 @@ The possible conflict resolution strategies are:
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
+On Spice Cayenne, an append refresh collapses a key repeated within one batch instead of failing, and rejects a key repeated across batches of one write. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
+
 See [Constraints](../../features/data-acceleration/constraints)
 
 ```yaml

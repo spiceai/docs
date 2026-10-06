@@ -294,6 +294,18 @@ Because the key covers only a subset of the row, a `WHERE` condition that reads 
 
 Row-level deletes that address rows by position, which can reproduce any predicate exactly, are a planned follow-up.
 
+## Append refresh and table layout
+
+An accelerated Iceberg dataset with [`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append.md) and a [`time_column`](../../reference/spicepod/datasets.md#time_column) polls with a filter on that column. [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) widens the window. The scan skips data files whose partition values or column metrics cannot match the filter, and by default it skips Parquet row groups whose statistics cannot match. Page-level statistics inside a row group are not consulted.
+
+How much of each poll is skipped depends on how the table is laid out:
+
+- Partitioning on a time transform of the time column drops whole partitions that fall outside the window.
+- Compaction that sorts by the time column keeps each file's and each row group's minimum and maximum close together, so files and row groups of older data are skipped.
+- Bin-pack compaction on an unpartitioned table does not order rows by time, so it can put old and new rows in the same file. A file or row group whose minimum is old and whose maximum is new cannot be skipped, and each poll reads it to find a few new rows.
+
+A sort order applies within each partition, so the two combine. Benchmark a time partition, a sort order, or both on the table's real data.
+
 ## Examples
 
 ### Basic Example (REST Catalog)

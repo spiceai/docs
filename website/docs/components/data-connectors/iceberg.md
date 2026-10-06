@@ -306,12 +306,38 @@ The same apply-on-scan path is how [`refresh_mode: full`](../../features/data-ac
 
 Until that path exists, a workaround is **soft deletes** in the Iceberg table (a `deleted` or `deleted_at` column) plus a Spice [view](../../features/views) that filters tombstones (`WHERE deleted = false` or `WHERE deleted_at IS NULL`). The workaround is subject to change. It still lets you get fast queries by applying the soft-delete filter when creating the view. See [Current state from an append-only log](#current-state-from-an-append-only-log).
 
+## Append refresh and table layout
+
+An accelerated Iceberg dataset with [`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append.md) and a [`time_column`](../../reference/spicepod/datasets.md#time_column) polls with a filter on that column. [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) widens the window. The scan skips data files whose partition values or column metrics cannot match the filter, and by default it skips Parquet row groups whose statistics cannot match. Page-level statistics inside a row group are not consulted.
+
+How much of each poll is skipped depends on how the table is laid out:
+
+- Partitioning on a time transform of the time column drops whole partitions that fall outside the window.
+- Compaction that sorts by the time column keeps each file's and each row group's minimum and maximum close together, so files and row groups of older data are skipped.
+- Bin-pack compaction on an unpartitioned table does not order rows by time, so it can put old and new rows in the same file. A file or row group whose minimum is old and whose maximum is new cannot be skipped, and each poll reads it to find a few new rows.
+
+A sort order applies within each partition, so the two combine. Benchmark a time partition, a sort order, or both on the table's real data.
+
 ## Current state from an append-only log
 
 For an Iceberg table that records inserts and soft deletes as an append-only log:
 
 1. Accelerate the log **once** with `refresh_mode: append`, a `time_column`, and `primary_key` + `on_conflict: upsert`. See [End-to-End Incremental Ingestion](../../features/data-acceleration/data-refresh#end-to-end-incremental-ingestion-example).
 2. Optionally accelerate a Spice view that applies the soft-delete filter (`WHERE deleted = false` or `WHERE deleted_at IS NULL`) so "current state" is a first-class dataset. The view's store sits on top of the log — roughly twice the disk if it keeps a full filtered copy — and does **not** compact history by itself. Bound disk with [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) / [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) on the **log** acceleration.
+
+The [end-to-end example](../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses DuckDB, which upserts the same key across batches of one refresh. On [Spice Cayenne](../data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), that write is rejected when one refresh contains two versions of a key in different batches. Append the log without a `primary_key` and read the latest row from a view.
+
+That log keeps every version, so the view must take the latest row for each key first and apply the soft-delete filter second. Filtering first removes the delete event, and the key's previous live version comes back as current:
+
+```sql
+SELECT *
+FROM (
+  SELECT *
+  FROM events
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY event_time DESC) = 1
+)
+WHERE deleted = false
+```
 
 [Cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../../features/caching) addresses a different problem. The cache stores query results; it does not apply the soft-delete filter. It moves hot point lookups closer to the application, and it splits the deployment: the cluster holds the accelerated log, and each sidecar keeps its own result cache instead of another filtered copy of that log.
 
