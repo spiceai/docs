@@ -431,15 +431,19 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 datasets:
   - from: s3://bucket/events/
     name: events
+    time_column: updated_at
     acceleration:
       engine: cayenne
       mode: file
+      refresh_mode: append
       primary_key: event_id
+      on_conflict:
+        event_id: upsert
       params:
         cayenne_deletion_mode: key # recommended for primary-key upsert tables
 ```
 
-For a table with `primary_key` + `on_conflict: upsert`, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Position deletes can block protected-snapshot compaction progress under sustained writes, which can cause delete-file growth over time. When this happens, the runtime can emit warnings that position-delete compaction is starved.
+For a table with a `primary_key` and `on_conflict: upsert` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for CDC datasets with a primary key, so the explicit setting matters for other refresh modes, such as `refresh_mode: append`.
 
 Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
 

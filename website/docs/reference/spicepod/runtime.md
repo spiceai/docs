@@ -540,6 +540,8 @@ A CPU limit outranks a request: bursting past a quota does not produce CPU, it p
 
 A process that declares **no** CPU request skips rung 2 entirely and is sized for every CPU it can see. That covers every bare-metal deployment, `docker run` without CPU flags, and every benchmark.
 
+If the host or cgroup metadata reports more CPUs than the process should use, set `runtime.cpu.cores` explicitly to the process allocation. This keeps thread pools and CPU-derived defaults sized to the deployment's intended CPU budget instead of the host total.
+
 #### Sizing from a CPU request
 
 A pod that sets `resources.requests.cpu` without `resources.limits.cpu` has no cgroup quota. Sizing for the whole node would build thread pools and query fan-out for a machine the pod does not own, so the entitlement is derived from the request instead — as a **bounded multiple** of it, currently 2×.
@@ -561,8 +563,6 @@ env:
 ```
 
 The [Spice Helm chart](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart) and the Spice Kubernetes Operator both emit this automatically whenever the pod sets a CPU request, so neither needs configuring. A hand-written pod spec must include it, or the pod falls through to rung 3 and sizes for the machine — the runtime warns at startup when it detects that case.
-
-If the host or cgroup metadata reports more CPUs than the process should use, set `runtime.cpu.cores` explicitly to the process allocation. This keeps thread pools and CPU-derived defaults sized to the deployment's intended CPU budget instead of the host total.
 
 Two details in that block are load-bearing. The `divisor: 1m` is what makes the value millicores, which is what the variable's name states; without it a `requests.cpu` of 4 arrives as `4` and reads as four millicores. And the block must be emitted **only when a CPU request is actually set**: with no request declared, `resourceFieldRef` reports the node's *allocatable* CPU, which is exactly the over-sizing this exists to prevent.
 

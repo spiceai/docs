@@ -105,7 +105,7 @@ Any other table type — including one Unity Catalog reports that Spice does not
 Both are plain `SELECT` targets, so they are queryable in `mode: sql_warehouse` and `mode: spark_connect`. In `mode: delta_lake` they pass this check and then fail later, because they expose no storage location to read from directly.
 :::
 
-If a runtime still rejects `STREAMING_TABLE` as unsupported, use a materialized view as an interim path and federate that view until the runtime is upgraded.
+Spice releases before v2.3.0 reject `VIEW` and `STREAMING_TABLE` as unsupported table types. On those releases, create a materialized view over the table in Databricks and federate the materialized view until the runtime is upgraded.
 
 ### Permission Checking
 
