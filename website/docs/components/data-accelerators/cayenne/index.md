@@ -443,9 +443,9 @@ datasets:
         cayenne_deletion_mode: key # recommended for primary-key upsert tables
 ```
 
-For a table with a `primary_key` and `on_conflict: upsert` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for CDC datasets with a primary key, so the explicit setting matters for other refresh modes, such as `refresh_mode: append`.
+For a table with a `primary_key` and `on_conflict: upsert` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for CDC datasets with a primary key and for tables with a [cold tier](#cold-object-store-tier) (`cayenne_datalake_location`), so the explicit setting matters for other tables, such as an `append` table without a cold tier.
 
-Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
+Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key and tables with a cold tier):
 
 - **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 - **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
