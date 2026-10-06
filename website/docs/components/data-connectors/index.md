@@ -336,7 +336,7 @@ That failure is intentional. Incompatible source changes stay blocked until an e
 | `sync_all_columns`   | Lossless widening changes: new nullable columns, widened types, relaxed nullability. Removals and narrowing stay blocked. |
 | `drop_and_recreate`  | Widening changes in place, and a destructive rebuild for incompatible changes. The rebuild runs only with `refresh_mode: full`. |
 
-Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) recreates the acceleration file when an incompatible change is found. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them.
+Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) drops and recreates the accelerated table when an incompatible change is found, leaving the acceleration file in place. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
