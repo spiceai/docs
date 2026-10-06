@@ -400,7 +400,8 @@ Each start matches exactly one row. "The slot can serve it" means the slot has a
 
 | Recorded watermark | Slot and acceleration state | Action |
 | --- | --- | --- |
-| None, on an accelerator that does not survive restarts | any | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
+| None, on an accelerator that does not survive restarts | `pg_replication_initial_snapshot` is not `disabled` | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
+| None, on an accelerator that does not survive restarts | `pg_replication_initial_snapshot: disabled` | **Stream only** — no snapshot ever runs, so the retained WAL is replayed onto whatever the accelerator holds; the documented workflow is to pre-seed it yourself |
 | None, on a durable acceleration that has nowhere to record one | any | **No rebuild** — slot loss cannot be detected for it, and Spice warns at startup (see below) |
 | None, on a durable acceleration that can record one | The acceleration is observed to hold **no rows**, and a snapshot is going to run | **Bootstrap** — a table holding nothing cannot be hiding a row the source deleted, and the snapshot is what loads it |
 | None, on a durable acceleration that can record one | Anything else: rows present, the acceleration could not be read, or no snapshot is going to run | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
@@ -471,7 +472,7 @@ The line carries a `rebuild_cause` field holding a stable identifier to select o
 | `empty_with_usable_position` | The accelerated table was observed to hold no rows while recording a position the slot can still stream from, and no snapshot was going to load it. | The accelerator itself — a `mode: file_update` recreate, a restored accelerator file, or a source whose rows were all legitimately deleted. |
 | `unproven_contents_with_usable_position` | The accelerated table could not be read to check whether it still holds rows, while recording a usable position, and no snapshot was going to load it. | The accelerator being unreadable is its own problem, and is what forced the re-read. |
 
-A **creation** loads an acceleration that has nothing to resume from, which is ordinary, so it is logged at `info!` with a `creation_cause` field:
+A **creation** is the connector taking its initial snapshot of the source, which is ordinary, so it is logged at `info!` with a `creation_cause` field. Three of the four causes below fire because there is nothing to resume from; `snapshot_always` is the exception, and re-reads the source even on a start that resumes an existing slot:
 
 | `creation_cause` | Why the source is read |
 | --- | --- |
