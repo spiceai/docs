@@ -548,12 +548,12 @@ If the `Date` header is not present, the system falls back to using the current 
 
 ### Transient Error Handling
 
-Transient server errors never reach the cache. Specifically:
+Transient HTTP errors never reach the cache. Specifically:
 
 - **5xx responses** (500–599) — Server errors indicating temporary issues (e.g., overload, outage)
 - **429 Too Many Requests** — Rate limiting responses
 
-The [HTTP connector](../../../components/data-connectors/https/index.md#error-responses) retries these statuses up to its `max_retries`. When the last attempt still returns one, the fetch fails with an error: the querying client receives that error, or the expired cached entry when `caching_stale_if_error` allows it, and nothing is written to the cache. A row that carries one of these statuses in a `response_status` column is also kept out of the cache, so subsequent cache reads return valid data rather than error responses from temporary failures.
+The [HTTP connector](../../../components/data-connectors/https/index.md#error-responses) retries these statuses up to its `max_retries`. When the last attempt still returns one, the fetch fails with an error: the querying client receives that error, or the expired cached entry when [`caching_stale_if_error`](#stale-if-error-behavior) permits serving it, and nothing is written to the cache. A row that carries one of these statuses in a `response_status` column is also kept out of the cache, so subsequent cache reads return valid data rather than error responses from temporary failures.
 
 ## Refresh Configuration
 

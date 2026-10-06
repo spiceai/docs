@@ -478,7 +478,7 @@ WHERE request_path = '/api/data';
 ```
 
 :::note
-A `5xx` or `429` response that is still failing after the connector's retries fails the request; it never becomes a row. When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), the query receives that error, or the cached entry when [`caching_stale_if_error`](../../features/data-acceleration/refresh-modes/caching#transient-error-handling) applies, and nothing is written to the cache. See [Error Responses](#error-responses).
+A `5xx` or `429` response that is still failing after the connector's retries fails the request; it never becomes a row. When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), the query receives that error, or the cached entry when [`caching_stale_if_error`](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) applies, and nothing is written to the cache. See [Error Responses](#error-responses).
 :::
 
 ### Metadata Columns with JSON Schema Decomposition
