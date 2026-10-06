@@ -61,7 +61,7 @@ Rate control is adaptive. On a healthy origin the configured limits apply unchan
 | `rate_control_jitter_max`        | `10ms` with a request-rate limit, else `0ms`  | Maximum random delay before requests when rate control is active.                                                                                                                             |
 | `rate_control_failure_threshold` | `10%`                                         | The upstream error rate above which adaptive rate control starts to throttle the origin. A percentage (`25%`) or a fraction (`0.25`), greater than 0 and less than 1.                         |
 | `rate_control_window`            | `10s`                                         | The half-life over which request outcomes decay. A shorter window reacts to failures and recovers faster; a longer window is smoother. With [cluster rate control](#cluster-rate-control), the default is `runtime.source_rate_control.refresh_interval`. |
-| `rate_control_acquire_timeout`   | `client_timeout`                              | Maximum time a request waits for a rate-control permit before it fails. `0` waits indefinitely. See [Bounded permit wait](#bounded-permit-wait).                                             |
+| `rate_control_acquire_timeout`   | `client_timeout`                              | Maximum time a request waits for a rate-control permit before it fails. `0` waits indefinitely.                                              |
 
 The runtime equivalents add an `http_` prefix (`http_max_concurrent_requests`, `http_requests_per_second_limit`, `http_requests_per_minute_limit`, `http_rate_control_jitter_min`, `http_rate_control_jitter_max`, `http_rate_control_failure_threshold`, `http_rate_control_window`, `http_rate_control_acquire_timeout`) and set defaults that apply to every HTTP-based connector unless overridden per dataset. See [HTTP Rate Control](../../../reference/spicepod/runtime#http-rate-control) in the runtime reference.
 
@@ -106,15 +106,12 @@ coefficient = min( (K × accepts + 1) / (requests + 1), 1 )
 K = 1 / (1 − rate_control_failure_threshold)
 ```
 
-This is the client-side throttling method from the [Google SRE book](https://sre.google/sre-book/handling-overload/), and it has three properties:
+It has several valuable properties worth stating:
 
-- At or below the failure threshold, the coefficient is exactly `1`, and the configured limits apply unchanged.
 - Throttling starts when the error rate goes above `rate_control_failure_threshold`.
 - At a steady success rate `p` below `1 / K`, the coefficient settles near `K × p`. With the default `10%` threshold, a 25% error rate settles near `0.83` of the configured limits, and a 50% error rate near `0.56`.
 
-The coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency. Each request costs `1 / coefficient` of its normal charge against each limit. The charge is capped at the full capacity of each limit, so however badly the origin fails, it still receives about one request per refill of each limit, for example one request per minute at `requests_per_minute_limit: 60`. These requests show when the origin recovers, and the coefficient then climbs back to `1`.
-
-The default threshold is `10%`. For comparison, Envoy's [admission control filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/admission_control_filter) starts to throttle above a 5% error rate by default, and the Google SRE book suggests `K = 2`, which throttles above a 50% error rate. Spice counts `5xx` responses and timeouts, not only explicit rejections, so a sustained error rate above 10% already indicates an origin in trouble. Raise `rate_control_failure_threshold` for an origin whose normal error rate is above 10%, or for a low-traffic dataset: with little traffic, one failure has a large effect (one failure in two requests gives a coefficient of about `0.70` at the default threshold).
+The coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency.
 
 ```yaml
 datasets:
@@ -127,50 +124,7 @@ datasets:
       rate_control_window: 30s # React and recover more slowly than the 10s default
 ```
 
-The HTTP(s) and [GraphQL](../graphql/) connectors report request outcomes, so their limits adapt. The [Databricks](../databricks/) connector does not report outcomes yet: its configured limits apply unchanged, and it does not accept `rate_control_failure_threshold` or `rate_control_window`.
-
-Spice logs one warning when an origin starts to throttle, and one info line when it recovers. A change that one more request could reverse must hold for one window before Spice logs it, so the log does not flap when the error rate is near the threshold. The lines give no rates, because a rate is correct only at the moment it is logged. Use the [metrics](#metrics) for live values.
-
-```text
-WARN Upstream 'https://api.example.com:443' is failing more than the 10% `rate_control_failure_threshold`, so adaptive rate control is reducing requests to it below the configured limits until it recovers. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
-INFO Upstream 'https://api.example.com:443' has recovered, so adaptive rate control is sending it the full configured limits again.
-```
-
-Spice checks for recovery when a request completes. If traffic to a throttled origin stops, the recovery line appears after requests start again.
-
-#### Bounded permit wait
-
-Before Spice sends a request, the request waits for a rate-control permit. One deadline, `rate_control_acquire_timeout`, covers every source of that wait: the concurrency limit, the per-second and per-minute quotas, [cluster](#cluster-rate-control) leases, and jitter. The deadline applies to each attempt, so a retry gets a full deadline again.
-
-| Value                      | Result                                                     |
-| -------------------------- | ---------------------------------------------------------- |
-| unset                      | The dataset's `client_timeout` (default `30` seconds).     |
-| A duration, such as `45s`  | Used as given.                                             |
-| `0`                        | No deadline. The request waits indefinitely.               |
-
-The default is `client_timeout` because a request that has already waited `client_timeout` for a permit cannot complete within `client_timeout`. A request that does not get a permit before the deadline fails with an error that names the origin:
-
-```text
-Timed out after 30s waiting for rate-control capacity for origin 'https://api.example.com:443' to admit the request. The configured rate limit could not free a slot in time. Increase the rate limit, raise `rate_control_acquire_timeout`, or lower request concurrency, then try again. See: https://spiceai.org/docs/reference/spicepod/runtime#http-rate-control
-```
-
-:::warning[Breaking change]
-Earlier releases waited indefinitely for a rate-control permit. A request that cannot get a permit within `rate_control_acquire_timeout` now fails. To keep the earlier behavior, set `rate_control_acquire_timeout: 0` on the dataset, or `http_rate_control_acquire_timeout: 0` in `runtime.params`.
-:::
-
-#### Datasets that share an origin
-
-Rate control applies per origin (`scheme://host:port`). Datasets whose URLs have the same origin, such as `https://api.example.com/v1` and `https://api.example.com/v2`, share one rate controller, so they must resolve to the same rate-control values. If they do not, the dataset that loads later fails with this error:
-
-```text
-Multiple HTTP-based components target https://api.example.com:443 with different rate-control settings. Use the same max_concurrent_requests, requests_per_second_limit, requests_per_minute_limit, rate_control_jitter_min, rate_control_jitter_max, rate_control_acquire_timeout, rate_control_failure_threshold and rate_control_window values for components sharing an origin.
-```
-
-The comparison uses resolved values, defaults included. `rate_control_acquire_timeout` defaults to `client_timeout`, so two datasets on one origin with different `client_timeout` values conflict unless both set the same `rate_control_acquire_timeout`. To keep shared values aligned, set them once in `runtime.params`.
-
-#### Cluster rate control
-
-By default, each Spice instance applies the configured limits on its own. In Spice.ai Enterprise, instances that share a [`runtime.state`](../../../reference/spicepod/runtime#runtimestate) location share each origin's `requests_per_second_limit` and `requests_per_minute_limit` as one cluster-wide budget, and adaptive rate control lowers that budget for the whole cluster while the origin fails. `max_concurrent_requests` stays local to each instance. See [Cluster rate control](../../../reference/spicepod/runtime#cluster-rate-control) for configuration and behavior.
+See [Cluster rate control](../../../reference/spicepod/runtime#cluster-rate-control) for details in configuring multi-replica, object-store coordinated rate controls.
 
 ### Retry Behavior
 
