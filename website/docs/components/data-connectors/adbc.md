@@ -123,7 +123,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_schema`              | Optional. Sets the default schema for the connection.                                                                                |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default: `5`.                                                        |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections in the pool. Default: `1`.                                                              |
-| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`. Set to `disabled` when a function must be evaluated by Spice rather than by the source.              |
+| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`. `disabled` stops whole-query federation, but the table scan still pushes supported filters down to the source.              |
 
 :::warning[In-memory databases]
 In-memory database URIs (e.g., `:memory:` or URIs containing `mode=memory`) are not supported.
@@ -303,7 +303,7 @@ Join pushdown requires matching driver, URI, credentials, driver options, and ex
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
 
-Spice-only SQL functions are not sent to the source unless the active dialect has a translation for that function. When local function semantics are required, set `query_federation: disabled` so evaluation stays in Spice.
+Spice-only SQL functions are not sent to the source unless the active dialect has a translation for that function. A translated function is evaluated by the source, with the source's semantics. Setting `query_federation: disabled` stops whole-query federation, but it does not keep a translated function in Spice: the table scan still pushes down each filter the dialect can translate, so the source evaluates that filter.
 
 ## Auth
 
