@@ -614,7 +614,7 @@ datasets:
 
 **Default Behavior**: When `caching_ttl` is not specified, it defaults to `30s` (30 seconds). This provides a reasonable balance between freshness and cache efficiency for most use cases. When `caching_stale_while_revalidate_ttl` is not specified, stale data is not served after the TTL expires, and queries will wait for fresh data.
 
-A `caching_ttl` of `0` marks entries stale immediately. That setting does not mean queries always read the accelerator. See [Prefer the origin, fall back on failure](#prefer-the-origin-fall-back-on-failure).
+A `caching_ttl` of `0s` marks entries stale immediately. That setting does not mean queries always read the accelerator. See [Prefer the origin, fall back on failure](#prefer-the-origin-fall-back-on-failure).
 
 ### Prefer the origin, fall back on failure
 
@@ -633,16 +633,18 @@ datasets:
       engine: cayenne
       mode: file
       params:
-        caching_ttl: 0 # immediately stale; zero seconds
-        caching_stale_while_revalidate_ttl: 0
+        caching_ttl: 0s # immediately stale
+        caching_stale_while_revalidate_ttl: 0s
         caching_stale_if_error: enabled
         caching_max_size: 512MiB
         caching_max_items: 100000
 ```
 
-`caching_ttl: 0` marks an entry stale as soon as it is stored, so the accelerator is not a fresh result. `caching_stale_while_revalidate_ttl: 0` closes the window that would return that stale entry while the origin is revalidated. While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails and `caching_stale_if_error` is `enabled`.
+Write a zero duration with a unit, such as `0s`. A bare `0` is a YAML integer, which Spice rejects when it loads the dataset: `Invalid 'caching_ttl' param value: Int(0). Expected a duration string.`
 
-`caching_ttl: 0` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
+`caching_ttl: 0s` marks an entry stale as soon as it is stored, so the accelerator is not a fresh result. `caching_stale_while_revalidate_ttl: 0s` closes the window that would return that stale entry while the origin is revalidated. While the origin is healthy, Spice does not serve the accelerator and returns the origin response. A successful origin response is still stored. The accelerated entry is consulted only when a later origin request fails and `caching_stale_if_error` is `enabled`.
+
+`caching_ttl: 0s` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0s` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
 
 `caching_stale_if_error: enabled` keeps expired entries as fallback material and does not expire them by age. Pair it with `caching_max_size`, `caching_max_items`, or a `retention_period` / `retention_sql` rule so stale entries do not grow without a bound. See [Cache Size and Item Limits](#cache-size-and-item-limits).
 
