@@ -204,7 +204,7 @@ The same rule applies wherever the DuckDB dialect is used, as described in [Regu
 
 ## Decimal Averages
 
-`AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum and truncates the result to `Decimal128(p + 4, s + 4)`. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
+`AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum in decimal arithmetic and truncates the result to the scale of the result type. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
 
 DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
 

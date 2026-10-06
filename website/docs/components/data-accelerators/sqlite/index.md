@@ -70,7 +70,7 @@ Every other `CAST`, and every `TRY_CAST`, is evaluated in Spice above the scan o
 
 ## Decimal Aggregates and Federation
 
-SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER`, and computes `avg` and `sum` over it in floating point or in 64-bit integers. Its `avg` rounds where Spice truncates the exact result to `Decimal128(p + 4, s + 4)`, and its `sum` fails with an integer overflow once the total exceeds the 64-bit integer range.
+SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER`, and computes `avg` and `sum` over it in floating point or in 64-bit integers. Its `avg` returns a rounded floating-point value where Spice computes the average in decimal arithmetic and truncates it to the scale of the result type. Its `sum` over values stored as integers fails with an integer overflow once the total exceeds the 64-bit integer range, and a `sum` that includes a value stored as a `REAL` is computed in floating point instead.
 
 So that these aggregates follow Spice's decimal semantics, Spice does not send `AVG` or `SUM` over a decimal column to the SQLite accelerator, whether called as an aggregate or as a window function. The aggregate is evaluated in Spice above the scan of the accelerated table, and the scan, its filters, and its projection are still sent to SQLite. An aggregate whose argument type Spice cannot determine is also evaluated in Spice. Aggregates over integer and floating-point columns, and other aggregates over decimal columns such as `MIN`, `MAX`, and `COUNT`, are still sent to SQLite.
 
