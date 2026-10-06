@@ -535,13 +535,13 @@ When a primary key is deleted and then re-inserted:
 
 ### Duplicate primary keys in one write
 
-With a `primary_key`, Cayenne checks keys as each batch of a write arrives. Duplicate keys inside one batch are collapsed. `on_conflict: upsert` keeps the last row. A primary key with no `on_conflict` keeps the first row in that batch and drops the later copies. `upsert_dedup` and `upsert_dedup_by_row_id` are also applied per batch. The same key in a later batch of that write is rejected:
+With a `primary_key`, an append refresh checks keys as each batch of the write arrives. Duplicate keys inside one batch are collapsed. `on_conflict: upsert` keeps the last row, and `on_conflict: drop` keeps the first row and drops the later copies. `upsert_dedup` and `upsert_dedup_by_row_id` are also applied per batch. The same key in a later batch of that write is rejected, with or without `on_conflict`:
 
 ```text
 Incoming data contains duplicate primary key across batches
 ```
 
-A key already stored in the acceleration is a separate case. `upsert` replaces the stored row. With no `on_conflict`, the incoming row is dropped.
+A key already stored in the acceleration is a separate case. `upsert` replaces the stored row, and `drop` drops the incoming row.
 
 An append refresh hits the error when one poll's incoming rows contain two versions of a key in different batches. A cold load of a history or log does this, and so does a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that itself holds two source rows for the key. Append refresh drops a re-read that matches a stored row on every column before the write, so that re-read is not a second incoming copy. With `on_conflict: upsert`, a single changed version of a stored key replaces the stored row.
 

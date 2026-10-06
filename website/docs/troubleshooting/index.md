@@ -68,7 +68,7 @@ SPICED_LOG="WARN,opendal::layers::retry=DEBUG" spice run
 
 ### Query execution errors
 
-A rise in [`query_failures`](../features/observability/index.md) means queries are failing. The `err_code` label is one of `SyntaxError`, `QueryPlanningError`, `QueryExecutionError`, `ResourcesExhausted`, or `InternalError`. Malformed SQL is `SyntaxError` or `QueryPlanningError`. A [`runtime.query.timeout`](../reference/spicepod/runtime.md#runtimequerytimeout) expiry is `QueryExecutionError`, together with other execution failures such as divide by zero. The counter records the count and the code. It does not record the SQL or the error text.
+A rise in [`query_failures`](../features/observability/index.md) means queries are failing. The `err_code` label is one of `SyntaxError`, `QueryPlanningError`, `QueryExecutionError`, `ResourcesExhausted`, or `InternalError`. A parse error is `SyntaxError`. A planning error can be `QueryPlanningError`, but many planning errors, such as an unknown table or column, are labeled `InternalError`, so read the logged error text before treating `InternalError` as a runtime fault. A [`runtime.query.timeout`](../reference/spicepod/runtime.md#runtimequerytimeout) expiry is `QueryExecutionError`, together with other execution failures such as divide by zero. The counter records the count and the code. It does not record the SQL or the error text.
 
 The text is logged on `runtime::datafusion::query`. A memory-pool refusal is logged at WARN as `Query refused, out of memory` and returned as HTTP 503. Every other failure is logged at DEBUG as `Query failed (<err_code>): ...`. Enable that line without raising every target:
 
