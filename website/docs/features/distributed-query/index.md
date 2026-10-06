@@ -21,7 +21,7 @@ Spice integrates [Apache Ballista](https://github.com/apache/datafusion-ballista
 
 A distributed Spice cluster consists of two components:
 
-- **Scheduler** – Plans distributed queries and manages the work queue for the executor fleet. Also manages async query jobs when `scheduler.state_location` is configured.
+- **Scheduler** – Plans distributed queries and manages the work queue for the executor fleet. Also manages async query jobs when a scheduler state location is configured.
 - **Executors** – One or more nodes responsible for executing physical query plans.
 
 The scheduler holds the cluster-wide configuration for a Spicepod, while executors connect to the scheduler to receive work. A cluster can run with a single scheduler for simplicity, or multiple schedulers for [high availability](#high-availability).
@@ -152,18 +152,18 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 For long-running queries, the async queries API enables submitting queries for background execution, polling for status, and retrieving paginated results when ready.
 
 :::warning
-The async queries API is experimental and requires `scheduler.state_location` to be configured.
+The async queries API is experimental and requires a scheduler state location: `runtime.scheduler.state_location`, or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate) when `state_location` is omitted.
 :::
 
 ### Prerequisites
 
 - Spice runtime running in cluster mode with `--role scheduler`
-- `scheduler.state_location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
+- `runtime.scheduler.state_location` or `runtime.state.location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
 - At least one executor node connected to the scheduler
 
 ### Enabling Async Queries
 
-Configure `runtime.scheduler.state_location` in your `spicepod.yaml` to enable the async queries API:
+Configure `runtime.scheduler.state_location` in your `spicepod.yaml` to enable the async queries API. A [`runtime.state`](../reference/spicepod/runtime#runtimestate) location also works when `state_location` is omitted:
 
 ```yaml
 runtime:
@@ -201,7 +201,7 @@ For a query it does not own, a caller always receives **404 Not Found** — neve
 
 | Caller             | Query is running or complete | Query's results have expired |
 | ------------------ | ---------------------------- | ---------------------------- |
-| The owner          | `200 OK`                     | `410 Gone`                   |
+| The owner          | `200 OK`                     | `410 Gone`, then `404 Not Found` once [cleanup](#storage-layout) deletes the job |
 | Any other principal | `404 Not Found`              | `404 Not Found`              |
 
 Ownership tracking was introduced in **v2.2.0**. A job written by an earlier runtime carries no owner and is treated as belonging to the `public` scope.
@@ -613,13 +613,15 @@ PENDING → RUNNING → SUCCEEDED → CLOSED (after 12h TTL)
 | `CANCELLED` | Job was cancelled by the user                        |
 | `CLOSED`    | Job results have expired and been cleaned up         |
 
+The first final status a job reaches is kept. A job that is `SUCCEEDED`, `FAILED`, or `CANCELLED` is not restarted or moved to another status. For example, a cancellation that arrives before the job starts running leaves the job `CANCELLED`.
+
 ### Error Codes
 
 When a query fails, the `error` object contains an `error_code` field:
 
 | Error Code                 | Description                                             |
 | -------------------------- | ------------------------------------------------------- |
-| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable                 |
+| `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable, or the scheduler running the query stopped and the query cannot be resumed (see [Scheduler Failover](#scheduler-failover)) |
 | `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
 | `EXECUTION_FAILED`         | The query failed during execution                       |
 | `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
@@ -631,7 +633,7 @@ When a query fails, the `error` object contains an `error_code` field:
 
 ### Storage Layout
 
-Job state and result chunks are stored in the shared object store configured via `scheduler.state_location`:
+Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted:
 
 ```
 {base_prefix}/
@@ -643,6 +645,8 @@ Job state and result chunks are stored in the shared object store configured via
 │       └── ...
 ```
 
+Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
+
 ### Defaults and Limitations
 
 | Setting    | Default     |
@@ -652,7 +656,7 @@ Job state and result chunks are stored in the shared object store configured via
 | List limit | 100 queries |
 
 - Only available in cluster mode with `--role scheduler`
-- Requires `scheduler.state_location` to be configured
+- Requires `runtime.scheduler.state_location` or `runtime.state.location` to be configured
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
@@ -690,7 +694,7 @@ In an HA cluster:
 
 ### Configuration
 
-Enable HA by configuring `runtime.scheduler.state_location` in the Spicepod to point to an S3-compatible object store:
+Enable HA by configuring `runtime.scheduler.state_location` (or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate)) in the Spicepod to point to an S3-compatible object store:
 
 ```yaml
 runtime:
@@ -704,9 +708,11 @@ The object store is used for scheduler registration and discovery, and to persis
 
 ### Scheduler Failover
 
-When `runtime.scheduler.state_location` is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
+When a scheduler state location is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
 
-This failover applies to async queries, which require `scheduler.state_location`. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without `scheduler.state_location`, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
+A job submitted by an authenticated principal is not resumed. The job records only an opaque owner ID, not an identity that table access and masking can be applied to, so resuming it would run the query without the submitter's permissions. Instead, the scheduler that detects the orphaned job marks it `FAILED` with the error code `SCHEDULER_UNAVAILABLE` and a message to resubmit the query. Jobs submitted without a principal are resumed.
+
+This failover applies to async queries, which require a scheduler state location. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without a scheduler state location, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
 ### S3 Configuration
 

@@ -43,8 +43,8 @@ datasets:
 - The SQLite accelerator doesn't support `Dictionary` or `Map` types.
 - SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](duckdb) instead.
 - The SQLite accelerator doesn't support advanced grouping features such as `ROLLUP` and `GROUPING`.
-- In SQLite, `CAST(value AS DECIMAL)` doesn't convert an integer to a floating-point value if the casted value is an integer. Operations like `CAST(1 AS DECIMAL) / CAST(2 AS DECIMAL)` will be treated as integer division, resulting in 0 instead of the expected 0.5.
-  Use `FLOAT` to ensure conversion to a floating-point value: `CAST(1 AS FLOAT) / CAST(2 AS FLOAT)`.
+- `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
+- `AVG` and `SUM` over a decimal column are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
 :::
@@ -56,6 +56,25 @@ When accelerating a dataset using `mode: memory` (the default), some or all of t
 In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](duckdb) and [`sqlite`](sqlite) accelerators by specifying `mode: file`.
 
 :::
+
+## Casts and Federation
+
+SQLite's `CAST` never fails. A cast into a numeric type converts the longest numeric prefix of its operand and returns `0` when there is none, so `CAST('abc' AS BIGINT)` returns `0` and `CAST('12abc' AS BIGINT)` returns `12` (see [CAST expressions](https://www.sqlite.org/lang_expr.html#castexpr) in the SQLite documentation). SQLite also formats floats and booleans as text differently, stores dates and timestamps in its own representation, and has no `TRY_CAST`. To return the same results as an unaccelerated query, Spice sends a cast to the SQLite accelerator only when SQLite evaluates it the same way:
+
+- A cast between two string types, or between two binary types.
+- An integer cast into a wider integer type, into `Float64`, or into text.
+- A `Float32` cast into `Float64`.
+- A string literal cast into a date when the literal is already written as `YYYY-MM-DD`, such as `DATE '1994-01-01'`.
+
+Every other `CAST`, and every `TRY_CAST`, is evaluated in Spice above the scan of the accelerated table. This includes a cast whose operand type Spice cannot determine. For example, `CAST(s AS BIGINT)` over a string column that holds `'abc'` returns the error a DataFusion query returns, not `0`, and `CAST(1 AS DECIMAL) / CAST(2 AS DECIMAL)` returns `0.5`, not the result of SQLite integer division. A query whose plan contains such a cast still runs, but that cast does not push down to SQLite.
+
+## Decimal Aggregates and Federation
+
+SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER`, and computes `avg` and `sum` over it in floating point or in 64-bit integers. Its `avg` returns a rounded floating-point value where Spice computes the average in decimal arithmetic and truncates it to the scale of the result type. Its `sum` over values stored as integers fails with an integer overflow once the total exceeds the 64-bit integer range, and a `sum` that includes a value stored as a `REAL` is computed in floating point instead.
+
+So that these aggregates follow Spice's decimal semantics, Spice does not send `AVG` or `SUM` over a decimal column to the SQLite accelerator, whether called as an aggregate or as a window function. The aggregate is evaluated in Spice above the scan of the accelerated table, and the scan, its filters, and its projection are still sent to SQLite. An aggregate whose argument type Spice cannot determine is also evaluated in Spice. Aggregates over integer and floating-point columns, and other aggregates over decimal columns such as `MIN`, `MAX`, and `COUNT`, are still sent to SQLite.
+
+This changes where the aggregate runs, not how SQLite stores the values. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits is rounded when it is written and reads back changed, with no error ([spiceai/spiceai#14662](https://github.com/spiceai/spiceai/issues/14662)). An aggregate evaluated in Spice is exact over the values SQLite returns, so over such values it can still differ from an unaccelerated query. In the reproduction on that issue, the `arrow` and `duckdb` accelerators return such a value unchanged.
 
 ## Cookbook
 
