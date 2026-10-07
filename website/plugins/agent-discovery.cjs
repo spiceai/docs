@@ -1,7 +1,7 @@
 // Publishes agent discovery documents with the site build:
 //
-// - /.well-known/agent-skills/: the official Spice skills from https://github.com/spiceai/skills
-//   and an index.json, per the Agent Skills Discovery RFC v0.2.0
+// - /.well-known/agent-skills/: the official Spice skills at a pinned commit of
+//   https://github.com/spiceai/skills and an index.json, per the Agent Skills Discovery RFC v0.2.0
 //   (https://github.com/cloudflare/agent-skills-discovery-rfc). A skill that consists of only a
 //   SKILL.md is published as that file. A skill with supporting files is published as a .tar.gz
 //   archive.
@@ -45,22 +45,32 @@ module.exports = function agentDiscoveryPlugin(context, options) {
         path.join(context.siteDir, options.openApiSpec),
         path.join(outDir, 'openapi.json')
       )
-      const skills = await publishSkills(outDir, options.skillsRepository, options.skillsTag)
+      const skills = await publishSkills(outDir, options.skillsRepository, options.skillsCommit)
       await publishArdManifest(outDir, siteUrl, skills)
     }
   }
 }
 
-async function publishSkills(outDir, repository, tag) {
-  const url = `https://github.com/${repository}/archive/refs/tags/${tag}.tar.gz`
+// Downloads the skills at a commit rather than a tag. A tag can be moved to different content, and
+// the index digests describe only the bytes that were downloaded.
+async function publishSkills(outDir, repository, commit) {
+  if (!/^[0-9a-f]{40}$/.test(commit ?? '')) {
+    throw new Error(`agent-discovery: skillsCommit must be a full commit SHA, not ${commit}`)
+  }
+  const url = `https://github.com/${repository}/archive/${commit}.tar.gz`
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`agent-discovery: downloading ${url} failed with HTTP ${response.status}`)
   }
-  const files = readTar(zlib.gunzipSync(Buffer.from(await response.arrayBuffer())))
-  const collected = [...collectSkills(files)].sort(([a], [b]) => a.localeCompare(b))
+  const archive = readTar(zlib.gunzipSync(Buffer.from(await response.arrayBuffer())))
+  if (archive.commit !== commit) {
+    throw new Error(
+      `agent-discovery: ${url} is an archive of commit ${archive.commit}, not ${commit}`
+    )
+  }
+  const collected = [...collectSkills(archive.files)].sort(([a], [b]) => a.localeCompare(b))
   if (collected.length === 0) {
-    throw new Error(`agent-discovery: no skills found in ${repository}@${tag}`)
+    throw new Error(`agent-discovery: no skills found in ${repository}@${commit}`)
   }
 
   const skillsDir = path.join(outDir, '.well-known', 'agent-skills')
@@ -69,7 +79,7 @@ async function publishSkills(outDir, repository, tag) {
   for (const [name, skill] of collected) {
     const markdown = skill.files.get('SKILL.md')?.data.toString('utf8')
     if (!markdown) {
-      throw new Error(`agent-discovery: skill ${name} in ${repository}@${tag} has no SKILL.md`)
+      throw new Error(`agent-discovery: skill ${name} in ${repository}@${commit} has no SKILL.md`)
     }
     const { fields, body } = readFrontMatter(name, markdown)
     const { description } = validateFrontMatter(name, fields)
@@ -268,9 +278,11 @@ function validateFrontMatter(skillName, { name, description }) {
   return { name, description }
 }
 
-// Reads the regular files of an uncompressed tar archive, without its top-level directory.
+// Reads the regular files of an uncompressed tar archive, without its top-level directory, and the
+// commit that GitHub records in the archive's global header.
 function readTar(buffer) {
   const files = []
+  let commit
   let paxPath
   for (let offset = 0; offset + 512 <= buffer.length; ) {
     const header = buffer.subarray(offset, offset + 512)
@@ -282,6 +294,10 @@ function readTar(buffer) {
     const data = buffer.subarray(offset + 512, offset + 512 + size)
     offset += 512 + Math.ceil(size / 512) * 512
 
+    if (type === 'g') {
+      commit = /(?:^|\n)\d+ comment=([0-9a-f]{40})\n/.exec(data.toString('utf8'))?.[1]
+      continue
+    }
     if (type === 'x') {
       paxPath = /(?:^|\n)\d+ path=([^\n]*)\n/.exec(data.toString('utf8'))?.[1]
       continue
@@ -298,7 +314,7 @@ function readTar(buffer) {
       })
     }
   }
-  return files
+  return { commit, files }
 }
 
 function readField(header, start, length) {

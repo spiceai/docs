@@ -719,8 +719,9 @@ const config: Config = {
       {
         openApiSpec: 'public/openapi.json',
         skillsRepository: 'spiceai/skills',
-        // A release tag of spiceai/skills. Update it when a new skills release ships.
-        skillsTag: 'v2.3.2'
+        // The commit of the spiceai/skills v2.3.2 release. A commit, unlike a tag, cannot be moved to
+        // different content. Update it when a new skills release ships.
+        skillsCommit: 'b9bab4ec4d6d4d046d550c9866a784c0e952c0e0'
       }
     ]
   ]

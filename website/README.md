@@ -26,7 +26,7 @@ npm run build
 
 This command builds static content into the `build` directory.
 
-The build also publishes the agent discovery files under `/.well-known/` with `plugins/agent-discovery.cjs`. That plugin downloads the [Spice agent skills](https://github.com/spiceai/skills) release that `skillsTag` in `docusaurus.config.ts` names, so the build needs network access to GitHub.
+The build also publishes the agent discovery files under `/.well-known/` with `plugins/agent-discovery.cjs`. That plugin downloads the [Spice agent skills](https://github.com/spiceai/skills) at the release commit that `skillsCommit` in `docusaurus.config.ts` pins, so the build needs network access to GitHub.
 
 ## Versioned Documentation
 
