@@ -6,8 +6,8 @@
 //   SKILL.md is published as that file. A skill with supporting files is published as a .tar.gz
 //   archive.
 // - /.well-known/ard.json and /.well-known/ai-catalog.json: an Agentic Resource Discovery manifest
-//   (https://agenticresourcediscovery.org/) of the skills, the runtime HTTP API, and the docs.
-//   ard.json is the current well-known path; ai-catalog.json is the predecessor path.
+//   (https://agenticresourcediscovery.org/) of the runtime HTTP API and the skills. ard.json is the
+//   current well-known path; ai-catalog.json is the predecessor path.
 // - /openapi.json: the runtime HTTP API description that the API catalog and manifest link to.
 
 const crypto = require('crypto')
@@ -139,24 +139,14 @@ async function publishArdManifest(outDir, siteUrl, skills) {
           'check whether the Spice runtime is ready'
         ]
       },
-      {
-        identifier: `urn:air:${publisher}:docs:spiceai-oss`,
-        displayName: 'Spice.ai OSS Documentation',
-        type: 'text/markdown',
-        url: `${siteUrl}/llms.txt`,
-        description:
-          'llms.txt index of the Spice.ai OSS documentation. Each documentation page is also available as Markdown.',
-        representativeQueries: [
-          'how do I accelerate a dataset locally with Spice',
-          'configure a PostgreSQL data connector in a spicepod',
-          'which data accelerators does Spice support',
-          'how do I configure an LLM in a spicepod'
-        ]
-      },
       ...skills.map((skill) => ({
         identifier: `urn:air:${publisher}:skill:${skill.name}`,
         displayName: skill.displayName,
-        type: skill.type === 'archive' ? 'application/agent-skills+gzip' : 'application/agent-skills+md',
+        // The ARD media types of a skill archive and of a single SKILL.md.
+        type:
+          skill.type === 'archive'
+            ? 'application/agent-skills+gzip'
+            : 'text/markdown; profile="urn:air:agent-skills"',
         url: new URL(skill.url, siteUrl).href,
         description: skill.description,
         ...(skill.representativeQueries.length >= 2 && {
