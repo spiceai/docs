@@ -41,6 +41,8 @@ const algolia = siteConfig.themeConfig.algolia as {
   indexName: string
 }
 const latestDocsVersion = String(siteConfig.customFields?.latestDocsVersion ?? 'current')
+// Search results use the canonical origin, even on a preview or local deployment.
+const CANONICAL_ORIGIN = new URL(siteConfig.url).origin
 const HIERARCHY_LEVELS = ['lvl0', 'lvl1', 'lvl2', 'lvl3', 'lvl4', 'lvl5', 'lvl6']
 
 async function searchDocs(query: string, limit: number, signal?: AbortSignal) {
@@ -94,13 +96,17 @@ function toText(html: string | null | undefined) {
     return ''
   }
   const text = new DOMParser().parseFromString(html, 'text/html').body.textContent ?? ''
-  return text.replace(/​/g, '').trim()
+  return text.replace(/\u200b/g, '').trim()
 }
 
 async function getPageMarkdown(page: string, signal?: AbortSignal) {
-  const url = new URL(page, window.location.origin)
+  let url = new URL(page, window.location.origin)
+  // Read a canonical URL, such as a search_docs result, from the deployment that serves this page.
+  if (url.origin === CANONICAL_ORIGIN) {
+    url = new URL(`${url.pathname}${url.search}`, window.location.origin)
+  }
   if (url.origin !== window.location.origin) {
-    throw new Error(`Only pages on ${window.location.origin} are available.`)
+    throw new Error(`Only pages of this site are available, not ${url.origin}.`)
   }
 
   const response = await fetch(url, { headers: { Accept: 'text/markdown' }, signal })
@@ -142,13 +148,13 @@ const tools: ModelContextTool[] = [
     name: 'get_page_markdown',
     title: 'Read a Spice.ai docs page',
     description:
-      'Get a page of this site as Markdown, for example /docs/getting-started. /llms.txt lists every documentation page.',
+      'Get a page of this site as Markdown, from a path such as /docs/getting-started or a search_docs result URL. /llms.txt lists every documentation page.',
     inputSchema: {
       type: 'object',
       properties: {
         path: {
           type: 'string',
-          description: 'Path or URL of a page on this site.'
+          description: 'Path or URL of a page on this site, including a search_docs result URL.'
         }
       },
       required: ['path']
