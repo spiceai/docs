@@ -292,3 +292,7 @@ catalogs:
 When using the Databricks (mode: delta_lake) Catalog connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure Databricks Unity Catalog as a catalog connector in Spice. [Databricks Unity Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/databricks#readme)

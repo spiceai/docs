@@ -789,6 +789,10 @@ Choose one approach:
 - Cache keys are always the request metadata fields (`request_path`, `request_query`, `request_body`); a declared `primary_key` constrains stored-row uniqueness, not entry addressing
 - On-demand refresh via `/v1/datasets/:name/acceleration/refresh` API triggers a new refresh for all cache keys defined in `refresh_sql`
 
+## Cookbook
+
+- A cookbook recipe to cache an HTTP-based dataset with `refresh_mode: caching` and stale-while-revalidate. [Caching Accelerator](https://github.com/spiceai/cookbook/tree/trunk/caching/accelerator#readme)
+
 ## Related Documentation
 
 - [HTTPS Data Connector](../../../components/data-connectors/https) - Detailed HTTP connector configuration

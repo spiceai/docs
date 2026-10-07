@@ -91,3 +91,7 @@ models:
     params:
       tool_recursion_limit: 3
 ```
+
+## Cookbook
+
+- A cookbook recipe to query data with natural language using the built-in text-to-SQL tools. [Text-to-SQL (NSQL)](https://github.com/spiceai/cookbook/tree/trunk/text-to-sql#readme)

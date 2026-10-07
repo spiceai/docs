@@ -27,3 +27,7 @@ Refer to the [xAI models documentation](https://docs.x.ai/docs/models) for more 
 :::note
 Although the xAI [documentation](https://docs.x.ai/docs/guides/structured-outputs) shows that xAI models can return structured outputs, this is not true.
 :::
+
+## Cookbook
+
+- A cookbook recipe to use xAI's Grok models with Spice. [xAI Models](https://github.com/spiceai/cookbook/tree/trunk/models/xai#readme)

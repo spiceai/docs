@@ -489,4 +489,6 @@ For greenfield Postgres → Spice CDC, prefer native WAL streaming. If Kafka is 
 
 - [Change Data Capture overview](./index.md)
 - [PostgreSQL Data Connector](../../components/data-connectors/postgres)
+- [PostgreSQL CDC (Logical Replication)](https://github.com/spiceai/cookbook/tree/trunk/postgres/cdc#readme) — cookbook recipe.
+- [PostgreSQL Catalog CDC Acceleration](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres-cdc#readme) — catalog-wide CDC cookbook recipe.
 - [PostgreSQL: Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html)

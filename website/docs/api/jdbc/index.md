@@ -85,3 +85,8 @@ In the configured application, run a sample query, such as `SELECT * FROM taxi_t
 ## Parameterized Queries
 
 Spice supports parameterized queries with JDBC. Parameterized queries help prevent SQL injection and improve code clarity by separating query logic from data values.
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Java with the Flight SQL JDBC driver and parameterized queries. [Java JDBC Client with Parameterized Queries](https://github.com/spiceai/cookbook/tree/trunk/clients/java#readme)
+- A cookbook recipe to query Spice from Scala with the Flight SQL JDBC driver and parameterized queries. [Scala JDBC Client with Parameterized Queries](https://github.com/spiceai/cookbook/tree/trunk/clients/scala#readme)

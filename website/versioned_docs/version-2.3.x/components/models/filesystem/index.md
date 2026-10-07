@@ -132,3 +132,7 @@ models:
 - The throughput, concurrency & latency of a locally hosted model will vary based on the underlying hardware and model size. Spice supports Apple Metal and CUDA for accelerated inference. See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING.md) for build instructions.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to use a model hosted on the local filesystem. [Filesystem Hosted Model](https://github.com/spiceai/cookbook/tree/trunk/models/filesystem#readme)

@@ -30,7 +30,7 @@ Spice is primarily used for:
 
 - **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](features/query-federation).
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
-- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
+- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](../use-cases/rag/index.md).
 
 For example, deploy Spice as a sidecar alongside applications served by centralized platforms like Databricks or Snowflake, materializing hot datasets locally to reduce latency and offload query volume from the source.
 
@@ -230,7 +230,7 @@ Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC,
 
 ## 33. Where can developers find examples and recipes?
 
-The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
+The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 120 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
 
 ## 34. How can developers get started quickly?
 

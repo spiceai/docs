@@ -105,3 +105,13 @@ datasets:
       mode: file
       refresh_mode: changes
 ```
+
+## Cookbook
+
+- A cookbook recipe to stream changes from PostgreSQL with logical replication. [PostgreSQL CDC (Logical Replication)](https://github.com/spiceai/cookbook/tree/trunk/postgres/cdc#readme)
+- A cookbook recipe to discover every table in a PostgreSQL database and keep each one current with CDC. [PostgreSQL Catalog CDC Acceleration](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres-cdc#readme)
+- A cookbook recipe to stream changes from MySQL over the binary log. [MySQL CDC (Binlog Replication)](https://github.com/spiceai/cookbook/tree/trunk/mysql/cdc#readme)
+- A cookbook recipe to stream changes from an AWS-hosted Aurora MySQL cluster over the binary log. [Aurora MySQL CDC (Binlog Replication, AWS Hosted)](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora-cdc#readme)
+- A cookbook recipe to stream changes from a MongoDB collection with Change Streams. [MongoDB Change Streams](https://github.com/spiceai/cookbook/tree/trunk/mongodb/change-streams#readme)
+- A cookbook recipe to stream changes from a DynamoDB table with DynamoDB Streams. [DynamoDB Streams Data Connector (AWS Hosted)](https://github.com/spiceai/cookbook/tree/trunk/dynamodb/streams#readme)
+- A cookbook recipe to stream changes from PostgreSQL through Debezium and Kafka. [Streaming changes in real-time with Debezium CDC](https://github.com/spiceai/cookbook/tree/trunk/cdc-debezium#readme)

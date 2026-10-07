@@ -358,6 +358,8 @@ They are gauges rather than counters because each refresh re-plans the whole nam
 
 There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres) demonstrating the PostgreSQL Catalog Connector with the TPC-H dataset.
 
+The [PostgreSQL Catalog CDC Acceleration](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres-cdc#readme) recipe demonstrates [Catalog-Level CDC Acceleration](#catalog-level-cdc-acceleration), which keeps a local copy of every discovered table current.
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).

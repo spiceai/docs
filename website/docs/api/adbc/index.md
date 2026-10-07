@@ -97,3 +97,7 @@ with connect(
 
     conn.close()
 ```
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Python with ADBC and parameterized queries. [Python ADBC Client with Parameterized Queries](https://github.com/spiceai/cookbook/tree/trunk/clients/adbc#readme)

@@ -280,3 +280,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## Cookbook
 
 - A cookbook recipe to configure Snowflake as a data connector in Spice. [Snowflake Data Connector](https://github.com/spiceai/cookbook/tree/trunk/snowflake#readme)
+- A cookbook recipe to ingest data from an HTTP API and write it to a Snowflake table with `INSERT`. [Snowflake DML — HTTP API Ingestion Pipeline](https://github.com/spiceai/cookbook/tree/trunk/snowflake/dml#readme)

@@ -791,3 +791,8 @@ runtime:
 :::info Object Store Requirements
 The object store must support conditional writes (S3 ETags). Most S3-compatible stores support this, including AWS S3, MinIO, and Google Cloud Storage (with S3 compatibility mode).
 :::
+
+## Cookbook
+
+- A cookbook recipe to run a Spice scheduler and executors and query data across them. [Distributed Query](https://github.com/spiceai/cookbook/tree/trunk/distributed#readme)
+- A cookbook recipe to submit long-running queries and retrieve results with the [Async Queries API](#async-queries-api). [Async Queries](https://github.com/spiceai/cookbook/tree/trunk/async-queries#readme)

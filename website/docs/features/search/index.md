@@ -175,3 +175,9 @@ When a search request does not name any datasets and instead sweeps every search
 Datasets configured `ready_state: on_registration` or `ready_state: on_schema_resolved` are unaffected: they remain searchable while the accelerator loads, served from the federated source. Datasets accelerated with `refresh_mode: caching` are also exempt, as they serve queries without an initial load.
 
 <DocCardList />
+
+## Cookbook
+
+- A cookbook recipe to combine full-text and vector search with Reciprocal Rank Fusion (RRF). [Hybrid Search & Real Time Indexing](https://github.com/spiceai/cookbook/tree/trunk/search#readme)
+- A cookbook recipe to create embeddings for GitHub files and search them with vector search. [Searching GitHub Files](https://github.com/spiceai/cookbook/tree/trunk/search_github_files#readme)
+- A cookbook recipe to store embeddings in Amazon S3 Vectors and run similarity search. [Amazon S3 Vectors Engine with Spice.ai](https://github.com/spiceai/cookbook/tree/trunk/vectors/s3#readme)

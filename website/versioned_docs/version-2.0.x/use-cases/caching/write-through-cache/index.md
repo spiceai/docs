@@ -86,6 +86,6 @@ The `Results-Cache-Status` response header indicates whether a query was served 
 ### Learn More
 
 - **Data Ingestion**: [Documentation](../../features/data-ingestion) for write-capable connectors and SQL write syntax.
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
 - **Caching**: [Documentation](../../features/caching) for SQL results cache configuration, Cache-Control directives, and response headers.
 - **CDC**: [Documentation](../../features/cdc) for change data capture-based refresh.

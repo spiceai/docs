@@ -388,3 +388,7 @@ For the production deployment pattern that uses snapshots to separate ingest fro
 - **Cayenne with a cold tier** (`cayenne_datalake_location` set) neither creates nor bootstraps from snapshots. The dataset loads from its source, with a warning naming the dataset. See [Cold Object-Store Tier](../../components/data-accelerators/cayenne/index.md#requirements-and-v1-constraints).
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure snapshots for file-mode accelerations so datasets avoid cold starts and recover quickly after restarts. [Accelerated Snapshots](https://github.com/spiceai/cookbook/tree/trunk/acceleration/snapshots#readme)

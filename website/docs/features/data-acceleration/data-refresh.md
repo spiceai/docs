@@ -783,3 +783,4 @@ This acceleration configuration applies a number of different behaviors:
 - Configure accelerated dataset retention policy. [Accelerated Dataset Retention Policy](https://github.com/spiceai/cookbook/tree/trunk/retention#readme)
 - Dynamically refresh specific data at runtime by programmatically updating refresh_sql and triggering data refreshes. [Advanced Data Refresh](https://github.com/spiceai/cookbook/tree/trunk/acceleration/data-refresh#readme)
 - Configure `refresh_data_window` to filter refreshed data to recent data [Refresh Data Window](https://github.com/spiceai/cookbook/tree/trunk/refresh-data-window#readme)
+- Refresh accelerated datasets on cron schedules. [Cron-based Dataset Refresh](https://github.com/spiceai/cookbook/tree/trunk/acceleration/cron#readme)
