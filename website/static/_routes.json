@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/.well-known/*",
+    "/assets/*",
+    "/img/*",
+    "/svg/*",
+    "/favicon.ico",
+    "/favicon-16x16.png",
+    "/favicon-32x32.png",
+    "/llms.txt",
+    "/llms-full.txt",
+    "/openapi.json",
+    "/opensearch.xml",
+    "/robots.txt",
+    "/sitemap.xml"
+  ]
+}
