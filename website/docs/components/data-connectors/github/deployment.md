@@ -65,7 +65,11 @@ The page was wider in earlier releases, putting the arithmetic ceiling at 100,10
 
 ### Retry Behavior
 
-Transient 5xx responses are retried with exponential backoff up to a bounded retry count. Permanent errors (401 Unauthorized, 404 Not Found, 422 Validation Failed) surface immediately.
+Tables read through the GitHub GraphQL API, such as `pulls`, `issues`, `commits`, and `stargazers`, use the GraphQL connector's retry policy. Each page, and each GraphQL request sent when the dataset loads to check the repository or organization and infer its schema, is retried up to 5 times with Fibonacci backoff, honoring `Retry-After`. An empty HTTP 200, which the GitHub GraphQL API returns intermittently, is retried on a new connection, and a 502, a 504, or a GitHub backend-timeout error is retried with a smaller page. See [Retry Behavior](../graphql/deployment.md#retry-behavior) in the GraphQL deployment guide for the full list of retried responses.
+
+The `files` table and the workflow tables read through the GitHub REST API, as do the ref lookups for `commits`. A [REST request](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/data-connectors/connector-github/src/github.rs) retries connection errors and timeouts with Fibonacci backoff, up to 5 times for the `files` tree request and 3 times for other requests. An HTTP error status from the REST API, including 5xx and 429, is not retried.
+
+Permanent errors (401 Unauthorized, 404 Not Found, 422 Validation Failed) surface immediately.
 
 ## Capacity & Sizing
 
