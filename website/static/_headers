@@ -12,3 +12,9 @@
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
   Link: </.well-known/api-catalog>; rel="api-catalog"
+
+# The runtime HTTP API description, served with the media type that the API catalog and the
+# homepage Link headers advertise.
+/openapi.json
+  Content-Type: application/vnd.oai.openapi+json
+  Access-Control-Allow-Origin: *
