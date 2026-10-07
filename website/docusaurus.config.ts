@@ -7,6 +7,7 @@ import type { Options as BlogOptions } from '@docusaurus/plugin-content-blog'
 import type { Options as PageOptions } from '@docusaurus/plugin-content-pages'
 
 import tailwindPlugin from './plugins/tailwind-config.cjs'
+import agentDiscoveryPlugin from './plugins/agent-discovery.cjs'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -139,6 +140,13 @@ const config: Config = {
     },
     faster: true
   },
+
+  // Read by src/clientModules/webmcp.ts to search the latest docs version.
+  customFields: {
+    latestDocsVersion: latestVersion ?? 'current'
+  },
+
+  clientModules: ['./src/clientModules/webmcp.ts'],
 
   presets: [
     [
@@ -672,8 +680,20 @@ const config: Config = {
           includeDocs: true,
           includeVersionedDocs: false,
           enableLlmsFullTxt: true,
-          enableMarkdownFiles: false,
-          excludeRoutes: ['/tags/**', '/search', '/api/HTTP/**']
+          // Served to agents that request text/markdown (functions/_middleware.js).
+          enableMarkdownFiles: true,
+          excludeRoutes: ['/tags/**', '/search', '/api/HTTP/**'],
+          // The plugin's default selectors, then .main-wrapper for the homepage, which has no <main>
+          // element. Without it, the homepage Markdown includes the navbar.
+          contentSelectors: [
+            '.theme-doc-markdown',
+            'main .container .col',
+            'main .theme-doc-wrapper',
+            'article',
+            'main .container',
+            'main',
+            '.main-wrapper'
+          ]
         },
         optionalLinks: [
           {
@@ -692,6 +712,15 @@ const config: Config = {
             description: 'Managed cloud platform for Spice.ai'
           }
         ]
+      }
+    ],
+    [
+      agentDiscoveryPlugin,
+      {
+        openApiSpec: 'public/openapi.json',
+        skillsRepository: 'spiceai/skills',
+        // A release tag of spiceai/skills. Update it when a new skills release ships.
+        skillsTag: 'v2.3.2'
       }
     ]
   ]

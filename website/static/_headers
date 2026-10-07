@@ -1,0 +1,14 @@
+# Cloudflare Pages response headers for static assets:
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# Page (HTML) responses pass through functions/_middleware.js, which sets the homepage Link headers.
+# A Link rule here would replace the preconnect Link headers that Pages generates for Early Hints.
+
+# Agent discovery documents can be read by browser-based clients on any origin.
+/.well-known/*
+  Access-Control-Allow-Origin: *
+
+# API catalog (RFC 9727). A HEAD request returns the api-catalog Link header (Section 2).
+/.well-known/api-catalog
+  Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+  Link: </.well-known/api-catalog>; rel="api-catalog"

@@ -1,5 +1,8 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
+# Content Signals (https://contentsignals.org/): content on this site may be used to build search
+# results, as AI input (for example, retrieval-augmented generation and agents), and for AI training.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 
 # Sitemap location

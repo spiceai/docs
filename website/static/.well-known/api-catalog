@@ -1,0 +1,28 @@
+{
+  "linkset": [
+    {
+      "anchor": "http://localhost:8090",
+      "service-desc": [
+        {
+          "href": "https://spiceai.org/openapi.json",
+          "type": "application/vnd.oai.openapi+json",
+          "title": "Spice runtime HTTP API (OpenAPI 3.1)"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://spiceai.org/docs/api/HTTP/runtime",
+          "type": "text/html",
+          "title": "Spice runtime HTTP API reference"
+        }
+      ],
+      "status": [
+        {
+          "href": "http://localhost:8090/v1/ready",
+          "type": "text/plain",
+          "title": "Runtime readiness"
+        }
+      ]
+    }
+  ]
+}
