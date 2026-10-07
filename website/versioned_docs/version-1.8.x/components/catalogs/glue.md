@@ -165,4 +165,4 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 
 ## Cookbook
 
-There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure an AWS Glue Data Connector in Spice.
+There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure the AWS Glue Catalog Connector in Spice.
