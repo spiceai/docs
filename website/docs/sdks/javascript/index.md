@@ -67,3 +67,7 @@ const spiceClient = new SpiceClient({
   flightUrl: 'my_remote_spice_instance:50051'
 });
 ```
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Node.js with spice.js. [Spice.js SDK Sample](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/spice.js-sdk-sample#readme)

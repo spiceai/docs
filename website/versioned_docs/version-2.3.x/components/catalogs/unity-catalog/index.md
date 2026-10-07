@@ -108,3 +108,7 @@ One of the following auth values must be provided for Azure Blob:
   ```
   
   For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)
+
+## Cookbook
+
+- A cookbook recipe to configure an open-source Unity Catalog as a catalog connector in Spice. [Unity Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/unity_catalog#readme)

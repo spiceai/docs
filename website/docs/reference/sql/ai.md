@@ -188,3 +188,7 @@ For more information on configuring and using AI models, see:
 - [Embeddings](../../features/embeddings)
 - [Vector Search](../../features/search/vector-search)
 - [Task History](../task_history)
+
+## Cookbook
+
+- A cookbook recipe to invoke LLMs in SQL queries with the `ai` function. [AI SQL Function](https://github.com/spiceai/cookbook/tree/trunk/ai#readme)

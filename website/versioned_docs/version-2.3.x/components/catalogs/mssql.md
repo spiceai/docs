@@ -100,3 +100,7 @@ The MSSQL Catalog Connector supports SQL Server authentication (SQL Login and Pa
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).
+
+## Cookbook
+
+- A cookbook recipe to discover and query all schemas and tables in a SQL Server database loaded with TPC-H data. [Microsoft SQL Server Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/mssql#readme)

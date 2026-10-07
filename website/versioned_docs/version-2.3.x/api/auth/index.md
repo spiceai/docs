@@ -72,3 +72,7 @@ spice status --api-key 1234567890
 spice refresh taxi_trips --api-key 1234567890
 # etc.
 ```
+
+## Cookbook
+
+- A cookbook recipe to secure the HTTP, Arrow Flight, and OpenTelemetry endpoints with API keys. [Spice.ai API Key Authentication](https://github.com/spiceai/cookbook/tree/trunk/api_key#readme)

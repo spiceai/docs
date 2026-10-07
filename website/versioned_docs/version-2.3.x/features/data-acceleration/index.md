@@ -93,3 +93,8 @@ Time: 0.012s. 2 rows.
 Locally accelerated datasets provide significantly faster query times compared to remote sources.
 
 [Learn more about Data Accelerators](../components/data-accelerators) for faster access.
+
+## Cookbook
+
+- A cookbook recipe to accelerate a local copy of a dataset stored in S3 with Cayenne. [Cayenne Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/cayenne#readme)
+- A cookbook recipe to serve queries from the source while a large table accelerates in the background. [Dual-Dataset Registration](https://github.com/spiceai/cookbook/tree/trunk/acceleration/dual-dataset-registration#readme)

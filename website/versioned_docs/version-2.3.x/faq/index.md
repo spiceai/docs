@@ -230,7 +230,7 @@ Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC,
 
 ## 33. Where can developers find examples and recipes?
 
-The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
+The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 120 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
 
 ## 34. How can developers get started quickly?
 

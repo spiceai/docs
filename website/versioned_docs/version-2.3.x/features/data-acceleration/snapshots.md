@@ -330,3 +330,7 @@ For the production deployment pattern that uses snapshots to separate ingest fro
 - **Partitioned Cayenne** accelerations (`engine: cayenne` with `partition_by`) skip periodic and pre-recreate snapshots, with a warning naming the dataset.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure snapshots for file-mode accelerations so datasets avoid cold starts and recover quickly after restarts. [Accelerated Snapshots](https://github.com/spiceai/cookbook/tree/trunk/acceleration/snapshots#readme)

@@ -216,3 +216,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 - This catalog uses the DuckDB SQL dialect, so the `regexp_match` and `regexp_instr` functions are evaluated in Spice rather than pushed down, and `regexp_count` pushes down only for the call shapes both engines count alike. See [Regular Expression Functions and Federation](../data-connectors/duckdb#regular-expression-functions-and-federation). `AVG` over a decimal column is also evaluated in Spice. See [Decimal Averages](../data-connectors/duckdb#decimal-averages).
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to configure DuckLake as a catalog connector in Spice. [DuckLake Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/ducklake#readme)

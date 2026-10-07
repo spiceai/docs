@@ -630,3 +630,7 @@ results_cache_size_bytes 7776
 # TYPE results_cache_stale_rejections counter
 results_cache_stale_rejections 0
 ```
+
+## Cookbook
+
+- A cookbook recipe to cache query results in memory. [In-Memory Results Caching](https://github.com/spiceai/cookbook/tree/trunk/caching/sql_results#readme)

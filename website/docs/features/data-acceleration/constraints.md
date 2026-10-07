@@ -257,3 +257,7 @@ acceleration:
 
         </div>
       </details>
+
+## Cookbook
+
+- A cookbook recipe to enforce constraints on locally accelerated data in Spice. [Accelerated table data quality with constraint enforcement](https://github.com/spiceai/cookbook/tree/trunk/acceleration/constraints#readme)

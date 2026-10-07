@@ -102,3 +102,7 @@ RefreshOpts(
   refresh_jitter_max="1m"
 )
 ```
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Python with spicepy. [Spice with spicepy SDK](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/spicepy-sdk-sample#readme)

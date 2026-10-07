@@ -319,6 +319,11 @@ acceleration:
 SELECT * FROM events WHERE region = 'EU';
 ```
 
+## Cookbook
+
+- A cookbook recipe to partition an accelerated dataset so queries skip partitions they do not need. [Dataset Partitioning](https://github.com/spiceai/cookbook/tree/trunk/acceleration/partitioning#readme)
+- A cookbook recipe to partition a Cayenne-accelerated dataset with the `bucket` function. [Hashed Partitioning with Cayenne](https://github.com/spiceai/cookbook/tree/trunk/hashed_partitioning#readme)
+
 ## Related
 
 - [`bucket` SQL reference](../../reference/sql/scalar_functions#bucket)

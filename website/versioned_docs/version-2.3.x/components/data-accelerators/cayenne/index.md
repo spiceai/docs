@@ -859,7 +859,7 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 ## Transactions
 
-Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
+Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables and on Cayenne tables configured for durable write-back. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
 
 ```sql
 BEGIN;
@@ -987,6 +987,8 @@ datasets:
 ## Cookbook
 
 - A cookbook recipe to configure Cayenne as a data accelerator in Spice. [Cayenne Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/cayenne#readme)
+- A cookbook recipe to partition a Cayenne-accelerated dataset with hashed partitioning. [Hashed Partitioning with Cayenne](https://github.com/spiceai/cookbook/tree/trunk/hashed_partitioning#readme)
+- A cookbook recipe to run gated, serializable transactions on Cayenne tables with durable write-back to PostgreSQL. [Serializable Transactions with Durable Write-Back](https://github.com/spiceai/cookbook/tree/trunk/serializable-transactions#readme)
 
 ## Related Documentation
 
