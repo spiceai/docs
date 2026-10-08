@@ -42,7 +42,7 @@ In-memory accelerators do not persist a resume token; restarts re-bootstrap from
 - The MongoDB user must have the `changeStream` privilege on the source collection.
 - The accelerator must support upsert behavior — use `duckdb`, `sqlite`, `postgres`, `turso`, or `cayenne`.
 - `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
-- `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows.
+- On engines other than `cayenne`, `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows. Cayenne keeps one row per `_id` without it.
 
 ## Minimal configuration
 
