@@ -73,6 +73,7 @@ Supported Data Connectors include:
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
 | `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON           |
+| `hf`                               | [Hugging Face][huggingface] datasets  | Alpha             | Parquet, CSV, TSV, JSON, ORC |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `scylladb`                         | ScyllaDB (Spice.ai Enterprise)        | Alpha             |                              |
@@ -91,6 +92,7 @@ Supported Data Connectors include:
 [ODPIC]: https://oracle.github.io/odpi/
 [elasticsearch]: ./elasticsearch/index.md
 [cosmosdb]: ./cosmosdb/index.md
+[huggingface]: ./huggingface.md
 
 ## File Formats
 
