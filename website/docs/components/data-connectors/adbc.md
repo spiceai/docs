@@ -305,6 +305,16 @@ No special configuration is required. Pushdown happens automatically when the so
 
 Spice-only SQL functions are not sent to the source unless the active dialect has a translation for that function. A translated function is evaluated by the source, with the source's semantics. Setting `query_federation: disabled` stops whole-query federation, but it does not keep a translated function in Spice: the table scan still pushes down each filter the dialect can translate, so the source evaluates that filter.
 
+#### SQLite Date, Time, and Interval Values
+
+SQLite has no date, time, or interval types, and the ADBC connector writes the SQL it sends to SQLite in a generic dialect that SQLite does not evaluate correctly for these values. For example, SQLite reads `CAST('2026-01-30 23:00:00' AS TIMESTAMP)` as the integer `2026`. When `adbc_driver` is `sqlite`, Spice keeps the following expressions out of the SQL sent to SQLite, for both datasets and [catalogs](../catalogs/adbc), and evaluates them over the rows SQLite returns:
+
+- Date, time, timestamp, duration, and interval literals, such as `TIMESTAMP '2026-01-30 23:00:00'`, `DATE '2026-01-31'`, and `INTERVAL '1 hour'`.
+- A `CAST` into a date, time, timestamp, duration, or interval type.
+- `TRY_CAST`, and each `CAST` the SQLite accelerator also evaluates in Spice. See [Casts and Federation](../data-accelerators/sqlite#casts-and-federation). Unlike the accelerator, this route also keeps `DATE '1994-01-01'` in Spice.
+
+A query that contains one of these expressions still runs. A filter that involves none of them, such as `id >= 2`, still pushes down to SQLite. The handling is keyed to the exact `adbc_driver` value `sqlite` ([source](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-datafusion/src/function_support.rs#L326)).
+
 ## Auth
 
 Authentication varies by driver. Credentials can be provided through `adbc_username`, `adbc_password`, `adbc_driver_options`, the connection URI, or through [Secrets Stores](../secret-stores/).
