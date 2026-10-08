@@ -210,7 +210,7 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
-Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
+For an accelerated dataset, Spice checks `time_format` against the data type of the `time_column` when the dataset loads. When `time_format` is omitted, `timestamp` is assumed. A `time_format` that does not match the column's data type fails the dataset with an error that names the column's data type and the configured `time_format`.
 
 :::warning[Limitations]
 
