@@ -36,7 +36,28 @@ Use HTTPS endpoints in production. Self-signed certificates require a trusted CA
 
 ### Retry Behavior
 
-HTTP-level retries cover 408 (request timeout) and 5xx (server errors) plus transient network errors. 429 responses are handled proactively by the built-in rate limiter rather than retried. Retries use fibonacci backoff with a maximum of 5 attempts.
+Each GraphQL request is retried up to 5 times after the initial attempt, so a request fails after at most 6 tries. The retries apply to every page of a refresh and to the request the connector sends when a dataset loads to infer or validate its schema. Retries use [Fibonacci backoff](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/util/src/fibonacci_backoff.rs) of about 1, 2, 3, 5, and 8 seconds with ±30% jitter. When a retried response carries a `Retry-After` header, or a `RateLimit` reset header while no requests remain, the connector waits that long instead, and the retry still counts against the 5-retry budget. Each retry is logged at `WARN`, and the error is returned once the budget is spent.
+
+Before decoding a response as JSON, the connector [classifies the body](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/data-connectors/connector-graphql/src/graphql/response.rs) from its `Content-Type` header and its first characters as JSON, HTML, text, empty, or incomplete (shorter than its `Content-Length` header). The classification and the HTTP status decide whether a failure is retried:
+
+| Response                                                               | Retried |
+| ---------------------------------------------------------------------- | ------- |
+| HTTP 5xx, 408, or 429, with any body                                   | Yes     |
+| HTTP 2xx with an empty or incomplete body                              | Yes     |
+| HTTP 2xx whose JSON body is truncated or invalid                       | Yes     |
+| HTTP 4xx with a JSON error message that mentions a rate limit          | Yes     |
+| Connection errors, timeouts, and errors reading the response body      | Yes     |
+| HTTP 2xx with an HTML or text body                                     | No      |
+| Other HTTP 4xx, including 401 and 403                                  | No      |
+| GraphQL `errors` returned in an HTTP 200 JSON body                     | No¹     |
+
+¹ Except an error whose message contains `Something went wrong while executing your query`, which the GitHub GraphQL API returns when its backend times out on a query. The connector retries that error with a smaller page, as described below.
+
+An HTML or text body on HTTP 200 usually means the endpoint URL is wrong or the request was redirected to a login page, so it fails without a retry. For a response that is not JSON, the error message names the HTTP status and body format and includes a short preview with HTML tags removed. An empty, incomplete, or invalid JSON body on HTTP 200 is retried on a new connection, because the pooled connection is likely half-closed. The GitHub GraphQL API returns an empty HTTP 200 intermittently.
+
+A 502 or 504 response also closes the pooled connection before the retry. For a paginated query, the retry after a 502, a 504, or the GitHub backend-timeout error requests a smaller page, stepping down a reverse Fibonacci sequence (for example, 100, 55, 34, 21), so an upstream that times out on large pages can still complete the refresh.
+
+Separately from retries, the connector's per-origin rate limiter waits before each request while a `Retry-After` or `RateLimit` reset cooldown from an earlier response is in effect. See [Rate Control Parameters](./index.md#rate-control-parameters) to limit request rate and concurrency.
 
 ### Pagination
 
@@ -44,7 +65,7 @@ The connector supports cursor-based pagination. Each page is a separate HTTP req
 
 ### Server Rate Limits
 
-GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. When a query returns a cost/rate-limit error, the connector surfaces it immediately. Reduce refresh frequency or narrow the query to stay within budget.
+GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. A rate limit reported with HTTP 429, or with a 4xx response whose JSON error message mentions a rate limit, is retried as described in [Retry Behavior](#retry-behavior). A cost or rate-limit error reported in the GraphQL `errors` array of an HTTP 200 response fails the request without a retry. Reduce refresh frequency or narrow the query to stay within budget.
 
 ## Capacity & Sizing
 
@@ -108,6 +129,8 @@ GraphQL requests participate in [task history](../../../reference/task_history) 
 | ---------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `401 Unauthorized`                             | Wrong or expired token in `graphql_auth_token`.      | Rotate the token; verify the header format (`Bearer` prefix, etc.).                          |
 | Rows missing from the dataset                  | Wrong `json_pointer`.                         | Inspect the response payload; JSON pointer must navigate to the array of rows.              |
-| Refresh fails mid-pagination                   | Rate-limit or transient network failure.              | Reduce refresh frequency; the connector will retry on retriable errors. Narrow the query.   |
+| Refresh fails mid-pagination                   | Rate-limit or transient network failure.              | Transient errors are retried up to 5 times per page before the refresh fails. Reduce refresh frequency or narrow the query.   |
+| `returned HTML instead of JSON (HTTP 200 OK)`  | Wrong endpoint URL, or a redirect to a login page.   | Verify the dataset `from` URL points at the GraphQL endpoint and that authentication is set. |
+| `upstream returned an empty response body (HTTP 200)` | The endpoint returned an empty HTTP 200 on every try. | Check the upstream service status, then retry the refresh.                               |
 | Query cost exceeded                            | Query requests too many nested fields.                | Simplify the query; fetch only required fields.                                             |
 | Inferred schema differs between refreshes      | Optional fields appear/disappear in responses.        | Provide an explicit dataset `schema` to lock down types.                                    |

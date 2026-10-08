@@ -989,7 +989,7 @@ runtime:
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
 | `state_location`                                   | Yes      | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Required unless [`runtime.state`](#runtimestate) is set, in which case `runtime.state.location` is used. |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). When `state_location` is omitted, defaults to `runtime.state.params`. |
+| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). When `state_location` is omitted, defaults to `runtime.state.params`. |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
@@ -997,7 +997,7 @@ runtime:
 
 ## `runtime.state`
 
-Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `abfs://`, and `abfss://`.
+Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `gs://` (or its alias `gcs://`), `abfs://`, and `abfss://`.
 
 ```yaml
 runtime:
@@ -1022,3 +1022,27 @@ The following features store their state under `runtime.state` when their own se
 | [Source rate control](#runtimesource_rate_control) | `runtime.source_rate_control.state_location` is not set. Persisted rate-control state requires a Spice.ai Enterprise build. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
+
+### State location parameters
+
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) is configured separately, under `snapshots.params`.
+
+An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
+
+```text
+'s3_auth' is 'key', but 's3_key' and 's3_secret' are not both set. Set both, or set 's3_auth: iam_role' to use the credentials from the environment.
+```
+
+To use the credentials from the environment, set `s3_auth: iam_role` or omit `s3_auth`. `s3_key` and `s3_secret` set without `s3_auth` are used as given.
+
+A `gs://` or `gcs://` location takes the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names: `gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, `gcs_skip_signature`, the [retry parameters](../../components/data-connectors/gcs#retry-parameters) (`gcs_max_retries`, `gcs_retry_timeout`, `gcs_backoff_initial_duration`, `gcs_backoff_max_duration`, `gcs_backoff_base`), `client_timeout`, and `allow_http`. As for the connector, set at most one authentication method. An invalid value, or more than one authentication method, is an error. A parameter name that the location does not support is logged as a warning and ignored.
+
+```yaml
+runtime:
+  state:
+    location: gs://my-bucket/spice-state
+    params:
+      gcs_service_account_key: ${ secrets:GCS_SERVICE_ACCOUNT_JSON }
+```
+
+When a location's `params` are rejected, Spice logs the error and the feature runs without that location. The [cluster scheduler](#runtimescheduler) does not initialize its shared state, and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) stores its query plans on the local disk instead.

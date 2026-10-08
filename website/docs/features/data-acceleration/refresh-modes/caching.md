@@ -418,7 +418,7 @@ Choose between in-memory and file-based caching based on your requirements:
 | **Capacity**    | Limited by available memory       | Limited by disk space         |
 | **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
 | **Best for**    | Small, frequently changing caches | Large, stable caches          |
-| **Engines**     | `arrow` (default)                 | `duckdb`, `sqlite`, `cayenne` |
+| **Engines**     | `cayenne` (default), `arrow` (default on Windows) | `duckdb`, `sqlite`, `cayenne` |
 
 ### Combining SWR and Persistence
 
@@ -565,7 +565,7 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
 | `on_zero_results`        | **Ignored in caching mode.** Caching mode always queries the source on a cache miss, regardless of this setting. | `return_empty` |
-| `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `arrow`        |
+| `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `cayenne` (`arrow` on Windows) |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
 ### Cache TTL (Time-to-Live)

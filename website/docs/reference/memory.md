@@ -133,7 +133,7 @@ Different acceleration engines have distinct memory characteristics and tuning o
 
 ### Arrow (In-Memory)
 
-The default Arrow accelerator stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
+The Arrow accelerator, the default on Windows, stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
 
 - Data is stored uncompressed in Apache Arrow format
 - No configuration options for memory limits
@@ -154,7 +154,9 @@ For a 10 million row dataset with hash index enabled, expect ~165 MB additional 
 
 ### Spice Cayenne
 
-[Spice Cayenne](../components/data-accelerators/cayenne) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
+In `mode: file`, [Spice Cayenne](../components/data-accelerators/cayenne) stores data on disk using the [Vortex](https://github.com/vortex-data/vortex) columnar format, with configurable caches for metadata and frequently accessed data segments. The caches can be configured to reside either in memory or on disk, which impacts overall memory behavior.
+
+In `mode: memory`, which an acceleration with no `engine` and no `mode` uses on Linux and macOS, Cayenne keeps all data in RAM and does not spill it to disk. See [Configuration](../components/data-accelerators/cayenne/index.md#configuration) in the Cayenne documentation.
 
 Spice Cayenne is DataFusion query-native, meaning all query execution adheres to the `runtime.query.memory_limit` setting. When query memory is exhausted, DataFusion spills intermediate results to disk. This architecture provides predictable memory usage while maintaining high query performance.
 
@@ -285,6 +287,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 - Serialization and encode buffers for query results, Arrow IPC, and Flight responses
 - Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
 - Results, search, and embedding caches
+- [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets. The retraction index and the `min` and `max` distinct-value state share a per-dataset budget of 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit. Each view's per-group keys and running aggregates are not counted toward that budget
 - Allocator retention — pages the process has freed but not returned to the operating system
 
 The gap between the query limit and the container's memory limit is the headroom that absorbs all of the above. The defaults reserve 10% of the memory the process may use, or 30% when Cayenne acceleration is active. **That reservation is a percentage, but what it has to cover is largely fixed**, so it gets tighter as the container gets smaller: 10% of a 4 GiB container is roughly 400 MB of headroom for buffers and caches whose own floors do not shrink with it.

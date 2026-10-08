@@ -213,7 +213,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 - The `information_schema` and `pg_catalog` system schemas are automatically filtered out during discovery.
 - Catalog refresh is non-incremental — a full re-query of `information_schema` is performed on each refresh cycle.
 - If a table fails to load during catalog refresh, it is skipped with a warning and does not fail the entire catalog.
-- This catalog uses the DuckDB SQL dialect, so the `regexp_match` and `regexp_instr` functions are evaluated in Spice rather than pushed down, and `regexp_count` pushes down only for the call shapes both engines count alike. See [Regular Expression Functions and Federation](../data-connectors/duckdb#regular-expression-functions-and-federation). `AVG` over a decimal column is also evaluated in Spice. See [Decimal Averages](../data-connectors/duckdb#decimal-averages).
+- This catalog uses the DuckDB SQL dialect, so the `regexp_match` and `regexp_instr` functions are evaluated in Spice rather than pushed down, and `regexp_count` pushes down only for the call shapes both engines count alike. See [Regular Expression Functions and Federation](../data-connectors/duckdb#regular-expression-functions-and-federation). `AVG` over a decimal column is sent to DuckDB, and its result can differ from the result Spice computes. See [Decimal Averages](../data-connectors/duckdb#decimal-averages).
 
 :::
 

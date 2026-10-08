@@ -36,7 +36,7 @@ datasets:
   - from: localpod:test
     name: test_local
     acceleration:
-      enabled: true # This dataset accelerates the parent `test` dataset into in-memory Arrow records and is synchronized with the parent
+      enabled: true # This dataset accelerates the parent `test` dataset in memory and is synchronized with the parent
 ```
 
 ## Hot Reload

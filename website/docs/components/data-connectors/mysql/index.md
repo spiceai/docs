@@ -107,7 +107,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 
 #### Replication parameters
 
-The following parameters configure MySQL [binlog replication](../../features/cdc/mysql-replication) (native CDC) when using `refresh_mode: changes`. `primary_key` + `on_conflict: upsert` are required on the accelerator (except on the append-only `arrow` engine). See [MySQL Binlog Replication](../../features/cdc/mysql-replication) for source prerequisites, semantics, and metrics.
+The following parameters configure MySQL [binlog replication](../../features/cdc/mysql-replication) (native CDC) when using `refresh_mode: changes`. `primary_key` is required on the accelerator (except on the append-only `arrow` engine), and on engines other than `cayenne` so is `on_conflict: upsert` on that key. See [MySQL Binlog Replication](../../features/cdc/mysql-replication) for source prerequisites, semantics, and metrics.
 
 | Parameter Name                                | Description                                                                                                                                                                                              |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
