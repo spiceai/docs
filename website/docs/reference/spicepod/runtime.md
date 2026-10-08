@@ -997,7 +997,7 @@ runtime:
 
 ## `runtime.state`
 
-Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `gs://`, `abfs://`, and `abfss://`.
+Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `gs://` (or its alias `gcs://`), `abfs://`, and `abfss://`.
 
 ```yaml
 runtime:
@@ -1035,7 +1035,7 @@ An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_s
 
 To use the credentials from the environment, set `s3_auth: iam_role` or omit `s3_auth`. `s3_key` and `s3_secret` set without `s3_auth` are used as given.
 
-A `gs://` location takes the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names: `gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, `gcs_skip_signature`, the [retry parameters](../../components/data-connectors/gcs#retry-parameters) (`gcs_max_retries`, `gcs_retry_timeout`, `gcs_backoff_initial_duration`, `gcs_backoff_max_duration`, `gcs_backoff_base`), `client_timeout`, and `allow_http`. As for the connector, set at most one authentication method. An invalid value, or more than one authentication method, is an error. A parameter name that the location does not support is logged as a warning and ignored.
+A `gs://` or `gcs://` location takes the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names: `gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, `gcs_skip_signature`, the [retry parameters](../../components/data-connectors/gcs#retry-parameters) (`gcs_max_retries`, `gcs_retry_timeout`, `gcs_backoff_initial_duration`, `gcs_backoff_max_duration`, `gcs_backoff_base`), `client_timeout`, and `allow_http`. As for the connector, set at most one authentication method. An invalid value, or more than one authentication method, is an error. A parameter name that the location does not support is logged as a warning and ignored.
 
 ```yaml
 runtime:
