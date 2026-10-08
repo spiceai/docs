@@ -551,9 +551,9 @@ A Cayenne table with a `primary_key` keeps one row per key. Because Cayenne is t
 
 | Dataset                                                                | Version kept for a repeated key in a refresh                                                                      |
 | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `primary_key` and `time_column`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
 | `refresh_mode: changes`                                                | Each source change is applied in order, so a later change of a key supersedes an earlier one.                     |
-| Any other dataset with a `primary_key`, such as one with no `time_column` | The version that arrived last.                                                                                 |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                 |
 
 Ordering by `time_column` applies to refreshes. A SQL `INSERT`, including one inside a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. An `UPDATE` does not replace another row: one that would give a row a key another row keeps fails and changes nothing, as described below. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
 

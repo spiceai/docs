@@ -62,9 +62,9 @@ On the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) acce
 
 | Dataset                                                                   | Version kept for a repeated key                                                                                   |
 | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `primary_key` and `time_column`, with `refresh_mode: full` or `append`    | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
 | `refresh_mode: changes`                                                   | Each source change, applied in order.                                                                             |
-| Any other dataset with a `primary_key`, such as one with no `time_column` | The version that arrived last.                                                                                    |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                    |
 
 The rule applies to a key repeated within one write and to a key the table already stores. A SQL `INSERT` keeps the version that arrived last. Arrival order is not defined when a source is read in parallel, so set a [`time_column`](../../reference/spicepod/datasets.md#time_column) for a reproducible result. With `refresh_mode: append`, set [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive, so that a late update to an older row is re-read. Each Cayenne dataset with a `primary_key` logs its rule at load, for example:
 
@@ -120,7 +120,7 @@ datasets:
 
 ### Advanced Upsert Options
 
-By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne does not use these options; it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
+By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL rejects an `INSERT` that proposes the same row more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne does not use these options; it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
 
 Spice provides two `upsert` options to resolve duplicates within a single update:
 

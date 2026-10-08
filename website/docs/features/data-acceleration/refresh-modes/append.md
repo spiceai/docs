@@ -84,7 +84,7 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 ## Combining with Upserts
 
-Pair `refresh_mode: append` with a `primary_key` to handle source rows that are occasionally updated. On [Spice Cayenne](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), the default engine on Linux and macOS (Windows defaults to Arrow), a `primary_key` alone keeps one row per key: with a `time_column`, the newest version by `time_column`, including when one poll holds several versions of a key. Set [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive so that a late update is re-read:
+Pair `refresh_mode: append` with a `primary_key` to handle source rows that are occasionally updated. On [Spice Cayenne](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), the default engine on Linux and macOS (Windows defaults to Arrow), a `primary_key` alone keeps one row per key: with a `time_column` that is not part of the `primary_key`, the newest version by `time_column`, including when one poll holds several versions of a key. Set [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive so that a late update is re-read:
 
 ```yaml
 datasets:

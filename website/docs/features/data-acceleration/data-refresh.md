@@ -646,7 +646,7 @@ The following example combines the pieces above into a single configuration for 
 - `refresh_mode: append` with a `time_column` for incremental queries
 - `refresh_check_interval` to poll for new/changed rows
 - `refresh_append_overlap` to tolerate clock skew and late-arriving rows without missing data
-- `primary_key` so a row updated in the source replaces the accelerated copy instead of duplicating it. [Spice Cayenne](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) keeps the newest version of each key by `time_column`
+- `primary_key` so a row updated in the source replaces the accelerated copy instead of duplicating it. [Spice Cayenne](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) keeps the newest version of each key by `time_column`, because `updated_at` is not part of the `primary_key`
 - `retention_period` to bound the working set by time
 - `retention_sql` to evict soft-deleted rows (`deleted_at IS NOT NULL`)
 
