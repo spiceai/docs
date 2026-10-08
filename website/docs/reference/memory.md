@@ -287,7 +287,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 - Serialization and encode buffers for query results, Arrow IPC, and Flight responses
 - Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
 - Results, search, and embedding caches
-- [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) retraction indexes on Spice Cayenne datasets, each with a budget of 10% of the query pool
+- [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets: the retraction index plus `min` and `max` distinct-value state. Each dataset's budget is 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit
 - Allocator retention — pages the process has freed but not returned to the operating system
 
 The gap between the query limit and the container's memory limit is the headroom that absorbs all of the above. The defaults reserve 10% of the memory the process may use, or 30% when Cayenne acceleration is active. **That reservation is a percentage, but what it has to cover is largely fixed**, so it gets tighter as the container gets smaller: 10% of a 4 GiB container is roughly 400 MB of headroom for buffers and caches whose own floors do not shrink with it.
