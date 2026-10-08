@@ -386,16 +386,47 @@ Supported input column types by function:
 
 A query is served from a maintained view only when it matches the view exactly:
 
-- The query's `GROUP BY` keys match the view's `group_by`, in order.
-- The query's `WHERE` predicate matches the view's `filter_sql` exactly — an unfiltered view (no `filter_sql`) answers only unfiltered queries, and a filtered view answers only a query carrying the identical predicate. A view whose `filter_sql` mirrors a common dashboard filter lets that filtered analytical query be served incrementally instead of by a full re-scan.
+- The query's `GROUP BY` keys match the view's `group_by`, in order. A query without `GROUP BY`, such as `SELECT COUNT(*), SUM(amount) FROM orders`, matches a view that omits `group_by`.
+- The query computes the view's aggregates: the same functions over the same columns, in the order the view declares them. Each aggregate input is a table column, so a query that aggregates a computed value, such as `SUM(amount * 2)`, is not served. `COUNT(*)` and `COUNT` of a non-NULL literal such as `COUNT(1)` count every row and match a `count` declared without a `column`. An aggregate call with `DISTINCT`, a `FILTER (WHERE ...)` clause, or an `ORDER BY` inside it is not served, and neither is a query that uses `GROUPING SETS`, `ROLLUP`, or `CUBE`.
+- The query's `WHERE` predicate matches the view's `filter_sql`. An unfiltered view (no `filter_sql`) answers only unfiltered queries, and a filtered view answers only a query whose predicate has the same conjuncts. A view whose `filter_sql` mirrors a common dashboard filter lets that filtered analytical query be served incrementally instead of by a full re-scan.
+
+Predicates are compared as sets of `AND`-ed conjuncts, so the order of the conjuncts does not matter. A query with an extra conjunct, or with one fewer, does not match. The comparison holds whether the query planner keeps the `WHERE` above the scan or pushes it into the scan. Before comparison, `filter_sql` is simplified the same way the planner simplifies a query's `WHERE` clause: a string compared with a timestamp column becomes a timestamp literal, and `BETWEEN` becomes two comparisons. Writing `filter_sql` exactly as the query writes its `WHERE` clause gives the most reliable match. A query is not served when its predicate calls a volatile function such as `random()`, when a join pushes a runtime filter into the dataset's scan, or when a `LIMIT` in a subquery limits the rows the aggregate reads.
+
+A view also answers only when its maintained state is at the same table snapshot the query's scan reads, so a served result never includes changes that other scans in the same query do not see. Views are updated in the background after each write is published. A query planned before that update completes, or a query on a read-only `refresh_mode: changes` dataset that reuses a cached scan view captured before the latest update (see [Visibility of applied changes](#visibility-of-applied-changes)), reads the base table instead.
 
 Any query that does not match a declared view (or that reaches the view while it is stale) falls back to the base-table scan — correct, but not accelerated.
+
+The matching rules are implemented in [`MaintainedAggregateView::matches_query`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/maintained_aggregate.rs#L2067) and [`plan_relation_predicate`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/scan.rs#L634).
 
 ### Constraints
 
 - Maintained aggregates are a Spice Cayenne feature designed for CDC-accelerated datasets (`refresh_mode: changes`).
 - `min` and `max` are retraction-hard: they require a `primary_key` on the acceleration so that `UPDATE` and `DELETE` changes can retract a prior extremum. Set `acceleration.primary_key`, enable extended schema inference for a source primary key, or omit `min`/`max`. `count`, `sum`, and `avg` do not require a primary key.
 - Maintained aggregates are not supported on partitioned tables (`partition_by`).
+
+### Memory budget and recovery
+
+On a dataset with a primary key, Cayenne keeps a retraction index: for each row that at least one view selects (every row, when a view has no `filter_sql`), the group the row joined in each view and the values it contributed, so an `UPDATE` or `DELETE` can subtract exactly what the row added. One index serves every view on the dataset. The distinct-value state that `min` and `max` keep counts toward the same budget.
+
+Each view also keeps one entry per group: the group's key and its running aggregates. This group state is allocated outside the query pool and is not counted toward the budget below, so its memory grows with the number of distinct groups the view holds.
+
+Each dataset's budget is 10% of the query memory pool set by [`runtime.query.memory_limit`](../../../reference/memory.md#memory-limit-configuration), with a floor of 8 MiB that never exceeds the pool itself. When the query pool has no limit, the budget is 512 MiB. The index is allocated outside the query pool, so it adds to the memory described in [What the Memory Limit Does Not Cover](../../../reference/memory.md#what-the-memory-limit-does-not-cover), and each dataset with maintained aggregates has a budget of its own (see [`maintained_aggregate_max_index_bytes`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L252)).
+
+When the retained state, the retraction index plus the `min` and `max` distinct-value state, grows past its budget, the dataset's views go stale, queries run on base-table scans, and the runtime logs a warning. For a dataset named `orders` on a 4 GiB query pool, the line looks like this:
+
+```text
+WARN cayenne::provider::table: Failed to apply maintained aggregate delta off the write path; queries will fall back to base table scans table=orders epoch=1842 error=Execution error: Maintained aggregate indexes exceeded their memory budget (2210000 retained entries, ~431227904 bytes, budget 429496729 bytes); falling back to base table scan. Raise 'runtime.query.memory_limit' or narrow the maintained aggregate's filter.
+```
+
+The entry count, sizes, and epoch are the dataset's own. To make the retained state fit, narrow the view with `filter_sql`, or give the query pool more memory. The retained state lives outside the query pool, so a larger budget also raises the process's total memory. When `runtime.query.memory_limit` is unset, give the container more memory and let the runtime derive a larger pool. Raising an explicit limit, as the log line suggests, needs matching container headroom, or the process can be killed for running out of memory (see [Tuning the Memory Limit Safely](../../../reference/memory.md#tuning-the-memory-limit-safely)).
+
+Cayenne rebuilds stale views from a scan of the table when the dataset opens and after in-memory CDC tier checkpoints: at the first checkpoint after the views go stale, then at every 32nd. Without in-memory tier checkpoints, stale views are rebuilt only when the dataset next opens, such as after a runtime restart.
+
+Writes that land while a rebuild reads the table are held and applied once it finishes, so a rebuild completes on a dataset that is written continuously. A rebuild is abandoned and retried later when the held writes exceed a quarter of the budget.
+
+A rebuild whose state still does not fit the budget is retried at the next interval. A rebuild that fails with an error, such as an error reading the table's files during its scan, is attempted three times and then stops until the runtime restarts. A `filter_sql` that cannot be planned against the table, or that is not a Boolean predicate, is rejected when the dataset loads, and the dataset fails to load.
+
+When a rebuild succeeds after the views went stale, the runtime logs `Maintained aggregate state rebuilt after staleness; queries are served from maintained state again` (see [`try_rearm_maintained_aggregates`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L27023)).
 
 ### Retaining specs without maintaining them
 
