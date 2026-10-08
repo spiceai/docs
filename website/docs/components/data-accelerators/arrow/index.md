@@ -5,23 +5,11 @@ description: 'In-Memory Arrow Data Accelerator Documentation'
 sidebar_position: 2
 ---
 
-The In-Memory Arrow Data Accelerator is the default data accelerator in Spice. It uses Apache Arrow to store data in-memory for fast access and query performance.
+The In-Memory Arrow Data Accelerator uses Apache Arrow to store data in-memory for fast access and query performance. It is the default data accelerator on Windows. On Linux and macOS, the default is [Spice Cayenne](../cayenne/index.md); see [Default Engine](../index.md#default-engine).
 
 ## Configuration
 
-To use the In-Memory Arrow Data Accelerator, no additional configuration is required beyond enabling acceleration.
-
-Example:
-
-```yaml
-datasets:
-  - from: spice.ai:path.to.my_dataset
-    name: my_dataset
-    acceleration:
-      enabled: true
-```
-
-However Arrow can be specified explicitly using `arrow` as the `engine` for acceleration.
+To use the In-Memory Arrow Data Accelerator, set `arrow` as the `engine` for acceleration:
 
 ```yaml
 datasets:

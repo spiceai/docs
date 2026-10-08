@@ -115,9 +115,10 @@ View 'my_view' sets `acceleration.enabled: false`, so these settings in its acce
 
 ## `acceleration.engine`
 
-The acceleration engine to use, defaults to `arrow`. The following engines are supported:
+Optional. The acceleration engine to use. Defaults to `cayenne`, or to `arrow` on Windows, where Cayenne is not available. Spice v2.3 and earlier default to `arrow`. See [Default Engine](../../components/data-accelerators/index.md#default-engine). The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
+- [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine.
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
 - [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
