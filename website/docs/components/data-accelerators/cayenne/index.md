@@ -408,6 +408,8 @@ The matching rules are implemented in [`MaintainedAggregateView::matches_query`]
 
 On a dataset with a primary key, Cayenne keeps a retraction index: for each row, the group the row joined in each view and the values it contributed, so an `UPDATE` or `DELETE` can subtract exactly what the row added. One index serves every view on the dataset. The distinct-value state that `min` and `max` keep counts toward the same budget.
 
+Each view also keeps one entry per group: the group's key and its running aggregates. This group state is allocated outside the query pool and is not counted toward the budget below, so its memory grows with the number of distinct groups the view holds.
+
 Each dataset's budget is 10% of the query memory pool set by [`runtime.query.memory_limit`](../../../reference/memory.md#memory-limit-configuration), with a floor of 8 MiB that never exceeds the pool itself. When the query pool has no limit, the budget is 512 MiB. The index is allocated outside the query pool, so it adds to the memory described in [What the Memory Limit Does Not Cover](../../../reference/memory.md#what-the-memory-limit-does-not-cover), and each dataset with maintained aggregates has a budget of its own (see [`maintained_aggregate_max_index_bytes`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L252)).
 
 When the retained state, the retraction index plus the `min` and `max` distinct-value state, grows past its budget, the dataset's views go stale, queries run on base-table scans, and the runtime logs a warning. For a dataset named `orders` on a 4 GiB query pool, the line looks like this:
@@ -418,7 +420,13 @@ WARN cayenne::provider::table: Failed to apply maintained aggregate delta off th
 
 The entry count, sizes, and epoch are the dataset's own. Raise `runtime.query.memory_limit`, or narrow the view with `filter_sql`, so the retained state fits.
 
-Cayenne rebuilds stale views from a scan of the table when the dataset opens and after in-memory CDC tier checkpoints: at the first checkpoint after the views go stale, then at every 32nd. Without in-memory tier checkpoints, stale views are rebuilt only when the dataset next opens, such as after a runtime restart. Writes that land while a rebuild reads the table are held and applied once it finishes, so a rebuild completes on a dataset that is written continuously. A rebuild is abandoned and retried later when the held writes exceed a quarter of the budget. A rebuild whose state still does not fit the budget is retried at the next interval. A rebuild that fails with an error, such as an error reading the table's files during its scan, is attempted three times and then stops until the runtime restarts. A `filter_sql` that cannot be planned against the table, or that is not a Boolean predicate, is rejected when the dataset loads, and the dataset fails to load. When a rebuild succeeds after the views went stale, the runtime logs `Maintained aggregate state rebuilt after staleness; queries are served from maintained state again` (see [`try_rearm_maintained_aggregates`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L27023)).
+Cayenne rebuilds stale views from a scan of the table when the dataset opens and after in-memory CDC tier checkpoints: at the first checkpoint after the views go stale, then at every 32nd. Without in-memory tier checkpoints, stale views are rebuilt only when the dataset next opens, such as after a runtime restart.
+
+Writes that land while a rebuild reads the table are held and applied once it finishes, so a rebuild completes on a dataset that is written continuously. A rebuild is abandoned and retried later when the held writes exceed a quarter of the budget.
+
+A rebuild whose state still does not fit the budget is retried at the next interval. A rebuild that fails with an error, such as an error reading the table's files during its scan, is attempted three times and then stops until the runtime restarts. A `filter_sql` that cannot be planned against the table, or that is not a Boolean predicate, is rejected when the dataset loads, and the dataset fails to load.
+
+When a rebuild succeeds after the views went stale, the runtime logs `Maintained aggregate state rebuilt after staleness; queries are served from maintained state again` (see [`try_rearm_maintained_aggregates`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L27023)).
 
 ### Retaining specs without maintaining them
 
