@@ -580,7 +580,7 @@ Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
 - `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
-- `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row. Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
+- `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row, but acceleration-only writes can cause it to skip source rows (see the warning below). Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
 
 A `read_write` dataset whose source connector only supports reads fails to load unless it sets `write_mode: acceleration`:
 
@@ -595,6 +595,12 @@ Dataset 'orders' sets `acceleration.write_mode: acceleration` and refreshes by `
 ```
 
 Both are configuration errors: the dataset fails to load once and is not retried. See [`select_accelerated_write_mode`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/datafusion/mod.rs) for how the write destination is chosen.
+
+:::warning Append refreshes and acceleration-only writes
+An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than the source's newest row moves that point forward. Source rows with times between the two that fall outside the overlap window are then not loaded by any later `append` refresh.
+
+To avoid this, give acceleration-only writes a `time_column` value no later than the source's newest data, or set `refresh_append_overlap` to cover the largest gap between them.
+:::
 
 ```yaml
 datasets:
