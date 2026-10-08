@@ -620,7 +620,7 @@ Example - Soft delete retention:
 datasets:
   - from: mysql:user_events
     name: user_events
-    time_column: created_at
+    time_column: updated_at
     acceleration:
       enabled: true
       refresh_mode: append
@@ -630,6 +630,8 @@ datasets:
       retention_check_interval: 5m
       retention_sql: DELETE FROM user_events WHERE status = 'archived'
 ```
+
+The `time_column` must change when a row is updated, as `updated_at` does here. An append refresh reads only rows whose `time_column` is newer than the latest stored value, less `refresh_append_overlap` (from the start of that day, for a [day-granular column](./refresh-modes/append.md#day-granular-time-columns)). With a column that does not change, such as `created_at`, a row archived after it falls outside that window is not re-read, so `retention_sql` never sees its new `status`.
 
 :::note
 
