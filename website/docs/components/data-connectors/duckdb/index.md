@@ -202,6 +202,12 @@ As with `concat`, the check covers the operand's whole expression, and an operan
 
 The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
 
+## Decimal Averages
+
+`AVG` over a decimal column is sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a rounded `DOUBLE`, while Spice divides the exact decimal sum and truncates the result to the scale of the result type, so a decimal average computed by DuckDB can differ from the same query evaluated in Spice. A small average can differ in the last digit: the average of `0.01`, `0.01`, and `0.00` in a `DECIMAL(15, 2)` column is `0.006667` from DuckDB and `0.006666` in Spice. A large value can differ in the integer digits: the average of two `9000000000000000000.00` values in a `DECIMAL(38, 2)` column is `9000000000000000385.875968` from DuckDB and `9000000000000000000.000000` in Spice.
+
+DuckDB's decimal `SUM` is exact. The same pushdown applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)
