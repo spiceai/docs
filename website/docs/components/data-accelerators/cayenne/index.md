@@ -425,7 +425,7 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auto` (default)   | Resolves to `position` (merge-on-read) for most tables. For CDC datasets (`refresh_mode: changes`) that declare a `primary_key`, `auto` resolves to `key` instead, so deletes compact concurrently with the continuous writer. |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
-| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables that use `on_conflict: upsert` under continuous writes, because compaction can keep running while writes continue. |
+| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables under continuous writes, because compaction can keep running while writes continue. |
 
 ```yaml
 datasets:
@@ -436,14 +436,13 @@ datasets:
       engine: cayenne
       mode: file
       refresh_mode: append
+      refresh_append_overlap: 1h
       primary_key: event_id
-      on_conflict:
-        event_id: upsert
       params:
-        cayenne_deletion_mode: key # recommended for primary-key upsert tables
+        cayenne_deletion_mode: key # recommended for primary-key tables under continuous writes
 ```
 
-For a table with a `primary_key` and `on_conflict: upsert` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for a CDC dataset or a [cold-tier](#cold-object-store-tier) table (`cayenne_datalake_location`) that has a primary key, so the explicit setting matters for other tables, such as an `append` table without a cold tier.
+For a table with a `primary_key` that receives continuous writes, set `cayenne_deletion_mode: key` explicitly unless there is a tested reason not to. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`. Key-delete compaction runs concurrently with writers. `auto` already resolves to `key` for a CDC dataset or a [cold-tier](#cold-object-store-tier) table (`cayenne_datalake_location`) that has a primary key, so the explicit setting matters for other tables, such as an `append` table without a cold tier.
 
 Under `position` mode (the `auto` resolution for every table except a CDC dataset or a cold-tier table that has a primary key):
 
@@ -528,7 +527,7 @@ Each lookup an index serves, including a join lookup, is counted on `cayenne_loo
 
 ### Upsert Support
 
-When `on_conflict` is configured, Cayenne supports upsert semantics using sequence numbers (Iceberg-style ordering):
+A Cayenne table with a `primary_key` upserts on that key, with no `on_conflict` setting. Cayenne does not use `on_conflict` to resolve keys (see [`on_conflict` is deprecated](#on_conflict-is-deprecated)). Upserts use sequence numbers (Iceberg-style ordering):
 
 ```yaml
 datasets:
@@ -538,8 +537,6 @@ datasets:
       engine: cayenne
       mode: file
       primary_key: id
-      on_conflict:
-        id: upsert
 ```
 
 When a primary key is deleted and then re-inserted:
@@ -550,38 +547,78 @@ When a primary key is deleted and then re-inserted:
 
 ### Duplicate primary keys in one write
 
-With a `primary_key`, an append refresh checks keys as each batch of the write arrives. Duplicate keys inside one batch are collapsed. `on_conflict: upsert` keeps the last row, and `on_conflict: drop` keeps the first row and drops the later copies. `upsert_dedup` and `upsert_dedup_by_row_id` are also applied per batch. The same key in a later batch of that write is rejected, with or without `on_conflict`:
+A Cayenne table with a `primary_key` keeps one row per key. Because Cayenne is the [default engine](../index.md#default-engine), this also applies to an acceleration that sets no `engine` on Linux and macOS. When a write carries the same key more than once, or carries a key the table already stores, the dataset's configuration decides which version is kept:
+
+| Dataset                                                                | Version kept for a repeated key in a refresh                                                                      |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `refresh_mode: changes`                                                | Each source change is applied in order, so a later change of a key supersedes an earlier one.                     |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                 |
+
+Ordering by `time_column` applies to refreshes. A SQL `INSERT`, including one inside a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. An `UPDATE` does not replace another row: one that would give a row a key another row keeps fails and changes nothing, as described below. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
+
+Each write is resolved as a whole, not one record batch at a time, so a key repeated across record batches of one refresh is resolved like any other repeat. A refresh is one write, and so is each `INSERT` and each write statement inside a `BEGIN … COMMIT` transaction. Statements are resolved separately, not across the transaction.
+
+Arrival order is the order rows reach the table. It follows the source order when the source is read as one partition, and it is not defined when the source is read in parallel, so the version kept without a `time_column` can differ between refreshes. Set a `time_column` for a reproducible result. The rules are implemented in [`key_conflicts.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/key_conflicts.rs) (Cayenne) and [`latest_by_time.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task/latest_by_time.rs) (time ordering for a refresh).
+
+At load, each Cayenne dataset with a `primary_key` logs the rule it applies. For example:
 
 ```text
-Incoming data contains duplicate primary key across batches
+Dataset 'events' keeps one row per 'id': the newest by 'updated_at', or the version that arrived last when times are equal.
+Dataset 'events' keeps one row per 'id': the version that arrived last, which can differ between refreshes; set `time_column` for a reproducible result.
+Dataset 'orders' keeps one row per 'id', applying each source change in order.
 ```
 
-A key already stored in the acceleration is a separate case. `upsert` replaces the stored row, and `drop` drops the incoming row.
+A refresh that orders versions by `time_column` must read that column. When the rows a refresh reads do not include it, for example because a [`refresh_sql`](../../../features/data-acceleration/data-refresh.md#refresh-sql) leaves it out, the refresh fails instead of falling back to the version that arrived last, and the acceleration keeps its previous data. The refresh log line names the column:
 
-An append refresh hits the error when one poll's incoming rows contain two versions of a key in different batches. A cold load of a history or log does this, and so does a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that itself holds two source rows for the key. Append refresh drops a re-read that matches a stored row on every column before the write, so that re-read is not a second incoming copy. With `on_conflict: upsert`, a single changed version of a stored key replaces the stored row.
-
-[DuckDB](../duckdb/index.md) applies `on_conflict: upsert` across batches of one write. The [end-to-end incremental ingestion example](../../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses DuckDB.
-
-When the source is a log of versions, append without a `primary_key` and read the latest version from a view:
-
-```yaml
-views:
-  - name: events_latest
-    sql: |
-      SELECT *
-      FROM events
-      QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY event_time DESC) = 1
+```text
+'time_column' 'updated_at' is not in the rows the refresh reads, so versions of a key cannot be ordered. Include it in 'acceleration.refresh_sql'. See: https://spiceai.org/docs/features/data-acceleration/constraints
 ```
 
-See [`QUALIFY`](../../../reference/sql/select.md#qualify-clause) and [Views](../../../reference/spicepod/views.md). Each changed version is appended, and the view returns the row with the latest `event_time` for that key.
+An append refresh reads only rows newer than the latest stored time, so a late update to an older row is not loaded unless [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) re-reads it. A [day-granular `time_column`](../../../features/data-acceleration/refresh-modes/append.md#day-granular-time-columns) (`Date32` or `Date64`) is the exception: the refresh re-reads the whole latest stored day, so a late row on that day is loaded without an overlap, and a late row on an earlier day still needs one. Within that window, an append compares each row it reads with the version already stored, so a late row never replaces a newer stored version. A dataset that keeps the newest version by `time_column` with `refresh_mode: append` and no `refresh_append_overlap` logs a warning at load, including for a day-granular column:
+
+```text
+Dataset 'events' keeps the newest version of each key by 'updated_at', but without `refresh_append_overlap` an append never re-reads late rows, so a late update is not loaded. Set `refresh_append_overlap` to how late rows can arrive. See: https://spiceai.org/docs/features/data-acceleration/constraints
+```
+
+Rows a refresh or statement received but did not keep are counted in the [`dataset_acceleration_rows_superseded`](../../../features/observability/index.md#available-metrics) metric. The `reason` label is `older` when a version with a later `time_column` was kept, and `arrival` when a version that arrived later was kept. A row that an append re-reads from the overlap window unchanged writes nothing and is counted as `arrival`.
+
+An `UPDATE` that would give a row a key another row keeps fails and changes nothing, including in a partitioned acceleration. This covers a new key that matches a stored row the statement does not update, a key two updated rows would share, and a `NULL` key:
+
+```text
+Failed to update dataset 'events': the new 'id' of 1 row matches a key already stored, so nothing was changed.
+Failed to update dataset 'events': 2 rows would get the same new 'id', so nothing was changed.
+Failed to update dataset 'events': the new 'id' of 1 row is NULL, and a primary key cannot be NULL, so nothing was changed.
+```
+
+A partitioned acceleration (`partition_by`) stores each partition as its own table, so a write resolves repeated keys within each partition. When a partition column is not part of the `primary_key`, a key that lands in two partitions in one write is stored once in each. Include every partition column in the `primary_key` to avoid this.
+
+[`cayenne_pk_conflict_detection: none`](#parameters) turns off conflict detection, so repeated keys are not resolved. Use it only when the source guarantees primary-key uniqueness.
+
+#### `on_conflict` is deprecated
+
+`acceleration.on_conflict` is deprecated. Cayenne does not use it to resolve keys: the values `drop`, `upsert`, `upsert_dedup`, and `upsert_dedup_by_row_id` all behave as described above. A Cayenne dataset that sets `on_conflict` logs a warning at load, which names the change in the version kept when there is one:
+
+```text
+Dataset 'events' sets `acceleration.on_conflict`, which Cayenne no longer uses; `drop` kept the first version of a key, and now the newest by 'updated_at' is kept. Remove `on_conflict`. See: https://spiceai.org/docs/features/data-acceleration/constraints
+```
+
+The following behaviors differ from Spice v2.3 and earlier:
+
+- `on_conflict: drop` kept the first version of a key. Cayenne now keeps the newest or last-arriving version, and an `INSERT` of a stored key replaces the stored row instead of being ignored.
+- `on_conflict: upsert_dedup` failed a write whose rows repeated a key with different values. Cayenne now keeps one version.
+- An `UPDATE` that moved a row onto another row's key, or set a key to `NULL`, could remove a row. It now fails and changes nothing.
+- Setting `on_conflict` on a read-write dataset kept its writes in the acceleration when the source accepts only reads. Set [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode) instead.
+
+[PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams and [durable write-back](#transactions) still require an `on_conflict` upsert on the primary key and fail without one. Keep the entry on those datasets, even though the load warning says to remove it.
 
 ### Writes in memory mode
 
 A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
 
 - `DELETE` evaluates its predicate against the mem-tier and rebuilds it without the matching rows. An unfiltered `DELETE FROM <table>` purges the tier.
-- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, incoming rows are validated against it as the input streams in, and conflicts resolve through [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict): `upsert` supersedes the existing row, while a `primary_key` with no `on_conflict` configured drops the conflicting incoming row instead.
-- `UPDATE` combines the two, so both rules above apply.
+- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, the table keeps one row per key: an incoming row replaces a stored row with the same key, as described in [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
+- `UPDATE` combines the two, but it does not replace another row by key: an `UPDATE` that would give a row a key another row keeps fails and changes nothing.
 
 [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) applies to the tier the same way. Each write queues a retention pass, and the pass deletes the rows its predicate matches from the tier, as it does in `mode: file`.
 
@@ -891,7 +928,7 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 ## Transactions
 
-Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables and on Cayenne tables configured for durable write-back. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
+Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables (a read-write dataset with [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode), or a `sink` dataset) and on Cayenne tables configured for durable write-back. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
 
 ```sql
 BEGIN;
@@ -917,7 +954,7 @@ The [PostgreSQL connector](../../data-connectors/postgres/index.md) delivers eac
 
 > Failed to register dataset `<name>` (`<connector>`): durable write-back needs a source that can apply a delivered row in one atomic step, and the `<connector>` connector cannot yet.
 
-Remove `on_conflict` to keep writes on the accelerator, or choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). Atomic delivery for other connectors is planned.
+Choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). The full message also suggests removing `on_conflict` to keep writes on the accelerator, but `on_conflict` no longer decides where writes go, and durable write-back requires it. Atomic delivery for other connectors is planned.
 :::
 
 **Durable write-back requirements:**
@@ -953,7 +990,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML and [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) are not among the constraints — see [Writes in memory mode](#writes-in-memory-mode).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
+- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, and the `on_conflict` the warning mentions is not needed. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
 - **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. In `mode: memory`, it runs after writes, because that mode has no checkpoints.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
@@ -978,7 +1015,7 @@ runtime:
     cayenne_segment_cache_mb: 512
 
 datasets:
-  # Local file storage example with upsert
+  # Local file storage example with a primary key
   - from: s3://source-bucket/analytics/
     name: analytics_data
     params:
@@ -989,10 +1026,9 @@ datasets:
       enabled: true
       mode: file
       primary_key: id
-      on_conflict:
-        id: upsert
       refresh_mode: append
       refresh_check_interval: 1h
+      refresh_append_overlap: 1h
       params:
         cayenne_compression_strategy: btrblocks
         cayenne_target_file_size_mb: 64

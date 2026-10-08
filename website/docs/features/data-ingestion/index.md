@@ -13,7 +13,7 @@ tags:
 Data can be ingested into the Spice runtime using the following methods:
 
 1. **Acceleration Refresh Modes** – Pull data from a source connector into a local accelerator using one of the standard [refresh modes](../data-acceleration/refresh-modes/index.md) (`full`, `append`, `changes`, `snapshot`, `caching`). This is the most common ingestion path for keeping a local accelerator in sync with an upstream system.
-2. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL `INSERT` (and, where supported, `UPDATE`/`DELETE`) syntax.
+2. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL `INSERT` (and, where supported, `UPDATE`/`DELETE`) syntax, or to an acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) when the source accepts only reads.
 3. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
 
 Data ingestion is useful for scenarios such as keeping a local accelerator continuously in sync with an upstream database, collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
@@ -55,7 +55,7 @@ This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to in
 
 ## SQL Statements
 
-Spice supports writing data to **compatible data connectors** using standard SQL `INSERT INTO` syntax.
+Spice supports writing data to **compatible data connectors** using standard SQL `INSERT INTO` syntax. An accelerated dataset over a source that accepts only reads can keep its writes in the acceleration instead; see [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode).
 
 ### Write-Capable Connectors
 
@@ -211,7 +211,7 @@ SMART data will be available in the `smart_attribute_raw_value` dataset in Spice
 
 :::warning[Current Limitations]
 
-- Write Support: Only selected [write-capable connectors and catalogs](../tags/write) support write operations.
+- Write Support: Only selected [write-capable connectors and catalogs](../tags/write) accept writes at the source. An accelerated dataset over a source that accepts only reads can keep its writes in the acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode).
 - Only Spice.ai replication is supported for OpenTelemetry ingestion
 
 :::

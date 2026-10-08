@@ -299,6 +299,10 @@ views:
 
 ## `acceleration.on_conflict`
 
+:::warning Deprecated
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below.
+:::
+
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.

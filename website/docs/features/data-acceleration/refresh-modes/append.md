@@ -84,9 +84,26 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 ## Combining with Upserts
 
-Pair `refresh_mode: append` with a `primary_key` and `on_conflict: upsert` to handle source rows that are occasionally updated. See [End-to-End Incremental Ingestion Example](../data-refresh#end-to-end-incremental-ingestion-example).
+Pair `refresh_mode: append` with a `primary_key` to handle source rows that are occasionally updated. On [Spice Cayenne](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), the default engine on Linux and macOS (Windows defaults to Arrow), a `primary_key` alone keeps one row per key: with a `time_column` that is not part of the `primary_key`, the newest version by `time_column`, including when one poll holds several versions of a key. Set [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive so that a late update is re-read:
 
-On [Spice Cayenne](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), duplicate keys are collapsed inside one incoming batch. The same key in a later batch of that refresh is rejected. When one poll can contain two versions of a key — a cold load of a log, or a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that holds both — append without a `primary_key` and read the latest row from a view. DuckDB, which the example above uses, upserts across batches.
+```yaml
+datasets:
+  - from: s3://my-bucket/events/
+    name: events
+    time_column: updated_at
+    params:
+      file_format: parquet
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: append
+      refresh_check_interval: 10m
+      refresh_append_overlap: 1h
+      primary_key: id
+```
+
+Other accelerators do not order a key's versions by `time_column`; see [Handling conflicts](../constraints#handling-conflicts). The [End-to-End Incremental Ingestion Example](../data-refresh#end-to-end-incremental-ingestion-example) combines this with retention.
 
 ## Iceberg delete files
 

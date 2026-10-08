@@ -179,7 +179,7 @@ The description of the dataset. Used as part of the [Semantic Data Model](../../
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write), unless the dataset is accelerated with [`acceleration.write_mode: acceleration`](#accelerationwrite_mode), which keeps writes in the acceleration.
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -574,12 +574,51 @@ Optional. How to refresh the dataset. The following values are supported:
 
 ## `acceleration.write_mode`
 
-Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write` and the source connector supports writes.
+Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write`. `write_through` and `write_back` require a source connector that supports writes.
 
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
 - `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
+- `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row, but acceleration-only writes can cause it to skip source rows (see the warning below). Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
+
+A `read_write` dataset whose source connector only supports reads fails to load unless it sets `write_mode: acceleration`:
+
+```text
+Dataset 'orders' sets `access: read_write`, but its source connector only supports reads, so the dataset cannot load. Set `acceleration.write_mode: acceleration` to keep its writes in the acceleration, or set `access: read`. See: https://spiceai.org/docs/reference/spicepod/datasets#accelerationwrite_mode
+```
+
+A dataset that sets `write_mode: acceleration` and refreshes by `changes` also fails to load:
+
+```text
+Dataset 'orders' sets `acceleration.write_mode: acceleration` and refreshes by `changes` (set by `refresh_mode` or by its connector's default), but the source's changes would overwrite writes kept only in the acceleration, so the dataset cannot load. Use `write_mode: write_through` or `write_back` with a change stream, or another `refresh_mode`. See: https://spiceai.org/docs/reference/spicepod/datasets#accelerationwrite_mode
+```
+
+Both are configuration errors: the dataset fails to load once and is not retried. See [`select_accelerated_write_mode`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/datafusion/mod.rs) for how the write destination is chosen.
+
+:::warning Append refreshes and acceleration-only writes
+An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. For a [day-granular `time_column`](../../features/data-acceleration/refresh-modes/append.md#day-granular-time-columns) (`Date32` or `Date64`), the overlap is subtracted first and the result is rounded down to the start of its day, and the refresh reads from that day, inclusive. A positive overlap can therefore start the read on an earlier day. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than that latest value moves the refresh's starting point forward. Source rows that the acceleration has not loaded yet, and whose times are at or before the new starting point, are then not loaded by any later `append` refresh. On a day-granular column, the starting day itself is still read, so only rows on earlier days are skipped. This can happen even when the write's time is earlier than the source's newest row.
+
+To avoid this, give acceleration-only writes a `time_column` value no later than the latest value already stored in the acceleration, or set `refresh_append_overlap` to at least how far past that value a write's time can be.
+:::
+
+```yaml
+datasets:
+  - from: s3://my-bucket/orders/
+    name: orders
+    access: read_write
+    time_column: updated_at
+    params:
+      file_format: parquet
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: append
+      refresh_append_overlap: 1h
+      primary_key: id
+      write_mode: acceleration
+```
 
 ## `acceleration.refresh_check_interval`
 
@@ -908,6 +947,10 @@ datasets:
 
 ## `acceleration.on_conflict`
 
+:::warning Deprecated
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL and MySQL change streams on every engine except `arrow`, MongoDB change streams (which do not accept `arrow`), and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
+:::
+
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
@@ -923,7 +966,7 @@ The possible conflict resolution strategies are:
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
 
-On Spice Cayenne, an append refresh collapses a key repeated within one batch instead of failing, and rejects a key repeated across batches of one write. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
+On Spice Cayenne, these values do not change which version of a key is kept. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
