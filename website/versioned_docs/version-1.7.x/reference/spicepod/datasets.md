@@ -155,7 +155,7 @@ For an accelerated dataset, Spice checks `time_format` against the data type of 
 
 :::warning[Limitations]
 
-- String-based columns are assumed to be ISO8601 format.
+- String columns are parsed as ISO 8601. An accelerated dataset with a string `time_column` requires `time_format: iso8601`, because the default `timestamp` format does not match a string column.
 
 :::
 

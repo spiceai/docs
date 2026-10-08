@@ -236,7 +236,7 @@ To clear the warning, remove `time_format` for a timestamp without a timezone, o
 
 :::warning[Limitations]
 
-- String-based columns are assumed to be ISO8601 format.
+- String columns are parsed as ISO 8601. An accelerated dataset with a string `time_column` requires `time_format: iso8601`, because the default `timestamp` format does not match a string column.
 
 :::
 
