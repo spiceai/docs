@@ -149,7 +149,7 @@ Controls what happens when Spice cannot load the most recent snapshot on startup
 
 ### `snapshots.params`
 
-Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`. Azure ADLS and GCS locations also accept their respective connector parameters for explicit credential overrides; when no overrides are supplied, Spice reads standard environment variables for each cloud provider.
+Optional key-value map passed to the snapshot storage layer. When `location` points to S3, the configuration accepts any of the [S3 dataset parameters](../components/data-connectors/s3). Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set, or the snapshot location is not used and Spice logs an error. Azure ADLS and GCS locations also accept their respective connector parameters for explicit credential overrides; when no overrides are supplied, Spice reads standard environment variables for each cloud provider.
 
 ## `models`
 

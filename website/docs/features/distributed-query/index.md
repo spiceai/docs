@@ -723,8 +723,8 @@ The `runtime.scheduler.params` section supports the following S3 parameters:
 | `s3_region`        | AWS region for the S3 bucket                          | -          |
 | `s3_endpoint`      | Custom S3-compatible endpoint URL                     | -          |
 | `s3_auth`          | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `s3_key`           | AWS access key ID (when `s3_auth: key`)               | -          |
-| `s3_secret`        | AWS secret access key (when `s3_auth: key`)           | -          |
+| `s3_key`           | AWS access key ID (required when `s3_auth: key`)      | -          |
+| `s3_secret`        | AWS secret access key (required when `s3_auth: key`)  | -          |
 | `s3_session_token` | AWS session token for temporary credentials           | -          |
 | `client_timeout`   | S3 client timeout                                     | -          |
 | `allow_http`       | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
@@ -741,6 +741,10 @@ runtime:
       s3_key: ${secrets:aws_access_key}
       s3_secret: ${secrets:aws_secret_key}
 ```
+
+With `s3_auth: key` and either key missing, the scheduler state store fails to initialize with an error instead of using credentials from the environment. To use environment credentials, set `s3_auth: iam_role` or omit `s3_auth`.
+
+A `gs://` state location takes the [GCS data connector](../../components/data-connectors/gcs.md#authentication-parameters) parameters (`gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, or `gcs_skip_signature`) instead. See [State location parameters](../../reference/spicepod/runtime.md#state-location-parameters).
 
 ### Starting an HA Cluster
 
