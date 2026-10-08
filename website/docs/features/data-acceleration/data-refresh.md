@@ -254,7 +254,7 @@ A dataset is served from its existing acceleration this way when its configurati
 
 A snapshot reader whose first [acceleration snapshot](./snapshots) download is still pending at startup is also not served this way.
 
-Connectors that reach their source only when the dataset is first read, such as [HTTP(S)](../../components/data-connectors/https) and [S3](../../components/data-connectors/s3), already fell back to the existing acceleration when that first read failed, and they keep doing so, except on the first restart after upgrading (see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions)).
+Connectors that reach their source only when the dataset is first read, such as [HTTP(S)](../../components/data-connectors/https) and [S3](../../components/data-connectors/s3), already fell back to the existing acceleration when that first read failed, and they keep doing so, except while the checkpoint was written by an earlier version (see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions)).
 
 #### Readiness and Dataset Status While the Source Is Unavailable
 
@@ -266,9 +266,9 @@ Query availability and source health are reported separately: a dataset can serv
 | `on_registration`     | Served from the existing acceleration   | `200` once registered             | `Ready` at registration, `Error` after a failed connection attempt, `Ready` once reconnected    |
 | `on_schema_resolved`  | Served from the existing acceleration   | `503` until the source is reached | `Initializing` at registration, `Error` after a failed connection attempt, `Ready` once reached |
 
-`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. A dataset with `refresh_mode: append`, a `time_column`, and snapshot bootstrapping enabled does not follow this table: it is not marked ready until its first refresh completes, which requires the source.
+`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. Two kinds of dataset do not follow this table, because the existing acceleration is not treated as loaded until a refresh completes in this process: a dataset with `refresh_mode: append`, a `time_column`, and snapshot bootstrapping enabled, and a dataset that reads acceleration snapshots (`file_format: snapshot`) before it restores one. Until that refresh completes, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
 
-[`refresh_on_startup`](#refresh-on-startup) keeps its meaning. With `auto`, the persisted data is served and the next refresh follows the refresh schedule. With `always`, the persisted data is served until the source is reached and the startup refresh replaces it.
+[`refresh_on_startup`](#refresh-on-startup) keeps its meaning for `refresh_mode: full`. With `auto`, the persisted data is served and the next refresh follows the refresh schedule. With `always`, the persisted data is served until the source is reached and the startup refresh replaces it. The other eligible refresh modes ignore `refresh_on_startup`: `append` refreshes at startup once the source is reached, adding new data to the persisted data instead of replacing it, `snapshot` checks for a newer snapshot at startup, and `disabled` does not refresh.
 
 #### Logs and Error Messages
 
@@ -284,7 +284,7 @@ In these messages, `orders` is the dataset name and `<cause>` is the connector's
 ERROR Dataset 'orders' cannot connect to its source because of its configuration, so it is served from its existing acceleration and will not refresh until the configuration is fixed. <cause>
 ```
 
-When a dataset with data on disk does not meet the conditions above, it waits for its source. Spice logs the configuration that requires it when the first load attempt fails, and the dataset's `error_message` starts with `Not served`:
+When a dataset with data on disk waits for its source because of its configuration (the `access`, `refresh_mode`, search column, Drasi, `file` connector, `mode`, or `on_schema_change` conditions above), Spice logs the configuration that requires it when the first load attempt fails, and the dataset's `error_message` starts with `Not served`. The log message is not emitted for a snapshot reader whose first snapshot download is pending:
 
 ```text
 INFO Dataset 'orders' waits for its source before serving because it uses `refresh_mode: changes`. See: https://spiceai.org/docs/features/data-acceleration/data-refresh
@@ -293,6 +293,8 @@ INFO Dataset 'orders' waits for its source before serving because it uses `refre
 ```text
 Not served: waits for its source because it uses `refresh_mode: changes`. Cause: <cause>
 ```
+
+A dataset that waits only because its checkpoint was written by an earlier version produces neither message. Its `error_message` is the connector's error, and the checkpoint is reported only in a `DEBUG` log: `The acceleration checkpoint for dataset orders does not record its primary key (written by an earlier version), so it waits for its source before serving.`
 
 #### Monitoring Freshness
 
@@ -317,7 +319,7 @@ For example, with other fields omitted:
 
 #### Upgrading from Earlier Versions
 
-Acceleration checkpoints written by Spice v2.3 and earlier do not record the acceleration's primary key. On the first restart after upgrading, a dataset with such a checkpoint waits for its source once, including a dataset whose connector previously fell back to its acceleration when the first read failed. The next successful refresh records the key, and later restarts serve the existing acceleration without waiting.
+Acceleration checkpoints written by Spice v2.3 and earlier do not record the acceleration's primary key. A dataset with such a checkpoint waits for its source at startup, including a dataset whose connector previously fell back to its acceleration when the first read failed. This continues on every restart until the checkpoint is rewritten with the primary key, which a completed refresh does. Reconnecting to the source does not rewrite it. A `refresh_mode: full` dataset with `refresh_on_startup: auto`, no `refresh_check_interval` or `refresh_cron`, and unchanged `refresh_sql` does not refresh at startup, so its checkpoint stays in the old format. To migrate such a dataset, run a refresh while the source is available, for example with [Refresh On-Demand](#refresh-on-demand), or start it once with `refresh_on_startup: always`. After a refresh completes, later restarts serve the existing acceleration without waiting.
 
 `ready_state: on_schema_resolved` now keeps `/v1/ready` at `503` until the source is reached, including for connectors that reach their source on first read. In Spice v2.3 and earlier, a dataset whose connector reaches its source on first read, such as HTTP, reported `Ready` and `/v1/ready` returned `200` once it fell back to its acceleration, even though the source was unavailable. A deployment that uses `/v1/ready` to admit traffic keeps that instance out of rotation until the source is reached. Use `ready_state: on_load` or `on_registration` when readiness should depend on the existing acceleration rather than the source.
 
