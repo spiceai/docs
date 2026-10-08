@@ -90,7 +90,7 @@ snapshots:
 
 `location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
 
-When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
+When the location is an S3 bucket, the configuration accepts any [S3 dataset parameters](../../components/data-connectors/s3) under `params`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider.
 
 ### Snapshot location and the Cayenne data tier
 
