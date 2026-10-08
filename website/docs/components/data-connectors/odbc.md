@@ -148,6 +148,16 @@ datasets:
       odbc_connection_string: Driver={Foo Driver};Host=db.foo.net;Param=Value
 ```
 
+### SQLite Date, Time, and Interval Values
+
+SQLite has no date, time, or interval types. When a connection uses the SQLite dialect, either because the `Driver=` value contains `sqlite` or because `sql_dialect` is `sqlite`, Spice keeps the following expressions out of the SQL sent to the driver and evaluates them over the rows the driver returns:
+
+- Date, time, timestamp, duration, and interval literals, such as `TIMESTAMP '2026-01-30 23:00:00'`, `DATE '2026-01-31'`, and `INTERVAL '1 hour'`.
+- A `CAST` into a date, time, timestamp, duration, or interval type.
+- `TRY_CAST`, and each `CAST` the SQLite accelerator also evaluates in Spice. See [Casts and Federation](../data-accelerators/sqlite#casts-and-federation). Unlike the accelerator, ODBC also keeps `DATE '1994-01-01'` in Spice.
+
+This applies to federated queries and to the filters the table scan pushes down. A filter that involves none of these expressions, such as `id >= 2`, still pushes down. Setting `sql_dialect` to a value other than `sqlite` for a SQLite database applies that dialect's handling instead.
+
 ## Building Spice with ODBC
 
 ODBC support is built into [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise/getting-started/distributions) distributions. It is not included in the open source released binaries or in the published `spiceai/spiceai` Docker images — to use ODBC with the open source build, [checkout and compile the code](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING#building) with the `--features odbc` flag (`cargo build --release --features odbc`).

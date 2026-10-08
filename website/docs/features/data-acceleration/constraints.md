@@ -9,7 +9,7 @@ Constraints enforce data integrity in a database. Spice supports constraints on 
 
 Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
-If multiple rows in the incoming data violate any constraint, the entire incoming batch of data will be dropped.
+Spice Cayenne keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne). On other accelerators, what happens to a violating row depends on the engine and the `on_conflict` setting, as described in [Handling conflicts](#handling-conflicts).
 
 Example Spicepod:
 
@@ -56,9 +56,39 @@ Primary key column 'region' has null values. Every primary key column must be no
 
 Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
 
+## One row per primary key on Spice Cayenne
+
+On the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) accelerator, a `primary_key` alone decides which version of a key is kept, with nothing else to configure. Cayenne is the [default engine](../../components/data-accelerators/index.md#default-engine) on Linux and macOS, so this also applies to an acceleration that sets no `engine` there. A refresh keeps:
+
+| Dataset                                                                   | Version kept for a repeated key                                                                                   |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `refresh_mode: changes`                                                   | Each source change, applied in order.                                                                             |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                    |
+
+The rule applies to a key repeated within one write and to a key the table already stores. A SQL `INSERT` keeps the version that arrived last. Arrival order is not defined when a source is read in parallel, so set a [`time_column`](../../reference/spicepod/datasets.md#time_column) for a reproducible result. With `refresh_mode: append`, set [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive, so that a late update to an older row is re-read. Each Cayenne dataset with a `primary_key` logs its rule at load, for example:
+
+```text
+Dataset 'events' keeps one row per 'id': the newest by 'updated_at', or the version that arrived last when times are equal.
+```
+
+A refresh that orders versions by `time_column` fails when the rows it reads do not include that column. An `UPDATE` that would give a row a key another row keeps, or a `NULL` key, fails and changes nothing. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) for the full rules, the messages Cayenne logs, and the `dataset_acceleration_rows_superseded` metric.
+
+Two configurations do not keep one row per key. [`cayenne_pk_conflict_detection: none`](../../components/data-accelerators/cayenne/index.md#parameters) turns off key resolution, so repeated keys are stored as written. A partitioned acceleration (`partition_by`) resolves keys within each partition, so a key that lands in two partitions is stored once in each unless every partition column is part of the `primary_key`.
+
 ## Handling conflicts
 
-The behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
+:::warning Deprecated
+`acceleration.on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys: it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne), with the exceptions listed there, and logs a warning at load that names any change in which version is kept. Other accelerators keep the behavior described in this section and log a warning at load:
+
+```text
+Dataset 'orders' sets `acceleration.on_conflict`, which is deprecated and removed in 3.0. Use `engine: cayenne` to keep one row per primary key without it.
+```
+
+Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow, and Cayenne [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions). Change streams on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
+:::
+
+On accelerators other than Spice Cayenne, the behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
 
 :::warning
 A key can repeat within the incoming data itself, not only against a stored row.
@@ -67,7 +97,7 @@ A key can repeat within the incoming data itself, not only against a stored row.
 
 **`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
 
-**Spice Cayenne** applies its own rule on an append refresh: a key repeated within one record batch is collapsed instead of failing the write (`upsert` keeps the last copy, `drop` the first), and the same key in a later batch of that write fails it. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
+**Spice Cayenne** does not use `on_conflict` to resolve keys and keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
 :::
 
 Example Spicepod:
@@ -90,7 +120,7 @@ datasets:
 
 ### Advanced Upsert Options
 
-By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL does not allow the same row to be proposed for insertion more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne is the exception: an append refresh collapses a key repeated within one batch, so plain `upsert` keeps the last copy there instead of failing.
+By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL rejects an `INSERT` that proposes the same row more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne does not use these options; it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
 
 Spice provides two `upsert` options to resolve duplicates within a single update:
 
