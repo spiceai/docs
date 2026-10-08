@@ -8,7 +8,7 @@ sidebar_position: 30
 Data Manipulation Language (DML) statements are used to insert, update, and delete data in tables. Spice supports DML operations on [write-capable data connectors](../../tags/write) configured with `access: read_write`. An accelerated dataset over a source that accepts only reads can also take DML with [`acceleration.write_mode: acceleration`](../spicepod/datasets.md#accelerationwrite_mode), which keeps the writes in the acceleration.
 
 :::warning[Supported Operations]
-Spice supports `INSERT` for write-capable connectors and `MERGE INTO` for [Spice Cayenne](../../components/data-accelerators/cayenne) catalog tables. A dataset with `write_mode: acceleration` takes the statements its accelerator engine supports; on Spice Cayenne, that includes `UPDATE` and `DELETE`. `UPDATE` and `DELETE` statements are not yet supported as standalone operations. For data modifications, use `MERGE INTO` or the source database directly.
+Spice supports `INSERT` for write-capable connectors and `MERGE INTO` for [Spice Cayenne](../../components/data-accelerators/cayenne) catalog tables. Whether a dataset takes standalone `UPDATE` and `DELETE` depends on its connector or accelerator; each component's page lists the statements it supports. A dataset with `write_mode: acceleration` takes the statements its accelerator engine supports; on Spice Cayenne, that includes `UPDATE` and `DELETE`.
 :::
 
 :::info
