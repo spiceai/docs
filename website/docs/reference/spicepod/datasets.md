@@ -597,9 +597,9 @@ Dataset 'orders' sets `acceleration.write_mode: acceleration` and refreshes by `
 Both are configuration errors: the dataset fails to load once and is not retried. See [`select_accelerated_write_mode`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/datafusion/mod.rs) for how the write destination is chosen.
 
 :::warning Append refreshes and acceleration-only writes
-An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than the source's newest row moves that point forward. Source rows with times between the two that fall outside the overlap window are then not loaded by any later `append` refresh.
+An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than that latest value moves the refresh's starting point forward. Source rows that the acceleration has not loaded yet, and whose times are at or before the new starting point, are then not loaded by any later `append` refresh. This can happen even when the write's time is earlier than the source's newest row.
 
-To avoid this, give acceleration-only writes a `time_column` value no later than the source's newest data, or set `refresh_append_overlap` to cover the largest gap between them.
+To avoid this, give acceleration-only writes a `time_column` value no later than the latest value already stored in the acceleration, or set `refresh_append_overlap` to at least how far past that value a write's time can be.
 :::
 
 ```yaml
@@ -948,7 +948,7 @@ datasets:
 ## `acceleration.on_conflict`
 
 :::warning Deprecated
-`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL and MySQL change streams on every engine except `arrow`, MongoDB change streams (which do not accept `arrow`), and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
 :::
 
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
