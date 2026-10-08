@@ -42,12 +42,12 @@ Choose the appropriate [Data Accelerator](../components/data-accelerators) based
 
 | Scenario                                 | Recommended Accelerator    | Key Configuration                                                     |
 | ---------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
-| Small datasets (under 1 GB), low latency | `arrow`                    | Default in-memory                                                     |
+| Small datasets (under 1 GB), low latency | `arrow`                    | Set `engine: arrow`; in-memory                                        |
 | Small datasets (1-10 GB), complex SQL    | `duckdb` with `mode: file` | Set `duckdb_memory_limit`; place `duckdb_file` on local NVMe/SSD      |
 | Datasets 10 GB and above (up to 1+ TB)   | `cayenne`                  | Place data files on local NVMe/SSD; tune cache parameters; needs 1/3 to 1/2 the memory of `duckdb` |
 | Write-heavy workloads                    | `cayenne` with `zstd`      | Set `cayenne_compression_strategy: zstd`                              |
 | Point lookups, large datasets            | `cayenne`                  | Vortex provides [100x faster random access](https://bench.vortex.dev) |
-| Point lookups, small-medium datasets     | `arrow` with hash index    | Set a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
+| Point lookups, small-medium datasets     | `arrow` with hash index    | Set `engine: arrow` and a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
 | Point lookups with explicit indexes      | `duckdb` or `sqlite`       | Configure indexes                                                     |
 
 Every file-mode engine — Cayenne, DuckDB, SQLite, and Turso — is only as fast as the storage its files sit on. Decide where those files and the query spill directory live before tuning anything else; see [Storage](#storage).

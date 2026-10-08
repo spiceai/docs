@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -446,7 +446,7 @@ Dataset 'my_dataset' sets `acceleration.enabled: false`, so these settings in it
 
 ## `acceleration.engine`
 
-The acceleration engine to use, defaults to `arrow`. The following engines are supported:
+Optional. The acceleration engine to use. Defaults to `cayenne`, or to `arrow` on Windows, where Cayenne is not available. Spice v2.3 and earlier default to `arrow`. See [Default Engine](../../components/data-accelerators/index.md#default-engine). The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
@@ -965,7 +965,7 @@ datasets:
 
 ## `acceleration.partition_by`
 
-Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty).
+Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty). Spice Cayenne supports partitioning in a file mode, such as `mode: file`, and Arrow in `mode: memory`. See [Partitioning](../../features/data-acceleration/partitioning).
 
 ```yaml
 datasets:
@@ -973,6 +973,8 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
+      engine: cayenne
+      mode: file
       partition_by: block_date
 ```
 
