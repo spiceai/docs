@@ -32,6 +32,7 @@ Some configurations load on Arrow but not on Cayenne. With no `engine`, each of 
 - [`partition_by`](../features/data-acceleration/partitioning) in `mode: memory`, the default mode. Cayenne partitions only in a file mode, such as `mode: file`.
 - A column of a type that Cayenne does not store, such as `Interval` or `Duration`. Set [`unsupported_type_action`](./cayenne/index.md#unsupported-types) to convert or skip it.
 - A [Debezium](../data-connectors/debezium.md) source without Kafka message keys, or a [Debezium push ingest](../../features/cdc/debezium-ingest.md) dataset without `primary_key`.
+- [PostgreSQL](../../features/cdc/postgres-replication.md) or [MySQL](../../features/cdc/mysql-replication.md) replication (`refresh_mode: changes`) that sets `primary_key` without an `on_conflict` upsert on it. Add `on_conflict: { <primary key>: upsert }`.
 - [`retention_period`](../features/data-acceleration/data-refresh#time-based-retention) on a numeric `time_column`. Cayenne retention needs a `Timestamp`, `Date`, or ISO 8601 string column.
 - [`maintained_aggregates`](./cayenne/index.md#maintained-aggregates) with `MIN` or `MAX` and no primary key.
 

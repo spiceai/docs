@@ -418,7 +418,7 @@ Choose between in-memory and file-based caching based on your requirements:
 | **Capacity**    | Limited by available memory       | Limited by disk space         |
 | **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
 | **Best for**    | Small, frequently changing caches | Large, stable caches          |
-| **Engines**     | `cayenne` (default), `arrow`      | `duckdb`, `sqlite`, `cayenne` |
+| **Engines**     | `cayenne` (default), `arrow` (default on Windows) | `duckdb`, `sqlite`, `cayenne` |
 
 ### Combining SWR and Persistence
 

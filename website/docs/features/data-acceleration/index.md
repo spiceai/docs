@@ -26,7 +26,7 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 ## Considerations
 
-**Storage Capacity**: Accelerated datasets consume local storage. In-memory accelerations (Arrow, or `mode: memory`, the default mode) require sufficient RAM; file-based accelerations (`mode: file` on DuckDB, SQLite, or Cayenne) require sufficient disk space. As a guideline, allocate at least 1.5x the source dataset size to account for indexing and temporary refresh overhead. Check current usage by querying `runtime.metrics`.
+**Storage Capacity**: Accelerated datasets consume local storage. In-memory accelerations (Arrow, or `mode: memory`, the default mode) require sufficient RAM; file-based accelerations (`mode: file` on DuckDB, SQLite, Turso, or Cayenne) require sufficient disk space. As a guideline, allocate at least 1.5x the source dataset size to account for indexing and temporary refresh overhead. Check current usage by querying `runtime.metrics`.
 
 **Data Security**: Accelerating a dataset copies data from the source to the local runtime. Assess whether the data sensitivity is appropriate for the deployment environment. Secure network connections between the runtime and data source using TLS (`pg_sslmode: verify-full` for PostgreSQL, `s3_auth: iam_role` for S3). Encrypt data at rest when using file-based accelerators in production.
 
@@ -44,7 +44,7 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 | `duckdb`   | Complex analytical queries under 10 GB, file-based persistence | `memory`, `file`, `file_create`, or `file_update` |
 | `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, `file_create`, or `file_update` |
 | `postgres` | When a full SQL database is needed as accelerator  | External                                          |
-| `cayenne`  | Default engine; datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |
+| `cayenne`  | Default engine (except on Windows); datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |
 | `turso`    | Embedded libSQL, lightweight file-based caching    | `memory`, `file`, `file_create`, or `file_update` |
 
 ## Example
