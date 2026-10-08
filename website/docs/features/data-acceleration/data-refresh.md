@@ -623,6 +623,7 @@ datasets:
     time_column: updated_at
     acceleration:
       enabled: true
+      engine: cayenne
       refresh_mode: append
       refresh_append_overlap: 10m
       primary_key: user_id
