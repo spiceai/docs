@@ -322,12 +322,12 @@ A sort order applies within each partition, so the two combine. Benchmark a time
 
 For an Iceberg table that records inserts and soft deletes as an append-only log:
 
-1. Accelerate the log **once** with `refresh_mode: append`, a `time_column`, and `primary_key` + `on_conflict: upsert`. See [End-to-End Incremental Ingestion](../../features/data-acceleration/data-refresh#end-to-end-incremental-ingestion-example).
+1. Accelerate the log **once** with `refresh_mode: append`, a `time_column`, and a `primary_key`. See [End-to-End Incremental Ingestion](../../features/data-acceleration/data-refresh#end-to-end-incremental-ingestion-example).
 2. Optionally accelerate a Spice view that applies the soft-delete filter (`WHERE deleted = false` or `WHERE deleted_at IS NULL`) so "current state" is a first-class dataset. The view's store sits on top of the log — roughly twice the disk if it keeps a full filtered copy — and does **not** compact history by itself. Bound disk with [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) / [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) on the **log** acceleration.
 
-The [end-to-end example](../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses DuckDB, which upserts the same key across batches of one refresh. On [Spice Cayenne](../data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), that write is rejected when one refresh contains two versions of a key in different batches. Append the log without a `primary_key` and read the latest row from a view.
+The [end-to-end example](../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses [Spice Cayenne](../data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), which keeps the newest version of each key by `time_column`, including when one refresh contains several versions of a key.
 
-That log keeps every version, so the view must take the latest row for each key first and apply the soft-delete filter second. Filtering first removes the delete event, and the key's previous live version comes back as current:
+A log appended without a `primary_key` keeps every version, so the view must take the latest row for each key first and apply the soft-delete filter second. Filtering first removes the delete event, and the key's previous live version comes back as current:
 
 ```sql
 SELECT *

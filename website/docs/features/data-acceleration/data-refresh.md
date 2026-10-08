@@ -624,9 +624,8 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: append
+      refresh_append_overlap: 10m
       primary_key: user_id
-      on_conflict:
-        user_id: upsert
       retention_check_enabled: true
       retention_check_interval: 5m
       retention_sql: DELETE FROM user_events WHERE status = 'archived'
@@ -645,7 +644,7 @@ The following example combines the pieces above into a single configuration for 
 - `refresh_mode: append` with a `time_column` for incremental queries
 - `refresh_check_interval` to poll for new/changed rows
 - `refresh_append_overlap` to tolerate clock skew and late-arriving rows without missing data
-- `primary_key` + `on_conflict: upsert` so rows updated in the source overwrite the accelerated copy instead of duplicating
+- `primary_key` so a row updated in the source replaces the accelerated copy instead of duplicating it. [Spice Cayenne](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) keeps the newest version of each key by `time_column`
 - `retention_period` to bound the working set by time
 - `retention_sql` to evict soft-deleted rows (`deleted_at IS NOT NULL`)
 
@@ -656,20 +655,19 @@ datasets:
     time_column: updated_at
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
+      mode: file
       refresh_mode: append
       refresh_check_interval: 1m
       refresh_append_overlap: 5m
       primary_key: id
-      on_conflict:
-        id: upsert
       retention_check_enabled: true
       retention_check_interval: 10m
       retention_period: 90d
       retention_sql: DELETE FROM orders WHERE deleted_at IS NOT NULL
 ```
 
-With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
+With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m` and keeps the newest version of each `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
 
 For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
 
