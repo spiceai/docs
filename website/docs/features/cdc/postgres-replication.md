@@ -121,7 +121,7 @@ datasets:
       refresh_mode: changes    # <-- triggers WAL streaming
       primary_key: id
       on_conflict:
-        id: upsert             # required for UPDATE to become an upsert
+        id: upsert             # required for UPDATE to become an upsert, except on cayenne
 ```
 
 Start the runtime. Spice will:
@@ -207,7 +207,7 @@ When the connection is configured with [`pg_connection_string`](#connecting-with
 | `duckdb`   |    ✅    | ✅ (upsert)                  |    ✅    | Recommended for most workloads.                                                                                                                                                                        |
 | `sqlite`   |    ✅    | ✅ (upsert)                  |    ✅    | Great for small/medium datasets.                                                                                                                                                                       |
 | `postgres` |    ✅    | ✅ (upsert)                  |    ✅    | Use when the accelerator is another Postgres.                                                                                                                                                          |
-| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics.                                                                                                                                                |
+| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics. Keeps one row per `primary_key` without `on_conflict`.                                                                                        |
 | `arrow`    |    ✅    | ✅ (upsert with primary key) |    ✅    | Arrow's in-memory engine uses a hash index for primary-key upserts. Without a primary key, `UPDATE`s are appended as new rows. `DELETE` and `TRUNCATE` are applied via Arrow's `DeletionTableProvider`. |
 
 For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. DuckDB, SQLite, PostgreSQL, and Cayenne also support upsert behavior.

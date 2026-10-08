@@ -329,7 +329,7 @@ Schema evolution and retention invalidate cached views in both modes, so neither
 
 ### CDC Requirements
 
-- **A primary key is required.** In `changes` mode Cayenne always applies an inferred or declared primary key and routes source updates through an upsert. Declare `primary_key` on the dataset (and, where the connector requires it, `on_conflict: upsert`); the per-connector CDC pages document the exact requirement.
+- **A primary key is required.** In `changes` mode Cayenne always applies an inferred or declared primary key and routes source updates through an upsert. Declare `primary_key` on the dataset; change streams on Cayenne do not need `on_conflict`. The per-connector CDC pages document each connector's key requirement.
 - **File or memory mode.** Durable resume across restarts requires `mode: file`. `mode: memory` is supported for ephemeral, in-RAM CDC where the accelerator is rebuilt from the source on restart.
 
 ## Maintained Aggregates
@@ -610,7 +610,7 @@ The following behaviors differ from Spice v2.3 and earlier:
 - An `UPDATE` that moved a row onto another row's key, or set a key to `NULL`, could remove a row. It now fails and changes nothing.
 - Setting `on_conflict` on a read-write dataset kept its writes in the acceleration when the source accepts only reads. Set [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode) instead.
 
-[PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams and [durable write-back](#transactions) still require an `on_conflict` upsert on the primary key and fail without one. Keep the entry on those datasets, even though the load warning says to remove it.
+[Durable write-back](#transactions) still requires an `on_conflict` upsert on the primary key and fails without one. Keep the entry on those datasets, even though the load warning says to remove it. [PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams need only `primary_key`.
 
 ### Writes in memory mode
 

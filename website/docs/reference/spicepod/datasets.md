@@ -948,7 +948,7 @@ datasets:
 ## `acceleration.on_conflict`
 
 :::warning Deprecated
-`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL and MySQL change streams on every engine except `arrow`, MongoDB change streams (which do not accept `arrow`), and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on DuckDB, SQLite, PostgreSQL, and Turso, and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
 :::
 
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
