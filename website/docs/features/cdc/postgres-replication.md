@@ -121,7 +121,7 @@ datasets:
       refresh_mode: changes    # <-- triggers WAL streaming
       primary_key: id
       on_conflict:
-        id: upsert             # required for UPDATE to become an upsert, except on cayenne
+        id: upsert             # required for UPDATE to become an upsert, except on cayenne and arrow
 ```
 
 Start the runtime. Spice will:
