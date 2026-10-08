@@ -36,7 +36,7 @@ To account for clock skew or late-arriving rows, configure an overlap window wit
 
 ## Day-Granular Time Columns
 
-A date-typed `time_column` (Arrow `Date32`, configured as [`time_format: date`](../../../reference/spicepod/datasets#time_format)) carries no time of day, so every row of a given day shares one value. A strictly-greater comparison against the accelerated maximum would exclude every row that arrives later for the day already loaded, on that refresh and on every one after it.
+A date-typed `time_column` (Arrow `Date32` or `Date64`, configured as [`time_format: date`](../../../reference/spicepod/datasets#time_format)) carries no time of day, so every row of a given day shares one value. A strictly-greater comparison against the accelerated maximum would exclude every row that arrives later for the day already loaded, on that refresh and on every one after it.
 
 For a day-granular time column the comparison is therefore **inclusive**, against the start of the high-water mark's day, and Spice's exact-row de-duplication drops the already-loaded rows that come back so nothing is appended twice. A `time_partition_column` of the same type is floored to that same day boundary, so the partition predicate does not exclude the day the new rows are in.
 

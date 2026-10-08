@@ -210,11 +210,33 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
-Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
+For an accelerated dataset, Spice checks `time_format` against the data type of the `time_column` when the dataset loads. Each `time_format` value matches these Arrow data types:
+
+| `time_format`                               | Matching `time_column` data types                   |
+| ------------------------------------------- | --------------------------------------------------- |
+| `timestamp` (default)                       | `Timestamp` without a timezone                      |
+| `timestamptz`                               | `Timestamp` with a timezone                         |
+| `unix_seconds`, `unix_millis`, `unix_nanos` | Integer and floating-point types                    |
+| `iso8601`                                   | String types (`Utf8`, `LargeUtf8`, `Utf8View`)      |
+| `date`                                      | `Date32`, `Date64`                                  |
+
+Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
+
+```text
+`time_column` 'ts' in dataset 'events' has data type 'Timestamp(s)', but `time_format` is configured as 'unix_seconds'. Set `time_format` to `timestamp`, or remove `time_format` if the column is already a timestamp. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format
+```
+
+`iso8601` on a column that is already a native timestamp (any unit, with or without a timezone) or date is the one exception. Spice ignores `time_format`, logs a warning when the dataset loads, and builds refresh and retention filters from the column's native type. This happens, for example, when the [File](../../components/data-connectors/file/index.md) connector infers ISO 8601 strings in a CSV file as timestamps. The warning names the setting to change:
+
+```text
+Dataset 'events' ignores `time_format: iso8601` on `time_column` 'ts' because the column is already a timestamp (Timestamp(s)). Remove `time_format` from the dataset configuration. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format
+```
+
+To clear the warning, remove `time_format` for a timestamp without a timezone, or set it to `timestamptz` for a timestamp with a timezone or `date` for a date column. Spice v2.3.x and earlier reject `iso8601` on these columns with the mismatch error instead. The checks are implemented in [`validate_time_format_for_column`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh.rs#L628-L669).
 
 :::warning[Limitations]
 
-- String-based columns are assumed to be ISO8601 format.
+- String columns are parsed as ISO 8601. An accelerated dataset with a string `time_column` requires `time_format: iso8601`, because the default `timestamp` format does not match a string column.
 
 :::
 
@@ -224,7 +246,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## `time_partition_format`
 
-(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
+(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options and data type checks as [`time_format`](#time_format) apply to `time_partition_column`, including the `iso8601` exception. Spice checks `time_partition_column` only when `time_column` is also set.
 
 ## Schema Inference and Evolution
 
