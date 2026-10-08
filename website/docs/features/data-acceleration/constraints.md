@@ -9,7 +9,7 @@ Constraints enforce data integrity in a database. Spice supports constraints on 
 
 Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
 
-On accelerators other than Spice Cayenne, if multiple rows in the incoming data violate any constraint, the entire incoming batch of data will be dropped. Spice Cayenne keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne) instead.
+Spice Cayenne keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne). On other accelerators, what happens to a violating row depends on the engine and the `on_conflict` setting, as described in [Handling conflicts](#handling-conflicts).
 
 Example Spicepod:
 

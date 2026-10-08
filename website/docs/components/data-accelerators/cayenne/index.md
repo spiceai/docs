@@ -557,7 +557,7 @@ A Cayenne table with a `primary_key` keeps one row per key. Because Cayenne is t
 
 Ordering by `time_column` applies to refreshes. A SQL `INSERT`, and each statement of a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
 
-Each write is resolved as a whole, not one record batch at a time, so a key repeated across record batches of one refresh is resolved like any other repeat. A refresh is one write, and so is each `INSERT` or `BEGIN … COMMIT` transaction.
+Each write is resolved as a whole, not one record batch at a time, so a key repeated across record batches of one refresh is resolved like any other repeat. A refresh is one write, and so is each `INSERT` and each write statement inside a `BEGIN … COMMIT` transaction. Statements are resolved separately, not across the transaction.
 
 Arrival order is the order rows reach the table. It follows the source order when the source is read as one partition, and it is not defined when the source is read in parallel, so the version kept without a `time_column` can differ between refreshes. Set a `time_column` for a reproducible result. The rules are implemented in [`key_conflicts.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/key_conflicts.rs) (Cayenne) and [`latest_by_time.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task/latest_by_time.rs) (time ordering for a refresh).
 
