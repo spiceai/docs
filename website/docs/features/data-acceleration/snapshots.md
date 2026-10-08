@@ -108,7 +108,7 @@ Spice does not fall back to an unconditional overwrite of `metadata.json`. If th
 
 When other writers keep changing `metadata.json`, Spice makes up to 10 attempts to update it, waiting a randomized interval before each retry. The first wait is 12 to 25 ms, and the upper bound doubles with each retry up to 2 seconds. If every attempt loses to another writer, the snapshot file stays uploaded but is not recorded, and the error names the dataset; the dataset's next snapshot tries again. An update that reached the store but whose response was lost is recognized on the next read and recorded once.
 
-`POST /v1/datasets/{name}/acceleration/snapshots/current` probes the store on every request before it changes the current snapshot. When the store fails the probe, or the probe cannot reach a result, the request returns `500 Internal Server Error` with the reason and `metadata.json` is not changed. Selecting the snapshot that is already current writes nothing.
+`POST /v1/datasets/{name}/acceleration/snapshots/current` probes the store on every request before it changes the current snapshot. When the store fails the probe, or the probe cannot reach a result, the request returns `500 Internal Server Error` with the reason and `metadata.json` is not changed. Selecting the snapshot that is already current leaves `metadata.json` unwritten. The probe still runs first, so the request still creates, updates, and tries to delete a probe object.
 
 Restoring a snapshot at startup, and reloading one with [`refresh_mode: snapshot`](./refresh-modes/snapshot) or [`file_format: snapshot`](#serve-a-dataset-from-published-snapshots), only reads `metadata.json` and does not probe the store.
 
