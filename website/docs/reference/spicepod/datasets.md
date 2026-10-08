@@ -329,9 +329,11 @@ For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x docume
 
 Supports one of three values (defaults to `on_load`):
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
-- `on_load`: (default) Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
-- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
+- `on_registration`: Mark the dataset as ready immediately. Until the initial acceleration is complete, queries are served from an existing acceleration if there is one, and otherwise fall back to the underlying source directly. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
+- `on_load`: (default) Mark the dataset as ready only after the initial acceleration, or immediately when an existing acceleration from a previous run can serve it. Queries against the dataset will return an error before the load has been completed.
+- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Until the initial load completes, queries are served from an existing acceleration if there is one, and otherwise fall back to the federated source. An existing acceleration does not make the dataset ready while the source is unavailable. Subsequent refresh failures are still reported via dataset status and metrics.
+
+See [Serving an Existing Acceleration While the Source Is Unavailable](../../features/data-acceleration/data-refresh#serving-an-existing-acceleration-while-the-source-is-unavailable) for which datasets are served from an existing acceleration and how readiness and status behave while the source is unavailable.
 
 ```yaml
 datasets:
