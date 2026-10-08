@@ -95,7 +95,9 @@ The following parameters apply only when `mode` is `sql_warehouse` and control c
 
 #### Rate control
 
-The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](../../reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. When [`runtime.source_rate_control.state_location`](../../reference/spicepod/runtime#runtimesource_rate_control) is configured, rate limits are coordinated across the cluster.
+The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](../../reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. In Spice.ai Enterprise, when [`runtime.state`](../../reference/spicepod/runtime#runtimestate) is set, request-rate limits are coordinated across the cluster. See [Cluster rate control](../../reference/spicepod/runtime#cluster-rate-control).
+
+The Databricks connector does not report request outcomes to [adaptive rate control](../https/deployment.md#adaptive-rate-control) yet, so its configured limits apply unchanged while the endpoint fails. It does not accept `rate_control_failure_threshold` or `rate_control_window`, and it ignores `runtime.params.http_rate_control_failure_threshold` and `runtime.params.http_rate_control_window`.
 
 | Parameter Name              | Description                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -103,6 +105,7 @@ The Databricks connector supports per-dataset rate control parameters when `mode
 | `requests_per_minute_limit` | Optional. Maximum HTTP requests per minute to the Databricks endpoint. Overrides `runtime.params.http_requests_per_minute_limit`.                                |
 | `rate_control_jitter_min`   | Optional. Minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Accepts durations like `5ms`. |
 | `rate_control_jitter_max`   | Optional. Maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Accepts durations like `10ms`. |
+| `rate_control_acquire_timeout` | Optional. Maximum time a request waits for a rate-control permit before it fails. Overrides `runtime.params.http_rate_control_acquire_timeout`. Accepts durations like `30s`. `0` waits indefinitely. Defaults to `client_timeout`. See [Bounded permit wait](../https/deployment.md#bounded-permit-wait). |
 
 ## Authentication
 

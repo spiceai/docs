@@ -67,6 +67,12 @@ The connector supports cursor-based pagination. Each page is a separate HTTP req
 
 GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. A rate limit reported with HTTP 429, or with a 4xx response whose JSON error message mentions a rate limit, is retried as described in [Retry Behavior](#retry-behavior). A cost or rate-limit error reported in the GraphQL `errors` array of an HTTP 200 response fails the request without a retry. Reduce refresh frequency or narrow the query to stay within budget.
 
+### Rate Control
+
+The GraphQL connector uses the shared HTTP [rate control parameters](./index.md#rate-control-parameters). Rate control is adaptive: when a request-rate or concurrency limit is configured, Spice sends fewer requests while the endpoint fails or times out, and returns to the configured limits as it recovers. A `rate_control_acquire_timeout` bounds how long a request waits for a permit (default `30s`; `0` waits indefinitely). See [Rate Control](../https/deployment.md#rate-control) in the HTTP(s) deployment guide for the full behavior.
+
+Adaptive rate control classifies each request by its HTTP status. A `2xx` response counts as a success, `408`, `429`, `5xx`, timeouts, and connection errors count as failures, and other statuses are not counted. A GraphQL error returned in the body of a `200` response counts as a success, so query-cost limits that a GraphQL API reports in the response body do not throttle the endpoint.
+
 ## Capacity & Sizing
 
 - **Throughput**: Bounded by the upstream rate limit, typical GraphQL endpoints cap at 100s-1000s of requests per minute.
@@ -75,7 +81,7 @@ GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate lim
 
 ## Metrics
 
-When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control metrics under the `graphql` component. They are registered automatically for every GraphQL dataset — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. Catalog components expose none:
+When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control metrics under the `graphql` component. They are registered automatically for every GraphQL dataset — no `metrics` configuration is required — and the limit gauges report `0` when the corresponding limit is not configured. The adaptive metrics have no series for an origin with no request limit, and the cluster metrics have one series per cluster budget (`limiter` attribute) only when [cluster rate control](../../../reference/spicepod/runtime#cluster-rate-control) is in use. Catalog components expose none:
 
 | Metric Name                                 | Type    | Description                                                                                              |
 | ------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
@@ -93,6 +99,12 @@ When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control m
 | `rate_limit_retry_after_waits_total`        | Counter | Total waits caused by `Retry-After` or `RateLimit` reset headers.                                        |
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
+| `rate_control_adaptive_admission_ratio`     | Gauge   | Fraction of the configured limits that adaptive rate control admits now, from `0` to `1` (`1` = all). Absent when the origin has no request limit, and with cluster rate control until the first window is leased. |
+| `rate_control_adaptive_throttled_total`     | Counter | Total requests that adaptive rate control throttled. `0` while the origin stays healthy, and always `0` with cluster rate control. Absent when the origin has no request limit. |
+| `rate_control_lease_granted`                | Gauge   | Cluster rate control only. Tokens this instance holds in the current window, per `limiter`.              |
+| `rate_control_cluster_budget_remaining`     | Gauge   | Cluster rate control only. Tokens of the current window that no instance has leased, per `limiter`.      |
+| `rate_control_lease_refresh_errors_total`   | Counter | Cluster rate control only. Total failures to read or write the shared rate-control state, per `limiter`. |
+| `rate_control_fail_closed_total`            | Counter | Cluster rate control only. Total requests refused because the shared state was unreachable and this instance's lease had expired, per `limiter`. |
 
 These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
 

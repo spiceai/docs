@@ -184,6 +184,9 @@ HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following ra
 | `http_requests_per_minute_limit`  | Default maximum HTTP requests per minute per upstream origin. Can be overridden per-dataset with `requests_per_minute_limit`.                                  |
 | `http_rate_control_jitter_min`    | Default minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Can be overridden per-dataset. |
 | `http_rate_control_jitter_max`    | Default maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Can be overridden per-dataset. |
+| `http_rate_control_failure_threshold` | Default upstream error rate above which [adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) throttles an origin, as a percentage (`10%`) or a fraction (`0.1`) greater than 0 and less than 1. Defaults to `10%`. Can be overridden per-dataset with `rate_control_failure_threshold`. |
+| `http_rate_control_window`        | Default half-life over which request outcomes decay for adaptive rate control, as a positive duration such as `10s`. Defaults to `10s`, or to `runtime.source_rate_control.refresh_interval` with [cluster rate control](#cluster-rate-control). Can be overridden per-dataset with `rate_control_window`. |
+| `http_rate_control_acquire_timeout` | Default maximum time a request waits for a rate-control permit before it fails, as a duration such as `30s`. `0` waits indefinitely. Defaults to the connector's `client_timeout`. Can be overridden per-dataset with `rate_control_acquire_timeout`. |
 
 ```yaml
 runtime:
@@ -192,6 +195,10 @@ runtime:
     http_requests_per_second_limit: 5
     http_requests_per_minute_limit: 200
 ```
+
+HTTP rate control is adaptive. On a healthy origin the configured limits apply unchanged. While the origin fails or times out, Spice sends it fewer requests than the limits, and returns to the full limits as it recovers. An origin with no limit is not affected. The HTTP/HTTPS and GraphQL connectors report request outcomes and adapt. The Databricks connector applies its configured limits unchanged and ignores `http_rate_control_failure_threshold` and `http_rate_control_window`. See [Rate Control](../../components/data-connectors/https/deployment#rate-control) for details.
+
+A request that cannot get a rate-control permit within `http_rate_control_acquire_timeout` (or the dataset's `rate_control_acquire_timeout`) fails.
 
 ### Spatial SQL Functions (opt-in)
 
@@ -238,36 +245,57 @@ runtime:
 
 ## `runtime.source_rate_control`
 
-Optional. Configures how Spice limits outbound requests to upstream data sources, and optionally enables cluster-wide coordination through persisted state in object storage.
-
-Without a state location, rate limits are local to each Spice instance. When `state_location` is set, or when it is omitted and [`runtime.state`](#runtimestate) is set, Spice instances coordinate through object storage so that a configured limit is shared across the cluster. Persisted rate-control state requires a Spice.ai Enterprise build; other builds keep limits local to each instance, and log a warning when `state_location` is set. For example, `requests_per_second_limit: 20` means approximately 20 RPS total across all replicas, not 20 RPS per replica.
+Optional. Tunes how Spice limits outbound requests to upstream data sources.
 
 ```yaml
 runtime:
   source_rate_control:
-    state_location: s3://my-bucket/spice/rate-control/
     refresh_interval: 30s
-    params:
-      s3_region: us-west-2
-      s3_key: ${ secrets:AWS_ACCESS_KEY_ID }
-      s3_secret: ${ secrets:AWS_SECRET_ACCESS_KEY }
     github_concurrent_connections_limit: 4
 ```
 
 | Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
 | ------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `state_location`                      | Yes      | -       | Root URI for globally persisted rate-control state (e.g. `s3://bucket/path/`). Enables cluster-wide rate control when set. When omitted, `runtime.state.location` is used if set; otherwise limits are local to each Spice instance.                                                  |
-| `params`                              | Yes      | -       | Object-store authentication parameters for `state_location`. Supports the same keys as other object-store configurations (e.g. `s3_region`, `s3_key`, `s3_secret` for S3; `account`, `access_key` for Azure). Supports `${ secrets:NAME }` references. When `state_location` is omitted and `params` is unset, `runtime.state.params` is used. |
-| `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-source rate-control state. Longer intervals reduce object-store writes but adapt more slowly to demand changes.                                                                 |
+| `refresh_interval`                    | Yes      | `30s`   | With [cluster rate control](#cluster-rate-control), how often each instance refreshes its lease and publishes its counts to the shared state. It is also the length of one lease window, and the default `rate_control_window` for cluster rate control. Longer intervals reduce object-store writes but adapt more slowly to demand changes and failures. Must be greater than `0`. |
 | `github_concurrent_connections_limit` | Yes      | `4`     | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
 
-HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
+HTTP/API rate limits are configured through [`runtime.params`](#http-rate-control) (defaults for every HTTP-based dataset) and per-dataset overrides. Precedence is:
 
 ```text
 dataset param > runtime.params.http_* default > unset
 ```
 
-When a state location is in effect, the configured RPS/RPM quota is converted into a token budget per lease window and distributed across replicas using a demand-weighted leased token-bucket model.
+### Cluster rate control
+
+:::info Enterprise Feature
+Cluster rate control is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
+:::
+
+Without cluster rate control, each Spice instance applies the configured limits on its own. When [`runtime.state`](#runtimestate) is set, Spice instances that share `runtime.state.location` coordinate through object storage, so that a configured request-rate limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 requests per second in total across all replicas, not 20 per replica. The object store parameters come from `runtime.state.params`. There is no separate setting to turn cluster rate control on: `runtime.state` also serves the [scheduler](#runtimescheduler) and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart), and setting it for those features also turns on cluster rate control for every origin with a request-rate limit.
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice-state
+    params:
+      s3_region: us-east-1
+  source_rate_control:
+    refresh_interval: 30s
+
+datasets:
+  - from: https://api.example.com/v1
+    name: api_data
+    params:
+      file_format: json
+      requests_per_second_limit: 20 # About 20 requests per second across all instances
+```
+
+The configured quota becomes a token budget per lease window (one `refresh_interval`). Replicas divide that budget with a demand-weighted leased token-bucket model, so a busy replica gets a larger share and an idle replica releases budget to the others.
+
+Cluster rate control applies to `requests_per_second_limit` and `requests_per_minute_limit` only. `max_concurrent_requests` is a per-instance limit that is not shared through object storage. Cluster rate control are instantiated at startup. [Adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) also works with cluster rate control, with the exception of `max_concurrent_requests` not being supported in a cluster.
+
+If an instance cannot read or write the shared state, it keeps using the lease it already holds. 
+
 
 ## `runtime.functions`
 
@@ -1013,13 +1041,13 @@ runtime:
 | `location`     | No       | -       | Root URI for runtime state storage (e.g. `s3://bucket/path/`). |
 | `params`       | Yes      | -       | Object store parameters (e.g. `s3_region`, `s3_auth`). Supports `${ secrets:NAME }` references. |
 
-The following features store their state under `runtime.state` when their own section does not set a location:
+The following features store their state under `runtime.state`:
 
 | Feature | Uses `runtime.state` when |
 | ------- | ------------------------- |
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
 | [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
-| [Source rate control](#runtimesource_rate_control) | `runtime.source_rate_control.state_location` is not set. Persisted rate-control state requires a Spice.ai Enterprise build. |
+| [Cluster rate control](#cluster-rate-control) | Always, in Spice.ai Enterprise builds. Rate control has no location of its own: setting `runtime.state` turns on cluster rate control for every origin with a request-rate limit. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 

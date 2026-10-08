@@ -200,8 +200,13 @@ HTTP-based connectors share a rate control system that limits concurrency and re
 | `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
 | `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
 | `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
+| `rate_control_failure_threshold` | The upstream error rate above which adaptive rate control starts to throttle the origin, as a percentage (`25%`) or a fraction (`0.25`) greater than 0 and less than 1. Overrides `runtime.params.http_rate_control_failure_threshold`. Default: `10%`. |
+| `rate_control_window`       | The half-life over which request outcomes decay for adaptive rate control, as a duration such as `10s`. Overrides `runtime.params.http_rate_control_window`. Default: `10s`, or `runtime.source_rate_control.refresh_interval` with cluster rate control. |
+| `rate_control_acquire_timeout` | Maximum time a request waits for a rate-control permit before it fails, as a duration such as `30s`. `0` waits indefinitely. Overrides `runtime.params.http_rate_control_acquire_timeout`. Default: the dataset's `client_timeout`. |
 
-Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin.
+Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin. Datasets that share an origin must use the same rate-control values.
+
+Rate control is adaptive: on a healthy origin the configured limits apply unchanged, and while the origin fails or times out, Spice sends it fewer requests. See [Rate Control](./deployment.md#rate-control) in the deployment guide for how adaptive rate control works, the bounded permit wait, cluster rate control, and the related metrics.
 
 ```yaml
 runtime:
