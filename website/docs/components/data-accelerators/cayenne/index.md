@@ -555,7 +555,7 @@ A Cayenne table with a `primary_key` keeps one row per key. Because Cayenne is t
 | `refresh_mode: changes`                                                | Each source change is applied in order, so a later change of a key supersedes an earlier one.                     |
 | Any other dataset with a `primary_key`, such as one with no `time_column` | The version that arrived last.                                                                                 |
 
-Ordering by `time_column` applies to refreshes. A SQL `INSERT`, and each statement of a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
+Ordering by `time_column` applies to refreshes. A SQL `INSERT`, including one inside a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. An `UPDATE` does not replace another row: one that would give a row a key another row keeps fails and changes nothing, as described below. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
 
 Each write is resolved as a whole, not one record batch at a time, so a key repeated across record batches of one refresh is resolved like any other repeat. A refresh is one write, and so is each `INSERT` and each write statement inside a `BEGIN … COMMIT` transaction. Statements are resolved separately, not across the transaction.
 
@@ -618,7 +618,7 @@ A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-
 
 - `DELETE` evaluates its predicate against the mem-tier and rebuilds it without the matching rows. An unfiltered `DELETE FROM <table>` purges the tier.
 - `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, the table keeps one row per key: an incoming row replaces a stored row with the same key, as described in [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
-- `UPDATE` combines the two, so both rules above apply. An `UPDATE` that would give a row a key another row keeps fails and changes nothing.
+- `UPDATE` combines the two, but it does not replace another row by key: an `UPDATE` that would give a row a key another row keeps fails and changes nothing.
 
 [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) applies to the tier the same way. Each write queues a retention pass, and the pass deletes the rows its predicate matches from the tier, as it does in `mode: file`.
 
