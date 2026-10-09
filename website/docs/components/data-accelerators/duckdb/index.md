@@ -120,7 +120,7 @@ By default, `reuse_file` neither replaces the file nor runs a DuckDB [`CHECKPOIN
 
 `replace_file` replaces the DuckDB file on every full refresh, which reclaims free space by rewriting the file. It needs enough free space for two copies of the file, because the old file is not removed until the replacement succeeds, so queries continue without interruption.
 
-Leave headroom for the WAL, index serialization, and the `replace_file` copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
+Leave headroom for the WAL, index serialization, and the `replace_file` copy. High-churn `refresh_mode: full`, and CDC ingest, belong on [Spice Cayenne](../cayenne/index.md): Cayenne compaction reclaims storage as part of the write path, and it is the accelerator recommended for [`refresh_mode: changes`](../../../features/data-acceleration/refresh-modes/changes.md). See [DuckDB vs Cayenne](../index.md#spice-cayenne-vs-duckdb).
 
 ## Limitations
 
