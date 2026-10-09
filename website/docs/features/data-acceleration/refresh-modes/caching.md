@@ -498,8 +498,10 @@ A cache entry is **always** addressed by HTTP request metadata — `request_path
 The HTTP connector sends a GET when a query names no `request_body` value, and a POST with each body the query names. It stores a GET response with `request_body = ''` and a POST response with the body it sent. When the dataset schema includes `request_body`, a lookup keeps the two apart:
 
 - A query with a predicate on `request_path`, `request_query`, `request_body`, or `request_headers` that names no body value reads only cached GET responses. A POST response cached for the same path does not answer it. A predicate the connector does not turn into a request value, such as `request_body <> 'x'` or `request_body LIKE '%x%'`, still sends a GET, so it also reads only GET responses.
-- A query that names an empty body, such as `request_body = ''`, sends a POST with an empty body. The cache stores that response exactly as it stores a GET response, so this query bypasses the cache: it goes to the origin on every call, and its response is not cached.
+- A query that names an empty body, such as `request_body = ''`, sends a POST with an empty body. Its response would be stored exactly as a GET response is, so the two could not be told apart. This query therefore bypasses the cache: it goes to the origin on every call, and its response is not cached.
 - A query with predicates only on other columns, such as `content` or `response_status`, reads every cached entry, as an unfiltered scan does.
+
+Entries persisted by a runtime without this separation keep the values they were written with. In a file-backed cache, a response to an explicit-empty POST written by such a runtime is stored with `request_body = ''`, so it can still answer a GET lookup until `caching_ttl` expires it or a refresh replaces it.
 
 A refresh of a cached GET response, including a [stale-while-revalidate](#stale-while-revalidate-pattern) refresh, requests it from the origin again as a GET.
 
