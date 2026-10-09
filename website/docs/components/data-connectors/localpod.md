@@ -39,6 +39,26 @@ datasets:
       enabled: true # This dataset accelerates the parent `test` dataset in memory and is synchronized with the parent
 ```
 
+## Multiple Children and Load Order
+
+Any number of `localpod` datasets can read from the same parent, and a `localpod` dataset can appear before its parent in the Spicepod. At startup, each child loads after the dataset it reads from. `from` accepts the parent's dataset name or its full table name, so `localpod:taxi_trips` and `localpod:spice.public.taxi_trips` read the same parent.
+
+```yaml
+datasets:
+  - from: localpod:taxi_trips
+    name: taxi_trips_local
+    acceleration:
+      enabled: true
+  - from: https://public-data.spiceai.org/taxi_sample.parquet
+    name: taxi_trips
+    acceleration:
+      enabled: true
+  - from: localpod:spice.public.taxi_trips
+    name: taxi_trips_local_2
+    acceleration:
+      enabled: true
+```
+
 ## Hot Reload
 
 A `localpod` child binds to the table its parent has registered at the moment the child loads. When a [hot reload](../../cli/reference/spiced.md) changes the parent — an edited `acceleration`, a new `refresh_sql`, or the parent being removed and added back — the runtime reloads every `localpod` dataset that reads through it as well, parents first, so each child rebinds to the parent's new table. Chains follow the same rule transitively: a child whose parent is queued behind a load of its own waits for it, and the chain is loaded from its root down.

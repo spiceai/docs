@@ -204,6 +204,10 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 | `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
+## ORC Data Files
+
+Spice reads Glue tables whose `InputFormat` is ORC (`org.apache.hadoop.hive.ql.io.orc.OrcInputFormat`), with Hive partitioning enabled. Hive and Spark often write ORC data files without an extension, such as `000000_0`, so Spice reads extensionless objects as well as `.orc` objects. It skips zero-byte objects, such as S3 folder markers, job-marker files such as `_SUCCESS`, `_committed_*`, and `.crc` files, and objects under a `_temporary` staging path.
+
 ## Write Support
 
 This connector supports writing data to Glue-managed Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.

@@ -95,7 +95,7 @@ The following parameters apply only when `mode` is `sql_warehouse` and control c
 
 #### Rate control
 
-The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](../../reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. When [`runtime.source_rate_control.state_location`](../../reference/spicepod/runtime#runtimesource_rate_control) is configured, rate limits are coordinated across the cluster.
+The Databricks connector supports per-dataset rate control parameters when `mode` is `spark_connect` or `sql_warehouse`. These override [`runtime.params`](../../reference/spicepod/runtime#runtimeparams) HTTP rate control defaults. In Spice.ai Enterprise, instances that share a [`runtime.state`](../../reference/spicepod/runtime#runtimestate) location coordinate the per-second and per-minute limits; see [Limits across instances](../../reference/spicepod/runtime#limits-across-instances). The Databricks connector does not report request outcomes, so [adaptive rate control](../../reference/spicepod/runtime#adaptive-rate-control) always applies its configured limits unchanged.
 
 | Parameter Name              | Description                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -103,6 +103,7 @@ The Databricks connector supports per-dataset rate control parameters when `mode
 | `requests_per_minute_limit` | Optional. Maximum HTTP requests per minute to the Databricks endpoint. Overrides `runtime.params.http_requests_per_minute_limit`.                                |
 | `rate_control_jitter_min`   | Optional. Minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Accepts durations like `5ms`. |
 | `rate_control_jitter_max`   | Optional. Maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Accepts durations like `10ms`. |
+| `rate_control_acquire_timeout` | Optional. Maximum time a Databricks HTTP request waits for rate-control capacity before it fails. Overrides `runtime.params.http_rate_control_acquire_timeout`. Defaults to `client_timeout`. `0` waits without a bound. Accepts durations like `30s`. |
 
 ## Authentication
 

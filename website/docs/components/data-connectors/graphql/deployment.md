@@ -57,7 +57,7 @@ An HTML or text body on HTTP 200 usually means the endpoint URL is wrong or the 
 
 A 502 or 504 response also closes the pooled connection before the retry. For a paginated query, the retry after a 502, a 504, or the GitHub backend-timeout error requests a smaller page, stepping down a reverse Fibonacci sequence (for example, 100, 55, 34, 21), so an upstream that times out on large pages can still complete the refresh.
 
-Separately from retries, the connector's per-origin rate limiter waits before each request while a `Retry-After` or `RateLimit` reset cooldown from an earlier response is in effect. See [Rate Control Parameters](./index.md#rate-control-parameters) to limit request rate and concurrency.
+Separately from retries, the connector's per-origin rate limiter waits before each request while a `Retry-After` or `RateLimit` reset cooldown from an earlier response is in effect. See [Rate Control Parameters](./index.md#rate-control-parameters) to limit request rate and concurrency. When a rate limit is configured, a `408`, `429`, or `5xx` response, a connection failure, and a timeout also count as failures for [adaptive rate control](../../../reference/spicepod/runtime#adaptive-rate-control), which admits fewer requests to an origin whose error rate exceeds `rate_control_failure_threshold`.
 
 ### Pagination
 
@@ -93,6 +93,8 @@ When used as a dataset connector, GraphQL exposes per-origin HTTP rate-control m
 | `rate_limit_retry_after_waits_total`        | Counter | Total waits caused by `Retry-After` or `RateLimit` reset headers.                                        |
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
+| `rate_control_adaptive_admission_ratio`     | Gauge   | Share of the configured limits that [adaptive rate control](../../../reference/spicepod/runtime#adaptive-rate-control) currently admits for this upstream origin; `1` admits the full limits. Absent when the origin has no limit configured. |
+| `rate_control_adaptive_throttled_total`     | Counter | Total requests that adaptive rate control throttled because the origin was failing. Absent when the origin has no limit configured. |
 
 These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
 

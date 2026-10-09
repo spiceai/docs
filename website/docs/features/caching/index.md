@@ -177,7 +177,7 @@ The first start with warmup enabled has no recorded shapes, so it records only. 
 Warmup has the following requirements and limits:
 
 - `enabled` must be `true`.
-- `cache_key_type` must be `plan` (the default). `warmup: on_first_refresh` with `cache_key_type: sql` fails Spicepod validation, because a warmed entry keyed by raw SQL can never match a live query.
+- `cache_key_type` must be `plan` (the default). `warmup: on_first_refresh` with `cache_key_type: sql` fails Spicepod validation and the runtime does not start, because a warmed entry keyed by raw SQL can never match a live query. The error reads ``invalid spicepod: `runtime.caching.sql_results.warmup: on_first_refresh` requires `cache_key_type: plan` (or the default).``
 - Only queries in the public cache namespace are recorded. Queries from authenticated principals, which are cached [per principal](#per-principal-cache-isolation), are not recorded or replayed.
 - Only datasets with `refresh_mode: full` or `refresh_mode: append` gate the replay. Datasets with other refresh modes, such as `changes` or `caching`, are not waited for, so when no `full` or `append` refresh remains, the replay starts immediately.
 - Queries that read the `runtime` schema (for example, `runtime.task_history`) and DML, DDL, and statement plans are never recorded.
@@ -376,6 +376,8 @@ A cached result is judged against **two independent clocks**, both evaluated on 
 
 A dataset **reload** counts as a change on that clock: a hot reload, or any other re-registration of a dataset, invalidates the results cached from its previous contents — both when the reload starts and again once the new registration is in place, so a query that began mid-reload cannot store a result the clock would then accept. It invalidates the [logical plan cache](#logical-plan-cache) too. If the invalidation cannot be recorded the reload still completes, and the runtime warns that queries may be answered from the previous contents until they expire.
 
+Removing a dataset, for example by deleting it from a Spicepod the runtime watches, evicts every result cached from it, whatever `stale_while_revalidate_ttl` is set to, and drops the logical plan cache. A repeat of an earlier query then fails with `table '...' not found`, under either `cache_key_type`.
+
 With no stale-serving window — `stale_while_revalidate_ttl` unset, or set to `0s` — an acceleration refresh or a DML write **evicts** every dependent entry, so a workload polling accelerated datasets turns a whole population of cached results into simultaneous synchronous misses at each refresh. An explicit `0s` is read as no window rather than as one that closes immediately, since keeping entries resident for it would hold memory no lookup could ever serve from.
 
 When `stale_while_revalidate_ttl` is set to a **non-zero** duration, the invalidation instead marks those entries stale and leaves them resident:
@@ -385,6 +387,8 @@ When `stale_while_revalidate_ttl` is set to a **non-zero** duration, the invalid
 - **A failed revalidation invalidates nothing** — the previous result keeps being served until the window closes, then becomes a miss. `results_cache_swr_revalidations` is the only visible symptom of that failure.
 
 Nothing is served *as fresh* once a table it read has moved on — only as `STALE`.
+
+The same rule covers a table that changes while a query runs. The query still returns its result to the caller. With no stale-serving window, that result is not cached, so the next identical query runs again. With a non-zero `stale_while_revalidate_ttl`, the result is cached as stale: the next identical query is served with `STALE` and starts a revalidation, whose result is served as `HIT` unless the table changed again while it ran. A dataset that changes faster than its queries run, such as one with `refresh_mode: changes`, therefore still benefits from the cache.
 
 There is no new configuration parameter: `stale_while_revalidate_ttl` is the opt-in for both clocks.
 

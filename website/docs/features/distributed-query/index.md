@@ -126,6 +126,14 @@ spiced --role executor \
 
 Specifying `--scheduler-address` implies `--role executor`.
 
+### Version Compatibility
+
+Run the same Spice version on every scheduler and executor in a cluster, and upgrade all of them together. A scheduler checks the cluster protocol version that each executor reports when it registers and polls for work, and rejects an executor built for a different Spice version. A rejected executor receives no work. The scheduler logs `Rejecting executor <id>: protocol version mismatch`, and the executor logs a warning like the following on each retry:
+
+```text
+WARN ballista_executor::execution_loop: Executor poll work loop failed. If this continues to happen the Scheduler might be marked as dead. Error: code: 'The system is not in a state required for the operation's execution', message: "protocol version mismatch: scheduler=3, executor=0"
+```
+
 ## Query Execution
 
 Queries run against the scheduler endpoint. The `EXPLAIN` output confirms that distributed planning is active—Spice includes a `distributed_plan` section showing how stages are split across executors:

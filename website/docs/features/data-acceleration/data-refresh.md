@@ -173,8 +173,8 @@ datasets:
 
 **Behavior:**
 
-- On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes)
-- After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
+- On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes). When no snapshot has been published yet, the dataset waits for the first one and restores it once a writer publishes it
+- After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots. On S3, an SQS queue of the location's event notifications reloads datasets as soon as a snapshot is published; see [Reload on S3 event notifications](./refresh-modes/snapshot#reload-on-s3-event-notifications)
 - Each poll reads the snapshot store's metadata conditionally, sending the `ETag` recorded by the previous poll in `If-None-Match`. When the store reports that the metadata is unchanged, the poll ends without downloading it
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll
@@ -256,6 +256,8 @@ A dataset is served from its existing acceleration this way when its configurati
 A snapshot reader whose first [acceleration snapshot](./snapshots) download is still pending at startup is also not served this way.
 
 Connectors that reach their source only when the dataset is first read, such as [HTTP(S)](../../components/data-connectors/https) and [S3](../../components/data-connectors/s3), already fell back to the existing acceleration when that first read failed, and they keep doing so, except while the checkpoint was written by an earlier version (see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions)).
+
+A dataset with no existing acceleration to serve, such as one starting for the first time, is registered once its source is reached. Until then, its status is `Error`, queries fail with `table ... not found`, and `/v1/ready` returns `503`. Spice retries the source with a backoff that starts at about one second and grows to at most five minutes between attempts, with no limit on attempts, and loads the dataset when the source answers. Rejected credentials and TLS failures are configuration errors: Spice logs them as an error and does not retry.
 
 #### Readiness and Dataset Status While the Source Is Unavailable
 

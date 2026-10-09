@@ -57,8 +57,11 @@ The HTTP connector participates in the shared HTTP rate control system. Concurre
 | `requests_per_minute_limit`     | Maximum HTTP requests per minute to the same origin. Disabled when unset.              |
 | `rate_control_jitter_min`       | Minimum random delay before requests when rate control is active. Defaults to `5ms`.   |
 | `rate_control_jitter_max`       | Maximum random delay before requests when rate control is active. Defaults to `10ms`.  |
+| `rate_control_acquire_timeout`  | Maximum time a request waits for rate-control capacity before it fails. Defaults to `client_timeout`. `0` waits without a bound. |
+| `rate_control_failure_threshold` | Upstream error rate above which adaptive rate control admits fewer requests. Defaults to `10%`. |
+| `rate_control_window`           | Reaction and recovery window of adaptive rate control. Defaults to `10s`.             |
 
-The runtime equivalents (`http_max_concurrent_requests`, `http_requests_per_second_limit`, `http_requests_per_minute_limit`, `http_rate_control_jitter_min`, `http_rate_control_jitter_max`) set defaults that apply to every HTTP-based connector unless overridden per dataset.
+The runtime equivalents (`http_max_concurrent_requests`, `http_requests_per_second_limit`, `http_requests_per_minute_limit`, `http_rate_control_jitter_min`, `http_rate_control_jitter_max`, `http_rate_control_acquire_timeout`, `http_rate_control_failure_threshold`, `http_rate_control_window`) set defaults that apply to every HTTP-based connector unless overridden per dataset. Datasets that share an origin must use the same values, or the later dataset fails to load.
 
 ```yaml
 runtime:
@@ -78,9 +81,11 @@ datasets:
 
 Use rate control when the upstream API enforces request quotas, when many datasets share a single origin, or when running large `IN`-list refreshes that would otherwise burst hundreds of concurrent requests.
 
+Rate control is adaptive. While the origin's error rate, counting `408`, `429`, and `5xx` responses, connection failures, and timeouts, stays at or below `rate_control_failure_threshold`, the configured limits apply unchanged. Above it, Spice admits fewer requests than the configured limits and logs a warning naming the origin; as the origin recovers, Spice returns to the full limits and logs that the origin recovered. The `rate_control_adaptive_admission_ratio` metric shows the share of the configured limits currently admitted. A request that cannot get capacity within `rate_control_acquire_timeout` fails with `Timed out after ... waiting for rate-control capacity`. See [HTTP Rate Control](../../../reference/spicepod/runtime#http-rate-control) for details.
+
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx responses plus transient network errors are retried. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx responses plus transient network errors are retried. A request is retried at most `max_retries` times after the first attempt, so `max_retries: 2` sends at most three requests. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
 
 | Parameter              | Default     | Description                                                                                                  |
 | ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
@@ -89,7 +94,7 @@ HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx 
 | `retry_max_duration`   | unset       | Maximum total duration across all retries (e.g. `30s`, `5m`). When set, retries stop after this elapsed time. |
 | `retry_jitter`         | `0.3`       | Randomization factor (`0.0`–`1.0`) applied to retry delays. Set to `0` to disable jitter.                    |
 
-Retries are independent of rate control. If a retry would exceed the configured per-second or per-minute rate, it waits for the rate window to open before issuing the request.
+Retries are independent of rate control. If a retry would exceed the configured per-second or per-minute rate, it waits for the rate window to open before issuing the request, for at most `rate_control_acquire_timeout`.
 
 ### Timeouts and Connection Pool
 
@@ -151,6 +156,8 @@ Per-origin rate-control metrics, exposed for dynamic JSON API datasets. The limi
 | `rate_limit_retry_after_waits_total`        | Counter | Total waits caused by `Retry-After` or `RateLimit` reset headers.                                        |
 | `rate_limit_retry_after_wait_duration_ms`   | Counter | Cumulative time (ms) spent waiting because of `Retry-After` or `RateLimit` reset headers.                |
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
+| `rate_control_adaptive_admission_ratio`     | Gauge   | Share of the configured limits that adaptive rate control currently admits for this upstream origin; `1` admits the full limits. Absent when the origin has no limit configured. |
+| `rate_control_adaptive_throttled_total`     | Counter | Total requests that adaptive rate control throttled because the origin was failing. Absent when the origin has no limit configured. |
 
 These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
 
@@ -189,6 +196,9 @@ HTTP requests participate in [task history](../../../reference/task_history) thr
 | `401 Unauthorized`                               | Wrong/expired token or password.                            | Rotate the credential in the secret store.                                                                |
 | `429 Too Many Requests` (frequent)               | Upstream rate limit hit; concurrency too high.              | Set `requests_per_second_limit` / `requests_per_minute_limit`; reduce `max_concurrent_requests`.          |
 | Refresh blocked / queue building up              | `max_concurrent_requests` set too low for the workload.     | Raise the dataset-level limit or move heavy datasets to their own origin.                                 |
+| `Timed out after ... waiting for rate-control capacity` | Requests queue for capacity longer than `rate_control_acquire_timeout` (default `client_timeout`). | Raise the limit, lower request concurrency, or raise `rate_control_acquire_timeout`; `0` waits without a bound. |
+| Fewer requests than the configured limits reach the origin | The origin is failing above `rate_control_failure_threshold`, so adaptive rate control throttles it. | Check `dataset_http_rate_control_adaptive_admission_ratio` and the origin's health; raise `rate_control_failure_threshold` to tolerate more errors. |
+| `Multiple HTTP-based components target ... with different rate-control settings` | Datasets sharing an origin resolve to different rate-control values. | Use the same values on every dataset and catalog that targets the origin. |
 | OAuth2 token refresh fails                       | `auth_token_url` not HTTPS, or wrong client credentials.    | Verify the token endpoint URL; check `http_auth_client_id`/`secret` and required scopes.                  |
 | Request rejected: "OR across HTTP filter columns" | `WHERE request_path = '...' OR request_query = '...'`.    | Split into separate refreshes or `UNION ALL`.                                                             |
 | Many partitions created from cross-product       | Multiple `IN`-list filters multiplied into many requests.   | Set `max_request_partitions` to cap; tighten filters.                                                     |
