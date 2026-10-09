@@ -1,0 +1,72 @@
+---
+id: post-dataset-cdc
+title: "Ingest Debezium CDC changes"
+description: "Push Debezium change events (JSON or Avro) directly into an accelerated"
+sidebar_label: "Ingest Debezium CDC changes"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVs1u20YQfpXBnGyUlmQnBVreXDkHt4UTxC56cAR7tTsSNyZ3md2hXFUgkIfoM/TB8iTFLEnLlpQceuihuojaHc7PN998ow2yWkbMb/FCsYrEEWcZGoo62Jqtd5jjuyYWcEFz+tM2FehCuSUBrchxhKOfr99egQ9wvgr+GIwNpLlcg3XsQTlQWlNJQTGZD850IUB7t7DLJpCBR8sF3C+Cr3LQRudfPv99D8oZuA+0CBSLu8obyvuo8X4EVx5+UYsH9cHZCIE+NVb8fPn8FzSRgAsbQUVQ24SvKawowBjeVHMyhgy8cUvrCKJ1DyPM0NeSoPXu0mCOtY9812d6p43GDGsVVEVMQYDaoFMVYd59ZWgFolpxgbu49YiCGMJR1USGSrEuQO1V3Mc7xgyHkjDn0FCGURdUKcw3yOta4kYO1i2xbWedMUX+yZu1WOzEP9Syo3gs+DxvG2aovWNyLD5UXZdWJzzGSm7zzX4OKgS1luKZqvjs3DqmJQXMcOFDpbg7enWGGVbW2aqpMJ+0bZu9CPMxSr7PwuwarJwZmb6a7/6jpF7EPJBhu9uqdBBr7yKl6GeTyX5Pph2PIUUi83Xo9yIO1fj5R9L8gii3uHXXM0mmuA7CbLZdOoPJIVxe5njVVHMK4BcDcYJ/fMp49BK1bcA9gn5tHLhQDIE02RUZ4IKG4R6hgMqWS/EyNfpSTvl9Dyq2CfTXh2C9dCtVWgNzb9ZC677RyfzVvvnvwTIlbYpbDemsXx+Yo2GOveS9tJFJJGfhA0wvpmBTlvL295PTAx1/MhkixVT0wC1YkOImEFjXqde8saXp3B1IvSMQRA6kKojs65oMHA3S2rjSK9E4HyCQPFu3PO68HSjtxlZi2zA8KsvWLVNVWtVKW05IStvXqTEVceEHhUyqyAXmOF6djvvocbwRrWvHnWzGJLydZjahxBwL5jofj0uvVVn4yPkPkx8ne0T5Va7B0IpKX1fkGDpPI5gOi6PfGycn4vF+hKKFkXQTLK9TPFXbuweS55ncWbdImjGQKzSObZLvHTwKglhbTQa2JqXVJPzLn6T/vFa6oJOzkSRvDTm2C0vh5U2boZTfOT4bTUaTk8ZFVvOS5E5QrJR75rWj+3ZxCXP60dhNdLOVjf/9eu5VhekPHtelsk7QS3za9By8xdXpVvoErLxfzkLEWYbCNTHbbOYq0m+hbFs5/tRQSBTJcKWCTZ0R8hgb5dlgvlBlpG9gf/S+r/AY/t22P1jcsM+cbLOVKhv5hRkmQndsaWdthgUpI6y73fRX0y6xkxtxsH11b6+02fDGudZU8zdtZ89G/93b6xvMcN7/35DmyzSpR9lH6rFL0yeg0tJJZxsslVs2aim2nU/5/AOCyKMd
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Ingest Debezium CDC changes"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/datasets/{name}/cdc"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Push Debezium change events (JSON or Avro) directly into an accelerated
+dataset configured with `from: cdc:…` and `refresh_mode: changes`. No Kafka
+is required — use this as a Debezium Server / Embedded Engine sink.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./post-dataset-cdc.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-dataset-cdc.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-dataset-cdc.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
