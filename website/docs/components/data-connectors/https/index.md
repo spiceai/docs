@@ -43,6 +43,8 @@ Authorization: Basic <base64(username:password)>
 
 For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
 
+Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL (scheme, host, and port), for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line, and errors from a structured HTTP file dataset, can print the configured `from` URL with its user info.
+
 ### Using Custom Headers
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
@@ -200,8 +202,11 @@ HTTP-based connectors share a rate control system that limits concurrency and re
 | `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
 | `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
 | `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
+| `rate_control_acquire_timeout` | Maximum time a request waits for rate-control capacity before it fails, as a duration such as `30s`. Overrides `runtime.params.http_rate_control_acquire_timeout`. Defaults to `client_timeout`. `0` waits without a bound. |
+| `rate_control_failure_threshold` | Upstream error rate above which [adaptive rate control](../../reference/spicepod/runtime#adaptive-rate-control) admits fewer requests than the configured limits, as a percentage (`25%`) or a fraction (`0.25`). Overrides `runtime.params.http_rate_control_failure_threshold`. Default: `10%`. |
+| `rate_control_window`       | Reaction and recovery window of adaptive rate control, as a duration. A shorter window reacts and recovers faster. Overrides `runtime.params.http_rate_control_window`. Default: `10s`. |
 
-Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin.
+Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin. Every dataset that shares an origin must resolve to the same values for these parameters; a dataset whose values differ fails to load. See [HTTP Rate Control](../../reference/spicepod/runtime#http-rate-control) for adaptive throttling, bounded waits, and limits across instances.
 
 ```yaml
 runtime:

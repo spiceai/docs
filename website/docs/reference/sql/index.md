@@ -40,6 +40,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 ### [EXPLAIN](sql/explain)
 
 - [EXPLAIN ANALYZE](sql/explain#explain-analyze)
+- [EXPLAIN Options](sql/explain#explain-options)
 
 ### [Information Schema](sql/information_schema)
 

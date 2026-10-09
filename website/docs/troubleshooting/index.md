@@ -90,6 +90,16 @@ Flight and Flight SQL carry the same text on the gRPC status. A timeout is `DEAD
 - **Check tools configuration**: Ensure `tools: auto` is set in the model params so the model can discover and query datasets.
 - **Use `spice trace ai_chat`**: Inspect the trace output to see which tools the model called and whether SQL queries succeeded or failed.
 
+### A configured model fails with "failed to load"
+
+When a model in the Spicepod fails to load, `/v1/chat/completions`, `/v1/nsql` (streaming or not), and the `ai()` SQL function name the model and the load error. For example, a provider account with no balance returns:
+
+```
+Model 'deepseek' failed to load, so it cannot serve requests. Cause: Failed to load LLM: deepseek. Failed to initialize LLM model: Failed to check the status of the model. An error occurred: unknown_error: Insufficient Balance (code: invalid_request_error) Verify the model configuration.
+```
+
+`GET /v1/models?status=true` reports the same cause in the model's `error_message`. `POST /v1/evaluate` reports a model that failed to load as not found, so check `/v1/models?status=true` when an evaluation names a configured model.
+
 ### Container OOM-killed despite a configured memory limit
 
 `runtime.query.memory_limit` bounds the query execution pool, not the process. Accelerator caches, serialization buffers, embedded engine pools, and allocator retention sit outside it, so a process can be killed while the query pool still reports unused capacity.

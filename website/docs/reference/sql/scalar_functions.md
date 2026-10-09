@@ -2429,6 +2429,17 @@ date_part(part, expression)
 extract(field FROM source)
 ```
 
+`date_part` and `extract` return the same value for every field. For `dow`, both count Sunday as `0`:
+
+```sql
+> select date_part('dow', DATE '2024-01-07') AS date_part_dow, extract(dow FROM DATE '2024-01-07') AS extract_dow;
++---------------+-------------+
+| date_part_dow | extract_dow |
++---------------+-------------+
+| 0             | 0           |
++---------------+-------------+
+```
+
 #### Aliases
 
 - datepart
@@ -2858,8 +2869,10 @@ _Alias of [current_date](#current_date)._
 Array functions in Spice.ai SQL help construct, transform, and query array data types. These functions operate on array expressions, which can be constants, columns, or results of other functions. The implementation closely follows the PostgreSQL dialect. The following array functions are supported:
 
 - [array](#array)
+- [array_add](#array_add)
 - [array_any_value](#array_any_value)
 - [array_append](#array_append)
+- [array_avg](#array_avg)
 - [array_cat](#array_cat)
 - [array_concat](#array_concat)
 - [array_contains](#array_contains)
@@ -2881,6 +2894,7 @@ Array functions in Spice.ai SQL help construct, transform, and query array data 
 - [array_position](#array_position)
 - [array_positions](#array_positions)
 - [array_prepend](#array_prepend)
+- [array_product](#array_product)
 - [array_remove](#array_remove)
 - [array_remove_n](#array_remove_n)
 - [array_remove_all](#array_remove_all)
@@ -2890,8 +2904,11 @@ Array functions in Spice.ai SQL help construct, transform, and query array data 
 - [array_replace_all](#array_replace_all)
 - [array_resize](#array_resize)
 - [array_reverse](#array_reverse)
+- [array_scale](#array_scale)
 - [array_slice](#array_slice)
 - [array_sort](#array_sort)
+- [array_subtract](#array_subtract)
+- [array_sum](#array_sum)
 - [array_to_string](#array_to_string)
 - [array_union](#array_union)
 - [arrays_zip](#arrays_zip)
@@ -2928,6 +2945,34 @@ array(expression[, ..., expression_n])
 ```
 
 Reference: [Spark SQL `array`](https://spark.apache.org/docs/latest/api/sql/index.html#array).
+
+### `array_add`
+
+Returns the element-wise sum of two numeric arrays of equal length, computed as `array1[i] + array2[i]`. The result is an array of `Float64` values. If either element at a position is `NULL`, the result element at that position is `NULL`. Returns `NULL` if either array is `NULL`. Returns an error if the two arrays in a row have different lengths.
+
+```sql
+array_add(array1, array2)
+```
+
+#### Arguments
+
+- **array1**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+- **array2**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+
+#### Example
+
+```sql
+> select array_add([1.0, 2.0, 3.0], [10.0, 20.0, 30.0]);
++---------------------------------------------------------------------------------------------------------+
+| array_add(make_array(Float64(1),Float64(2),Float64(3)),make_array(Float64(10),Float64(20),Float64(30))) |
++---------------------------------------------------------------------------------------------------------+
+| [11.0, 22.0, 33.0]                                                                                      |
++---------------------------------------------------------------------------------------------------------+
+```
+
+#### Aliases
+
+- list_add
 
 ### `array_any_value`
 
@@ -2985,6 +3030,33 @@ array_append(array, element)
 - list_append
 - array_push_back
 - list_push_back
+
+### `array_avg`
+
+Returns the arithmetic mean of the elements of a numeric array as a `Float64` value. `NULL` elements are skipped and are not counted. Returns `NULL` if the array is `NULL`, is empty, or contains only `NULL` elements.
+
+```sql
+array_avg(array)
+```
+
+#### Arguments
+
+- **array**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+
+#### Example
+
+```sql
+> select array_avg([1.0, NULL, 3.0]);
++---------------------------------------------------+
+| array_avg(make_array(Float64(1),NULL,Float64(3))) |
++---------------------------------------------------+
+| 2.0                                               |
++---------------------------------------------------+
+```
+
+#### Aliases
+
+- list_avg
 
 ### `array_cat`
 
@@ -3298,6 +3370,33 @@ array_prepend(element, array)
 
 Aliases: `list_prepend`, `array_push_front`, `list_push_front`.
 
+### `array_product`
+
+Returns the product of the elements of a numeric array as a `Float64` value. `NULL` elements are skipped. Returns `NULL` if the array is `NULL`, is empty, or contains only `NULL` elements.
+
+```sql
+array_product(array)
+```
+
+#### Arguments
+
+- **array**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+
+#### Example
+
+```sql
+> select array_product([2.0, 3.0, 4.0]);
++-------------------------------------------------------------+
+| array_product(make_array(Float64(2),Float64(3),Float64(4))) |
++-------------------------------------------------------------+
+| 24.0                                                        |
++-------------------------------------------------------------+
+```
+
+#### Aliases
+
+- list_product
+
 ### `array_remove`
 
 Returns the array with the first occurrence of `element` removed.
@@ -3388,6 +3487,34 @@ array_reverse(array)
 
 Alias: `list_reverse`.
 
+### `array_scale`
+
+Multiplies each element of a numeric array by a numeric scalar, computed as `array[i] * scalar`. The result is an array of `Float64` values. A `NULL` element stays `NULL`. Returns `NULL` if the array or the scalar is `NULL`, and an empty array for an empty array.
+
+```sql
+array_scale(array, scalar)
+```
+
+#### Arguments
+
+- **array**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+- **scalar**: Numeric value to multiply each element by. Can be a constant or a column.
+
+#### Example
+
+```sql
+> select array_scale([1.0, 2.0, 3.0], 2.0);
++----------------------------------------------------------------------+
+| array_scale(make_array(Float64(1),Float64(2),Float64(3)),Float64(2)) |
++----------------------------------------------------------------------+
+| [2.0, 4.0, 6.0]                                                      |
++----------------------------------------------------------------------+
+```
+
+#### Aliases
+
+- list_scale
+
 ### `array_slice`
 
 Returns a slice of the array from `begin` to `end` (1-based, inclusive). Negative indices count from the end.
@@ -3407,6 +3534,61 @@ array_sort(array[, desc[, nulls_first]])
 ```
 
 Alias: `list_sort`.
+
+### `array_subtract`
+
+Returns the element-wise difference of two numeric arrays of equal length, computed as `array1[i] - array2[i]`. The result is an array of `Float64` values. If either element at a position is `NULL`, the result element at that position is `NULL`. Returns `NULL` if either array is `NULL`. Returns an error if the two arrays in a row have different lengths.
+
+```sql
+array_subtract(array1, array2)
+```
+
+#### Arguments
+
+- **array1**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+- **array2**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+
+#### Example
+
+```sql
+> select array_subtract([10.0, 20.0, 30.0], [1.0, 2.0, 3.0]);
++--------------------------------------------------------------------------------------------------------------+
+| array_subtract(make_array(Float64(10),Float64(20),Float64(30)),make_array(Float64(1),Float64(2),Float64(3))) |
++--------------------------------------------------------------------------------------------------------------+
+| [9.0, 18.0, 27.0]                                                                                            |
++--------------------------------------------------------------------------------------------------------------+
+```
+
+#### Aliases
+
+- list_subtract
+
+### `array_sum`
+
+Returns the sum of the elements of a numeric array as a `Float64` value. `NULL` elements are skipped. Returns `NULL` if the array is `NULL`, is empty, or contains only `NULL` elements.
+
+```sql
+array_sum(array)
+```
+
+#### Arguments
+
+- **array**: Array expression. Can be a constant, column, or function, and any combination of array operators.
+
+#### Example
+
+```sql
+> select array_sum([1.0, NULL, 3.0]);
++---------------------------------------------------+
+| array_sum(make_array(Float64(1),NULL,Float64(3))) |
++---------------------------------------------------+
+| 4.0                                               |
++---------------------------------------------------+
+```
+
+#### Aliases
+
+- list_sum
 
 ### `array_to_string`
 

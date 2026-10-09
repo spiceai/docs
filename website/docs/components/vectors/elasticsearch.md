@@ -84,7 +84,7 @@ When configured as a vector engine, Spice:
 3. Writes vectors and source fields to the configured Elasticsearch index, provisioning the index mapping when needed (`dense_vector` of the correct dimension plus text fields for full-text search).
 4. At query time, routes `vector_search`, `text_search`, and `rrf` against the Elasticsearch index using native kNN and BM25 queries.
 
-Source fields on the dataset are indexed as `text` in Elasticsearch so they can be used as full-text search targets. Primary key columns are indexed as `keyword` and included in kNN results so that matches can be joined back to the Spice base table when additional columns are requested.
+Source fields on the dataset are indexed as `text` in Elasticsearch so they can be used as full-text search targets. Primary key columns are mapped for exact matching — a string key as `keyword`, other key types as their native Elasticsearch type, such as `long` — and are included in kNN results so that matches can be joined back to the Spice base table when additional columns are requested.
 
 :::warning[Limitations]
 

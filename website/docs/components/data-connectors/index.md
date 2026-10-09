@@ -44,18 +44,18 @@ Supported Data Connectors include:
 | `delta_lake`                       | Delta Lake                            | Stable            | Delta Lake                   |
 | `dremio`                           | [Dremio][dremio]                      | Stable            | Arrow Flight                 |
 | `duckdb`                           | DuckDB                                | Stable            | Embedded                     |
-| `file`                             | File                                  | Stable            | Parquet, CSV                 |
+| `file`                             | File                                  | Stable            | Parquet, CSV, ORC            |
 | `github`                           | GitHub                                | Stable            | GitHub API                   |
 | `http`, `https`                    | HTTP(s) (dynamic headers, pagination) | Stable            | Parquet, CSV, JSON           |
 | `localpod`                         | [Local dataset replication][localpod] | Stable            |                              |
 | `postgres`                         | PostgreSQL (with native WAL CDC)      | Stable            |                              |
-| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV                 |
+| `s3`                               | [S3][s3]                              | Stable            | Parquet, CSV, ORC            |
 | `mysql`                            | MySQL (with native binlog CDC)        | Stable            |                              |
 | `spice.ai`                         | [Spice.ai][spiceai]                   | Stable            | Arrow Flight                 |
 | `dynamodb`                         | Amazon DynamoDB (with Streams)        | Stable            |                              |
 | `iceberg`                          | [Apache Iceberg][iceberg] (read+write) | Stable            | Parquet                      |
 | `flightsql`                        | FlightSQL                             | Stable            | Arrow Flight SQL             |
-| `glue`                             | [AWS Glue][glue]                      | Stable            | Iceberg, Parquet, CSV        |
+| `glue`                             | [AWS Glue][glue]                      | Stable            | Iceberg, Parquet, ORC, CSV   |
 | `mongodb`                          | MongoDB (with native Change Streams CDC) | Stable         |                              |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `cosmosdb`                         | Azure Cosmos DB (NoSQL)               | Release Candidate |                              |
@@ -68,17 +68,17 @@ Supported Data Connectors include:
 | `spark`                            | Spark                                 | Beta              | [Spark Connect][spark]       |
 | `sharepoint`                       | Microsoft SharePoint                  | Beta              | Object-store listing         |
 | `kafka`                            | Kafka                                 | Beta              | Kafka + JSON                 |
-| `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV                 |
+| `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, ORC            |
 | `clickhouse`                       | ClickHouse                            | Alpha             |                              |
 | `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
 | `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
-| `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON           |
+| `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON, ORC      |
 | `hf`                               | [Hugging Face][huggingface] datasets  | Alpha             | Parquet, CSV, TSV, JSON, ORC |
-| `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV                 |
+| `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, ORC            |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `scylladb`                         | ScyllaDB (Spice.ai Enterprise)        | Alpha             |                              |
 | `smb`                              | SMB 3.1.1                             | Alpha             | SMB                          |
-| `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON           |
+| `nfs`                              | NFS (Spice.ai Enterprise)             | Alpha             | Parquet, CSV, JSON, ORC      |
 
 [databricks]: https://github.com/spiceai/cookbook/tree/trunk/databricks#readme
 [spark]: https://spark.apache.org/docs/latest/spark-connect-overview.html
@@ -266,15 +266,23 @@ GROUP BY _location, _size
 ORDER BY _location;
 ```
 
-#### File Listing Pruning with `_last_modified`
+#### File Listing Pruning with Metadata Columns
 
-When `_last_modified` is enabled and a query filters on it, Spice uses the object store listing to skip files before opening them. Only files whose last-modified time satisfies the filter are read. A file that the filter excludes is never opened, so its footer is not read and a compressed file such as `jsonl.gz` is not decompressed. Spice still applies the filter to each row after the scan, so query results are unchanged.
+When a query filters on enabled metadata columns, Spice evaluates the filter against each object's listing metadata and skips the files it excludes before opening them. A skipped file is never opened, so its footer is not read and a compressed file such as `jsonl.gz` is not decompressed. Query results are unchanged.
 
 This helps an `append` refresh that uses `_last_modified` as its `time_column`, which enables the column automatically. Each refresh filters on `_last_modified > <last refresh watermark>`, so a refresh with no new files reads no data files.
 
-Pruning applies when the `_last_modified` conditions are combined with `AND` and each one compares the column with a constant timestamp using `>`, `>=`, `<`, `<=`, `=`, or `BETWEEN`. A condition that casts `_last_modified` to a coarser precision, such as `Timestamp(Second)`, does not prune files, because the truncated value can match rows that the file's exact last-modified time would exclude.
+A condition prunes the listing when it references only metadata columns (`_location`, `_last_modified`, `_size`). It is evaluated the same way as a row-level `WHERE`, so it can use comparisons, `BETWEEN`, `IN`, `LIKE`, casts, `OR`, `NOT`, and expressions that evaluate to a constant, such as `now() - INTERVAL '1 day'`. Both of these queries read only the files that match:
 
-Spice reads every file in the listing when a filter references `_last_modified` under `OR` or `NOT`, or compares it with a value that is not a constant, such as another column. The results are the same, but the query does not skip any files.
+```sql
+SELECT * FROM my_data WHERE _last_modified > now() - INTERVAL '1 day';
+
+SELECT * FROM my_data WHERE _size > 1048576 OR _location LIKE '%/year=2024/%';
+```
+
+Conditions joined by `AND` are considered separately, so `_last_modified > '2024-01-01T00:00:00Z' AND id = 0` still prunes by `_last_modified`. A single condition that mixes a metadata column with a data column, such as `_last_modified > '2024-01-01T00:00:00Z' OR id = 0`, does not prune the listing: Spice reads every file and applies the condition to each row.
+
+A `_location = '<uri>'` or `_location IN (...)` condition reads only the named objects. Every other condition in the query, including a filter on a Hive partition column, still applies to the rows of those objects.
 
 #### Queries That Read Only Partition or Metadata Columns
 

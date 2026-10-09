@@ -37,9 +37,9 @@ Acceleration snapshots let Spice reuse a pre-built acceleration file on startup 
 ## How it works
 
 - On startup, Spice checks whether the file supplied in `acceleration.params` (for example `duckdb_file`) exists.
-- If the file is missing and snapshots are enabled, Spice looks under the configured snapshot location and downloads the newest snapshot for that dataset.
-- If no snapshot is available, the acceleration boots empty and refreshes from the source.
-- Spice creates new snapshots based on the configured `snapshots_trigger` mode.
+- If the file is missing and snapshots are enabled, Spice looks under the configured snapshot location and downloads the newest snapshot for that dataset. The download runs as consecutive 8 MiB range requests, four at a time, each with its own retries, so a slow connection does not restart the whole download. Each download holds at most 32 MiB in memory.
+- If no snapshot is available, the acceleration boots empty and refreshes from the source. A [`refresh_mode: snapshot`](./refresh-modes/snapshot) reader instead waits for the first snapshot.
+- Spice creates new snapshots based on the configured `snapshots_trigger` mode. A snapshot that fails for a transient reason, such as a network or object store error, is retried up to three times with backoff. A permanent failure, such as a schema mismatch, an unreadable `metadata.json`, or a store that does not enforce [conditional writes](#conditional-writes-on-the-snapshot-location), is not retried.
 
 Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset` accelerated with DuckDB, Spice writes files such as:
 
@@ -90,7 +90,7 @@ snapshots:
 
 `location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
 
-When the location is an S3 bucket, `params` accepts these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
+When the location is an S3 bucket, `params` accepts these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications, so [`refresh_mode: snapshot` readers reload on publication](./refresh-modes/snapshot#reload-on-s3-event-notifications)), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
 
 An invalid S3 parameter value, such as `s3_auth: public`, disables snapshots for the dataset. Spice logs an error that names the dataset, the location, and the parameter, and does not fall back to default parameters. Those defaults would drop every other configured parameter, including `s3_endpoint`, `s3_region`, and the credentials, so snapshots could be written to a different store or with a different identity than the one configured. When `s3_queue_url` is set, the dataset fails to register with the parameter error instead. Fix the parameter and restart Spice.
 
@@ -113,6 +113,18 @@ When other writers keep changing `metadata.json`, Spice makes up to 10 attempts 
 Restoring a snapshot at startup, and reloading one with [`refresh_mode: snapshot`](./refresh-modes/snapshot) or [`file_format: snapshot`](#serve-a-dataset-from-published-snapshots), only reads `metadata.json` and does not probe the store.
 
 In Spice v2.3.2 and earlier, a `file://` location records only its first publish. Every later publish, from any dataset, uploads its snapshot file and then fails to update `metadata.json` with the error ``Operation `put_opts` with mode `PutMode::Update` not yet implemented by LocalFileSystem``.
+
+### Several instances creating one dataset's snapshots
+
+When more than one Spice instance creates snapshots of the same dataset at the same location, only one of them uploads. The instances race for a lease object, `leases/<dataset>.json` under the location, with the same conditional writes as `metadata.json`. The holder renews the lease each time it is about to create a snapshot. The other instances skip their uploads and log a message such as:
+
+```text
+Dataset 'orders' is not creating snapshots while instance 'spice-1' holds its snapshot writer lease; this instance takes over if that lease goes 2m without renewal. See: https://spiceai.org/docs/features/data-acceleration/snapshots
+```
+
+A lease lasts twice the dataset's snapshot interval, kept between 30 seconds and 24 hours. The interval is `snapshots_trigger_threshold` with `snapshots_trigger: time_interval` and `refresh_check_interval` with `refresh_complete`, and otherwise 10 minutes. Another instance takes over a lease that has gone unrenewed that long, as measured on its own clock, so clock skew between instances does not expire a live lease. A holder whose snapshot fails releases the lease at once. A holder that loses the lease during an upload does not publish that snapshot over a newer one from the instance that took over.
+
+Each instance is identified by the `SPICE_INSTANCE_ID` environment variable, or by its host name when the variable is unset, so a restarted instance resumes the lease it held. Give each replica a distinct `SPICE_INSTANCE_ID`: two processes with the same identity both upload, and each logs a warning naming the identity.
 
 ### Snapshot location and the Cayenne data tier
 

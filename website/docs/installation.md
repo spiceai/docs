@@ -42,6 +42,8 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
   </TabItem>
 </Tabs>
 
+On macOS, Linux, and WSL, the install script does not use `sudo` to install the `spice` CLI into `~/.spice/bin`, so it also runs without a terminal, such as in a CI job.
+
 ## Direct Download
 
 Binaries for Linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).

@@ -21,18 +21,18 @@ Spice is dual-era. It serves the [`2026-07-28`](https://modelcontextprotocol.io/
 | **Modern** (`2026-07-28`) | `server/discover`, then `tools/list` and `tools/call` with per-request `_meta` — no `initialize` first | Sessionless. No `Mcp-Session-Id`. |
 | **Legacy** (`2025-11-25` and earlier, including `2025-03-26`) | `initialize`, then `notifications/initialized` | Spice mints an `Mcp-Session-Id` and requires it on subsequent requests. |
 
-Spice advertises `2026-07-28`; a legacy client negotiates the revision it requests in `initialize`.
+Spice advertises `2026-07-28` and accepts `2024-11-05`, `2025-03-26`, `2025-06-18`, `2025-11-25`, and `2026-07-28`, the list `server/discover` returns in `supportedVersions`. A legacy client negotiates the revision it requests in `initialize`. An `initialize` that requests `2026-07-28`, or a revision Spice does not support, is answered with `2025-11-25`, the newest legacy revision.
 
 Modern clients send the `MCP-Protocol-Version`, `Mcp-Method`, and — for `tools/call` — `Mcp-Name` Streamable HTTP headers. A tool argument annotated with `x-mcp-header` additionally requires a matching `Mcp-Param-<name>` header whose value equals that argument in the JSON-RPC body.
 
 | Condition | Response |
 | --- | --- |
-| A protocol version this runtime does not support | JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
+| A modern request whose protocol version this runtime does not support | HTTP `400` with JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
 | A Streamable HTTP header that disagrees with the JSON-RPC body | HTTP `400` with JSON-RPC `-32020` |
 
-`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. A `2026-07-28` client POSTs `subscriptions/listen` instead of opening a GET stream.
+`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. Spice does not serve `subscriptions/listen`, the `2026-07-28` notification stream: the request returns HTTP `404` with JSON-RPC `-32601` (method not found).
 
-When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer is pre-2026. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
+When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer answers `server/discover` with an error or does not answer it within 10 seconds. A peer that never answers `server/discover` therefore delays runtime startup by 10 seconds. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
 
 ## Configuring MCP Tools
 

@@ -203,6 +203,12 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::
 
+## Casts Evaluated in Spice
+
+MySQL rounds a floating-point or decimal value to the nearest integer when it casts the value to an integer type, so `CAST(1.5 AS SIGNED)` returns `2`. Spice truncates toward zero and returns `1`. A `CAST` or `TRY_CAST` from a floating-point or decimal value into an integer type is therefore not sent to MySQL: Spice reads the referenced columns and evaluates the cast itself. This applies to filters too, so `WHERE CAST(price AS INT) = 1` selects the rows whose `price` truncates to `1`. The other conditions in the same `WHERE` clause are still sent to MySQL.
+
+DataFusion's cast and type functions, such as [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), `cast_to_type`, and [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), are also evaluated in Spice. Run [`EXPLAIN`](../../../reference/sql/explain.md) to see which parts of a query are sent to MySQL.
+
 ## Limitations
 
 - MySQL has no native nested or array column types (see the [MySQL data types reference](https://dev.mysql.com/doc/refman/8.4/en/data-types.html)), so columns containing Arrow `Struct`, `List`, or `LargeList` values are not supported by this connector.

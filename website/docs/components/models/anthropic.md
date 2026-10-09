@@ -11,6 +11,14 @@ To use a specific model, include its model ID in the `from` field (see example b
 
 The default deliberately trails Anthropic's newest model. Claude 5 models reject `temperature` and `top_p` individually, so a request that sets either of them fails against them; `claude-sonnet-4-6` is the newest model that still accepts each of them. It accepts them one at a time, not in every combination — Claude 4 and later reject `temperature` and `top_p` set *together*, and reject a trailing assistant message (a response prefill). Set `from: anthropic:<model_id>` to use a newer model, and drop these parameters when you do.
 
+When a model refuses `temperature` or `top_p`, Spice returns HTTP `400` with an error that names the model, the parameter, and where to remove it:
+
+```
+Failed to run a chat completion with Anthropic model 'claude-sonnet-5': the model does not accept the `temperature` parameter. Remove `temperature` from the request and from the model's `params` (as `temperature`, `anthropic_temperature` or `openai_temperature`), or set `from: anthropic:<model_id>` to a model that accepts it. Cause: `temperature` is deprecated for this model. See: https://spiceai.org/docs/components/models/anthropic
+```
+
+A streaming request receives the same message in an SSE `error` event.
+
 Per-token log probabilities are not available from any Anthropic model — the Messages API returns none. A request that sets `logprobs: true` or `top_logprobs` is therefore refused by Spice before it reaches Anthropic, rather than answered with a completion that silently omits what was asked for. The refusal is an `invalid_request_error` naming the parameter:
 
 ```

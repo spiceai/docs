@@ -202,6 +202,16 @@ As with `concat`, the check covers the operand's whole expression, and an operan
 
 The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
 
+## Casts and Type Functions Evaluated in Spice
+
+Spice evaluates the following expressions itself, above the federated scan, because DuckDB answers them differently or does not define them. The rest of the query, including other filters, is still sent to DuckDB.
+
+- **A `CAST` or `TRY_CAST` from a floating-point or decimal value into an integer type.** Spice truncates toward zero, so `CAST(1.7 AS INT)` returns `1`. DuckDB rounds to the nearest integer and returns `2`. A filter such as `WHERE CAST(fare_amount AS INT) = 7` therefore selects the same rows as it does on an unaccelerated dataset. A cast from an integer, boolean, or string value, and a cast into a floating-point or decimal type, are sent to DuckDB.
+- **A `CAST` or `TRY_CAST` into a binary type**, such as `CAST(name AS BYTEA)`, whatever the type of its operand.
+- **DataFusion's cast and type functions**: [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), [`arrow_try_cast`](../../../reference/sql/scalar_functions.md#arrow_try_cast), `cast_to_type`, `try_cast_to_type`, [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), `arrow_field`, [`arrow_metadata`](../../../reference/sql/scalar_functions.md#arrow_metadata), and `with_metadata`. DuckDB has no functions with most of these names, and its own `cast_to_type` casts by DuckDB's rules.
+
+Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast appears in a `ProjectionExec` or `FilterExec` above the `VirtualExecutionPlan`, and the `base_sql` sent to DuckDB selects only the referenced columns. These rules apply wherever the DuckDB dialect is used, including the [DuckDB accelerator](../../data-accelerators/duckdb/index.md).
+
 ## Decimal Averages
 
 `AVG` over a decimal column is sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, and Spice converts that `DOUBLE` to the decimal result type of the average by multiplying it by a power of ten in floating point and rounding to the nearest integer ([the cast from a floating-point value to a decimal](https://github.com/spiceai/arrow-rs/blob/2e2cc330c64ac8a9e44d2a5f2da171b391f775b8/arrow-cast/src/cast/decimal.rs#L814-L820) in Arrow). When Spice evaluates the average itself, it divides the exact decimal sum and truncates the result to the scale of the result type. The two can differ in two ways.

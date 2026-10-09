@@ -14,7 +14,7 @@ Datasets and views can be locally accelerated by the Spice runtime, pulling data
 
 Local data acceleration stores data alongside the application, providing faster query times by eliminating network latency. This is especially beneficial for large query results, as data transfer over the network is avoided. Depending on the [Acceleration Engine](../components/data-accelerators) used, data can also be stored in-memory, further reducing query times. [Indexes](data-acceleration/indexes) can be applied to speed up certain queries.
 
-Locally accelerated datasets can also have [primary key constraints](data-acceleration/constraints) applied. This feature supports specifying actions when a constraint is violated, such as dropping the violating row or upserting it into the accelerated table.
+Locally accelerated datasets can also have [primary key constraints](data-acceleration/constraints) applied. Spice Cayenne keeps [one row per primary key](data-acceleration/constraints#one-row-per-primary-key-on-spice-cayenne) with no further configuration. Other accelerators drop or upsert a violating row as the deprecated `on_conflict` setting specifies.
 
 [Acceleration snapshots](data-acceleration/snapshots) (preview) help file-mode accelerations become ready in seconds by bootstrapping from managed snapshots stored in object storage such as Amazon S3.
 
