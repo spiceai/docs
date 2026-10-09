@@ -214,13 +214,9 @@ Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast ap
 
 ## Decimal Averages
 
-`AVG` over a decimal column is sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, and Spice converts that `DOUBLE` to the decimal result type of the average by multiplying it by a power of ten in floating point and rounding to the nearest integer ([the cast from a floating-point value to a decimal](https://github.com/spiceai/arrow-rs/blob/2e2cc330c64ac8a9e44d2a5f2da171b391f775b8/arrow-cast/src/cast/decimal.rs#L814-L820) in Arrow). When Spice evaluates the average itself, it divides the exact decimal sum and truncates the result to the scale of the result type. The two can differ in two ways.
+`AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum in decimal arithmetic and truncates the result to the scale of the result type. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
 
-Rounding the `DOUBLE` instead of truncating can change the last digit. For the values `0.01`, `0.01`, and `0.00` in a `DECIMAL(15, 2)` column, DuckDB returns `0.006666666666666667`, which Spice converts to `0.006667`, while Spice's own evaluation returns `0.006666`.
-
-Scaling in floating point can change the integer digits of a large value. For two `9000000000000000000.00` values in a `DECIMAL(38, 2)` column, DuckDB returns exactly `9000000000000000000` as a `DOUBLE`, but scaling it in floating point gives `9000000000000000385.875968`, while Spice's own evaluation returns `9000000000000000000.000000`.
-
-DuckDB's decimal `SUM` is exact. The same pushdown applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Cookbook
 
