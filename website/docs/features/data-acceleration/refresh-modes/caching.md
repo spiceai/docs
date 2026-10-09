@@ -493,6 +493,18 @@ A cache entry is **always** addressed by HTTP request metadata — `request_path
 - The cache key serves as the logical grouping mechanism for row replacement
 - Content within a response may have duplicate values across different requests
 
+#### GET and POST Requests to the Same Path
+
+The HTTP connector sends a GET when a query names no `request_body` value, and a POST with each body the query names. It stores a GET response with `request_body = ''` and a POST response with the body it sent. When the dataset schema includes `request_body`, a lookup keeps the two apart:
+
+- A query with a predicate on `request_path`, `request_query`, `request_body`, or `request_headers` that names no body value reads only cached GET responses. A POST response cached for the same path does not answer it. A predicate the connector does not turn into a request value, such as `request_body <> 'x'` or `request_body LIKE '%x%'`, still sends a GET, so it also reads only GET responses.
+- A query that names an empty body, such as `request_body = ''`, sends a POST with an empty body. Its response would be stored exactly as a GET response is, so the two could not be told apart. This query therefore bypasses the accelerator: each call that reaches it goes to the origin, and its response is not stored. The [SQL results cache](../../caching) in front of the accelerator can still return an identical query's earlier result within its `item_ttl`; [Prefer the origin, fall back on failure](#prefer-the-origin-fall-back-on-failure) explains how to send every query to the origin.
+- A query with predicates only on other columns, such as `content` or `response_status`, reads every cached entry, as an unfiltered scan does.
+
+Entries persisted by a runtime without this separation keep the values they were written with. In a file-backed cache, a response to an explicit-empty POST written by such a runtime is stored with `request_body = ''`, so it can still answer a GET lookup until a refresh replaces it or the entry is evicted.
+
+A refresh of a cached GET response, including a [stale-while-revalidate](#stale-while-revalidate-pattern) refresh, requests it from the origin again as a GET.
+
 A declared `primary_key` does not change how entries are addressed. It is a uniqueness constraint on the rows the accelerator stores, and it must name columns that exist in the dataset schema:
 
 - **A key over response fields** (for example an API's own record id) declares that stored rows are unique on those fields. Response fields are not columns unless the dataset projects them, so this requires a [`columns:` block](../../../components/data-connectors/https#metadata-columns-with-json-schema-decomposition) — an HTTP dataset's schema is otherwise the request/response metadata plus `content`.
@@ -787,6 +799,7 @@ Choose one approach:
 - Currently only available for HTTP-based datasets using the [HTTPS connector](../../../components/data-connectors/https). Future releases will extend support to arbitrary queries from any data source.
 - Requires `acceleration.enabled: true`
 - Cache keys are always the request metadata fields (`request_path`, `request_query`, `request_body`); a declared `primary_key` constrains stored-row uniqueness, not entry addressing
+- A query that names a `request_path` but no `request_query` can be answered with a response cached for a request to the same path with a query ([spiceai/spiceai#14881](https://github.com/spiceai/spiceai/issues/14881)).
 - On-demand refresh via `/v1/datasets/:name/acceleration/refresh` API triggers a new refresh for all cache keys defined in `refresh_sql`
 
 ## Cookbook
