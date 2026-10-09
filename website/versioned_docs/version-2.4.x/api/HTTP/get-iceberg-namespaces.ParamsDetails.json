@@ -1,0 +1,1 @@
+{"parameters":[{"name":"parent","in":"query","description":"The parent namespace from which to retrieve child namespaces.","required":false,"schema":{"type":"object","required":["parts"],"properties":{"parts":{"type":"array","items":{"type":"string"}}},"title":"Namespace"}}]}

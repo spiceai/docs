@@ -1,0 +1,293 @@
+---
+title: 'Constraints'
+sidebar_label: 'Constraints'
+sidebar_position: 2
+description: 'Learn how to add/configure constraints on local acceleration tables in Spice.'
+---
+
+Constraints enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality and configure behavior for data updates that violate constraints.
+
+Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
+
+Spice Cayenne keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne). On other accelerators, what happens to a violating row depends on the engine and the `on_conflict` setting, as described in [Handling conflicts](#handling-conflicts).
+
+Example Spicepod:
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash # Define a primary key on the `hash` column
+      indexes:
+        '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
+```
+
+## Column References
+
+Column references can be used to specify which columns are part of the constraint. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional.
+
+Examples
+
+- `number`: Reference a constraint on the `number` column
+- `(hash, timestamp)`: Reference a constraint on the `hash` and `timestamp` columns
+- `hash, timestamp`: The same multicolumn key, written without parentheses
+
+### Column names
+
+The names in a column reference are matched against the schema's field names as written — they are not SQL identifiers, so a name that SQL would read as a qualifier chain (`service.instance.id`) or reject outright (`sentry-environment`, `2xx_count`) is a single column name here and needs no special treatment.
+
+A name may also be double-quoted the way SQL writes it. The quotes are not part of the name, and any whitespace or casing inside them is preserved:
+
+- `service.instance.id` and `"service.instance.id"` both reference the same column
+- `(time_unix_nano, "service.instance.id")`: A multicolumn key mixing both forms
+
+A column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced. Each of those characters separates fields in the strings a column reference is carried in, so such a name cannot be read back unambiguously; the runtime refuses it at load with a configuration error naming the column and the character, rather than silently splitting it.
+
+### Primary key columns must be non-null
+
+Every column named by `primary_key` must be populated in the incoming data. On the [Spice Cayenne](../../components/data-accelerators/cayenne) accelerator a batch carrying a null in any primary key column is rejected with an error naming the offending column(s), for example:
+
+```text
+Primary key column 'region' has null values. Every primary key column must be non-null: populate it in the source data, or set `primary_key` to columns that are always present.
+```
+
+Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
+
+## One row per primary key on Spice Cayenne
+
+On the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) accelerator, a `primary_key` alone decides which version of a key is kept, with nothing else to configure. Cayenne is the [default engine](../../components/data-accelerators/index.md#default-engine) on Linux and macOS, so this also applies to an acceleration that sets no `engine` there. A refresh keeps:
+
+| Dataset                                                                   | Version kept for a repeated key                                                                                   |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `refresh_mode: changes`                                                   | Each source change, applied in order.                                                                             |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                    |
+
+The rule applies to a key repeated within one write and to a key the table already stores. A SQL `INSERT` keeps the version that arrived last. Arrival order is not defined when a source is read in parallel, so set a [`time_column`](../../reference/spicepod/datasets.md#time_column) for a reproducible result. With `refresh_mode: append`, set [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) to how late rows can arrive, so that a late update to an older row is re-read. Each Cayenne dataset with a `primary_key` logs its rule at load, for example:
+
+```text
+Dataset 'events' keeps one row per 'id': the newest by 'updated_at', or the version that arrived last when times are equal.
+```
+
+A refresh that orders versions by `time_column` fails when the rows it reads do not include that column. An `UPDATE` that would give a row a key another row keeps, or a `NULL` key, fails and changes nothing. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) for the full rules, the messages Cayenne logs, and the `dataset_acceleration_rows_superseded` metric.
+
+Two configurations do not keep one row per key. [`cayenne_pk_conflict_detection: none`](../../components/data-accelerators/cayenne/index.md#parameters) turns off key resolution, so repeated keys are stored as written. A partitioned acceleration (`partition_by`) resolves keys within each partition, so a key that lands in two partitions is stored once in each unless every partition column is part of the `primary_key`.
+
+## Handling conflicts
+
+:::warning Deprecated
+`acceleration.on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys: it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne), with the exceptions listed there, and logs a warning at load that names any change in which version is kept. Other accelerators keep the behavior described in this section and log a warning at load:
+
+```text
+Dataset 'orders' sets `acceleration.on_conflict`, which is deprecated and removed in 3.0. Use `engine: cayenne` to keep one row per primary key without it.
+```
+
+Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow, and Cayenne [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions). Change streams on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
+:::
+
+On accelerators other than Spice Cayenne, the behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
+
+:::warning
+A key can repeat within the incoming data itself, not only against a stored row.
+
+**`drop` on DuckDB and SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
+
+**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
+
+**Spice Cayenne** does not use `on_conflict` to resolve keys and keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
+:::
+
+Example Spicepod:
+
+```yaml
+datasets:
+  - from: spice.ai/eth.recent_blocks
+    name: eth.recent_blocks
+    acceleration:
+      enabled: true
+      engine: sqlite
+      primary_key: hash # Define a primary key on the `hash` column
+      indexes:
+        '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
+      on_conflict:
+        # Upsert the incoming data when the primary key constraint on "hash" is violated,
+        # alternatively "drop" can be used instead of "upsert" to drop the data update.
+        hash: upsert
+```
+
+### Advanced Upsert Options
+
+By default, even when `upsert` is configured, if there are constraint violations, such as duplicates within the same batch of ingested data, it will result in a constraint violation - as attempting to upsert data into the target acceleration engine results in an error if done in a single statement. (i.e. [PostgreSQL rejects an `INSERT` that proposes the same row more than once](https://www.postgresql.org/docs/18/sql-insert.html)) Spice Cayenne does not use these options; it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
+
+Spice provides two `upsert` options to resolve duplicates within a single update:
+
+- `upsert_dedup`: Removes exact duplicates in the incoming batch if there is a constraint violation. (i.e. the equivalent of running `SELECT DISTINCT * FROM [batch]`)
+- `upsert_dedup_by_row_id`: Resolves conflicts by taking the row with the greatest row id. This is the behavior that would occur if the upsert were applied row-by-row. This guarantees that no constraint violations would result in an error, but it has the tradeoff of being effectively "random" if the incoming data is not ordered.
+
+Neither option is ordered by [`time_column`](../../reference/spicepod/datasets#time_column). `upsert_dedup` drops only **exact** duplicates (every column equal). If the same primary key appears twice in one batch with different payloads, the load errors rather than picking one revision.
+
+`upsert_dedup_by_row_id` is last-write-wins by the order rows land in that batch, not by an update timestamp. Parallel scan or insert can reorder rows across partitions. An `ORDER BY` in [`refresh_sql`](./data-refresh#refresh-sql) is not a guarantee through to conflict resolution.
+
+Safer pattern: collapse to latest-per-key first (upstream, or by filtering in `refresh_sql` so a batch cannot carry two revisions of the same key), then upsert.
+
+The new behavior is only triggered when an incoming batch has a constraint violation, minimizing the effect of applying these computations to only when its necessary. However, they can have a performance impact and are not enabled by default.
+
+Full configuration example:
+
+```yaml
+acceleration:
+  enabled: true
+  engine: duckdb
+  mode: file
+  primary_key: id
+  on_conflict:
+    id: upsert_dedup # upsert_dedup_by_row_id
+```
+
+<details>
+      <summary>Examples for advanced upsert behavior</summary>
+      <div>
+
+        Take these two CSV files:
+
+        `one.csv`:
+        ```csv
+        foo,bar
+        a,1
+        b,2
+        a,1
+        ```
+
+        Behavior on `one.csv` with a primary key on `foo` and `on_conflict` set to:
+        - `upsert`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup`: Will succeed in loading 2 rows, the `a,1` row is reduced to a single instance.
+        - `upsert_dedup_by_row_id`: Same as `upsert_dedup`
+
+        `two.csv`:
+        ```csv
+        foo,bar
+        a,1
+        b,2
+        a,10
+        ```
+
+        Behavior on `one.csv` with a primary key on `foo` and `on_conflict` set to:
+        - `upsert`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup`: Will error with: `Constraint Violation: Incoming data violates uniqueness constraint on column(s): foo`
+        - `upsert_dedup_by_row_id`: Will succeed in loading 2 rows, `a,10` and `b,2`. The primary key violation is resolved to the row that occurred later.
+      </div>
+    </details>
+
+## Limitations
+
+- **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop.
+  - <details>
+      <summary>Examples for valid/invalid `on_conflict` targets</summary>
+      <div>
+        The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert`:
+
+    :::danger[Invalid]
+
+    ```yaml
+    datasets:
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        acceleration:
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            '(number, timestamp)': unique
+          on_conflict:
+            hash: upsert
+            '(number, timestamp)': upsert
+    ```
+
+    :::
+
+          The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
+
+    :::tip[Valid]
+
+    ```yaml
+    datasets:
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        acceleration:
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            '(number, timestamp)': unique
+          on_conflict:
+            hash: drop
+            '(number, timestamp)': drop
+    ```
+
+    :::
+
+          The following Spicepod is invalid because it specifies multiple `on_conflict` targets with `upsert` and `drop`:
+
+    :::danger[Invalid]
+
+    ```yaml
+    datasets:
+      - from: spice.ai/eth.recent_blocks
+        name: eth.recent_blocks
+        acceleration:
+          enabled: true
+          engine: sqlite
+          primary_key: hash
+          indexes:
+            '(number, timestamp)': unique
+          on_conflict:
+            hash: upsert
+            '(number, timestamp)': drop
+    ```
+
+    :::
+
+      </div>
+    </details>
+
+- **DuckDB Limitations:**
+  - DuckDB does not support `upsert` for datasets with List or Map types.
+  - Standard indexes unexpectedly act like unique indexes and block updates when `upsert` is configured.
+    - <details>
+        <summary>Standard indexes blocking updates</summary>
+        <div>
+          The following Spicepod specifies a standard index on the `number` column, which blocks updates when `upsert` is configured for the `hash` column:
+
+          ```yaml
+          datasets:
+            - from: spice.ai/eth.recent_blocks
+              name: eth.recent_blocks
+              acceleration:
+                enabled: true
+                engine: duckdb
+                primary_key: hash
+                indexes:
+                  number: enabled
+                on_conflict:
+                  hash: upsert
+          ```
+
+          The following error is returned when attempting to upsert data into the `eth.recent_blocks` table:
+
+          ```bash
+          ERROR runtime::accelerated_table::refresh: Error adding data for eth.recent_blocks: External error:
+          Unable to insert into duckdb table: Binder Error: Can not assign to column 'number' because
+          it has a UNIQUE/PRIMARY KEY constraint
+          ```
+
+          This is a limitation of DuckDB.
+
+        </div>
+      </details>
+
+## Cookbook
+
+- A cookbook recipe to enforce constraints on locally accelerated data in Spice. [Accelerated table data quality with constraint enforcement](https://github.com/spiceai/cookbook/tree/trunk/acceleration/constraints#readme)

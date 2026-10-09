@@ -1,0 +1,38 @@
+---
+title: "models"
+sidebar_label: "models"
+pagination_prev: null
+pagination_next: null
+---
+
+Lists models loaded by the Spice runtime
+
+### Usage
+
+```shell 
+spice models [flags]
+```
+
+#### Flags
+
+- `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
+- `-o`, `--output <format>` Output format: `table` (default) or `json`.
+- `-h`, `--help`   help for models
+
+### Examples
+
+```shell
+>>> spice models
+
+ID     OWNED_BY STATUS ERROR
+modlz  local    Ready
+```
+
+### Additional Example
+
+```shell
+>>> spice models --tls-root-certificate-file /path/to/cert.pem
+
+ID     OWNED_BY STATUS ERROR
+modlz  local    Ready
+```

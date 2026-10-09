@@ -1,0 +1,227 @@
+---
+title: 'DuckDB Data Connector'
+sidebar_label: 'DuckDB Data Connector'
+description: 'DuckDB Data Connector Documentation'
+---
+
+DuckDB is an in-process SQL OLAP (Online Analytical Processing) database management system designed for analytical query workloads. It is optimized for fast execution and can be embedded directly into applications, providing efficient data processing without the need for a separate database server.
+
+This connector supports DuckDB [persistent databases](https://duckdb.org/docs/connect/overview#persistent-database) as a data source for federated SQL queries.
+
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: my_dataset
+    params:
+      duckdb_open: path/to/duckdb_file.duckdb
+```
+
+## Configuration
+
+### `from`
+
+The `from` field supports one of two forms:
+
+| `from`                         | Description                                                                                                                                                                                         |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `duckdb:database.schema.table` | Read data from a table named `database.schema.table` in the DuckDB file                                                                                                                             |
+| `duckdb:*`                     | Read data using any DuckDB function that produces a table. For example one of the [data import](https://duckdb.org/docs/data/overview) functions such as `read_json`, `read_parquet` or `read_csv`. |
+
+:::info
+Unquoted identifiers are normalized to lowercase. To reference a table or schema with mixed-case characters, wrap each case-sensitive part in double quotes: `duckdb:my_database."MySchema"."MyTable"`. See [Identifier Case Sensitivity](../index.md#identifier-case-sensitivity-and-quoting).
+:::
+
+### `name`
+
+The dataset name. This will be used as the table name within Spice.
+
+Example:
+
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: cool_dataset
+    params: ...
+```
+
+```sql
+SELECT COUNT(*) FROM cool_dataset;
+```
+
+```shell
++----------+
+| count(*) |
++----------+
+| 6001215  |
++----------+
+```
+
+The dataset name cannot be a [reserved keyword](../../reference/spicepod/keywords).
+
+### `params`
+
+The DuckDB data connector can be configured by providing the following `params`:
+
+| Parameter Name | Description                              |
+| -------------- | ---------------------------------------- |
+| `duckdb_open`  | Path to the DuckDB database file to open. |
+
+Configuration `params` are provided either in the top level `dataset` for a dataset source, or in the `acceleration` section for a data store.
+
+:::info[Timestamps are read in UTC]
+Spice pins every DuckDB session it opens to `SET TimeZone = 'UTC'`, so a `TIMESTAMPTZ` column always reaches Spice as `Timestamp(us, "UTC")` regardless of the host's timezone. Without this the Arrow schema — and therefore the instant a naive literal such as `WHERE ts > TIMESTAMP '2024-01-15 15:00:00'` denotes — would differ from machine to machine, because DuckDB labels an exported `TIMESTAMPTZ` with the connection's own `TimeZone` setting. Convert in SQL (`ts AT TIME ZONE 'Asia/Tokyo'`) if you need a local-time reading.
+:::
+
+## Examples
+
+### Reading from a relative path
+
+A generic example of DuckDB data connector configuration.
+
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: my_dataset
+    params:
+      duckdb_open: path/to/duckdb_file.duckdb
+```
+
+### Reading from an absolute path
+
+```yaml
+datasets:
+  - from: duckdb:sample_data.nyc.rideshare
+    name: nyc_rideshare
+    params:
+      duckdb_open: /my/path/my_database.db
+```
+
+### DuckDB Functions
+
+Common [data import](https://duckdb.org/docs/data/overview) DuckDB functions can also define datasets. Instead of a fixed table reference (e.g. `database.schema.table`), a DuckDB function is provided in the `from:` key. For example
+
+```yaml
+datasets:
+  - from: duckdb:database.schema.table
+    name: my_dataset
+    params:
+      duckdb_open: path/to/duckdb_file.duckdb
+
+  - from: duckdb:read_csv('test.csv', header = false)
+    name: from_function
+```
+
+Datasets created from DuckDB functions are similar to a standard `SELECT` query. For example:
+
+```yaml
+datasets:
+  - from: duckdb:read_csv('test.csv', header = false)
+```
+
+is equivalent to:
+
+```sql
+-- from_function
+SELECT * FROM read_csv('test.csv', header = false);
+```
+
+Many DuckDB data imports can be rewritten as DuckDB functions, making them usable as Spice datasets. For example:
+
+```sql
+SELECT * FROM 'todos.json';
+
+-- As a DuckDB function
+SELECT * FROM read_json('todos.json');
+```
+
+:::warning[Limitations]
+
+- The DuckDB connector does not support enum, dictionary, or map [field types](https://duckdb.org/docs/sql/data_types/overview). For example:
+  - Unsupported:
+    - `SELECT MAP(['key1', 'key2', 'key3'], [10, 20, 30])`
+- The DuckDB connector does not support `Decimal256` (76 digits), as it exceeds DuckDB's maximum Decimal width of 38 digits.
+
+:::
+
+## Regular Expression Functions and Federation
+
+Two of DataFusion's regular-expression built-ins are never sent to DuckDB, because DuckDB cannot answer them the way Spice does. A query using one of them is still valid — the call is evaluated in Spice, above the federated scan — but a plan containing it does not federate, so the scan under it reads its columns out of DuckDB instead of filtering there.
+
+| Function | Why it is not sent to DuckDB |
+| --- | --- |
+| `regexp_match` | It returns the first match's *capture groups* as a list, and `NULL` when nothing matches. DuckDB has no function with those semantics: `regexp_extract(s, p, 0)` returns the whole match as a plain string, and the empty string — not `NULL` — when nothing matches. |
+| `regexp_instr` | DuckDB has no function of that name, so a federated call failed outright with `Catalog Error: Scalar Function with name regexp_instr does not exist!`. |
+
+### `regexp_count` pushes down one call shape at a time
+
+`regexp_count` is sent to DuckDB, rendered as `len(regexp_extract_all(x, p))`. Both engines return `NULL` for a `NULL` input, so an accelerated query and an unaccelerated one agree on `NULL` rows.
+
+Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differently, and a disagreement changes *which rows match* rather than raising an error, the dialect renders only a call it has been measured to count identically. Every other shape is evaluated in Spice instead — that refusal is not an error, and the query still answers. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal.** A pattern read from a column cannot be inspected at plan time, so such a call stays local.
+- **The pattern cannot match the empty string.** DataFusion skips an empty match that abuts the match before it and RE2 keeps it, so `regexp_count(s, 'a*')` over `ab` counts 2 in Spice and 3 in DuckDB. A pattern that can never match at all is refused for the same reason.
+- **The pattern uses only syntax both engines read alike.** Admitted: literal text and `\.`-style, `\xHH`, `\x{...}` and `\n`-style escapes; `.`; bracketed classes of literals and ranges, negated or not; the `?`, `*`, `+` and `{m,n}` repetitions, greedy or lazy, where the nested counted bounds multiply to at most RE2's limit of 1000; alternation; indexed and non-capturing groups; and the `^`, `$`, `\A` and `\z` anchors. Refused: the Perl classes `\d`, `\w`, `\s` and their negations (Unicode-aware in Spice, ASCII-only in RE2), word boundaries, Unicode properties, POSIX classes, named groups, inline flags including `(?i)` (the two engines' case-folding tables track different Unicode versions), class-set operations such as `[a&&b]`, `\u` escapes, a quantifier stacked on a quantifier (`a++`), a counted bound spelled with a leading zero or a space (`a{01}`, `a{1, 2}`), and a bracketed class of exactly two case variants such as `[Kk]` or `[Ss]`.
+- **A `start` argument is an integer literal between 1 and 4294967295.** The start is applied by narrowing the input to `SUBSTRING(x, start)`, which is 1-based in both engines. A non-literal start cannot become an offset at unparse time, and a start above DuckDB's `SUBSTRING` range is refused.
+- **There is no `flags` argument.** A call that passes flags is always evaluated in Spice.
+
+**The "does it match at all" idiom is screened as `regexp_like`.** `regexp_match(col, pattern) IS NULL` and `IS NOT NULL` are rewritten into `regexp_like` before the capability check, so that shape stays a boolean and is subject to the `regexp_like` screen described below. Prefer it over comparing a `regexp_match` list whenever the question is only whether the pattern matches.
+
+### `regexp_like` and `regexp_replace` use the same pattern screen
+
+`regexp_like` is sent to DuckDB as `regexp_matches`, and `regexp_replace` is sent as `regexp_replace`. Both are sent only when the call passes the same screen as `regexp_count`, because the two regex engines disagree on some patterns without raising an error. For example, `regexp_like(s, '\d')` over `xy١` is `true` in Spice and `false` in DuckDB, since `\d` matches Unicode digits in Spice and only ASCII digits in RE2. A call is sent only when all of the following hold:
+
+- **The pattern is a string literal that uses only syntax both engines read alike.** The admitted and refused syntax is the list above. Unlike `regexp_count`, a pattern that can match the empty string, such as `a*`, is admitted: whether a pattern matches, and what a replace produces, do not depend on how empty matches are counted.
+- **For `regexp_replace`, the replacement is a string literal with no `$` and no `\`.** Spice reads `$1` as a reference to a capture group and RE2 reads `\1`, so `regexp_replace(s, '(a)(b)', '$2$1')` returns `ba` in Spice and the literal text `$2$1` in DuckDB.
+- **The only flag is `g` on `regexp_replace`.** `g` selects replace-all over replace-first, and both engines apply it alike. Any other flags argument, including `i`, is refused, because each engine folds case with its own Unicode tables. `regexp_like` with any flags argument is evaluated in Spice.
+
+A call that fails the screen is evaluated in Spice, and the query still answers.
+
+| Call | Where it runs |
+| --- | --- |
+| `regexp_like(s, 'b')` | DuckDB, as `regexp_matches("s", 'b')` |
+| `regexp_like(s, '\d')` | Spice (`\d` is Unicode-aware in Spice, ASCII-only in RE2) |
+| `regexp_like(s, 'b', 'i')` | Spice (flags other than `g`) |
+| `regexp_replace(s, 'a', 'X', 'g')` | DuckDB |
+| `regexp_replace(s, '(a)(b)', '$2$1')` | Spice (the replacement holds `$`) |
+
+The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
+
+## `concat` and Binary Values
+
+`concat` is sent to DuckDB as the `||` operator only when none of its arguments is a binary value. DuckDB types `||` by its operands, so `BLOB || BLOB` returns a `BLOB`, while Spice's `concat` always returns a string. A `concat` with a binary argument (`Binary`, `LargeBinary`, `FixedSizeBinary`, or `BinaryView`) is evaluated in Spice, above the federated scan, and the query still answers.
+
+The check covers each argument's whole expression, not only its final type. A binary column inside a cast, `coalesce`, `CASE`, or a nested `concat` also keeps the call in Spice. For example, `concat(CAST(bin_col AS VARCHAR), 'z')` runs in Spice, because DuckDB renders the cast bytes as an escaped literal such as `\xFF\xFE` instead of the bytes themselves. An argument whose type Spice cannot determine is treated as binary. A `concat` over string columns and literals is sent to DuckDB.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
+## Text Casts over Binary Values
+
+A `CAST` or `TRY_CAST` into a string type (`Utf8`, `LargeUtf8`, or `Utf8View`) is sent to DuckDB only when its operand does not reach a binary value. Spice checks that the bytes are valid UTF-8: `CAST` returns the error `Encountered non UTF-8 data`, and `TRY_CAST` returns `NULL`. DuckDB's `CAST(BLOB AS VARCHAR)` performs no check and returns the bytes as an escaped literal such as `\xFF\xFE bad`. A text cast over a binary value is therefore evaluated in Spice, above the federated scan, so the result matches an unaccelerated query.
+
+As with `concat`, the check covers the operand's whole expression, and an operand whose type Spice cannot determine is treated as binary. A text cast over a string or numeric column, such as `CAST(id AS VARCHAR)`, is sent to DuckDB. Casts from a binary value into a number, date, boolean, or decimal are sent to DuckDB unchanged.
+
+The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
+## Casts and Type Functions Evaluated in Spice
+
+Spice evaluates the following expressions itself, above the federated scan, because DuckDB answers them differently or does not define them. The rest of the query, including other filters, is still sent to DuckDB.
+
+- **A `CAST` or `TRY_CAST` from a floating-point or decimal value into an integer type.** Spice truncates toward zero, so `CAST(1.7 AS INT)` returns `1`. DuckDB rounds to the nearest integer and returns `2`. A filter such as `WHERE CAST(fare_amount AS INT) = 7` therefore selects the same rows as it does on an unaccelerated dataset. A cast from an integer, boolean, or string value, and a cast into a floating-point or decimal type, are sent to DuckDB.
+- **A `CAST` or `TRY_CAST` into a binary type**, such as `CAST(name AS BYTEA)`, whatever the type of its operand.
+- **DataFusion's cast and type functions**: [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), [`arrow_try_cast`](../../../reference/sql/scalar_functions.md#arrow_try_cast), `cast_to_type`, `try_cast_to_type`, [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), `arrow_field`, [`arrow_metadata`](../../../reference/sql/scalar_functions.md#arrow_metadata), and `with_metadata`. DuckDB has no functions with most of these names, and its own `cast_to_type` casts by DuckDB's rules.
+
+Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast appears in a `ProjectionExec` or `FilterExec` above the `VirtualExecutionPlan`, and the `base_sql` sent to DuckDB selects only the referenced columns. These rules apply wherever the DuckDB dialect is used, including the [DuckDB accelerator](../../data-accelerators/duckdb/index.md).
+
+## Decimal Averages
+
+`AVG` over a decimal column is sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, and Spice converts that `DOUBLE` to the decimal result type of the average by multiplying it by a power of ten in floating point and rounding to the nearest integer ([the cast from a floating-point value to a decimal](https://github.com/spiceai/arrow-rs/blob/2e2cc330c64ac8a9e44d2a5f2da171b391f775b8/arrow-cast/src/cast/decimal.rs#L814-L820) in Arrow). When Spice evaluates the average itself, it divides the exact decimal sum and truncates the result to the scale of the result type. The two can differ in two ways.
+
+Rounding the `DOUBLE` instead of truncating can change the last digit. For the values `0.01`, `0.01`, and `0.00` in a `DECIMAL(15, 2)` column, DuckDB returns `0.006666666666666667`, which Spice converts to `0.006667`, while Spice's own evaluation returns `0.006666`.
+
+Scaling in floating point can change the integer digits of a large value. For two `9000000000000000000.00` values in a `DECIMAL(38, 2)` column, DuckDB returns exactly `9000000000000000000` as a `DOUBLE`, but scaling it in floating point gives `9000000000000000385.875968`, while Spice's own evaluation returns `9000000000000000000.000000`.
+
+DuckDB's decimal `SUM` is exact. The same pushdown applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
+## Cookbook
+
+- A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)

@@ -1,0 +1,70 @@
+---
+id: get-table
+title: "Get a table."
+description: "This endpoint returns the table if it exists, otherwise it returns a 404 Not Found response."
+sidebar_label: "Get a table."
+hide_title: true
+hide_table_of_contents: true
+api: eJy1VlFv20YM/isH9mUDJEt1nLQRhgHZkBYBujykWV8CozlLtHWddKfcUU4CQ/994EmWlchplqZ7skzyyO/IjzxugOTKQXIFZyku0K5gHkCGLrWqImU0JHCZKydQZ5VRmoRFqq12gnIUJBcFCrUUigTeKUcuEIZytLfKIQu3xlLM4pk4NyQ+mFpnwqKrjHY4gQBMhVZyqLMMElghffVuIYBKWlkioWV8G9CyREj8j6tkyhaK8VWSchiDRtFbCrPc4eWYFm9qZTGDhGyNAbg0x1JCsgG6rziII6v0Cpom6ONuUT0f8xXh5mzc5saxfhrH/PMojk97m3AIIDWaUBPbyaoqVOqzGX1zbLwZBzOLb5jSA1hXUCLJTJLk8leWa0KqhdBrnvGwNLaUFK7ROoYZtAkL61plEEBhWliwvT0jL6SjsK4ySZiFZS9JTVGXOmzPscDhTY06xVDX5QIt37m2FjWFra/WtJKWFMcIXYWp8+VZyrog/3/gbmfoZc5YCo3NmGeDM72UrUZZGQPYpUdpwpWH2eakFR1MIYBSaVXWJSRx81SoV/jprvlyD49qNyJmAKjZ9gq+TDkXpKjALRM/+MNfurPNqIgvhzOu0g/6eEyc59wczfa6GVD0P3hoBmwft/iYp6O+anY9sqfnHs6CbmqL7kAgHKK4/i0nqlwSRbKSaY6TlaK8XkyUiVRrH3Ho6E136vfriQ86aIR9oAYNvY8hd7KsPCumi+NMHsbvwmkavwtni8VBeLyMF+H7bHl0JA/xGA8PeLQ+pNFf2zkz1HwyMvPai24qQtOwfhbPnpqLmUEntOleJMZ9uG+InmjBFbRaFsKhXaMVaK2xwqS+tzNxm6sCxQqJlF7tBvrPmrg+2niwtOJnp7VzcsVQvBUjynDPkGLpy1tn630feVvB0/Ph3Hyu0/x8+/Ke3qVYdXP/D5ldcD86GkrPuiJ89jU43SZlS4CO315+yTGH7Bgq9ym2pOkMBhwd5Lm/LXToxFKqArOJ+GGK+Df/TZeifRfsCpYcxnHTtIwukXLTbUD+MaMcEojWb/uW7dcZF2367ybyEV208b8Nv2c+ULsz1baABHgaJFHEU6nIjaPkfXwcj0bJJ1aLDNdYmKpETd2lJ+JPo5dqVVsUt4pycR2G7JGHxpzDpbVVdO/jyUp9/Qf5e846pZfGs6Wri601qRL3bk6uUilmYmdSqBS545N+BTvx0yycThi8ylCTWioe60NNE0D/jsF0Ek/isNaubV2evsZRKfXA60ckIXeFe4Bss+v1/3sP7uhCeEdRVUjln1Jfv03HhitYv+WLd4t6sFuFeXFJhotxSwqWthefB8CFZx+bzUI6/NsWTcPimxqtr1cAa2mVt+ZKZsrxdwbJUhYOv5OXXy66yfSr+P7WvfeGnVDqe2AERc3/IADPosGyz5v4qzD9DDgdi+ZNADnKjKl3tel0JykPtcGp0dPAHdG3+cfTS2iafwEUep9e
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a table."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/iceberg/namespaces/{namespace}/tables/{table}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns the table if it exists, otherwise it returns a 404 Not Found response.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./get-table.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./get-table.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./get-table.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
