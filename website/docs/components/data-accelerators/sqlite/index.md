@@ -88,7 +88,7 @@ Spice keeps the following functions and expressions out of the SQL sent to the S
 - Every aggregate except `count`, `sum`, `avg`, `min`, and `max`, and any aggregate call with more than one argument, such as `count(a, b)`. This includes `string_agg`, `array_agg`, `stddev`, `median`, and `approx_distinct`.
 - Window functions other than SQLite's own (`row_number`, `rank`, `dense_rank`, `percent_rank`, `cume_dist`, `ntile`, `lag`, `lead`, `first_value`, `last_value`, and `nth_value`) and the five aggregates above, a window function with `DISTINCT`, and an aggregate or window function with `IGNORE NULLS`.
 
-Other scalar functions are sent to SQLite by name. The list above covers the functions Spice is known to evaluate differently from SQLite; it is not a check of every function against SQLite.
+These rules add to the checks Spice applies to every federated source, which already keep Spice-defined and user-registered functions, DataFusion's cast functions such as `arrow_cast`, and type functions such as `arrow_typeof` in Spice. A DataFusion built-in scalar function that passes those checks and is not listed above is sent to SQLite by name. The list covers the functions Spice is known to evaluate differently from SQLite; it is not a check of every function against SQLite.
 
 ## Cookbook
 
