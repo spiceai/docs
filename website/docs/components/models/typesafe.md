@@ -74,7 +74,7 @@ curl -X POST http://localhost:8090/v1/decisions \
 
 The response carries `model`, the model version that answered, and `answers`, one per question in question order. The question types, answer fields, `ai_decide` result, and error status codes are described in [Decisions](../../features/large-language-models/decisions.md).
 
-In `ai_decide`, which uses TypeSafe's question grammar, `instructions` and `criteria` descriptions accept a string, an object, an array, or `null`. See the TypeSafe documentation for [structured instructions](https://docs.typesafe.ai/primitives/advanced) and the [API reference](https://docs.typesafe.ai/api).
+In `ai_decide`, which uses TypeSafe's question grammar, `instructions` and the `noul` and `choice` criteria descriptions accept a string, an object, an array, or `null`. A `score` question's `criteria` is different: it is a list of 2 to 10 levels and every level must be non-null, so a `null` level is rejected. See the TypeSafe documentation for [structured instructions](https://docs.typesafe.ai/primitives/advanced) and the [API reference](https://docs.typesafe.ai/api).
 
 TypeSafe models do not take `reasoning_effort`: a `/v1/decisions` request that sets it for a TypeSafe model returns `400` with `code` `unsupported_parameter`.
 
