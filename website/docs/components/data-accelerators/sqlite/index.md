@@ -79,7 +79,7 @@ This changes where the aggregate runs, not how SQLite stores the values. SQLite 
 
 ## Functions and Federation
 
-Spice keeps the following functions and expressions out of the SQL sent to the SQLite accelerator, because SQLite does not have them or answers them differently. Each is evaluated in Spice above the scan of the accelerated table, so the query returns the same result as an unaccelerated query:
+Spice keeps the following functions and expressions out of the SQL sent to the SQLite accelerator, because SQLite does not have them or answers them differently. Each is evaluated in Spice above the scan of the accelerated table, over the values SQLite returns. This changes where the expression runs, not how SQLite stores the data, so a decimal value that SQLite rounded on write still reads back changed, as described in [Decimal Aggregates and Federation](#decimal-aggregates-and-federation):
 
 - `upper` and `lower`. SQLite changes the case of ASCII letters only, so `upper('Ångström')` returns `'ÅNGSTRöM'` in SQLite and `'ÅNGSTRÖM'` in Spice.
 - `concat`. SQLite's `concat` skips a `NULL` argument, while Spice's `concat` returns `NULL` when any argument is `NULL`.
