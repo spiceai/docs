@@ -23,7 +23,7 @@ Any model in the Spicepod can answer a decision:
 | OpenAI decision model   | `openai:gpt-6-luna`                                | The model's estimates. OpenAI recommends setting thresholds from labeled examples.                                            |
 | Any chat model          | `openai:gpt-4o-mini`, `anthropic:claude-haiku-4-5` | The model's own estimates. They are not calibrated: a chat model's `0.9` is not a 90% likelihood the way a calibrated model's is. |
 
-A decision model answers decisions only. A request to `/v1/chat/completions` or `/v1/responses` that names one returns `400` and directs the caller to `/v1/decisions`. An OpenAI decision model takes the same parameters as other [OpenAI models](../../components/models/openai/index.md):
+A decision model answers decisions only. A request to `/v1/chat/completions` or `/v1/responses` that names one returns `400` and directs the caller to `/v1/decisions`. An OpenAI decision model takes the connection parameters of any other [OpenAI model](../../components/models/openai/index.md), namely the API key, endpoint, and organization and project IDs, together with the runtime's rate controls. Chat-only settings such as `tools`, a `system_prompt`, or a temperature have no effect, because the request goes to the Decisions API rather than to a completion:
 
 ```yaml
 models:
@@ -41,7 +41,7 @@ A chat model needs no extra configuration or parameters to answer decisions.
 | --------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `ai_if(input, condition)`               | `BOOLEAN`: true when the probability that `condition` holds is above 0.5.                 |
 | `ai_probability(input, condition)`      | `DOUBLE` from 0 to 1: the probability that `condition` holds.                             |
-| `ai_classify(input, labels)`            | `VARCHAR`: the label that fits best, always one of `labels`.                              |
+| `ai_classify(input, labels)`            | `VARCHAR`: the label that fits best. A non-NULL result is always one of `labels`.          |
 | `ai_score(input, instructions, levels)` | `DOUBLE` from 0 to n−1: the probability-weighted, 0-based index of `levels`.               |
 | `ai_decide(input, questions)`           | `STRUCT`: an answer to every question in a set, each with its probabilities.               |
 

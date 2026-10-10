@@ -107,7 +107,7 @@ WHERE created_at > NOW() - INTERVAL '1 hour';
 
 #### Batch text processing
 
-Process multiple rows with parallel LLM calls. Each `ai()` invocation receives at most 1000 rows, and larger inputs are split across invocations. Use `LIMIT` to bound the number of model calls:
+Process multiple rows with parallel LLM calls. Each `ai()` invocation receives at most 1000 rows, and larger inputs are split across invocations. A `LIMIT` stops work only between batches, so a query can still call the model for more rows than the limit; narrow the rows with selective predicates when you need a strict bound:
 
 ```sql
 SELECT
@@ -160,7 +160,7 @@ ORDER BY churn_risk DESC;
 
 ### `ai_classify`
 
-Returns `VARCHAR`: the label that best fits `input`, always one of `labels`. `labels` is a list of 2 to 255 labels, such as `['billing', 'technical']`, or a JSON object of label to description, such as `'{"billing": "Payments and refunds", "technical": null}'`. Labels cannot be empty or repeated. Optional `instructions => '...'` adds guidance. Include a fallback label such as `'other'` when no label may fit.
+Returns `VARCHAR`: the label that best fits `input`. A non-NULL result is always one of `labels`; the result is NULL for a NULL input, and for a row the model refuses or fails under `on_error => 'null'`. `labels` is a list of 2 to 255 labels, such as `['billing', 'technical']`, or a JSON object of label to description, such as `'{"billing": "Payments and refunds", "technical": null}'`. Labels cannot be empty or repeated. Optional `instructions => '...'` adds guidance. Include a fallback label such as `'other'` when no label may fit.
 
 ```sql
 SELECT id, ai_classify(body, ['billing', 'technical', 'other']) AS team
