@@ -195,7 +195,7 @@ FROM (
 
 ### Decision function behavior
 
-Calls to `ai_if`, `ai_probability`, `ai_classify`, and `ai_score` in one `SELECT` list or `WHERE` clause that share the same `input`, `model`, and `on_error` are answered by one request per row. In `WHERE`, the clause's other predicates run first, so the model only sees rows that pass them. Decision functions are never pushed down to a federated source.
+Calls to `ai_if`, `ai_probability`, `ai_classify`, and `ai_score` in one `SELECT` list or `WHERE` clause that share the same `input`, `model`, and `on_error` are answered by at most one request per row: identical non-NULL inputs within a batch are asked once, and a NULL input is not asked at all. In `WHERE`, the predicates a top-level `AND` joins to the call run first, so the model only sees rows that pass them; a predicate nested under `OR` does not prefilter. Decision functions are never pushed down to a federated source.
 
 Each batch of calls is recorded in the [task_history](../task_history.md) table as an `ai_decide` task. The model's `max_concurrency` and `requests_per_minute_limit` apply.
 

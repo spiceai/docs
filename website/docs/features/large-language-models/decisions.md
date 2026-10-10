@@ -13,7 +13,7 @@ tags:
   - functions
 ---
 
-A decision is a typed question about a piece of input: is it true, which option fits, or where it sits on a scale. Spice answers decisions in SQL, with the `ai_if`, `ai_probability`, `ai_classify`, `ai_score`, and `ai_decide` functions, and over HTTP, with `POST /v1/decisions`, which is compatible with [OpenAI's Decisions API](https://developers.openai.com/api/reference/resources/decisions/methods/create). Each answer carries probabilities, so a query can filter, route, rank, or set thresholds on the model's judgment.
+A decision is a typed question about a piece of input: is it true, which option fits, or where it sits on a scale. Spice answers decisions in SQL, with the `ai_if`, `ai_probability`, `ai_classify`, `ai_score`, and `ai_decide` functions, and over HTTP, with `POST /v1/decisions`, which is compatible with [OpenAI's Decisions API](https://developers.openai.com/api/reference/resources/decisions/methods/create). Each answer is computed from the model's probabilities, so a query can filter, route, rank, or set thresholds on the model's judgment. `ai_probability` and `ai_decide` return those probabilities; the other functions return only their scalar, and a question the model refuses carries none.
 
 Any model in the Spicepod can answer a decision:
 
@@ -43,7 +43,7 @@ A chat model needs no extra configuration or parameters to answer decisions.
 | `ai_probability(input, condition)`      | `DOUBLE` from 0 to 1: the probability that `condition` holds.                             |
 | `ai_classify(input, labels)`            | `VARCHAR`: the label that fits best, always one of `labels`.                              |
 | `ai_score(input, instructions, levels)` | `DOUBLE` from 0 to n−1: the probability-weighted, 0-based index of `levels`.               |
-| `ai_decide(input, questions)`           | `STRUCT`: an answer to every question in a set, with probabilities and confidence.        |
+| `ai_decide(input, questions)`           | `STRUCT`: an answer to every question in a set, each with its probabilities.               |
 
 The following queries filter, route, rank, and count support tickets:
 
@@ -52,7 +52,7 @@ The following queries filter, route, rank, and count support tickets:
 SELECT id, subject FROM tickets
 WHERE status = 'open' AND ai_if(body, 'The customer is asking for a refund');
 
--- Route and rank: both decisions on `body` share one request per row.
+-- Route and rank: both decisions on `body` share one request per distinct body.
 SELECT id,
        ai_classify(body, ['billing', 'technical', 'account']) AS team,
        ai_score(body, 'How frustrated is the customer?', ['calm', 'annoyed', 'furious']) AS frustration
@@ -112,7 +112,7 @@ Read a single answer with a field access, such as `d['team']['choice']` or `d['u
 
 ### How decision functions run
 
-In one `SELECT` list or `WHERE` clause, `ai_if`, `ai_probability`, `ai_classify`, and `ai_score` calls on the same `input`, `model`, and `on_error` share one request per row, and in `WHERE` every other predicate runs first, so the model only sees rows that pass them.
+In one `SELECT` list or `WHERE` clause, `ai_if`, `ai_probability`, `ai_classify`, and `ai_score` calls on the same `input`, `model`, and `on_error` share one request per row, and that is an upper bound: identical non-NULL inputs within a batch are asked once, and a NULL input is not asked at all. In `WHERE`, the predicates a top-level `AND` joins to the call run first, so the model only sees rows that pass them; a predicate nested under `OR` does not prefilter.
 
 A `LIMIT` stops requests only between input batches: each batch is answered in full before its rows reach the `LIMIT`. Narrow the rows with other predicates to bound how many requests a query sends.
 
