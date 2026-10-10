@@ -85,6 +85,12 @@ Two configurations do not keep one row per key. [`cayenne_pk_conflict_detection:
 Dataset 'orders' sets `acceleration.on_conflict`, which is deprecated and removed in 3.0. Use `engine: cayenne` to keep one row per primary key without it.
 ```
 
+When the dataset's refresh mode resolves to `changes` and its acceleration uses `mode: memory` (the default) or `mode: file_create`, the warning ends with one more sentence:
+
+```text
+Set `mode: file` to preserve CDC data across restarts and resume replication.
+```
+
 Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow, and Cayenne [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions). Change streams on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
 :::
 
