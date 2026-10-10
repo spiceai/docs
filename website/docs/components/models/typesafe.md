@@ -1,13 +1,13 @@
 ---
 title: 'TypeSafe Models'
-description: 'Instructions for using TypeSafe Jev evaluation models with the /v1/evaluate endpoint'
+description: 'Instructions for using TypeSafe Jev decision models with the SQL decision functions and the /v1/decisions endpoint'
 sidebar_label: 'TypeSafe'
 sidebar_position: 11
 ---
 
-[TypeSafe Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) is an evaluation model, not a chat model. It takes unstructured input (the `state`) and a set of typed questions, and returns a structured answer to each question with calibrated probabilities. Spice serves TypeSafe models through the `POST /v1/evaluate` endpoint. They cannot be used with `/v1/chat/completions` or `/v1/responses`.
+[TypeSafe Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) is a decision model, not a chat model. It takes unstructured input and a set of typed questions, and returns a structured answer to each question with calibrated probabilities. Spice serves TypeSafe models through the SQL decision functions (`ai_if`, `ai_probability`, `ai_classify`, `ai_score`, and `ai_decide`) and the `POST /v1/decisions` endpoint. They cannot be used with `/v1/chat/completions` or `/v1/responses`.
 
-Chat models answer `/v1/evaluate` too, with uncalibrated probabilities. See [Evaluate API](../../features/large-language-models/evaluate.md).
+Chat models answer decisions too, with uncalibrated probabilities. See [Decisions](../../features/large-language-models/decisions.md).
 
 ## Configuration
 
@@ -50,50 +50,34 @@ When the model loads, Spice lists the models available to the API key. The model
 Failed to load LLM: jev. Evaluation health check failed: HTTP 401 Unauthorized: {"detail":{"error_type":"authentication_error","message":"Cannot authenticate with the server. Please check your API key and try again."}}
 ```
 
-## Evaluate API
+## Decisions
 
-Send a request to `POST /v1/evaluate` with the model `name`, the `state` to evaluate, and a map of named `questions`:
+Name the model in a SQL decision function with `model => 'jev'`, or omit `model` when the TypeSafe model is the only decision model in the Spicepod:
+
+```sql
+SELECT id FROM tickets WHERE ai_if(body, 'Does this convey urgency?', model => 'jev');
+```
+
+Or send a request to `POST /v1/decisions` with the model `name`, the `input`, and a list of `questions`:
 
 ```bash
-curl -X POST http://localhost:8090/v1/evaluate \
+curl -X POST http://localhost:8090/v1/decisions \
   -H 'Content-Type: application/json' \
   -d '{
     "model": "jev",
-    "state": "Help! My payouts have been failing for 3 days.",
-    "questions": {
-      "is_urgent": {
-        "type": "noul",
-        "instructions": "Does this convey urgency?"
-      }
-    }
+    "input": "Help! My payouts have been failing for 3 days.",
+    "questions": [
+      {"type": "predicate", "name": "urgent", "instructions": "Does this convey urgency?"}
+    ]
   }'
 ```
 
-`state` can be a string, a JSON array, or a JSON object. Each question has a `type`:
+The response carries `model`, the model version that answered, and `answers`, one per question in question order. The question types, answer fields, `ai_decide` result, and error status codes are described in [Decisions](../../features/large-language-models/decisions.md).
 
-| `type`   | Question                                                          | Answer fields                                                         |
-| -------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `noul`   | A yes-or-no question. Optional `criteria` describe `true` and `false`. | `noul`: the probability of yes, from 0 to 1.                           |
-| `choice` | A closed set of options. `criteria` maps each option ID to its description. | `choice`, `probabilities`, and `confidence`.                          |
-| `score`  | An ordered rubric. `criteria` is a list of 2 to 10 levels.         | `score`, `legend`, `probabilities`, and `confidence`.                 |
+In `ai_decide`, which uses TypeSafe's question grammar, `instructions` and `criteria` descriptions accept a string, an object, an array, or `null`. See the TypeSafe documentation for [structured instructions](https://docs.typesafe.ai/primitives/advanced) and the [API reference](https://docs.typesafe.ai/api).
 
-`instructions` and `criteria` descriptions accept a string, an object, an array, or `null`. See the TypeSafe documentation for [structured instructions](https://docs.typesafe.ai/primitives/advanced) and the [API reference](https://docs.typesafe.ai/api).
+TypeSafe models do not take `reasoning_effort`: a `/v1/decisions` request that sets it for a TypeSafe model returns `400` with `code` `unsupported_parameter`.
 
-The response carries `model`, the model version that answered, and `answers`, one answer per question keyed by the question name. Each answer has the question's `type` and that type's answer fields. When TypeSafe reports token counts, the response also carries `usage` with `input_tokens` and `output_tokens`.
+A request to `/v1/chat/completions` that names a TypeSafe model returns `400` and directs the caller to `/v1/decisions`.
 
-### Errors
-
-| Status | Cause                                                                                             |
-| ------ | ------------------------------------------------------------------------------------------------- |
-| `400`  | The request is invalid, for example `questions` is empty.                                         |
-| `404`  | No System One or chat model with that name is loaded.                                             |
-| `422`  | The request body is not valid JSON for this endpoint.                                             |
-| `401`  | TypeSafe, or a chat model's provider, rejected the API key.                                       |
-| `403`  | TypeSafe, or a chat model's provider, denied the request.                                         |
-| `429`  | The request was rate limited.                                                                     |
-| `503`  | TypeSafe, or a chat model's provider, is unavailable.                                             |
-| `500`  | The evaluation failed for another reason.                                                         |
-
-A request to `/v1/chat/completions` that names a TypeSafe model returns `400` and directs the caller to `/v1/evaluate`.
-
-Evaluations are recorded in [`runtime.task_history`](../../reference/task_history) as `ai_evaluate` tasks, and are counted in the same model request, duration, and token metrics as chat requests, labeled by `model`.
+Decision requests are recorded in [`runtime.task_history`](../../reference/task_history.md) as `ai_decision` tasks (`POST /v1/decisions`) or `ai_decide` tasks (SQL), and are counted in the same model request, duration, and token metrics as chat requests, labeled by `model`.

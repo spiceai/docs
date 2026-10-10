@@ -4107,7 +4107,7 @@ version()
 
 ### `ai` and `embed`
 
-See [AI Functions](./ai) for `ai()` (LLM text generation) and `embed()` (vector embedding generation).
+See [AI Functions](./ai) for `ai()` (LLM text generation), the [decision functions](./ai#decision-functions) `ai_if`, `ai_probability`, `ai_classify`, `ai_score`, and `ai_decide` (typed decisions), and `embed()` (vector embedding generation).
 
 ### `bucket`
 

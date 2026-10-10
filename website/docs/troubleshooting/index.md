@@ -92,13 +92,13 @@ Flight and Flight SQL carry the same text on the gRPC status. A timeout is `DEAD
 
 ### A configured model fails with "failed to load"
 
-When a model in the Spicepod fails to load, `/v1/chat/completions`, `/v1/nsql` (streaming or not), and the `ai()` SQL function name the model and the load error. For example, a provider account with no balance returns:
+When a model in the Spicepod fails to load, `/v1/chat/completions`, `/v1/nsql` (streaming or not), the `ai()` SQL function, and the SQL [decision functions](../features/large-language-models/decisions.md) such as `ai_if` name the model and the load error. For example, a provider account with no balance returns:
 
 ```
 Model 'deepseek' failed to load, so it cannot serve requests. Cause: Failed to load LLM: deepseek. Failed to initialize LLM model: Failed to check the status of the model. An error occurred: unknown_error: Insufficient Balance (code: invalid_request_error) Verify the model configuration.
 ```
 
-`GET /v1/models?status=true` reports the same cause in the model's `error_message`. `POST /v1/evaluate` reports a model that failed to load as not found, so check `/v1/models?status=true` when an evaluation names a configured model.
+`GET /v1/models?status=true` reports the same cause in the model's `error_message`. `POST /v1/decisions` reports a model that failed to load as not found, so check `/v1/models?status=true` when a decision request names a configured model.
 
 ### Container OOM-killed despite a configured memory limit
 

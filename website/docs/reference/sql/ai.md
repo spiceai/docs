@@ -5,7 +5,7 @@ pagination_prev: 'reference/sql/information_schema'
 sidebar_position: 5
 ---
 
-AI functions in Spice provide direct integration with large language models (LLMs) and embedding models within SQL queries. These functions process text through configured model providers and return generated responses or vector embeddings.
+AI functions in Spice provide direct integration with large language models (LLMs) and embedding models within SQL queries. These functions process text through configured model providers and return generated responses, typed decisions, or vector embeddings.
 
 ## `ai`
 
@@ -33,7 +33,7 @@ Queries execute asynchronously, processing LLM calls in parallel across rows for
 
 **Limits**:
 
-- Maximum batch size: 1000 rows per invocation
+- Maximum batch size: 1000 rows per invocation. Larger inputs are split into batches of up to 1000 rows, so a query can process any number of rows.
 - Maximum input message size: 1,000,000 bytes (1 MB) per message
 - Maximum model name length: 256 characters
 
@@ -107,7 +107,7 @@ WHERE created_at > NOW() - INTERVAL '1 hour';
 
 #### Batch text processing
 
-Process multiple rows efficiently with parallel LLM calls. Each `ai()` invocation is capped at 1000 rows, so use `LIMIT` to stay within this bound:
+Process multiple rows with parallel LLM calls. Each `ai()` invocation receives at most 1000 rows, and larger inputs are split across invocations. Use `LIMIT` to bound the number of model calls:
 
 ```sql
 SELECT
@@ -118,6 +118,86 @@ FROM customer_feedback
 WHERE processed = false
 LIMIT 1000;
 ```
+
+## Decision functions
+
+Decision functions ask a model a typed question about each row and return a typed answer: a boolean, a probability, a label, a score, or a struct of answers. Any model in the Spicepod can answer, including a decision model such as [TypeSafe](../../components/models/typesafe.md) Jev or any chat model. See [Decisions](../../features/large-language-models/decisions.md) for the full guide, the `/v1/decisions` HTTP API, and how a chat model answers.
+
+```sql
+ai_if(input, condition[, model => 'name'][, on_error => 'fail' | 'null'])
+ai_probability(input, condition[, model => 'name'][, on_error => 'fail' | 'null'])
+ai_classify(input, labels[, instructions => '...'][, model => 'name'][, on_error => 'fail' | 'null'])
+ai_score(input, instructions, levels[, model => 'name'][, on_error => 'fail' | 'null'])
+ai_decide(input, questions[, model => 'name'][, on_error => 'fail' | 'null'])
+```
+
+### Common arguments
+
+- **input**: The value to decide about. Text is sent as text; a struct, map, or list is sent as JSON; binary data is refused and must be cast to text first. A NULL `input` returns NULL without a model call.
+- **model** (optional): The name of a model in the Spicepod. When omitted, Spice uses the only model that can answer or, when there are several, the only decision model among them. Otherwise the query fails and lists the models to choose from.
+- **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures. `'null'` returns NULL for that row.
+
+Every argument except `input` must be a constant. Constants are checked when the query is planned, before any model call.
+
+### `ai_if`
+
+Returns `BOOLEAN`: true when the probability that `condition` holds for `input` is above 0.5.
+
+```sql
+SELECT id, subject FROM tickets
+WHERE status = 'open' AND ai_if(body, 'The customer is asking for a refund');
+```
+
+### `ai_probability`
+
+Returns `DOUBLE` from 0 to 1: the probability that `condition` holds for `input`.
+
+```sql
+SELECT id, ai_probability(body, 'The customer threatens to cancel') AS churn_risk
+FROM tickets
+ORDER BY churn_risk DESC;
+```
+
+### `ai_classify`
+
+Returns `VARCHAR`: the label that best fits `input`, always one of `labels`. `labels` is a list of 2 to 255 labels, such as `['billing', 'technical']`, or a JSON object of label to description, such as `'{"billing": "Payments and refunds", "technical": null}'`. Labels cannot be empty or repeated. Optional `instructions => '...'` adds guidance. Include a fallback label such as `'other'` when no label may fit.
+
+```sql
+SELECT id, ai_classify(body, ['billing', 'technical', 'other']) AS team
+FROM tickets;
+```
+
+### `ai_score`
+
+Returns `DOUBLE` from 0 to n−1: the probability-weighted, 0-based index of `levels`. `levels` is a list of 2 to 10 level descriptions, lowest first.
+
+```sql
+SELECT id, ai_score(body, 'How frustrated is the customer?', ['calm', 'annoyed', 'furious']) AS frustration
+FROM tickets
+ORDER BY frustration DESC;
+```
+
+### `ai_decide`
+
+Returns `STRUCT` with one field per question. `questions` is a JSON object of question ID to question in TypeSafe's grammar, the same grammar as Databricks' `ai_decide`: each question has a `type` of `noul`, `choice`, or `score`, and `instructions`. A `choice` maps 1 to 255 labels to descriptions in `criteria`, and a `score` lists 2 to 10 levels in `criteria`, lowest first. See [Ask several questions with `ai_decide`](../../features/large-language-models/decisions.md#ask-several-questions-with-ai_decide) for the answer fields.
+
+```sql
+SELECT id, d['team']['choice'] AS team, d['urgent']['probability'] AS urgency
+FROM (
+  SELECT id, ai_decide(body, '{
+    "team":   {"type": "choice", "instructions": "Which team should handle this?",
+               "criteria": {"billing": "Payments and payouts", "technical": "Bugs and outages"}},
+    "urgent": {"type": "noul", "instructions": "Does this convey urgency?"}
+  }') AS d
+  FROM tickets
+);
+```
+
+### Decision function behavior
+
+Calls to `ai_if`, `ai_probability`, `ai_classify`, and `ai_score` in one `SELECT` list or `WHERE` clause that share the same `input`, `model`, and `on_error` are answered by one request per row. In `WHERE`, the clause's other predicates run first, so the model only sees rows that pass them. Decision functions are never pushed down to a federated source.
+
+Each batch of calls is recorded in the [task_history](../task_history.md) table as an `ai_decide` task. The model's `max_concurrency` and `requests_per_minute_limit` apply.
 
 ## `embed`
 
