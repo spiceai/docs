@@ -77,18 +77,20 @@ On managed Postgres services:
 | Azure Database       | Under **Replication**, set *Replication support* to `LOGICAL`.                      |
 | Supabase / Neon      | Logical replication is enabled by default.                                          |
 
-### 3. The source table must have a replica identity
+### 3. Every row needs a primary key
 
-Spice needs the primary key columns in every `UPDATE`/`DELETE` event, so one of the following must be true:
+Spice applies each `UPDATE` and `DELETE` to the row with the same primary key, so the key columns must be in every event. One of the following must be true:
 
 - The table has a **primary key** (default — nothing to do).
-- Or the table has `REPLICA IDENTITY FULL`:
+- Or the table has no primary key: set [`acceleration.primary_key`](../../reference/spicepod/datasets.md#accelerationprimary_key) to columns that identify a row, and make Postgres send those columns with every event, with `REPLICA IDENTITY USING INDEX` on a unique index over them or with `REPLICA IDENTITY FULL`:
 
   ```sql
   ALTER TABLE public.users REPLICA IDENTITY FULL;
   ```
 
-Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
+  The `cayenne` and `arrow` engines need only the `primary_key`. Other engines, such as `duckdb`, `sqlite`, and `postgres`, also need a matching `acceleration.on_conflict` upsert entry for the key.
+
+`REPLICA IDENTITY FULL` alone is not enough: it does not give a row a unique identity, because identical rows are indistinguishable. A `refresh_mode: changes` dataset over a table with no primary key and no `acceleration.primary_key` fails to load with an error that names both fixes. Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
 
 ### 4. The Postgres role needs these privileges
 
@@ -535,7 +537,9 @@ each full-refresh event is a rebuild; the preceding log gives its reason.
 
 | Symptom                                                                      | Cause and fix                                                                                                                     |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| Error: *`Table public.X has REPLICA IDENTITY NOTHING`*                       | Run `ALTER TABLE public.X REPLICA IDENTITY FULL;` (or add a primary key).                                                         |
+| Error: *`Table public.X has REPLICA IDENTITY NOTHING`*                       | If the table has a primary key, run `ALTER TABLE public.X REPLICA IDENTITY DEFAULT;`. Otherwise run `ALTER TABLE public.X REPLICA IDENTITY FULL;` and set `acceleration.primary_key`. |
+| Error: *`Table public.X has no primary key and REPLICA IDENTITY DEFAULT`*    | Add a primary key to the table, or run `ALTER TABLE public.X REPLICA IDENTITY FULL;` and set `acceleration.primary_key`.          |
+| Error: *`Table public.X has no primary key, and refresh_mode: changes needs one`* | Set `acceleration.primary_key` to columns that identify a row, under `REPLICA IDENTITY FULL` or `REPLICA IDENTITY USING INDEX` on a unique index over them. See [Every row needs a primary key](#3-every-row-needs-a-primary-key). |
 | Error: *`replication slot "..." already exists`* on startup                  | Another Spice replica is using the same slot name. Set `pg_replication_slot` uniquely, or ensure `SPICE_INSTANCE_ID` differs.     |
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
