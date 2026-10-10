@@ -187,7 +187,7 @@ The request takes the following fields:
 
 - **`model`**: The name of a model in the Spicepod.
 - **`input`**: A string, or a list of messages. A message's `role` must be `user`, and its `content` is either a plain string or a list of `input_text` parts. Image inputs return `400`.
-- **`questions`**: 1 to 200 questions of type `predicate`, `choice` (2 to 255 `choices`), or `score` (2 to 10 `levels`, lowest first). Each question takes an optional `name`.
+- **`questions`**: 1 to 200 questions of type `predicate`, `choice` (2 to 255 `choices`), or `score` (2 to 10 `levels`, lowest first). Every question requires `instructions`; `name` is the only optional field on the question itself. SQL `ai_decide` differs here: in its grammar `instructions` is optional.
 - **`safety_identifier`** (optional): An end-user identifier of at most 128 characters, forwarded to OpenAI decision models.
 - **`reasoning_effort`** (optional): `none`, `minimal`, `low`, `medium`, `high`, or `xhigh`, passed to a chat model's completion request. When omitted, the model's own setting applies. This field is a Spice extension that OpenAI's Decisions API does not have. A decision model returns `400` with `code` `unsupported_parameter` for it.
 
