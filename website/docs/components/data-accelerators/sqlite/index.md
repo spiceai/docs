@@ -45,7 +45,7 @@ datasets:
 - `ROLLUP`, `CUBE`, and `GROUPING SETS` are evaluated in Spice, not in SQLite, because SQLite has no grouping sets.
 - `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
 - `AVG` and `SUM` over a decimal column are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
-- `upper`, `lower`, `concat`, `LIKE`, and `ILIKE` are evaluated in Spice, not in SQLite, because SQLite answers them differently. Functions SQLite does not have, and every aggregate except `count`, `sum`, `avg`, `min`, and `max`, are also evaluated in Spice. See [Functions and Federation](#functions-and-federation).
+- `upper`, `lower`, `concat`, `LIKE`, and `ILIKE` are evaluated in Spice, not in SQLite, because SQLite answers them differently. Several functions SQLite does not have, such as `btrim` and `md5`, and every aggregate except `count`, `sum`, `avg`, `min`, and `max`, are also evaluated in Spice. See [Functions and Federation](#functions-and-federation).
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
 :::
@@ -79,7 +79,7 @@ This changes where the aggregate runs, not how SQLite stores the values. SQLite 
 
 ## Functions and Federation
 
-Spice sends a function to the SQLite accelerator only when SQLite evaluates it the same way Spice does. Every other call is evaluated in Spice above the scan of the accelerated table, so the query returns the same result as an unaccelerated query. The following are evaluated in Spice:
+Spice keeps the following functions and expressions out of the SQL sent to the SQLite accelerator, because SQLite does not have them or answers them differently. Each is evaluated in Spice above the scan of the accelerated table, so the query returns the same result as an unaccelerated query:
 
 - `upper` and `lower`. SQLite changes the case of ASCII letters only, so `upper('Ångström')` returns `'ÅNGSTRöM'` in SQLite and `'ÅNGSTRÖM'` in Spice.
 - `concat`. SQLite's `concat` skips a `NULL` argument, while Spice's `concat` returns `NULL` when any argument is `NULL`.
@@ -87,6 +87,8 @@ Spice sends a function to the SQLite accelerator only when SQLite evaluates it t
 - `btrim` (including `trim`), `to_hex`, `md5`, `sha256`, `encode`, `date_part` (including `EXTRACT`), `date_trunc`, `regexp_like`, `regexp_replace`, `regexp_match`, `regexp_instr`, and `regexp_count`, which SQLite does not have or answers differently.
 - Every aggregate except `count`, `sum`, `avg`, `min`, and `max`, and any aggregate call with more than one argument, such as `count(a, b)`. This includes `string_agg`, `array_agg`, `stddev`, `median`, and `approx_distinct`.
 - Window functions other than SQLite's own (`row_number`, `rank`, `dense_rank`, `percent_rank`, `cume_dist`, `ntile`, `lag`, `lead`, `first_value`, `last_value`, and `nth_value`) and the five aggregates above, a window function with `DISTINCT`, and an aggregate or window function with `IGNORE NULLS`.
+
+Other scalar functions are sent to SQLite by name. The list above covers the functions Spice is known to evaluate differently from SQLite; it is not a check of every function against SQLite.
 
 ## Cookbook
 
