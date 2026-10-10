@@ -51,6 +51,7 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 ### [AI Functions](sql/ai)
 
 - [ai (LLM Text Generation)](sql/ai#ai)
+- [Decision functions (ai_if, ai_probability, ai_classify, ai_score, ai_decide)](sql/ai#decision-functions)
 - [embed (Vector Embeddings)](sql/ai#embed)
 
 ### [Operators and Literals](sql/operators)
