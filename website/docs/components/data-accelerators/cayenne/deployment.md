@@ -221,7 +221,7 @@ These ride a background tick, at most every 30 s per table and every 5 min for `
 | `cayenne_storage_bytes` | Gauge | By | On-disk bytes the table holds, by `tier`. |
 | `cayenne_storage_rows` | Gauge | rows | Rows the table holds, by `tier`, before deletions are applied. On the `delete_vector` tier this is the tombstone count. |
 | `cayenne_snapshot_manifest_rows` | Gauge | rows | `cayenne_snapshot_file` manifest rows, split by `reachable` — whether the snapshot they name is still live. |
-| `cayenne_data_dir_files` | Gauge | files | Files in the table's data directory by `kind` (`data`, `deletion_vector`, `staging`, `other`), measured by walking the directory rather than reading the manifest. Local filesystem only. |
+| `cayenne_data_dir_files` | Gauge | files | Files in the table's data directory by `kind` (`data`, `deletion_vector`, `staging`, `lookup_index`, `other`), measured by walking the directory rather than reading the manifest. Local filesystem only. |
 | `cayenne_data_dir_bytes` | Gauge | By | Bytes present in the table's data directory by `kind`. |
 | `cayenne_data_dir_snapshot_dirs` | Gauge | directories | Snapshot directories present on disk. A count far above the live snapshot count is retired directories the sweep has not reclaimed. |
 
