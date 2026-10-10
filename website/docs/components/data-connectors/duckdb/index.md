@@ -218,6 +218,22 @@ Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast ap
 
 DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
 
+## Ordered Aggregates and `IGNORE NULLS`
+
+An aggregate can take an `ORDER BY` inside the call, as in `string_agg(name, ',' ORDER BY name)`. Spice sends that ordering to DuckDB for four aggregates: `string_agg`, `array_agg`, `first_value`, and `last_value`. DuckDB has `first_value` and `last_value` only as window functions, so these two are sent as DuckDB's `first` and `last` aggregates, which return the first and last value in the given order, including a `NULL`, as Spice does by default.
+
+Any other aggregate whose result depends on an `ORDER BY` inside the call, such as `nth_value`, is evaluated in Spice above the federated scan, so the result keeps the requested order. This rule does not apply to an aggregate that takes its ordering as `WITHIN GROUP (ORDER BY ...)`, because the SQL sent to DuckDB keeps that clause. An `ORDER BY` inside an aggregate whose result does not depend on the order, such as `count`, `sum`, `min`, `max`, or `avg`, does not change where the aggregate runs; a decimal `AVG` is still evaluated in Spice, as described in [Decimal Averages](#decimal-averages). An aggregate or window function with `IGNORE NULLS`, such as `lag(v) IGNORE NULLS OVER (ORDER BY id)`, is always evaluated in Spice, because the SQL sent to DuckDB cannot carry that clause.
+
+The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
+## `approx_distinct` and `encode`
+
+`approx_distinct` is evaluated in Spice, as an aggregate and as a window function, because DuckDB has no function of that name. DuckDB's `approx_count_distinct` uses a different estimator and can return a different number.
+
+`encode(x, 'hex')` is sent to DuckDB as `lower(hex(x))`, which returns the same lowercase hexadecimal text as Spice. `encode` with any other encoding, such as `'base64'`, is evaluated in Spice.
+
+The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
 ## Cookbook
 
 - A cookbook recipe to configure DuckDB as a data connector in Spice. [DuckDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/duckdb/connector#readme)
