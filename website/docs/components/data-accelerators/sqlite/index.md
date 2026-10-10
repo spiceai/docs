@@ -42,9 +42,10 @@ datasets:
 - The SQLite accelerator only supports arrow `List` types of primitive data types; lists with structs are not supported.
 - The SQLite accelerator doesn't support `Dictionary` or `Map` types.
 - SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](duckdb) instead.
-- The SQLite accelerator doesn't support advanced grouping features such as `ROLLUP` and `GROUPING`.
+- `ROLLUP`, `CUBE`, and `GROUPING SETS` are evaluated in Spice, not in SQLite, because SQLite has no grouping sets.
 - `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
 - `AVG` and `SUM` over a decimal column are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
+- `upper`, `lower`, `concat`, `LIKE`, and `ILIKE` are evaluated in Spice, not in SQLite, because SQLite answers them differently. Functions SQLite does not have, and every aggregate except `count`, `sum`, `avg`, `min`, and `max`, are also evaluated in Spice. See [Functions and Federation](#functions-and-federation).
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
 :::
@@ -75,6 +76,17 @@ SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER
 So that these aggregates follow Spice's decimal semantics, Spice does not send `AVG` or `SUM` over a decimal column to the SQLite accelerator, whether called as an aggregate or as a window function. The aggregate is evaluated in Spice above the scan of the accelerated table, and the scan is still sent to SQLite with its filters and projection, except for any expression Spice keeps local, such as the casts in [Casts and Federation](#casts-and-federation). An aggregate whose argument type Spice cannot determine is also evaluated in Spice. Aggregates over integer and floating-point columns, and other aggregates over decimal columns such as `MIN`, `MAX`, and `COUNT`, are still sent to SQLite.
 
 This changes where the aggregate runs, not how SQLite stores the values. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits is rounded when it is written and reads back changed, with no error ([spiceai/spiceai#14662](https://github.com/spiceai/spiceai/issues/14662)). An aggregate evaluated in Spice is exact over the values SQLite returns, so over such values it can still differ from an unaccelerated query. In the reproduction on that issue, the `arrow` and `duckdb` accelerators return such a value unchanged.
+
+## Functions and Federation
+
+Spice sends a function to the SQLite accelerator only when SQLite evaluates it the same way Spice does. Every other call is evaluated in Spice above the scan of the accelerated table, so the query returns the same result as an unaccelerated query. The following are evaluated in Spice:
+
+- `upper` and `lower`. SQLite changes the case of ASCII letters only, so `upper('Ångström')` returns `'ÅNGSTRöM'` in SQLite and `'ÅNGSTRÖM'` in Spice.
+- `concat`. SQLite's `concat` skips a `NULL` argument, while Spice's `concat` returns `NULL` when any argument is `NULL`.
+- `LIKE` and `ILIKE`. SQLite's `LIKE` ignores the case of ASCII letters, so `'alice' LIKE '%ALICE%'` is true in SQLite and false in Spice. SQLite has no `ILIKE`.
+- `btrim` (including `trim`), `to_hex`, `md5`, `sha256`, `encode`, `date_part` (including `EXTRACT`), `date_trunc`, `regexp_like`, `regexp_replace`, `regexp_match`, `regexp_instr`, and `regexp_count`, which SQLite does not have or answers differently.
+- Every aggregate except `count`, `sum`, `avg`, `min`, and `max`, and any aggregate call with more than one argument, such as `count(a, b)`. This includes `string_agg`, `array_agg`, `stddev`, `median`, and `approx_distinct`.
+- Window functions other than SQLite's own (`row_number`, `rank`, `dense_rank`, `percent_rank`, `cume_dist`, `ntile`, `lag`, `lead`, `first_value`, `last_value`, and `nth_value`) and the five aggregates above, a window function with `DISTINCT`, and an aggregate or window function with `IGNORE NULLS`.
 
 ## Cookbook
 
