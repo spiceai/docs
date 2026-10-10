@@ -76,7 +76,7 @@ Every argument except `input` must be a constant. Constants are checked when the
 - **`levels`**: A list of 2 to 10 level descriptions, lowest first.
 - **`questions`**: A JSON object of question ID to question, described in [Ask several questions with `ai_decide`](#ask-several-questions-with-ai_decide).
 - **`model => 'name'`** (optional): The model that answers. When omitted, Spice uses the only model that can answer or, when there are several, the only decision model among them. Otherwise the query fails and lists the models to choose from.
-- **`on_error => 'fail' | 'null'`** (optional): What happens to a row the model cannot answer. `'fail'`, the default, stops the query and names the model and the cause, after retrying rate limits and transient failures. `'null'` returns NULL for that row. A NULL in `WHERE` drops the row as if the answer were no, which is why `'null'` is not the default.
+- **`on_error => 'fail' | 'null'`** (optional): What happens to a row the model cannot answer. `'fail'`, the default, stops the query and names the model and the cause, after retrying rate limits and transient failures. `'null'` returns NULL for that row. A NULL in `WHERE` drops the row as if the answer were no, which is why `'null'` is not the default. When the model declines to answer one question of an `ai_decide` call, or of calls that share a request, `'fail'` stops the query, and `'null'` sets only that question's answer to NULL: the other answers from the same request are kept.
 
 For example, to name a model and keep going when a row cannot be answered:
 
@@ -87,7 +87,7 @@ FROM tickets;
 
 ### Ask several questions with `ai_decide`
 
-`ai_decide` asks a set of questions in one request and returns every answer. `questions` uses the same grammar as TypeSafe's API and Databricks' `ai_decide`. Each question has a `type` of `noul` (yes or no), `choice`, or `score`, and `instructions`. A `choice` maps 1 to 255 non-empty labels to descriptions in `criteria` (`null` when the label says it all), and a `score` lists 2 to 10 levels in `criteria`, lowest first. No question ID or label may repeat.
+`ai_decide` asks a set of questions in one request and returns every answer. `questions` uses the same grammar as TypeSafe's API and Databricks' `ai_decide`. Each question has a `type` of `noul` (yes or no), `choice`, or `score`, and optional `instructions`. A `choice` maps 1 to 255 non-empty labels to descriptions in `criteria` (`null` when the label says it all), and a `score` lists 2 to 10 levels in `criteria`, lowest first. No question ID or label may repeat.
 
 ```sql
 SELECT id, ai_decide(body, '{
@@ -121,6 +121,10 @@ The functions work in `SELECT`, `WHERE`, `HAVING`, `ORDER BY`, `GROUP BY`, windo
 The model's `max_concurrency` and `requests_per_minute_limit` apply to every request, including a chat model's corrective retries. Each batch of calls is recorded in [`runtime.task_history`](../../reference/task_history.md) as an `ai_decide` task, and every model call is counted in the model's request, duration, and token metrics.
 
 ## HTTP: `POST /v1/decisions`
+
+:::note[Migrating from v2.4.0-rc.1]
+Spice v2.4.0-rc.1 served typed questions at `POST /v1/evaluate` and recorded them as `ai_evaluate` tasks. Later builds replace that endpoint with `POST /v1/decisions`, which takes OpenAI's Decisions API request shape, and record HTTP decisions as `ai_decision` tasks. `/v1/evaluate` is no longer served, so update callers to `/v1/decisions` and the request shape below.
+:::
 
 `POST /v1/decisions` takes and returns the request and response shapes of [OpenAI's Decisions API](https://developers.openai.com/api/reference/resources/decisions/methods/create). To call it from an OpenAI SDK, point the client's base URL at Spice and call `client.decisions.create(...)`.
 
@@ -189,7 +193,7 @@ The request takes the following fields:
 
 Answers come back in question order, each with its question's `name`, or `null` when the question has none. An answer's `type` is `predicate`, `choice`, `score`, or `refusal` when the model declined to answer. `usage` is omitted when the model did not report it.
 
-Any field outside OpenAI's schema returns `400`. Errors use OpenAI's envelope, `{"error": {"message", "type", "param", "code"}}`, with these status codes:
+Any field outside OpenAI's schema, other than the `reasoning_effort` extension, returns `400`. Errors use OpenAI's envelope, `{"error": {"message", "type", "param", "code"}}`, with these status codes:
 
 | Status | Cause                                                                                                  |
 | ------ | ------------------------------------------------------------------------------------------------------ |

@@ -135,7 +135,7 @@ ai_decide(input, questions[, model => 'name'][, on_error => 'fail' | 'null'])
 
 - **input**: The value to decide about. Text is sent as text; a struct, map, or list is sent as JSON; binary data is refused and must be cast to text first. A NULL `input` returns NULL without a model call.
 - **model** (optional): The name of a model in the Spicepod. When omitted, Spice uses the only model that can answer or, when there are several, the only decision model among them. Otherwise the query fails and lists the models to choose from.
-- **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures. `'null'` returns NULL for that row.
+- **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures. `'null'` returns NULL for that row. When the model declines one question of an `ai_decide` call, or of calls that share a request, `'null'` sets only that question's answer to NULL and keeps the other answers.
 
 Every argument except `input` must be a constant. Constants are checked when the query is planned, before any model call.
 
@@ -179,7 +179,7 @@ ORDER BY frustration DESC;
 
 ### `ai_decide`
 
-Returns `STRUCT` with one field per question. `questions` is a JSON object of question ID to question in TypeSafe's grammar, the same grammar as Databricks' `ai_decide`: each question has a `type` of `noul`, `choice`, or `score`, and `instructions`. A `choice` maps 1 to 255 labels to descriptions in `criteria`, and a `score` lists 2 to 10 levels in `criteria`, lowest first. See [Ask several questions with `ai_decide`](../../features/large-language-models/decisions.md#ask-several-questions-with-ai_decide) for the answer fields.
+Returns `STRUCT` with one field per question. `questions` is a JSON object of question ID to question in TypeSafe's grammar, the same grammar as Databricks' `ai_decide`: each question has a `type` of `noul`, `choice`, or `score`, and optional `instructions`. A `choice` maps 1 to 255 labels to descriptions in `criteria`, and a `score` lists 2 to 10 levels in `criteria`, lowest first. See [Ask several questions with `ai_decide`](../../features/large-language-models/decisions.md#ask-several-questions-with-ai_decide) for the answer fields.
 
 ```sql
 SELECT id, d['team']['choice'] AS team, d['urgent']['probability'] AS urgency

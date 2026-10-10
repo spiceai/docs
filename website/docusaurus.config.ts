@@ -572,6 +572,10 @@ const config: Config = {
             from: '/query-federation',
             to: '/docs/features/query-federation'
           },
+          {
+            from: '/docs/next/features/large-language-models/evaluate',
+            to: '/docs/next/features/large-language-models/decisions'
+          },
           // 2021 blog posts
           {
             from: '/blog/a-new-class-of-applications-that-learn-and-adapt',
