@@ -29,12 +29,13 @@ Either field can arrive from the request or from the model's [parameter override
 
 The following parameters are specific to Anthropic models:
 
-| Parameter              | Description                                                     | Default                        |
-| ---------------------- | --------------------------------------------------------------- | ------------------------------ |
-| `anthropic_api_key`    | The Anthropic API key.                                          | -                              |
-| `anthropic_auth_token` | The Anthropic Auth Token.                                       | -                              |
-| `anthropic_usage_tier` | Anthropic usage tier (1-4). Used for rate limit defaults.       | -                              |
-| `endpoint`             | The Anthropic API base endpoint.                                | `https://api.anthropic.com/v1` |
+| Parameter                | Description                                                                                                                      | Default                        |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `anthropic_api_key`      | The Anthropic API key.                                                                                                           | -                              |
+| `anthropic_auth_token`   | The Anthropic Auth Token.                                                                                                        | -                              |
+| `anthropic_workspace_id` | The Anthropic workspace ID, sent as the `anthropic-workspace-id` header. Required when the API key is not scoped to a workspace. | -                              |
+| `anthropic_usage_tier`   | Anthropic usage tier (1-4). Used for rate limit defaults.                                                                        | -                              |
+| `endpoint`               | The Anthropic API base endpoint.                                                                                                 | `https://api.anthropic.com/v1` |
 
 Example `spicepod.yml` configuration:
 
@@ -44,6 +45,17 @@ models:
     name: claude_4_5_sonnet
     params:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
+```
+
+An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic runs a request from a multi-workspace key in the workspace named by its `anthropic-workspace-id` header (see [API keys and resource scoping](https://platform.claude.com/docs/en/manage-claude/workspaces#api-keys-and-resource-scoping)). When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
+
+```yaml
+models:
+  - from: anthropic:claude-sonnet-4-6
+    name: anthropic
+    params:
+      anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
+      anthropic_workspace_id: wrkspc_...
 ```
 
 See [Anthropic Model Names](https://platform.claude.com/docs/en/about-claude/models/overview) for a list of supported model names.
