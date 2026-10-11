@@ -213,7 +213,7 @@ A `refresh_mode: full` refresh — and any other whole-table overwrite — repla
 
 Spice does not re-partition existing acceleration data. An Arrow acceleration lives in memory and is rebuilt from the source on every start, so a new `partition_by` takes effect on restart. A Cayenne acceleration in `mode: file` keeps its data and catalog on disk, so its stored layout must match `partition_by` when the dataset loads.
 
-A file-mode Cayenne dataset fails to load when its stored data was written with a different partitioning than its current `partition_by`. This covers adding `partition_by` to unpartitioned data, removing it from partitioned data, and changing the partition expressions. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
+A file-mode Cayenne dataset fails to load when its stored data was written with a different partitioning than its current `partition_by`. This covers adding `partition_by` to unpartitioned data, removing it from partitioned data, and changing the partition column names. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
 
 ```text
 Failed to load dataset <dataset> (cayenne): its acceleration data was written <stored partitioning>, but the dataset now sets <configured partition_by>. Cayenne does not re-partition existing acceleration data. To keep using the existing data, <remove or restore partition_by>. To apply the new 'partition_by' instead, stop Spice, delete the acceleration data directory '<data_dir>' and the Cayenne metastore directory '<metadata_dir>', then start Spice to reload the dataset from the source. Other Cayenne datasets that use this metastore also reload from their sources. See: https://spiceai.org/docs/features/data-acceleration/partitioning
@@ -221,7 +221,11 @@ Failed to load dataset <dataset> (cayenne): its acceleration data was written <s
 
 The stored partitioning reads `without 'partition_by'` or `partitioned by [<columns>]`, and the configured value reads `no 'partition_by'` or `'partition_by: [<expressions>]'`.
 
+The check compares partition column names, not expressions. A plain column entry is named after the column, a named entry after its key, and an anonymous expression `expr0`, `expr1`, and so on. Changing an expression while its name stays the same, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, is not detected: the dataset loads, and its existing partitions keep the layout of the old expression. Follow the steps below for any change to a partition expression, not only for changes the error reports.
+
 To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
+
+Deleting the metastore removes the catalog for every Cayenne dataset that shares it, and those datasets reload from their sources. Rows that exist only in Cayenne cannot be reloaded and are lost: rows in accelerator-only datasets ([`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) or `sink` datasets), and write-back rows not yet written to the source. Before deleting it, back up the metastore and data directories, or confirm that every dataset sharing the metastore can be fully reloaded from its source.
 
 To apply the new `partition_by`:
 
@@ -229,8 +233,6 @@ To apply the new `partition_by`:
 2. Delete the acceleration data directory and the Cayenne metastore directory that the error names. The metastore directory is set by [`cayenne_metadata_dir`](../../components/data-accelerators/cayenne/index.md#metastore-location). Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint.
 3. Update `partition_by`.
 4. Start Spice. The dataset reloads from its source.
-
-The metastore holds the catalog for every Cayenne dataset that shares it, so deleting it also makes those datasets reload from their sources.
 
 ## Validation rules
 
