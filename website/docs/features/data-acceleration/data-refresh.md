@@ -531,7 +531,7 @@ Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` 
 
 To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
 
-Earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
+Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
 ## Refresh on Startup
 
