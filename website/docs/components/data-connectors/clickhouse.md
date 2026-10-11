@@ -71,27 +71,47 @@ The ClickHouse data connector can be configured by providing the following `para
 
 The table below shows the ClickHouse data types supported, along with the type mapping to Apache Arrow types in Spice.
 
-| ClickHouse Type  | Arrow Type                  |
-| ---------------- | --------------------------- |
-| `Bool`           | `Boolean`                   |
-| `Int8`           | `Int8`                      |
-| `Int16`          | `Int16`                     |
-| `Int32`          | `Int32`                     |
-| `Int64`          | `Int64`                     |
-| `UInt8`          | `UInt8`                     |
-| `UInt16`         | `UInt16`                    |
-| `UInt32`         | `UInt32`                    |
-| `UInt64`         | `UInt64`                    |
-| `Float32`        | `Float32`                   |
-| `Float64`        | `Float64`                   |
-| `Decimal`        | `Decimal128`                |
-| `String`         | `Utf8`                      |
-| `FixedString`    | `Utf8`                      |
-| `UUID`           | `Utf8`                      |
-| `Date`           | `Date32`                    |
-| `Date32`         | `Date32`                    |
-| `DateTime`       | `Timestamp(Second, None)`   |
-| `Nullable(T)`    | Mapped inner type `T`       |
+| ClickHouse Type                 | Arrow Type                                |
+| ------------------------------- | ----------------------------------------- |
+| `Bool`                          | `Boolean`                                 |
+| `Int8`                          | `Int8`                                    |
+| `Int16`                         | `Int16`                                   |
+| `Int32`                         | `Int32`                                   |
+| `Int64`                         | `Int64`                                   |
+| `Int128`                        | `Decimal256(39, 0)`                       |
+| `UInt8`                         | `UInt8`                                   |
+| `UInt16`                        | `UInt16`                                  |
+| `UInt32`                        | `UInt32`                                  |
+| `UInt64`                        | `UInt64`                                  |
+| `UInt128`                       | `Decimal256(39, 0)`                       |
+| `Float32`                       | `Float32`                                 |
+| `Float64`                       | `Float64`                                 |
+| `Decimal`                       | `Decimal128`                              |
+| `String`                        | `Utf8`                                    |
+| `FixedString`                   | `Utf8`                                    |
+| `UUID`                          | `Utf8`                                    |
+| `IPv4`                          | `Utf8`                                    |
+| `IPv6`                          | `Utf8`                                    |
+| `Enum8`                         | `Utf8` (the enum value name)              |
+| `Enum16`                        | `Utf8` (the enum value name)              |
+| `Date`                          | `Date32`                                  |
+| `Date32`                        | `Date32`                                  |
+| `DateTime`, `DateTime(tz)`      | `Timestamp(Second, None)`                 |
+| `DateTime64(0)`                 | `Timestamp(Second, None)`                 |
+| `DateTime64(1)`–`DateTime64(3)` | `Timestamp(Millisecond, None)`            |
+| `DateTime64(4)`–`DateTime64(6)` | `Timestamp(Microsecond, None)`            |
+| `DateTime64(7)`–`DateTime64(9)` | `Timestamp(Nanosecond, None)`             |
+| `Nullable(T)`                   | Mapped inner type `T`                     |
+| `LowCardinality(T)`             | Mapped inner type `T`                     |
+| `Array(T)`                      | `List` of the mapped type `T`             |
+| `Map(K, V)`                     | `Map` of the mapped types `K` and `V`     |
+| `Tuple(...)`                    | `Struct` with one field per tuple element |
+
+`DateTime64(P)` maps to the coarsest Arrow timestamp unit that holds its precision exactly. Timestamps have no Arrow timezone: values are UTC instants, including for columns declared with a timezone such as `DateTime('UTC')` or `DateTime64(3, 'Asia/Tokyo')`. Arrow nanosecond timestamps end at 2262-04-11, so reading a `DateTime64(7)` or `DateTime64(8)` value after that date returns an error that names the value rather than a truncated timestamp.
+
+A named `Tuple` element keeps its name as the `Struct` field name. An unnamed element is named by its 1-based position (`1`, `2`, and so on), matching how ClickHouse addresses tuple elements.
+
+`LowCardinality` is supported as a top-level column type, including `LowCardinality(Nullable(T))`. A `LowCardinality` type nested inside an `Array`, `Map`, or `Tuple`, such as `Array(LowCardinality(String))`, is not supported and returns an `Unsupported Clickhouse type` error. `SimpleAggregateFunction` columns are not supported.
 
 ## Examples
 
