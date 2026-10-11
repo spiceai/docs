@@ -225,14 +225,15 @@ The check compares partition column names, not expressions. An entry whose expre
 
 To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
 
-Deleting the metastore removes the catalog for every Cayenne dataset that shares it, and those datasets reload from their sources. Rows that exist only in Cayenne cannot be reloaded and are lost: rows in accelerator-only datasets ([`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) or `sink` datasets), and write-back rows not yet written to the source. Before deleting it, back up the metastore and data directories, or confirm that every dataset sharing the metastore can be fully reloaded from its source.
+Deleting the metastore removes the catalog for every Cayenne dataset that shares it, and those datasets reload from their sources. Rows that exist only in Cayenne cannot be reloaded and are lost: rows in accelerator-only datasets ([`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) or `sink` datasets), and write-back rows not yet written to the source.
 
 To apply the new `partition_by`:
 
-1. Stop Spice.
-2. Delete the acceleration data directory and the Cayenne metastore directory that the error names. The metastore directory is set by [`cayenne_metadata_dir`](../../components/data-accelerators/cayenne/index.md#metastore-location). Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint.
-3. Update `partition_by`.
-4. Start Spice. The dataset reloads from its source.
+1. Stop Spice with a graceful shutdown (`SIGTERM`), so the metastore's SQLite WAL is checkpointed.
+2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the metastore directory (`cayenne.db` with its `-wal` and `-shm` files) and every data directory it catalogs. Take the backup only after Spice has stopped.
+3. Delete the acceleration data directory and the Cayenne metastore directory. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint. The error names the metastore directory resolved for the failing dataset. A process opens one shared catalog, from whichever Cayenne dataset initializes first, so when Cayenne datasets resolve different directories the active catalog can be another one (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). Setting the same explicit `cayenne_metadata_dir` on every Cayenne dataset makes the named directory the active one.
+4. Update `partition_by`.
+5. Start Spice. The dataset reloads from its source.
 
 ## Validation rules
 
