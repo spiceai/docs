@@ -1021,7 +1021,7 @@ The following values are supported:
 
 The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
 
-When `retention_sql` or `retention_period` is configured, the fallback query applies the inverse of the retention policy, so rows that retention removes from the acceleration are not read back from the source. A dataset whose retention policy cannot be evaluated as a filter on the source columns fails to load. See [Fallback with a Retention Policy](../../features/data-acceleration/data-refresh#fallback-with-a-retention-policy).
+When `on_zero_results: use_source` is set with `retention_sql` or `retention_period`, the fallback query applies the inverse of the retention policy, so rows that retention removes from the acceleration are not read back from the source. A dataset whose retention policy cannot be evaluated as a filter on the source columns fails to load. In `refresh_mode: caching`, `on_zero_results` is ignored, so neither the filter nor this check applies. See [Fallback with a Retention Policy](../../features/data-acceleration/data-refresh#fallback-with-a-retention-policy).
 
 ```yaml
 datasets:

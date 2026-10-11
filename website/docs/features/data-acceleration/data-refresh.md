@@ -473,7 +473,7 @@ By default, accelerated datasets only return locally materialized data. If this 
 
 To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
 
-Rows removed by a retention policy are the exception. The fallback query excludes them, so a row that `retention_sql` or `retention_period` evicted is not read back from the source. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
+Rows removed by a retention policy are the exception, in every refresh mode that honors `on_zero_results`. The fallback query excludes them, so a row that `retention_sql` or `retention_period` evicted is not read back from the source. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
 
 `on_zero_results`:
 
@@ -506,7 +506,7 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 
 When a dataset configures [`retention_sql`](#custom-sql-based-retention) or [`retention_period`](#time-based-retention), Spice adds the inverse of the retention policy to the fallback query, so the source returns only rows that retention would keep in the acceleration. Without this filter, a lookup for a soft-deleted or expired key would find nothing in the acceleration, fall back, and return the row that still exists in the source. Keys that the acceleration never loaded and that retention would keep still fall back as before.
 
-The inverse follows SQL three-valued logic. For `retention_sql: DELETE FROM t WHERE <predicate>`, the fallback keeps a source row when `<predicate>` is not true (`NOT (<predicate>) OR <predicate> IS NULL`), which is what the `DELETE` leaves behind. For `retention_period`, the fallback keeps rows whose `time_column` is at or after `now() - retention_period`, and rows whose `time_column` is `NULL`. When both settings are configured, a source row must pass both. The filter applies whenever these settings are configured, including when `retention_check_enabled` is `false`.
+The inverse follows SQL three-valued logic. For `retention_sql: DELETE FROM t WHERE <predicate>`, the fallback keeps a source row when `<predicate>` is not true (`NOT (<predicate>) OR <predicate> IS NULL`), which is what the `DELETE` leaves behind. For `retention_period`, the fallback keeps rows whose `time_column` is at or after `now() - retention_period`, and rows whose `time_column` is `NULL`. When the dataset also sets [`time_partition_column`](#time_partition_column) and the scheduled retention check runs on an engine other than Cayenne, the retention check deletes a row only when both columns are older than the cutoff, so the fallback also keeps a row whose `time_column` is expired but whose `time_partition_column` is recent or `NULL`. Cayenne, and any dataset without a scheduled retention check, use `time_column` alone. When both settings are configured, a source row must pass both. The filter applies whenever these settings are configured, including when `retention_check_enabled` is `false`.
 
 For example, with the following configuration, `SELECT * FROM user_events WHERE user_id = 42` returns no rows after the retention check evicts an archived row for user 42, even though the row is still in MySQL:
 
