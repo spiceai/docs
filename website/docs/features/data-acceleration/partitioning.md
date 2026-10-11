@@ -230,10 +230,11 @@ Deleting the metastore removes the catalog for every Cayenne dataset that shares
 To apply the new `partition_by`:
 
 1. Stop Spice with a graceful shutdown (`SIGTERM`), so the metastore's SQLite WAL is checkpointed.
-2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the metastore directory (`cayenne.db` with its `-wal` and `-shm` files) and every data directory it catalogs. Take the backup only after Spice has stopped.
-3. Delete the acceleration data directory and the Cayenne metastore directory. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint. The error names the metastore directory resolved for the failing dataset. A process opens one shared catalog, from whichever Cayenne dataset initializes first, so when Cayenne datasets resolve different directories the active catalog can be another one (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). Setting the same explicit `cayenne_metadata_dir` on every Cayenne dataset makes the named directory the active one.
-4. Update `partition_by`.
-5. Start Spice. The dataset reloads from its source.
+2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the whole metastore directory, including every sidecar file next to `cayenne.db`, and every data directory it catalogs. Take the backup only after Spice has stopped.
+3. Make sure every Cayenne dataset resolves the same metastore directory. A process opens one shared catalog, from whichever Cayenne dataset initializes first, while the error names the directory resolved for the failing dataset, so the two can differ when datasets resolve different directories (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). If they can differ, set the same explicit `cayenne_metadata_dir` on every Cayenne dataset first.
+4. Delete the acceleration data directory and that metastore directory. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint.
+5. Update `partition_by`.
+6. Start Spice. The dataset reloads from its source.
 
 ## Validation rules
 
