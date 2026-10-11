@@ -473,6 +473,8 @@ By default, accelerated datasets only return locally materialized data. If this 
 
 To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
 
+Rows removed by a retention policy are the exception, in every refresh mode that honors `on_zero_results`. The fallback query excludes them, so a row that `retention_sql` or `retention_period` evicted is not read back from the source. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
+
 `on_zero_results`:
 
 - `return_empty` (Default) - Return an empty result set when no data is found in the accelerated dataset.
@@ -499,6 +501,37 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 - **`use_source` doubles the cost of an empty accelerated result** and sends that second query to the origin. For a deployment that should serve only warm acceleration, keep the default `return_empty` and gate traffic with [readiness](#ready-state).
 
 :::
+
+### Fallback with a Retention Policy
+
+When a dataset configures [`retention_sql`](#custom-sql-based-retention) or [`retention_period`](#time-based-retention), Spice adds the inverse of the retention policy to the fallback query, so the source returns only rows that retention would keep in the acceleration. Without this filter, a lookup for a soft-deleted or expired key would find nothing in the acceleration, fall back, and return the row that still exists in the source. Keys that the acceleration never loaded and that retention would keep still fall back as before.
+
+The inverse follows SQL three-valued logic. For `retention_sql: DELETE FROM t WHERE <predicate>`, the fallback keeps a source row when `<predicate>` is not true (`NOT (<predicate>) OR <predicate> IS NULL`), which is what the `DELETE` leaves behind. For `retention_period`, the fallback keeps rows whose `time_column` is at or after `now() - retention_period`, and rows whose `time_column` is `NULL`. When the dataset also sets [`time_partition_column`](#time_partition_column) and the scheduled retention check runs on an engine other than Cayenne, the retention check deletes a row only when both columns are older than the cutoff, so the fallback also keeps a row whose `time_column` is expired but whose `time_partition_column` is recent or `NULL`. Cayenne, and any dataset without a scheduled retention check, use `time_column` alone. When both settings are configured, a source row must pass both. The filter applies whenever these settings are configured, including when `retention_check_enabled` is `false`.
+
+For example, with the following configuration, `SELECT * FROM user_events WHERE user_id = 42` returns no rows after the retention check evicts an archived row for user 42, even though the row is still in MySQL:
+
+```yaml
+datasets:
+  - from: mysql:user_events
+    name: user_events
+    acceleration:
+      enabled: true
+      engine: cayenne
+      on_zero_results: use_source
+      retention_check_enabled: true
+      retention_check_interval: 5m
+      retention_sql: DELETE FROM user_events WHERE status = 'archived'
+```
+
+The inverse must be a filter that Spice can plan against the source columns. When it is not, for example when `time_column` has a type that cannot be used as a source filter or the `retention_sql` predicate does not type-check against the source schema, the dataset fails to load rather than return evicted rows. The error begins:
+
+```text
+Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` cannot be combined with this retention configuration, so the dataset was not loaded.
+```
+
+To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
+
+Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
 ## Refresh on Startup
 
@@ -879,7 +912,7 @@ This acceleration configuration applies a number of different behaviors:
 2. Because a `refresh_sql` is specified, every refresh (including initial load) will have the filter applied to the refresh query.
 3. 10 minutes after loading, as specified by the `refresh_check_interval`, the first refresh will occur - retrieving new rows where `asset = 'asset_id'`.
 4. Running a query to retrieve logs with an `asset` that is _not_ `asset_id` will fall back to the source, because of the `on_zero_results: use_source` parameter.
-5. Running a query to retrieve a log longer than 1 day ago will fall back to the source, because of the `on_zero_results: use_source` parameter.
+5. Running a query to retrieve a log from more than 1 day ago that is not in the acceleration will fall back to the source, because of the `on_zero_results: use_source` parameter. A log loaded while it was within the last day stays in the acceleration until the retention check removes it. The fallback applies the 7-day `retention_period`, so a log older than 7 days is not returned. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
 6. Running a query to retrieve logs within a range of now to longer than 1 day ago will only return logs from the last day. This is due to the `refresh_data_window` only accelerating the last day's worth of logs, which will return some results. Because results are returned, Spice will not fall back to the source even though `on_zero_results: use_source` is specified.
 7. Spice will retain newly appended log rows for 7 days before discarding them, as specified by the `retention_*` parameters.
 
