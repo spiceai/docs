@@ -221,7 +221,7 @@ Failed to load dataset <dataset> (cayenne): its acceleration data was written <s
 
 The stored partitioning reads `without 'partition_by'` or `partitioned by [<columns>]`, and the configured value reads `no 'partition_by'` or `'partition_by: [<expressions>]'`.
 
-The check compares partition column names, not expressions. A plain column entry is named after the column, a named entry after its key, and an anonymous expression `expr0`, `expr1`, and so on. Changing an expression while its name stays the same, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, is not detected: the dataset loads, and its existing partitions keep the layout of the old expression. Follow the steps below for any change to a partition expression, not only for changes the error reports.
+The check compares partition column names, not expressions. An entry whose expression is a plain column is compared by the column name, even when it is written as a `{ name: column }` mapping. Any other expression is compared by its mapping key, or by `expr0`, `expr1`, and so on when it has none. A change that keeps these names is not detected, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, or renaming the key of a `{ name: id }` entry: the dataset loads, and its existing partitions keep the layout of the old expression. Follow the steps below for any change to a partition expression, not only for changes the error reports.
 
 To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
 
