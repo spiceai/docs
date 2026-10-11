@@ -47,7 +47,7 @@ models:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
 
-An API key that is not scoped to a single workspace needs `anthropic_workspace_id`. Without it, Anthropic rejects the request with an `invalid_request_error` stating that the request must include the `anthropic-workspace-id` header, and the model fails to load. When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
+An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic requires the `anthropic-workspace-id` header on requests made with such a key. When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
 
 ```yaml
 models:
