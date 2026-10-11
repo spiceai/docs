@@ -47,7 +47,7 @@ models:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
 
-An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic requires the `anthropic-workspace-id` header on requests made with such a key. When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
+An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic runs a request from a multi-workspace key in the workspace named by its `anthropic-workspace-id` header (see [API keys and resource scoping](https://platform.claude.com/docs/en/manage-claude/workspaces#api-keys-and-resource-scoping)). When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
 
 ```yaml
 models:
