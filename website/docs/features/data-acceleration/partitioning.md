@@ -232,7 +232,7 @@ To apply the new `partition_by`:
 1. Stop Spice with a graceful shutdown (`SIGTERM`).
 2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the whole metastore directory, including every sidecar file next to `cayenne.db`, and every data directory it catalogs. Take the backup only after Spice has stopped.
 3. Identify the active metastore directory. A process opens one shared catalog, from whichever Cayenne dataset initializes first, and the error names the directory resolved for the failing dataset, which can be a different one when datasets resolve different directories (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). When every Cayenne dataset resolves the same directory, that directory is the active one. Otherwise, treat every directory a Cayenne dataset resolves as a candidate, include each in the backup, and set the same explicit `cayenne_metadata_dir` on every Cayenne dataset before restarting.
-4. Delete the acceleration data directory and the active metastore directory, or every candidate directory. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint.
+4. Delete the active metastore directory, or every candidate directory, and every data directory the deleted metastore catalogs, not only the failing dataset's. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint. A data directory left behind is no longer referenced by any catalog, so its files stay on disk while the dataset reloads into new files.
 5. Update `partition_by`.
 6. Start Spice. The dataset reloads from its source.
 
