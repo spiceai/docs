@@ -150,7 +150,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                                                                                                                                                                          |
 | `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                                                                                                                                                                         |
 | `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Applies to dynamic JSON API endpoints only; structured HTTP file datasets ignore these headers. Default: None.                                                                                                                                                                                                                                                                            |
-| `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                                                                                                                                                                       |
+| `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Entries must start with `/`. Each `request_path` value is also checked before matching; see [Request Path Validation](#request-path-validation).                                                                                                                                                                         |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                                                                                                                                                                               |
 | `request_body_filters`     | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                                                                                                                                                                                                                                                 |
 | `client_timeout`           | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Applied to the entire request-response cycle.                                                                                                                                                                                                                                                                                             |
@@ -859,6 +859,40 @@ SELECT * FROM specific_versions WHERE request_path = '/api/v1/users';
 
 -- Does NOT match because v10 has two digits
 SELECT * FROM specific_versions WHERE request_path = '/api/v10/users';
+```
+
+#### Request Path Validation
+
+Spice checks each `request_path` value when it plans the query, before matching the value against `allowed_request_paths`. A rejected value fails the query with an error, and no request is sent to the origin. A `request_path` value is rejected when it:
+
+- is empty, is longer than 1,024 characters, or does not start with `/`
+- contains `..`
+- contains a `.` or `..` segment after percent-decoding, such as `/shows/%2e%2e/people/1`, `/shows/.%2e/people/1`, or `/shows/%2e%2e%2fadmin`
+- would be changed by URL parsing before the request is sent, for example because it contains a tab, a newline, or `\`, which URL parsing removes or turns into `/`
+
+These checks keep the path the origin receives the same as the path matched against `allowed_request_paths`. A value that matches a pattern in `allowed_request_paths` cannot reach a path outside that pattern, or a path outside the one in the `from` URL. An encoded slash inside a segment, such as `/repos/group%2Fproject`, is treated as data and is accepted.
+
+For example, with the following dataset:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_catalog
+    params:
+      file_format: json
+      allowed_request_paths: '/shows/**'
+```
+
+This query fails even though the value matches `/shows/**` as written, because URL parsing would resolve `%2e%2e` and send the request to `/people/1`:
+
+```sql
+SELECT * FROM tv_catalog WHERE request_path = '/shows/%2e%2e/people/1';
+```
+
+The error names the reason without repeating the path:
+
+```text
+The 'request_path' value contains a '.' or '..' segment, including a percent-encoded one such as '%2e%2e', which is not allowed for security reasons. Remove the segment from the path.
 ```
 
 ### Dynamic Filters with Metadata Fields
