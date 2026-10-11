@@ -211,18 +211,30 @@ A `refresh_mode: full` refresh — and any other whole-table overwrite — repla
 
 ## Changing `partition_by` after refresh
 
-Once partitions exist on disk, changing `partition_by` is rejected:
+Spice does not re-partition existing acceleration data. An Arrow acceleration lives in memory and is rebuilt from the source on every start, so a new `partition_by` takes effect on restart. A Cayenne acceleration in `mode: file` keeps its data and catalog on disk, so its stored layout must match `partition_by` when the dataset loads.
 
-> The `partition_by` expressions are different from the expressions used to create the existing partition files. Revert the `partition_by` expressions, delete the partition files, or change the location the partition files are stored to create new partitions.
+A file-mode Cayenne dataset fails to load when its stored data was written with a different partitioning than its current `partition_by`. This covers adding `partition_by` to unpartitioned data, removing it from partitioned data, and changing the partition column names. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
 
-To re-partition:
+```text
+Failed to load dataset <dataset> (cayenne): its acceleration data was written <stored partitioning>, but the dataset now sets <configured partition_by>. Cayenne does not re-partition existing acceleration data. To keep using the existing data, <remove or restore partition_by>. To apply the new 'partition_by' instead, stop Spice, delete the acceleration data directory '<data_dir>' and the Cayenne metastore directory '<metadata_dir>', then start Spice to reload the dataset from the source. Other Cayenne datasets that use this metastore also reload from their sources. See: https://spiceai.org/docs/features/data-acceleration/partitioning
+```
 
-1. Stop the runtime.
-2. Delete the partitioned acceleration directory or point `accelerator_dir` at a fresh location.
-3. Update `partition_by`.
-4. Restart — Spice will rebuild from the source.
+The stored partitioning reads `without 'partition_by'` or `partitioned by [<columns>]`, and the configured value reads `no 'partition_by'` or `'partition_by: [<expressions>]'`.
 
-There is no automatic in-place re-partitioning.
+The check compares partition column names, not expressions. An entry whose expression is a plain column is compared by the column name, even when it is written as a `{ name: column }` mapping. Any other expression is compared by its mapping key, or by `expr0`, `expr1`, and so on when it has none. A change that keeps these names is not detected, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, or renaming the key of a `{ name: id }` entry: the dataset loads, and its existing partitions keep the layout of the old expression. Follow the steps below for any change to a partition expression, not only for changes the error reports.
+
+To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
+
+Deleting the metastore removes the catalog for every Cayenne dataset that shares it, and those datasets reload from their sources. Rows that exist only in Cayenne cannot be reloaded and are lost: rows in accelerator-only datasets ([`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) or `sink` datasets), and write-back rows not yet written to the source.
+
+To apply the new `partition_by`:
+
+1. Stop Spice with a graceful shutdown (`SIGTERM`).
+2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the whole metastore directory, including every sidecar file next to `cayenne.db`, and every data directory it catalogs. Take the backup only after Spice has stopped.
+3. Identify the active metastore directory. A process opens one shared catalog, from whichever Cayenne dataset initializes first, and the error names the directory resolved for the failing dataset, which can be a different one when datasets resolve different directories (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). When every Cayenne dataset resolves the same directory, that directory is the active one. Otherwise, treat every directory a Cayenne dataset resolves as a candidate, include each in the backup, and set the same explicit `cayenne_metadata_dir` on every Cayenne dataset before restarting.
+4. Delete the active metastore directory, or every candidate directory, and every data directory the deleted metastore catalogs, not only the failing dataset's. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint. A data directory left behind is no longer referenced by any catalog, so its files stay on disk while the dataset reloads into new files.
+5. Update `partition_by`.
+6. Start Spice. The dataset reloads from its source.
 
 ## Validation rules
 
