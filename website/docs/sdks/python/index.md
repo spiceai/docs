@@ -18,6 +18,8 @@ Parameterized queries are supported with `sql_with_params()` or the `params=` ar
 
 ### Install
 
+Requires Python 3.11 or later and Git.
+
 ```shell
 pip install git+https://github.com/spiceai/spicepy@v4.0.0
 ```
