@@ -44,10 +44,10 @@ Acceleration snapshots let Spice reuse a pre-built acceleration file on startup 
 Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset` accelerated with DuckDB, Spice writes files such as:
 
 ```bash
-s3://some_bucket/some_folder/month=2025-09/day=2025-09-30/dataset=my_dataset/my_dataset_20250919T134522Z.duckdb
+s3://some_bucket/some_folder/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.duckdb
 ```
 
-The timestamp is recorded in UTC using ISO 8601 without punctuation. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, `.cayenne`, or `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
+The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, `.cayenne`, or `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
 
 :::warning Dedicated files only
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.

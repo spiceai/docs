@@ -239,8 +239,8 @@ Snapshots are written to Hive-partitioned paths so retention is straightforward:
 
 ```text
 s3://spiceai-snapshots/prod/
-  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z.duckdb
-  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z.duckdb
+  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.duckdb
+  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.duckdb
 ```
 
 The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, `.cayenne`, or `.turso`), so the cluster and read tiers must accelerate a dataset with the same engine.
