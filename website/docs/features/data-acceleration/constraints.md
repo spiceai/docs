@@ -74,7 +74,7 @@ Dataset 'events' keeps one row per 'id': the newest by 'updated_at', or the vers
 
 A refresh that orders versions by `time_column` fails when the rows it reads do not include that column. An `UPDATE` that would give a row a key another row keeps, or a `NULL` key, fails and changes nothing. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) for the full rules, the messages Cayenne logs, and the `dataset_acceleration_rows_superseded` metric.
 
-Two configurations do not keep one row per key. [`cayenne_pk_conflict_detection: none`](../../components/data-accelerators/cayenne/index.md#parameters) turns off key resolution, so repeated keys are stored as written. A partitioned acceleration (`partition_by`) resolves keys within each partition, so a key that lands in two partitions is stored once in each unless every partition column is part of the `primary_key`.
+Two configurations do not keep one row per key. [`cayenne_pk_conflict_detection: none`](../../components/data-accelerators/cayenne/index.md#parameters) turns off key resolution, so repeated keys are stored as written; registration refuses it on datasets that rewrite stored keys, such as `refresh_mode: changes` and durable write-back. A partitioned acceleration (`partition_by`) resolves keys within each partition, so a key that lands in two partitions is stored once in each unless every partition column is part of the `primary_key`.
 
 ## Handling conflicts
 
@@ -91,7 +91,7 @@ When the dataset's refresh mode resolves to `changes` and its acceleration uses 
 Set `mode: file` to preserve CDC data across restarts and resume replication.
 ```
 
-Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow, and Cayenne [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions). Change streams on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
+Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow. Change streams and [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions) on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
 :::
 
 On accelerators other than Spice Cayenne, the behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).

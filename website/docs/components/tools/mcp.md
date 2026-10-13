@@ -124,7 +124,7 @@ runtime:
       - my-host.internal:8090
 ```
 
-Set `allowed_hosts: ["*"]` to disable host checking entirely.
+Set `allowed_hosts: ["*"]` to disable host checking entirely. An empty list (`allowed_hosts: []`) uses the localhost defaults; it does not disable the check.
 
 ### Allowed Origins
 
@@ -194,6 +194,31 @@ tools:
       API_KEY: your_api_key
 ```
 
+A stdio MCP server does not inherit the `spiced` environment, so secrets in that environment do not reach the server. The server process starts with only these variables from the `spiced` environment, when they are set, plus the variables in `env`:
+
+| Platform | Inherited variables |
+| --- | --- |
+| Linux and macOS | `HOME`, `LOGNAME`, `PATH`, `SHELL`, `TERM`, `USER` |
+| Windows | `APPDATA`, `HOMEDRIVE`, `HOMEPATH`, `LOCALAPPDATA`, `PATH`, `PATHEXT`, `PROCESSOR_ARCHITECTURE`, `SYSTEMDRIVE`, `SYSTEMROOT`, `TEMP`, `USERNAME`, `USERPROFILE` |
+
+This is the same set the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) passes to stdio servers. A variable in `env` overrides an inherited variable of the same name. Pass any other variable the server needs through `env`, for example from a [secret store](../secret-stores/):
+
+```yaml
+tools:
+  - name: github
+    from: mcp:npx
+    params:
+      mcp_args: -y @modelcontextprotocol/server-github
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
+```
+
+:::note
+
+In `v2.4.0-rc.1`, a stdio MCP server inherited the full `spiced` environment. A server that relied on that, for example to read a token, now needs the variable set in `env`.
+
+:::
+
 ### `description`
 
 The `description` field provides a textual description of the tool. This description is passed to any language model that uses the tool.
@@ -204,5 +229,7 @@ tools:
     from: mcp:npx
     description: Provides geocoding and mapping capabilities.
 ```
+
+For a tool that proxies an MCP server, Spice adds the `description` before the description of each tool the server provides, separated by a blank line. A proxied tool without an upstream description uses the `description` alone. The combined description appears to models, in `GET /v1/tools`, and in the `/v1/mcp` `tools/list` response.
 
 For more details, see the [MCP Tools Reference](../../reference/spicepod/tools).

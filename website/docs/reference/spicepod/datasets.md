@@ -282,8 +282,10 @@ datasets:
 :::note
 
 In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
-(`cayenne`), including PostgreSQL CDC (`refresh_mode: changes`). Partitioned Cayenne tables log a
-warning and use the recreate fallback. Other engines, including `arrow` and PostgreSQL, log an
+(`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
+while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
+see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
+Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow` and PostgreSQL, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
 cannot be widened in place.
 
@@ -972,7 +974,7 @@ datasets:
 ## `acceleration.on_conflict`
 
 :::warning Deprecated
-`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on engines other than Spice Cayenne and Arrow, and Cayenne durable write-back still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets.
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on engines other than Spice Cayenne and Arrow still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets. Cayenne durable write-back does not require it.
 :::
 
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.

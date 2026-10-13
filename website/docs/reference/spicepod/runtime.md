@@ -16,7 +16,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
-`runtime.flight` · `runtime.params` · `runtime.source_rate_control`
+`runtime.adaptive_tuning` · `runtime.flight` · `runtime.params` · `runtime.source_rate_control`
 
 **Applied on reload — no restart needed:**
 
@@ -273,6 +273,67 @@ runtime:
     cayenne_segment_cache_mb: 1024
     cayenne_filter_propagation: enabled
 ```
+
+### Adaptive tuning targets
+
+Runtime-wide service-level targets for [adaptive tuning](#runtimeadaptive_tuning). The adaptive controller steers every Cayenne-accelerated dataset and every Cayenne catalog toward these targets in small, bounded steps, within the same bounds that static tuning derives. A target never turns adaptive tuning on: while `runtime.adaptive_tuning` is `disabled`, the targets are ignored and Cayenne logs one warning per dataset or catalog.
+
+| Parameter Name              | Description                                                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target_replication_lag`    | Target end-to-end CDC replication lag, as a duration such as `5s`.                                                                                                           |
+| `target_freshness`          | Target data freshness, which is the age of the newest queryable data, as a duration such as `30s`.                                                                           |
+| `target_query_latency`      | Target p99 query latency, as a duration such as `250ms`.                                                                                                                     |
+| `target_qph`                | Target query throughput in queries per hour (higher is better), as a positive number such as `5000`. Throughput is measured system-wide, so a query that spans several datasets, such as a join, is counted once. |
+| `target_convergence_window` | Time budget the controller targets for converging toward the other targets, as a duration such as `1m`. Defaults to `60s`. It paces the controller rather than declaring an outcome. |
+
+An invalid value logs a warning and is ignored. See [Goal-driven tuning](../../components/data-accelerators/cayenne/performance.md#goal-driven-tuning) for how the controller uses the targets.
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+  params:
+    target_replication_lag: 5s
+    target_query_latency: 250ms
+    target_qph: 5000
+```
+
+## `runtime.adaptive_tuning`
+
+Turns adaptive tuning on or off for the [Spice Cayenne](../../components/data-accelerators/cayenne) data accelerator across the whole runtime. It applies to every Cayenne-accelerated dataset and to Cayenne catalogs.
+
+| Value                | Description                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled` (default) | Cayenne derives its memory-, CPU-, and storage-sensitive settings statically from the detected environment and the inferred schema. No feedback loop runs.                                                                                                         |
+| `enabled` (preview)  | In addition to the static derivation, Cayenne runs a closed-loop controller per table that adjusts those settings over time from the live workload, steering toward any [adaptive tuning targets](#adaptive-tuning-targets). Cayenne logs a startup warning that the mode is in preview. |
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+```
+
+Only the exact values `enabled` and `disabled` are accepted. Any other value, including `true` or a different letter case, fails the Spicepod load with an error that includes:
+
+```text
+Invalid `runtime.adaptive_tuning` value 'true': expected `enabled` or `disabled`. See: https://spiceai.org/docs/reference/spicepod/runtime
+```
+
+Setting `adaptive_tuning` under `runtime.params` has no effect; it must be set directly under `runtime`. The adaptive controller runs on the background compaction tick, so a dataset with `cayenne_compaction_background_interval_ms: 0` uses static tuning and logs a warning. See [Self-Tuning](../../components/data-accelerators/cayenne/performance.md#self-tuning) for how both modes work.
+
+### Migrating from `cayenne_tuning` and `cayenne_goal_*` {#migrate-from-cayenne-tuning}
+
+Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `cayenne_tuning` and `cayenne_goal_*` parameters on each dataset or catalog, and with `cayenne_goal_*` under `runtime.params`. These names are no longer read. Spice logs one startup warning for each old name still in use, naming its replacement, and does not apply the value. The warning covers each name with or without the `cayenne_` prefix.
+
+| Old setting                                                     | Replacement                                                      |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Dataset or catalog `cayenne_tuning: adaptive`                   | `runtime.adaptive_tuning: enabled`                               |
+| Dataset or catalog `cayenne_tuning: auto`                       | `runtime.adaptive_tuning: disabled`, or omit it                  |
+| `cayenne_goal_replication_lag`                                  | `runtime.params.target_replication_lag`                          |
+| `cayenne_goal_freshness`                                        | `runtime.params.target_freshness`                                |
+| `cayenne_goal_query_latency`                                    | `runtime.params.target_query_latency`                            |
+| `cayenne_goal_qph`                                              | `runtime.params.target_qph`                                      |
+| Dataset `cayenne_goal_convergence_window`                       | `runtime.params.target_convergence_window`                       |
+
+Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. Only `runtime.adaptive_tuning` selects the tuning mode. A Spicepod that relies on `cayenne_tuning: adaptive` runs with static tuning until `runtime.adaptive_tuning: enabled` is set. A Spicepod that already sets `runtime.adaptive_tuning: enabled` but still carries an old `cayenne_goal_*` key runs adaptive tuning, and only that old target is ignored.
 
 ## `runtime.source_rate_control`
 
@@ -962,7 +1023,7 @@ Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This
 
 | Behavior | Configuration |
 | --- | --- |
-| **Default** (not set) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
+| **Default** (not set, or an empty list `[]`) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
 | **Explicit list** | Replaces the defaults entirely. Only the listed hosts are accepted. |
 | **Wildcard** (`["*"]`) | Disables host checking — all `Host` header values are accepted. |
 
@@ -984,6 +1045,8 @@ runtime:
 ```
 
 Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
+
+Only `["*"]` disables the check. An empty list (`allowed_hosts: []`) uses the defaults. In `v2.4.0-rc.1`, an empty list disabled host checking; set `allowed_hosts: ["*"]` to keep that behavior.
 
 ## `runtime.ready_state`
 
@@ -1051,6 +1114,30 @@ The following features store their state under `runtime.state` when their own se
 | [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
+
+### Runtime state layout
+
+Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, and SQL results cache warmup under `results-cache/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
+
+A location set in a feature's own section is used as given, without a feature folder. With `runtime.scheduler.state_location`, the scheduler writes `cluster.json` and its other state at the root of that location. For an `abfs://` or `abfss://` `state_location`, that root is the container root, and the URL's path is ignored.
+
+:::warning[Migrating from v2.4.0-rc.1]
+
+In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, stop every rc.1 instance that shares the location, move each feature's objects from the old path into that feature's folder, and upgrade all of those instances before restarting them, so that no instance keeps writing at the old path or reads a different layout than the others:
+
+| Feature | Objects at the old path | Move into |
+| ------- | ----------------------- | --------- |
+| Cluster scheduler | `cluster.json`, `heartbeats/`, `jobs/`, and `scheduler/` | `cluster/` |
+| HTTP rate control | One folder per spicepod, with a name derived from the spicepod's `name` (for example, `my_app/` for `name: my app`). To find it, list the old path for objects named `<origin>-<16 hex digits>.json`. | `rate-control/` |
+| SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
+
+For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`.
+
+Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
+
+To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+
+:::
 
 ### State location parameters
 
