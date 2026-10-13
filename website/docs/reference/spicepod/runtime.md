@@ -1060,7 +1060,7 @@ A location set in a feature's own section is used as given, without a feature fo
 
 :::warning[Migrating from v2.4.0-rc.1]
 
-In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, move each feature's objects from the old path into that feature's folder:
+In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, stop every rc.1 instance that shares the location, move each feature's objects from the old path into that feature's folder, and upgrade all of those instances before restarting them, so that no instance keeps writing at the old path or reads a different layout than the others:
 
 | Feature | Objects at the old path | Move into |
 | ------- | ----------------------- | --------- |
