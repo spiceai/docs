@@ -8,7 +8,7 @@ tags:
   - write
 ---
 
-The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Iceberg table format versions V1, V2, and V3 are supported. Every Iceberg dataset requires an Iceberg catalog to provide table metadata and manage access.
+The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Iceberg table format versions V1, V2, and V3 are supported. Iceberg datasets typically read through an Iceberg catalog that provides table metadata and manages access. A table on object storage or the local filesystem can also be read without a catalog from a pinned metadata file, as described in [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
 
 When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg) or [AWS Glue Catalog Connector](../catalogs/glue) instead of configuring individual datasets.
 
@@ -54,7 +54,7 @@ datasets:
     name: glue_table
 ```
 
-Hadoop-style catalogs use file-based paths such as `file://`, `s3://`, or `s3a://`. For these, specify the warehouse path as the table location. This is typically only used for local development or legacy setups.
+Hadoop-style catalogs use file-based paths with the `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` scheme. For these, specify the table location within the warehouse. This is typically only used for local development or legacy setups. When `iceberg_metadata_path` is set, `from` is the table root and needs no particular warehouse layout; see [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
 
 Example (Hadoop Catalog, local):
 
@@ -125,7 +125,8 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_gcs_token`           | OAuth2 token to use for GCS authentication.                                                                                                                                                    |
 | `iceberg_gcs_service_path`    | Custom endpoint URL for GCS (for emulators or custom endpoints).                                                                                                                               |
 | `iceberg_gcs_no_auth`         | Set to `true` to allow anonymous access to GCS (for public buckets).                                                                                                                           |
-| `metadata_path`                | The path including scheme to the metadata file for the Hadoop table. Must specify a path to a `.json` file. For example, `s3a://my-bucket/warehouse/namespace/table/metadata/v1.metadata.json` |
+| `iceberg_metadata_path`        | The Iceberg metadata file to read the table from, as a path relative to the table root in `from` (for example, `/metadata/00003-8f2c.metadata.json`) or as a full URL. When set, the table is read from exactly this file, without a catalog, and is read-only. Applies only when `from` is a `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` table root. See [Read a table from a metadata file](#read-a-table-from-a-metadata-file). |
+| `metadata_path`                | Deprecated. Use `iceberg_metadata_path`. Still accepted with its earlier meaning: the value is used as given, so it must be the full path to the metadata file, and a deprecation warning is logged. |
 
 ## Authentication
 
@@ -242,6 +243,40 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 | `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
+## Read a table from a metadata file
+
+An Iceberg table on object storage or the local filesystem can be read without a catalog by pinning the metadata file to read. Set `from` to the table root, under `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://`, and set `iceberg_metadata_path` to the metadata file:
+
+```yaml
+datasets:
+  - from: iceberg:s3://my-bucket/warehouse/db/taxis
+    name: taxis
+    params:
+      iceberg_s3_region: us-east-1
+      iceberg_metadata_path: /metadata/00003-8f2c.metadata.json
+```
+
+Spice reads the table from exactly that file and does not list the table's `metadata/` directory, so every load reads the same snapshot. A table root read this way does not need the `warehouse/namespace/table` layout that an unpinned Hadoop-style path uses.
+
+`iceberg_metadata_path` takes one of two forms:
+
+- A path relative to the table root in `from`. The leading `/` is optional and refers to the table root, not the bucket or filesystem root. A path that contains any `..` segment is refused, even one such as `metadata/archive/../v1.metadata.json` that stays inside the table root.
+- A full URL, such as `s3://my-bucket/other/location/metadata/00003-8f2c.metadata.json`, which is used as given and does not need to be under `from`.
+
+A `gcs://` location is read as `gs://`. If `from` names the metadata file itself instead of the table root, the dataset fails to load. When the file sits in a `metadata/` directory, the error gives the exact `from` and `iceberg_metadata_path` values to use; otherwise it asks for `from` to be set to the table's root directory and `iceberg_metadata_path` to the file relative to that root. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
+
+A table read from a pinned metadata file has no catalog to commit writes to, so it is read-only. When `from` is an object-storage or local-filesystem table root, a dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
+
+```text
+An Iceberg table read from its metadata file (`iceberg_metadata_path`) has no catalog to commit to, so it is read-only. Remove `access: read_write`, keep writes in the acceleration with `acceleration.write_mode: acceleration`, or read the table through an Iceberg catalog to write to it. See: https://spiceai.org/docs/components/data-connectors/iceberg
+```
+
+Writes kept in the acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets#accelerationwrite_mode) never reach the table and are still accepted.
+
+### Migrate from `metadata_path`
+
+`iceberg_metadata_path` replaces `metadata_path`. The earlier name is still accepted, logs a deprecation warning, and keeps its earlier meaning: its value is used as given rather than resolved against `from`. To migrate, rename the parameter. A full URL works unchanged under the new name, and can be shortened to a path relative to `from`. If both are set, `iceberg_metadata_path` is used. When `from` is an object-storage or local-filesystem table root, a dataset that sets `metadata_path` with `access: read_write` now fails to load, as described above; such writes could not commit before this change.
+
 ## Write Support
 
 This connector supports writing data to Iceberg tables using SQL [`INSERT INTO`](../../reference/sql/dml#insert) statements. Writes are currently append-only — inserted data is added as new data files and registered through a new Iceberg table snapshot. Schema validation ensures inserted data matches the target table schema.
@@ -267,7 +302,7 @@ INSERT INTO my_table
 SELECT * FROM source_table;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `UPDATE` operations are not currently supported.
+Inserting into partitioned Iceberg tables is supported. `UPDATE` operations are not currently supported. A table read from a pinned metadata file is read-only; see [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. When the catalog is AWS Glue, writes also require `glue:UpdateTable` permission to commit the new table snapshot. For more details, see [Data Ingestion](../../features/data-ingestion).
 
@@ -407,8 +442,6 @@ Connect to an Iceberg table using Hadoop Catalog with a local warehouse:
 datasets:
   - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
     name: local_hadoop
-    params:
-      metadata_path: file:///tmp/hadoop_warehouse/test/my_table_1/metadata/v1.metadata.json
 ```
 
 Connect to an Iceberg table using Hadoop Catalog with S3:
@@ -417,8 +450,18 @@ Connect to an Iceberg table using Hadoop Catalog with S3:
 datasets:
   - from: iceberg:s3a://my-bucket/hadoop_warehouse/test/my_table_2
     name: s3_hadoop
+```
+
+### Pinned Metadata File Example
+
+Read a local Iceberg table from a pinned metadata file, without a catalog. The dataset is read-only. See [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+
+```yaml
+datasets:
+  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
+    name: local_pinned
     params:
-      metadata_path: s3a://my-bucket/hadoop_warehouse/test/my_table_2/metadata/v1.metadata.json
+      iceberg_metadata_path: /metadata/v1.metadata.json
 ```
 
 ## Cookbook
