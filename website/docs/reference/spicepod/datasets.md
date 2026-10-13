@@ -283,7 +283,7 @@ datasets:
 
 In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
-while the stream runs, and a non-widening type change stops a PostgreSQL CDC stream with an error;
+while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
 Partitioned Cayenne tables log a warning and use the recreate fallback. Other engines, including `arrow` and PostgreSQL, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
