@@ -385,6 +385,12 @@ datasets:
 
 Snapshot datasets follow the same [metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location) rule as other Cayenne datasets: datasets that set different `cayenne_file_path` values must all set the same `cayenne_metadata_dir`, or the Spicepod is rejected at startup.
 
+### Disk use of a Cayenne copy
+
+Each reload extracts the new snapshot into the Cayenne data directory beside the snapshot directories already there. Once the new snapshot is serving, Spice deletes the directories it no longer references. A query that started before the reload keeps the directories it reads until it finishes. Disk use stays near one copy of the table plus, at most, the copy the latest reload replaced. On startup, Spice also deletes the unreferenced directories an earlier run left behind. Partitioned Cayenne tables are not reclaimed this way. The [`cayenne_data_dir_snapshot_dirs`](../../components/data-accelerators/cayenne/deployment.md#storage-footprint-metrics) metric reports the number of snapshot directories on disk.
+
+Earlier releases, including v2.4.0-rc.1, keep every replaced directory, so the data directory grows by one copy of the table per reload and a restart does not reclaim it. After an upgrade, the first startup deletes those leftover directories.
+
 ### Configuration constraints
 
 The dataset is read-only. Spice rejects a configuration that contradicts reading snapshots, with an error that names the setting to remove:
