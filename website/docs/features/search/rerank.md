@@ -1,14 +1,14 @@
 ---
 title: 'Reranking'
 sidebar_label: 'Reranking'
-description: 'Rerank search results using dedicated reranker models or LLM-as-reranker for improved relevance.'
+description: 'Rerank search results using dedicated reranker models, chat models, or decision models for improved relevance.'
 sidebar_position: 4
 tags:
   - search
   - features
 ---
 
-Reranking reorders a set of candidate results — from `vector_search`, `text_search`, `rrf`, or a plain table — using a dedicated reranker model. This produces more relevant rankings than the initial retrieval scores alone.
+Reranking reorders a set of candidate results — from `vector_search`, `text_search`, `rrf`, or a plain table — using a dedicated reranker model, a chat model, or a decision model. This produces more relevant rankings than the initial retrieval scores alone.
 
 ## How It Works
 
@@ -105,6 +105,39 @@ SELECT * FROM rerank(
 The `strategy` parameter controls how the LLM scores documents:
 - **`listwise`** (default): sends all candidates in a single prompt and asks the LLM to rank them.
 - **`pointwise`**: sends each candidate individually and asks the LLM to score it.
+
+### Decision Models as Rerankers
+
+A [decision model](../large-language-models/decisions.md), such as [TypeSafe Jev](../../components/models/typesafe.md), can also be used as a reranker without additional configuration. Spice asks the model whether each document is relevant to the query and uses the returned probability, a value between 0 and 1, as the document's `rerank_score`.
+
+```yaml
+models:
+  - from: typesafe:jev
+    name: jev
+    params:
+      typesafe_api_key: ${secrets:TYPESAFE_API_KEY}
+```
+
+```sql
+SELECT * FROM rerank(
+  vector_search(kb, 'onboarding checklist', limit => 40),
+  document => 'content',
+  model    => 'jev',            -- resolves to the registered decision model
+  strategy => 'listwise',       -- or 'pointwise' (default)
+  limit    => 10
+);
+```
+
+For decision models, the `strategy` parameter controls how many requests are sent:
+
+- **`pointwise`** (default): sends one request per candidate. Requests run concurrently, subject to the model's own rate limits, and each score is independent of the other candidates.
+- **`listwise`**: sends all candidates in a single request, with one relevance question per candidate.
+
+The question is fixed, so `prompt_template` does not apply to decision models. If the model fails for any candidate, or returns an answer that is not a probability between 0 and 1, the whole `rerank()` query fails.
+
+### Model Resolution
+
+The `model` name is looked up in this order: dedicated rerankers, then chat models, then decision models. The first match is used. `strategy` applies to chat models and decision models, and dedicated rerankers ignore it.
 
 ## SQL Usage
 

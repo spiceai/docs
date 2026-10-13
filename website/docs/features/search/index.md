@@ -130,11 +130,11 @@ For complete RRF syntax and parameters, see [Search SQL Reference](../reference/
 
 ### Reranking
 
-Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint) or any registered chat model as an LLM-as-reranker. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
+Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint), any registered chat model as an LLM-as-reranker, or a [decision model](../large-language-models/decisions.md) such as TypeSafe Jev. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
 
 **Requirements:**
 
-- A registered reranker (in the `rerankers:` spicepod section) or a registered chat model
+- A registered reranker (in the `rerankers:` spicepod section), chat model, or decision model
 
 **Getting Started:**
 
