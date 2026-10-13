@@ -442,8 +442,6 @@ Connect to an Iceberg table using Hadoop Catalog with a local warehouse:
 datasets:
   - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
     name: local_hadoop
-    params:
-      iceberg_metadata_path: /metadata/v1.metadata.json
 ```
 
 Connect to an Iceberg table using Hadoop Catalog with S3:
@@ -452,6 +450,16 @@ Connect to an Iceberg table using Hadoop Catalog with S3:
 datasets:
   - from: iceberg:s3a://my-bucket/hadoop_warehouse/test/my_table_2
     name: s3_hadoop
+```
+
+### Pinned Metadata File Example
+
+Read a local Iceberg table from a pinned metadata file, without a catalog. The dataset is read-only. See [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+
+```yaml
+datasets:
+  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
+    name: local_pinned
     params:
       iceberg_metadata_path: /metadata/v1.metadata.json
 ```
