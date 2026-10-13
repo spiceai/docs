@@ -96,7 +96,7 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Accepts `auto` (default) or an explicit value; `auto` uses the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores. The aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that same entitlement, less a query reserve of a quarter of the cores (at least 2).                                                                                              |
 | `cayenne_write_concurrency`       | Writer partition override for unsorted ingests, controlling how many Vortex files are encoded in parallel during a write. Accepts `auto` (default) or an explicit value. `auto` encodes up to `min(4, session target_partitions)` files in parallel per write — an intentionally small per-table default (not the full CPU entitlement), so many independently-writing tables do not oversubscribe CPU under concurrent CDC. An explicitly-set value is capped at the session `target_partitions`, which defaults to the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores; the aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that entitlement. Values below `1` are clamped to `1`. The sort-and-rewrite compaction path always writes serially regardless of this setting. |
 | `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `position` (merge-on-read) for most tables, or to `key` for CDC datasets (`refresh_mode: changes`) that declare a `primary_key`. See [Deletion Strategies](#deletion-strategies).         |
-| `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append) for append-only CDC workloads where the source guarantees primary-key uniqueness. |
+| `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append), so repeated keys are stored as written. Registration refuses `none` on a dataset that rewrites stored keys: `refresh_mode: changes`, durable write-back, or writes kept in the accelerator. See [Turning off conflict detection](#turning-off-conflict-detection). |
 | `cayenne_compaction_trigger_files` | Minimum number of small Vortex files in the current snapshot before tiered compaction runs. A "small" file is one whose size is below `cayenne_target_file_size_mb` / 4. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_protected_snapshots` | Number of protected snapshots before snapshot-maintenance compaction runs. Separate from `cayenne_compaction_trigger_files` so small-file tuning does not silently change scan amplification behavior. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_snapshot_age_ms` | Maximum age in milliseconds of the oldest protected snapshot before snapshot-maintenance compaction runs. Set to `0` to disable the age trigger. Defaults to `60000` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `300000` otherwise. |
@@ -632,7 +632,30 @@ Failed to update dataset 'events': the new 'id' of 1 row is NULL, and a primary 
 
 A partitioned acceleration (`partition_by`) stores each partition as its own table, so a write resolves repeated keys within each partition. When a partition column is not part of the `primary_key`, a key that lands in two partitions in one write is stored once in each. Include every partition column in the `primary_key` to avoid this.
 
-[`cayenne_pk_conflict_detection: none`](#parameters) turns off conflict detection, so repeated keys are not resolved. Use it only when the source guarantees primary-key uniqueness.
+#### Turning off conflict detection
+
+[`cayenne_pk_conflict_detection: none`](#parameters) turns off conflict detection, so repeated keys are not resolved. A write to a stored key then adds a second row for that key instead of replacing it, and a durable write-back commit is not recorded for delivery to the source.
+
+Registration refuses `none` on any Cayenne dataset that rewrites a stored key:
+
+- `refresh_mode: changes`, set explicitly or by the connector's default.
+- `write_mode: write_back` ([durable write-back](#transactions)).
+- `write_mode: acceleration`, which keeps writes in the accelerator.
+- A `sink` source, whose writes also stay in the accelerator.
+
+The unprefixed `pk_conflict_detection` parameter is checked too; when both are set, `cayenne_pk_conflict_detection` takes precedence. A read-only dataset takes no writes, so a read-only dataset with a full or append refresh still loads with `none`. Neither refresh mode is guaranteed to keep one row per key under `none`. Use it with a full refresh only when the source guarantees primary-key uniqueness. An append refresh also must not read a stored key again: it filters the source from the stored `time_column` high-water mark inclusively and drops only rows identical to stored ones, so a new version of a stored key, or a refresh without a `time_column` that re-reads the source, adds a second row for that key. Use `none` with an append refresh only when each key arrives once, with a `time_column` whose values only increase. The refusal names the parameter and what would go wrong for the dataset:
+
+```text
+Failed to register dataset events (postgres): 'cayenne_pk_conflict_detection: none' turns off the primary-key check Cayenne uses to replace a stored row, but this dataset applies its source's changes ('refresh_mode: changes'), so a change to an existing key would add a second row for that key instead of replacing it. Set 'cayenne_pk_conflict_detection' to 'auto', its default. See: https://spiceai.org/docs/components/data-accelerators/cayenne
+```
+
+The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. When the table has a primary key, reopening it with `auto` fails. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
+
+```text
+Failed to load table 'events': it was created with 'cayenne_pk_conflict_detection: none', so it can hold more than one row per primary key, and the setting is now 'auto'. An existing table keeps the setting it was created with. To rebuild it from the source with one row per primary key, restart once with 'acceleration.mode: file_create', and with 'write_mode: write_through' if the dataset uses 'write_mode: write_back', then set both back. Rows that exist only in the acceleration are not kept.
+```
+
+To rebuild the table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
 
 #### `on_conflict` is deprecated
 
@@ -649,7 +672,7 @@ The following behaviors differ from Spice v2.3 and earlier:
 - An `UPDATE` that moved a row onto another row's key, or set a key to `NULL`, could remove a row. It now fails and changes nothing.
 - Setting `on_conflict` on a read-write dataset kept its writes in the acceleration when the source accepts only reads. Set [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode) instead.
 
-[Durable write-back](#transactions) still requires an `on_conflict` upsert on the primary key and fails without one. Keep the entry on those datasets, even though the load warning says to remove it. [PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams need only `primary_key`.
+[Durable write-back](#transactions) and [PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams need only `primary_key`, so `on_conflict` can be removed from them. Spice v2.4.0-rc.1 refused a write-back dataset without an `on_conflict` upsert on the primary key.
 
 ### Writes in memory mode
 
@@ -984,7 +1007,7 @@ COMMIT;
 - **Preconditions with `assert()`.** The `assert(<boolean expression>)` function evaluates its argument at execution time. If the expression is `false` or `NULL`, the transaction aborts with `assertion failed: gate expression was false or NULL`. Use it to enforce invariants (for example, a sufficient balance) as part of the transaction. Comparison gates such as `… >= cap` are NULL-safe.
 - **Return value.** On success, `/v1/sql` returns the final statement's result (for the canonical gate-plus-write shape, the last write's row-count summary), or `COMMIT` when the body produces no rows.
 
-**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode), `on_conflict`, and `refresh_mode: changes` (CDC) stages its committed writes to the accelerator and then reconciles them asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
+**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode) and `refresh_mode: changes` (CDC) stages its committed writes to the accelerator and then reconciles them asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
 
 :::warning PostgreSQL is the only supported source
 Reconciling a row to the source has to happen in **one atomic step**. Delivered as a separate `DELETE` followed by an `INSERT`, the standalone `DELETE` echoes back over the changes stream — the accelerator is CDC-fed from that same source — and removes the committed row from the accelerator; if the follow-up `INSERT` then fails, the write is silently gone from both sides.
@@ -993,7 +1016,7 @@ The [PostgreSQL connector](../../data-connectors/postgres/index.md) delivers eac
 
 > Failed to register dataset `<name>` (`<connector>`): durable write-back needs a source that can apply a delivered row in one atomic step, and the `<connector>` connector cannot yet.
 
-Choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). The full message also suggests removing `on_conflict` to keep writes on the accelerator, but `on_conflict` no longer decides where writes go, and durable write-back requires it. Atomic delivery for other connectors is planned.
+Choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). The full message suggests `write_mode: write_through`, which sends writes to the source directly, together with `access: read` if the source does not accept writes. Atomic delivery for other connectors is planned.
 :::
 
 **Durable write-back requirements:**
@@ -1003,6 +1026,8 @@ Choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets
 - [`acceleration.mode`](../../reference/spicepod/datasets#accelerationmode) must be **`file`**.
 - No acceleration retention may be configured, to preserve undelivered rows.
 - The accelerator must be the **sole writer** of these source rows; delivery can overwrite changes made directly at the source.
+- [`cayenne_pk_conflict_detection`](#turning-off-conflict-detection) must stay at its default, `auto`.
+- `on_conflict` is not required.
 
 **Supported writes:**
 
@@ -1030,7 +1055,7 @@ Consider the following limitations when using Spice Cayenne acceleration:
 - **No Re-partitioning**: Cayenne does not re-partition stored data. A `mode: file` dataset whose stored data was written with different partition columns fails to load. Changing `partition_by` requires rebuilding the acceleration, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, and the `on_conflict` the warning mentions is not needed. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
+- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, with `cayenne_pk_conflict_detection` at its default `auto`. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
 - **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. In `mode: memory`, it runs after writes, because that mode has no checkpoints.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
