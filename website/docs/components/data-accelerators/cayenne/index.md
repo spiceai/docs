@@ -641,6 +641,7 @@ Registration refuses `none` on any Cayenne dataset that rewrites a stored key:
 - `refresh_mode: changes`, set explicitly or by the connector's default.
 - `write_mode: write_back` ([durable write-back](#transactions)).
 - `write_mode: acceleration`, which keeps writes in the accelerator.
+- A `sink` source, whose writes also stay in the accelerator.
 
 The unprefixed `pk_conflict_detection` parameter is checked too; when both are set, `cayenne_pk_conflict_detection` takes precedence. A read-only dataset takes no writes, so a read-only dataset with a full or append refresh still loads with `none`. Neither refresh mode is guaranteed to keep one row per key under `none`, so use it only when the source guarantees primary-key uniqueness. The refusal names the parameter and what would go wrong for the dataset:
 
@@ -648,7 +649,7 @@ The unprefixed `pk_conflict_detection` parameter is checked too; when both are s
 Failed to register dataset events (postgres): 'cayenne_pk_conflict_detection: none' turns off the primary-key check Cayenne uses to replace a stored row, but this dataset applies its source's changes ('refresh_mode: changes'), so a change to an existing key would add a second row for that key instead of replacing it. Set 'cayenne_pk_conflict_detection' to 'auto', its default. See: https://spiceai.org/docs/components/data-accelerators/cayenne
 ```
 
-The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. Reopening it with `auto` fails:
+The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. When the table has a primary key, reopening it with `auto` fails. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
 
 ```text
 Failed to load table 'events': it was created with 'cayenne_pk_conflict_detection: none', so it can hold more than one row per primary key, and the setting is now 'auto'. An existing table keeps the setting it was created with. To rebuild it from the source with one row per primary key, restart once with 'acceleration.mode: file_create', and with 'write_mode: write_through' if the dataset uses 'write_mode: write_back', then set both back. Rows that exist only in the acceleration are not kept.
