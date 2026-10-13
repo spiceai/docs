@@ -1060,7 +1060,15 @@ A location set in a feature's own section is used as given, without a feature fo
 
 :::warning[Migrating from v2.4.0-rc.1]
 
-In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, move each feature's objects from the old path into that feature's folder (for example, the scheduler's `cluster.json`, `heartbeats/`, and `jobs/` into `cluster/`, and `results_cache_warmup.json` into `results-cache/`), or set `runtime.scheduler.state_location` to the old location to keep the scheduler's previous layout. Otherwise, the scheduler starts with fresh cluster state and warmup records new query shapes.
+In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, move each feature's objects from the old path into that feature's folder:
+
+| Feature | Objects at the old path | Move into |
+| ------- | ----------------------- | --------- |
+| Cluster scheduler | `cluster.json`, `heartbeats/`, `jobs/`, and `scheduler/` | `cluster/` |
+| HTTP rate control | One folder per spicepod, named after the spicepod's `name` with each run of characters other than letters, digits, `-`, `.`, and `_` replaced by `_` (for example, `my_app/` for `name: my app`) | `rate-control/` |
+| SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
+
+For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`. To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
 
 :::
 
