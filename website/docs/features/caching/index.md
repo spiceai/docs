@@ -201,6 +201,8 @@ runtime:
       warmup: on_first_refresh
 ```
 
+The shapes are written to `results-cache/results_cache_warmup.json` below the location's path, which is `spice-state/results-cache/results_cache_warmup.json` in the bucket for this example. See [Runtime state layout](../../reference/spicepod/runtime.md#runtime-state-layout).
+
 If the object store fails to initialize, the runtime logs a warning and writes the shapes to the local file instead.
 
 ## Logical Plan Cache
