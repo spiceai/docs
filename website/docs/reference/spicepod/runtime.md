@@ -16,7 +16,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
-`runtime.flight` · `runtime.params` · `runtime.source_rate_control`
+`runtime.adaptive_tuning` · `runtime.flight` · `runtime.params` · `runtime.source_rate_control`
 
 **Applied on reload — no restart needed:**
 
@@ -273,6 +273,67 @@ runtime:
     cayenne_segment_cache_mb: 1024
     cayenne_filter_propagation: enabled
 ```
+
+### Adaptive tuning targets
+
+Runtime-wide service-level targets for [adaptive tuning](#runtimeadaptive_tuning). The adaptive controller steers every Cayenne-accelerated dataset and every Cayenne catalog toward these targets in small, bounded steps, within the same bounds that static tuning derives. A target never turns adaptive tuning on: while `runtime.adaptive_tuning` is `disabled`, the targets are ignored and Cayenne logs one warning per dataset or catalog.
+
+| Parameter Name              | Description                                                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target_replication_lag`    | Target end-to-end CDC replication lag, as a duration such as `5s`.                                                                                                           |
+| `target_freshness`          | Target data freshness, which is the age of the newest queryable data, as a duration such as `30s`.                                                                           |
+| `target_query_latency`      | Target p99 query latency, as a duration such as `250ms`.                                                                                                                     |
+| `target_qph`                | Target query throughput in queries per hour (higher is better), as a positive number such as `5000`. Throughput is measured system-wide, so a query that spans several datasets, such as a join, is counted once. |
+| `target_convergence_window` | Time budget the controller targets for converging toward the other targets, as a duration such as `1m`. Defaults to `60s`. It paces the controller rather than declaring an outcome. |
+
+An invalid value logs a warning and is ignored. See [Goal-driven tuning](../../components/data-accelerators/cayenne/performance.md#goal-driven-tuning) for how the controller uses the targets.
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+  params:
+    target_replication_lag: 5s
+    target_query_latency: 250ms
+    target_qph: 5000
+```
+
+## `runtime.adaptive_tuning`
+
+Turns adaptive tuning on or off for the [Spice Cayenne](../../components/data-accelerators/cayenne) data accelerator across the whole runtime. It applies to every Cayenne-accelerated dataset and to Cayenne catalogs.
+
+| Value                | Description                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled` (default) | Cayenne derives its memory-, CPU-, and storage-sensitive settings statically from the detected environment and the inferred schema. No feedback loop runs.                                                                                                         |
+| `enabled` (preview)  | In addition to the static derivation, Cayenne runs a closed-loop controller per table that adjusts those settings over time from the live workload, steering toward any [adaptive tuning targets](#adaptive-tuning-targets). Cayenne logs a startup warning that the mode is in preview. |
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+```
+
+Only the exact values `enabled` and `disabled` are accepted. Any other value, including `true` or a different letter case, fails the Spicepod load with an error that includes:
+
+```text
+Invalid `runtime.adaptive_tuning` value 'true': expected `enabled` or `disabled`. See: https://spiceai.org/docs/reference/spicepod/runtime
+```
+
+Setting `adaptive_tuning` under `runtime.params` has no effect; it must be set directly under `runtime`. The adaptive controller runs on the background compaction tick, so a dataset with `cayenne_compaction_background_interval_ms: 0` uses static tuning and logs a warning. See [Self-Tuning](../../components/data-accelerators/cayenne/performance.md#self-tuning) for how both modes work.
+
+### Migrating from `cayenne_tuning` and `cayenne_goal_*` {#migrate-from-cayenne-tuning}
+
+Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `cayenne_tuning` and `cayenne_goal_*` parameters on each dataset or catalog, and with `cayenne_goal_*` under `runtime.params`. These names are no longer read. Spice logs one startup warning for each old name still in use, naming its replacement, and does not apply the value. The warning covers each name with or without the `cayenne_` prefix.
+
+| Old setting                                                     | Replacement                                                      |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Dataset or catalog `cayenne_tuning: adaptive`                   | `runtime.adaptive_tuning: enabled`                               |
+| Dataset or catalog `cayenne_tuning: auto`                       | `runtime.adaptive_tuning: disabled`, or omit it                  |
+| `cayenne_goal_replication_lag`                                  | `runtime.params.target_replication_lag`                          |
+| `cayenne_goal_freshness`                                        | `runtime.params.target_freshness`                                |
+| `cayenne_goal_query_latency`                                    | `runtime.params.target_query_latency`                            |
+| `cayenne_goal_qph`                                              | `runtime.params.target_qph`                                      |
+| Dataset `cayenne_goal_convergence_window`                       | `runtime.params.target_convergence_window`                       |
+
+Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. Only `runtime.adaptive_tuning` selects the tuning mode. A Spicepod that relies on `cayenne_tuning: adaptive` runs with static tuning until `runtime.adaptive_tuning: enabled` is set. A Spicepod that already sets `runtime.adaptive_tuning: enabled` but still carries an old `cayenne_goal_*` key runs adaptive tuning, and only that old target is ignored.
 
 ## `runtime.source_rate_control`
 
