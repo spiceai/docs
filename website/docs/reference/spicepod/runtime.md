@@ -1065,7 +1065,7 @@ In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the
 | Feature | Objects at the old path | Move into |
 | ------- | ----------------------- | --------- |
 | Cluster scheduler | `cluster.json`, `heartbeats/`, `jobs/`, and `scheduler/` | `cluster/` |
-| HTTP rate control | One folder per spicepod, named after the spicepod's `name` with each run of characters other than letters, digits, `-`, `.`, and `_` replaced by `_` (for example, `my_app/` for `name: my app`) | `rate-control/` |
+| HTTP rate control | One folder per spicepod, with a name derived from the spicepod's `name` (for example, `my_app/` for `name: my app`). To find it, list the old path for objects named `<origin>-<16 hex digits>.json`. | `rate-control/` |
 | SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
 
 For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`.
