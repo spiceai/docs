@@ -962,7 +962,7 @@ Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This
 
 | Behavior | Configuration |
 | --- | --- |
-| **Default** (not set) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
+| **Default** (not set, or an empty list `[]`) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
 | **Explicit list** | Replaces the defaults entirely. Only the listed hosts are accepted. |
 | **Wildcard** (`["*"]`) | Disables host checking — all `Host` header values are accepted. |
 
@@ -984,6 +984,8 @@ runtime:
 ```
 
 Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
+
+Only `["*"]` disables the check. An empty list (`allowed_hosts: []`) uses the defaults. In `v2.4.0-rc.1`, an empty list disabled host checking; set `allowed_hosts: ["*"]` to keep that behavior.
 
 ## `runtime.ready_state`
 
