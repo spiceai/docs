@@ -523,7 +523,7 @@ When a replicated column's type changes on the source (`ALTER TABLE ... ALTER CO
 
 On a `refresh_mode: changes` dataset, `drop_and_recreate` behaves like `sync_all_columns`: the replication stream never drops and recreates the accelerated table, because the source cannot replay the history that would be lost.
 
-A change whose values do not cast exactly is refused rather than stored rounded, and the source position is kept. The refusal's error text suggests a restart, but on an engine that cannot evolve mid-stream under `mode: file` or `mode: file_update` the recovery is a [rebuild](#rebuilding-an-accelerator-from-scratch). A delete is not checked, because it is applied by primary key.
+A change whose values do not cast exactly is refused rather than stored rounded, and the source position is kept. The refusal's error text suggests a restart, but on a persistent acceleration of an engine that cannot evolve mid-stream the recovery is a [rebuild](#rebuilding-an-accelerator-from-scratch). A delete is applied by primary key, so only its key values are checked: a key value that does not fit the registered key type still refuses the delete.
 
 Under `append_new_columns`, `sync_all_columns`, and `drop_and_recreate`, a type change that is not a lossless widening, such as `double precision` to `integer`, stops the stream with an error. A widening of a `primary_key` column cannot be applied in place and stops the stream too. To recover, revert the source column type, or [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch) so the dataset registers the new schema.
 
