@@ -260,10 +260,10 @@ Spice reads the table from exactly that file and does not list the table's `meta
 
 `iceberg_metadata_path` takes one of two forms:
 
-- A path relative to the table root in `from`. The leading `/` is optional and refers to the table root, not the bucket or filesystem root. A path that leaves the table root with `..` is refused.
+- A path relative to the table root in `from`. The leading `/` is optional and refers to the table root, not the bucket or filesystem root. A path that contains any `..` segment is refused, even one such as `metadata/archive/../v1.metadata.json` that stays inside the table root.
 - A full URL, such as `s3://my-bucket/other/location/metadata/00003-8f2c.metadata.json`, which is used as given and does not need to be under `from`.
 
-A `gcs://` location is read as `gs://`. If `from` names the metadata file itself instead of the table root, the dataset fails to load with an error that gives the `from` and `iceberg_metadata_path` values to use. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
+A `gcs://` location is read as `gs://`. If `from` names the metadata file itself instead of the table root, the dataset fails to load. When the file sits in a `metadata/` directory, the error gives the exact `from` and `iceberg_metadata_path` values to use; otherwise it asks for `from` to be set to the table's root directory and `iceberg_metadata_path` to the file relative to that root. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
 
 A table read from a pinned metadata file has no catalog to commit writes to, so it is read-only. A dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
 
