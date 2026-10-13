@@ -333,7 +333,7 @@ Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `ca
 | `cayenne_goal_qph`                                              | `runtime.params.target_qph`                                      |
 | Dataset `cayenne_goal_convergence_window`                       | `runtime.params.target_convergence_window`                       |
 
-Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. A Spicepod that still uses the old names runs with static tuning until it is updated.
+Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. Only `runtime.adaptive_tuning` selects the tuning mode. A Spicepod that relies on `cayenne_tuning: adaptive` runs with static tuning until `runtime.adaptive_tuning: enabled` is set. A Spicepod that already sets `runtime.adaptive_tuning: enabled` but still carries an old `cayenne_goal_*` key runs adaptive tuning, and only that old target is ignored.
 
 ## `runtime.source_rate_control`
 
