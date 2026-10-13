@@ -501,6 +501,24 @@ The cause is deliberately **not** a metric label on either path. A source read i
 
 Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop the replication slot. On next start, Spice will create a fresh slot, snapshot the table, and resume streaming.
 
+### Source column type changes {#source-column-type-changes}
+
+When a replicated column's type changes on the source (`ALTER TABLE ... ALTER COLUMN ... TYPE`), the dataset's [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) policy and the accelerator engine decide what happens. When a dataset joins the replication stream, Spice reads each column's type from the Postgres catalog (`pg_attribute`). Under a policy other than `block`, Spice compares each `Relation` message against those types, so a type change is detected even when the first change Spice receives for the table was written after the `ALTER`.
+
+| `on_schema_change`                         | What happens to a type change                                                                                                                                                                                                                                                                                         |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `block` (default)                          | The column keeps its registered type. Each incoming number is decoded as its source type and stored only if the column's type holds it exactly: after `integer` becomes `double precision`, `2.0` is stored as `2`, and `2.5` is an error that names the column. A value of any other known source type is an error too. |
+| `fail`                                     | The stream stops with an error that names the column and the type change.                                                                                                                                                                                                                                             |
+| `append_new_columns`                       | The type change is not adopted, and a warning is logged. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly.                                                                                                                                               |
+| `sync_all_columns` on non-partitioned `cayenne` | A lossless widening, such as `integer` to `bigint` or `double precision`, is adopted while the stream runs. The accelerated column takes the new type and changes keep applying.                                                                                                                                  |
+| `sync_all_columns` on other engines, such as `duckdb` | These engines cannot change a column's type mid-stream, so the widening is applied at the next restart and a warning is logged. Until then, values are cast to the current column type, and a change is applied only if every value it writes casts exactly.                                                  |
+
+A change whose values do not cast exactly is refused rather than stored rounded, and the source position is kept. After a restart applies the widening, the change is applied with its exact values. A delete is not checked, because it is applied by primary key.
+
+Under `append_new_columns` and `sync_all_columns`, a type change that is not a lossless widening, such as `double precision` to `integer`, stops the stream with an error. A widening of a `primary_key` column cannot be applied in place and stops the stream too. To recover, revert the source column type, or remove the dataset's acceleration data and restart so the dataset registers the new schema.
+
+A change that keeps the column's type OID, such as `numeric(10,2)` to `numeric(14,4)`, is not detected.
+
 ### Resilience
 
 - **Network blips / Postgres restarts**: transient — retried with exponential backoff (500 ms → 30 s, ±20 % jitter). The slot's server-side state is the source of truth, so reconnects resume from the last acknowledged LSN — no data loss.
@@ -545,6 +563,7 @@ each full-refresh event is a rebuild; the preceding log gives its reason.
 | Error: *`replication slot "..." already exists`* on startup                  | Another Spice replica is using the same slot name. Set `pg_replication_slot` uniquely, or ensure `SPICE_INSTANCE_ID` differs.     |
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
+| Error: *`cannot be stored in the accelerated column's type ... without loss, so the change is refused rather than stored rounded`* | A source column's type changed, and the acceleration has not adopted it yet. With `on_schema_change: sync_all_columns`, restart Spice to apply the widening and the refused change. See [Source column type changes](#source-column-type-changes). |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
 | The whole table is re-read on a restart that used to resume                  | The recorded position was missing or unusable on attach, or the accelerated table was empty beneath a usable one, so resume was not possible. The `rebuild_cause` field on the `warn!` line says which — see [Detecting an unplanned source read](#unplanned-source-reads) and [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
 | `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
@@ -553,7 +572,7 @@ each full-refresh event is a rebuild; the preceding log gives its reason.
 ## Limitations
 
 - **One table per dataset.** Each Spice dataset replicates exactly one source table; each dataset gets its own slot and publication.
-- **No DDL replication.** Schema changes on the source are not propagated automatically. Add new columns as nullable on the source first, update the Spice dataset, then reload the Spicepod.
+- **Limited DDL replication.** New columns and column type changes are applied only as [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) permits. See [Source column type changes](#source-column-type-changes). Other DDL, such as a column rename, is not propagated. Add new columns as nullable on the source first, update the Spice dataset, then reload the Spicepod.
 - **Arrow engine** supports `on_conflict` upserts when a `primary_key` is configured. Without a primary key, `UPDATE`s appear as additional inserts rather than replacing existing rows. `DELETE` and `TRUNCATE` are applied either way.
 
 ## Comparison with Debezium + Kafka
