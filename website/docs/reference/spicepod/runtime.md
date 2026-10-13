@@ -1068,7 +1068,11 @@ In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the
 | HTTP rate control | One folder per spicepod, named after the spicepod's `name` with each run of characters other than letters, digits, `-`, `.`, and `_` replaced by `_` (for example, `my_app/` for `name: my app`) | `rate-control/` |
 | SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
 
-For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`. To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`.
+
+Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
+
+To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
 
 :::
 
