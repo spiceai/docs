@@ -503,7 +503,7 @@ Stop Spice, delete the dataset's acceleration data, drop the replication slot wi
 
 What to delete depends on the engine, and deleted data is gone, so copy it first if it must be kept:
 
-- **DuckDB and SQLite**: the dataset's database file. A `mode: file` dataset without `duckdb_file` or `sqlite_file` shares the default file (`accelerated_duckdb.db` or `accelerated_sqlite.db`) with every other such dataset, so deleting it discards their accelerations too.
+- **DuckDB and SQLite**: the dataset's database file. A `mode: file` dataset without `duckdb_file` or `sqlite_file` shares the default file (`accelerated_duckdb.db` or `accelerated_sqlite.db`) with every other such dataset, and several datasets can also set the same `duckdb_file` or `sqlite_file`. Deleting a file discards the acceleration of every dataset that resolves to it, so check all datasets for that path first.
 - **Cayenne**: the data directory and the shared metastore, which also reloads every other Cayenne dataset that uses the metastore. Follow the steps in [Changing `partition_by` after refresh](../data-acceleration/partitioning.md#changing-partition_by-after-refresh), without changing `partition_by`.
 
 Dropping a slot that other datasets share makes each of them [rebuild from the source](#recovering-from-a-lost-replication-slot) on the next start.
