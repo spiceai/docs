@@ -641,7 +641,7 @@ When a query fails, the `error` object contains an `error_code` field:
 
 ### Storage Layout
 
-Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted:
+Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted. `{base_prefix}` is the root of `state_location`, or the `cluster/` folder below the path of `runtime.state.location` (see [Runtime state layout](../../reference/spicepod/runtime.md#runtime-state-layout)):
 
 ```
 {base_prefix}/
