@@ -265,7 +265,7 @@ Spice reads the table from exactly that file and does not list the table's `meta
 
 A `gcs://` location is read as `gs://`. If `from` names the metadata file itself instead of the table root, the dataset fails to load. When the file sits in a `metadata/` directory, the error gives the exact `from` and `iceberg_metadata_path` values to use; otherwise it asks for `from` to be set to the table's root directory and `iceberg_metadata_path` to the file relative to that root. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
 
-A table read from a pinned metadata file has no catalog to commit writes to, so it is read-only. A dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
+A table read from a pinned metadata file has no catalog to commit writes to, so it is read-only. When `from` is an object-storage or local-filesystem table root, a dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
 
 ```text
 An Iceberg table read from its metadata file (`iceberg_metadata_path`) has no catalog to commit to, so it is read-only. Remove `access: read_write`, keep writes in the acceleration with `acceleration.write_mode: acceleration`, or read the table through an Iceberg catalog to write to it. See: https://spiceai.org/docs/components/data-connectors/iceberg
@@ -275,7 +275,7 @@ Writes kept in the acceleration with [`acceleration.write_mode: acceleration`](.
 
 ### Migrate from `metadata_path`
 
-`iceberg_metadata_path` replaces `metadata_path`. The earlier name is still accepted, logs a deprecation warning, and keeps its earlier meaning: its value is used as given rather than resolved against `from`. To migrate, rename the parameter. A full URL works unchanged under the new name, and can be shortened to a path relative to `from`. If both are set, `iceberg_metadata_path` is used. A dataset that sets `metadata_path` with `access: read_write` now fails to load, as described above; such writes could not commit before this change.
+`iceberg_metadata_path` replaces `metadata_path`. The earlier name is still accepted, logs a deprecation warning, and keeps its earlier meaning: its value is used as given rather than resolved against `from`. To migrate, rename the parameter. A full URL works unchanged under the new name, and can be shortened to a path relative to `from`. If both are set, `iceberg_metadata_path` is used. When `from` is an object-storage or local-filesystem table root, a dataset that sets `metadata_path` with `access: read_write` now fails to load, as described above; such writes could not commit before this change.
 
 ## Write Support
 
