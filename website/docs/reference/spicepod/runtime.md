@@ -1052,6 +1052,18 @@ The following features store their state under `runtime.state` when their own se
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 
+### Runtime state layout
+
+Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, and SQL results cache warmup under `results-cache/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
+
+A location set in a feature's own section is used as given, without a feature folder. With `runtime.scheduler.state_location`, the scheduler writes `cluster.json` and its other state at the root of that location. For an `abfs://` or `abfss://` `state_location`, that root is the container root, and the URL's path is ignored.
+
+:::warning[Migrating from v2.4.0-rc.1]
+
+In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, move each feature's objects from the old path into that feature's folder (for example, the scheduler's `cluster.json`, `heartbeats/`, and `jobs/` into `cluster/`, and `results_cache_warmup.json` into `results-cache/`), or set `runtime.scheduler.state_location` to the old location to keep the scheduler's previous layout. Otherwise, the scheduler starts with fresh cluster state and warmup records new query shapes.
+
+:::
+
 ### State location parameters
 
 These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) is configured separately, under `snapshots.params`.
