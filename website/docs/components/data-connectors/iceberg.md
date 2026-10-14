@@ -8,19 +8,19 @@ tags:
   - write
 ---
 
-The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Iceberg table format versions V1, V2, and V3 are supported. Iceberg datasets typically read through an Iceberg catalog that provides table metadata and manages access. A table on object storage or the local filesystem can also be read without a catalog from a pinned metadata file, as described in [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+The Iceberg Data Connector helps query [Apache Iceberg](https://iceberg.apache.org/) tables using federated SQL. Iceberg table format versions V1, V2, and V3 are supported. Iceberg datasets typically read through an Iceberg catalog that provides table metadata and manages access. A table on object storage or the local filesystem can also be read without a catalog, as described in [Read a table without a catalog](#read-a-table-without-a-catalog).
 
 When working with multiple datasets, it is recommended to use a catalog connector (instead of a data connector), such as the [Iceberg Catalog Connector](../catalogs/iceberg) or [AWS Glue Catalog Connector](../catalogs/glue) instead of configuring individual datasets.
 
-Iceberg catalogs can be of several types:
+Iceberg tables can be read in several ways:
 
 - **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
-- **Hadoop-style Catalogs**: Use file-based storage (e.g., `file://`, `s3://`, `s3a://`) to manage table metadata. This approach is typically used for local development or legacy deployments.
+- **Hadoop-style Catalogs or no catalog**: Reads a table directly from its root directory on object storage or the local filesystem (`file://`, `s3://`, `s3a://`, `gs://`, `gcs://`). This works for Hadoop-style tables and for tables written by other catalogs, such as AWS Glue, Athena, and REST catalogs.
 
-:::warning[Hadoop-style Catalogs]
+:::warning[Reading without a catalog]
 
-For production and cloud environments, REST and AWS Glue catalogs are recommended. Hadoop-style catalogs are supported but less common and not recommended for most new deployments.
+For production and cloud environments, REST and AWS Glue catalogs are recommended. Without a catalog, Spice finds the current metadata file from the table's files, and can read a commit that is in progress or that failed. For tables with concurrent writers, read through a catalog or pin a metadata file with `iceberg_metadata_path`.
 
 :::
 
@@ -54,7 +54,7 @@ datasets:
     name: glue_table
 ```
 
-Hadoop-style catalogs use file-based paths with the `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` scheme. For these, specify the table location within the warehouse. This is typically only used for local development or legacy setups. When `iceberg_metadata_path` is set, `from` is the table root and needs no particular warehouse layout; see [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+To read a table without a catalog, set `from` to the table root, the directory that contains `metadata/`, under the `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` scheme. The table root needs no particular directory layout. See [Read a table without a catalog](#read-a-table-without-a-catalog).
 
 Example (Hadoop Catalog, local):
 
@@ -125,7 +125,7 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_gcs_token`           | OAuth2 token to use for GCS authentication.                                                                                                                                                    |
 | `iceberg_gcs_service_path`    | Custom endpoint URL for GCS (for emulators or custom endpoints).                                                                                                                               |
 | `iceberg_gcs_no_auth`         | Set to `true` to allow anonymous access to GCS (for public buckets).                                                                                                                           |
-| `iceberg_metadata_path`        | The Iceberg metadata file to read the table from, as a path relative to the table root in `from` (for example, `/metadata/00003-8f2c.metadata.json`) or as a full URL. When set, the table is read from exactly this file, without a catalog, and is read-only. Applies only when `from` is a `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` table root. See [Read a table from a metadata file](#read-a-table-from-a-metadata-file). |
+| `iceberg_metadata_path`        | The Iceberg metadata file to read the table from, as a path relative to the table root in `from` (for example, `/metadata/00003-8f2c.metadata.json`) or as a full URL. When set, the table is read from exactly this file. A version hint file, such as `/metadata/version-hint.text`, is read on every query instead and names the metadata file to read. Applies only when `from` is a `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` table root. See [Pin a metadata file](#pin-a-metadata-file). |
 | `metadata_path`                | Deprecated. Use `iceberg_metadata_path`. Still accepted with its earlier meaning: the value is used as given, so it must be the full path to the metadata file, and a deprecation warning is logged. |
 
 ## Authentication
@@ -243,9 +243,51 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 | `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
-## Read a table from a metadata file
+## Read a table without a catalog
 
-An Iceberg table on object storage or the local filesystem can be read without a catalog by pinning the metadata file to read. Set `from` to the table root, under `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://`, and set `iceberg_metadata_path` to the metadata file:
+An Iceberg table on object storage or the local filesystem can be read without a catalog. Set `from` to the table root, the directory that contains `metadata/`:
+
+```yaml
+datasets:
+  - from: iceberg:s3://my-bucket/warehouse/db/taxis
+    name: taxis
+    params:
+      iceberg_s3_region: us-east-1
+```
+
+The table's schema, snapshots, and data files are read from its Iceberg metadata, so no catalog service is contacted. This reads tables that have no `version-hint.text`, such as tables written by AWS Glue, Athena, or a REST catalog. A `gcs://` location is read as `gs://`. Object-storage credentials use the same `iceberg_s3_*` and `iceberg_gcs_*` parameters as catalog-backed tables.
+
+### Find the current metadata file
+
+Spice finds the current metadata file on every query and every acceleration refresh, so new commits are read without a restart. A query answered from the [SQL results cache](../../features/caching) can return a result from before the latest commit until the cache entry expires (`item_ttl`, 1 second by default).
+
+The current metadata file is found as follows:
+
+1. If `metadata/version-hint.text` exists, Spice reads the metadata file it names. The hint holds a version number, such as `3`, or a file name without its suffix, such as `00003-8f2c`. For a version number, Spice looks for `v3` and then `3`, each with the metadata file suffixes listed below.
+2. Otherwise, Spice lists `metadata/` and reads the file with the highest version number. The version is the leading digits of the file name, compared as numbers, so `v10` is newer than `v9`. Leading zeros are padding, and the rest of the name is ignored. If two files share the highest version, the one with the greater `last-updated-ms` is read.
+
+| File name                                                   | Written by                         |
+| ----------------------------------------------------------- | ---------------------------------- |
+| `<N>-<uuid>.metadata.json`                                  | REST catalogs, AWS Glue, PyIceberg |
+| `v<N>.metadata.json`                                        | Hadoop catalogs                    |
+| `<N>-<uuid>.gz.metadata.json`, `v<N>.gz.metadata.json`      | The above, gzip-compressed         |
+| `<N>-<uuid>.metadata.json.gz`, `v<N>.metadata.json.gz`      | The above, older gzip naming       |
+
+More generally, a file is read as a metadata file when its name is an optional `v`, the version number, and optionally `-` followed by any text, ending in one of the suffixes above. Other files are ignored. When Spice finds the file by listing, it logs a warning when the dataset loads, because without a catalog a commit that is in progress or that failed can be read as the current table:
+
+```text
+Dataset 'taxis' has no 'metadata/version-hint.text', so each query reads the Iceberg table at 's3://my-bucket/warehouse/db/taxis' from the metadata file with the highest version number (now 's3://my-bucket/warehouse/db/taxis/metadata/00003-8f2c.metadata.json'). Without a catalog, a commit that is in progress or that failed can be read as the current table. To read a fixed snapshot, set `iceberg_metadata_path`. See: https://spiceai.org/docs/components/data-connectors/iceberg
+```
+
+If `from` does not point at a table root, for example `s3://my-bucket/warehouse/db/taxis/metadata`, the dataset fails to load with an error that includes:
+
+```text
+No Iceberg metadata file was found in 's3://my-bucket/warehouse/db/taxis/metadata/metadata/'. The table root must contain a 'metadata/' directory with files named 'v<N>.metadata.json' or '<N>-<uuid>.metadata.json'. Verify `from` is the table root, the directory that contains 'metadata/', or set `iceberg_metadata_path` to the metadata file to read.
+```
+
+### Pin a metadata file
+
+To read a fixed snapshot, set `iceberg_metadata_path` to the metadata file:
 
 ```yaml
 datasets:
@@ -256,16 +298,20 @@ datasets:
       iceberg_metadata_path: /metadata/00003-8f2c.metadata.json
 ```
 
-Spice reads the table from exactly that file and does not list the table's `metadata/` directory, so every load reads the same snapshot. A table root read this way does not need the `warehouse/namespace/table` layout that an unpinned Hadoop-style path uses.
+Spice reads the table from exactly that file and does not list the table's `metadata/` directory, so every query reads the same snapshot.
 
 `iceberg_metadata_path` takes one of two forms:
 
 - A path relative to the table root in `from`. The leading `/` is optional and refers to the table root, not the bucket or filesystem root. A path that contains any `..` segment is refused, even one such as `metadata/archive/../v1.metadata.json` that stays inside the table root.
 - A full URL, such as `s3://my-bucket/other/location/metadata/00003-8f2c.metadata.json`, which is used as given and does not need to be under `from`.
 
-A `gcs://` location is read as `gs://`. If `from` names the metadata file itself instead of the table root, the dataset fails to load. When the file sits in a `metadata/` directory, the error gives the exact `from` and `iceberg_metadata_path` values to use; otherwise it asks for `from` to be set to the table's root directory and `iceberg_metadata_path` to the file relative to that root. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
+`iceberg_metadata_path` can also name a version hint file, such as `/metadata/version-hint.text`. The hint is read on every query and names the metadata file to read from the same directory, as described in [Find the current metadata file](#find-the-current-metadata-file). This matches DuckDB's `version => 'version-hint.text'`.
 
-A table read from a pinned metadata file has no catalog to commit writes to, so it is read-only. When `from` is an object-storage or local-filesystem table root, a dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
+If `from` names the metadata file itself instead of the table root, the dataset fails to load. When the file sits in a `metadata/` directory, the error gives the exact `from` and `iceberg_metadata_path` values to use; otherwise it asks for `from` to be set to the table's root directory and `iceberg_metadata_path` to the file relative to that root. When `from` is a REST catalog URL, `iceberg_metadata_path` has no effect and Spice logs a warning.
+
+### Read-only access
+
+A table read without a catalog has no catalog to commit writes to, so it is read-only. With `access: read_write`, a dataset that sets `iceberg_metadata_path` (or `metadata_path`) fails to load, and a dataset without it loads but rejects each `INSERT INTO`. The load error is:
 
 ```text
 An Iceberg table read from its metadata file (`iceberg_metadata_path`) has no catalog to commit to, so it is read-only. Remove `access: read_write`, keep writes in the acceleration with `acceleration.write_mode: acceleration`, or read the table through an Iceberg catalog to write to it. See: https://spiceai.org/docs/components/data-connectors/iceberg
@@ -302,7 +348,7 @@ INSERT INTO my_table
 SELECT * FROM source_table;
 ```
 
-Inserting into partitioned Iceberg tables is supported. `UPDATE` operations are not currently supported. A table read from a pinned metadata file is read-only; see [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+Inserting into partitioned Iceberg tables is supported. `UPDATE` operations are not currently supported. A table read without a catalog is read-only; see [Read-only access](#read-only-access).
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. When the catalog is AWS Glue, writes also require `glue:UpdateTable` permission to commit the new table snapshot. For more details, see [Data Ingestion](../../features/data-ingestion).
 
@@ -452,9 +498,23 @@ datasets:
     name: s3_hadoop
 ```
 
+### Table Without a Catalog Example
+
+Read an Iceberg table from S3 without a catalog. See [Read a table without a catalog](#read-a-table-without-a-catalog).
+
+```yaml
+datasets:
+  - from: iceberg:s3://my-bucket/warehouse/db/taxis
+    name: taxis
+    params:
+      iceberg_s3_region: us-east-1
+      iceberg_s3_access_key_id: ${secrets:aws_access_key_id}
+      iceberg_s3_secret_access_key: ${secrets:aws_secret_access_key}
+```
+
 ### Pinned Metadata File Example
 
-Read a local Iceberg table from a pinned metadata file, without a catalog. The dataset is read-only. See [Read a table from a metadata file](#read-a-table-from-a-metadata-file).
+Read a local Iceberg table from a pinned metadata file. Every query reads the same snapshot. See [Pin a metadata file](#pin-a-metadata-file).
 
 ```yaml
 datasets:
@@ -462,6 +522,16 @@ datasets:
     name: local_pinned
     params:
       iceberg_metadata_path: /metadata/v1.metadata.json
+```
+
+Follow the table's version hint instead of listing `metadata/`:
+
+```yaml
+datasets:
+  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
+    name: local_hint
+    params:
+      iceberg_metadata_path: /metadata/version-hint.text
 ```
 
 ## Cookbook
@@ -481,3 +551,9 @@ When querying Iceberg tables, performance depends on the size of the table, the 
 The connector needs to access both the Iceberg catalog metadata and the underlying data files (typically stored in S3 or a compatible object store). Ensure proper network connectivity and authentication for both systems.
 
 :::
+
+Tables read without a catalog have these additional limitations:
+
+- **Concurrent writers.** Without `iceberg_metadata_path` or a `version-hint.text`, a writer that failed or lost a commit race can leave a metadata file with the highest version, and Spice may read it. Read such tables through their catalog, for AWS Glue the [AWS Glue Data Connector](./glue), or pin a metadata file.
+- **Listing cost.** Each query on a table without `iceberg_metadata_path` or a `version-hint.text` lists `metadata/`, so query latency grows with the number of objects in that directory. For large or frequently written tables, pin a metadata file or read through the catalog.
+- **Moved tables.** Iceberg metadata stores absolute file paths, so a copied or moved table still reads its files from the original location.
