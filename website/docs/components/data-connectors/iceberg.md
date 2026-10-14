@@ -311,16 +311,10 @@ If `from` names the metadata file itself instead of the table root, the dataset 
 
 ### Read-only access
 
-A table read without a catalog has no catalog to commit writes to, so it is read-only. A dataset that sets `iceberg_metadata_path` (or `metadata_path`) together with `access: read_write` fails to load with this error:
+A table read without a catalog has no catalog to commit writes to, so it is read-only. With `access: read_write`, a dataset that sets `iceberg_metadata_path` (or `metadata_path`) fails to load, and a dataset without it loads but rejects each `INSERT INTO`. The load error is:
 
 ```text
 An Iceberg table read from its metadata file (`iceberg_metadata_path`) has no catalog to commit to, so it is read-only. Remove `access: read_write`, keep writes in the acceleration with `acceleration.write_mode: acceleration`, or read the table through an Iceberg catalog to write to it. See: https://spiceai.org/docs/components/data-connectors/iceberg
-```
-
-Without `iceberg_metadata_path`, the dataset loads, and each `INSERT INTO` fails with this error:
-
-```text
-Iceberg table 'public.taxis' is read directly from its metadata file without a catalog, so it is read-only. Writes require a catalog.
 ```
 
 Writes kept in the acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets#accelerationwrite_mode) never reach the table and are still accepted.
