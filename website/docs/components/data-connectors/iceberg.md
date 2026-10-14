@@ -56,22 +56,20 @@ datasets:
 
 To read a table without a catalog, set `from` to the table root, the directory that contains `metadata/`, under the `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` scheme. The table root needs no particular directory layout. See [Read a table without a catalog](#read-a-table-without-a-catalog).
 
-Example (S3, no catalog):
+Example (Hadoop Catalog, local):
 
 ```yaml
 datasets:
-  - from: iceberg:s3://my-bucket/warehouse/db/taxis
-    name: taxis
-    params:
-      iceberg_s3_region: us-east-1
+  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
+    name: local_hadoop
 ```
 
-Example (local filesystem, no catalog):
+Example (Hadoop Catalog, S3):
 
 ```yaml
 datasets:
-  - from: iceberg:file:///tmp/warehouse/db/taxis
-    name: local_taxis
+  - from: iceberg:s3a://my-bucket/hadoop_warehouse/test/my_table_2
+    name: s3_hadoop
 ```
 
 ### `name`
@@ -480,6 +478,24 @@ datasets:
       iceberg_s3_secret_access_key: ${secrets:aws_secret_access_key}
 ```
 
+### Hadoop Catalog Example
+
+Connect to an Iceberg table using Hadoop Catalog with a local warehouse:
+
+```yaml
+datasets:
+  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
+    name: local_hadoop
+```
+
+Connect to an Iceberg table using Hadoop Catalog with S3:
+
+```yaml
+datasets:
+  - from: iceberg:s3a://my-bucket/hadoop_warehouse/test/my_table_2
+    name: s3_hadoop
+```
+
 ### Table Without a Catalog Example
 
 Read an Iceberg table from S3 without a catalog. Each query reads the latest commit. See [Read a table without a catalog](#read-a-table-without-a-catalog).
@@ -492,14 +508,6 @@ datasets:
       iceberg_s3_region: us-east-1
       iceberg_s3_access_key_id: ${secrets:aws_access_key_id}
       iceberg_s3_secret_access_key: ${secrets:aws_secret_access_key}
-```
-
-Read a Hadoop-style table from a local warehouse:
-
-```yaml
-datasets:
-  - from: iceberg:file:///tmp/hadoop_warehouse/test/my_table_1
-    name: local_hadoop
 ```
 
 ### Pinned Metadata File Example
@@ -546,5 +554,4 @@ Tables read without a catalog have these additional limitations:
 
 - **Concurrent writers.** Without `iceberg_metadata_path` or a `version-hint.text`, a writer that failed or lost a commit race can leave a metadata file with the highest version, and Spice may read it. Read such tables through their catalog, for AWS Glue the [AWS Glue Data Connector](./glue), or pin a metadata file.
 - **Listing cost.** Each query on a table without `iceberg_metadata_path` or a `version-hint.text` lists `metadata/`, so query latency grows with the number of objects in that directory. For large or frequently written tables, pin a metadata file or read through the catalog.
-- **Schema changes.** The schema is fixed when the dataset loads. New commits are read on every query, but an added column stays hidden until the dataset reloads, and a renamed or dropped column causes queries to fail.
 - **Moved tables.** Iceberg metadata stores absolute file paths, so a copied or moved table still reads its files from the original location.
