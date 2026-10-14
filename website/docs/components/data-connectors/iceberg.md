@@ -18,9 +18,9 @@ Iceberg tables can be read in several ways:
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
 - **Without a catalog**: Reads a table directly from its root directory on object storage or the local filesystem (`file://`, `s3://`, `s3a://`, `gs://`, `gcs://`). This works for tables written by any Iceberg writer, including Hadoop-style catalogs, AWS Glue, Athena, and REST catalogs.
 
-:::warning[Tables with concurrent writers]
+:::warning[Reading without a catalog]
 
-Without a catalog, Spice finds the current metadata file from the table's files, and can read a commit that is in progress or that failed. For tables with concurrent writers, read through a catalog or pin a metadata file with `iceberg_metadata_path`.
+For production and cloud environments, REST and AWS Glue catalogs are recommended. Without a catalog, Spice finds the current metadata file from the table's files, and can read a commit that is in progress or that failed. For tables with concurrent writers, read through a catalog or pin a metadata file with `iceberg_metadata_path`.
 
 :::
 
