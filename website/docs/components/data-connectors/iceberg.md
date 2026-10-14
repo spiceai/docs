@@ -259,7 +259,9 @@ The table's schema, snapshots, and data files are read from its Iceberg metadata
 
 ### Find the current metadata file
 
-Spice finds the current metadata file on every query and every acceleration refresh, so new commits are read without a restart:
+Spice finds the current metadata file on every query and every acceleration refresh, so new commits are read without a restart. A query answered from the [SQL results cache](../../features/caching) can return a result from before the latest commit until the cache entry expires (`item_ttl`, 1 second by default).
+
+The current metadata file is found as follows:
 
 1. If `metadata/version-hint.text` exists, Spice reads the metadata file it names. The hint holds a version number, such as `3`, or a file name without its suffix, such as `00003-8f2c`. For a version number, Spice looks for `v3` and then `3`, each with the metadata file suffixes listed below.
 2. Otherwise, Spice lists `metadata/` and reads the file with the highest version number. The version is the leading digits of the file name, compared as numbers, so `v10` is newer than `v9`. Leading zeros are padding, and the rest of the name is ignored. If two files share the highest version, the one with the greater `last-updated-ms` is read.
@@ -271,7 +273,7 @@ Spice finds the current metadata file on every query and every acceleration refr
 | `<N>-<uuid>.gz.metadata.json`, `v<N>.gz.metadata.json`      | The above, gzip-compressed         |
 | `<N>-<uuid>.metadata.json.gz`, `v<N>.metadata.json.gz`      | The above, older gzip naming       |
 
-Files with any other name are ignored. When Spice finds the file by listing, it logs a warning when the dataset loads, because without a catalog a commit that is in progress or that failed can be read as the current table:
+More generally, a file is read as a metadata file when its name is an optional `v`, the version number, and optionally `-` followed by any text, ending in one of the suffixes above. Other files are ignored. When Spice finds the file by listing, it logs a warning when the dataset loads, because without a catalog a commit that is in progress or that failed can be read as the current table:
 
 ```text
 Dataset 'taxis' has no 'metadata/version-hint.text', so each query reads the Iceberg table at 's3://my-bucket/warehouse/db/taxis' from the metadata file with the highest version number (now 's3://my-bucket/warehouse/db/taxis/metadata/00003-8f2c.metadata.json'). Without a catalog, a commit that is in progress or that failed can be read as the current table. To read a fixed snapshot, set `iceberg_metadata_path`. See: https://spiceai.org/docs/components/data-connectors/iceberg
@@ -498,7 +500,7 @@ datasets:
 
 ### Table Without a Catalog Example
 
-Read an Iceberg table from S3 without a catalog. Each query reads the latest commit. See [Read a table without a catalog](#read-a-table-without-a-catalog).
+Read an Iceberg table from S3 without a catalog. See [Read a table without a catalog](#read-a-table-without-a-catalog).
 
 ```yaml
 datasets:
