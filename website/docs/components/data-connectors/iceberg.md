@@ -16,7 +16,7 @@ Iceberg tables can be read in several ways:
 
 - **Iceberg REST Catalog**: The most common and recommended approach. REST Catalogs expose Iceberg tables over HTTP(S) endpoints and are compatible with most managed Iceberg services and cloud providers.
 - **AWS Glue Catalog**: Integrates with AWS Glue as a catalog provider, supporting Iceberg tables stored in S3. This is the preferred method for AWS environments.
-- **Without a catalog**: Reads a table directly from its root directory on object storage or the local filesystem (`file://`, `s3://`, `s3a://`, `gs://`, `gcs://`). This works for tables written by any Iceberg writer, including Hadoop-style catalogs, AWS Glue, Athena, and REST catalogs.
+- **Hadoop-style Catalogs or no catalog**: Reads a table directly from its root directory on object storage or the local filesystem (`file://`, `s3://`, `s3a://`, `gs://`, `gcs://`). This works for Hadoop-style tables and for tables written by other catalogs, such as AWS Glue, Athena, and REST catalogs.
 
 :::warning[Reading without a catalog]
 
