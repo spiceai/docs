@@ -113,7 +113,7 @@ datasets:
       snapshots: enabled
 ```
 
-This Spicepod publishes the `orders` snapshots under `s3://my-bucket/spice/snapshots/`, next to the other [runtime state folders](../../reference/spicepod/runtime#runtime-state-layout), in the same layout as any other snapshot location.
+This fragment omits the PostgreSQL connection settings that the `orders` dataset needs; see the [PostgreSQL connector `params`](../../components/data-connectors/postgres/index.md#params). With them, this Spicepod publishes the `orders` snapshots under `s3://my-bucket/spice/snapshots/`, next to the other [runtime state folders](../../reference/spicepod/runtime#runtime-state-layout), in the same layout as any other snapshot location.
 
 `snapshots.location`, when set, takes precedence over `runtime.state`. The snapshot location then uses `snapshots.params` alone. For a location taken from `runtime.state`, the snapshots use `runtime.state.params`, unless `snapshots.params` is set, which replaces them as a whole. A `snapshots` section without a `location` still sets `enabled`, `bootstrap_on_failure_behavior`, and `params`, so `snapshots.enabled: false` turns snapshots off for every dataset.
 
