@@ -1112,12 +1112,13 @@ The following features store their state under `runtime.state` when their own se
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
 | [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
 | [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 
 ### Runtime state layout
 
-Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, and SQL results cache warmup under `results-cache/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
+Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, SQL results cache warmup under `results-cache/`, and acceleration snapshots under `snapshots/`. The [startup check](#startup-check-of-the-state-location) keeps its files under `_spice/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
 
 A location set in a feature's own section is used as given, without a feature folder. With `runtime.scheduler.state_location`, the scheduler writes `cluster.json` and its other state at the root of that location. For an `abfs://` or `abfss://` `state_location`, that root is the container root, and the URL's path is ignored.
 
@@ -1139,9 +1140,25 @@ To keep the scheduler's previous layout instead of moving its objects, set `runt
 
 :::
 
+### Startup check of the state location
+
+Each instance with `runtime.state` checks the location when it starts. The check reads `_spice/format.json`, which records the version of the state format, and probes whether the store enforces conditional writes by creating, updating, and deleting a `.spice-conditional-write-probe-<id>` object under `_spice/`. When `format.json` does not exist yet, the instance creates it with `{"format-version": 1}`. The instance therefore needs read and write access to the location, even when no enabled feature keeps state there.
+
+Until the check passes, the instance does not report ready, and the cluster scheduler, HTTP rate control, and SQL results cache warmup wait to write their state. Reads do not wait. With [`ready_state: on_registration`](#runtimeready_state), readiness does not wait for the check. Acceleration snapshots are not held back by the check: they keep their own [probe before the first publish](../../features/data-acceleration/snapshots#conditional-writes-on-the-snapshot-location).
+
+When the check cannot finish, for example because the bucket does not exist, the credentials cannot write, or `runtime.state.params` are rejected, Spice logs a warning with the cause and retries with backoff and no retry limit. Fixing the bucket or its permissions lets the instance become ready without a restart. When the check passes, Spice logs the location and the features that keep state in it.
+
+Spice stops at startup and exits with an error in these cases:
+
+- The store does not support conditional writes, or accepts a write whose condition does not hold. Instances that share such a store could overwrite each other's state. Amazon S3, Azure Blob Storage and ADLS Gen2, Google Cloud Storage, and a local `file://` directory enforce conditional writes. An S3-compatible store must honor `If-None-Match` and `If-Match` on `PUT`.
+- `_spice/format.json` records a newer format version than this version of Spice supports, because a newer version of Spice wrote to the location. Upgrade Spice.
+- `_spice/format.json` is not valid.
+
+v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
+
 ### State location parameters
 
-These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) is configured separately, under `snapshots.params`.
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) set with `snapshots.location` takes its parameters from `snapshots.params`. Snapshots stored under `runtime.state` use `runtime.state.params`, unless `snapshots.params` is set, which replaces them.
 
 An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
 
@@ -1161,4 +1178,4 @@ runtime:
       gcs_service_account_key: ${ secrets:GCS_SERVICE_ACCOUNT_JSON }
 ```
 
-When a location's `params` are rejected, Spice logs the error and the feature runs without that location. The [cluster scheduler](#runtimescheduler) does not initialize its shared state, and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) stores its query plans on the local disk instead.
+When a location's `params` are rejected, Spice logs the error and the feature runs without that location. The [cluster scheduler](#runtimescheduler) does not initialize its shared state, and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) stores its query plans on the local disk instead. When `runtime.state.params` are rejected, the [startup check](#startup-check-of-the-state-location) also cannot reach the location, so the instance does not become ready. Fix the parameters and restart Spice.
