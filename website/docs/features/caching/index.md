@@ -348,10 +348,10 @@ When `stale_while_revalidate_ttl` is set to a non-zero value:
 1. Cache entries are served normally until `item_ttl` expires.
 2. After `item_ttl` expires but before `item_ttl + stale_while_revalidate_ttl` expires, the stale entry is served immediately with a `STALE` cache status.
 3. Simultaneously, a background task revalidates the cache entry. Revalidation is single-flighted per key, so concurrent requests for the same key start one query and are all served stale.
-4. Once the background revalidation completes, subsequent requests receive the fresh data with a `HIT` cache status.
+4. Once the background revalidation stores its result, subsequent requests receive the new data. The replacement's age counts from when the revalidation query started, so it returns `HIT` while that age is within `item_ttl`. A revalidation that runs longer than `item_ttl` stores a result that is already stale, and one that runs longer than `item_ttl + stale_while_revalidate_ttl` is discarded.
 5. After `item_ttl + stale_while_revalidate_ttl` expires, the entry is no longer served and the next request results in a `MISS`.
 
-If a revalidation fails, the previous result keeps being served until `item_ttl + stale_while_revalidate_ttl`, then becomes a miss. `results_cache_swr_revalidations` reports the failure.
+If a revalidation fails or its result is discarded, the previous result keeps being served until `item_ttl + stale_while_revalidate_ttl`, then becomes a miss. `results_cache_swr_revalidations` reports the failure.
 
 #### Example Configuration
 
@@ -600,7 +600,7 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | ------------- | ------------------------------------------------------------------------------ |
 | `size`        | The cache exceeded `max_size` and reclaimed an entry.                          |
 | `expired`     | The entry outlived `item_ttl`.                                                 |
-| `invalidated` | A client write, dataset reload, or unload dropped the entries that read a table. Counted once per entry dropped. |
+| `invalidated` | An invalidation dropped the entries that read a table, counted once per entry dropped. For SQL results, only a client write, dataset reload, or unload invalidates. For search results, an accelerated refresh also invalidates. |
 
 `invalidated` is a separate label value so that client writes do not mask cache pressure: an alert on cache pressure should watch `size` and `expired`. For the SQL results cache, an accelerated refresh produces no `invalidated` evictions, because refreshes leave cached results to expire by age.
 
