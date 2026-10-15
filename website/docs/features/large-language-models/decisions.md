@@ -87,7 +87,7 @@ FROM tickets;
 
 ### Ask several questions with `ai_decide`
 
-`ai_decide` asks a set of questions in one request and returns every answer. `questions` uses the same grammar as TypeSafe's API and Databricks' `ai_decide`. Each question has a `type` of `noul` (yes or no), `choice`, or `score`, and optional `instructions`. A `choice` maps 1 to 255 non-empty labels to descriptions in `criteria` (`null` when the label says it all), and a `score` lists 2 to 10 levels in `criteria`, lowest first. No question ID or label may repeat.
+`ai_decide` asks a set of questions in one request and returns every answer. `questions` uses the same grammar as TypeSafe's API and Databricks' `ai_decide`. Each question has a `type` of `noul` (yes or no), `choice`, or `score`, and optional `instructions`. A `choice` maps 1 to 255 non-empty labels to descriptions in `criteria` (`null` when the label says it all), and a `score` lists 2 to 10 levels in `criteria`, lowest first. No question ID or label may repeat. A `choice` with a single label is answered with that label, a probability of 1, and a confidence of 1; a chat model or an OpenAI decision model returns that answer without calling the model.
 
 ```sql
 SELECT id, ai_decide(body, '{
@@ -148,7 +148,7 @@ A response looks like this:
 
 ```json
 {
-  "model": "jev-1.13.0",
+  "model": "jev",
   "answers": [
     { "type": "predicate", "name": "urgent", "probability": 0.9 },
     {
@@ -191,7 +191,7 @@ The request takes the following fields:
 - **`safety_identifier`** (optional): An end-user identifier of at most 128 characters, forwarded to OpenAI decision models.
 - **`reasoning_effort`** (optional): `none`, `minimal`, `low`, `medium`, `high`, or `xhigh`, passed to a chat model's completion request. When omitted, the model's own setting applies. This field is a Spice extension that OpenAI's Decisions API does not have. A decision model returns `400` with `code` `unsupported_parameter` for it.
 
-Answers come back in question order, each with its question's `name`, or `null` when the question has none. An answer's `type` is `predicate`, `choice`, `score`, or `refusal` when the model declined to answer. `usage` is omitted when the model did not report it.
+The response's `model` is the model name the request used, not the provider's model version. Answers come back in question order, each with its question's `name`, or `null` when the question has none. An answer's `type` is `predicate`, `choice`, `score`, or `refusal` when the model declined to answer. `usage` is omitted when the model did not report it.
 
 Any field outside OpenAI's schema, other than the `reasoning_effort` extension, returns `400`. Errors use OpenAI's envelope, `{"error": {"message", "type", "param", "code"}}`, with these status codes:
 
@@ -205,7 +205,7 @@ Any field outside OpenAI's schema, other than the `reasoning_effort` extension, 
 | `500`  | The model could not answer, for example after a malformed reply and a failed retry.                    |
 | `503`  | The model's provider is unavailable.                                                                   |
 
-Each request is recorded in [`runtime.task_history`](../../reference/task_history.md) as an `ai_decision` task.
+Each request is recorded in [`runtime.task_history`](../../reference/task_history.md) as an `ai_decision` task. A request that fails, including one refused with `400` or `404`, records an `error_message` that names the model and the cause, such as `Evaluation of model 'jev' failed: rate limited`. The exception is a body that is not a valid decision request, such as malformed JSON or an unknown field: it is refused before the task starts and records no row.
 
 ## How a chat model answers
 

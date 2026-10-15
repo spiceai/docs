@@ -630,7 +630,7 @@ When a query fails, the `error` object contains an `error_code` field:
 | Error Code                 | Description                                             |
 | -------------------------- | ------------------------------------------------------- |
 | `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable, or the scheduler running the query stopped and the query cannot be resumed (see [Scheduler Failover](#scheduler-failover)) |
-| `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
+| `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler, or the scheduler running the query stopped before saving it (see [Scheduler Failover](#scheduler-failover)) |
 | `EXECUTION_FAILED`         | The query failed during execution                       |
 | `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
 | `CANCELLED`                | The query was explicitly cancelled                      |
@@ -719,6 +719,8 @@ The object store is used for scheduler registration and discovery, and to persis
 When a scheduler state location is configured, each async query's execution graph and status are persisted to the shared object store. If the scheduler driving an async query becomes unavailable, another scheduler detects the orphaned job and resumes it to completion from the persisted execution graph — the query is re-driven rather than replanned, and consumers and executors do not need to know which scheduler is running it. Takeover is single-winner: ownership transfers via a compare-and-set on the job's metadata, and a scheduler never reclaims its own in-flight jobs.
 
 A job submitted by an authenticated principal is not resumed. The job records only an opaque owner ID, not an identity that table access and masking can be applied to, so resuming it would run the query without the submitter's permissions. Instead, the scheduler that detects the orphaned job marks it `FAILED` with the error code `SCHEDULER_UNAVAILABLE` and a message to resubmit the query. Jobs submitted without a principal are resumed.
+
+A job submitted without a principal can also be `RUNNING` before its scheduler has saved the execution graph. If that scheduler stops at this point, there is nothing to resume, so the scheduler that detects the orphaned job marks it `FAILED` with the error code `SUBMISSION_FAILED` and a message to resubmit the query.
 
 This failover applies to async queries, which require a scheduler state location. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without a scheduler state location, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
