@@ -211,9 +211,21 @@ A `refresh_mode: full` refresh — and any other whole-table overwrite — repla
 
 ## Changing `partition_by` after refresh
 
-Spice does not re-partition existing acceleration data. An Arrow acceleration lives in memory and is rebuilt from the source on every start, so a new `partition_by` takes effect on restart. A Cayenne acceleration in `mode: file` keeps its data and catalog on disk, so its stored layout must match `partition_by` when the dataset loads.
+Spice does not re-partition existing acceleration data. An Arrow acceleration lives in memory and is rebuilt from the source on every start, so a new `partition_by` takes effect on restart. A Cayenne acceleration in `mode: file` keeps its data and catalog on disk, so its stored layout must match `partition_by` when the dataset loads. A change is detected when it adds `partition_by` to unpartitioned data, removes it from partitioned data, or changes the partition column names.
 
-A file-mode Cayenne dataset fails to load when its stored data was written with a different partitioning than its current `partition_by`. This covers adding `partition_by` to unpartitioned data, removing it from partitioned data, and changing the partition column names. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
+### Rebuilt from the source with `refresh_mode: full`
+
+A file-mode Cayenne dataset with `refresh_mode: full` and `write_mode: write_through` (the default), from a source other than `sink`, is rebuilt with the new `partition_by` on the next start. Every full refresh rewrites every row from the source, so dropping the stored rows loses nothing a reload does not bring back. The runtime drops the acceleration, reloads it from the source as on a first start, and logs the change:
+
+```text
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`partition_by`: none -> ['bucket(2, id)']), so it is dropped and reloaded from the source with the new settings.
+```
+
+The rebuild happens only after the source answers a read on the schema the dataset registered with. Stored rows cannot be read under another partitioning, so while the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset fails to load with an error that says to restore the previous `partition_by` or to restart once the source can be read. See [Changing settings on an existing acceleration](../../components/data-accelerators/cayenne/index.md#changing-settings-on-an-existing-acceleration) for the other Cayenne settings that are applied on restart.
+
+### Rebuilt by hand in other refresh modes
+
+Any other file-mode Cayenne dataset, such as one with `refresh_mode: append` or `changes`, `write_mode: write_back` or `acceleration`, or a `sink` source, can hold rows a reload does not bring back, so Spice does not rebuild it. It fails to load when its stored data was written with a different partitioning than its current `partition_by`. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
 
 ```text
 Failed to load dataset <dataset> (cayenne): its acceleration data was written <stored partitioning>, but the dataset now sets <configured partition_by>. Cayenne does not re-partition existing acceleration data. To keep using the existing data, <remove or restore partition_by>. To apply the new 'partition_by' instead, stop Spice, delete the acceleration data directory '<data_dir>' and the Cayenne metastore directory '<metadata_dir>', then start Spice to reload the dataset from the source. Other Cayenne datasets that use this metastore also reload from their sources. See: https://spiceai.org/docs/features/data-acceleration/partitioning
@@ -221,7 +233,7 @@ Failed to load dataset <dataset> (cayenne): its acceleration data was written <s
 
 The stored partitioning reads `without 'partition_by'` or `partitioned by [<columns>]`, and the configured value reads `no 'partition_by'` or `'partition_by: [<expressions>]'`.
 
-The check compares partition column names, not expressions. An entry whose expression is a plain column is compared by the column name, even when it is written as a `{ name: column }` mapping. Any other expression is compared by its mapping key, or by `expr0`, `expr1`, and so on when it has none. A change that keeps these names is not detected, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, or renaming the key of a `{ name: id }` entry: the dataset loads, and its existing partitions keep the layout of the old expression. Follow the steps below for any change to a partition expression, not only for changes the error reports.
+The check compares partition column names, not expressions. An entry whose expression is a plain column is compared by the column name, even when it is written as a `{ name: column }` mapping. Any other expression is compared by its mapping key, or by `expr0`, `expr1`, and so on when it has none. A change that keeps these names is not detected, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, or renaming the key of a `{ name: id }` entry: the dataset loads, and its existing partitions keep the layout of the old expression. For a dataset that is not rebuilt automatically, follow the steps below for any change to a partition expression, not only for changes the error reports. With `refresh_mode: full`, a change that keeps these names is not detected either, so it is not rebuilt automatically.
 
 To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
 
