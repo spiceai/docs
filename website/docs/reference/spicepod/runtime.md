@@ -1011,6 +1011,8 @@ runtime:
 | `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
 
+The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
+
 ## `runtime.mcp`
 
 Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
