@@ -37,6 +37,8 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
   </TabItem>
   <TabItem value="windows" label="Windows" default>
+    To run the Spice runtime locally on Windows, use WSL 2 and follow the **macOS, Linux, and WSL** tab from the WSL terminal. The PowerShell script below installs only the native `spice` CLI, for example to use with Spice Cloud.
+
     ### PowerShell Install Script
 
     ```bash

@@ -26,7 +26,9 @@ import TabItem from '@theme/TabItem'
 
 Download the latest version of Spice, connect to a dataset in S3, and query it with SQL, in less than 5 minutes. No AI model or model provider API key is required. An optional section at the end shows how to [add an AI model and chat with the data](#add-an-ai-model) using an OpenAI, Anthropic, or xAI API key.
 
-**Step 1.** Install the Spice CLI. On Linux, Spice requires glibc 2.39 or later, such as Ubuntu 24.04+ or Debian 13+ (see [System Requirements](../reference/system_requirements.md)), and the install script requires `curl`.
+**Step 1.** Install the Spice CLI:
+
+Requires macOS 14+, Linux with glibc 2.39+ (e.g. Ubuntu 24.04+), or Windows via WSL 2, and `curl`. See [System Requirements](../reference/system_requirements.md).
 
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>
@@ -36,8 +38,6 @@ Download the latest version of Spice, connect to a dataset in S3, and query it w
     curl https://install.spiceai.org | /bin/bash
     ```
 
-    If `curl` isn't installed (common on minimal Linux images), install it first, for example with `sudo apt-get install -y curl` on Ubuntu or Debian.
-
     ### Homebrew
 
     ```bash
@@ -46,24 +46,14 @@ Download the latest version of Spice, connect to a dataset in S3, and query it w
 
   </TabItem>
   <TabItem value="windows" label="Windows" default>
-    The Spice runtime does not run natively on Windows. Use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04. In PowerShell, install it:
+    Use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04+, and run in the WSL terminal:
 
-    ```powershell
-    wsl --install -d Ubuntu-24.04
+    ```bash
+    curl https://install.spiceai.org | /bin/bash
     ```
-
-    Then open the Ubuntu 24.04 terminal and follow the **macOS, Linux, and WSL** install script steps. Run all remaining steps in the WSL terminal.
 
   </TabItem>
 </Tabs>
-
-If you used the install script, make the `spice` command available in the current terminal and in any new terminal used in later steps. Open a new terminal, or run:
-
-```bash
-export PATH="$HOME/.spice/bin:$PATH"
-```
-
-Verify the install with `spice version`. If `spice` isn't found in new terminals, add the `export` line above to `~/.bashrc` (or `~/.zshrc` for zsh).
 
 **Step 2.** Initialize a new Spice app with the `spice init` command:
 
